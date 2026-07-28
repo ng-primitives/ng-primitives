@@ -47,6 +47,14 @@ import { NgpContextMenu } from 'ng-primitives/context-menu';
         transform: scale(0.9);
       }
     }
+
+    /* Reduce motion for users who prefer reduced motion. */
+    @media (prefers-reduced-motion: reduce) {
+      :host,
+      :host[data-exit] {
+        animation-duration: 0s;
+      }
+    }
   `,
 })
 export class ContextMenu {}

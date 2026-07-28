@@ -13,9 +13,14 @@ import {
   providers: [provideMenuItemRadioGroupState()],
 })
 export class NgpMenuItemRadioGroup {
-  /** The current value of the radio group */
-  readonly value = input<string | null>(null, {
+  /** The current value of the radio group. When defined the group is controlled. */
+  readonly value = input<string | null | undefined>(undefined, {
     alias: 'ngpMenuItemRadioGroupValue',
+  });
+
+  /** The default value for uncontrolled usage */
+  readonly defaultValue = input<string | null>(null, {
+    alias: 'ngpMenuItemRadioGroupDefaultValue',
   });
 
   /** Event emitted when the value changes */
@@ -26,6 +31,7 @@ export class NgpMenuItemRadioGroup {
   constructor() {
     ngpMenuItemRadioGroup({
       value: this.value,
+      defaultValue: this.defaultValue,
       onValueChange: value => this.valueChange.emit(value),
     });
   }

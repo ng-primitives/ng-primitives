@@ -8,7 +8,7 @@ async function setup(props: { value?: Color; extra?: string } = {}) {
     `<div
         ngpColorWheel
         data-testid="wheel"
-        [ngpColorWheelValue]="value"
+        [ngpColorWheelDefaultValue]="value"
         ${props.extra ?? ''}
         (ngpColorWheelValueChange)="onChange($event)">
        <div ngpColorWheelThumb data-testid="thumb"></div>
@@ -85,5 +85,44 @@ describe('NgpColorWheel', () => {
     fireEvent.keyDown(thumb, { key: 'ArrowRight' });
     fireEvent.pointerDown(wheel, { clientX: 200, clientY: 100 });
     expect(onChange).not.toHaveBeenCalled();
+  });
+
+  describe('value binding (standalone)', () => {
+    it('one-way controlled: emits but does not move the thumb without a round-trip', async () => {
+      const onChange = vi.fn<(c: Color) => void>();
+      const { getByTestId } = await render(
+        `<div ngpColorWheel [ngpColorWheelValue]="value" (ngpColorWheelValueChange)="onChange($event)" data-testid="wheel">
+           <div ngpColorWheelThumb data-testid="thumb"></div>
+         </div>`,
+        {
+          imports: [NgpColorWheel, NgpColorWheelThumb],
+          componentProperties: { value: Color.parse('hsl(120, 100%, 50%)'), onChange },
+        },
+      );
+      const thumb = getByTestId('thumb');
+      expect(thumb).toHaveAttribute('aria-valuenow', '120');
+
+      fireEvent.keyDown(thumb, { key: 'ArrowRight' });
+
+      expect(onChange).toHaveBeenCalledTimes(1);
+      expect(thumb).toHaveAttribute('aria-valuenow', '120');
+    });
+
+    it('two-way: round-trips and moves the thumb', async () => {
+      const { getByTestId } = await render(
+        `<div ngpColorWheel [(ngpColorWheelValue)]="value" data-testid="wheel">
+           <div ngpColorWheelThumb data-testid="thumb"></div>
+         </div>`,
+        {
+          imports: [NgpColorWheel, NgpColorWheelThumb],
+          componentProperties: { value: Color.parse('hsl(120, 100%, 50%)') },
+        },
+      );
+      const thumb = getByTestId('thumb');
+      expect(thumb).toHaveAttribute('aria-valuenow', '120');
+
+      fireEvent.keyDown(thumb, { key: 'ArrowRight' });
+      expect(thumb).toHaveAttribute('aria-valuenow', '121');
+    });
   });
 });

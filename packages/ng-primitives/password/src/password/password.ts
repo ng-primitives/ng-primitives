@@ -1,6 +1,7 @@
 import { BooleanInput } from '@angular/cdk/coercion';
 import { booleanAttribute, computed, Directive, input, output, Signal } from '@angular/core';
 import { SetterOptions } from 'ng-primitives/state';
+import { coerceBooleanOrUndefined } from 'ng-primitives/utils';
 import { ngpPassword, providePasswordState } from './password-state';
 
 /**
@@ -17,7 +18,7 @@ export class NgpPassword {
    */
   readonly visible = input<boolean | undefined, BooleanInput>(undefined, {
     alias: 'ngpPasswordVisible',
-    transform: booleanAttribute,
+    transform: coerceBooleanOrUndefined,
   });
 
   /**

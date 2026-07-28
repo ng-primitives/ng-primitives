@@ -8,7 +8,7 @@ import {
 } from 'ng-primitives/dialog';
 
 @Component({
-  selector: '<%= prefix %>-dialog',
+  selector: '<% if (prefix) { %><%= prefix %>-<% } %>dialog',
   hostDirectives: [NgpDialogOverlay],
   imports: [NgpDialog, NgpDialogTitle, NgpDialogDescription],
   providers: [
@@ -106,6 +106,16 @@ import {
       100% {
         transform: translateY(-20px);
         opacity: 0;
+      }
+    }
+
+    /* Reduce motion for users who prefer reduced motion. */
+    @media (prefers-reduced-motion: reduce) {
+      :host,
+      :host[data-exit],
+      [ngpDialog],
+      [ngpDialog][data-exit] {
+        animation-duration: 0s;
       }
     }
   `,

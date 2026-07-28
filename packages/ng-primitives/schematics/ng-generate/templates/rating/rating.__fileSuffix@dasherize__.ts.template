@@ -7,7 +7,7 @@ import { injectRatingState, NgpRating, NgpRatingItem } from 'ng-primitives/ratin
 import { ChangeFn, provideValueAccessor, TouchedFn } from 'ng-primitives/utils';
 
 @Component({
-  selector: '<%= prefix %>-rating',
+  selector: '<% if (prefix) { %><%= prefix %>-<% } %>rating',
   hostDirectives: [
     {
       directive: NgpRating,
@@ -74,6 +74,13 @@ import { ChangeFn, provideValueAccessor, TouchedFn } from 'ng-primitives/utils';
       display: inline-flex;
       overflow: hidden;
       color: var(--ngp-primary);
+    }
+
+    /* Reduce motion for users who prefer reduced motion. */
+    @media (prefers-reduced-motion: reduce) {
+      .star {
+        transition-duration: 0s;
+      }
     }
   `,
   host: {

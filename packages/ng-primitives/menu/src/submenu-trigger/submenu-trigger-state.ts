@@ -17,6 +17,7 @@ import {
   NgpOverlay,
   NgpOverlayConfig,
   NgpOverlayContent,
+  NgpPlacement,
 } from 'ng-primitives/portal';
 import {
   attrBinding,
@@ -27,7 +28,6 @@ import {
   listener,
 } from 'ng-primitives/state';
 import { injectDisposables, safeTakeUntilDestroyed } from 'ng-primitives/utils';
-import { NgpMenuPlacement } from '../menu-trigger/menu-trigger';
 import { injectMenuState } from '../menu/menu-state';
 
 export interface NgpSubmenuTriggerState {
@@ -39,7 +39,7 @@ export interface NgpSubmenuTriggerState {
   /**
    * The computed placement of the menu.
    */
-  readonly placement: WritableSignal<NgpMenuPlacement>;
+  readonly placement: WritableSignal<NgpPlacement>;
 
   /**
    * Whether the menu is open.
@@ -108,7 +108,7 @@ export interface NgpSubmenuTriggerState {
    * Set the placement of the menu.
    * @param placement - The menu placement
    */
-  setPlacement(placement: NgpMenuPlacement): void;
+  setPlacement(placement: NgpPlacement): void;
 
   /**
    * Set the offset of the menu.
@@ -156,7 +156,7 @@ export interface NgpSubmenuTriggerProps<T = unknown> {
   /**
    * The placement of the menu.
    */
-  readonly placement?: Signal<NgpMenuPlacement>;
+  readonly placement?: Signal<NgpPlacement>;
   /**
    * The offset of the menu.
    */
@@ -328,7 +328,7 @@ export const [
       // closeOnEscape is false because we handle Escape in menu-state.ts to ensure
       // proper focus restoration through closeAllMenus.
       const config: NgpOverlayConfig<T> = {
-        content: menuContent,
+        content: menu,
         triggerElement: element.nativeElement,
         injector,
         container: container(),
@@ -425,7 +425,7 @@ export const [
       menu.set(newMenu);
     }
 
-    function setPlacement(newPlacement: NgpMenuPlacement): void {
+    function setPlacement(newPlacement: NgpPlacement): void {
       placement.set(newPlacement);
     }
 
@@ -456,11 +456,11 @@ export const [
     }
 
     return {
-      placement: deprecatedSetter(placement, 'setPlacement'),
-      offset: deprecatedSetter(offset, 'setOffset'),
-      disabled: deprecatedSetter(disabled, 'setDisabled'),
-      menu: deprecatedSetter(menu, 'setMenu'),
-      flip: deprecatedSetter(flip, 'setFlip'),
+      placement: deprecatedSetter(placement, 'setPlacement', setPlacement),
+      offset: deprecatedSetter(offset, 'setOffset', setOffset),
+      disabled: deprecatedSetter(disabled, 'setDisabled', setDisabled),
+      menu: deprecatedSetter(menu, 'setMenu', setMenu),
+      flip: deprecatedSetter(flip, 'setFlip', setFlip),
       open,
       openOrigin,
       show,

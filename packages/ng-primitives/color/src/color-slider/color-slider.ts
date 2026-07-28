@@ -22,8 +22,13 @@ export class NgpColorSlider {
   readonly id = input<string>(uniqueId('ngp-color-slider'));
 
   /** The color value. */
-  readonly value = input<Color>(Color.parse('#ff0000'), {
+  readonly value = input<Color | undefined>(undefined, {
     alias: 'ngpColorSliderValue',
+  });
+
+  /** The default color value for uncontrolled usage. */
+  readonly defaultValue = input<Color>(Color.parse('#ff0000'), {
+    alias: 'ngpColorSliderDefaultValue',
   });
 
   /** Emits when the value changes. */
@@ -55,6 +60,7 @@ export class NgpColorSlider {
   protected readonly state = ngpColorSlider({
     id: this.id,
     value: this.value,
+    defaultValue: this.defaultValue,
     channel: this.channel,
     colorSpace: this.colorSpace,
     orientation: this.orientation,

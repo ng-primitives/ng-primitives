@@ -22,9 +22,10 @@ describe('Slider (reusable component) — standalone', () => {
   });
 
   it('increments the value with the ArrowRight key', async () => {
+    // `value` is the controlled input, so a two-way binding round-trips the change.
     const { getByRole, fixture } = await render(
-      `<app-slider value="40" min="0" max="100" step="5"></app-slider>`,
-      { imports: [Slider] },
+      `<app-slider [(value)]="value" min="0" max="100" step="5"></app-slider>`,
+      { imports: [Slider], componentProperties: { value: 40 } },
     );
     const thumb = getByRole('slider');
 

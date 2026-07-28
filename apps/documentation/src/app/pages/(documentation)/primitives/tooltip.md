@@ -1,4 +1,5 @@
 ---
+title: Tooltip | Angular Primitives
 name: 'Tooltip'
 sourceUrl: 'https://github.com/ng-primitives/ng-primitives/tree/next/packages/ng-primitives/tooltip'
 ---
@@ -49,7 +50,8 @@ ng g ng-primitives:primitive tooltip
 - `prefix`: The prefix to apply to the generated component selector.
 - `component-suffix`: The suffix to apply to the generated component class name.
 - `file-suffix`: The suffix to apply to the generated component file name. Defaults to `component`.
-- `example-styles`: Whether to include example styles in the generated component file. Defaults to `true`.
+- `styles`: How component styles should be generated. `css` (default) includes the full example styles; `unstyled` omits them entirely so you can style the component yourself.
+- `example-styles` (deprecated): still supported for compatibility - `true` maps to `styles: css`, `false` maps to `styles: unstyled`.
 
 ## Examples
 
@@ -104,63 +106,45 @@ You can customize the shift behavior to control how the tooltip stays within the
 </button>
 ```
 
-## API Reference
+### Overflow Boundary
 
-The following directives are available to import from the `ng-primitives/tooltip` package:
+By default, the tooltip is kept within the viewport and its clipping ancestors. Pass `boundary` or `rootBoundary` to `flip` or `shift` to measure overflow against something else:
 
-### NgpTooltip
+```html
+<!-- Keep the tooltip inside a container element -->
+<div #boundary>
+  <button [ngpTooltipTrigger]="tooltip" [ngpTooltipTriggerFlip]="{boundary: boundary}">
+    Tooltip constrained to a container
+  </button>
+</div>
 
-<api-docs name="NgpTooltip"></api-docs>
+<!-- Keep the tooltip inside whatever scrolls the trigger -->
+<div style="overflow: auto">
+  <button [ngpTooltipTrigger]="tooltip" [ngpTooltipTriggerFlip]="{altBoundary: true}">
+    Tooltip constrained to the trigger's scroll container
+  </button>
+</div>
 
-<api-reference-props name="NgpTooltip"></api-reference-props>
-
-<api-reference-attributes>
-  <api-attribute name="data-enter" description="Applied when the tooltip is being added to the DOM. This can be used to trigger animations." />
-  <api-attribute name="data-exit" description="Applied when the tooltip is being removed from the DOM. This can be used to trigger animations." />
-  <api-attribute name="data-placement" description="The final rendered placement of the tooltip." />
-</api-reference-attributes>
-
-<api-reference-css-vars>
-  <api-css-var name="--ngp-tooltip-transform-origin" description="The transform origin of the tooltip for animations." />
-  <api-css-var name="--ngp-tooltip-trigger-width" description="The width of the trigger element." />
-  <api-css-var name="--ngp-tooltip-available-width" description="The available width of the tooltip before it overflows the viewport." />
-  <api-css-var name="--ngp-tooltip-available-height" description="The available height of the tooltip before it overflows the viewport." />
-</api-reference-css-vars>
-
-### NgpTooltipTrigger
-
-<api-docs name="NgpTooltipTrigger"></api-docs>
-
-<api-reference-props name="NgpTooltipTrigger"></api-reference-props>
-
-<api-reference-attributes>
-  <api-attribute name="data-open" description="Applied when the tooltip is open." />
-  <api-attribute name="data-disabled" description="Applied when the tooltip is disabled." />
-</api-reference-attributes>
-
-### NgpTooltipArrow
-
-The `NgpTooltipArrow` directive is used to add an arrow to the tooltip. It should be placed inside the tooltip content. It will receive `inset-inline-start` or `inset-block-start` styles to position the arrow based on the tooltip's placement. As a result it should be positioned absolutely within the tooltip content.
-
-The arrow can be styled conditionally based on the tooltip's final placement using the `data-placement` attribute:
-
-```css
-[ngpTooltipArrow][data-placement='top'] {
-  /* Arrow styles when tooltip is positioned on top */
-}
-
-[ngpTooltipArrow][data-placement='bottom'] {
-  /* Arrow styles when tooltip is positioned on bottom */
-}
+<!-- Measure against the whole document rather than the viewport -->
+<button [ngpTooltipTrigger]="tooltip" [ngpTooltipTriggerFlip]="{rootBoundary: 'document'}">
+  Tooltip that does not flip while off-screen
+</button>
 ```
 
-<api-docs name="NgpTooltipArrow"></api-docs>
+`altBoundary` measures against the trigger's clipping ancestors rather than the tooltip's. The tooltip is portalled to the body, so its own clipping ancestors are effectively the viewport - set this when the trigger sits in a scroll container. It applies only while `boundary` is left at its default; an explicit boundary always wins.
 
-<api-reference-props name="NgpTooltipArrow"></api-reference-props>
+`crossAxis` widens the axis each option checks. For `flip` it is the alignment axis, on by default - that is how `bottom-end` becomes `bottom-start` near an edge. For `shift` it is the side axis, off by default; enabling it lets the panel move along the placement direction too:
 
-<api-reference-attributes>
-  <api-attribute name="data-placement" description="The final rendered placement of the tooltip." />
-</api-reference-attributes>
+```html
+<button [ngpTooltipTrigger]="tooltip" [ngpTooltipTriggerFlip]="{crossAxis: false}">
+  Keep the alignment
+</button>
+<button [ngpTooltipTrigger]="tooltip" [ngpTooltipTriggerShift]="{crossAxis: true}">
+  Shift on both axes
+</button>
+```
+
+The `--ngp-tooltip-available-width` and `--ngp-tooltip-available-height` custom properties are measured against the flip boundary, or the shift boundary when flip does not set one.
 
 ## Using Text Content as Tooltip
 
@@ -232,6 +216,64 @@ Use `ngpTooltipTriggerHoverableContent` to control whether hovering tooltip cont
 ```
 
 If tooltip content needs to be interactive or focusable, use [`Popover`](/primitives/popover) instead.
+
+## API Reference
+
+The following directives are available to import from the `ng-primitives/tooltip` package:
+
+### NgpTooltip
+
+<api-docs name="NgpTooltip"></api-docs>
+
+<api-reference-props name="NgpTooltip"></api-reference-props>
+
+<api-reference-attributes>
+  <api-attribute name="data-enter" description="Applied when the tooltip is being added to the DOM. This can be used to trigger animations." />
+  <api-attribute name="data-exit" description="Applied when the tooltip is being removed from the DOM. This can be used to trigger animations." />
+  <api-attribute name="data-placement" description="The final rendered placement of the tooltip." />
+</api-reference-attributes>
+
+<api-reference-css-vars>
+  <api-css-var name="--ngp-tooltip-transform-origin" description="The transform origin of the tooltip for animations." />
+  <api-css-var name="--ngp-tooltip-trigger-width" description="The width of the trigger element." />
+  <api-css-var name="--ngp-tooltip-available-width" description="The available width of the tooltip before it overflows the flip boundary, or the shift boundary when flip does not set one. Defaults to the viewport." />
+  <api-css-var name="--ngp-tooltip-available-height" description="The available height of the tooltip before it overflows the flip boundary, or the shift boundary when flip does not set one. Defaults to the viewport." />
+</api-reference-css-vars>
+
+### NgpTooltipTrigger
+
+<api-docs name="NgpTooltipTrigger"></api-docs>
+
+<api-reference-props name="NgpTooltipTrigger"></api-reference-props>
+
+<api-reference-attributes>
+  <api-attribute name="data-open" description="Applied when the tooltip is open." />
+  <api-attribute name="data-disabled" description="Applied when the tooltip is disabled." />
+</api-reference-attributes>
+
+### NgpTooltipArrow
+
+The `NgpTooltipArrow` directive is used to add an arrow to the tooltip. It should be placed inside the tooltip content. It will receive `inset-inline-start` or `inset-block-start` styles to position the arrow based on the tooltip's placement. As a result it should be positioned absolutely within the tooltip content.
+
+The arrow can be styled conditionally based on the tooltip's final placement using the `data-placement` attribute:
+
+```css
+[ngpTooltipArrow][data-placement='top'] {
+  /* Arrow styles when tooltip is positioned on top */
+}
+
+[ngpTooltipArrow][data-placement='bottom'] {
+  /* Arrow styles when tooltip is positioned on bottom */
+}
+```
+
+<api-docs name="NgpTooltipArrow"></api-docs>
+
+<api-reference-props name="NgpTooltipArrow"></api-reference-props>
+
+<api-reference-attributes>
+  <api-attribute name="data-placement" description="The final rendered placement of the tooltip." />
+</api-reference-attributes>
 
 ## Styling
 

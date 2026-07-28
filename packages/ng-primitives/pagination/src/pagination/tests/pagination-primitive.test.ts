@@ -120,6 +120,36 @@ describe('NgpPagination', () => {
       expect(pagination).not.toHaveAttribute('data-last-page');
     });
 
+    it('should stay uncontrolled when the page binding is explicitly undefined', async () => {
+      const { getByRole } = await render(
+        `<div ngpPagination [ngpPaginationPage]="page" [ngpPaginationDefaultPage]="3" [ngpPaginationPageCount]="5">
+          <button data-testid="page-2" ngpPaginationButton ngpPaginationButtonPage="2">2</button>
+        </div>`,
+        {
+          imports: [NgpPagination, NgpPaginationButton],
+          componentProperties: { page: undefined },
+        },
+      );
+
+      // an explicit `undefined` must not coerce to NaN — it stays uncontrolled at the default page
+      expect(getByRole('navigation')).toHaveAttribute('data-page', '3');
+    });
+
+    it('should fall back to the declared default page when defaultPage is explicitly undefined', async () => {
+      const { getByRole } = await render(
+        `<div ngpPagination [ngpPaginationDefaultPage]="page" [ngpPaginationPageCount]="5">
+          <button data-testid="page-2" ngpPaginationButton ngpPaginationButtonPage="2">2</button>
+        </div>`,
+        {
+          imports: [NgpPagination, NgpPaginationButton],
+          componentProperties: { page: undefined },
+        },
+      );
+
+      // a bound-undefined default must resolve to the declared default (1), not NaN
+      expect(getByRole('navigation')).toHaveAttribute('data-page', '1');
+    });
+
     it('should mark the active page button with data-selected and aria-current', async () => {
       const { getByTestId, fixture } = await render(
         `<div ngpPagination [ngpPaginationPage]="2" [ngpPaginationPageCount]="3">

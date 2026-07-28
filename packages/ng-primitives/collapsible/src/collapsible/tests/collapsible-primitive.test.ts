@@ -53,6 +53,21 @@ describe('NgpCollapsible', () => {
     expect(fixture.getByTestId('trigger')).toHaveAttribute('aria-expanded', 'true');
   });
 
+  it('should stay uncontrolled when the open binding is explicitly undefined', async () => {
+    const fixture = await render(
+      `<div data-testid="root" ngpCollapsible [ngpCollapsibleOpen]="open" ngpCollapsibleDefaultOpen>
+        <button data-testid="trigger" ngpCollapsibleTrigger>Toggle</button>
+        <div ngpCollapsibleContent>Content</div>
+      </div>`,
+      { imports, componentProperties: { open: undefined } },
+    );
+    // an explicit `undefined` must not coerce to `false` — it stays uncontrolled at the default
+    expect(fixture.getByTestId('root')).toHaveAttribute('data-open');
+
+    fireEvent.click(fixture.getByTestId('trigger'));
+    expect(fixture.getByTestId('root')).not.toHaveAttribute('data-open');
+  });
+
   describe('trigger', () => {
     it('should set type="button" on a button host', async () => {
       const fixture = await renderTemplate();

@@ -33,6 +33,13 @@ describe('coerceShift', () => {
     expect(coerceShift(complexShift)).toBe(complexShift);
   });
 
+  it('should pass through the overflow boundary options untouched', () => {
+    const boundary = document.createElement('div');
+    const shift = { boundary, rootBoundary: 'document' as const, crossAxis: true };
+
+    expect(coerceShift(shift)).toBe(shift);
+  });
+
   it('should handle null and undefined inputs', () => {
     expect(coerceShift(null)).toBeUndefined();
     expect(coerceShift(undefined)).toBeUndefined();

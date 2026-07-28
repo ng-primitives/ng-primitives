@@ -14,7 +14,7 @@ import { NgpInputOtp, NgpInputOtpInput, NgpInputOtpSlot } from 'ng-primitives/in
 import { ChangeFn, TouchedFn } from 'ng-primitives/utils';
 
 @Component({
-  selector: '<%= prefix %>-input-otp',
+  selector: '<% if (prefix) { %><%= prefix %>-<% } %>input-otp',
   imports: [NgpInputOtp, NgpInputOtpInput, NgpInputOtpSlot],
   providers: [
     {
@@ -113,6 +113,17 @@ import { ChangeFn, TouchedFn } from 'ng-primitives/utils';
       color: var(--ngp-text-disabled);
       border-color: var(--ngp-border-disabled);
       cursor: not-allowed;
+    }
+
+    /* Reduce motion for users who prefer reduced motion. */
+    @media (prefers-reduced-motion: reduce) {
+      .slot[data-caret]::after {
+        animation: none;
+      }
+
+      .slot {
+        transition-duration: 0s;
+      }
     }
   `,
 })

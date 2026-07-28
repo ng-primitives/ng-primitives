@@ -1,4 +1,4 @@
-import { DestroyRef, Signal, TemplateRef, inject, signal } from '@angular/core';
+import { DestroyRef, Injector, Signal, TemplateRef, inject, signal } from '@angular/core';
 import { injectElementRef } from 'ng-primitives/internal';
 import { NgpDismissGuard } from 'ng-primitives/portal';
 import { createPrimitive, emitter, listener, StateInjectionOptions } from 'ng-primitives/state';
@@ -55,6 +55,9 @@ export const [
     const elementRef = injectElementRef();
     const dialogManager = inject(NgpDialogManager);
     const destroyRef = inject(DestroyRef);
+    // Pass the trigger's injector so dialog content resolves DI from the component
+    // subtree, not the root injector. See #823.
+    const injector = inject(Injector);
 
     const closed = emitter<T>();
 
@@ -63,6 +66,7 @@ export const [
 
     function handleClick(): void {
       const dialogRef = dialogManager.open(template(), {
+        injector,
         closeOnEscape: closeOnEscape(),
         closeOnOutsideClick: closeOnOutsideClick(),
       });

@@ -1,4 +1,5 @@
 ---
+title: Password | Angular Primitives
 name: 'Password'
 sourceUrl: 'https://github.com/ng-primitives/ng-primitives/tree/next/packages/ng-primitives/password'
 ---
@@ -53,27 +54,8 @@ ng g ng-primitives:primitive password
 - `prefix`: The prefix to apply to the generated component selector.
 - `component-suffix`: The suffix to apply to the generated component class name.
 - `file-suffix`: The suffix to apply to the generated component file name. Defaults to `component`.
-- `example-styles`: Whether to include example styles in the generated component file. Defaults to `true`.
-
-## Global Configuration
-
-You can configure the default labels and announcements for all password primitives in your application by using the `providePasswordConfig` function in a providers array.
-
-```ts
-import { providePasswordConfig } from 'ng-primitives/password';
-
-bootstrapApplication(AppComponent, {
-  providers: [
-    providePasswordConfig({
-      showLabel: 'Show password',
-      hideLabel: 'Hide password',
-      shownAnnouncement: 'Your password is shown',
-      hiddenAnnouncement: 'Your password is hidden',
-      ignorePasswordManagers: false,
-    }),
-  ],
-});
-```
+- `styles`: How component styles should be generated. `css` (default) includes the full example styles; `unstyled` omits them entirely so you can style the component yourself.
+- `example-styles` (deprecated): still supported for compatibility - `true` maps to `styles: css`, `false` maps to `styles: unstyled`.
 
 ## API Reference
 
@@ -108,6 +90,26 @@ The following directives are available to import from the `ng-primitives/passwor
 <api-reference-attributes>
   <api-attribute name="data-visible" description="Applied when the password is visible." />
 </api-reference-attributes>
+
+## Global Configuration
+
+You can configure the default labels and announcements for all password primitives in your application by using the `providePasswordConfig` function in a providers array.
+
+```ts
+import { providePasswordConfig } from 'ng-primitives/password';
+
+bootstrapApplication(AppComponent, {
+  providers: [
+    providePasswordConfig({
+      showLabel: 'Show password',
+      hideLabel: 'Hide password',
+      shownAnnouncement: 'Your password is shown',
+      hiddenAnnouncement: 'Your password is hidden',
+      ignorePasswordManagers: false,
+    }),
+  ],
+});
+```
 
 ## Accessibility
 

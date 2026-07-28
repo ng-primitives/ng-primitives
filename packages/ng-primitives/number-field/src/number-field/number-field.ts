@@ -19,10 +19,20 @@ export class NgpNumberField {
   readonly id = input<string>(uniqueId('ngp-number-field'));
 
   /**
-   * The value of the number field.
+   * The value of the number field. When defined the number field is controlled.
    */
-  readonly value = input<number | null, NumberInput>(null, {
+  readonly value = input<number | null | undefined, NumberInput>(undefined, {
     alias: 'ngpNumberFieldValue',
+    transform: (v: NumberInput) =>
+      v === undefined ? undefined : v === null || v === '' ? null : numberAttribute(v),
+  });
+
+  /**
+   * The default value of the number field for uncontrolled usage.
+   * @default null
+   */
+  readonly defaultValue = input<number | null, NumberInput>(null, {
+    alias: 'ngpNumberFieldDefaultValue',
     transform: (v: NumberInput) =>
       v === null || v === undefined || v === '' ? null : numberAttribute(v),
   });
@@ -88,6 +98,7 @@ export class NgpNumberField {
   protected readonly state = ngpNumberField({
     id: this.id,
     value: this.value,
+    defaultValue: this.defaultValue,
     min: this.min,
     max: this.max,
     step: this.step,

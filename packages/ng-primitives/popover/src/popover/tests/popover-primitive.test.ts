@@ -2,12 +2,8 @@ import { Component, Directive, OnInit, signal } from '@angular/core';
 import { FormControl, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { By } from '@angular/platform-browser';
 import { fireEvent, render, waitFor } from '@testing-library/angular';
-import {
-  injectPopoverTriggerState,
-  NgpPopover,
-  type NgpPopoverPlacement,
-  NgpPopoverTrigger,
-} from 'ng-primitives/popover';
+import { injectPopoverTriggerState, NgpPopover, NgpPopoverTrigger } from 'ng-primitives/popover';
+import { NgpPlacement } from 'ng-primitives/portal';
 import { NgpTooltip, NgpTooltipTrigger, provideTooltipConfig } from 'ng-primitives/tooltip';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
@@ -528,7 +524,7 @@ describe('NgpPopover', () => {
         imports: [NgpPopoverTrigger, NgpPopover],
       })
       class PlacementTestComponent {
-        readonly placement = signal<NgpPopoverPlacement>('bottom');
+        readonly placement = signal<NgpPlacement>('bottom');
       }
 
       const { fixture, getByRole } = await render(PlacementTestComponent);
@@ -1037,6 +1033,135 @@ describe('NgpPopover', () => {
       await waitFor(() => {
         const container = document.querySelector('#popover-host');
         expect(container?.querySelector('[ngpPopover]')).toBeInTheDocument();
+      });
+    });
+  });
+  describe('dynamic content', () => {
+    const template = `
+      <button [ngpPopoverTrigger]="useFirst ? first : second">Open Popover</button>
+
+      <ng-template #first>
+        <div ngpPopover>First popover</div>
+      </ng-template>
+      <ng-template #second>
+        <div ngpPopover>Second popover</div>
+      </ng-template>
+    `;
+
+    it('should render the new template when the reference changes while closed', async () => {
+      const { fixture, getByRole } = await render(template, {
+        imports: [NgpPopoverTrigger, NgpPopover],
+        componentProperties: { useFirst: true },
+      });
+
+      const trigger = getByRole('button');
+      fireEvent.click(trigger);
+
+      await waitFor(() => {
+        expect(document.querySelector('[ngpPopover]')?.textContent?.trim()).toBe('First popover');
+      });
+
+      fireEvent.click(trigger);
+      await waitFor(() => {
+        expect(document.querySelector('[ngpPopover]')).not.toBeInTheDocument();
+      });
+
+      fixture.componentInstance.useFirst = false;
+      fixture.detectChanges();
+
+      fireEvent.click(trigger);
+
+      await waitFor(() => {
+        expect(document.querySelector('[ngpPopover]')?.textContent?.trim()).toBe('Second popover');
+      });
+    });
+
+    it('should close and report closed when the reference is cleared', async () => {
+      const openChange = vi.fn();
+      const { fixture, getByRole } = await render(
+        `
+          <button
+            [ngpPopoverTrigger]="show ? first : null"
+            (ngpPopoverTriggerOpenChange)="openChange($event)"
+          >
+            Open Popover
+          </button>
+
+          <ng-template #first>
+            <div ngpPopover>First popover</div>
+          </ng-template>
+        `,
+        {
+          imports: [NgpPopoverTrigger, NgpPopover],
+          componentProperties: { show: true, openChange },
+        },
+      );
+
+      fireEvent.click(getByRole('button'));
+
+      await waitFor(() => {
+        expect(document.querySelector('[ngpPopover]')).toBeInTheDocument();
+      });
+      openChange.mockClear();
+
+      fixture.componentInstance.show = false;
+      fixture.detectChanges();
+
+      // Nothing left to render, so the popover closes - and consumers binding
+      // [(ngpPopoverTriggerOpen)] have to see that, not silently drift open.
+      await waitFor(() => {
+        expect(document.querySelector('[ngpPopover]')).not.toBeInTheDocument();
+        expect(openChange).toHaveBeenCalledWith(false);
+      });
+    });
+
+    it('should still dismiss on outside click after the content is swapped', async () => {
+      const { fixture, getByRole } = await render(template, {
+        imports: [NgpPopoverTrigger, NgpPopover],
+        componentProperties: { useFirst: true },
+      });
+
+      fireEvent.click(getByRole('button'));
+
+      await waitFor(() => {
+        expect(document.querySelector('[ngpPopover]')).toBeInTheDocument();
+      });
+
+      fixture.componentInstance.useFirst = false;
+      fixture.detectChanges();
+
+      await waitFor(() => {
+        expect(document.querySelector('[ngpPopover]')?.textContent?.trim()).toBe('Second popover');
+      });
+
+      // The swap reuses the overlay instance, so its registry entry has to keep
+      // resolving the elements that are actually on screen.
+      fireEvent.mouseUp(document.body);
+
+      await waitFor(() => {
+        expect(document.querySelector('[ngpPopover]')).not.toBeInTheDocument();
+      });
+    });
+
+    it('should swap the visible popover when the reference changes while open', async () => {
+      const { fixture, getByRole } = await render(template, {
+        imports: [NgpPopoverTrigger, NgpPopover],
+        componentProperties: { useFirst: true },
+      });
+
+      fireEvent.click(getByRole('button'));
+
+      await waitFor(() => {
+        expect(document.querySelector('[ngpPopover]')?.textContent?.trim()).toBe('First popover');
+      });
+
+      fixture.componentInstance.useFirst = false;
+      fixture.detectChanges();
+
+      await waitFor(() => {
+        const popovers = document.querySelectorAll('[ngpPopover]');
+        expect(popovers).toHaveLength(1);
+        expect(popovers[0].textContent?.trim()).toBe('Second popover');
       });
     });
   });

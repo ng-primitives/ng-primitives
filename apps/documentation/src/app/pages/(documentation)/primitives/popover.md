@@ -1,4 +1,5 @@
 ---
+title: Popover | Angular Primitives
 name: 'Popover'
 sourceUrl: 'https://github.com/ng-primitives/ng-primitives/tree/next/packages/ng-primitives/popover'
 ---
@@ -32,6 +33,29 @@ Assemble the popover directives in your template.
 ```
 
 You can listen to the `ngpPopoverTriggerOpenChange` event to perform actions when the popover state changes. The event emits a boolean value indicating whether the popover is open or closed:
+
+## Reusable Component
+
+Create a popover component that uses the `NgpPopover` directive.
+
+<docs-snippet name="popover"></docs-snippet>
+
+## Schematics
+
+Generate a reusable popover component using the Angular CLI.
+
+```bash npm
+ng g ng-primitives:primitive popover
+```
+
+### Options
+
+- `path`: The path at which to create the component file.
+- `prefix`: The prefix to apply to the generated component selector.
+- `component-suffix`: The suffix to apply to the generated component class name.
+- `file-suffix`: The suffix to apply to the generated component file name. Defaults to `component`.
+- `styles`: How component styles should be generated. `css` (default) includes the full example styles; `unstyled` omits them entirely so you can style the component yourself.
+- `example-styles` (deprecated): still supported for compatibility - `true` maps to `styles: css`, `false` maps to `styles: unstyled`.
 
 ## Examples
 
@@ -68,29 +92,45 @@ You can customize the shift behavior to control how the popover stays within the
 </button>
 ```
 
-## Reusable Component
+### Overflow Boundary
 
-Create a popover component that uses the `NgpPopover` directive.
+By default, the popover is kept within the viewport and its clipping ancestors. Pass `boundary` or `rootBoundary` to `flip` or `shift` to measure overflow against something else:
 
-<docs-snippet name="popover"></docs-snippet>
+```html
+<!-- Keep the popover inside a container element -->
+<div #boundary>
+  <button [ngpPopoverTrigger]="popover" [ngpPopoverTriggerFlip]="{boundary: boundary}">
+    Popover constrained to a container
+  </button>
+</div>
 
-## Schematics
+<!-- Keep the popover inside whatever scrolls the trigger -->
+<div style="overflow: auto">
+  <button [ngpPopoverTrigger]="popover" [ngpPopoverTriggerFlip]="{altBoundary: true}">
+    Popover constrained to the trigger's scroll container
+  </button>
+</div>
 
-Generate a reusable tooltip component using the Angular CLI.
-
-```bash npm
-ng g ng-primitives:primitive popover
+<!-- Measure against the whole document rather than the viewport -->
+<button [ngpPopoverTrigger]="popover" [ngpPopoverTriggerFlip]="{rootBoundary: 'document'}">
+  Popover that does not flip while off-screen
+</button>
 ```
 
-### Options
+`altBoundary` measures against the trigger's clipping ancestors rather than the popover's. The popover is portalled to the body, so its own clipping ancestors are effectively the viewport - set this when the trigger sits in a scroll container. It applies only while `boundary` is left at its default; an explicit boundary always wins.
 
-- `path`: The path at which to create the component file.
-- `prefix`: The prefix to apply to the generated component selector.
-- `component-suffix`: The suffix to apply to the generated component class name.
-- `file-suffix`: The suffix to apply to the generated component file name. Defaults to `component`.
-- `example-styles`: Whether to include example styles in the generated component file. Defaults to `true`
+`crossAxis` widens the axis each option checks. For `flip` it is the alignment axis, on by default - that is how `bottom-end` becomes `bottom-start` near an edge. For `shift` it is the side axis, off by default; enabling it lets the panel move along the placement direction too:
 
-## Examples
+```html
+<button [ngpPopoverTrigger]="popover" [ngpPopoverTriggerFlip]="{crossAxis: false}">
+  Keep the alignment
+</button>
+<button [ngpPopoverTrigger]="popover" [ngpPopoverTriggerShift]="{crossAxis: true}">
+  Shift on both axes
+</button>
+```
+
+The `--ngp-popover-available-width` and `--ngp-popover-available-height` custom properties are measured against the flip boundary, or the shift boundary when flip does not set one.
 
 ### Popover with anchor
 
@@ -123,8 +163,8 @@ The following directives are available to import from the `ng-primitives/popover
 <api-reference-css-vars>
   <api-css-var name="--ngp-popover-transform-origin" description="The transform origin of the popover for animations." />
   <api-css-var name="--ngp-popover-trigger-width" description="The width of the trigger element." />
-  <api-css-var name="--ngp-popover-available-width" description="The available width of the popover before it overflows the viewport." />
-  <api-css-var name="--ngp-popover-available-height" description="The available height of the popover before it overflows the viewport." />
+  <api-css-var name="--ngp-popover-available-width" description="The available width of the popover before it overflows the flip boundary, or the shift boundary when flip does not set one. Defaults to the viewport." />
+  <api-css-var name="--ngp-popover-available-height" description="The available height of the popover before it overflows the flip boundary, or the shift boundary when flip does not set one. Defaults to the viewport." />
 </api-reference-css-vars>
 
 ### NgpPopoverTrigger

@@ -1,4 +1,5 @@
 ---
+title: Context Menu | Angular Primitives
 name: 'Context Menu'
 sourceUrl: 'https://github.com/ng-primitives/ng-primitives/tree/next/packages/ng-primitives/context-menu'
 ---

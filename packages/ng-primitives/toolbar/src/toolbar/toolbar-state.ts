@@ -51,7 +51,7 @@ export const [NgpToolbarStateToken, ngpToolbar, injectToolbarState, provideToolb
       }
 
       return {
-        orientation: deprecatedSetter(orientation, 'setOrientation'),
+        orientation: deprecatedSetter(orientation, 'setOrientation', setOrientation),
         setOrientation,
       } satisfies NgpToolbarState;
     },

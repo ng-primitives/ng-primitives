@@ -9,7 +9,7 @@ import {
 } from 'ng-primitives/meter';
 
 @Component({
-  selector: '<%= prefix %>-meter',
+  selector: '<% if (prefix) { %><%= prefix %>-<% } %>meter',
   hostDirectives: [
     { directive: NgpMeter, inputs: ['ngpMeterValue:value', 'ngpMeterMin:min', 'ngpMeterMax:max'] },
   ],
@@ -64,6 +64,13 @@ import {
       transition: width 0.2s ease-in-out;
       inset-inline-start: 0px;
       border-radius: 4px;
+    }
+
+    /* Reduce motion for users who prefer reduced motion. */
+    @media (prefers-reduced-motion: reduce) {
+      [ngpMeterIndicator] {
+        transition-duration: 0s;
+      }
     }
   `,
 })

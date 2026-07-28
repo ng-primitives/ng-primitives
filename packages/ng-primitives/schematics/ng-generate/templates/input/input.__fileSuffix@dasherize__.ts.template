@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { NgpInput } from 'ng-primitives/input';
 
 @Component({
-  selector: 'input[<%= prefix %>-input]',
+  selector: 'input[<% if (prefix) { %><%= prefix %>-<% } %>input]',
   hostDirectives: [{ directive: NgpInput, inputs: ['disabled'] }],
   template: '',
   styles: `

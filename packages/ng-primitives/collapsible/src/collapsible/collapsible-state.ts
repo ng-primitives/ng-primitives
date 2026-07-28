@@ -55,6 +55,10 @@ export interface NgpCollapsibleState {
    */
   setDisabled(value: boolean): void;
   /**
+   * Set the default open state.
+   */
+  setDefaultOpen(value: boolean): void;
+  /**
    * Register the trigger id.
    * @internal
    */
@@ -159,6 +163,7 @@ export const [
       toggle,
       setOpen,
       setDisabled,
+      setDefaultOpen: defaultOpen.set,
       setTrigger,
       setContent,
     } satisfies NgpCollapsibleState;

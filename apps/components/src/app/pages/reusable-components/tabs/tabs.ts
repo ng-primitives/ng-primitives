@@ -65,6 +65,13 @@ import { Tab } from './tab';
     [ngpTabPanel]:not([data-active]) {
       display: none;
     }
+
+    /* Reduce motion for users who prefer reduced motion. */
+    @media (prefers-reduced-motion: reduce) {
+      [ngpTabButton] {
+        transition-duration: 0s;
+      }
+    }
   `,
 })
 export class Tabs {

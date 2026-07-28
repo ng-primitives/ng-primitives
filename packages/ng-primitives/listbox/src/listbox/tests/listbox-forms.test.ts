@@ -120,6 +120,33 @@ describe('Listbox (reusable component) — reactive forms', () => {
     expect(getByRole('option', { name: 'Banana' })).toHaveAttribute('data-selected', '');
   });
 
+  it('clears the selection and does not throw when the form control is reset', async () => {
+    const formControl = new FormControl<string[]>(['apple']);
+    const { getByRole, fixture } = await render(
+      `
+      <app-listbox [formControl]="formControl" aria-label="Fruit">
+        <app-listbox-option value="apple">Apple</app-listbox-option>
+        <app-listbox-option value="banana">Banana</app-listbox-option>
+      </app-listbox>
+      `,
+      {
+        imports: [Listbox, ListboxOption, ReactiveFormsModule],
+        componentProperties: { formControl },
+      },
+    );
+
+    await fixture.whenStable();
+    expect(getByRole('option', { name: 'Apple' })).toHaveAttribute('data-selected', '');
+
+    // reset() writes `null` through the value accessor - the listbox must treat it
+    // as an empty selection rather than crashing on `null.some(...)`.
+    formControl.reset();
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    expect(getByRole('option', { name: 'Apple' })).not.toHaveAttribute('data-selected');
+  });
+
   it('reflects the disabled state from the form control', async () => {
     const formControl = new FormControl<string[]>([]);
     const { getByRole, fixture } = await render(

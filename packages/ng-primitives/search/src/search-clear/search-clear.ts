@@ -1,28 +1,17 @@
-import { Directive, HostListener } from '@angular/core';
-import { injectSearchState } from '../search/search-state';
+import { Directive } from '@angular/core';
+import { ngpSearchClear, provideSearchClearState } from './search-clear-state';
 
 /**
- * The `NgpSearchClear` directive is can be added to a button to clear the search field on click.
+ * The `NgpSearchClear` directive can be added to a button to clear the search field on click.
  */
 @Directive({
   selector: '[ngpSearchClear]',
   exportAs: 'ngpSearchClear',
-  host: {
-    '[tabindex]': '-1',
-    '[attr.data-empty]': 'search().empty() ? "" : null',
-  },
+  providers: [provideSearchClearState()],
 })
 export class NgpSearchClear {
   /**
-   * Access the Search instance.
+   * The search clear state.
    */
-  protected readonly search = injectSearchState();
-
-  /**
-   * Clear the input field.
-   */
-  @HostListener('click')
-  protected clear(): void {
-    this.search().clear();
-  }
+  private readonly state = ngpSearchClear();
 }

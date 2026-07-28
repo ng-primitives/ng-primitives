@@ -1,4 +1,5 @@
 ---
+title: File Upload | Angular Primitives
 name: 'File Upload'
 sourceUrl: 'https://github.com/ng-primitives/ng-primitives/tree/next/packages/ng-primitives/file-upload'
 ---
@@ -29,14 +30,6 @@ Assemble the file-upload directives in your template.
 ></button>
 ```
 
-## Examples
-
-### File Dropzone
-
-The file dropzone primitive allows you to create a dropzone for files. This functionality is built into the file upload primitive, but can also be used separately if you don't want to show the file upload dialog on click.
-
-<docs-example name="file-dropzone"></docs-example>
-
 ## Reusable Component
 
 Create a file upload component that uses the `NgpFileUpload` directive.
@@ -57,7 +50,16 @@ ng g ng-primitives:primitive file-upload
 - `prefix`: The prefix to apply to the generated component selector.
 - `component-suffix`: The suffix to apply to the generated component class name.
 - `file-suffix`: The suffix to apply to the generated component file name. Defaults to `component`.
-- `example-styles`: Whether to include example styles in the generated component file. Defaults to `true`.
+- `styles`: How component styles should be generated. `css` (default) includes the full example styles; `unstyled` omits them entirely so you can style the component yourself.
+- `example-styles` (deprecated): still supported for compatibility - `true` maps to `styles: css`, `false` maps to `styles: unstyled`.
+
+## Examples
+
+### File Dropzone
+
+The file dropzone primitive allows you to create a dropzone for files. This functionality is built into the file upload primitive, but can also be used separately if you don't want to show the file upload dialog on click.
+
+<docs-example name="file-dropzone"></docs-example>
 
 ## API Reference
 

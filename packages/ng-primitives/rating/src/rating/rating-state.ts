@@ -5,9 +5,10 @@ import {
   SetterOptions,
   attrBinding,
   controlled,
+  controlledState,
   createPrimitive,
   dataBinding,
-  emitter,
+  deprecatedSetter,
   listener,
 } from 'ng-primitives/state';
 import { uniqueId } from 'ng-primitives/utils';
@@ -49,6 +50,8 @@ export interface NgpRatingState {
   readonly valueChange: Observable<number>;
   /** Set the committed value (clamped to `[0, count]`). */
   setValue(value: number, options?: SetterOptions): void;
+  /** Set the default value used in uncontrolled mode. */
+  setDefaultValue(value: number): void;
   /** Set the disabled state (merged with any form control disabled state). */
   setDisabled(disabled: boolean): void;
   /**
@@ -72,8 +75,10 @@ export interface NgpRatingState {
 export interface NgpRatingProps {
   /** The id of the rating. */
   readonly id?: Signal<string>;
-  /** The committed rating value. */
-  readonly value?: Signal<number>;
+  /** The committed rating value. When defined the rating is controlled. */
+  readonly value?: Signal<number | undefined>;
+  /** The default rating value for uncontrolled usage. */
+  readonly defaultValue?: Signal<number>;
   /** The number of items. */
   readonly count?: Signal<number>;
   /** Whether half values are allowed. */
@@ -95,7 +100,8 @@ export const [NgpRatingStateToken, ngpRating, injectRatingState, provideRatingSt
     'NgpRating',
     ({
       id = signal(uniqueId('ngp-rating')),
-      value: _value = signal(0),
+      value: _value = signal<number | undefined>(undefined),
+      defaultValue: _defaultValue,
       count = signal(5),
       allowHalf = signal(false),
       disabled: _disabled = signal(false),
@@ -107,10 +113,14 @@ export const [NgpRatingStateToken, ngpRating, injectRatingState, provideRatingSt
       onValueChange,
     }: NgpRatingProps): NgpRatingState => {
       const element = injectElementRef<HTMLElement>();
-      const value = controlled(_value);
+      const defaultValue = controlled(_defaultValue, 0);
+      const [value, setValueInternal, valueChange] = controlledState<number>({
+        value: _value,
+        defaultValue,
+        onChange: onValueChange,
+      });
       const disabledInput = controlled(_disabled);
       const hovered = signal<number | null>(null);
-      const valueChange = emitter<number>();
 
       // Merge the input disabled state with the form control (NgControl) state.
       const status = ngpFormControl({ id, disabled: disabledInput });
@@ -134,11 +144,7 @@ export const [NgpRatingStateToken, ngpRating, injectRatingState, provideRatingSt
 
       function setValue(newValue: number, options?: SetterOptions): void {
         const clamped = Math.min(count(), Math.max(0, newValue));
-        value.set(clamped);
-        if (options?.emit !== false) {
-          onValueChange?.(clamped);
-          valueChange.emit(clamped);
-        }
+        setValueInternal(clamped, options);
       }
 
       function setDisabled(isDisabled: boolean): void {
@@ -235,13 +241,14 @@ export const [NgpRatingStateToken, ngpRating, injectRatingState, provideRatingSt
 
       return {
         id,
-        value,
+        value: deprecatedSetter(value, 'setValue', setValue),
         count,
         allowHalf,
         disabled,
         readonly,
-        valueChange: valueChange.asObservable(),
+        valueChange,
         setValue,
+        setDefaultValue: defaultValue.set,
         setDisabled,
         commit,
         preview,

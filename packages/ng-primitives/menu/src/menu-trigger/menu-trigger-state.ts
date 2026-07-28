@@ -18,6 +18,7 @@ import {
   NgpOverlay,
   NgpOverlayConfig,
   NgpOverlayContent,
+  NgpPlacement,
   NgpShift,
 } from 'ng-primitives/portal';
 import {
@@ -31,7 +32,6 @@ import {
 } from 'ng-primitives/state';
 import { injectDisposables } from 'ng-primitives/utils';
 import { NgpMenuTriggerType } from '../config/menu-config';
-import { NgpMenuPlacement } from './menu-trigger';
 
 export interface NgpMenuTriggerState<T = unknown> {
   /**
@@ -41,7 +41,7 @@ export interface NgpMenuTriggerState<T = unknown> {
   /**
    * The computed placement of the menu.
    */
-  readonly placement: WritableSignal<NgpMenuPlacement>;
+  readonly placement: WritableSignal<NgpPlacement>;
   /**
    * Whether the menu is open.
    */
@@ -94,7 +94,7 @@ export interface NgpMenuTriggerState<T = unknown> {
    * Set the placement of the menu.
    * @param placement - The new placement
    */
-  setPlacement(placement: NgpMenuPlacement): void;
+  setPlacement(placement: NgpPlacement): void;
 
   /**
    * Set the offset of the menu.
@@ -158,7 +158,7 @@ export interface NgpMenuTriggerProps<T = unknown> {
   /**
    * The placement of the menu.
    */
-  readonly placement?: Signal<NgpMenuPlacement>;
+  readonly placement?: Signal<NgpPlacement>;
   /**
    * The offset of the menu.
    */
@@ -216,7 +216,7 @@ export const [
   <T>({
     disabled: _disabled = signal(false),
     menu: _menu = signal<NgpOverlayContent<T> | undefined>(undefined),
-    placement: _placement = signal('bottom-start' as NgpMenuPlacement),
+    placement: _placement = signal('bottom-start' as NgpPlacement),
     offset: _offset = signal(4),
     flip: _flip = signal(true),
     shift: _shift = signal(undefined),
@@ -513,7 +513,7 @@ export const [
 
       // Create config for the overlay
       const config: NgpOverlayConfig<T> = {
-        content: menuContent,
+        content: menu,
         triggerElement: element.nativeElement,
         viewContainerRef,
         injector,
@@ -553,7 +553,7 @@ export const [
       flip.set(shouldFlip);
     }
 
-    function setPlacement(newPlacement: NgpMenuPlacement): void {
+    function setPlacement(newPlacement: NgpPlacement): void {
       placement.set(newPlacement);
     }
 
@@ -594,11 +594,11 @@ export const [
     }
 
     return {
-      menu: deprecatedSetter(menu, 'setMenu'),
-      placement: deprecatedSetter(placement, 'setPlacement'),
-      offset: deprecatedSetter(offset, 'setOffset'),
-      disabled: deprecatedSetter(disabled, 'setDisabled'),
-      context: deprecatedSetter(context, 'setContext'),
+      menu: deprecatedSetter(menu, 'setMenu', setMenu),
+      placement: deprecatedSetter(placement, 'setPlacement', setPlacement),
+      offset: deprecatedSetter(offset, 'setOffset', setOffset),
+      disabled: deprecatedSetter(disabled, 'setDisabled', setDisabled),
+      context: deprecatedSetter(context, 'setContext', setContext),
       open,
       openOrigin,
       show,

@@ -16,6 +16,7 @@ import {
   NgpFlip,
   NgpFlipInput,
   NgpOverlayContent,
+  NgpPlacement,
   coerceOffset,
   NgpOffset,
   NgpOffsetInput,
@@ -24,11 +25,7 @@ import {
   NgpShiftInput,
 } from 'ng-primitives/portal';
 import { injectPopoverConfig } from '../config/popover-config';
-import {
-  NgpPopoverPlacement,
-  ngpPopoverTrigger,
-  providePopoverTriggerState,
-} from './popover-trigger-state';
+import { ngpPopoverTrigger, providePopoverTriggerState } from './popover-trigger-state';
 
 /**
  * Apply the `ngpPopoverTrigger` directive to an element that triggers the popover to show.
@@ -64,7 +61,7 @@ export class NgpPopoverTrigger<T = null> implements OnDestroy {
    * Define the placement of the popover relative to the trigger.
    * @default 'top'
    */
-  readonly placement = input<NgpPopoverPlacement>(this.config.placement, {
+  readonly placement = input<NgpPlacement>(this.config.placement, {
     alias: 'ngpPopoverTriggerPlacement',
   });
 

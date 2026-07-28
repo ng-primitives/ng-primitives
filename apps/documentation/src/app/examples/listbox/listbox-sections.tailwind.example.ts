@@ -20,14 +20,14 @@ import {
       aria-label="Sections"
     >
       @for (section of sections; track section.name) {
-        <header
-          class="flex px-3 pt-1.5 pb-1 text-[0.6875rem] font-[590] tracking-[0.04em] text-gray-400 uppercase dark:text-zinc-500"
-          ngpListboxHeader
-        >
-          {{ section.name }}
-        </header>
-
         <div ngpListboxSection>
+          <header
+            class="flex px-3 pt-1.5 pb-1 text-[0.6875rem] font-[590] tracking-[0.04em] text-gray-400 uppercase dark:text-zinc-500"
+            ngpListboxHeader
+          >
+            {{ section.name }}
+          </header>
+
           @for (option of section.options; track option.id) {
             <div
               class="flex h-[2.125rem] w-[200px] cursor-pointer items-center gap-2 rounded-lg px-3 py-1 text-sm tracking-[-0.006em] text-gray-600 transition-colors hover:bg-gray-50 data-active:bg-gray-100 data-press:bg-gray-100 data-selected:font-[510] data-selected:text-gray-900 dark:text-gray-300 dark:hover:bg-white/5 dark:data-active:bg-white/10 dark:data-press:bg-white/10 dark:data-selected:text-gray-100"

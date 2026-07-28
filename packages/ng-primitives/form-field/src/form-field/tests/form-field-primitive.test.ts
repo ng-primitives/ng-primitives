@@ -351,7 +351,7 @@ describe('NgpFormField', () => {
       expect(input).toHaveAttribute('aria-describedby', 'hint');
     });
 
-    it('should expose aria-invalid on the control while it is invalid', async () => {
+    it('should expose aria-invalid on the control once it is invalid and touched', async () => {
       const control = new FormControl('', [Validators.required]);
       const { container, fixture } = await render(
         `<div ngpFormField>
@@ -364,9 +364,15 @@ describe('NgpFormField', () => {
       );
       const input = container.querySelector('input');
 
+      expect(input).not.toHaveAttribute('aria-invalid');
+
+      control.markAsTouched();
+      fixture.detectChanges();
+      await fixture.whenStable();
+
       expect(input).toHaveAttribute('aria-invalid', 'true');
 
-      fixture.componentInstance.control.setValue('valid');
+      control.setValue('valid');
       await fixture.whenStable();
 
       expect(input).not.toHaveAttribute('aria-invalid');

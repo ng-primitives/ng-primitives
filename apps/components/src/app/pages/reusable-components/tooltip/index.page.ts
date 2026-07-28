@@ -34,6 +34,13 @@ import { TooltipTrigger } from './tooltip-trigger';
     [ngpButton][data-press] {
       background-color: var(--ngp-background-active);
     }
+
+    /* Reduce motion for users who prefer reduced motion. */
+    @media (prefers-reduced-motion: reduce) {
+      [ngpButton] {
+        transition-duration: 0s;
+      }
+    }
   `,
 })
 export default class App {}

@@ -395,6 +395,24 @@ describe('NgpProgress', () => {
       );
       expect(container.getByTestId('progress')).not.toHaveAttribute('aria-labelledby');
     });
+
+    it('should clear aria-labelledby when the label is removed', async () => {
+      const container = await render(
+        `<div ngpProgress ngpProgressValue="50" data-testid="progress">
+          @if (showLabel) {
+            <label ngpProgressLabel id="my-label">Loading</label>
+          }
+        </div>`,
+        { imports, componentProperties: { showLabel: true } },
+      );
+      const progress = container.getByTestId('progress');
+      expect(progress).toHaveAttribute('aria-labelledby', 'my-label');
+
+      // Removing the label must not leave aria-labelledby pointing at a missing id.
+      await container.rerender({ componentProperties: { showLabel: false } });
+      container.detectChanges();
+      expect(progress).not.toHaveAttribute('aria-labelledby');
+    });
   });
 
   describe('NgpProgressValue', () => {

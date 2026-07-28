@@ -68,6 +68,13 @@ import {
       background-color: var(--ngp-background-inverse);
       transition: width 150ms cubic-bezier(0.4, 0, 0.2, 1);
     }
+
+    /* Reduce motion for users who prefer reduced motion. */
+    @media (prefers-reduced-motion: reduce) {
+      [ngpProgressIndicator] {
+        transition-duration: 0s;
+      }
+    }
   `,
 })
 export class Progress {

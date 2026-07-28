@@ -1,4 +1,4 @@
-import { Component, viewChild } from '@angular/core';
+import { Component, Type, viewChild } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { render } from '@testing-library/angular';
 import {
@@ -17,6 +17,37 @@ import { beforeEach, describe, expect, it } from 'vitest';
 })
 class TestHost {
   readonly rangePicker = viewChild.required<NgpDateRangePicker<Date>>(NgpDateRangePicker);
+}
+
+@Component({
+  template: `
+    <div [ngpDateRangePickerStartDate]="startDate" ngpDateRangePicker></div>
+  `,
+  imports: [NgpDateRangePicker],
+})
+class ControlledStartHost {
+  startDate: Date | undefined = new Date(2025, 7, 10);
+  readonly rangePicker = viewChild.required<NgpDateRangePicker<Date>>(NgpDateRangePicker);
+}
+
+@Component({
+  template: `
+    <div [ngpDateRangePickerDefaultStartDate]="defaultStartDate" ngpDateRangePicker></div>
+  `,
+  imports: [NgpDateRangePicker],
+})
+class DefaultStartHost {
+  defaultStartDate: Date | undefined = new Date(2025, 7, 10);
+  readonly rangePicker = viewChild.required<NgpDateRangePicker<Date>>(NgpDateRangePicker);
+}
+
+async function renderRangeHost<T>(component: Type<T>) {
+  // Provide the range picker state at the module level so the directive (which
+  // inherits it via skipSelf) and the test share the same state signal.
+  const view = await render(component, { providers: [provideDateRangePickerState()] });
+  await view.fixture.whenStable();
+  const state = TestBed.runInInjectionContext(() => injectDateRangePickerState<Date>());
+  return { host: view.fixture.componentInstance, state, view };
 }
 
 describe('NgpDateRangePicker', () => {
@@ -190,6 +221,45 @@ describe('NgpDateRangePicker', () => {
       expect(resultStartDate?.getSeconds()).toBe(0);
 
       expect(state().endDate()).toBeUndefined(); // End date should be cleared
+    });
+  });
+});
+
+describe('NgpDateRangePicker controlled/uncontrolled value', () => {
+  describe('controlled startDate', () => {
+    it('should reflect a controlled startDate binding', async () => {
+      const { host, state } = await renderRangeHost(ControlledStartHost);
+      expect(state().startDate()).toBe(host.startDate);
+    });
+
+    it('should keep a controlled startDate pinned when an internal reset would change it', async () => {
+      const { host, state } = await renderRangeHost(ControlledStartHost);
+      const controlled = host.startDate;
+
+      // Build a full range, then select again to hit the reset branch, which calls
+      // setStart — on a controlled start that must latch rather than move.
+      host.rangePicker().select(new Date(2025, 7, 15));
+      host.rangePicker().select(new Date(2025, 7, 20));
+
+      expect(state().startDate()).toBe(controlled);
+    });
+  });
+
+  describe('defaultStartDate (uncontrolled)', () => {
+    it('should use the default start date on init', async () => {
+      const { host, state } = await renderRangeHost(DefaultStartHost);
+      expect(state().startDate()).toBe(host.defaultStartDate);
+    });
+
+    it('should let an internal reset change the start date (uncontrolled)', async () => {
+      const { host, state } = await renderRangeHost(DefaultStartHost);
+
+      // Mirror of the controlled latch test: build a full range then select again
+      // to hit the reset branch. Uncontrolled, so setStart actually moves it.
+      host.rangePicker().select(new Date(2025, 7, 15));
+      host.rangePicker().select(new Date(2025, 7, 20));
+
+      expect(state().startDate()?.getDate()).toBe(20);
     });
   });
 });

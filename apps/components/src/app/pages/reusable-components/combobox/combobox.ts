@@ -184,6 +184,15 @@ import { ChangeFn, provideValueAccessor, TouchedFn } from 'ng-primitives/utils';
         transform: translateY(-10px) scale(0.9);
       }
     }
+
+    /* Reduce motion for users who prefer reduced motion. */
+    @media (prefers-reduced-motion: reduce) {
+      [ngpComboboxDropdown],
+      [ngpComboboxDropdown][data-enter],
+      [ngpComboboxDropdown][data-exit] {
+        animation-duration: 0s;
+      }
+    }
   `,
 })
 export class Combobox implements ControlValueAccessor {

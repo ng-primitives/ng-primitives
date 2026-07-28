@@ -166,4 +166,69 @@ describe('NgpSwitch', () => {
       expect(checkedChange).not.toHaveBeenCalled();
     });
   });
+
+  describe('controlled mode (no round-trip)', () => {
+    it('should emit checkedChange on click but not update the DOM when the parent does not update the binding', async () => {
+      const checkedChange = vi.fn();
+      const { getByRole } = await render(
+        `<button ngpSwitch [ngpSwitchChecked]="checked" (ngpSwitchCheckedChange)="checkedChange($event)"></button>`,
+        { imports: [NgpSwitch], componentProperties: { checked: false, checkedChange } },
+      );
+      const button = getByRole('switch');
+
+      // controlled to unchecked; clicking notifies via checkedChange but the
+      // parent never writes the value back, so the DOM must stay unchecked.
+      fireEvent.click(button);
+
+      expect(checkedChange).toHaveBeenCalledWith(true);
+      expect(button).toHaveAttribute('aria-checked', 'false');
+      expect(button).not.toHaveAttribute('data-checked');
+    });
+  });
+
+  describe('defaultChecked (uncontrolled)', () => {
+    it('should start checked from the default value', async () => {
+      const { getByRole } = await render(
+        `<button ngpSwitch [ngpSwitchDefaultChecked]="true"></button>`,
+        {
+          imports: [NgpSwitch],
+        },
+      );
+      expect(getByRole('switch')).toHaveAttribute('aria-checked', 'true');
+    });
+
+    it('should let a click override the default value (uncontrolled)', async () => {
+      const { getByRole } = await render(
+        `<button ngpSwitch [ngpSwitchDefaultChecked]="true"></button>`,
+        {
+          imports: [NgpSwitch],
+        },
+      );
+      const button = getByRole('switch');
+
+      fireEvent.click(button);
+      expect(button).toHaveAttribute('aria-checked', 'false');
+    });
+
+    it('should prefer a controlled value over the default value when both are provided', async () => {
+      const { getByRole } = await render(
+        `<button ngpSwitch [ngpSwitchChecked]="false" [ngpSwitchDefaultChecked]="true"></button>`,
+        { imports: [NgpSwitch] },
+      );
+      expect(getByRole('switch')).toHaveAttribute('aria-checked', 'false');
+    });
+
+    it('should stay uncontrolled when the checked binding is explicitly undefined', async () => {
+      const { getByRole } = await render(
+        `<button ngpSwitch [ngpSwitchChecked]="checked" [ngpSwitchDefaultChecked]="true"></button>`,
+        { imports: [NgpSwitch], componentProperties: { checked: undefined } },
+      );
+      const button = getByRole('switch');
+      // an explicit `undefined` must not coerce to `false` — it stays uncontrolled at the default
+      expect(button).toHaveAttribute('aria-checked', 'true');
+
+      fireEvent.click(button);
+      expect(button).toHaveAttribute('aria-checked', 'false');
+    });
+  });
 });

@@ -237,6 +237,127 @@ describe('NgpListbox', () => {
       const prevented = !fireEvent.keyDown(listbox, arrowDown);
       expect(prevented).toBe(true);
     });
+
+    it('should move the active option using typeahead', async () => {
+      const container = await render(
+        `<div ngpListbox data-testid="listbox">
+          <div ngpListboxOption ngpListboxOptionValue="a" data-testid="opt-a">Apple</div>
+          <div ngpListboxOption ngpListboxOptionValue="b" data-testid="opt-b">Banana</div>
+          <div ngpListboxOption ngpListboxOptionValue="c" data-testid="opt-c">Cherry</div>
+        </div>`,
+        { imports },
+      );
+      const listbox = container.getByTestId('listbox');
+      fireEvent.focusIn(listbox);
+      await waitFor(() => expect(container.getByTestId('opt-a')).toHaveAttribute('data-active'));
+
+      // typing the first letter of an option jumps to it (case-insensitive)
+      fireEvent.keyDown(listbox, { key: 'C' });
+      await waitFor(() => expect(container.getByTestId('opt-c')).toHaveAttribute('data-active'));
+      expect(listbox.getAttribute('aria-activedescendant')).toBe(
+        container.getByTestId('opt-c').getAttribute('id'),
+      );
+    });
+
+    it('should cycle through matches when a typeahead character is repeated', async () => {
+      const container = await render(
+        `<div ngpListbox data-testid="listbox">
+          <div ngpListboxOption ngpListboxOptionValue="a" data-testid="opt-a">Apple</div>
+          <div ngpListboxOption ngpListboxOptionValue="b" data-testid="opt-b">Apricot</div>
+          <div ngpListboxOption ngpListboxOptionValue="c" data-testid="opt-c">Banana</div>
+        </div>`,
+        { imports },
+      );
+      const listbox = container.getByTestId('listbox');
+      fireEvent.focusIn(listbox);
+      await waitFor(() => expect(container.getByTestId('opt-a')).toHaveAttribute('data-active'));
+
+      // Apple is active; pressing "a" moves to the next label starting with "a"
+      fireEvent.keyDown(listbox, { key: 'a' });
+      await waitFor(() => expect(container.getByTestId('opt-b')).toHaveAttribute('data-active'));
+
+      // repeating "a" wraps back to Apple
+      fireEvent.keyDown(listbox, { key: 'a' });
+      await waitFor(() => expect(container.getByTestId('opt-a')).toHaveAttribute('data-active'));
+    });
+
+    it('should skip disabled options during typeahead', async () => {
+      const container = await render(
+        `<div ngpListbox data-testid="listbox">
+          <div ngpListboxOption ngpListboxOptionValue="a" data-testid="opt-a">Apple</div>
+          <div ngpListboxOption ngpListboxOptionValue="b" ngpListboxOptionDisabled data-testid="opt-b">
+            Banana
+          </div>
+          <div ngpListboxOption ngpListboxOptionValue="c" data-testid="opt-c">Blueberry</div>
+        </div>`,
+        { imports },
+      );
+      const listbox = container.getByTestId('listbox');
+      fireEvent.focusIn(listbox);
+      await waitFor(() => expect(container.getByTestId('opt-a')).toHaveAttribute('data-active'));
+
+      // "b" matches disabled Banana and enabled Blueberry — the disabled one is skipped
+      fireEvent.keyDown(listbox, { key: 'b' });
+      await waitFor(() => expect(container.getByTestId('opt-c')).toHaveAttribute('data-active'));
+      expect(container.getByTestId('opt-b')).not.toHaveAttribute('data-active');
+    });
+
+    it('should not wrap past the last option with ArrowDown', async () => {
+      const container = await render(
+        `<div ngpListbox data-testid="listbox">
+          <div ngpListboxOption ngpListboxOptionValue="a" data-testid="opt-a">A</div>
+          <div ngpListboxOption ngpListboxOptionValue="b" data-testid="opt-b">B</div>
+        </div>`,
+        { imports },
+      );
+      const listbox = container.getByTestId('listbox');
+      fireEvent.focusIn(listbox);
+      fireEvent.keyDown(listbox, arrowDown);
+      await waitFor(() => expect(container.getByTestId('opt-b')).toHaveAttribute('data-active'));
+
+      // already on the last option — ArrowDown must not wrap to the first
+      fireEvent.keyDown(listbox, arrowDown);
+      await waitFor(() => expect(container.getByTestId('opt-b')).toHaveAttribute('data-active'));
+      expect(container.getByTestId('opt-a')).not.toHaveAttribute('data-active');
+    });
+
+    it('should not wrap before the first option with ArrowUp', async () => {
+      const container = await render(
+        `<div ngpListbox data-testid="listbox">
+          <div ngpListboxOption ngpListboxOptionValue="a" data-testid="opt-a">A</div>
+          <div ngpListboxOption ngpListboxOptionValue="b" data-testid="opt-b">B</div>
+        </div>`,
+        { imports },
+      );
+      const listbox = container.getByTestId('listbox');
+      fireEvent.focusIn(listbox);
+      await waitFor(() => expect(container.getByTestId('opt-a')).toHaveAttribute('data-active'));
+
+      // already on the first option — ArrowUp must not wrap to the last
+      fireEvent.keyDown(listbox, arrowUp);
+      await waitFor(() => expect(container.getByTestId('opt-a')).toHaveAttribute('data-active'));
+      expect(container.getByTestId('opt-b')).not.toHaveAttribute('data-active');
+    });
+
+    it('should make the selected option the active descendant on init', async () => {
+      const container = await render(
+        `<div [ngpListboxValue]="['b']" ngpListbox data-testid="listbox">
+          <div ngpListboxOption ngpListboxOptionValue="a" data-testid="opt-a">A</div>
+          <div ngpListboxOption ngpListboxOptionValue="b" data-testid="opt-b">B</div>
+          <div ngpListboxOption ngpListboxOptionValue="c" data-testid="opt-c">C</div>
+        </div>`,
+        { imports },
+      );
+      const listbox = container.getByTestId('listbox');
+      fireEvent.focusIn(listbox);
+
+      // the selected option (B), not the first option, becomes active
+      await waitFor(() => expect(container.getByTestId('opt-b')).toHaveAttribute('data-active'));
+      expect(listbox.getAttribute('aria-activedescendant')).toBe(
+        container.getByTestId('opt-b').getAttribute('id'),
+      );
+      expect(container.getByTestId('opt-a')).not.toHaveAttribute('data-active');
+    });
   });
 
   describe('single selection', () => {
@@ -568,6 +689,114 @@ describe('NgpListbox', () => {
       // opt-b should be selected even though the value object is a different reference
       expect(container.getByTestId('opt-b')).toHaveAttribute('data-selected');
       expect(container.getByTestId('opt-a')).not.toHaveAttribute('data-selected');
+    });
+  });
+
+  describe('controlled mode', () => {
+    it('should reflect a controlled value binding', async () => {
+      const container = await render(
+        `<div ngpListbox [ngpListboxValue]="['b']" data-testid="listbox">
+          <div ngpListboxOption ngpListboxOptionValue="a" data-testid="opt-a">A</div>
+          <div ngpListboxOption ngpListboxOptionValue="b" data-testid="opt-b">B</div>
+        </div>`,
+        { imports },
+      );
+
+      expect(container.getByTestId('opt-b')).toHaveAttribute('data-selected');
+      expect(container.getByTestId('opt-a')).not.toHaveAttribute('data-selected');
+    });
+
+    it('should update the DOM when a controlled value changes via two-way binding on click', async () => {
+      const container = await render(
+        `<div ngpListbox [(ngpListboxValue)]="value" data-testid="listbox">
+          <div ngpListboxOption ngpListboxOptionValue="a" data-testid="opt-a">A</div>
+          <div ngpListboxOption ngpListboxOptionValue="b" data-testid="opt-b">B</div>
+        </div>`,
+        { imports, componentProperties: { value: [] as string[] } },
+      );
+
+      fireEvent.click(container.getByTestId('opt-a'));
+      expect(container.getByTestId('opt-a')).toHaveAttribute('data-selected');
+
+      fireEvent.click(container.getByTestId('opt-b'));
+      expect(container.getByTestId('opt-b')).toHaveAttribute('data-selected');
+      expect(container.getByTestId('opt-a')).not.toHaveAttribute('data-selected');
+    });
+
+    it('should emit valueChange on click but not update the DOM when the parent does not update the binding', async () => {
+      const valueChange = vi.fn();
+      const container = await render(
+        `<div
+          ngpListbox
+          [ngpListboxValue]="value"
+          (ngpListboxValueChange)="valueChange($event)"
+          data-testid="listbox"
+        >
+          <div ngpListboxOption ngpListboxOptionValue="a" data-testid="opt-a">A</div>
+          <div ngpListboxOption ngpListboxOptionValue="b" data-testid="opt-b">B</div>
+        </div>`,
+        { imports, componentProperties: { value: ['a'] as string[], valueChange } },
+      );
+
+      // "a" is the controlled selection.
+      expect(container.getByTestId('opt-a')).toHaveAttribute('data-selected');
+
+      // Clicking another option notifies the consumer through valueChange, but
+      // because the parent never writes the new value back, the controlled
+      // selection must stay put — the internal value must not drift.
+      fireEvent.click(container.getByTestId('opt-b'));
+
+      expect(valueChange).toHaveBeenCalledWith(['b']);
+      expect(container.getByTestId('opt-a')).toHaveAttribute('data-selected');
+      expect(container.getByTestId('opt-b')).not.toHaveAttribute('data-selected');
+    });
+  });
+
+  describe('defaultValue (uncontrolled)', () => {
+    it('should select the default value on init', async () => {
+      const container = await render(
+        `<div ngpListbox [ngpListboxDefaultValue]="['b']" data-testid="listbox">
+          <div ngpListboxOption ngpListboxOptionValue="a" data-testid="opt-a">A</div>
+          <div ngpListboxOption ngpListboxOptionValue="b" data-testid="opt-b">B</div>
+        </div>`,
+        { imports },
+      );
+
+      expect(container.getByTestId('opt-b')).toHaveAttribute('data-selected');
+      expect(container.getByTestId('opt-a')).not.toHaveAttribute('data-selected');
+    });
+
+    it('should let a click override the default value (uncontrolled)', async () => {
+      const container = await render(
+        `<div ngpListbox [ngpListboxDefaultValue]="['b']" data-testid="listbox">
+          <div ngpListboxOption ngpListboxOptionValue="a" data-testid="opt-a">A</div>
+          <div ngpListboxOption ngpListboxOptionValue="b" data-testid="opt-b">B</div>
+        </div>`,
+        { imports },
+      );
+
+      fireEvent.click(container.getByTestId('opt-a'));
+
+      expect(container.getByTestId('opt-a')).toHaveAttribute('data-selected');
+      expect(container.getByTestId('opt-b')).not.toHaveAttribute('data-selected');
+    });
+
+    it('should prefer a controlled value over the default value when both are provided', async () => {
+      const container = await render(
+        `<div
+          ngpListbox
+          [ngpListboxValue]="['a']"
+          [ngpListboxDefaultValue]="['b']"
+          data-testid="listbox"
+        >
+          <div ngpListboxOption ngpListboxOptionValue="a" data-testid="opt-a">A</div>
+          <div ngpListboxOption ngpListboxOptionValue="b" data-testid="opt-b">B</div>
+        </div>`,
+        { imports },
+      );
+
+      expect(container.getByTestId('opt-a')).toHaveAttribute('data-selected');
+      expect(container.getByTestId('opt-b')).not.toHaveAttribute('data-selected');
     });
   });
 });

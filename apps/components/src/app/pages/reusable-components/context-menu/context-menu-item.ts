@@ -34,6 +34,13 @@ import { NgpContextMenuItem } from 'ng-primitives/context-menu';
       outline: 2px solid var(--ngp-focus-ring);
       z-index: 1;
     }
+
+    /* Reduce motion for users who prefer reduced motion. */
+    @media (prefers-reduced-motion: reduce) {
+      :host {
+        transition-duration: 0s;
+      }
+    }
   `,
 })
 export class ContextMenuItem {}

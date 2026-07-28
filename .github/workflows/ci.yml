@@ -14,8 +14,10 @@ jobs:
   main:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
+          # This job only reads the repo; nothing here runs an authenticated git command.
+          persist-credentials: false
           fetch-depth: 0
           filter: tree:0
 
@@ -23,20 +25,41 @@ jobs:
       # The "--stop-agents-after" is optional, but allows idle agents to shut down once the "build" targets have been requested
       # - run: pnpm exec nx-cloud start-ci-run --distribute-on="5 linux-medium-js" --stop-agents-after="build"
 
-      - uses: pnpm/action-setup@v2
+      # Must run before setup-node so that `cache: 'pnpm'` can resolve the store path.
+      - uses: pnpm/action-setup@v6
+
+      # Cache the pnpm store
+      - uses: actions/setup-node@v7
         with:
-          version: 10
-      # Cache node_modules
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 22
+          node-version-file: .nvmrc
           cache: 'pnpm'
       - run: pnpm install --frozen-lockfile
       - run: pnpm exec playwright install --with-deps chromium
-      - uses: nrwl/nx-set-shas@v4
+      - uses: nrwl/nx-set-shas@v5
 
       - run: pnpm exec nx format:check
+
+      # Runs unconditionally rather than through `nx affected`: a change to
+      # apps/components or to packages/tools never marks ng-primitives as affected, so
+      # these checks would otherwise never fire on the PRs that change what the templates
+      # are generated from.
+      - name: Schematic templates are in sync and compile
+        run: |
+          pnpm exec nx run ng-primitives:build:templates
+          git diff --exit-code -- packages/ng-primitives/schematics/ng-generate/templates \
+            || { echo "::error::Schematic templates are stale. Run: nx run ng-primitives:build:templates"; exit 1; }
+          pnpm exec nx run ng-primitives:test-node
+
       - run: pnpm exec nx affected -t lint,build,test
         env:
           NODE_OPTIONS: '--max-old-space-size=8192' # Increase memory to 8GB
-      - run: pnpx pkg-pr-new publish ./dist/packages/*
+      # `nx affected` only builds the packages a PR touches, so a docs- or
+      # components-only PR produces no `dist/packages/*` and `pkg-pr-new publish`
+      # would fail with "No packages". Skip the preview publish when nothing was built.
+      - name: Publish preview packages
+        run: |
+          if compgen -G "./dist/packages/*" > /dev/null; then
+            pnpx pkg-pr-new publish ./dist/packages/*
+          else
+            echo "No library packages were affected; skipping preview package publish."
+          fi

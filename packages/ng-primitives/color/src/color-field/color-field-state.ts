@@ -4,6 +4,7 @@ import { injectElementRef } from 'ng-primitives/internal';
 import {
   attrBinding,
   controlled,
+  controlledState,
   createPrimitive,
   emitter,
   listener,
@@ -37,6 +38,9 @@ export interface NgpColorFieldState {
   setValue(value: Color, options?: SetterOptions): void;
   /** Set the disabled state. */
   setDisabled(disabled: boolean): void;
+
+  /** Set the default value used in uncontrolled mode. */
+  setDefaultValue(value: Color): void;
 }
 
 /**
@@ -44,7 +48,9 @@ export interface NgpColorFieldState {
  */
 export interface NgpColorFieldProps {
   readonly id?: Signal<string>;
-  readonly value?: Signal<Color>;
+  readonly value?: Signal<Color | undefined>;
+  /** The default color value for uncontrolled usage. */
+  readonly defaultValue?: Signal<Color>;
   readonly channel?: Signal<ColorChannel | undefined>;
   readonly colorSpace?: Signal<ColorSpace | undefined>;
   readonly disabled?: Signal<boolean>;
@@ -84,7 +90,8 @@ export const [
   'NgpColorField',
   ({
     id = signal(uniqueId('ngp-color-field')),
-    value: _value = signal(Color.parse('#ff0000')),
+    value: _value = signal<Color | undefined>(undefined),
+    defaultValue: _defaultValue,
     channel = signal<ColorChannel | undefined>(undefined),
     colorSpace: _colorSpace = signal<ColorSpace | undefined>(undefined),
     disabled = signal(false),
@@ -93,7 +100,8 @@ export const [
     const element = injectElementRef<HTMLInputElement>();
     // Bind to a parent color picker when present, otherwise own the value locally.
     const picker = injectColorPickerState({ optional: true });
-    const local = controlled(_value);
+    const defaultValue = controlled(_defaultValue, Color.parse('#ff0000'));
+    const [local, setLocal] = controlledState<Color>({ value: _value, defaultValue });
     const value = computed(() => picker()?.value() ?? local());
     const valueChange = emitter<Color>();
 
@@ -145,7 +153,7 @@ export const [
       if (parent) {
         parent.setValue(newValue, options);
       } else {
-        local.set(newValue);
+        setLocal(newValue, { emit: false });
       }
       if (options?.emit !== false) {
         onValueChange?.(newValue);
@@ -232,6 +240,7 @@ export const [
       disabled: input.disabled,
       valueChange: valueChange.asObservable(),
       setValue,
+      setDefaultValue: defaultValue.set,
       setDisabled,
     } satisfies NgpColorFieldState;
   },

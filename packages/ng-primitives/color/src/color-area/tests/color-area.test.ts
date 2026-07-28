@@ -9,7 +9,7 @@ function template(extra = ''): string {
     <div
       ngpColorArea
       data-testid="area"
-      [ngpColorAreaValue]="value"
+      [ngpColorAreaDefaultValue]="value"
       ${extra}
       (ngpColorAreaValueChange)="onChange($event)">
       <div ngpColorAreaThumb data-testid="thumb"></div>
@@ -109,5 +109,38 @@ describe('NgpColorArea', () => {
     fireEvent.keyDown(thumb, { key: 'ArrowUp' });
     fireEvent.pointerDown(getByTestId('area'), { clientX: 10, clientY: 10 });
     expect(onChange).not.toHaveBeenCalled();
+  });
+
+  describe('value binding (standalone)', () => {
+    it('one-way controlled: emits but does not move the thumb without a round-trip', async () => {
+      const onChange = vi.fn<(c: Color) => void>();
+      const { getByTestId } = await render(
+        `<div ngpColorArea [ngpColorAreaValue]="value" (ngpColorAreaValueChange)="onChange($event)" data-testid="area">
+           <div ngpColorAreaThumb data-testid="thumb"></div>
+         </div>`,
+        { imports, componentProperties: { value: Color.parse('hsb(0, 50%, 50%)'), onChange } },
+      );
+      const thumb = getByTestId('thumb');
+      expect(thumb).toHaveAttribute('aria-valuenow', '50');
+
+      fireEvent.keyDown(thumb, { key: 'ArrowRight' });
+
+      expect(onChange).toHaveBeenCalledTimes(1);
+      expect(thumb).toHaveAttribute('aria-valuenow', '50');
+    });
+
+    it('two-way: round-trips and moves the thumb', async () => {
+      const { getByTestId } = await render(
+        `<div ngpColorArea [(ngpColorAreaValue)]="value" data-testid="area">
+           <div ngpColorAreaThumb data-testid="thumb"></div>
+         </div>`,
+        { imports, componentProperties: { value: Color.parse('hsb(0, 50%, 50%)') } },
+      );
+      const thumb = getByTestId('thumb');
+      expect(thumb).toHaveAttribute('aria-valuenow', '50');
+
+      fireEvent.keyDown(thumb, { key: 'ArrowRight' });
+      expect(thumb).toHaveAttribute('aria-valuenow', '51');
+    });
   });
 });

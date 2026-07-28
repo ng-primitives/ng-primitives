@@ -1,4 +1,5 @@
 ---
+title: Color Picker | Angular Primitives
 name: 'Color Picker'
 sourceUrl: 'https://github.com/ng-primitives/ng-primitives/tree/next/packages/ng-primitives/color'
 ---

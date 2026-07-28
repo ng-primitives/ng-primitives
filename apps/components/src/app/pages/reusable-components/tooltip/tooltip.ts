@@ -50,6 +50,14 @@ import { injectTooltipContext, NgpTooltip } from 'ng-primitives/tooltip';
         transform: scale(0.9);
       }
     }
+
+    /* Reduce motion for users who prefer reduced motion. */
+    @media (prefers-reduced-motion: reduce) {
+      :host[data-enter],
+      :host[data-exit] {
+        animation-duration: 0s;
+      }
+    }
   `,
 })
 export class Tooltip {

@@ -31,6 +31,13 @@ export { injectOverlayContext, provideOverlayContext } from './overlay-token';
 export { createPortal, NgpComponentPortal, NgpPortal, NgpTemplatePortal } from './portal';
 export { NgpPosition } from './position';
 export {
+  NgpBoundary,
+  NgpMiddleware,
+  NgpPlacement,
+  NgpPositioningStrategy,
+  NgpRootBoundary,
+} from './positioning';
+export {
   BlockScrollStrategy,
   CloseScrollStrategy,
   NoopScrollStrategy,

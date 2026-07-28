@@ -242,7 +242,7 @@ export const [
     return {
       select,
       deselect,
-      disabled: deprecatedSetter(disabled, 'setDisabled'),
+      disabled: deprecatedSetter(disabled, 'setDisabled', setDisabled),
       isSelected,
       toggle,
       value: deprecatedSetter(value, 'setValue', setValue),

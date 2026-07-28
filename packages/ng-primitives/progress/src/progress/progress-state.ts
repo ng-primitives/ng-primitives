@@ -101,6 +101,11 @@ export interface NgpProgressState {
   setLabel(id: string): void;
 
   /**
+   * Remove the label of the progress bar.
+   */
+  removeLabel(id: string): void;
+
+  /**
    * Set the value of the progress bar.
    * @param value The progress value
    */
@@ -191,8 +196,22 @@ export const [NgpProgressStateToken, ngpProgress, injectProgressState, providePr
 
       const labelId = signal<string | undefined>(undefined);
 
-      function setLabel(id: string) {
+      // `setLabel` only accepts a concrete id, but the label id signal permits undefined, so the
+      // deprecated setter routes through this instead of asserting the id is defined.
+      function setLabelId(id: string | undefined): void {
         labelId.set(id);
+      }
+
+      function setLabel(id: string) {
+        setLabelId(id);
+      }
+
+      function removeLabel(id: string): void {
+        // Only clear if this label is still the active one, so a newer label that has
+        // taken over isn't clobbered when an old label is torn down.
+        if (labelId() === id) {
+          setLabelId(undefined);
+        }
       }
 
       // Attribute bindings
@@ -221,16 +240,17 @@ export const [NgpProgressStateToken, ngpProgress, injectProgressState, providePr
       }
 
       return {
-        max: deprecatedSetter(max, 'setMax'),
-        min: deprecatedSetter(min, 'setMin'),
-        value: deprecatedSetter(value, 'setValue'),
-        labelId: deprecatedSetter(labelId, 'setLabel'),
+        max: deprecatedSetter(max, 'setMax', setMax),
+        min: deprecatedSetter(min, 'setMin', setMin),
+        value: deprecatedSetter(value, 'setValue', setValue),
+        labelId: deprecatedSetter(labelId, 'setLabel', setLabelId),
         valueText,
         id,
         indeterminate,
         progressing,
         complete,
         setLabel,
+        removeLabel,
         setValue,
         setMin,
         setMax,

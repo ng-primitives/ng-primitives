@@ -5,10 +5,10 @@ import { injectElementRef } from 'ng-primitives/internal';
 import {
   attrBinding,
   controlled,
+  controlledState,
   createPrimitive,
   dataBinding,
   deprecatedSetter,
-  emitter,
   listener,
   SetterOptions,
 } from 'ng-primitives/state';
@@ -44,6 +44,10 @@ export interface NgpSwitchState {
    */
   setChecked(value: boolean, options?: SetterOptions): void;
   /**
+   * Set the default checked state used in uncontrolled mode.
+   */
+  setDefaultChecked(value: boolean): void;
+  /**
    * Update the disabled value.
    */
   setDisabled(value: boolean): void;
@@ -58,9 +62,13 @@ export interface NgpSwitchProps {
    */
   readonly id?: Signal<string>;
   /**
-   * Whether the switch is checked.
+   * Whether the switch is checked. When defined the switch is controlled.
    */
-  readonly checked?: Signal<boolean>;
+  readonly checked?: Signal<boolean | undefined>;
+  /**
+   * The default checked state for uncontrolled usage.
+   */
+  readonly defaultChecked?: Signal<boolean>;
   /**
    * Whether the switch is disabled.
    */
@@ -80,14 +88,20 @@ export const [NgpSwitchStateToken, ngpSwitch, injectSwitchState, provideSwitchSt
     'NgpSwitch',
     ({
       id = signal(uniqueId('ngp-switch')),
-      checked: _checked = signal(false),
+      checked: _checked = signal<boolean | undefined>(undefined),
+      defaultChecked: _defaultChecked,
       disabled: _disabled = signal(false),
       required: _required = signal(false),
       onCheckedChange,
     }: NgpSwitchProps): NgpSwitchState => {
       const element = injectElementRef<HTMLElement>();
       const isButton = element.nativeElement.tagName.toLowerCase() === 'button';
-      const checked = controlled(_checked);
+      const defaultChecked = controlled(_defaultChecked, false);
+      const [checked, setChecked, checkedChange] = controlledState({
+        value: _checked,
+        defaultValue: defaultChecked,
+        onChange: onCheckedChange,
+      });
       const disabledInput = controlled(_disabled);
 
       // Form control and interactions
@@ -95,7 +109,6 @@ export const [NgpSwitchStateToken, ngpSwitch, injectSwitchState, provideSwitchSt
       const disabled = computed(() => status().disabled ?? disabledInput());
       ngpInteractions({ hover: true, press: true, focusVisible: true, disabled });
 
-      const checkedChange = emitter<boolean>();
       const tabindex = computed(() => (disabled() ? -1 : 0));
 
       // Host bindings
@@ -130,25 +143,18 @@ export const [NgpSwitchStateToken, ngpSwitch, injectSwitchState, provideSwitchSt
         setChecked(!checked());
       }
 
-      function setChecked(value: boolean, options?: SetterOptions): void {
-        checked.set(value);
-        if (options?.emit !== false) {
-          onCheckedChange?.(value);
-          checkedChange.emit(value);
-        }
-      }
-
       function setDisabled(value: boolean): void {
         disabledInput.set(value);
       }
 
       return {
         id,
-        checked: deprecatedSetter(checked, 'setChecked'),
-        disabled: deprecatedSetter(disabledInput, 'setDisabled'),
-        checkedChange: checkedChange.asObservable(),
+        checked: deprecatedSetter(checked, 'setChecked', setChecked),
+        disabled: deprecatedSetter(disabledInput, 'setDisabled', setDisabled),
+        checkedChange,
         toggle,
         setChecked,
+        setDefaultChecked: defaultChecked.set,
         setDisabled,
       } satisfies NgpSwitchState;
     },

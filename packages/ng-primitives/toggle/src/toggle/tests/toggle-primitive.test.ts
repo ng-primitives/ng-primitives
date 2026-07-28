@@ -103,6 +103,20 @@ describe('NgpToggle', () => {
       expect(button).toHaveAttribute('data-selected', '');
     });
 
+    it('should stay uncontrolled when the selected binding is explicitly undefined', async () => {
+      await render(
+        `<button ngpToggle [ngpToggleSelected]="selected" ngpToggleDefaultSelected>Toggle</button>`,
+        { imports: [NgpToggle], componentProperties: { selected: undefined } },
+      );
+
+      const button = screen.getByRole('button');
+      // an explicit `undefined` must not coerce to `false` — it stays uncontrolled at the default
+      expect(button).toHaveAttribute('aria-pressed', 'true');
+
+      fireEvent.click(button);
+      expect(button).toHaveAttribute('aria-pressed', 'false');
+    });
+
     it('should toggle from defaultSelected state on click', async () => {
       const spy = vi.fn();
 

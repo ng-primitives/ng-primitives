@@ -6,10 +6,10 @@ import { injectElementRef } from 'ng-primitives/internal';
 import {
   attrBinding,
   controlled,
+  controlledState,
   createPrimitive,
   dataBinding,
   deprecatedSetter,
-  emitter,
   SetterOptions,
 } from 'ng-primitives/state';
 import { uniqueId } from 'ng-primitives/utils';
@@ -24,13 +24,21 @@ export interface NgpRangeSliderProps {
    */
   readonly id?: Signal<string>;
   /**
-   * The low value of the range slider.
+   * The low value of the range slider. When defined the low thumb is controlled.
    */
-  readonly low?: Signal<number>;
+  readonly low?: Signal<number | undefined>;
   /**
-   * The high value of the range slider.
+   * The default low value for uncontrolled usage.
    */
-  readonly high?: Signal<number>;
+  readonly defaultLow?: Signal<number>;
+  /**
+   * The high value of the range slider. When defined the high thumb is controlled.
+   */
+  readonly high?: Signal<number | undefined>;
+  /**
+   * The default high value for uncontrolled usage.
+   */
+  readonly defaultHigh?: Signal<number>;
   /**
    * The minimum value.
    */
@@ -137,6 +145,14 @@ export interface NgpRangeSliderState {
    */
   setHighValue(value: number, options?: SetterOptions): void;
   /**
+   * Set the default low value used in uncontrolled mode.
+   */
+  setDefaultLow(value: number): void;
+  /**
+   * Set the default high value used in uncontrolled mode.
+   */
+  setDefaultHigh(value: number): void;
+  /**
    * Determines which thumb should be moved based on the position clicked.
    */
   getClosestThumb(percentage: number): 'low' | 'high';
@@ -175,8 +191,10 @@ export const [
   'NgpRangeSlider',
   ({
     id = signal(uniqueId('ngp-range-slider')),
-    low: _low = signal(0),
-    high: _high = signal(100),
+    low: _low = signal<number | undefined>(undefined),
+    defaultLow: _defaultLow,
+    high: _high = signal<number | undefined>(undefined),
+    defaultHigh: _defaultHigh,
     min = signal(0),
     max = signal(100),
     step = signal(1),
@@ -187,13 +205,21 @@ export const [
   }: NgpRangeSliderProps): NgpRangeSliderState => {
     const element = injectElementRef();
     const focusMonitor = inject(FocusMonitor);
-    const low = controlled(_low);
-    const high = controlled(_high);
+    const defaultLow = controlled(_defaultLow, 0);
+    const defaultHigh = controlled(_defaultHigh, 100);
+    const [low, setLowInternal, lowChange] = controlledState<number>({
+      value: _low,
+      defaultValue: defaultLow,
+      onChange: onLowChange,
+    });
+    const [high, setHighInternal, highChange] = controlledState<number>({
+      value: _high,
+      defaultValue: defaultHigh,
+      onChange: onHighChange,
+    });
     const disabled = controlled(_disabled);
     const orientation = controlled(_orientation);
 
-    const lowChange = emitter<number>();
-    const highChange = emitter<number>();
     const track = signal<ElementRef<HTMLElement> | undefined>(undefined);
     const thumbs = signal<ElementRef<HTMLElement>[]>([]);
 
@@ -222,21 +248,13 @@ export const [
     function setLowValue(value: number, options?: SetterOptions): void {
       const clampedValue = Math.max(min(), Math.min(value, high()));
       const steppedValue = Math.round((clampedValue - min()) / step()) * step() + min();
-      low.set(steppedValue);
-      if (options?.emit !== false) {
-        onLowChange?.(steppedValue);
-        lowChange.emit(steppedValue);
-      }
+      setLowInternal(steppedValue, options);
     }
 
     function setHighValue(value: number, options?: SetterOptions): void {
       const clampedValue = Math.min(max(), Math.max(value, low()));
       const steppedValue = Math.round((clampedValue - min()) / step()) * step() + min();
-      high.set(steppedValue);
-      if (options?.emit !== false) {
-        onHighChange?.(steppedValue);
-        highChange.emit(steppedValue);
-      }
+      setHighInternal(steppedValue, options);
     }
 
     function getClosestThumb(percentage: number): 'low' | 'high' {
@@ -276,22 +294,24 @@ export const [
 
     return {
       id,
-      low,
-      high,
+      low: deprecatedSetter(low, 'setLowValue', setLowValue),
+      high: deprecatedSetter(high, 'setHighValue', setHighValue),
       min,
       max,
       step,
-      orientation: deprecatedSetter(orientation, 'setOrientation'),
-      disabled: deprecatedSetter(disabled, 'setDisabled'),
+      orientation: deprecatedSetter(orientation, 'setOrientation', setOrientation),
+      disabled: deprecatedSetter(disabled, 'setDisabled', setDisabled),
       lowPercentage,
       highPercentage,
       rangePercentage,
       track,
       thumbs,
-      lowChange: lowChange.asObservable(),
-      highChange: highChange.asObservable(),
+      lowChange,
+      highChange,
       setLowValue,
       setHighValue,
+      setDefaultLow: defaultLow.set,
+      setDefaultHigh: defaultHigh.set,
       getClosestThumb,
       addThumb,
       removeThumb,

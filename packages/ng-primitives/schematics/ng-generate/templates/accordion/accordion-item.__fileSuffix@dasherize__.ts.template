@@ -9,7 +9,7 @@ import {
 import { NgpButton } from 'ng-primitives/button';
 
 @Component({
-  selector: '<%= prefix %>-accordion-item',
+  selector: '<% if (prefix) { %><%= prefix %>-<% } %>accordion-item',
   hostDirectives: [
     {
       directive: NgpAccordionItem,
@@ -101,6 +101,14 @@ import { NgpButton } from 'ng-primitives/button';
       }
       to {
         height: 0;
+      }
+    }
+
+    /* Reduce motion for users who prefer reduced motion. */
+    @media (prefers-reduced-motion: reduce) {
+      [ngpAccordionContent][data-open],
+      [ngpAccordionContent][data-closed] {
+        animation-duration: 0s;
       }
     }
   `,

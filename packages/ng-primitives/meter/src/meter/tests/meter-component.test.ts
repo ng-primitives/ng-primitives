@@ -30,13 +30,14 @@ describe('Meter (reusable component) — standalone', () => {
   });
 
   it('updates the indicator width when value changes', async () => {
-    const { container, rerender } = await render(
+    const { container, rerender, detectChanges } = await render(
       `<app-meter label="Label" [value]="value"></app-meter>`,
       { imports: [MeterFixture], componentProperties: { value: 40 } },
     );
     const indicator = container.querySelector('[ngpMeterIndicator]') as HTMLElement;
     expect(indicator.style.width).toBe('40%');
     await rerender({ componentProperties: { value: 75 } });
+    detectChanges();
     expect(indicator.style.width).toBe('75%');
   });
 });

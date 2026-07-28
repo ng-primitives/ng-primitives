@@ -8,7 +8,7 @@ async function setup(props: { value?: Color; channel?: string; extra?: string } 
     `<input
         ngpColorField
         data-testid="field"
-        [ngpColorFieldValue]="value"
+        [ngpColorFieldDefaultValue]="value"
         ${props.channel ? `ngpColorFieldChannel="${props.channel}"` : ''}
         ${props.extra ?? ''}
         (ngpColorFieldValueChange)="onChange($event)" />`,
@@ -102,5 +102,44 @@ describe('NgpColorField', () => {
     expect(input).toHaveAttribute('disabled');
     fireEvent.keyDown(input, { key: 'ArrowUp' });
     expect(onChange).not.toHaveBeenCalled();
+  });
+
+  describe('value binding (standalone)', () => {
+    it('one-way controlled: emits on blur but reverts the input without a round-trip', async () => {
+      const onChange = vi.fn<(c: Color) => void>();
+      const view = await render(
+        `<input ngpColorField data-testid="field" [ngpColorFieldValue]="value"
+                (ngpColorFieldValueChange)="onChange($event)" />`,
+        {
+          imports: [NgpColorField],
+          componentProperties: { value: Color.parse('#ff0000'), onChange },
+        },
+      );
+      const input = view.getByTestId('field') as HTMLInputElement;
+      expect(input.value).toBe('#ff0000');
+
+      fireEvent.focus(input);
+      fireEvent.input(input, { target: { value: '#00ff00' } });
+      fireEvent.blur(input);
+
+      // emitted, but controlled value is not written back, so the field reverts
+      expect(onChange).toHaveBeenCalledTimes(1);
+      expect(input.value).toBe('#ff0000');
+    });
+
+    it('two-way: round-trips the committed value', async () => {
+      const view = await render(
+        `<input ngpColorField data-testid="field" [(ngpColorFieldValue)]="value" />`,
+        { imports: [NgpColorField], componentProperties: { value: Color.parse('#ff0000') } },
+      );
+      const input = view.getByTestId('field') as HTMLInputElement;
+      expect(input.value).toBe('#ff0000');
+
+      fireEvent.focus(input);
+      fireEvent.input(input, { target: { value: '#00ff00' } });
+      fireEvent.blur(input);
+
+      expect(input.value).toBe('#00ff00');
+    });
   });
 });

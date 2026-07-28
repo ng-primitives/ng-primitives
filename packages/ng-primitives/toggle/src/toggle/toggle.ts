@@ -1,6 +1,7 @@
 import { BooleanInput } from '@angular/cdk/coercion';
 import { booleanAttribute, Directive, input, output } from '@angular/core';
 import { SetterOptions } from 'ng-primitives/state';
+import { coerceBooleanOrUndefined } from 'ng-primitives/utils';
 import { ngpToggle, provideToggleState } from './toggle-state';
 
 /**
@@ -17,7 +18,7 @@ export class NgpToggle {
    */
   readonly selected = input<boolean | undefined, BooleanInput>(undefined, {
     alias: 'ngpToggleSelected',
-    transform: booleanAttribute,
+    transform: coerceBooleanOrUndefined,
   });
 
   /**

@@ -1,4 +1,5 @@
 ---
+title: Collapsible | Angular Primitives
 name: 'Collapsible'
 sourceUrl: 'https://github.com/ng-primitives/ng-primitives/tree/next/packages/ng-primitives/collapsible'
 ---

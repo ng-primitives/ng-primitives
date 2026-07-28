@@ -1,6 +1,6 @@
 import { Directive, input } from '@angular/core';
 import { uniqueId } from 'ng-primitives/utils';
-import { injectDateControllerState } from '../date-picker/date-picker-state';
+import { ngpDatePickerLabel, provideDatePickerLabelState } from './date-picker-label-state';
 import { NgpDatePickerLabelToken } from './date-picker-label-token';
 
 /**
@@ -9,19 +9,12 @@ import { NgpDatePickerLabelToken } from './date-picker-label-token';
 @Directive({
   selector: '[ngpDatePickerLabel]',
   exportAs: 'ngpDatePickerLabel',
-  providers: [{ provide: NgpDatePickerLabelToken, useExisting: NgpDatePickerLabel }],
-  host: {
-    '[id]': 'id()',
-    '[attr.aria-live]': 'ariaLive()',
-    '[attr.data-disabled]': 'state().disabled() ? "" : null',
-  },
+  providers: [
+    provideDatePickerLabelState(),
+    { provide: NgpDatePickerLabelToken, useExisting: NgpDatePickerLabel },
+  ],
 })
 export class NgpDatePickerLabel<T> {
-  /**
-   * Access the date picker.
-   */
-  protected readonly state = injectDateControllerState<T>();
-
   /**
    * Define a unique id for the label.
    */
@@ -32,5 +25,13 @@ export class NgpDatePickerLabel<T> {
    */
   readonly ariaLive = input('polite', {
     alias: 'aria-live',
+  });
+
+  /**
+   * The date picker label state.
+   */
+  protected readonly state = ngpDatePickerLabel<T>({
+    id: this.id,
+    ariaLive: this.ariaLive,
   });
 }

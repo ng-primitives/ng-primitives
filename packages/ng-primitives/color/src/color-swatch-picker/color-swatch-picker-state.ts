@@ -5,6 +5,7 @@ import { ngpRovingFocusGroup } from 'ng-primitives/roving-focus';
 import {
   attrBinding,
   controlled,
+  controlledState,
   createPrimitive,
   dataBinding,
   emitter,
@@ -31,6 +32,8 @@ export interface NgpColorSwatchPickerState {
   isSelected(color: Color): boolean;
   /** Select a color. */
   select(color: Color, options?: SetterOptions): void;
+  /** Set the default selected color used in uncontrolled mode. */
+  setDefaultValue(value: Color | undefined): void;
 }
 
 /**
@@ -38,7 +41,10 @@ export interface NgpColorSwatchPickerState {
  */
 export interface NgpColorSwatchPickerProps {
   readonly id?: Signal<string>;
+  /** The selected color. When defined the swatch picker is controlled. */
   readonly value?: Signal<Color | undefined>;
+  /** The default selected color for uncontrolled usage (undefined = no selection). */
+  readonly defaultValue?: Signal<Color | undefined>;
   readonly orientation?: Signal<NgpOrientation>;
   readonly disabled?: Signal<boolean>;
   readonly onValueChange?: (value: Color) => void;
@@ -59,13 +65,19 @@ export const [
   ({
     id = signal(uniqueId('ngp-color-swatch-picker')),
     value: _value = signal<Color | undefined>(undefined),
+    defaultValue: _defaultValue,
     orientation = signal<NgpOrientation>('horizontal'),
     disabled = signal(false),
     onValueChange,
   }: NgpColorSwatchPickerProps): NgpColorSwatchPickerState => {
     const element = injectElementRef<HTMLElement>();
     const picker = injectColorPickerState({ optional: true });
-    const local = controlled(_value);
+    // `undefined` local means "no selection", so the default is undefined too.
+    const defaultValue = controlled<Color | undefined>(_defaultValue, undefined);
+    const [local, setLocal] = controlledState<Color | undefined>({
+      value: _value,
+      defaultValue,
+    });
     const value = computed(() => picker()?.value() ?? local() ?? Color.parse('#000000'));
     const hasSelection = computed(() => !!(picker() || local()));
     const valueChange = emitter<Color>();
@@ -94,7 +106,7 @@ export const [
       if (parent) {
         parent.setValue(color, options);
       } else {
-        local.set(color);
+        setLocal(color, { emit: false });
       }
       if (options?.emit !== false) {
         onValueChange?.(color);
@@ -109,6 +121,7 @@ export const [
       valueChange: valueChange.asObservable(),
       isSelected,
       select,
+      setDefaultValue: defaultValue.set,
     } satisfies NgpColorSwatchPickerState;
   },
 );

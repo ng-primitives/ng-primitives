@@ -5,6 +5,7 @@ import { injectElementRef } from 'ng-primitives/internal';
 import { ngpSlider } from 'ng-primitives/slider';
 import {
   controlled,
+  controlledState,
   createPrimitive,
   emitter,
   SetterOptions,
@@ -51,6 +52,9 @@ export interface NgpColorSliderState {
   focusThumb(origin: FocusOrigin): void;
   /** Set the disabled state. */
   setDisabled(disabled: boolean): void;
+
+  /** Set the default value used in uncontrolled mode. */
+  setDefaultValue(value: Color): void;
   /** Set the orientation. */
   setOrientation(orientation: NgpOrientation): void;
 }
@@ -60,7 +64,9 @@ export interface NgpColorSliderState {
  */
 export interface NgpColorSliderProps {
   readonly id?: Signal<string>;
-  readonly value?: Signal<Color>;
+  readonly value?: Signal<Color | undefined>;
+  /** The default color value for uncontrolled usage. */
+  readonly defaultValue?: Signal<Color>;
   readonly channel?: Signal<ColorChannel>;
   readonly colorSpace?: Signal<ColorSpace | undefined>;
   readonly orientation?: Signal<NgpOrientation>;
@@ -103,7 +109,8 @@ export const [
   'NgpColorSlider',
   ({
     id = signal(uniqueId('ngp-color-slider')),
-    value: _value = signal(Color.parse('#ff0000')),
+    value: _value = signal<Color | undefined>(undefined),
+    defaultValue: _defaultValue,
     channel = signal<ColorChannel>('hue'),
     colorSpace: _colorSpace = signal<ColorSpace | undefined>(undefined),
     orientation = signal<NgpOrientation>('horizontal'),
@@ -113,7 +120,8 @@ export const [
     const element = injectElementRef();
     // Bind to a parent color picker when present, otherwise own the value locally.
     const picker = injectColorPickerState({ optional: true });
-    const local = controlled(_value);
+    const defaultValue = controlled(_defaultValue, Color.parse('#ff0000'));
+    const [local, setLocal] = controlledState<Color>({ value: _value, defaultValue });
     const value = computed(() => picker()?.value() ?? local());
     const valueChange = emitter<Color>();
 
@@ -152,7 +160,7 @@ export const [
       if (parent) {
         parent.setValue(newValue, options);
       } else {
-        local.set(newValue);
+        setLocal(newValue, { emit: false });
       }
       if (options?.emit !== false) {
         onValueChange?.(newValue);
@@ -173,6 +181,7 @@ export const [
       disabled: slider.disabled,
       valueChange: valueChange.asObservable(),
       setValue,
+      setDefaultValue: defaultValue.set,
       focusThumb: slider.focusThumb,
       setDisabled: slider.setDisabled,
       setOrientation: slider.setOrientation,

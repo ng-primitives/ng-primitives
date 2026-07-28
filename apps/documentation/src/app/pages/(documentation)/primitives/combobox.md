@@ -1,4 +1,5 @@
 ---
+title: Combobox | Angular Primitives
 name: 'Combobox'
 sourceUrl: 'https://github.com/ng-primitives/ng-primitives/tree/next/packages/ng-primitives/combobox'
 ---
@@ -63,6 +64,23 @@ Create a reusable component that uses the `NgpCombobox` directive.
 
 <docs-snippet name="combobox"></docs-snippet>
 
+## Schematics
+
+Generate a reusable combobox component using the Angular CLI.
+
+```bash npm
+ng g ng-primitives:primitive combobox
+```
+
+### Options
+
+- `path`: The path at which to create the component file.
+- `prefix`: The prefix to apply to the generated component selector.
+- `component-suffix`: The suffix to apply to the generated component class name.
+- `file-suffix`: The suffix to apply to the generated component file name. Defaults to `component`.
+- `styles`: How component styles should be generated. `css` (default) includes the full example styles; `unstyled` omits them entirely so you can style the component yourself.
+- `example-styles` (deprecated): still supported for compatibility - `true` maps to `styles: css`, `false` maps to `styles: unstyled`.
+
 ## Examples
 
 ### Custom Offset
@@ -121,21 +139,11 @@ Options without a value do not perform any selection by default. You can use thi
 
 <docs-example name="combobox-custom-option"></docs-example>
 
-## Schematics
+### Creatable Options
 
-Generate a reusable combobox component using the Angular CLI.
+To let users pick a value that isn't in the list, render a "create" option whose value is the current query. Because it is an ordinary `ngpComboboxOption`, it participates in keyboard navigation and is committed on `Enter` or click through the standard selection path - no bespoke key handling is required. It is rendered after the filtered matches: when nothing matches the filter, the create option is the only item, so it becomes the active descendant and `Enter` commits it immediately; when there are matches, they take precedence on `Enter` and the create option is reached with the arrow keys.
 
-```bash npm
-ng g ng-primitives:primitive combobox
-```
-
-### Options
-
-- `path`: The path at which to create the component file.
-- `prefix`: The prefix to apply to the generated component selector.
-- `component-suffix`: The suffix to apply to the generated component class name.
-- `file-suffix`: The suffix to apply to the generated component file name. Defaults to `component`.
-- `example-styles`: Whether to include example styles in the generated component file. Defaults to `true`.
+<docs-example name="combobox-creatable"></docs-example>
 
 ## API Reference
 

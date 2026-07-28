@@ -88,16 +88,19 @@ contain.
 See `.claude/rules/` for detailed coding standards:
 
 - `angular-patterns.md` - Signal-based APIs, readonly signals, computed/effects
+- `comments.md` - Let the code explain itself; comment the why, concisely
 - `naming-conventions.md` - Selector prefixes, class names, file names
 - `state-management.md` - The `createPrimitive` state pattern: one `-state.ts` per part, host bindings inside the factory, thin directives, controlled state, state composition
 - `docs-example-styling.md` - Styling the documentation examples: brand red reserved for state, blue for focus, typography/radii scale, CSS + Tailwind parity
+- `documentation-pages.md` - The canonical `##` section order for docs pages, where page-specific sections go, one heading per section
 
 For code review, use the `ngp-code-review` skill — it consolidates these rules with the custom workspace lint rules, test conventions, and PR checklist.
 
 ## Package Management
 
 - Uses pnpm with workspace configuration
-- Volta specifies Node 22.15.0
+- Node 24.18.0, pinned in `.nvmrc` (read by CI and Netlify) and `volta.node`
+- `engines.node` sets the supported floor and `engine-strict` makes it a hard gate
 - Build targets are configured in individual `project.json` files
 - Dependencies are managed at the root level
 

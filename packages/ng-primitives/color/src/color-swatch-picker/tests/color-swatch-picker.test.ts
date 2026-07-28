@@ -10,7 +10,7 @@ async function setup(selected = '#ff0000') {
     `<div
         ngpColorSwatchPicker
         data-testid="picker"
-        [ngpColorSwatchPickerValue]="value"
+        [ngpColorSwatchPickerDefaultValue]="value"
         (ngpColorSwatchPickerValueChange)="onChange($event)">
        <button [ngpColorSwatchPickerItem]="red" data-testid="red"></button>
        <button [ngpColorSwatchPickerItem]="green" data-testid="green"></button>
@@ -74,5 +74,50 @@ describe('NgpColorSwatchPicker', () => {
     const { red, green, blue } = await setup();
     const stops = [red, green, blue].filter(el => el.getAttribute('tabindex') === '0');
     expect(stops).toHaveLength(1);
+  });
+
+  describe('value binding (standalone)', () => {
+    const template = (binding: string) => `
+      <div ngpColorSwatchPicker ${binding} (ngpColorSwatchPickerValueChange)="onChange($event)">
+        <button [ngpColorSwatchPickerItem]="red" data-testid="red"></button>
+        <button [ngpColorSwatchPickerItem]="green" data-testid="green"></button>
+      </div>`;
+    const props = (onChange: unknown) => ({
+      value: Color.parse('#ff0000'),
+      red: Color.parse('#ff0000'),
+      green: Color.parse('#00ff00'),
+      onChange,
+    });
+
+    it('one-way controlled: emits but keeps the selection without a round-trip', async () => {
+      const onChange = vi.fn<(c: Color) => void>();
+      const view = await render(template('[ngpColorSwatchPickerValue]="value"'), {
+        imports,
+        componentProperties: props(onChange),
+      });
+      const red = view.getByTestId('red');
+      const green = view.getByTestId('green');
+      expect(red).toHaveAttribute('data-selected', '');
+
+      fireEvent.click(green);
+
+      expect(onChange).toHaveBeenCalledTimes(1);
+      expect(red).toHaveAttribute('data-selected', '');
+      expect(green).not.toHaveAttribute('data-selected');
+    });
+
+    it('two-way: round-trips and moves the selection', async () => {
+      const view = await render(template('[(ngpColorSwatchPickerValue)]="value"'), {
+        imports,
+        componentProperties: props(vi.fn()),
+      });
+      const red = view.getByTestId('red');
+      const green = view.getByTestId('green');
+
+      fireEvent.click(green);
+
+      expect(green).toHaveAttribute('data-selected', '');
+      expect(red).not.toHaveAttribute('data-selected');
+    });
   });
 });
