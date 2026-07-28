@@ -44,13 +44,13 @@ export interface NgpPopoverTriggerState<T> {
   readonly disabled: WritableSignal<boolean>;
   /**
    * Define the placement of the popover relative to the trigger.
-   * @default 'top'
+   * @default 'bottom'
    */
   readonly placement: WritableSignal<NgpPlacement>;
   /**
    * Define the offset of the popover relative to the trigger.
    * Can be a number (applies to mainAxis) or an object with mainAxis, crossAxis, and alignmentAxis.
-   * @default 0
+   * @default 4
    */
   readonly offset: WritableSignal<NgpOffset>;
   /**
@@ -182,13 +182,13 @@ export interface NgpPopoverTriggerProps<T> {
   readonly disabled?: Signal<boolean>;
   /**
    * Define the placement of the popover relative to the trigger.
-   * @default 'top'
+   * @default 'bottom'
    */
   readonly placement?: Signal<NgpPlacement>;
   /**
    * Define the offset of the popover relative to the trigger.
    * Can be a number (applies to mainAxis) or an object with mainAxis, crossAxis, and alignmentAxis.
-   * @default 0
+   * @default 4
    */
   readonly offset?: Signal<NgpOffset>;
   /**
