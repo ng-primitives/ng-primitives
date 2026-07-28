@@ -87,7 +87,7 @@ The following directives are available to import from the `ng-primitives/radio` 
 
 <api-reference-attributes>
   <api-attribute name="data-checked" description="Applied when the radio item is checked." />
-  <api-attribute name="data-disabled" description="Applied when the radio item is disabled." />
+  <api-attribute name="data-disabled" description="Applied when the radio item is disabled, or the radio group is disabled." />
   <api-attribute name="data-hover" description="Applied when the radio item is hovered." />
   <api-attribute name="data-focus-visible" description="Applied when the radio item is focused." />
   <api-attribute name="data-press" description="Applied when the radio item is pressed." />
@@ -101,7 +101,7 @@ The following directives are available to import from the `ng-primitives/radio` 
 
 <api-reference-attributes>
   <api-attribute name="data-checked" description="Applied when the radio item is checked." />
-  <api-attribute name="data-disabled" description="Applied when the radio item is disabled." />
+  <api-attribute name="data-disabled" description="Applied when the radio item is disabled, or the radio group is disabled." />
 </api-reference-attributes>
 
 ## Accessibility
