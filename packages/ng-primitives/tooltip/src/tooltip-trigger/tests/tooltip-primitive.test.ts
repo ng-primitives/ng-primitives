@@ -1,9 +1,11 @@
 import { Directive, effect, input, OnInit, TemplateRef } from '@angular/core';
+import { By } from '@angular/platform-browser';
 import { fireEvent, render, waitFor } from '@testing-library/angular';
 import {
   injectTooltipTriggerState,
   NgpTooltip,
   NgpTooltipTrigger,
+  NgpTooltipTriggerState,
   provideTooltipConfig,
 } from 'ng-primitives/tooltip';
 import { afterEach, describe, expect, it, vi } from 'vitest';
@@ -2211,7 +2213,7 @@ describe('NgpTooltipTrigger (primitive)', () => {
         readonly text = input<string>('', { alias: 'setTooltipText' });
 
         constructor() {
-          effect(() => this.trigger().tooltip.set(this.text()));
+          effect(() => this.trigger().setTooltip(this.text()));
         }
       }
 
@@ -2261,7 +2263,7 @@ describe('NgpTooltipTrigger (primitive)', () => {
         readonly content = input<TemplateRef<void> | null>(null, { alias: 'setTooltipContent' });
 
         constructor() {
-          effect(() => this.trigger().tooltip.set(this.content()));
+          effect(() => this.trigger().setTooltip(this.content()));
         }
       }
 
@@ -2299,6 +2301,398 @@ describe('NgpTooltipTrigger (primitive)', () => {
       await waitFor(() => {
         expect(document.querySelector('[ngpTooltip]')).not.toBeInTheDocument();
       });
+    });
+  });
+
+  describe('injected state setters', () => {
+    // Every input on NgpTooltipTrigger has a matching setter on the state, so a
+    // wrapper component can configure the trigger it hosts.
+    @Directive({ selector: '[tooltipState]' })
+    class TooltipStateDirective {
+      readonly trigger = injectTooltipTriggerState();
+    }
+
+    // The panel needs an explicit size and position for the positioning assertions
+    // below - Floating UI writes `top`/`left`, which a static element ignores.
+    const template = `
+      <button [ngpTooltipTrigger]="content" ngpTooltipTriggerShowDelay="0" tooltipState>
+        Trigger
+      </button>
+
+      <ng-template #content>
+        <div ngpTooltip style="position: fixed; width: 120px; height: 60px;">Tooltip content</div>
+      </ng-template>
+    `;
+
+    async function renderWithState(markup: string = template) {
+      const result = await render(markup, {
+        imports: [NgpTooltipTrigger, NgpTooltip, TooltipStateDirective],
+      });
+
+      const state = result.fixture.debugElement
+        .query(By.directive(TooltipStateDirective))
+        .injector.get(TooltipStateDirective).trigger;
+
+      return { ...result, state, trigger: result.getByRole('button') };
+    }
+
+    type TooltipState = NgpTooltipTriggerState<unknown>;
+
+    const anchorElement = document.createElement('div');
+
+    const cases: Array<{
+      setter: string;
+      set: (state: TooltipState) => void;
+      read: (state: TooltipState) => unknown;
+      expected: unknown;
+    }> = [
+      {
+        setter: 'setTooltip',
+        set: state => state.setTooltip('text'),
+        read: state => state.tooltip(),
+        expected: 'text',
+      },
+      {
+        setter: 'setDisabled',
+        set: state => state.setDisabled(true),
+        read: state => state.disabled(),
+        expected: true,
+      },
+      {
+        setter: 'setPlacement',
+        set: state => state.setPlacement('right'),
+        read: state => state.placement(),
+        expected: 'right',
+      },
+      {
+        setter: 'setOffset',
+        set: state => state.setOffset(12),
+        read: state => state.offset(),
+        expected: 12,
+      },
+      {
+        setter: 'setShowDelay',
+        set: state => state.setShowDelay(50),
+        read: state => state.showDelay(),
+        expected: 50,
+      },
+      {
+        setter: 'setHideDelay',
+        set: state => state.setHideDelay(75),
+        read: state => state.hideDelay(),
+        expected: 75,
+      },
+      {
+        setter: 'setFlip',
+        set: state => state.setFlip(false),
+        read: state => state.flip(),
+        expected: false,
+      },
+      {
+        setter: 'setShift',
+        set: state => state.setShift(false),
+        read: state => state.shift(),
+        expected: false,
+      },
+      {
+        setter: 'setContainer',
+        set: state => state.setContainer('#host'),
+        read: state => state.container(),
+        expected: '#host',
+      },
+      {
+        setter: 'setShowOnOverflow',
+        set: state => state.setShowOnOverflow(true),
+        read: state => state.showOnOverflow(),
+        expected: true,
+      },
+      {
+        setter: 'setAnchor',
+        set: state => state.setAnchor(anchorElement),
+        read: state => state.anchor(),
+        expected: anchorElement,
+      },
+      {
+        setter: 'setContext',
+        set: state => state.setContext('ctx'),
+        read: state => state.context(),
+        expected: 'ctx',
+      },
+      {
+        setter: 'setUseTextContent',
+        set: state => state.setUseTextContent(false),
+        read: state => state.useTextContent(),
+        expected: false,
+      },
+      {
+        setter: 'setTrackPosition',
+        set: state => state.setTrackPosition(true),
+        read: state => state.trackPosition(),
+        expected: true,
+      },
+      {
+        setter: 'setScrollBehavior',
+        set: state => state.setScrollBehavior('close'),
+        read: state => state.scrollBehavior(),
+        expected: 'close',
+      },
+      {
+        setter: 'setCooldown',
+        set: state => state.setCooldown(250),
+        read: state => state.cooldown(),
+        expected: 250,
+      },
+      {
+        setter: 'setHoverableContent',
+        set: state => state.setHoverableContent(true),
+        read: state => state.hoverableContent(),
+        expected: true,
+      },
+      {
+        setter: 'setTooltipId',
+        set: state => state.setTooltipId('custom-id'),
+        read: state => state.tooltipId(),
+        expected: 'custom-id',
+      },
+    ];
+
+    it.each(cases)('should update the state through $setter', async ({ set, read, expected }) => {
+      const { state } = await renderWithState();
+
+      set(state());
+
+      expect(read(state())).toBe(expected);
+    });
+
+    it('should update the state through setPosition', async () => {
+      const { state } = await renderWithState();
+
+      state().setPosition({ x: 10, y: 20 });
+
+      expect(state().position()).toEqual({ x: 10, y: 20 });
+    });
+
+    it('should warn but still apply when a state signal is written directly', async () => {
+      const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+      const { state } = await renderWithState();
+
+      state().offset.set(16);
+
+      expect(state().offset()).toBe(16);
+      expect(warn).toHaveBeenCalledWith(expect.stringContaining('setOffset'));
+      warn.mockRestore();
+    });
+
+    it('should render the content passed to setTooltip', async () => {
+      const { fixture, state, trigger } = await renderWithState();
+
+      state().setTooltip('Replacement tooltip');
+      fixture.detectChanges();
+
+      fireEvent.mouseEnter(trigger);
+
+      await waitFor(() => {
+        expect(document.querySelector('[role="tooltip"]')?.textContent?.trim()).toBe(
+          'Replacement tooltip',
+        );
+      });
+    });
+
+    it('should not show once disabled through setDisabled', async () => {
+      const { fixture, state, trigger } = await renderWithState();
+
+      state().setDisabled(true);
+      fixture.detectChanges();
+
+      fireEvent.mouseEnter(trigger);
+
+      // Give the overlay a chance to appear so the assertion is not trivially true.
+      await new Promise(resolve => setTimeout(resolve, 100));
+
+      expect(document.querySelector('[ngpTooltip]')).not.toBeInTheDocument();
+    });
+
+    it('should reflect setPlacement on the tooltip', async () => {
+      const { state, trigger } = await renderWithState();
+
+      state().setPlacement('right');
+      fireEvent.mouseEnter(trigger);
+
+      await waitFor(() => {
+        expect(document.querySelector('[ngpTooltip]')).toHaveAttribute('data-placement', 'right');
+      });
+    });
+
+    it('should offset the tooltip by the value passed to setOffset', async () => {
+      const { state, trigger } = await renderWithState();
+
+      state().setPlacement('bottom');
+      state().setOffset(60);
+      state().setFlip(false);
+      state().setShift(false);
+      fireEvent.mouseEnter(trigger);
+
+      // Floating UI positions asynchronously, so poll rather than measuring once.
+      await waitFor(() => {
+        const gap =
+          document.querySelector('[ngpTooltip]')!.getBoundingClientRect().top -
+          trigger.getBoundingClientRect().bottom;
+
+        expect(gap).toBeCloseTo(60, 0);
+      });
+    });
+
+    it('should delay showing by the value passed to setShowDelay', async () => {
+      const { state, trigger } = await renderWithState();
+
+      state().setShowDelay(150);
+      fireEvent.mouseEnter(trigger);
+
+      expect(document.querySelector('[ngpTooltip]')).not.toBeInTheDocument();
+
+      await waitFor(() => {
+        expect(document.querySelector('[ngpTooltip]')).toBeInTheDocument();
+      });
+    });
+
+    it('should delay hiding by the value passed to setHideDelay', async () => {
+      const { state, trigger } = await renderWithState();
+
+      state().setHideDelay(150);
+      fireEvent.mouseEnter(trigger);
+
+      await waitFor(() => {
+        expect(document.querySelector('[ngpTooltip]')).toBeInTheDocument();
+      });
+
+      fireEvent.mouseLeave(trigger);
+
+      expect(document.querySelector('[ngpTooltip]')).toBeInTheDocument();
+
+      await waitFor(() => {
+        expect(document.querySelector('[ngpTooltip]')).not.toBeInTheDocument();
+      });
+    });
+
+    it('should attach the tooltip to the element passed to setContainer', async () => {
+      const host = document.createElement('div');
+      host.id = 'setter-tooltip-host';
+      document.body.appendChild(host);
+
+      const { state, trigger } = await renderWithState();
+
+      state().setContainer(host);
+      fireEvent.mouseEnter(trigger);
+
+      await waitFor(() => {
+        expect(host.querySelector('[ngpTooltip]')).toBeInTheDocument();
+      });
+
+      host.remove();
+    });
+
+    it('should position the tooltip against the element passed to setAnchor', async () => {
+      const { state, trigger } = await renderWithState();
+
+      const anchor = document.createElement('div');
+      anchor.style.cssText = 'position:fixed;top:400px;left:40px;width:80px;height:20px;';
+      document.body.appendChild(anchor);
+
+      state().setAnchor(anchor);
+      state().setPlacement('bottom');
+      state().setOffset(0);
+      state().setFlip(false);
+      state().setShift(false);
+
+      fireEvent.mouseEnter(trigger);
+
+      await waitFor(() => {
+        const tooltipTop = document.querySelector('[ngpTooltip]')!.getBoundingClientRect().top;
+
+        expect(tooltipTop).toBeCloseTo(anchor.getBoundingClientRect().bottom, 0);
+      });
+
+      anchor.remove();
+    });
+
+    it('should position the tooltip at the coordinates passed to setPosition', async () => {
+      const { state, trigger } = await renderWithState();
+
+      state().setPlacement('bottom');
+      state().setOffset(0);
+      state().setFlip(false);
+      state().setShift(false);
+      state().setPosition({ x: 150, y: 250 });
+
+      fireEvent.mouseEnter(trigger);
+
+      await waitFor(() => {
+        const tooltip = document.querySelector('[ngpTooltip]')!.getBoundingClientRect();
+
+        expect(tooltip.top).toBeCloseTo(250, 0);
+      });
+    });
+
+    it('should suppress the tooltip when setShowOnOverflow is enabled and the trigger fits', async () => {
+      const { state, trigger } = await renderWithState();
+
+      state().setShowOnOverflow(true);
+      fireEvent.mouseEnter(trigger);
+
+      // Give the overlay a chance to appear so the assertion is not trivially true.
+      await new Promise(resolve => setTimeout(resolve, 100));
+
+      expect(document.querySelector('[ngpTooltip]')).not.toBeInTheDocument();
+    });
+
+    it('should stop falling back to the trigger text when setUseTextContent is disabled', async () => {
+      const error = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+      const markup = `<button ngpTooltipTrigger ngpTooltipTriggerShowDelay="0" tooltipState>Trigger text</button>`;
+
+      const { state, trigger } = await renderWithState(markup);
+
+      fireEvent.mouseEnter(trigger);
+
+      await waitFor(() => {
+        expect(document.querySelector('[role="tooltip"]')?.textContent?.trim()).toBe(
+          'Trigger text',
+        );
+      });
+
+      fireEvent.mouseLeave(trigger);
+      await waitFor(() => {
+        expect(document.querySelector('[role="tooltip"]')).not.toBeInTheDocument();
+      });
+
+      state().setUseTextContent(false);
+      fireEvent.mouseEnter(trigger);
+
+      // Give the overlay a chance to appear so the assertion is not trivially true.
+      await new Promise(resolve => setTimeout(resolve, 100));
+
+      expect(document.querySelector('[role="tooltip"]')).not.toBeInTheDocument();
+
+      error.mockRestore();
+    });
+
+    it('should keep the tooltip open on content hover once setHoverableContent is enabled', async () => {
+      const { state, trigger } = await renderWithState();
+
+      state().setHoverableContent(true);
+      fireEvent.mouseEnter(trigger);
+
+      await waitFor(() => {
+        expect(document.querySelector('[ngpTooltip]')).toBeInTheDocument();
+      });
+
+      const tooltip = document.querySelector('[ngpTooltip]') as HTMLElement;
+      fireEvent.mouseLeave(trigger, { clientX: 0, clientY: 0 });
+      fireEvent.mouseEnter(tooltip);
+
+      // Without hoverable content the tooltip hides on mouseleave, so settle first.
+      await new Promise(resolve => setTimeout(resolve, 100));
+
+      expect(document.querySelector('[ngpTooltip]')).toBeInTheDocument();
     });
   });
 });

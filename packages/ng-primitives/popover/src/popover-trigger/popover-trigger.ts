@@ -1,13 +1,6 @@
 import { FocusOrigin } from '@angular/cdk/a11y';
 import { BooleanInput, NumberInput } from '@angular/cdk/coercion';
-import {
-  booleanAttribute,
-  Directive,
-  input,
-  numberAttribute,
-  OnDestroy,
-  output,
-} from '@angular/core';
+import { booleanAttribute, Directive, input, numberAttribute, output } from '@angular/core';
 import {
   coerceFlip,
   dismissGuardAttribute,
@@ -35,7 +28,7 @@ import { ngpPopoverTrigger, providePopoverTriggerState } from './popover-trigger
   exportAs: 'ngpPopoverTrigger',
   providers: [providePopoverTriggerState({ inherit: false })],
 })
-export class NgpPopoverTrigger<T = null> implements OnDestroy {
+export class NgpPopoverTrigger<T = null> {
   /**
    * Access the global popover configuration.
    */
@@ -218,10 +211,6 @@ export class NgpPopoverTrigger<T = null> implements OnDestroy {
     cooldown: this.cooldown,
     onOpenChange: (value: boolean) => this.openChange.emit(value),
   });
-
-  ngOnDestroy(): void {
-    this.state.destroy();
-  }
 
   /**
    * Show the popover.

@@ -46,7 +46,7 @@ class PopoverTrigger {
   readonly content = input.required<string>({ alias: 'appPopoverTrigger' });
 
   constructor() {
-    this.popoverTrigger().popover.set(Popover);
+    this.popoverTrigger().setPopover(Popover);
   }
 }
 

@@ -32,6 +32,6 @@ export class TooltipTrigger {
   });
 
   constructor() {
-    this.tooltipTrigger().tooltip.set(Tooltip);
+    this.tooltipTrigger().setTooltip(Tooltip);
   }
 }
