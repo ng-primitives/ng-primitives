@@ -19,7 +19,8 @@ export interface NgpRadioItemState<T> {
    */
   readonly value: Signal<T>;
   /**
-   * Whether the radio item is disabled.
+   * Whether the radio item is disabled, either in its own right or because the
+   * group it belongs to is disabled.
    */
   readonly disabled: Signal<boolean>;
   /**
@@ -45,11 +46,17 @@ export interface NgpRadioItemProps<T> {
 export const [NgpRadioItemStateToken, ngpRadioItem, _injectRadioItemState, provideRadioItemState] =
   createPrimitive(
     'NgpRadioItem',
-    <T>({ value, disabled = signal(false) }: NgpRadioItemProps<T>): NgpRadioItemState<T> => {
+    <T>({
+      value,
+      disabled: _disabled = signal(false),
+    }: NgpRadioItemProps<T>): NgpRadioItemState<T> => {
       const element = injectElementRef();
       const radioGroup = injectRadioGroupState<T>();
 
       const checked = computed(() => radioGroup().compareWith()(radioGroup().value(), value()));
+
+      // A disabled group disables everything in it, so the item reflects both.
+      const disabled = computed(() => _disabled() || radioGroup().disabled());
 
       // Setup interactions
       ngpInteractions({ hover: true, press: true, focusVisible: true, disabled });
