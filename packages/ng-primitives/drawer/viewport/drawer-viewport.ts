@@ -13,6 +13,7 @@ import {
 } from '@angular/core';
 import { injectElementRef } from 'ng-primitives/internal';
 import { dataBinding } from 'ng-primitives/state';
+import { NGP_DRAWER_DATA_ATTRIBUTES } from '../drawer.constants';
 import { NgpDrawerSnapPoint, NgpDrawerSwipeDirection } from '../drawer.types';
 import { injectDrawerState, requireDrawerState } from '../internal/drawer-state';
 import {
@@ -913,6 +914,7 @@ export class NgpDrawerViewport {
 
   private handleRelease(release: DrawerSwipeRelease): void {
     let retainForExit = false;
+    let settleAtSnapPoint = false;
     let releaseSnapOffset: number | undefined;
     const points = this.gestureSnapPoints ?? this.resolvedSnapPoints();
     const active = this.activeResolvedSnapPoint(points);
@@ -946,7 +948,7 @@ export class NgpDrawerViewport {
       );
       if (target) {
         this.state.requestSnapPoint(target.value, 'swipe', { nativeEvent: release.nativeEvent });
-        this.syncSnapVisuals(points);
+        settleAtSnapPoint = true;
       } else {
         // Base UI records the active point, clears it, and only then starts the exit, so a
         // dismissed drawer never reports a snap point it is not resting on
@@ -965,6 +967,7 @@ export class NgpDrawerViewport {
           this.state.requestSnapPoint(previousSnapPoint, 'swipe', {
             nativeEvent: release.nativeEvent,
           });
+          settleAtSnapPoint = true;
         }
       }
     } else if (release.dismissed) {
@@ -980,7 +983,7 @@ export class NgpDrawerViewport {
       // transition reads this scalar on the very next frame.
       this.applyReleaseStrength(release, releaseSnapOffset);
     }
-    this.finishVisuals(retainForExit);
+    this.finishVisuals(retainForExit, settleAtSnapPoint);
   }
 
   private applyReleaseStrength(release: DrawerSwipeRelease, snapOffsetOverride?: number): void {
@@ -1013,9 +1016,11 @@ export class NgpDrawerViewport {
     }
   }
 
-  private finishVisuals(retainForExit = false): void {
+  private finishVisuals(retainForExit = false, settleAtSnapPoint = false): void {
     if (retainForExit) {
       this.retainExitVisuals();
+    } else if (settleAtSnapPoint) {
+      this.releaseSnapVisuals();
     } else {
       this.releaseExitVisuals();
     }
@@ -1034,6 +1039,33 @@ export class NgpDrawerViewport {
 
   private releaseExitVisuals(): void {
     const idleSnapProgress = this.resolveIdleSnapProgress();
+    this.restoreVisuals(idleSnapProgress);
+    this.state.visualStore.reset();
+    if (idleSnapProgress !== null) {
+      this.state.visualStore.set({ progress: idleSnapProgress });
+    }
+    this.state.swipeDismiss.set(null);
+    this.retainingExitVisuals = false;
+    this.exitEndingSeen = false;
+  }
+
+  /**
+   * Leaves a snap gesture in the same two visual states Base UI exposes: first the dragged
+   * transform with the consumer transition restored, then the target offset with zero movement.
+   * Applying both states while the inline `transition: none` from `beginVisuals` is active makes
+   * the browser see only a jump. The layout read is deliberately limited to release time and uses
+   * `offsetWidth`, preserving the one-`getBoundingClientRect`-per-gesture invariant.
+   */
+  private releaseSnapVisuals(): void {
+    const idleSnapProgress = this.resolveIdleSnapProgress();
+    for (const snapshot of this.visualSnapshots) {
+      snapshot.element.style.transition = snapshot.transition;
+      // The state binding observes `swiping` asynchronously. Remove the owned attribute now so a
+      // consumer's `[data-swiping]` rule cannot keep the restored transition at zero duration.
+      snapshot.element.removeAttribute(NGP_DRAWER_DATA_ATTRIBUTES.swiping);
+    }
+    void this.state.popup()?.offsetWidth;
+    this.syncSnapVisuals();
     this.restoreVisuals(idleSnapProgress);
     this.state.visualStore.reset();
     if (idleSnapProgress !== null) {

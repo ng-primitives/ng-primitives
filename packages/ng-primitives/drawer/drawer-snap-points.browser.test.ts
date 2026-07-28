@@ -43,6 +43,10 @@ import { NgpDrawerViewport } from './viewport/drawer-viewport';
       transform: translateY(
         calc(var(--ngp-drawer-snap-point-offset) + var(--ngp-drawer-swipe-movement-y))
       );
+      transition: transform 240ms linear;
+    }
+    .popup[data-swiping] {
+      transition-duration: 0ms;
     }
   `,
 })
@@ -294,6 +298,49 @@ describe('Drawer snap point integration', () => {
     fixture.detectChanges();
     expect(fixture.componentInstance.root().open()).toBe(true);
     expect(fixture.componentInstance.active()).toBe('300px');
+  });
+
+  it('animates from a compact snap point to the expanded point on release', async () => {
+    fixture.componentInstance.points.set(['100px', 1]);
+    fixture.componentInstance.defaultPoint.set('100px');
+    fixture.componentInstance.active.set('100px');
+    fixture.detectChanges();
+    const { viewport, popup } = await openDrawer();
+
+    swipe(viewport, 0, -175, 81, 0, 1000);
+    fixture.detectChanges();
+
+    expect(fixture.componentInstance.active()).toBe(1);
+    await expectRunningTransformAnimation(popup);
+  });
+
+  it('animates from the expanded snap point down to a compact point on release', async () => {
+    fixture.componentInstance.points.set(['100px', 1]);
+    fixture.componentInstance.defaultPoint.set(1);
+    fixture.componentInstance.active.set(1);
+    fixture.detectChanges();
+    const { viewport, popup } = await openDrawer();
+
+    swipe(viewport, 0, 175, 82, 0, 1000);
+    fixture.detectChanges();
+
+    expect(fixture.componentInstance.active()).toBe('100px');
+    await expectRunningTransformAnimation(popup);
+  });
+
+  it('animates an incomplete close back to its current snap point', async () => {
+    fixture.componentInstance.points.set(['100px', 1]);
+    fixture.componentInstance.defaultPoint.set('100px');
+    fixture.componentInstance.active.set('100px');
+    fixture.detectChanges();
+    const { viewport, popup } = await openDrawer();
+
+    swipe(viewport, 0, 40, 83, 0, 1000);
+    fixture.detectChanges();
+
+    expect(fixture.componentInstance.root().open()).toBe(true);
+    expect(fixture.componentInstance.active()).toBe('100px');
+    await expectRunningTransformAnimation(popup);
   });
 
   it('applies the target snap offset before resetting swipe movement on release', async () => {
@@ -886,4 +933,13 @@ function rect(height: number): DOMRect {
     y: 0,
     toJSON: () => ({}),
   };
+}
+
+async function expectRunningTransformAnimation(element: HTMLElement): Promise<void> {
+  await vi.waitFor(() => {
+    const animation = element
+      .getAnimations()
+      .find(candidate => candidate.playState === 'running');
+    expect(animation).toBeDefined();
+  });
 }
