@@ -2,7 +2,12 @@ import { Component, Directive, OnInit, signal } from '@angular/core';
 import { FormControl, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { By } from '@angular/platform-browser';
 import { fireEvent, render, waitFor } from '@testing-library/angular';
-import { injectPopoverTriggerState, NgpPopover, NgpPopoverTrigger } from 'ng-primitives/popover';
+import {
+  injectPopoverTriggerState,
+  NgpPopover,
+  NgpPopoverTrigger,
+  NgpPopoverTriggerState,
+} from 'ng-primitives/popover';
 import { NgpPlacement } from 'ng-primitives/portal';
 import { NgpTooltip, NgpTooltipTrigger, provideTooltipConfig } from 'ng-primitives/tooltip';
 import { afterEach, describe, expect, it, vi } from 'vitest';
@@ -442,7 +447,7 @@ describe('NgpPopover', () => {
       });
     });
 
-    it('should emit openChange false when destroyed while open', async () => {
+    it('should tear the overlay down, without emitting, when destroyed while open', async () => {
       const { fixture, getByRole } = await render(OpenChangeTestComponent);
       const component = fixture.componentInstance;
 
@@ -455,10 +460,14 @@ describe('NgpPopover', () => {
 
       component.onOpenChange.mockClear();
 
-      // Destroy while open — should emit false
+      // Teardown runs from the state's onDestroy, by which point Angular has already
+      // destroyed the `openChange` OutputRef - emitting there throws NG0953.
       fixture.destroy();
-      expect(component.onOpenChange).toHaveBeenCalledWith(false);
-      expect(component.onOpenChange).toHaveBeenCalledTimes(1);
+
+      await waitFor(() => {
+        expect(document.querySelector('[ngpPopover]')).not.toBeInTheDocument();
+      });
+      expect(component.onOpenChange).not.toHaveBeenCalled();
     });
 
     it('should not emit openChange on destroy when already closed', async () => {
@@ -1036,6 +1045,348 @@ describe('NgpPopover', () => {
       });
     });
   });
+
+  describe('injected state setters', () => {
+    // Every input on NgpPopoverTrigger has a matching setter on the state, so a
+    // wrapper component can configure the trigger it hosts.
+    @Directive({ selector: '[popoverState]' })
+    class PopoverStateDirective {
+      readonly trigger = injectPopoverTriggerState();
+    }
+
+    // The panel needs an explicit size and position for the positioning assertions
+    // below - Floating UI writes `top`/`left`, which a static element ignores.
+    const template = `
+      <button [ngpPopoverTrigger]="content" popoverState>Open Popover</button>
+
+      <ng-template #content>
+        <div ngpPopover style="position: fixed; width: 120px; height: 60px;">Popover content</div>
+      </ng-template>
+    `;
+
+    async function renderWithState() {
+      const result = await render(template, {
+        imports: [NgpPopoverTrigger, NgpPopover, PopoverStateDirective],
+      });
+
+      const state = result.fixture.debugElement
+        .query(By.directive(PopoverStateDirective))
+        .injector.get(PopoverStateDirective).trigger;
+
+      return { ...result, state, trigger: result.getByRole('button') };
+    }
+
+    type PopoverState = NgpPopoverTriggerState<unknown>;
+
+    const anchorElement = document.createElement('div');
+    const guard = () => false;
+
+    const cases: Array<{
+      setter: string;
+      set: (state: PopoverState) => void;
+      read: (state: PopoverState) => unknown;
+      expected: unknown;
+    }> = [
+      {
+        setter: 'setPopover',
+        set: state => state.setPopover(undefined),
+        read: state => state.popover(),
+        expected: undefined,
+      },
+      {
+        setter: 'setDisabled',
+        set: state => state.setDisabled(true),
+        read: state => state.disabled(),
+        expected: true,
+      },
+      {
+        setter: 'setPlacement',
+        set: state => state.setPlacement('right'),
+        read: state => state.placement(),
+        expected: 'right',
+      },
+      {
+        setter: 'setOffset',
+        set: state => state.setOffset(12),
+        read: state => state.offset(),
+        expected: 12,
+      },
+      {
+        setter: 'setShowDelay',
+        set: state => state.setShowDelay(50),
+        read: state => state.showDelay(),
+        expected: 50,
+      },
+      {
+        setter: 'setHideDelay',
+        set: state => state.setHideDelay(75),
+        read: state => state.hideDelay(),
+        expected: 75,
+      },
+      {
+        setter: 'setFlip',
+        set: state => state.setFlip(false),
+        read: state => state.flip(),
+        expected: false,
+      },
+      {
+        setter: 'setShift',
+        set: state => state.setShift(false),
+        read: state => state.shift(),
+        expected: false,
+      },
+      {
+        setter: 'setContainer',
+        set: state => state.setContainer('#host'),
+        read: state => state.container(),
+        expected: '#host',
+      },
+      {
+        setter: 'setCloseOnOutsideClick',
+        set: state => state.setCloseOnOutsideClick(guard),
+        read: state => state.closeOnOutsideClick(),
+        expected: guard,
+      },
+      {
+        setter: 'setCloseOnEscape',
+        set: state => state.setCloseOnEscape(guard),
+        read: state => state.closeOnEscape(),
+        expected: guard,
+      },
+      {
+        setter: 'setScrollBehavior',
+        set: state => state.setScrollBehavior('close'),
+        read: state => state.scrollBehavior(),
+        expected: 'close',
+      },
+      {
+        setter: 'setContext',
+        set: state => state.setContext('ctx'),
+        read: state => state.context(),
+        expected: 'ctx',
+      },
+      {
+        setter: 'setAnchor',
+        set: state => state.setAnchor(anchorElement),
+        read: state => state.anchor(),
+        expected: anchorElement,
+      },
+      {
+        setter: 'setTrackPosition',
+        set: state => state.setTrackPosition(true),
+        read: state => state.trackPosition(),
+        expected: true,
+      },
+      {
+        setter: 'setCooldown',
+        set: state => state.setCooldown(250),
+        read: state => state.cooldown(),
+        expected: 250,
+      },
+    ];
+
+    it.each(cases)('should update the state through $setter', async ({ set, read, expected }) => {
+      const { state } = await renderWithState();
+
+      set(state());
+
+      expect(read(state())).toBe(expected);
+    });
+
+    it('should warn but still apply when a state signal is written directly', async () => {
+      const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+      const { state } = await renderWithState();
+
+      state().offset.set(16);
+
+      expect(state().offset()).toBe(16);
+      expect(warn).toHaveBeenCalledWith(expect.stringContaining('setOffset'));
+      warn.mockRestore();
+    });
+
+    it('should render the content passed to setPopover', async () => {
+      @Component({
+        template: `
+          <div ngpPopover>Replacement popover</div>
+        `,
+        imports: [NgpPopover],
+      })
+      class ReplacementPopover {}
+
+      const { fixture, state, trigger } = await renderWithState();
+
+      state().setPopover(ReplacementPopover);
+      fixture.detectChanges();
+
+      fireEvent.click(trigger);
+
+      await waitFor(() => {
+        expect(document.querySelector('[ngpPopover]')?.textContent?.trim()).toBe(
+          'Replacement popover',
+        );
+      });
+    });
+
+    it('should reflect setPlacement on the trigger and the open popover', async () => {
+      const { fixture, state, trigger } = await renderWithState();
+
+      state().setPlacement('right');
+      fixture.detectChanges();
+
+      expect(trigger).toHaveAttribute('data-placement', 'right');
+
+      fireEvent.click(trigger);
+
+      await waitFor(() => {
+        expect(document.querySelector('[ngpPopover]')).toHaveAttribute('data-placement', 'right');
+      });
+    });
+
+    it('should not open once disabled through setDisabled', async () => {
+      const { fixture, state, trigger } = await renderWithState();
+
+      state().setDisabled(true);
+      fixture.detectChanges();
+
+      expect(trigger).toHaveAttribute('data-disabled', '');
+
+      fireEvent.click(trigger);
+
+      // Give the overlay a chance to appear so the assertion is not trivially true.
+      await new Promise(resolve => setTimeout(resolve, 100));
+
+      expect(document.querySelector('[ngpPopover]')).not.toBeInTheDocument();
+    });
+
+    it('should delay opening by the value passed to setShowDelay', async () => {
+      const { state, trigger } = await renderWithState();
+
+      state().setShowDelay(150);
+      fireEvent.click(trigger);
+
+      expect(document.querySelector('[ngpPopover]')).not.toBeInTheDocument();
+
+      await waitFor(() => {
+        expect(document.querySelector('[ngpPopover]')).toBeInTheDocument();
+      });
+    });
+
+    it('should delay closing by the value passed to setHideDelay', async () => {
+      const { state, trigger } = await renderWithState();
+
+      state().setHideDelay(150);
+      fireEvent.click(trigger);
+
+      await waitFor(() => {
+        expect(document.querySelector('[ngpPopover]')).toBeInTheDocument();
+      });
+
+      fireEvent.click(trigger);
+
+      expect(document.querySelector('[ngpPopover]')).toBeInTheDocument();
+
+      await waitFor(() => {
+        expect(document.querySelector('[ngpPopover]')).not.toBeInTheDocument();
+      });
+    });
+
+    it('should offset the popover by the value passed to setOffset', async () => {
+      const { state, trigger } = await renderWithState();
+
+      state().setPlacement('bottom');
+      state().setOffset(60);
+      state().setFlip(false);
+      state().setShift(false);
+      fireEvent.click(trigger);
+
+      // Floating UI positions asynchronously, so poll rather than measuring once.
+      await waitFor(() => {
+        const gap =
+          document.querySelector('[ngpPopover]')!.getBoundingClientRect().top -
+          trigger.getBoundingClientRect().bottom;
+
+        expect(gap).toBeCloseTo(60, 0);
+      });
+    });
+
+    it('should keep the popover open when setCloseOnOutsideClick refuses', async () => {
+      const { state, trigger } = await renderWithState();
+
+      state().setCloseOnOutsideClick(false);
+      fireEvent.click(trigger);
+
+      await waitFor(() => {
+        expect(document.querySelector('[ngpPopover]')).toBeInTheDocument();
+      });
+
+      fireEvent.mouseUp(document.body);
+
+      // Dismissal is async, so settle before asserting the guard held.
+      await new Promise(resolve => setTimeout(resolve, 100));
+
+      expect(document.querySelector('[ngpPopover]')).toBeInTheDocument();
+    });
+
+    it('should keep the popover open when setCloseOnEscape refuses', async () => {
+      const { state, trigger } = await renderWithState();
+
+      state().setCloseOnEscape(false);
+      fireEvent.click(trigger);
+
+      await waitFor(() => {
+        expect(document.querySelector('[ngpPopover]')).toBeInTheDocument();
+      });
+
+      fireEvent.keyDown(document.querySelector('[ngpPopover]')!, { key: 'Escape' });
+
+      // Dismissal is async, so settle before asserting the guard held.
+      await new Promise(resolve => setTimeout(resolve, 100));
+
+      expect(document.querySelector('[ngpPopover]')).toBeInTheDocument();
+    });
+
+    it('should position the popover against the element passed to setAnchor', async () => {
+      const { state, trigger } = await renderWithState();
+
+      const anchor = document.createElement('div');
+      anchor.style.cssText = 'position:fixed;top:400px;left:40px;width:80px;height:20px;';
+      document.body.appendChild(anchor);
+
+      state().setAnchor(anchor);
+      state().setPlacement('bottom');
+      state().setOffset(0);
+      state().setFlip(false);
+      state().setShift(false);
+
+      fireEvent.click(trigger);
+
+      await waitFor(() => {
+        const popoverTop = document.querySelector('[ngpPopover]')!.getBoundingClientRect().top;
+
+        expect(popoverTop).toBeCloseTo(anchor.getBoundingClientRect().bottom, 0);
+      });
+
+      anchor.remove();
+    });
+
+    it('should attach the popover to the element passed to setContainer', async () => {
+      const host = document.createElement('div');
+      host.id = 'setter-popover-host';
+      document.body.appendChild(host);
+
+      const { state, trigger } = await renderWithState();
+
+      state().setContainer(host);
+      fireEvent.click(trigger);
+
+      await waitFor(() => {
+        expect(host.querySelector('[ngpPopover]')).toBeInTheDocument();
+      });
+
+      host.remove();
+    });
+  });
+
   describe('dynamic content', () => {
     const template = `
       <button [ngpPopoverTrigger]="useFirst ? first : second">Open Popover</button>

@@ -1,5 +1,5 @@
 import { BooleanInput, NumberInput } from '@angular/cdk/coercion';
-import { booleanAttribute, Directive, input, numberAttribute, OnDestroy } from '@angular/core';
+import { booleanAttribute, Directive, input, numberAttribute } from '@angular/core';
 import {
   coerceFlip,
   coerceOffset,
@@ -28,7 +28,7 @@ type TooltipInput<T> = NgpOverlayContent<T> | string | null | undefined;
   exportAs: 'ngpTooltipTrigger',
   providers: [provideTooltipTriggerState({ inherit: false })],
 })
-export class NgpTooltipTrigger<T = null> implements OnDestroy {
+export class NgpTooltipTrigger<T = null> {
   /**
    * Access the global tooltip configuration.
    */
@@ -214,10 +214,6 @@ export class NgpTooltipTrigger<T = null> implements OnDestroy {
     cooldown: this.cooldown,
     hoverableContent: this.hoverableContent,
   });
-
-  ngOnDestroy(): void {
-    return this.state.destroy();
-  }
 
   /**
    * Show the tooltip programmatically (skips cooldown so multiple tooltips can coexist).
