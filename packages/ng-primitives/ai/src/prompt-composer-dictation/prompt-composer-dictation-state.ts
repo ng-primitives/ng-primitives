@@ -122,6 +122,8 @@ export const [
         // Store the current prompt as the base
         resetTranscript();
         basePrompt = composer().prompt();
+        // counts as written, so an edit made before the first result is still detected below
+        lastWritten = basePrompt;
       };
 
       recognition.onresult = (event: any) => {

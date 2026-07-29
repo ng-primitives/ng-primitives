@@ -433,6 +433,23 @@ describe('NgpPromptComposerDictation', () => {
       expect(screen.getByText('Current: "world"')).toBeInTheDocument();
     });
 
+    it('should keep an edit the user made before the first speech result', async () => {
+      const { fixture } = await render(template, { imports });
+
+      const input = screen.getByRole('textbox');
+      await userEvent.click(screen.getByRole('button', { name: 'Dictate' }));
+      fixture.detectChanges();
+
+      // the user types between the session starting and the first phrase being heard
+      await userEvent.type(input, 'note');
+      fixture.detectChanges();
+
+      mockSpeechRecognition.mockResult('world');
+      await settle(fixture);
+
+      expect(screen.getByText('Current: "note world"')).toBeInTheDocument();
+    });
+
     it('should keep a partial edit the user made mid-session', async () => {
       const { fixture } = await render(template, { imports });
 
