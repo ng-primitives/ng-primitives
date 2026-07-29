@@ -17,6 +17,14 @@ export default defineConfig(({ mode }) => ({
     globals: true,
     setupFiles: ['src/test-setup.vitest.ts'],
     include: ['**/*.test.ts'],
+    typecheck: {
+      enabled: true,
+      include: ['**/*.test-d.ts'],
+      // Only the assertions in *.test-d.ts are checked; the rest of the suite has never been
+      // type-checked and reports pre-existing errors.
+      ignoreSourceErrors: true,
+      tsconfig: './tsconfig.vitest.json',
+    },
     exclude: ['schematics/**/*.node.test.ts'],
     reporters: ['default'],
     browser: {
