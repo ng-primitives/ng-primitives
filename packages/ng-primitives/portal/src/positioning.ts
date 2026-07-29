@@ -54,9 +54,10 @@ type Assert<T extends true> = T;
 
 /**
  * Compile-time guard: a Floating UI upgrade that changes any of these types breaks here rather
- * than silently diverging from the inlined copies. Not exported from the barrel.
+ * than silently diverging from the inlined copies. Never referenced - existing is the test.
  */
-export type NgpFloatingUiParity = [
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+type FloatingUiParity = [
   Assert<Exact<NgpPlacement, Placement>>,
   Assert<Exact<NgpBoundary, Boundary>>,
   Assert<Exact<NgpRootBoundary, RootBoundary>>,
