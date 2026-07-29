@@ -213,7 +213,7 @@ function categorizePrimitive(name: string): string {
   }
 
   // Overlays & Dialogs
-  if (['dialog', 'popover', 'tooltip'].some(term => lowerName.includes(term))) {
+  if (['dialog', 'drawer', 'popover', 'tooltip'].some(term => lowerName.includes(term))) {
     return 'Overlays & Dialogs';
   }
 
@@ -274,6 +274,7 @@ function getComponentDescription(name: string, content: string): string {
     Toolbar: 'Toolbar component for grouping actions.',
     Pagination: 'Pagination component for data navigation.',
     Dialog: 'Modal dialog component.',
+    Drawer: 'Edge-aligned overlay with swipe gestures, nesting, and snap points.',
     Popover: 'Floating popover component.',
     Tooltip: 'Tooltip component for additional context.',
     Toast: 'Toast notification component.',

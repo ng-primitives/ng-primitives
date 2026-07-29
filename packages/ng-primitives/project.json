@@ -104,12 +104,18 @@
     },
     "test": {
       "executor": "nx:noop",
-      "dependsOn": ["test-browser", "test-node"]
+      "dependsOn": ["test-browser", "test-browser-native", "test-node"]
     },
     "test-browser": {
       "executor": "@analogjs/vitest-angular:test",
       "options": {
         "configFile": "vite.config.ts"
+      }
+    },
+    "test-browser-native": {
+      "executor": "@analogjs/vitest-angular:test",
+      "options": {
+        "configFile": "vite.config.browser.ts"
       }
     },
     "test-node": {
