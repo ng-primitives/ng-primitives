@@ -1,9 +1,9 @@
 /**
  * The positioning vocabulary the overlay primitives speak, written out in full so the public
  * API (and the generated docs) read as `Ngp*` types rather than re-exported Floating UI ones.
- * `FloatingUiParity` below fails the build if the inlined types drift from upstream.
+ * `positioning.test-d.ts` fails if a copy drifts from the Floating UI type it mirrors.
  */
-import type { Boundary, Middleware, Placement, RootBoundary, Strategy } from '@floating-ui/dom';
+import type { Middleware } from '@floating-ui/dom';
 
 /** Where a floating element is placed relative to its trigger, e.g. `bottom-start`. */
 export type NgpPlacement =
@@ -49,18 +49,3 @@ export type NgpPositioningStrategy = 'absolute' | 'fixed';
  * inlining it would mean copying Floating UI's whole middleware state surface.
  */
 export type NgpMiddleware = Middleware;
-
-type Exact<A, B> = [A] extends [B] ? ([B] extends [A] ? true : false) : false;
-type Assert<T extends true> = T;
-
-/**
- * Compile-time guard: a Floating UI upgrade that changes any of these types breaks here rather
- * than silently diverging from the inlined copies. Never referenced - existing is the test.
- */
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-type FloatingUiParity = [
-  Assert<Exact<NgpPlacement, Placement>>,
-  Assert<Exact<NgpBoundary, Boundary>>,
-  Assert<Exact<NgpRootBoundary, RootBoundary>>,
-  Assert<Exact<NgpPositioningStrategy, Strategy>>,
-];
