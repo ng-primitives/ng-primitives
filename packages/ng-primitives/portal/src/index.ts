@@ -35,6 +35,7 @@ export {
   NgpMiddleware,
   NgpPlacement,
   NgpPositioningStrategy,
+  NgpRect,
   NgpRootBoundary,
 } from './positioning';
 export {
