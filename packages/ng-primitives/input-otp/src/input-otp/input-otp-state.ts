@@ -107,8 +107,15 @@ export interface NgpInputOtpState {
    */
   readonly selectionEnd: Signal<number>;
 
+  /**
+   * Emits when the value state changes.
+   */
   readonly valueChange: Observable<string>;
-  readonly completeChange: Observable<string>;
+
+  /**
+   * Emits when the complete state changes.
+   */
+  readonly complete: Observable<string>;
 
   /**
    * Register the hidden input with the input-otp.
@@ -175,8 +182,7 @@ export const [NgpInputOtpStateToken, ngpInputOtp, injectInputOtpState, provideIn
       // The value is mutated internally as the user types, so it is controlled.
       const value = controlled(_value);
       const valueChange = emitter<string>();
-
-      const completeChange = emitter<string>();
+      const complete = emitter<string>();
 
       // The registered hidden input and slots stay private to the factory — no other
       // part reads them directly, only the derived `maxLength` and the methods below.
@@ -225,7 +231,7 @@ export const [NgpInputOtpStateToken, ngpInputOtp, injectInputOtpState, provideIn
         // Emit complete once the OTP has been fully entered.
         if (newValue.length === maxLength()) {
           onComplete?.(newValue);
-          completeChange.emit(newValue);
+          complete.emit(newValue);
         }
       }
 
@@ -260,7 +266,7 @@ export const [NgpInputOtpStateToken, ngpInputOtp, injectInputOtpState, provideIn
         selectionStart,
         selectionEnd,
         valueChange: valueChange.asObservable(),
-        completeChange: completeChange.asObservable(),
+        complete: complete.asObservable(),
         registerInput,
         registerSlot,
         unregisterSlot,
