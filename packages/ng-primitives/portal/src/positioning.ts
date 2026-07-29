@@ -1,7 +1,7 @@
 /**
  * The positioning vocabulary the overlay primitives speak, written out in full so the public
  * API (and the generated docs) read as `Ngp*` types rather than re-exported Floating UI ones.
- * `NgpParity` below fails the build if the inlined unions drift from upstream.
+ * `FloatingUiParity` below fails the build if the inlined types drift from upstream.
  */
 import type { Boundary, Middleware, Placement, RootBoundary, Strategy } from '@floating-ui/dom';
 
@@ -30,7 +30,8 @@ export interface NgpRect {
 
 /**
  * The clipping area a floating element is kept within. Pass an element (or elements) to
- * constrain it to a container rather than to its clipping ancestors.
+ * constrain it to a container rather than to its clipping ancestors, or an `NgpRect` to
+ * constrain it to an arbitrary region.
  */
 export type NgpBoundary = 'clippingAncestors' | Element | Element[] | NgpRect;
 
