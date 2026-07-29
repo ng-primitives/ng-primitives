@@ -108,12 +108,13 @@ export interface NgpInputOtpState {
   readonly selectionEnd: Signal<number>;
 
   /**
-   * Emits when the value state changes.
+   * Emits when the value changes.
    */
   readonly valueChange: Observable<string>;
 
   /**
-   * Emits when the complete state changes.
+   * Emits once the OTP is complete (`maxLength` characters entered). It does
+   * not emit when a complete value is shortened.
    */
   readonly complete: Observable<string>;
 
