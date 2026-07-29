@@ -5,6 +5,7 @@ import { describe, expect, it, vi } from 'vitest';
 import { NgpInputOtpInput } from '../../input-otp-input/input-otp-input';
 import { NgpInputOtpSlot } from '../../input-otp-slot/input-otp-slot';
 import { NgpInputOtp } from '../input-otp';
+import { NgpInputOtpStateToken } from '../input-otp-state';
 
 const imports = [NgpInputOtp, NgpInputOtpInput, NgpInputOtpSlot];
 
@@ -484,6 +485,68 @@ describe('NgpInputOtp', () => {
       fireEvent.input(input, { target: { value: '12' } });
 
       expect(valueChange).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('state observables', () => {
+    async function renderWithState(slotCount: number, attrs = '') {
+      const { fixture } = await renderOtp(slotCount, attrs);
+      const state = fixture.debugElement
+        .query(By.directive(NgpInputOtp))
+        .injector.get(NgpInputOtpStateToken)();
+
+      const valueChange = vi.fn();
+      const complete = vi.fn();
+      state.valueChange.subscribe(valueChange);
+      state.complete.subscribe(complete);
+
+      return { valueChange, complete };
+    }
+
+    it('emits state.valueChange as the value changes', async () => {
+      const { valueChange } = await renderWithState(3);
+      const input = getInput();
+
+      fireEvent.focus(input);
+      fireEvent.input(input, { target: { value: '1' } });
+      fireEvent.input(input, { target: { value: '12' } });
+
+      expect(valueChange).toHaveBeenNthCalledWith(1, '1');
+      expect(valueChange).toHaveBeenNthCalledWith(2, '12');
+    });
+
+    it('does not emit state.valueChange when the value is unchanged', async () => {
+      const { valueChange } = await renderWithState(2, `[ngpInputOtpValue]="'12'"`);
+      const input = getInput();
+
+      fireEvent.focus(input);
+      fireEvent.input(input, { target: { value: '12' } });
+
+      expect(valueChange).not.toHaveBeenCalled();
+    });
+
+    it('emits state.complete only once the OTP reaches maxLength', async () => {
+      const { complete } = await renderWithState(3);
+      const input = getInput();
+
+      fireEvent.focus(input);
+      fireEvent.input(input, { target: { value: '12' } });
+      expect(complete).not.toHaveBeenCalled();
+
+      fireEvent.input(input, { target: { value: '123' } });
+      expect(complete).toHaveBeenCalledWith('123');
+      expect(complete).toHaveBeenCalledTimes(1);
+    });
+
+    it('does not emit state.complete when a complete value is shortened', async () => {
+      const { complete } = await renderWithState(3);
+      const input = getInput();
+
+      fireEvent.focus(input);
+      fireEvent.input(input, { target: { value: '123' } });
+      fireEvent.input(input, { target: { value: '12' } });
+
+      expect(complete).toHaveBeenCalledTimes(1);
     });
   });
 
