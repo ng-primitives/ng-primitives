@@ -71,6 +71,14 @@ export interface HoverBridgeController {
 }
 
 /**
+ * Refcounted per container, because suppression is not owned by one bridge:
+ * every trigger in a group has its own, and they all suppress the same element.
+ * A second corridor starting before the first tears down would otherwise record
+ * 'none' as the value to put back and leave the container inert for good.
+ */
+const containerSuppressions = new WeakMap<HTMLElement, { count: number; previous: string }>();
+
+/**
  * Shared safe-polygon hover-intent state machine used by the menu, submenu and
  * tooltip triggers. While the pointer travels inside the corridor toward the
  * panel the overlay stays open; it closes when the pointer leaves the corridor,
@@ -96,7 +104,6 @@ export function createHoverBridge({
   let removePointerMoveListener: (() => void) | undefined = undefined;
   let fallbackTimeoutId: ReturnType<typeof setTimeout> | undefined = undefined;
   let suppressedElement: HTMLElement | null = null;
-  let previousContainerPointerEvents = '';
   let previousTriggerPointerEvents = '';
   let removePressGuards: (() => void) | undefined = undefined;
 
@@ -134,7 +141,14 @@ export function createHoverBridge({
     }
 
     suppressedElement = element;
-    previousContainerPointerEvents = element.style.pointerEvents;
+
+    const existing = containerSuppressions.get(element);
+    if (existing) {
+      existing.count++;
+    } else {
+      containerSuppressions.set(element, { count: 1, previous: element.style.pointerEvents });
+    }
+
     element.style.pointerEvents = 'none';
 
     if (trigger) {
@@ -217,7 +231,12 @@ export function createHoverBridge({
     removePressGuards = undefined;
 
     if (suppressedElement) {
-      suppressedElement.style.pointerEvents = previousContainerPointerEvents;
+      const suppression = containerSuppressions.get(suppressedElement);
+      if (suppression && --suppression.count === 0) {
+        suppressedElement.style.pointerEvents = suppression.previous;
+        containerSuppressions.delete(suppressedElement);
+      }
+
       suppressedElement = null;
 
       if (trigger) {

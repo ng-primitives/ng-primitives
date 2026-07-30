@@ -192,6 +192,62 @@ describe('createHoverBridge - sibling pointer-events suppression', () => {
     expect(containerB.style.pointerEvents).toBe('');
   });
 
+  describe('two bridges sharing one container', () => {
+    /** Sibling triggers in one group each own a bridge but suppress the same element. */
+    function setupPair(container: HTMLElement) {
+      return [
+        setup({ siblingContainer: () => container }).bridge,
+        setup({ siblingContainer: () => container }).bridge,
+      ] as const;
+    }
+
+    it('leaves the container usable when their corridors overlap', () => {
+      const container = document.createElement('div');
+      const [a, b] = setupPair(container);
+
+      a.track(TRACK_OPTIONS);
+      b.track(TRACK_OPTIONS);
+      a.clear();
+
+      // The container is still suppressed by b, so a's teardown must not lift it.
+      expect(container.style.pointerEvents).toBe('none');
+
+      b.clear();
+
+      // b captured the container mid-suppression: restoring what it read there
+      // would pin pointer-events to none for the rest of the page's life.
+      expect(container.style.pointerEvents).toBe('');
+    });
+
+    it('keeps the container suppressed until the last overlapping corridor ends', () => {
+      const container = document.createElement('div');
+      const [a, b] = setupPair(container);
+
+      a.track(TRACK_OPTIONS);
+      b.track(TRACK_OPTIONS);
+      b.clear();
+
+      expect(container.style.pointerEvents).toBe('none');
+
+      a.clear();
+
+      expect(container.style.pointerEvents).toBe('');
+    });
+
+    it('preserves a consumer inline value across overlapping corridors', () => {
+      const container = document.createElement('div');
+      container.style.pointerEvents = 'auto';
+      const [a, b] = setupPair(container);
+
+      a.track(TRACK_OPTIONS);
+      b.track(TRACK_OPTIONS);
+      a.clear();
+      b.clear();
+
+      expect(container.style.pointerEvents).toBe('auto');
+    });
+  });
+
   describe('pointerdown guard', () => {
     /** A container at a known viewport position, so coordinates can be aimed in and out of it. */
     function appendContainer(): HTMLElement {
