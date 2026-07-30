@@ -130,7 +130,9 @@ describe('hover-bridge sibling suppression - independence across nesting levels'
     // root-level corridor - isPointerInAnchor becomes true - independently of
     // anything that happens at the nested level below).
     await userEvent.pointer({ target: triggerA, coords: { x: 10, y: 16 } });
-    await waitFor(() => expect(document.querySelector('[data-testid="menu-a"]')).toBeInTheDocument());
+    await waitFor(() =>
+      expect(document.querySelector('[data-testid="menu-a"]')).toBeInTheDocument(),
+    );
 
     const nestedTriggerA1 = document.querySelector(
       '[data-testid="nested-trigger-a1"]',
@@ -163,6 +165,8 @@ describe('hover-bridge sibling suppression - independence across nesting levels'
     // it now must open menu-b as normal, proving nested-level suppression
     // didn't leak up and disable the root group too.
     await userEvent.pointer({ target: triggerB, coords: { x: 10, y: 16 } });
-    await waitFor(() => expect(document.querySelector('[data-testid="menu-b"]')).toBeInTheDocument());
+    await waitFor(() =>
+      expect(document.querySelector('[data-testid="menu-b"]')).toBeInTheDocument(),
+    );
   });
 });

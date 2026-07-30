@@ -69,7 +69,9 @@ async function openRootMenu(): Promise<HTMLElement> {
   ) as HTMLElement;
 
   await userEvent.click(rootTrigger);
-  await waitFor(() => expect(document.querySelector('[data-testid="trigger-a"]')).toBeInTheDocument());
+  await waitFor(() =>
+    expect(document.querySelector('[data-testid="trigger-a"]')).toBeInTheDocument(),
+  );
 
   return document.querySelector('[data-testid="trigger-a"]') as HTMLElement;
 }
@@ -197,9 +199,7 @@ describe('NgpSubmenuTrigger sibling suppression - real layout, real pointer move
     // The panel we're actually heading into must remain fully interactive -
     // it's a separate overlay subtree from the sibling container, so it must
     // never be caught by the suppression applied to the trigger list.
-    const submenuAItem1 = document.querySelector(
-      '[data-testid="submenu-a-item-1"]',
-    ) as HTMLElement;
+    const submenuAItem1 = document.querySelector('[data-testid="submenu-a-item-1"]') as HTMLElement;
     await userEvent.pointer({ target: submenuAItem1 });
     expect(document.querySelector('[data-testid="submenu-a"]')).toBeInTheDocument();
   });

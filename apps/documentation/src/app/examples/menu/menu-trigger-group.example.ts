@@ -8,33 +8,33 @@ import { NgpMenu, NgpMenuItem, NgpMenuTrigger, NgpMenuTriggerGroup } from 'ng-pr
   imports: [NgpMenuTrigger, NgpMenu, NgpMenuItem, NgpMenuTriggerGroup, NgIcon],
   providers: [provideIcons({ heroUsers, heroFolder, heroChartBar })],
   template: `
-    <nav ngpMenuTriggerGroup class="sidebar">
+    <nav class="sidebar" ngpMenuTriggerGroup>
       <div class="sidebar-header">Workspace</div>
 
       <div class="sidebar-body">
         <button
+          class="sidebar-item"
           [ngpMenuTrigger]="teamMenu"
           [ngpMenuTriggerOpenTriggers]="['hover']"
           ngpMenuTriggerPlacement="right-start"
-          class="sidebar-item"
         >
           <ng-icon name="heroUsers" />
           Team
         </button>
         <button
+          class="sidebar-item"
           [ngpMenuTrigger]="projectsMenu"
           [ngpMenuTriggerOpenTriggers]="['hover']"
           ngpMenuTriggerPlacement="right-start"
-          class="sidebar-item"
         >
           <ng-icon name="heroFolder" />
           Projects
         </button>
         <button
+          class="sidebar-item"
           [ngpMenuTrigger]="reportsMenu"
           [ngpMenuTriggerOpenTriggers]="['hover']"
           ngpMenuTriggerPlacement="right-start"
-          class="sidebar-item"
         >
           <ng-icon name="heroChartBar" />
           Reports

@@ -56,9 +56,7 @@ function setup(options: Partial<HoverBridgeOptions> = {}) {
 }
 
 function movePointer(point: { x: number; y: number }): void {
-  document.dispatchEvent(
-    new PointerEvent('pointermove', { clientX: point.x, clientY: point.y }),
-  );
+  document.dispatchEvent(new PointerEvent('pointermove', { clientX: point.x, clientY: point.y }));
 }
 
 describe('createHoverBridge - sibling pointer-events suppression', () => {

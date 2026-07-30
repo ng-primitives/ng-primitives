@@ -11,7 +11,6 @@ import {
   WritableSignal,
 } from '@angular/core';
 import { createHoverBridge, injectElementRef } from 'ng-primitives/internal';
-import { injectMenuTriggerGroupState } from '../menu-trigger-group/menu-trigger-group-state';
 import {
   createOverlay,
   NgpFlip,
@@ -33,6 +32,7 @@ import {
 } from 'ng-primitives/state';
 import { injectDisposables } from 'ng-primitives/utils';
 import { NgpMenuTriggerType } from '../config/menu-config';
+import { injectMenuTriggerGroupState } from '../menu-trigger-group/menu-trigger-group-state';
 
 export interface NgpMenuTriggerState<T = unknown> {
   /**

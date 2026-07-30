@@ -134,7 +134,9 @@ describe('NgpMenuTriggerGroup sibling suppression - real layout, real pointer mo
     const triggerB = document.querySelector('[data-testid="trigger-b"]') as HTMLElement;
 
     await userEvent.pointer({ target: triggerA, coords: { x: 10, y: 16 } });
-    await waitFor(() => expect(document.querySelector('[data-testid="menu-a"]')).toBeInTheDocument());
+    await waitFor(() =>
+      expect(document.querySelector('[data-testid="menu-a"]')).toBeInTheDocument(),
+    );
 
     const menuA = document.querySelector('[data-testid="menu-a"]') as HTMLElement;
     const rectA = triggerA.getBoundingClientRect();
@@ -156,7 +158,9 @@ describe('NgpMenuTriggerGroup sibling suppression - real layout, real pointer mo
     const triggerB = document.querySelector('[data-testid="trigger-b"]') as HTMLElement;
 
     await userEvent.pointer({ target: triggerA, coords: { x: 10, y: 16 } });
-    await waitFor(() => expect(document.querySelector('[data-testid="menu-a"]')).toBeInTheDocument());
+    await waitFor(() =>
+      expect(document.querySelector('[data-testid="menu-a"]')).toBeInTheDocument(),
+    );
 
     const rectB = triggerB.getBoundingClientRect();
     const farPoint = { x: rectB.left, y: rectB.bottom + 400 };
@@ -170,7 +174,9 @@ describe('NgpMenuTriggerGroup sibling suppression - real layout, real pointer mo
     );
 
     await userEvent.pointer({ target: triggerB, coords: { x: 10, y: 16 } });
-    await waitFor(() => expect(document.querySelector('[data-testid="menu-b"]')).toBeInTheDocument());
+    await waitFor(() =>
+      expect(document.querySelector('[data-testid="menu-b"]')).toBeInTheDocument(),
+    );
   });
 
   it('does not suppress the open menu panel itself, only the sibling row', async () => {
@@ -179,7 +185,9 @@ describe('NgpMenuTriggerGroup sibling suppression - real layout, real pointer mo
     const triggerB = document.querySelector('[data-testid="trigger-b"]') as HTMLElement;
 
     await userEvent.pointer({ target: triggerA, coords: { x: 10, y: 16 } });
-    await waitFor(() => expect(document.querySelector('[data-testid="menu-a"]')).toBeInTheDocument());
+    await waitFor(() =>
+      expect(document.querySelector('[data-testid="menu-a"]')).toBeInTheDocument(),
+    );
 
     const menuA = document.querySelector('[data-testid="menu-a"]') as HTMLElement;
     const rectA = triggerA.getBoundingClientRect();
@@ -201,7 +209,9 @@ describe('NgpMenuTriggerGroup sibling suppression - real layout, real pointer mo
     const triggerB = document.querySelector('[data-testid="trigger-b"]') as HTMLElement;
 
     await userEvent.pointer({ target: triggerA, coords: { x: 10, y: 16 } });
-    await waitFor(() => expect(document.querySelector('[data-testid="menu-a"]')).toBeInTheDocument());
+    await waitFor(() =>
+      expect(document.querySelector('[data-testid="menu-a"]')).toBeInTheDocument(),
+    );
 
     const rectA = triggerA.getBoundingClientRect();
     const rectB = triggerB.getBoundingClientRect();
