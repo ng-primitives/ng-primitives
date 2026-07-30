@@ -12,6 +12,7 @@ import {
   ViewContainerRef,
   inject,
   isDevMode,
+  signal,
 } from '@angular/core';
 import { NavigationStart, Router } from '@angular/router';
 import { NgpExitAnimationManager } from 'ng-primitives/internal';
@@ -185,8 +186,8 @@ export class NgpDialogManager implements OnDestroy {
       getElements: () => dialogRef.getElements(),
       triggerElement: (activeElement as HTMLElement) ?? this.document.body,
       dismissPolicy: {
-        outsidePress: false,
-        escapeKey: config.closeOnEscape ?? true,
+        outsidePress: signal(false),
+        escapeKey: signal(config.closeOnEscape ?? true),
       },
       outsidePointerEvents$: dialogRef.outsidePointerEvents$,
     });

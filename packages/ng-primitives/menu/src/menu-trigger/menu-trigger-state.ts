@@ -19,6 +19,7 @@ import {
   NgpOverlayConfig,
   NgpOverlayContent,
   NgpPlacement,
+  NgpScrollBehavior,
   NgpShift,
 } from 'ng-primitives/portal';
 import {
@@ -180,7 +181,7 @@ export interface NgpMenuTriggerProps<T = unknown> {
   /**
    * How the menu behaves when the window is scrolled.
    */
-  readonly scrollBehavior?: Signal<'reposition' | 'block' | 'close'>;
+  readonly scrollBehavior?: Signal<NgpScrollBehavior>;
   /**
    * Context to provide to the menu.
    */
@@ -222,7 +223,7 @@ export const [
     shift: _shift = signal(undefined),
     context: _context = signal<T>(undefined as T),
     container: _container,
-    scrollBehavior,
+    scrollBehavior = signal<NgpScrollBehavior>('block'),
     cooldown,
     triggers = signal(['click'] as NgpMenuTriggerType[]),
     showDelay = signal(0),
@@ -518,20 +519,20 @@ export const [
         viewContainerRef,
         injector,
         context,
-        container: container(),
+        container,
         placement: placement,
-        offset: offset(),
-        flip: flip(),
-        shift: shift(),
-        closeOnOutsideClick: true,
-        closeOnEscape: true,
+        offset,
+        flip,
+        shift,
+        closeOnOutsideClick: signal(true),
+        closeOnEscape: signal(true),
         restoreFocus: shouldRestoreFocus,
         onClose: (origin: FocusOrigin) => closeOrigin.set(origin),
-        scrollBehaviour: scrollBehavior?.() ?? 'block',
+        scrollBehavior,
         overlayType: 'menu',
-        cooldown: cooldown?.(),
-        showDelay: showDelay(),
-        hideDelay: hideDelay(),
+        cooldown,
+        showDelay,
+        hideDelay,
       };
 
       overlay.set(createOverlay(config));

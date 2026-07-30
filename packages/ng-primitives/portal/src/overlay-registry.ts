@@ -1,6 +1,6 @@
 import { FocusOrigin } from '@angular/cdk/a11y';
 import { DOCUMENT } from '@angular/common';
-import { inject, Injectable, NgZone } from '@angular/core';
+import { inject, Injectable, NgZone, Signal } from '@angular/core';
 import { Subject } from 'rxjs';
 
 /**
@@ -39,9 +39,9 @@ export function dismissGuardAttribute<T>(value: NgpDismissGuardInput<T>): NgpDis
  */
 export interface NgpDismissPolicy {
   /** Whether clicking outside should close this overlay, or a guard function */
-  outsidePress: NgpDismissGuard<Element>;
+  outsidePress: Signal<NgpDismissGuard<Element>>;
   /** Whether pressing Escape should close this overlay, or a guard function */
-  escapeKey: NgpDismissGuard<KeyboardEvent>;
+  escapeKey: Signal<NgpDismissGuard<KeyboardEvent>>;
 }
 
 /**
@@ -353,7 +353,7 @@ export class NgpOverlayRegistry {
         const parent = this.entries.find(e => e.id === currentId);
         if (!parent) break;
         if (insideIds.has(parent.id)) break;
-        if (parent.dismissPolicy.outsidePress === false) break;
+        if (parent.dismissPolicy.outsidePress() === false) break;
         if (this.pendingGuardIds.has(parent.id)) break;
 
         highest = parent;
@@ -375,7 +375,7 @@ export class NgpOverlayRegistry {
 
     // Step 4: Dismiss each root
     for (const [id, entry] of toDismiss) {
-      this.evaluateGuardAndDismiss(id, entry.dismissPolicy.outsidePress, target, () =>
+      this.evaluateGuardAndDismiss(id, entry.dismissPolicy.outsidePress(), target, () =>
         this.ngZone.run(() => entry.overlay.hide()),
       );
     }
@@ -406,7 +406,7 @@ export class NgpOverlayRegistry {
       return;
     }
 
-    this.evaluateGuardAndDismiss(topmost.id, topmost.dismissPolicy.escapeKey, event, () =>
+    this.evaluateGuardAndDismiss(topmost.id, topmost.dismissPolicy.escapeKey(), event, () =>
       this.ngZone.run(() => topmost.overlay.hide({ origin: 'keyboard', immediate: true })),
     );
   }

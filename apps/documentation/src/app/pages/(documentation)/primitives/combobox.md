@@ -97,6 +97,33 @@ You can customize the offset using either a simple number or an object for more 
 </div>
 ```
 
+### Scroll Behavior
+
+By default the dropdown repositions itself as the page scrolls. Set
+`ngpComboboxDropdownScrollBehavior` to `block` to lock the page while the dropdown is open, or
+`close` to dismiss it on scroll:
+
+```html
+<!-- Lock the page while the dropdown is open -->
+<div ngpCombobox ngpComboboxDropdownScrollBehavior="block">Blocks page scroll</div>
+
+<!-- Dismiss the dropdown as soon as the page scrolls -->
+<div ngpCombobox ngpComboboxDropdownScrollBehavior="close">Closes on scroll</div>
+```
+
+### Keeping the Dropdown in View
+
+The dropdown shifts along its axis to stay within the viewport. Use
+`ngpComboboxDropdownShift` to add padding from the viewport edge, or `false` to let it overflow:
+
+```html
+<!-- Keep at least 8px between the dropdown and the viewport edge -->
+<div ngpCombobox [ngpComboboxDropdownShift]="{ padding: 8 }">Shift with padding</div>
+
+<!-- Opt out of shifting entirely -->
+<div ngpCombobox [ngpComboboxDropdownShift]="false">No shifting</div>
+```
+
 ### Button-only Combobox
 
 This example demonstrates a combobox without an input field. The combobox element itself becomes focusable.
@@ -283,6 +310,8 @@ bootstrapApplication(AppComponent, {
       container: document.body,
       flip: true,
       offset: 4,
+      shift: { padding: 8 },
+      scrollBehavior: 'reposition',
     }),
   ],
 });

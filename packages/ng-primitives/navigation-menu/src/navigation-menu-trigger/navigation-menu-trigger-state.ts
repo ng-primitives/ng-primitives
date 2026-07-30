@@ -451,16 +451,16 @@ export const [
         triggerElement: element.nativeElement,
         injector,
         viewContainerRef,
-        container: container(),
+        container,
         placement,
-        offset: offset(),
-        flip: flip(),
-        shift: shift(),
-        closeOnOutsideClick: true,
-        closeOnEscape: true,
-        restoreFocus: false, // We handle focus restoration ourselves
+        offset,
+        flip,
+        shift,
+        closeOnOutsideClick: signal(true),
+        closeOnEscape: signal(true),
+        restoreFocus: signal(false), // We handle focus restoration ourselves
         overlayType: 'navigation-menu',
-        cooldown: cooldown(),
+        cooldown,
       };
 
       overlay.set(createOverlay(config));

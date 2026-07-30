@@ -1,4 +1,4 @@
-import { Component, Directive, OnInit } from '@angular/core';
+import { Component, Directive, OnInit, Signal } from '@angular/core';
 import { fireEvent, render, waitFor } from '@testing-library/angular';
 import {
   NgpMenu,
@@ -7,7 +7,7 @@ import {
   NgpSubmenuTrigger,
   injectSubmenuTriggerState,
 } from 'ng-primitives/menu';
-import { NgpOverlay } from 'ng-primitives/portal';
+import { NgpFlip, NgpOverlay } from 'ng-primitives/portal';
 import { describe, expect, it, vi } from 'vitest';
 
 @Component({
@@ -188,17 +188,17 @@ async function openMenuAndSubmenu(fixture: {
   });
 }
 
-function findSubmenuOverlayContext(
-  contexts: unknown[],
-):
-  | { config: { flip?: unknown; placement?: () => string; triggerElement: HTMLElement } }
-  | undefined {
+type SubmenuOverlayContext = {
+  config: {
+    flip?: Signal<NgpFlip>;
+    placement?: () => string;
+    triggerElement: HTMLElement;
+  };
+};
+
+function findSubmenuOverlayContext(contexts: unknown[]): SubmenuOverlayContext | undefined {
   return contexts.find(
-    (
-      context,
-    ): context is {
-      config: { flip?: unknown; placement?: () => string; triggerElement: HTMLElement };
-    } =>
+    (context): context is SubmenuOverlayContext =>
       !!context &&
       typeof context === 'object' &&
       'config' in context &&
@@ -251,7 +251,7 @@ describe('NgpSubmenuTrigger viewport awareness', () => {
 
         const submenuContext = findSubmenuOverlayContext(computePositionSpy.mock.contexts);
         expect(submenuContext).toBeDefined();
-        expect(submenuContext!.config.flip).toBe(true);
+        expect(submenuContext!.config.flip?.()).toBe(true);
       } finally {
         computePositionSpy.mockRestore();
       }
@@ -269,7 +269,7 @@ describe('NgpSubmenuTrigger viewport awareness', () => {
 
         const submenuContext = findSubmenuOverlayContext(computePositionSpy.mock.contexts);
         expect(submenuContext).toBeDefined();
-        expect(submenuContext!.config.flip).toBe(false);
+        expect(submenuContext!.config.flip?.()).toBe(false);
       } finally {
         computePositionSpy.mockRestore();
       }

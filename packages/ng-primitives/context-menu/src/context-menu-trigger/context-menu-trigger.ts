@@ -108,7 +108,7 @@ export class NgpContextMenuTrigger<T = unknown> {
     menu: this.menu,
     offset: this.offset,
     flip: this.flip,
-    shift: this.shift(),
+    shift: this.shift,
     container: this.container,
     scrollBehavior: this.scrollBehavior,
     context: this.context as Signal<T>,

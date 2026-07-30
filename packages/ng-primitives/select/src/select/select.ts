@@ -3,11 +3,15 @@ import { booleanAttribute, Directive, input, output } from '@angular/core';
 import {
   coerceFlip,
   coerceOffset,
+  coerceShift,
   NgpFlip,
   NgpFlipInput,
   NgpOffset,
   NgpOffsetInput,
   NgpPlacement,
+  NgpScrollBehavior,
+  NgpShift,
+  NgpShiftInput,
 } from 'ng-primitives/portal';
 import { uniqueId } from 'ng-primitives/utils';
 import { injectSelectConfig } from '../config/select-config';
@@ -98,6 +102,24 @@ export class NgpSelect {
   });
 
   /**
+   * Configure shift behavior to keep the dropdown in view. Can be a boolean to enable/disable,
+   * or an object with padding and limiter options.
+   * @default undefined (enabled by default in overlay)
+   */
+  readonly shift = input<NgpShift, NgpShiftInput>(this.config.shift, {
+    alias: 'ngpSelectDropdownShift',
+    transform: coerceShift,
+  });
+
+  /**
+   * Defines how the dropdown behaves when the window is scrolled.
+   * @default 'reposition'
+   */
+  readonly scrollBehavior = input<NgpScrollBehavior>(this.config.scrollBehavior, {
+    alias: 'ngpSelectDropdownScrollBehavior',
+  });
+
+  /**
    * A function that will scroll the active option into view. This can be overridden
    * for cases such as virtual scrolling where we cannot scroll the option directly because
    * it may not be rendered.
@@ -125,6 +147,8 @@ export class NgpSelect {
     container: this.container,
     flip: this.flip,
     offset: this.offset,
+    shift: this.shift,
+    scrollBehavior: this.scrollBehavior,
     scrollToOption: this.scrollToOption,
     allOptions: this.allOptions,
     onValueChange: value => this.valueChange.emit(value),

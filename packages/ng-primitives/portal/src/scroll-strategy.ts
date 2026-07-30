@@ -12,6 +12,14 @@ export interface ScrollStrategy {
   disable(): void;
 }
 
+/**
+ * How an overlay responds to the page scrolling beneath it.
+ * - `reposition` → follow the trigger
+ * - `block` → prevent the page from scrolling while the overlay is open
+ * - `close` → dismiss the overlay
+ */
+export type NgpScrollBehavior = 'reposition' | 'block' | 'close';
+
 /** Cached result of the check that indicates whether the browser supports scroll behaviors. */
 let scrollBehaviorSupported: boolean | undefined;
 

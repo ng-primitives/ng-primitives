@@ -39,6 +39,7 @@ import { NgpMiddleware, NgpPlacement, NgpPositioningStrategy } from './positioni
 import {
   BlockScrollStrategy,
   CloseScrollStrategy,
+  NgpScrollBehavior,
   NoopScrollStrategy,
   ScrollStrategy,
 } from './scroll-strategy';
@@ -131,6 +132,14 @@ function resolveOverflowOptions<T extends NgpFlipOptions | NgpShiftOptions>(
 
 /**
  * Configuration options for creating an overlay
+ *
+ * The options typed `Signal<T>` are read at the point of use rather than captured, so they keep
+ * tracking the binding behind them: the overlay is built on the first open and reused after
+ * that, and a captured value would freeze there. `anchorElement` is the exception - it is read
+ * once, when the overlay is created. The positioning options (`placement`, `offset`, `flip`,
+ * `shift`, `strategy`) reposition an overlay that is already on screen; the rest are read when
+ * the behaviour they govern next runs, which for `container`, `scrollBehavior` and
+ * `trackPosition` means the next open.
  * @internal
  */
 export interface NgpOverlayConfig<T = unknown> {
@@ -160,40 +169,39 @@ export interface NgpOverlayConfig<T = unknown> {
   context?: Signal<T | undefined>;
 
   /** Container element or selector to attach the overlay to (defaults to document.body) */
-  container?: HTMLElement | string | null;
+  container?: Signal<HTMLElement | string | null>;
 
   /** Preferred placement of the overlay relative to the trigger. */
   placement?: Signal<NgpPlacement>;
 
   /** Offset distance between the overlay and trigger. Can be a number or an object with axis-specific offsets */
-  offset?: NgpOffset;
+  offset?: Signal<NgpOffset>;
 
   /** Shift configuration to keep the overlay in view. Can be a boolean, an object with options, or undefined */
-  shift?: NgpShift;
+  shift?: Signal<NgpShift>;
 
   /** Whether to enable flip behavior when space is limited, or an object with flip options */
-  flip?: NgpFlip;
+  flip?: Signal<NgpFlip>;
 
   /** Delay before showing the overlay in milliseconds */
-  showDelay?: number;
+  showDelay?: Signal<number>;
 
   /** Delay before hiding the overlay in milliseconds */
-  hideDelay?: number;
+  hideDelay?: Signal<number>;
 
   /** Whether the overlay should be positioned with fixed or absolute strategy */
-  strategy?: NgpPositioningStrategy;
+  strategy?: Signal<NgpPositioningStrategy>;
 
   /** The scroll strategy to use for the overlay */
-  scrollBehaviour?: 'reposition' | 'block' | 'close';
+  scrollBehavior?: Signal<NgpScrollBehavior>;
   /** Whether to close the overlay when clicking outside, or a guard function */
-  closeOnOutsideClick?: NgpDismissGuard<Element>;
+  closeOnOutsideClick?: Signal<NgpDismissGuard<Element>>;
   /** Whether to close the overlay when pressing escape, or a guard function */
-  closeOnEscape?: NgpDismissGuard<KeyboardEvent>;
+  closeOnEscape?: Signal<NgpDismissGuard<KeyboardEvent>>;
   /**
    * Whether to restore focus to the trigger element when hiding the overlay.
-   * Can be a boolean or a signal that returns a boolean.
    */
-  restoreFocus?: boolean | Signal<boolean>;
+  restoreFocus?: Signal<boolean>;
 
   /**
    * Optional callback to update an external close origin signal.
@@ -208,7 +216,7 @@ export interface NgpOverlayConfig<T = unknown> {
   providers?: Provider[];
 
   /** Whether to track the trigger element position on every animation frame. Useful for moving elements like slider thumbs. */
-  trackPosition?: boolean;
+  trackPosition?: Signal<boolean>;
 
   /**
    * Programmatic position for the overlay. When provided, the overlay will be positioned
@@ -237,7 +245,7 @@ export interface NgpOverlayConfig<T = unknown> {
    * the showDelay is skipped for the new overlay.
    * @default 300
    */
-  cooldown?: number;
+  cooldown?: Signal<number>;
 }
 
 /** Type for overlay content which can be either a template or component */
@@ -348,6 +356,17 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
   /** Store the arrow padding signal */
   private arrowPadding: Signal<number | undefined> | undefined = undefined;
 
+  /** The resolved options that feed `computePosition`. */
+  private readonly positioningOptions: Signal<{
+    offset: NgpOffset;
+    flip: NgpFlip;
+    shift: NgpShift;
+    strategy: NgpPositioningStrategy | undefined;
+  }>;
+
+  /** Bumped whenever `updateConfig` replaces the config, to invalidate option-derived state. */
+  private readonly configVersion = signal(0);
+
   /** @internal The position of the arrow */
   readonly arrowPosition = signal<{ x: number | undefined; y: number | undefined }>({
     x: undefined,
@@ -374,6 +393,23 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
     if (config.position !== undefined) {
       explicitEffect([config.position], () => this.updatePosition());
     }
+
+    this.positioningOptions = computed(() => {
+      // `updateConfig` swaps the whole config object, which no signal read would notice.
+      this.configVersion();
+
+      return {
+        offset: this.config.offset?.() ?? 0,
+        flip: this.config.flip?.(),
+        shift: this.config.shift?.(),
+        strategy: this.config.strategy?.(),
+      };
+    });
+
+    // `computePosition` reads these on every pass, but nothing re-runs it on its own while
+    // the overlay sits still, so a signal-backed option would not reach an open overlay
+    // until the next scroll or resize.
+    explicitEffect([this.positioningOptions], () => this.updatePosition());
 
     // Listen for content changes to re-render what is on screen. A closed overlay needs
     // nothing here - it reads the content when it opens.
@@ -427,7 +463,7 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
       }
 
       // Use the provided delay or fall back to config
-      let delay = this.config.showDelay ?? 0;
+      let delay = this.config.showDelay?.() ?? 0;
       let isInstantDueToCooldown = false;
 
       // Check cooldown regardless of delay value - we need to detect instant transitions
@@ -435,7 +471,7 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
       // However, if cooldown is explicitly set to 0, disable cooldown behavior entirely.
       // Skip cooldown detection entirely when skipCooldown is true (e.g. programmatic show).
       if (!options?.skipCooldown && this.config.overlayType) {
-        const cooldownDuration = this.config.cooldown ?? 300;
+        const cooldownDuration = this.config.cooldown?.() ?? 300;
         if (
           cooldownDuration > 0 &&
           (this.cooldownManager.isWithinCooldown(this.config.overlayType, cooldownDuration) ||
@@ -503,7 +539,11 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
 
     // Re-register with cooldown if needed
     if (this.config.overlayType) {
-      this.cooldownManager.registerActive(this.config.overlayType, this, this.config.cooldown ?? 0);
+      this.cooldownManager.registerActive(
+        this.config.overlayType,
+        this,
+        this.config.cooldown?.() ?? 0,
+      );
     }
 
     // Content changes are skipped while a close is under way, so the restored portal can
@@ -537,11 +577,11 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
     this.closing.next();
 
     // Check cooldown BEFORE recording, then record for the next overlay
-    let delay = this.config.hideDelay ?? 0;
+    let delay = this.config.hideDelay?.() ?? 0;
     if (this.config.overlayType) {
       // Skip delay if within cooldown period for this overlay type
       if (delay > 0) {
-        const cooldownDuration = this.config.cooldown ?? 300;
+        const cooldownDuration = this.config.cooldown?.() ?? 300;
         if (this.cooldownManager.isWithinCooldown(this.config.overlayType, cooldownDuration)) {
           delay = 0;
         }
@@ -567,12 +607,7 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
       this.config.onClose?.(origin);
 
       // Determine if focus should be restored
-      const shouldRestoreFocus =
-        typeof this.config.restoreFocus === 'function'
-          ? this.config.restoreFocus()
-          : (this.config.restoreFocus ?? false);
-
-      if (shouldRestoreFocus) {
+      if (this.config.restoreFocus?.() ?? false) {
         this.focusMonitor.focusVia(this.config.triggerElement, options?.origin ?? 'program', {
           preventScroll: true,
         });
@@ -649,6 +684,7 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
    */
   updateConfig(config: Partial<NgpOverlayConfig<T>>): void {
     this.config = { ...this.config, ...config };
+    this.configVersion.update(version => version + 1);
 
     // If the overlay is already open, update its position
     if (this.isOpen()) {
@@ -856,15 +892,19 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
       triggerElement: this.config.triggerElement,
       anchorElement: this.config.anchorElement,
       dismissPolicy: {
-        outsidePress: this.config.closeOnOutsideClick ?? false,
-        escapeKey: this.config.closeOnEscape ?? false,
+        outsidePress: computed(() => this.config.closeOnOutsideClick?.() ?? false),
+        escapeKey: computed(() => this.config.closeOnEscape?.() ?? false),
       },
       treatTriggerClickAsOutside: this.config.treatTriggerClickAsOutside,
     });
 
     // Register as active overlay for this type (skip when cooldown is bypassed)
     if (this.config.overlayType && !skipCooldown) {
-      this.cooldownManager.registerActive(this.config.overlayType, this, this.config.cooldown ?? 0);
+      this.cooldownManager.registerActive(
+        this.config.overlayType,
+        this,
+        this.config.cooldown?.() ?? 0,
+      );
     }
 
     this.scrollStrategy = this.createScrollStrategy();
@@ -935,7 +975,7 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
    * Create the appropriate scroll strategy based on the configuration.
    */
   private createScrollStrategy(): ScrollStrategy {
-    switch (this.config.scrollBehaviour) {
+    switch (this.config.scrollBehavior?.()) {
       case 'block':
         return new BlockScrollStrategy(this.viewportRuler, this.document);
       case 'close':
@@ -962,7 +1002,7 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
       referenceElement,
       overlayElement,
       () => this.computePosition(overlayElement),
-      { animationFrame: this.config.trackPosition ?? false },
+      { animationFrame: this.config.trackPosition?.() ?? false },
     );
   }
 
@@ -976,7 +1016,7 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
   private resolveStrategy(overlayElement: HTMLElement): NgpPositioningStrategy {
     return getComputedStyle(overlayElement).position === 'fixed'
       ? 'fixed'
-      : this.config.strategy || 'absolute';
+      : this.positioningOptions().strategy || 'absolute';
   }
 
   /**
@@ -984,14 +1024,15 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
    */
   private async computePosition(overlayElement: HTMLElement): Promise<void> {
     const strategy = this.resolveStrategy(overlayElement);
+    const options = this.positioningOptions();
 
     // Create middleware array
     // Order matters: offset → flip → shift → size → arrow (per Floating UI docs)
-    const middleware: NgpMiddleware[] = [offset(this.config.offset ?? 0)];
+    const middleware: NgpMiddleware[] = [offset(options.offset)];
 
     // Resolved before the middleware are added so `size` can reuse the overflow boundary.
-    const flipOptions = resolveOverflowOptions(this.config.flip);
-    const shiftOptions = resolveOverflowOptions(this.config.shift);
+    const flipOptions = resolveOverflowOptions(options.flip);
+    const shiftOptions = resolveOverflowOptions(options.shift);
 
     // Add flip middleware if requested
     // Flip must come before shift so that shift doesn't prevent flip from triggering
@@ -1202,16 +1243,18 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
    * @internal
    */
   private resolveContainer(): HTMLElement {
-    if (!this.config.container) {
+    const container = this.config.container?.();
+
+    if (!container) {
       return this.document.body;
     }
 
-    if (typeof this.config.container === 'string') {
-      const element = this.document.querySelector(this.config.container);
+    if (typeof container === 'string') {
+      const element = this.document.querySelector(container);
       if (!element) {
         // Fallback to document.body if the container is not found
         console.warn(
-          `NgPrimitives: Container element with selector "${this.config.container}" not found. Falling back to document.body.`,
+          `NgPrimitives: Container element with selector "${container}" not found. Falling back to document.body.`,
         );
         return this.document.body;
       }
@@ -1219,7 +1262,7 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
       return element as HTMLElement;
     }
 
-    return this.config.container;
+    return container;
   }
 }
 

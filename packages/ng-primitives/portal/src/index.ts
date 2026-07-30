@@ -41,6 +41,7 @@ export {
 export {
   BlockScrollStrategy,
   CloseScrollStrategy,
+  NgpScrollBehavior,
   NoopScrollStrategy,
   ScrollStrategy,
 } from './scroll-strategy';
