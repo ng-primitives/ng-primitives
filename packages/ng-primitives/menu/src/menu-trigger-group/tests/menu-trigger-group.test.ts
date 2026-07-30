@@ -203,6 +203,32 @@ describe('NgpMenuTriggerGroup sibling suppression - real layout, real pointer mo
     expect(document.querySelector('[data-testid="menu-a"]')).toBeInTheDocument();
   });
 
+  it('keeps the open trigger itself hit-testable, so returning to it does not close the menu', async () => {
+    await render(GroupedRootTriggersComponent);
+    const triggerA = document.querySelector('[data-testid="trigger-a"]') as HTMLElement;
+
+    await userEvent.pointer({ target: triggerA, coords: { x: 10, y: 16 } });
+    await waitFor(() =>
+      expect(document.querySelector('[data-testid="menu-a"]')).toBeInTheDocument(),
+    );
+
+    const rectA = triggerA.getBoundingClientRect();
+    const exitPoint = { x: rectA.right + 2, y: rectA.bottom + 2 };
+    const backOnTrigger = { x: rectA.left + 10, y: rectA.top + 10 };
+
+    // Leave the trigger to engage suppression, then come straight back onto it.
+    leavePointerAt(triggerA, exitPoint);
+    movePointerTo(exitPoint);
+
+    // The corridor is latched, so the trigger must still hit-test to itself -
+    // otherwise its pointerenter never arrives and the move back reads as
+    // leaving the corridor, closing the menu the pointer is sitting on.
+    expect(document.elementFromPoint(backOnTrigger.x, backOnTrigger.y)).toBe(triggerA);
+
+    movePointerTo(backOnTrigger);
+    expect(document.querySelector('[data-testid="menu-a"]')).toBeInTheDocument();
+  });
+
   it('documents scope: without a wrapping NgpMenuTriggerGroup, a sibling still opens mid-transit', async () => {
     await render(UngroupedRootTriggersComponent);
     const triggerA = document.querySelector('[data-testid="trigger-a"]') as HTMLElement;

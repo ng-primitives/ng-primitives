@@ -1,4 +1,4 @@
-import { DestroyRef, inject, signal, Signal } from '@angular/core';
+import { DestroyRef, ElementRef, inject, signal, Signal } from '@angular/core';
 import { injectDisposables } from 'ng-primitives/utils';
 import {
   createHoverBridgePolygon,
@@ -35,7 +35,8 @@ export interface HoverBridgeOptions {
    * pointer-events are suppressed on it so a sibling can't receive its own
    * pointerenter mid-transit toward the open panel - the browser's hit-testing
    * withholds the event entirely rather than the sibling needing to know
-   * anything about this bridge. Omit for triggers with no siblings to protect.
+   * anything about this bridge. The trigger itself is exempted. Omit for
+   * triggers with no siblings to protect.
    */
   siblingContainer?: () => HTMLElement | null;
 }
@@ -77,6 +78,9 @@ export function createHoverBridge({
 }: HoverBridgeOptions): HoverBridgeController {
   const disposables = injectDisposables();
   const destroyRef = inject(DestroyRef);
+  // Optional so the controller can still be created outside an element
+  // injection context; every real caller is a trigger's state factory.
+  const trigger = inject<ElementRef<HTMLElement>>(ElementRef, { optional: true });
   const polygon = signal<HoverBridgePoint[] | null>(null);
   let direction: HoverBridgeDirection | null = null;
   let lastPointer: HoverBridgePoint | null = null;
@@ -99,9 +103,12 @@ export function createHoverBridge({
    * Suppress hit-testing on the sibling container for the duration of the
    * corridor, so a sibling's own pointerenter is never delivered mid-transit -
    * the browser withholds the event entirely rather than the sibling needing
-   * to know anything about this bridge. Paired with a capture-phase pointerdown
-   * guard, since pointer-events: none would otherwise let a click fall through
-   * to whatever is now hit-testable underneath.
+   * to know anything about this bridge. The trigger is exempted: the corridor
+   * is latched, so a pointer returning to an inert trigger would read as
+   * leaving the corridor and close the overlay instead of cancelling the
+   * bridge. Paired with a capture-phase pointerdown guard, since a press while
+   * the container is inert would otherwise move focus to whatever is now
+   * hit-testable underneath.
    */
   function suppressSiblingPointerEvents(): void {
     const element = siblingContainer?.();
@@ -111,6 +118,10 @@ export function createHoverBridge({
 
     suppressedElement = element;
     element.style.pointerEvents = 'none';
+
+    if (trigger) {
+      trigger.nativeElement.style.pointerEvents = 'auto';
+    }
 
     removePointerDownGuard = disposables.addEventListener(
       document,
@@ -125,6 +136,10 @@ export function createHoverBridge({
     if (suppressedElement) {
       suppressedElement.style.pointerEvents = '';
       suppressedElement = null;
+
+      if (trigger) {
+        trigger.nativeElement.style.pointerEvents = '';
+      }
     }
 
     removePointerDownGuard?.();

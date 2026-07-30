@@ -19,6 +19,7 @@ import {
   NgpMenu,
   NgpMenuItem,
   NgpMenuTrigger,
+  NgpMenuTriggerGroup,
   NgpSubmenuTrigger,
   NgpMenuItemCheckbox,
   NgpMenuItemRadioGroup,
