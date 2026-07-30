@@ -139,7 +139,7 @@ export function createHoverBridge({
       document,
       'pointerdown',
       (event: PointerEvent) => {
-        if (isPointOverSuppressedElement(event.clientX, event.clientY)) {
+        if (isPressOnInertSibling(event)) {
           event.preventDefault();
         }
       },
@@ -153,7 +153,7 @@ export function createHoverBridge({
       document,
       'click',
       (event: MouseEvent) => {
-        if (isPointOverSuppressedElement(event.clientX, event.clientY)) {
+        if (isPressOnInertSibling(event)) {
           event.preventDefault();
           event.stopPropagation();
         }
@@ -165,6 +165,19 @@ export function createHoverBridge({
       removePointerDown();
       removeClick();
     };
+  }
+
+  /**
+   * The trigger keeps its own presses: it sits inside the container's rect but
+   * is exempt from the suppression, so a coordinate test alone would cancel the
+   * presses the exemption exists to preserve.
+   */
+  function isPressOnInertSibling(event: PointerEvent | MouseEvent): boolean {
+    if (trigger && event.composedPath().includes(trigger.nativeElement)) {
+      return false;
+    }
+
+    return isPointOverSuppressedElement(event.clientX, event.clientY);
   }
 
   function isPointOverSuppressedElement(x: number, y: number): boolean {

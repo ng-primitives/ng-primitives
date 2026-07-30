@@ -209,6 +209,41 @@ describe('NgpMenuTriggerGroup sibling suppression - real layout, real pointer mo
     expect(document.querySelector('[data-testid="menu-a"]')).toBeInTheDocument();
   });
 
+  it('lets a press reach the exempted trigger, which sits inside the inert container', async () => {
+    await render(GroupedRootTriggersComponent);
+    const triggerA = document.querySelector('[data-testid="trigger-a"]') as HTMLElement;
+
+    await userEvent.pointer({ target: triggerA, coords: { x: 10, y: 16 } });
+    await waitFor(() =>
+      expect(document.querySelector('[data-testid="menu-a"]')).toBeInTheDocument(),
+    );
+
+    const rectA = triggerA.getBoundingClientRect();
+    const exitPoint = { x: rectA.right + 2, y: rectA.bottom + 2 };
+    const onTrigger = { clientX: rectA.left + 10, clientY: rectA.top + 10 };
+
+    leavePointerAt(triggerA, exitPoint);
+    movePointerTo(exitPoint);
+
+    const clicks: Event[] = [];
+    triggerA.addEventListener('click', event => clicks.push(event));
+
+    // The trigger's coordinates fall inside the suppressed container, so the
+    // press guards must exempt it too - hit-testing alone isn't enough.
+    const press = new PointerEvent('pointerdown', {
+      ...onTrigger,
+      cancelable: true,
+      bubbles: true,
+    });
+    triggerA.dispatchEvent(press);
+    triggerA.dispatchEvent(
+      new MouseEvent('click', { ...onTrigger, cancelable: true, bubbles: true }),
+    );
+
+    expect(press.defaultPrevented).toBe(false);
+    expect(clicks).toHaveLength(1);
+  });
+
   it('documents scope: without a wrapping NgpMenuTriggerGroup, a sibling still opens mid-transit', async () => {
     await render(UngroupedRootTriggersComponent);
     const triggerA = document.querySelector('[data-testid="trigger-a"]') as HTMLElement;
