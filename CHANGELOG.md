@@ -1,3 +1,21 @@
+## 0.128.5 (2026-07-30)
+
+### 🚀 Features
+
+- **ai:** make the dictation language configurable and stop it overwriting user edits ([#881](https://github.com/ng-primitives/ng-primitives/pull/881))
+- **input-otp:** add valueChange and completeChange Observable in InputOtp state ([#877](https://github.com/ng-primitives/ng-primitives/pull/877))
+- **popover,portal:** add keepMounted option to preserve overlay content across close/reopen ([#884](https://github.com/ng-primitives/ng-primitives/pull/884))
+
+### 🩹 Fixes
+
+- **menu:** prevent a sibling trigger from opening while the pointer transits to an open menu ([#885](https://github.com/ng-primitives/ng-primitives/pull/885))
+
+### ❤️ Thank You
+
+- Ashley Hunter
+- Miguel Gremy @MGREMY
+- Paul Barahona
+
 ## 0.128.4 (2026-07-29)
 
 This was a version bump only, there were no code changes.
