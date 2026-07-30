@@ -8,6 +8,7 @@ export {
   NgpOverlayConfig,
   NgpOverlayContent,
   NgpOverlayTemplateContext,
+  OverlayHideImmediateOptions,
 } from './overlay';
 export { NgpOverlayCooldownManager } from './overlay-cooldown';
 export {

@@ -332,6 +332,12 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
    */
   private keptMounted: { portal: NgpPortal; content: NgpOverlayContent<T> } | null = null;
 
+  /**
+   * Whether the overlay itself has been torn down. A hide already in flight when that happens
+   * finishes on its own clock, so it checks this before keeping its view mounted for reuse.
+   */
+  private forceDestroyed = false;
+
   /** Signal tracking whether the overlay is open */
   readonly isOpen = signal(false);
 
@@ -1136,6 +1142,10 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
     immediate,
     forceDestroy,
   }: OverlayDestroyOptions = {}): Promise<void> {
+    if (forceDestroy) {
+      this.forceDestroyed = true;
+    }
+
     const portal = this.portal();
 
     if (!portal) {
@@ -1196,7 +1206,14 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
       this.registeredOutletElement = null;
 
       if (reusableContent) {
-        this.keptMounted = { portal, content: reusableContent };
+        // The overlay was torn down while this hide was still awaiting its exit animation,
+        // so there is nothing left to reuse the view - release it rather than keeping it
+        // alive past the teardown that already ran.
+        if (this.forceDestroyed) {
+          portal.destroyView();
+        } else {
+          this.keptMounted = { portal, content: reusableContent };
+        }
       }
 
       this.renderedContent = null;

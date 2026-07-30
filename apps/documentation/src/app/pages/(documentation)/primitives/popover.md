@@ -146,7 +146,7 @@ Use dismiss guards to prevent a popover from closing when there are unsaved chan
 
 ### Keeping Content Mounted
 
-By default the popover content is destroyed when the popover closes and created again on the next open, so any one-time setup runs every time. Set `ngpPopoverTriggerKeepMounted` to keep the content instance alive between opens instead.
+By default, the popover content is destroyed when the popover closes and created again on the next open, so any one-time setup runs every time. Set `ngpPopoverTriggerKeepMounted` to keep the content instance alive between opens instead.
 
 <docs-example name="popover-keep-mounted"></docs-example>
 

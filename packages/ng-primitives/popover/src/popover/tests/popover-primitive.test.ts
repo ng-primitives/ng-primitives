@@ -112,7 +112,7 @@ class KeepMountedTestComponent {
 class KeepMountedSwapTestComponent {
   readonly first = viewChild.required<TemplateRef<unknown>>('first');
   readonly second = viewChild.required<TemplateRef<unknown>>('second');
-  readonly content = signal<TemplateRef<unknown> | null>(null);
+  readonly content = signal<TemplateRef<unknown> | undefined>(undefined);
 }
 
 describe('NgpPopover', () => {
@@ -841,6 +841,47 @@ describe('NgpPopover', () => {
         });
         expect(destroyView).toHaveBeenCalledTimes(1);
       } finally {
+        destroyView.mockRestore();
+      }
+    });
+
+    it('should destroy the kept-mounted view when the trigger is destroyed mid-close', async () => {
+      // The close is held open (as an exit animation would) so teardown happens while the
+      // detach is still in flight - the pending detach must not hand its view back for reuse.
+      const realDetach = NgpTemplatePortal.prototype.detach;
+      let releaseDetach: (() => void) | undefined;
+      const detachGate = new Promise<void>(resolve => (releaseDetach = resolve));
+      const detach = vi
+        .spyOn(NgpTemplatePortal.prototype, 'detach')
+        .mockImplementation(async function (this: NgpTemplatePortal<unknown>, options) {
+          await detachGate;
+          return realDetach.call(this, options);
+        });
+      const destroyView = vi.spyOn(NgpTemplatePortal.prototype, 'destroyView');
+
+      try {
+        const { fixture, getByRole } = await render(KeepMountedTestComponent);
+        fixture.componentInstance.keepMounted.set(true);
+        fixture.detectChanges();
+        const trigger = getByRole('button');
+
+        fireEvent.click(trigger);
+        await waitFor(() => {
+          expect(document.querySelector('[ngpPopover]')).toBeInTheDocument();
+        });
+
+        fireEvent.click(trigger); // close - blocks inside detach()
+        fixture.destroy();
+
+        // The close finishes on its own clock, and must release the view rather than keeping
+        // it mounted for a reuse that can never happen.
+        releaseDetach?.();
+        await waitFor(() => {
+          expect(destroyView).toHaveBeenCalledTimes(1);
+        });
+        expect(document.querySelector('[ngpPopover]')).not.toBeInTheDocument();
+      } finally {
+        detach.mockRestore();
         destroyView.mockRestore();
       }
     });
