@@ -225,6 +225,40 @@ describe('NgpSubmenuTrigger sibling suppression - real layout, real pointer move
     expect(document.querySelector('[data-testid="submenu-a"]')).toBeInTheDocument();
   });
 
+  it('lets a press reach the exempted submenu trigger, which sits inside the inert panel', async () => {
+    const triggerA = await openRootMenu();
+
+    await userEvent.pointer({ target: triggerA, coords: { x: 10, y: 16 } });
+    await waitFor(() =>
+      expect(document.querySelector('[data-testid="submenu-a"]')).toBeInTheDocument(),
+    );
+
+    const rectA = triggerA.getBoundingClientRect();
+    const exitPoint = { x: rectA.right + 2, y: rectA.bottom + 2 };
+    const onTrigger = { clientX: rectA.left + 10, clientY: rectA.top + 10 };
+
+    leavePointerAt(triggerA, exitPoint);
+    movePointerTo(exitPoint);
+
+    const clicks: Event[] = [];
+    triggerA.addEventListener('click', event => clicks.push(event));
+
+    // The trigger's coordinates fall inside the suppressed parent panel, so the
+    // press guards must exempt it by composed path rather than by rect.
+    const press = new PointerEvent('pointerdown', {
+      ...onTrigger,
+      cancelable: true,
+      bubbles: true,
+    });
+    triggerA.dispatchEvent(press);
+    triggerA.dispatchEvent(
+      new MouseEvent('click', { ...onTrigger, cancelable: true, bubbles: true }),
+    );
+
+    expect(press.defaultPrevented).toBe(false);
+    expect(clicks).toHaveLength(1);
+  });
+
   it('does not suppress the open submenu panel itself, only the sibling row', async () => {
     const triggerA = await openRootMenu();
     const triggerB = document.querySelector('[data-testid="trigger-b"]') as HTMLElement;

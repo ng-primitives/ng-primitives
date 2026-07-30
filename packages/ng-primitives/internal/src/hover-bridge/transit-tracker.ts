@@ -58,13 +58,20 @@ export function createHoverTransitDecline({
   show,
 }: HoverTransitDeclineOptions): () => boolean {
   const disposables = injectDisposables();
+  let cancelPendingRetry: (() => void) | undefined = undefined;
 
   return () => {
     if (!isBlocked()) {
       return false;
     }
 
-    disposables.setTimeout(() => {
+    // Only the newest retry is worth keeping - pointer jitter over a blocked
+    // trigger would otherwise stack one per enter for the whole blocked window.
+    cancelPendingRetry?.();
+
+    cancelPendingRetry = disposables.setTimeout(() => {
+      cancelPendingRetry = undefined;
+
       if (isPointerOverTrigger() && !isBlocked()) {
         show();
       }
