@@ -132,6 +132,49 @@ describe('NgpSubmenuTrigger sibling suppression - real layout, real pointer move
     expect(document.elementFromPoint(crossPoint.x, crossPoint.y)).not.toBe(triggerB);
   });
 
+  it('does not open a sibling submenu when one fast sample jumps straight onto it', async () => {
+    const triggerA = await openRootMenu();
+    const triggerB = document.querySelector('[data-testid="trigger-b"]') as HTMLElement;
+
+    await userEvent.pointer({ target: triggerA, coords: { x: 10, y: 16 } });
+    await waitFor(() =>
+      expect(document.querySelector('[data-testid="submenu-a"]')).toBeInTheDocument(),
+    );
+
+    const rectB = triggerB.getBoundingClientRect();
+    const ontoB = { clientX: rectB.left + 50, clientY: rectB.top + 16, pointerType: 'mouse' };
+
+    // The browser resolves the hit-test before dispatching the boundary events,
+    // so trigger-b receives its enter however pointer-events reads by then.
+    fireEvent.pointerLeave(triggerA, ontoB);
+    fireEvent.pointerEnter(triggerB, ontoB);
+
+    await new Promise(resolve => setTimeout(resolve, 50));
+
+    expect(document.querySelector('[data-testid="submenu-b"]')).not.toBeInTheDocument();
+  });
+
+  it('still opens the submenu the pointer actually landed on once the corridor ends', async () => {
+    const triggerA = await openRootMenu();
+    const triggerB = document.querySelector('[data-testid="trigger-b"]') as HTMLElement;
+
+    await userEvent.pointer({ target: triggerA, coords: { x: 10, y: 16 } });
+    await waitFor(() =>
+      expect(document.querySelector('[data-testid="submenu-a"]')).toBeInTheDocument(),
+    );
+
+    const rectB = triggerB.getBoundingClientRect();
+    const ontoB = { clientX: rectB.left + 50, clientY: rectB.top + 16, pointerType: 'mouse' };
+
+    fireEvent.pointerLeave(triggerA, ontoB);
+    fireEvent.pointerEnter(triggerB, ontoB);
+
+    // Declining must not strand a pointer that stopped here.
+    await waitFor(() =>
+      expect(document.querySelector('[data-testid="submenu-b"]')).toBeInTheDocument(),
+    );
+  });
+
   it('opens the sibling submenu-trigger normally once the corridor is abandoned', async () => {
     const triggerA = await openRootMenu();
     const triggerB = document.querySelector('[data-testid="trigger-b"]') as HTMLElement;

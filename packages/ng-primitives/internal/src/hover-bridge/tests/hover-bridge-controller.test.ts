@@ -162,6 +162,19 @@ describe('createHoverBridge - sibling pointer-events suppression', () => {
     expect(close).not.toHaveBeenCalled();
   });
 
+  it('does nothing when the idle fallback fires after the corridor already cleared', () => {
+    vi.useFakeTimers({ shouldAdvanceTime: true });
+    const container = document.createElement('div');
+    const { bridge, close } = setup({ siblingContainer: () => container, timeoutMs: 150 });
+
+    bridge.track(TRACK_OPTIONS);
+    bridge.clear();
+    vi.advanceTimersByTime(150);
+
+    expect(close).not.toHaveBeenCalled();
+    expect(container.style.pointerEvents).toBe('');
+  });
+
   it('restores pointer-events on the same element track() applied it to, even if siblingContainer would now resolve differently', () => {
     const containerA = document.createElement('div');
     const containerB = document.createElement('div');
