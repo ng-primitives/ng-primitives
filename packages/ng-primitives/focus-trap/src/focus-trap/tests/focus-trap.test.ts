@@ -1,7 +1,7 @@
 import { FocusMonitor, InteractivityChecker } from '@angular/cdk/a11y';
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { fireEvent, render } from '@testing-library/angular';
+import { fireEvent, render, waitFor } from '@testing-library/angular';
 import { NgpFocusTrap } from 'ng-primitives/focus-trap';
 import { describe, expect, it, vi } from 'vitest';
 
@@ -63,6 +63,21 @@ class TestNestedFocusTrapsComponent {
   showFirst = signal(true);
   showSecond = signal(false);
   showThird = signal(false);
+}
+
+@Component({
+  selector: 'test-focus-trap-auto-focus',
+  imports: [NgpFocusTrap],
+  template: `
+    <button data-testid="outside-element" tabindex="0">Outside</button>
+    <div [ngpFocusTrapAutoFocus]="autoFocus()" ngpFocusTrap data-testid="focus-trap">
+      <button data-testid="button1" tabindex="0">Button 1</button>
+      <button data-testid="button2" tabindex="0">Button 2</button>
+    </div>
+  `,
+})
+class TestFocusTrapAutoFocusComponent {
+  autoFocus = signal(true);
 }
 
 @Component({
@@ -224,6 +239,37 @@ describe('NgpFocusTrap', () => {
 
       // Should not have data-focus-trap attribute when disabled
       expect(focusTrap).not.toHaveAttribute('data-focus-trap');
+    });
+  });
+
+  describe('Initial Focus', () => {
+    it('should focus the first tabbable element by default', async () => {
+      const container = await render(TestFocusTrapAutoFocusComponent);
+
+      await waitFor(() => expect(container.getByTestId('button1')).toHaveFocus());
+    });
+
+    it('should not move focus when autoFocus is disabled', async () => {
+      const container = await render(TestFocusTrapAutoFocusComponent, {
+        componentProperties: { autoFocus: signal(false) },
+      });
+
+      expect(container.getByTestId('button1')).not.toHaveFocus();
+      expect(container.getByTestId('focus-trap')).not.toHaveFocus();
+    });
+
+    it('should still trap focus when autoFocus is disabled', async () => {
+      const container = await render(TestFocusTrapAutoFocusComponent, {
+        componentProperties: { autoFocus: signal(false) },
+      });
+
+      const button1 = container.getByTestId('button1');
+      const outsideElement = container.getByTestId('outside-element');
+
+      button1.focus();
+      outsideElement.focus();
+
+      expect(button1).toHaveFocus();
     });
   });
 

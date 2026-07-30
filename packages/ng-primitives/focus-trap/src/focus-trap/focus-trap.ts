@@ -25,9 +25,18 @@ export class NgpFocusTrap {
   });
 
   /**
+   * Whether to move focus into the trap when it is set up. When off, focus is still trapped.
+   * @default true
+   */
+  readonly autoFocus = input<boolean, BooleanInput>(true, {
+    alias: 'ngpFocusTrapAutoFocus',
+    transform: booleanAttribute,
+  });
+
+  /**
    * The focus trap state.
    */
   constructor() {
-    ngpFocusTrap({ disabled: this.disabled });
+    ngpFocusTrap({ disabled: this.disabled, autoFocus: this.autoFocus });
   }
 }

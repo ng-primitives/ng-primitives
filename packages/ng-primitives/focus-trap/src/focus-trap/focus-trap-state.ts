@@ -105,12 +105,17 @@ export interface NgpFocusTrapProps {
    * If not provided, falls back to the FocusMonitor's last known origin.
    */
   readonly focusOrigin?: Signal<FocusOrigin>;
+
+  /**
+   * Whether to move focus into the trap when it is set up. When off, focus is still trapped.
+   */
+  readonly autoFocus?: Signal<boolean>;
 }
 
 export const [NgpFocusTrapStateToken, ngpFocusTrap, injectFocusTrapState, provideFocusTrapState] =
   createPrimitive(
     'NgpFocusTrap',
-    ({ disabled = signal(false), focusOrigin }: NgpFocusTrapProps) => {
+    ({ disabled = signal(false), focusOrigin, autoFocus = signal(true) }: NgpFocusTrapProps) => {
       const element = injectElementRef();
       const overlay = inject(NgpOverlay, { optional: true });
       const injector = inject(Injector);
@@ -151,24 +156,30 @@ export const [NgpFocusTrapStateToken, ngpFocusTrap, injectFocusTrapState, provid
         const previouslyFocusedElement = document.activeElement as HTMLElement | null;
         const hasFocusedCandidate = element.nativeElement.contains(previouslyFocusedElement);
 
-        // Only perform initial focusing if the focus trap is not disabled
-        if (!hasFocusedCandidate && !disabled?.()) {
-          // we do this to ensure the content is rendered before we try to find the first focusable element
-          // and focus it
-          afterNextRender(
-            {
-              write: () => {
-                focusFirst();
-
-                // if the focus didn't change, focus the container
-                if (document.activeElement === previouslyFocusedElement) {
-                  focus(element.nativeElement);
-                }
-              },
-            },
-            { injector },
-          );
+        if (hasFocusedCandidate) {
+          return;
         }
+
+        // we do this to ensure the content is rendered before we try to find the first focusable element
+        // and focus it
+        afterNextRender(
+          {
+            write: () => {
+              // Read here, not during setup - the factory runs before Angular binds inputs.
+              if (disabled?.() || !autoFocus()) {
+                return;
+              }
+
+              focusFirst();
+
+              // if the focus didn't change, focus the container
+              if (document.activeElement === previouslyFocusedElement) {
+                focus(element.nativeElement);
+              }
+            },
+          },
+          { injector },
+        );
       }
 
       function teardownFocusTrap(): void {

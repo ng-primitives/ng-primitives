@@ -1,9 +1,10 @@
-import { FocusOrigin } from '@angular/cdk/a11y';
+import { FocusMonitor, FocusOrigin } from '@angular/cdk/a11y';
 import { Directionality } from '@angular/cdk/bidi';
-import { computed, inject } from '@angular/core';
+import { afterNextRender, computed, inject, Injector, signal } from '@angular/core';
 import { ngpFocusTrap } from 'ng-primitives/focus-trap';
 import { injectElementRef } from 'ng-primitives/internal';
 import { injectOverlay } from 'ng-primitives/portal';
+import { injectRovingFocusGroupState } from 'ng-primitives/roving-focus';
 import { attrBinding, createPrimitive, listener, styleBinding } from 'ng-primitives/state';
 import { Subject } from 'rxjs';
 import { injectMenuTriggerState } from '../menu-trigger/menu-trigger-state';
@@ -29,15 +30,23 @@ export const [NgpMenuStateToken, ngpMenu, injectMenuState, provideMenuState] = c
     const element = injectElementRef();
     const overlay = injectOverlay();
     const directionality = inject(Directionality, { optional: true });
+    const injector = inject(Injector);
+    const focusMonitor = inject(FocusMonitor);
     const menuTrigger = injectMenuTriggerState();
     const parentMenu = injectMenuState({ optional: true, skipSelf: true });
+    const rovingFocusGroup = injectRovingFocusGroupState();
 
     // Always trap focus in menus per WAI-ARIA guidelines (Tab should not navigate within menus)
     // Pass the open origin so focus trap uses the correct origin for :focus-visible styling
     const openOrigin = computed(() => menuTrigger()?.openOrigin() ?? 'program');
     ngpFocusTrap({
       focusOrigin: openOrigin,
+      autoFocus: signal(false),
     });
+
+    // Read phase, so it runs after roving focus has applied each item's tabindex - an item
+    // on a non-native element isn't focusable before that.
+    afterNextRender({ read: () => focusInitialItem() }, { injector });
 
     // Register this element as the overlay outlet so floating-ui positions it correctly,
     // even when this directive is on a nested child component rather than the portal root.
@@ -63,6 +72,15 @@ export const [NgpMenuStateToken, ngpMenu, injectMenuState, provideMenuState] = c
     const closeSubmenus = new Subject<HTMLElement>();
 
     // Methods
+    function focusInitialItem(): void {
+      const origin = openOrigin();
+
+      // Fall back to the container so focus is never left outside the trap.
+      if (!rovingFocusGroup()?.activateFirst(origin)) {
+        focusMonitor.focusVia(element.nativeElement, origin, { preventScroll: true });
+      }
+    }
+
     function onPointerEnter(): void {
       menuTrigger()?.setPointerOverContent(true);
     }
