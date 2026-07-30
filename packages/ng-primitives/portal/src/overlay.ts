@@ -505,7 +505,10 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
    */
   private cancelDestruction(): void {
     const portal = this.destroyingPortal;
-    if (!portal) {
+
+    // Teardown is terminal - a destroyed overlay must not be brought back, and its portal
+    // stays on the destroy path so the view is released when the detach settles.
+    if (!portal || this.forceDestroyed) {
       return;
     }
 
