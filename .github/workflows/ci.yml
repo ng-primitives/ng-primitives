@@ -4,6 +4,9 @@ on:
   push:
     branches:
       - main
+      # The default branch, and where PRs merge to. Codecov needs a report on each
+      # of its commits to have a baseline to compare pull requests against.
+      - next
   pull_request:
 
 permissions:
