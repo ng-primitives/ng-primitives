@@ -232,6 +232,18 @@ export interface NgpOverlayConfig<T = unknown> {
   overlayType?: string;
 
   /**
+   * When true, hiding the overlay removes its content from the DOM but keeps the
+   * underlying component/view instance alive in memory instead of destroying it -
+   * a later `show()` re-inserts the same instance rather than creating a new one, so
+   * the content is not re-instantiated and any one-time setup is not repeated.
+   * The kept-alive view stays attached to change detection while it is hidden.
+   *
+   * Read on each hide, so a trigger can hand over an input signal and let it change.
+   * @default false
+   */
+  keepMounted?: Signal<boolean>;
+
+  /**
    * Cooldown duration in milliseconds.
    * When moving from one overlay of the same type to another within this duration,
    * the showDelay is skipped for the new overlay.
@@ -313,6 +325,18 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
 
   /** Portal currently being destroyed (for cancel support during exit animations) */
   private destroyingPortal: NgpPortal | null = null;
+
+  /**
+   * Portal kept alive (detached from the DOM but not destroyed) after a keepMounted hide,
+   * with the content it was built from so a later show can check it is still reusable.
+   */
+  private keptMounted: { portal: NgpPortal; content: NgpOverlayContent<T> } | null = null;
+
+  /**
+   * Whether the overlay itself has been torn down. A hide already in flight when that happens
+   * finishes on its own clock, so it checks this before keeping its view mounted for reuse.
+   */
+  private forceDestroyed = false;
 
   /** Signal tracking whether the overlay is open */
   readonly isOpen = signal(false);
@@ -481,7 +505,10 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
    */
   private cancelDestruction(): void {
     const portal = this.destroyingPortal;
-    if (!portal) {
+
+    // Teardown is terminal - a destroyed overlay must not be brought back, and its portal
+    // stays on the destroy path so the view is released when the detach settles.
+    if (!portal || this.forceDestroyed) {
       return;
     }
 
@@ -639,7 +666,7 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
     // Immediate on both sides: the exit animation belongs to the content being
     // replaced, and replaying the entrance would read as a close and reopen rather
     // than a content change.
-    portal.detach(true);
+    portal.detach({ immediate: true });
     this.attachPortal(content, true);
   }
 
@@ -660,8 +687,9 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
    * Immediately hide the overlay without any delay.
    * When called during cooldown transitions, this destroys the overlay
    * immediately without exit animations.
+   * @param options Optional hide configuration
    */
-  hideImmediate(): void {
+  hideImmediate(options?: OverlayHideImmediateOptions): void {
     // Cancel any pending operations
     if (this.openTimeout) {
       this.openTimeout();
@@ -686,7 +714,7 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
       this.closeOrigin.set('program');
       this.config.onClose?.('program');
     }
-    this.destroyOverlay(true);
+    this.destroyOverlay({ immediate: true, forceDestroy: options?.forceDestroy });
   }
 
   /**
@@ -724,7 +752,7 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
    * Completely destroy this overlay instance
    */
   destroy(): void {
-    this.hideImmediate();
+    this.hideImmediate({ forceDestroy: true });
     this.disposePositioning?.();
     this.scrollStrategy.disable();
   }
@@ -880,29 +908,46 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
   private attachPortal(content: NgpOverlayContent<T>, immediate: boolean): void {
     this.renderedContent = content;
 
-    // Create a new portal with context.
-    // The injector is wrapped in EmbeddedViewInjector to work around an Angular 19 bug
-    // where @SkipSelf() causes the embedded view injector's ControlContainer: null to be
-    // bypassed. See https://github.com/angular/angular/issues/57390
-    const portal = createPortal(
-      content,
-      this.viewContainerRef,
-      new EmbeddedViewInjector(
-        Injector.create({
-          parent: this.config.injector,
-          providers: [
-            ...(this.config.providers || []),
-            { provide: NgpOverlay, useValue: this },
-            provideOverlayContext<T>(this.config.context),
-            { provide: ControlContainer, useValue: null },
-          ],
-        }),
-      ),
-      { $implicit: this.config.context } as NgpOverlayTemplateContext<T>,
-    );
+    let portal: NgpPortal;
+    const keptMounted = this.keptMounted;
 
-    // Attach portal to container
-    portal.attach(this.resolveContainer(), { immediate });
+    if (keptMounted?.content === content) {
+      // Reuse the portal kept alive from a previous keepMounted hide - re-inserts its
+      // existing DOM nodes rather than creating a new view/component instance, so the
+      // content is not re-instantiated and its one-time setup does not re-run.
+      this.keptMounted = null;
+      portal = keptMounted.portal;
+      portal.reattach(this.resolveContainer(), { immediate });
+    } else {
+      // A kept-mounted portal from a previous hide no longer matches the current
+      // content (e.g. the overlay's content input changed while it was hidden) -
+      // it can't be reused, so its view is destroyed instead of leaking.
+      this.discardKeptMounted();
+
+      // Create a new portal with context.
+      // The injector is wrapped in EmbeddedViewInjector to work around an Angular 19 bug
+      // where @SkipSelf() causes the embedded view injector's ControlContainer: null to be
+      // bypassed. See https://github.com/angular/angular/issues/57390
+      portal = createPortal(
+        content,
+        this.viewContainerRef,
+        new EmbeddedViewInjector(
+          Injector.create({
+            parent: this.config.injector,
+            providers: [
+              ...(this.config.providers || []),
+              { provide: NgpOverlay, useValue: this },
+              provideOverlayContext<T>(this.config.context),
+              { provide: ControlContainer, useValue: null },
+            ],
+          }),
+        ),
+        { $implicit: this.config.context } as NgpOverlayTemplateContext<T>,
+      );
+
+      // Attach portal to container
+      portal.attach(this.resolveContainer(), { immediate });
+    }
 
     // Update portal signal
     this.portal.set(portal);
@@ -1094,12 +1139,25 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
 
   /**
    * Internal method to destroy the overlay portal
-   * @param immediate If true, skip exit animations and remove immediately
+   * @param options Optional destroy configuration
    */
-  private async destroyOverlay(immediate?: boolean): Promise<void> {
+  private async destroyOverlay({
+    immediate,
+    forceDestroy,
+  }: OverlayDestroyOptions = {}): Promise<void> {
+    if (forceDestroy) {
+      this.forceDestroyed = true;
+    }
+
     const portal = this.portal();
 
     if (!portal) {
+      // Nothing currently shown - but if a kept-mounted portal is sitting hidden from a
+      // previous close and we're being force-destroyed (overlay itself torn down), its
+      // underlying view still needs to be destroyed too.
+      if (forceDestroy) {
+        this.discardKeptMounted();
+      }
       return;
     }
 
@@ -1129,10 +1187,19 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
     this.scrollStrategy.disable();
     this.scrollStrategy = new NoopScrollStrategy();
 
+    // The content the portal was built from, captured up front because it is cleared below
+    // but is needed to hand the portal back for reuse. It is the single source of truth for
+    // whether to keep the view alive, so the flag `detach()` is given cannot drift from the
+    // one acted on after the await.
+    const reusableContent =
+      !forceDestroy && (this.config.keepMounted?.() ?? false) ? this.renderedContent : null;
+
     // Detach the portal (waits for exit animations unless immediate).
     // During this await, cancelDestruction() may be called if the user
     // re-hovers the trigger. (See: https://github.com/ng-primitives/ng-primitives/issues/681)
-    await portal.detach(immediate);
+    // When keeping the content mounted, this removes the DOM nodes but leaves the underlying
+    // view/component instance alive so attachPortal() can reuse it later.
+    await portal.detach({ immediate, keepMounted: reusableContent !== null });
 
     // Only complete destruction if it was not cancelled during exit animation.
     // finalPlacement and instantTransition are intentionally cleared here
@@ -1140,11 +1207,32 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
     if (this.destroyingPortal === portal) {
       this.destroyingPortal = null;
       this.registeredOutletElement = null;
+
+      if (reusableContent) {
+        // The overlay was torn down while this hide was still awaiting its exit animation,
+        // so there is nothing left to reuse the view - release it rather than keeping it
+        // alive past the teardown that already ran.
+        if (this.forceDestroyed) {
+          portal.destroyView();
+        } else {
+          this.keptMounted = { portal, content: reusableContent };
+        }
+      }
+
       this.renderedContent = null;
       this.isOpen.set(false);
       this.finalPlacement.set(undefined);
       this.instantTransition.set(false);
     }
+  }
+
+  /**
+   * Destroy the view of a portal kept alive by `keepMounted`, if there is one. Used when it
+   * can no longer be reused (the content changed) or when the overlay itself is torn down.
+   */
+  private discardKeptMounted(): void {
+    this.keptMounted?.portal.destroyView();
+    this.keptMounted = null;
   }
 
   /**
@@ -1238,6 +1326,19 @@ export function createOverlay<T>(config: NgpOverlayConfig<T>): NgpOverlay<T> {
  */
 export function injectOverlay<T>(): NgpOverlay<T> {
   return inject(NgpOverlay);
+}
+
+export interface OverlayHideImmediateOptions {
+  /**
+   * When true, bypass `keepMounted` and fully destroy any kept-alive portal - used when the
+   * overlay itself is being torn down (see `destroy()`), not just hidden.
+   */
+  forceDestroy?: boolean;
+}
+
+interface OverlayDestroyOptions extends OverlayHideImmediateOptions {
+  /** If true, skip exit animations and remove immediately. */
+  immediate?: boolean;
 }
 
 export interface OverlayTriggerOptions {

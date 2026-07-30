@@ -144,6 +144,19 @@ Use dismiss guards to prevent a popover from closing when there are unsaved chan
 
 <docs-example name="popover-dismiss-guard"></docs-example>
 
+### Keeping Content Mounted
+
+By default, the popover content is destroyed when the popover closes and created again on the next open, so any one-time setup runs every time. Set `ngpPopoverTriggerKeepMounted` to keep the content instance alive between opens instead.
+
+<docs-example name="popover-keep-mounted"></docs-example>
+
+The content is still removed from the DOM while the popover is closed, so nothing is left rendered behind the scenes. What survives is the component instance and its DOM nodes: the content is not re-instantiated, so one-time work (such as a network request) is not repeated and unsaved state (such as a partly filled form or a scroll position) is preserved.
+
+Two things to weigh before enabling it:
+
+- The kept-alive view stays attached to change detection while the popover is hidden, so its bindings continue to be checked.
+- The instance lives until the trigger itself is destroyed, or until the `ngpPopoverTrigger` content changes, so anything expensive it holds on to stays in memory.
+
 ## API Reference
 
 The following directives are available to import from the `ng-primitives/popover` package:
@@ -247,6 +260,7 @@ bootstrapApplication(AppComponent, {
       closeOnOutsideClick: true,
       scrollBehavior: 'reposition',
       cooldown: 0,
+      keepMounted: false,
     }),
   ],
 });
