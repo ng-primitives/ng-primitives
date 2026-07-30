@@ -200,6 +200,14 @@ describe('createHoverBridge - sibling pointer-events suppression', () => {
       return event;
     }
 
+    function clickAt(target: HTMLElement, coords: { clientX: number; clientY: number }): boolean {
+      const listener = vi.fn();
+      target.addEventListener('click', listener);
+      target.dispatchEvent(new MouseEvent('click', { ...coords, cancelable: true, bubbles: true }));
+      target.removeEventListener('click', listener);
+      return listener.mock.calls.length > 0;
+    }
+
     it('prevents a pointerdown over the sibling container while the corridor is active', () => {
       const container = appendContainer();
       const { bridge } = setup({ siblingContainer: () => container });
@@ -238,6 +246,44 @@ describe('createHoverBridge - sibling pointer-events suppression', () => {
       setup({ siblingContainer: () => container });
 
       expect(pointerDownAt(OVER_CONTAINER).defaultPrevented).toBe(false);
+      container.remove();
+    });
+
+    it('stops a click over the sibling container from reaching what the container covers', () => {
+      const container = appendContainer();
+      const { bridge } = setup({ siblingContainer: () => container });
+
+      bridge.track(TRACK_OPTIONS);
+
+      // Cancelling pointerdown does not stop the click, so it needs its own
+      // guard or it activates whatever is hit-testable under the inert container.
+      expect(clickAt(document.body, OVER_CONTAINER)).toBe(false);
+      container.remove();
+    });
+
+    it('leaves a click elsewhere on the page alone while the corridor is active', () => {
+      const container = appendContainer();
+      const { bridge } = setup({ siblingContainer: () => container });
+
+      bridge.track(TRACK_OPTIONS);
+
+      expect(clickAt(document.body, AWAY_FROM_CONTAINER)).toBe(true);
+      container.remove();
+    });
+
+    it('releases both press guards after a repeated track() with no intervening clear()', () => {
+      const container = appendContainer();
+      const { bridge } = setup({ siblingContainer: () => container });
+
+      // A second track() must not orphan the first call's document listeners -
+      // clear() only holds one cleanup handle.
+      bridge.track(TRACK_OPTIONS);
+      bridge.track(TRACK_OPTIONS);
+      bridge.clear();
+
+      expect(pointerDownAt(OVER_CONTAINER).defaultPrevented).toBe(false);
+      expect(clickAt(document.body, OVER_CONTAINER)).toBe(true);
+      expect(container.style.pointerEvents).toBe('');
       container.remove();
     });
   });

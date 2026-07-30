@@ -87,7 +87,7 @@ export function createHoverBridge({
   let removePointerMoveListener: (() => void) | undefined = undefined;
   let fallbackTimeoutId: ReturnType<typeof setTimeout> | undefined = undefined;
   let suppressedElement: HTMLElement | null = null;
-  let removePointerDownGuard: (() => void) | undefined = undefined;
+  let removePressGuards: (() => void) | undefined = undefined;
 
   // One reusable timer with a single destroy hook. The fallback reschedules on
   // every in-corridor pointermove, and going through disposables.setTimeout would
@@ -106,11 +106,17 @@ export function createHoverBridge({
    * to know anything about this bridge. The trigger is exempted: the corridor
    * is latched, so a pointer returning to an inert trigger would read as
    * leaving the corridor and close the overlay instead of cancelling the
-   * bridge. Paired with a capture-phase pointerdown guard, since a press while
-   * the container is inert would otherwise move focus to whatever is now
-   * hit-testable underneath.
+   * bridge. Paired with capture-phase press guards, since a press while the
+   * container is inert would otherwise reach whatever is now hit-testable
+   * underneath.
    */
   function suppressSiblingPointerEvents(): void {
+    // Idempotent, like registerPointerMoveListener - a second track() without an
+    // intervening clear() would otherwise orphan the guards registered here.
+    if (suppressedElement) {
+      return;
+    }
+
     const element = siblingContainer?.();
     if (!element) {
       return;
@@ -123,18 +129,38 @@ export function createHoverBridge({
       trigger.nativeElement.style.pointerEvents = 'auto';
     }
 
-    removePointerDownGuard = disposables.addEventListener(
+    // Only presses over the inert container are blocked - anywhere else on the
+    // page keeps its normal focus and activation behaviour.
+    const removePointerDown = disposables.addEventListener(
       document,
       'pointerdown',
       (event: PointerEvent) => {
-        // Only presses over the inert container need blocking - a press
-        // anywhere else on the page must keep its normal focus behaviour.
         if (isPointOverSuppressedElement(event.clientX, event.clientY)) {
           event.preventDefault();
         }
       },
       true,
     );
+
+    // Cancelling pointerdown stops focus moving but not the click: click is not
+    // a compatibility mouse event, so it still activates whatever the inert
+    // container was covering. Stop it in capture, before it reaches a target.
+    const removeClick = disposables.addEventListener(
+      document,
+      'click',
+      (event: MouseEvent) => {
+        if (isPointOverSuppressedElement(event.clientX, event.clientY)) {
+          event.preventDefault();
+          event.stopPropagation();
+        }
+      },
+      true,
+    );
+
+    removePressGuards = () => {
+      removePointerDown();
+      removeClick();
+    };
   }
 
   function isPointOverSuppressedElement(x: number, y: number): boolean {
@@ -157,8 +183,8 @@ export function createHoverBridge({
       }
     }
 
-    removePointerDownGuard?.();
-    removePointerDownGuard = undefined;
+    removePressGuards?.();
+    removePressGuards = undefined;
   }
 
   function isMovingAway(point: HoverBridgePoint): boolean {
