@@ -1,6 +1,6 @@
 import { FocusOrigin } from '@angular/cdk/a11y';
 import { Directionality } from '@angular/cdk/bidi';
-import { computed, ElementRef, inject } from '@angular/core';
+import { computed, ElementRef, inject, signal } from '@angular/core';
 import { ngpFocusTrap } from 'ng-primitives/focus-trap';
 import { injectElementRef } from 'ng-primitives/internal';
 import { injectOverlay } from 'ng-primitives/portal';
@@ -25,6 +25,12 @@ export interface NgpMenuState {
    * @internal
    */
   readonly element: ElementRef<HTMLElement>;
+  /** @internal */
+  setTransitSource(trigger: HTMLElement): void;
+  /** @internal */
+  clearTransitSource(trigger: HTMLElement): void;
+  /** @internal */
+  isTransitBlocked(trigger: HTMLElement): boolean;
 }
 
 export interface NgpMenuProps {}
@@ -32,7 +38,8 @@ export interface NgpMenuProps {}
 export const [NgpMenuStateToken, ngpMenu, injectMenuState, provideMenuState] = createPrimitive(
   'NgpMenu',
   ({}: NgpMenuProps) => {
-    const element = injectElementRef();
+    const element = injectElementRef<HTMLElement>();
+    const transitSource = signal<HTMLElement | null>(null);
     const overlay = injectOverlay();
     const directionality = inject(Directionality, { optional: true });
     const menuTrigger = injectMenuTriggerState();
@@ -121,6 +128,23 @@ export const [NgpMenuStateToken, ngpMenu, injectMenuState, provideMenuState] = c
       }
     }
 
+    function setTransitSource(trigger: HTMLElement): void {
+      transitSource.set(trigger);
+    }
+
+    function clearTransitSource(trigger: HTMLElement): void {
+      // Only the trigger that claimed the transit may release it, so a newer
+      // corridor isn't cleared by an older one tearing down.
+      if (transitSource() === trigger) {
+        transitSource.set(null);
+      }
+    }
+
+    function isTransitBlocked(trigger: HTMLElement): boolean {
+      const source = transitSource();
+      return source !== null && source !== trigger;
+    }
+
     function closeAllMenus(origin: FocusOrigin): void {
       menuTrigger().hide(origin);
       parentMenu()?.closeAllMenus(origin);
@@ -130,6 +154,9 @@ export const [NgpMenuStateToken, ngpMenu, injectMenuState, provideMenuState] = c
       closeAllMenus,
       closeSubmenus,
       element,
+      setTransitSource,
+      clearTransitSource,
+      isTransitBlocked,
     } satisfies NgpMenuState;
   },
 );

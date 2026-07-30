@@ -10,7 +10,11 @@ import {
   ViewContainerRef,
   WritableSignal,
 } from '@angular/core';
-import { createHoverBridge, injectElementRef } from 'ng-primitives/internal';
+import {
+  createHoverBridge,
+  HOVER_BRIDGE_TIMEOUT_MS,
+  injectElementRef,
+} from 'ng-primitives/internal';
 import {
   createOverlay,
   NgpFlip,
@@ -269,7 +273,19 @@ export const [
       close: () => hide(),
       requireForwardMovement: true,
       siblingContainer: () => triggerGroup()?.element.nativeElement ?? null,
+      onSuppressionChange: active =>
+        active
+          ? triggerGroup()?.setTransitSource(element.nativeElement)
+          : triggerGroup()?.clearTransitSource(element.nativeElement),
     });
+
+    /**
+     * A sibling's corridor can't withhold an enter the browser resolved before
+     * pointer-events applied, so the sibling has to decline it itself.
+     */
+    function isBlockedBySiblingTransit(): boolean {
+      return triggerGroup()?.isTransitBlocked(element.nativeElement) ?? false;
+    }
 
     // Reset pointer tracking when menu closes
     effect(() => {
@@ -329,6 +345,17 @@ export const [
       if (open()) {
         hoverBridge.clear();
         overlay()?.cancelPendingClose();
+        return;
+      }
+
+      if (isBlockedBySiblingTransit()) {
+        // The pointer may have genuinely landed here rather than passing
+        // through, so retry once the sibling's corridor has had time to end.
+        disposables.setTimeout(() => {
+          if (pointerOverTrigger() && !isBlockedBySiblingTransit()) {
+            show('mouse');
+          }
+        }, HOVER_BRIDGE_TIMEOUT_MS);
         return;
       }
 

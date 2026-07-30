@@ -39,6 +39,14 @@ export interface HoverBridgeOptions {
    * triggers with no siblings to protect.
    */
   siblingContainer?: () => HTMLElement | null;
+  /**
+   * Notified when sibling suppression engages or releases. Siblings must ignore
+   * their own hover while it is active as well: the browser resolves a
+   * movement's hit-test before dispatching its boundary events, so a fast
+   * sample that jumps straight onto a sibling still delivers that sibling an
+   * enter, whatever pointer-events says by the time it arrives.
+   */
+  onSuppressionChange?: (active: boolean) => void;
 }
 
 export interface HoverBridgeTrackOptions {
@@ -75,6 +83,7 @@ export function createHoverBridge({
   resetFallbackOnMove = true,
   timeoutMs = HOVER_BRIDGE_TIMEOUT_MS,
   siblingContainer,
+  onSuppressionChange,
 }: HoverBridgeOptions): HoverBridgeController {
   const disposables = injectDisposables();
   const destroyRef = inject(DestroyRef);
@@ -160,6 +169,7 @@ export function createHoverBridge({
       (event: PointerEvent) => {
         if (isPressOnInertSibling(event)) {
           event.preventDefault();
+          event.stopPropagation();
         }
       },
       true,
@@ -184,6 +194,8 @@ export function createHoverBridge({
       removePointerDown();
       removeClick();
     };
+
+    onSuppressionChange?.(true);
   }
 
   /**
@@ -199,6 +211,8 @@ export function createHoverBridge({
       if (trigger) {
         trigger.nativeElement.style.pointerEvents = previousTriggerPointerEvents;
       }
+
+      onSuppressionChange?.(false);
     }
 
     removePressGuards?.();

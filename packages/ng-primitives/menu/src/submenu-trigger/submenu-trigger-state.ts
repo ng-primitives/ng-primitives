@@ -9,7 +9,11 @@ import {
   ViewContainerRef,
   WritableSignal,
 } from '@angular/core';
-import { createHoverBridge, injectElementRef } from 'ng-primitives/internal';
+import {
+  createHoverBridge,
+  HOVER_BRIDGE_TIMEOUT_MS,
+  injectElementRef,
+} from 'ng-primitives/internal';
 import {
   createOverlay,
   NgpFlip,
@@ -218,7 +222,19 @@ export const [
       close: () => hide('mouse'),
       requireForwardMovement: true,
       siblingContainer: () => parentMenu()?.element.nativeElement ?? null,
+      onSuppressionChange: active =>
+        active
+          ? parentMenu()?.setTransitSource(element.nativeElement)
+          : parentMenu()?.clearTransitSource(element.nativeElement),
     });
+
+    /**
+     * A sibling's corridor can't withhold an enter the browser resolved before
+     * pointer-events applied, so the sibling has to decline it itself.
+     */
+    function isBlockedBySiblingTransit(): boolean {
+      return parentMenu()?.isTransitBlocked(element.nativeElement) ?? false;
+    }
 
     // Tear down any hover bridge whenever the submenu closes - including close
     // paths that bypass hide() (e.g. an outside click on the overlay), so a
@@ -376,6 +392,17 @@ export const [
       pointerOverTrigger.set(true);
       // The pointer is back on the trigger - drop any in-progress hover bridge.
       hoverBridge.clear();
+
+      if (isBlockedBySiblingTransit()) {
+        // The pointer may have genuinely landed here rather than passing
+        // through, so retry once the sibling's corridor has had time to end.
+        disposables.setTimeout(() => {
+          if (pointerOverTrigger() && !isBlockedBySiblingTransit()) {
+            show('mouse');
+          }
+        }, HOVER_BRIDGE_TIMEOUT_MS);
+        return;
+      }
 
       show('mouse');
     }

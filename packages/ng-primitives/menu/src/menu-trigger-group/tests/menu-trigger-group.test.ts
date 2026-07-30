@@ -1,5 +1,5 @@
 import { Component, TemplateRef, viewChild } from '@angular/core';
-import { render, waitFor } from '@testing-library/angular';
+import { fireEvent, render, waitFor } from '@testing-library/angular';
 import { userEvent } from '@testing-library/user-event';
 import { NgpMenu, NgpMenuItem, NgpMenuTrigger, NgpMenuTriggerGroup } from 'ng-primitives/menu';
 import { afterEach, describe, expect, it } from 'vitest';
@@ -242,6 +242,56 @@ describe('NgpMenuTriggerGroup sibling suppression - real layout, real pointer mo
 
     expect(press.defaultPrevented).toBe(false);
     expect(clicks).toHaveLength(1);
+  });
+
+  it('does not open a sibling when one fast sample jumps straight from the trigger onto it', async () => {
+    await render(GroupedRootTriggersComponent);
+    const triggerA = document.querySelector('[data-testid="trigger-a"]') as HTMLElement;
+    const triggerB = document.querySelector('[data-testid="trigger-b"]') as HTMLElement;
+
+    await userEvent.pointer({ target: triggerA, coords: { x: 10, y: 16 } });
+    await waitFor(() =>
+      expect(document.querySelector('[data-testid="menu-a"]')).toBeInTheDocument(),
+    );
+
+    const rectB = triggerB.getBoundingClientRect();
+    const ontoB = { clientX: rectB.left + 50, clientY: rectB.top + 16, pointerType: 'mouse' };
+
+    // The browser resolves a movement's hit-test before dispatching its
+    // boundary events, so a fast sample delivers trigger-b its enter however
+    // pointer-events reads by the time it arrives - the sibling has to decline
+    // it rather than rely on being made inert.
+    fireEvent.pointerLeave(triggerA, ontoB);
+    fireEvent.pointerEnter(triggerB, ontoB);
+
+    // Long enough for an unguarded open to have rendered, short enough to land
+    // before the deferred retry below deliberately opens it.
+    await new Promise(resolve => setTimeout(resolve, 50));
+
+    expect(document.querySelector('[data-testid="menu-b"]')).not.toBeInTheDocument();
+  });
+
+  it('still opens the sibling the pointer actually landed on once the corridor ends', async () => {
+    await render(GroupedRootTriggersComponent);
+    const triggerA = document.querySelector('[data-testid="trigger-a"]') as HTMLElement;
+    const triggerB = document.querySelector('[data-testid="trigger-b"]') as HTMLElement;
+
+    await userEvent.pointer({ target: triggerA, coords: { x: 10, y: 16 } });
+    await waitFor(() =>
+      expect(document.querySelector('[data-testid="menu-a"]')).toBeInTheDocument(),
+    );
+
+    const rectB = triggerB.getBoundingClientRect();
+    const ontoB = { clientX: rectB.left + 50, clientY: rectB.top + 16, pointerType: 'mouse' };
+
+    fireEvent.pointerLeave(triggerA, ontoB);
+    fireEvent.pointerEnter(triggerB, ontoB);
+
+    // Declining the enter must not strand a pointer that stopped here: the
+    // corridor idles out and the deferred retry opens trigger-b.
+    await waitFor(() =>
+      expect(document.querySelector('[data-testid="menu-b"]')).toBeInTheDocument(),
+    );
   });
 
   it('documents scope: without a wrapping NgpMenuTriggerGroup, a sibling still opens mid-transit', async () => {
