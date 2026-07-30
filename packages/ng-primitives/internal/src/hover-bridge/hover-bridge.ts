@@ -10,6 +10,16 @@ export const HOVER_BRIDGE_TIMEOUT_MS = 150;
  */
 export const HOVER_BRIDGE_DIRECTION_TOLERANCE_PX = 2;
 
+/**
+ * Idle timeout (ms) applied while the pointer is resting over one of the
+ * trigger's siblings instead of the open gap. The corridor holds the sibling
+ * container inert for its whole lifetime, so a pointer that has stopped there
+ * is waiting on the corridor to end, and gets a much shorter benefit of the
+ * doubt than the gap does. Movement still resets the timer either way - only a
+ * pointer that has genuinely settled over a sibling closes early.
+ */
+export const HOVER_BRIDGE_SIBLING_TIMEOUT_MS = 80;
+
 export interface HoverBridgePoint {
   x: number;
   y: number;

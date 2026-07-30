@@ -6,10 +6,12 @@ import {
 import { TestBed } from '@angular/core/testing';
 import {
   createHoverBridge,
+  HOVER_BRIDGE_SIBLING_TIMEOUT_MS,
+  HOVER_BRIDGE_TIMEOUT_MS,
   HoverBridgeController,
   HoverBridgeOptions,
 } from 'ng-primitives/internal';
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 /**
  * A horizontal corridor from a trigger on the left to a panel on the right,
@@ -58,6 +60,95 @@ function setup(options: Partial<HoverBridgeOptions> = {}) {
 function movePointer(point: { x: number; y: number }): void {
   document.dispatchEvent(new PointerEvent('pointermove', { clientX: point.x, clientY: point.y }));
 }
+
+describe('createHoverBridge - idling over a sibling', () => {
+  /**
+   * The measured shape of a menu trigger group: a 200x120 container of stacked
+   * triggers, the open panel 4px off its right edge, and a pointer that left the
+   * first trigger through its bottom edge. The corridor fans from there across
+   * the siblings below - a diagonal approach to a lower row of the panel has to
+   * cross them, so being over one is never on its own a reason to close.
+   */
+  const GROUP_OPTIONS = {
+    triggerRect: new DOMRect(0, 0, 200, 32),
+    targetRect: new DOMRect(204, 0, 180, 240),
+    exitPoint: { x: 100, y: 32 },
+  };
+  const OVER_SIBLING = { x: 160, y: 60 };
+  const IN_THE_GAP = { x: 202, y: 60 };
+
+  let container: HTMLElement;
+
+  beforeEach(() => {
+    vi.useFakeTimers();
+    container = document.createElement('div');
+    container.style.cssText = 'position:fixed;left:0;top:0;width:200px;height:120px';
+    document.body.appendChild(container);
+  });
+
+  afterEach(() => {
+    container.remove();
+    vi.useRealTimers();
+  });
+
+  function trackOverGroup(options = {}) {
+    const harness = setup({ siblingContainer: () => container, ...options });
+    harness.bridge.track(GROUP_OPTIONS);
+    return harness;
+  }
+
+  it('keeps the corridor open while the pointer is moving across a sibling', () => {
+    const { bridge, close } = trackOverGroup();
+
+    // Each sample resets the idle timer, so a traversal never trips it however
+    // long it spends over the siblings.
+    for (const y of [40, 48, 56, 60]) {
+      movePointer({ x: 120 + y, y });
+      vi.advanceTimersByTime(HOVER_BRIDGE_SIBLING_TIMEOUT_MS - 1);
+    }
+
+    expect(close).not.toHaveBeenCalled();
+    expect(bridge.isActive()).toBe(true);
+  });
+
+  it('closes on the shorter window once the pointer settles over a sibling', () => {
+    const { bridge, close } = trackOverGroup();
+
+    movePointer(OVER_SIBLING);
+
+    vi.advanceTimersByTime(HOVER_BRIDGE_SIBLING_TIMEOUT_MS - 1);
+    expect(close).not.toHaveBeenCalled();
+
+    vi.advanceTimersByTime(1);
+    expect(close).toHaveBeenCalledTimes(1);
+    expect(bridge.isActive()).toBe(false);
+  });
+
+  it('still waits the full idle timeout when the pointer settles in the gap', () => {
+    const { bridge, close } = trackOverGroup();
+
+    movePointer(IN_THE_GAP);
+
+    vi.advanceTimersByTime(HOVER_BRIDGE_SIBLING_TIMEOUT_MS);
+    expect(close).not.toHaveBeenCalled();
+    expect(bridge.isActive()).toBe(true);
+
+    vi.advanceTimersByTime(HOVER_BRIDGE_TIMEOUT_MS - HOVER_BRIDGE_SIBLING_TIMEOUT_MS);
+    expect(close).toHaveBeenCalledTimes(1);
+  });
+
+  it('never shortens past a caller that configured a tighter timeout', () => {
+    const { close } = trackOverGroup({ timeoutMs: 40 });
+
+    movePointer(OVER_SIBLING);
+
+    vi.advanceTimersByTime(39);
+    expect(close).not.toHaveBeenCalled();
+
+    vi.advanceTimersByTime(1);
+    expect(close).toHaveBeenCalledTimes(1);
+  });
+});
 
 describe('createHoverBridge - sibling pointer-events suppression', () => {
   afterEach(() => {
