@@ -26,8 +26,8 @@ const INSIDE_CORRIDOR_POINT = { x: 80, y: 10 };
 const OUTSIDE_CORRIDOR_POINT = { x: 80, y: 300 };
 
 // The pointerdown guard is registered on the real, shared `document`, so a
-// bridge left tracking at the end of a test would otherwise leak a
-// preventDefault-everything listener into every later test in the file.
+// bridge left tracking at the end of a test would otherwise leak its listener
+// into every later test in the file.
 const activeEnvironments: EnvironmentInjector[] = [];
 
 afterEach(() => {
@@ -182,44 +182,62 @@ describe('createHoverBridge - sibling pointer-events suppression', () => {
   });
 
   describe('pointerdown guard', () => {
-    it('prevents a pointerdown on the sibling container while the corridor is active', () => {
+    /** A container at a known viewport position, so coordinates can be aimed in and out of it. */
+    function appendContainer(): HTMLElement {
       const container = document.createElement('div');
+      container.style.cssText =
+        'position: fixed; left: 200px; top: 200px; width: 100px; height: 100px;';
       document.body.appendChild(container);
+      return container;
+    }
+
+    const OVER_CONTAINER = { clientX: 250, clientY: 250 };
+    const AWAY_FROM_CONTAINER = { clientX: 600, clientY: 600 };
+
+    function pointerDownAt(coords: { clientX: number; clientY: number }): PointerEvent {
+      const event = new PointerEvent('pointerdown', { ...coords, cancelable: true, bubbles: true });
+      document.body.dispatchEvent(event);
+      return event;
+    }
+
+    it('prevents a pointerdown over the sibling container while the corridor is active', () => {
+      const container = appendContainer();
       const { bridge } = setup({ siblingContainer: () => container });
 
       bridge.track(TRACK_OPTIONS);
 
-      const event = new PointerEvent('pointerdown', { cancelable: true, bubbles: true });
-      container.dispatchEvent(event);
+      expect(pointerDownAt(OVER_CONTAINER).defaultPrevented).toBe(true);
+      container.remove();
+    });
 
-      expect(event.defaultPrevented).toBe(true);
+    it('leaves a pointerdown elsewhere on the page alone while the corridor is active', () => {
+      const container = appendContainer();
+      const { bridge } = setup({ siblingContainer: () => container });
+
+      bridge.track(TRACK_OPTIONS);
+
+      // The container is the only inert surface - a press anywhere else must
+      // keep its normal focus behaviour.
+      expect(pointerDownAt(AWAY_FROM_CONTAINER).defaultPrevented).toBe(false);
       container.remove();
     });
 
     it('does not prevent a pointerdown once the corridor has cleared', () => {
-      const container = document.createElement('div');
-      document.body.appendChild(container);
+      const container = appendContainer();
       const { bridge } = setup({ siblingContainer: () => container });
 
       bridge.track(TRACK_OPTIONS);
       bridge.clear();
 
-      const event = new PointerEvent('pointerdown', { cancelable: true, bubbles: true });
-      container.dispatchEvent(event);
-
-      expect(event.defaultPrevented).toBe(false);
+      expect(pointerDownAt(OVER_CONTAINER).defaultPrevented).toBe(false);
       container.remove();
     });
 
     it('does not prevent a pointerdown when no corridor was ever tracked', () => {
-      const container = document.createElement('div');
-      document.body.appendChild(container);
+      const container = appendContainer();
       setup({ siblingContainer: () => container });
 
-      const event = new PointerEvent('pointerdown', { cancelable: true, bubbles: true });
-      container.dispatchEvent(event);
-
-      expect(event.defaultPrevented).toBe(false);
+      expect(pointerDownAt(OVER_CONTAINER).defaultPrevented).toBe(false);
       container.remove();
     });
   });

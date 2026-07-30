@@ -1,11 +1,12 @@
 import { Component } from '@angular/core';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { heroChartBar, heroFolder, heroUsers } from '@ng-icons/heroicons/outline';
+import { NgpButton } from 'ng-primitives/button';
 import { NgpMenu, NgpMenuItem, NgpMenuTrigger, NgpMenuTriggerGroup } from 'ng-primitives/menu';
 
 @Component({
   selector: 'app-menu-trigger-group-tailwind',
-  imports: [NgpMenuTrigger, NgpMenu, NgpMenuItem, NgpMenuTriggerGroup, NgIcon],
+  imports: [NgpMenuTrigger, NgpMenu, NgpMenuItem, NgpMenuTriggerGroup, NgpButton, NgIcon],
   providers: [provideIcons({ heroUsers, heroFolder, heroChartBar })],
   template: `
     <nav
@@ -20,9 +21,10 @@ import { NgpMenu, NgpMenuItem, NgpMenuTrigger, NgpMenuTriggerGroup } from 'ng-pr
 
       <div class="flex flex-col gap-1 px-2 pb-2">
         <button
-          class="flex h-[2.125rem] items-center gap-2.5 rounded-lg border-none bg-transparent px-2.5 text-left text-sm font-[510] tracking-[-0.006em] text-gray-900 outline-hidden transition-colors hover:bg-gray-100 focus-visible:shadow-[0_0_0_2px_var(--ngp-focus-ring)] active:bg-gray-200 data-open:bg-gray-100 dark:text-gray-100 dark:hover:bg-white/10 dark:active:bg-white/20 dark:data-open:bg-white/10"
+          class="flex h-[2.125rem] cursor-pointer items-center gap-2.5 rounded-lg border-none bg-transparent px-2.5 text-left text-sm font-[510] tracking-[-0.006em] text-gray-900 outline-hidden transition-colors hover:bg-gray-100 focus-visible:shadow-[0_0_0_2px_var(--ngp-focus-ring)] active:bg-gray-200 data-open:bg-gray-100 dark:text-gray-100 dark:hover:bg-white/10 dark:active:bg-white/20 dark:data-open:bg-white/10"
           [ngpMenuTrigger]="teamMenu"
           [ngpMenuTriggerOpenTriggers]="['hover']"
+          ngpButton
           ngpMenuTriggerPlacement="right-start"
         >
           <ng-icon
@@ -33,9 +35,10 @@ import { NgpMenu, NgpMenuItem, NgpMenuTrigger, NgpMenuTriggerGroup } from 'ng-pr
           Team
         </button>
         <button
-          class="flex h-[2.125rem] items-center gap-2.5 rounded-lg border-none bg-transparent px-2.5 text-left text-sm font-[510] tracking-[-0.006em] text-gray-900 outline-hidden transition-colors hover:bg-gray-100 focus-visible:shadow-[0_0_0_2px_var(--ngp-focus-ring)] active:bg-gray-200 data-open:bg-gray-100 dark:text-gray-100 dark:hover:bg-white/10 dark:active:bg-white/20 dark:data-open:bg-white/10"
+          class="flex h-[2.125rem] cursor-pointer items-center gap-2.5 rounded-lg border-none bg-transparent px-2.5 text-left text-sm font-[510] tracking-[-0.006em] text-gray-900 outline-hidden transition-colors hover:bg-gray-100 focus-visible:shadow-[0_0_0_2px_var(--ngp-focus-ring)] active:bg-gray-200 data-open:bg-gray-100 dark:text-gray-100 dark:hover:bg-white/10 dark:active:bg-white/20 dark:data-open:bg-white/10"
           [ngpMenuTrigger]="projectsMenu"
           [ngpMenuTriggerOpenTriggers]="['hover']"
+          ngpButton
           ngpMenuTriggerPlacement="right-start"
         >
           <ng-icon
@@ -46,9 +49,10 @@ import { NgpMenu, NgpMenuItem, NgpMenuTrigger, NgpMenuTriggerGroup } from 'ng-pr
           Projects
         </button>
         <button
-          class="flex h-[2.125rem] items-center gap-2.5 rounded-lg border-none bg-transparent px-2.5 text-left text-sm font-[510] tracking-[-0.006em] text-gray-900 outline-hidden transition-colors hover:bg-gray-100 focus-visible:shadow-[0_0_0_2px_var(--ngp-focus-ring)] active:bg-gray-200 data-open:bg-gray-100 dark:text-gray-100 dark:hover:bg-white/10 dark:active:bg-white/20 dark:data-open:bg-white/10"
+          class="flex h-[2.125rem] cursor-pointer items-center gap-2.5 rounded-lg border-none bg-transparent px-2.5 text-left text-sm font-[510] tracking-[-0.006em] text-gray-900 outline-hidden transition-colors hover:bg-gray-100 focus-visible:shadow-[0_0_0_2px_var(--ngp-focus-ring)] active:bg-gray-200 data-open:bg-gray-100 dark:text-gray-100 dark:hover:bg-white/10 dark:active:bg-white/20 dark:data-open:bg-white/10"
           [ngpMenuTrigger]="reportsMenu"
           [ngpMenuTriggerOpenTriggers]="['hover']"
+          ngpButton
           ngpMenuTriggerPlacement="right-start"
         >
           <ng-icon

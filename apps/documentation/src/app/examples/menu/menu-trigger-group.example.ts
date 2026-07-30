@@ -1,11 +1,12 @@
 import { Component } from '@angular/core';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { heroChartBar, heroFolder, heroUsers } from '@ng-icons/heroicons/outline';
+import { NgpButton } from 'ng-primitives/button';
 import { NgpMenu, NgpMenuItem, NgpMenuTrigger, NgpMenuTriggerGroup } from 'ng-primitives/menu';
 
 @Component({
   selector: 'app-menu-trigger-group',
-  imports: [NgpMenuTrigger, NgpMenu, NgpMenuItem, NgpMenuTriggerGroup, NgIcon],
+  imports: [NgpMenuTrigger, NgpMenu, NgpMenuItem, NgpMenuTriggerGroup, NgpButton, NgIcon],
   providers: [provideIcons({ heroUsers, heroFolder, heroChartBar })],
   template: `
     <nav class="sidebar" ngpMenuTriggerGroup>
@@ -16,6 +17,7 @@ import { NgpMenu, NgpMenuItem, NgpMenuTrigger, NgpMenuTriggerGroup } from 'ng-pr
           class="sidebar-item"
           [ngpMenuTrigger]="teamMenu"
           [ngpMenuTriggerOpenTriggers]="['hover']"
+          ngpButton
           ngpMenuTriggerPlacement="right-start"
         >
           <ng-icon name="heroUsers" />
@@ -25,6 +27,7 @@ import { NgpMenu, NgpMenuItem, NgpMenuTrigger, NgpMenuTriggerGroup } from 'ng-pr
           class="sidebar-item"
           [ngpMenuTrigger]="projectsMenu"
           [ngpMenuTriggerOpenTriggers]="['hover']"
+          ngpButton
           ngpMenuTriggerPlacement="right-start"
         >
           <ng-icon name="heroFolder" />
@@ -34,6 +37,7 @@ import { NgpMenu, NgpMenuItem, NgpMenuTrigger, NgpMenuTriggerGroup } from 'ng-pr
           class="sidebar-item"
           [ngpMenuTrigger]="reportsMenu"
           [ngpMenuTriggerOpenTriggers]="['hover']"
+          ngpButton
           ngpMenuTriggerPlacement="right-start"
         >
           <ng-icon name="heroChartBar" />
@@ -117,21 +121,21 @@ import { NgpMenu, NgpMenuItem, NgpMenuTrigger, NgpMenuTriggerGroup } from 'ng-pr
       --ng-icon__size: 1.125rem;
     }
 
-    .sidebar-item:hover,
+    .sidebar-item[data-hover],
     .sidebar-item[data-open] {
       background-color: var(--ngp-background-hover);
     }
 
-    .sidebar-item:hover ng-icon,
+    .sidebar-item[data-hover] ng-icon,
     .sidebar-item[data-open] ng-icon {
       color: var(--ngp-text-primary);
     }
 
-    .sidebar-item:focus-visible {
+    .sidebar-item[data-focus-visible] {
       box-shadow: 0 0 0 2px var(--ngp-focus-ring);
     }
 
-    .sidebar-item:active {
+    .sidebar-item[data-press] {
       background-color: var(--ngp-background-active);
     }
 

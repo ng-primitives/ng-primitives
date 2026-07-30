@@ -126,9 +126,24 @@ export function createHoverBridge({
     removePointerDownGuard = disposables.addEventListener(
       document,
       'pointerdown',
-      (event: PointerEvent) => event.preventDefault(),
+      (event: PointerEvent) => {
+        // Only presses over the inert container need blocking - a press
+        // anywhere else on the page must keep its normal focus behaviour.
+        if (isPointOverSuppressedElement(event.clientX, event.clientY)) {
+          event.preventDefault();
+        }
+      },
       true,
     );
+  }
+
+  function isPointOverSuppressedElement(x: number, y: number): boolean {
+    if (!suppressedElement) {
+      return false;
+    }
+
+    const { left, right, top, bottom } = suppressedElement.getBoundingClientRect();
+    return x >= left && x <= right && y >= top && y <= bottom;
   }
 
   /** Restore exactly the element suppression was applied to, not whatever siblingContainer() resolves to now. */
