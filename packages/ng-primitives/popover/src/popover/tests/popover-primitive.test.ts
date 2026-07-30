@@ -16,7 +16,7 @@ import {
   NgpPopoverTrigger,
   NgpPopoverTriggerState,
 } from 'ng-primitives/popover';
-import { NgpPlacement, NgpTemplatePortal } from 'ng-primitives/portal';
+import { injectOverlay, NgpOverlay, NgpPlacement, NgpTemplatePortal } from 'ng-primitives/portal';
 import { NgpTooltip, NgpTooltipTrigger, provideTooltipConfig } from 'ng-primitives/tooltip';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -73,6 +73,18 @@ class KeepMountedContentComponent implements OnInit, OnDestroy {
   }
 }
 
+/** Hands the overlay instance to a test, which can only reach it from inside the content. */
+@Directive({
+  selector: '[testCaptureOverlay]',
+})
+class CaptureOverlayDirective {
+  static overlay: NgpOverlay<unknown> | null = null;
+
+  constructor() {
+    CaptureOverlayDirective.overlay = injectOverlay();
+  }
+}
+
 @Component({
   template: `
     <button [ngpPopoverTrigger]="content" [ngpPopoverTriggerKeepMounted]="keepMounted()">
@@ -80,12 +92,12 @@ class KeepMountedContentComponent implements OnInit, OnDestroy {
     </button>
 
     <ng-template #content>
-      <div ngpPopover>
+      <div ngpPopover testCaptureOverlay>
         <test-keep-mounted-content />
       </div>
     </ng-template>
   `,
-  imports: [NgpPopoverTrigger, NgpPopover, KeepMountedContentComponent],
+  imports: [NgpPopoverTrigger, NgpPopover, KeepMountedContentComponent, CaptureOverlayDirective],
 })
 class KeepMountedTestComponent {
   readonly keepMounted = signal(false);
@@ -597,7 +609,26 @@ describe('NgpPopover', () => {
       KeepMountedContentComponent.onInitSpy.mockClear();
       KeepMountedContentComponent.onDestroySpy.mockClear();
       KeepMountedContentComponent.instanceCount = 0;
+      CaptureOverlayDirective.overlay = null;
     });
+
+    /**
+     * Hold `detach()` open the way a pending exit animation would, so a test can act while
+     * a close is still in flight. `release()` lets the real detach proceed.
+     */
+    function gateDetach(): { release: () => void; restore: () => void } {
+      const realDetach = NgpTemplatePortal.prototype.detach;
+      let release!: () => void;
+      const gate = new Promise<void>(resolve => (release = resolve));
+      const spy = vi
+        .spyOn(NgpTemplatePortal.prototype, 'detach')
+        .mockImplementation(async function (this: NgpTemplatePortal<unknown>, options) {
+          await gate;
+          return realDetach.call(this, options);
+        });
+
+      return { release, restore: () => spy.mockRestore() };
+    }
 
     it('should destroy and recreate the content on every close/reopen by default', async () => {
       const { getByRole } = await render(KeepMountedTestComponent);
@@ -846,17 +877,9 @@ describe('NgpPopover', () => {
     });
 
     it('should destroy the kept-mounted view when the trigger is destroyed mid-close', async () => {
-      // The close is held open (as an exit animation would) so teardown happens while the
-      // detach is still in flight - the pending detach must not hand its view back for reuse.
-      const realDetach = NgpTemplatePortal.prototype.detach;
-      let releaseDetach: (() => void) | undefined;
-      const detachGate = new Promise<void>(resolve => (releaseDetach = resolve));
-      const detach = vi
-        .spyOn(NgpTemplatePortal.prototype, 'detach')
-        .mockImplementation(async function (this: NgpTemplatePortal<unknown>, options) {
-          await detachGate;
-          return realDetach.call(this, options);
-        });
+      // Teardown happens while the detach is still in flight - the pending detach must not
+      // hand its view back for reuse.
+      const gate = gateDetach();
       const destroyView = vi.spyOn(NgpTemplatePortal.prototype, 'destroyView');
 
       try {
@@ -875,13 +898,49 @@ describe('NgpPopover', () => {
 
         // The close finishes on its own clock, and must release the view rather than keeping
         // it mounted for a reuse that can never happen.
-        releaseDetach?.();
+        gate.release();
         await waitFor(() => {
           expect(destroyView).toHaveBeenCalledTimes(1);
         });
         expect(document.querySelector('[ngpPopover]')).not.toBeInTheDocument();
       } finally {
-        detach.mockRestore();
+        gate.restore();
+        destroyView.mockRestore();
+      }
+    });
+
+    it('should not revive a kept-mounted overlay shown after it was destroyed mid-close', async () => {
+      const gate = gateDetach();
+      const destroyView = vi.spyOn(NgpTemplatePortal.prototype, 'destroyView');
+
+      try {
+        const { fixture, getByRole } = await render(KeepMountedTestComponent);
+        fixture.componentInstance.keepMounted.set(true);
+        fixture.detectChanges();
+        const trigger = getByRole('button');
+
+        fireEvent.click(trigger);
+        await waitFor(() => {
+          expect(document.querySelector('[ngpPopover]')).toBeInTheDocument();
+        });
+        const overlay = CaptureOverlayDirective.overlay;
+        expect(overlay).toBeTruthy();
+
+        fireEvent.click(trigger); // close - blocks inside detach()
+        fixture.destroy();
+
+        // A show() landing between the teardown and the detach settling must not resurrect
+        // the overlay, which would leave its view mounted with no trigger left to own it.
+        void overlay?.show();
+
+        gate.release();
+        await waitFor(() => {
+          expect(destroyView).toHaveBeenCalledTimes(1);
+        });
+        expect(overlay?.isOpen()).toBe(false);
+        expect(document.querySelector('[ngpPopover]')).not.toBeInTheDocument();
+      } finally {
+        gate.restore();
         destroyView.mockRestore();
       }
     });
