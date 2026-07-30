@@ -97,6 +97,17 @@ describe('createHoverBridge - sibling pointer-events suppression', () => {
     expect(container.style.pointerEvents).toBe('');
   });
 
+  it('puts back the container inline pointer-events value it found, not a blank one', () => {
+    const container = document.createElement('div');
+    container.style.pointerEvents = 'auto';
+    const { bridge } = setup({ siblingContainer: () => container });
+
+    bridge.track(TRACK_OPTIONS);
+    bridge.clear();
+
+    expect(container.style.pointerEvents).toBe('auto');
+  });
+
   it('restores pointer-events when the pointer leaves the corridor', () => {
     const container = document.createElement('div');
     const { bridge, close } = setup({ siblingContainer: () => container });

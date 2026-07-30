@@ -87,6 +87,8 @@ export function createHoverBridge({
   let removePointerMoveListener: (() => void) | undefined = undefined;
   let fallbackTimeoutId: ReturnType<typeof setTimeout> | undefined = undefined;
   let suppressedElement: HTMLElement | null = null;
+  let previousContainerPointerEvents = '';
+  let previousTriggerPointerEvents = '';
   let removePressGuards: (() => void) | undefined = undefined;
 
   // One reusable timer with a single destroy hook. The fallback reschedules on
@@ -123,9 +125,11 @@ export function createHoverBridge({
     }
 
     suppressedElement = element;
+    previousContainerPointerEvents = element.style.pointerEvents;
     element.style.pointerEvents = 'none';
 
     if (trigger) {
+      previousTriggerPointerEvents = trigger.nativeElement.style.pointerEvents;
       trigger.nativeElement.style.pointerEvents = 'auto';
     }
 
@@ -172,14 +176,18 @@ export function createHoverBridge({
     return x >= left && x <= right && y >= top && y <= bottom;
   }
 
-  /** Restore exactly the element suppression was applied to, not whatever siblingContainer() resolves to now. */
+  /**
+   * Restore exactly the element suppression was applied to, not whatever
+   * siblingContainer() resolves to now, and put back whatever inline value it
+   * carried rather than blanking a consumer's own pointer-events.
+   */
   function restoreSiblingPointerEvents(): void {
     if (suppressedElement) {
-      suppressedElement.style.pointerEvents = '';
+      suppressedElement.style.pointerEvents = previousContainerPointerEvents;
       suppressedElement = null;
 
       if (trigger) {
-        trigger.nativeElement.style.pointerEvents = '';
+        trigger.nativeElement.style.pointerEvents = previousTriggerPointerEvents;
       }
     }
 
