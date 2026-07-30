@@ -150,6 +150,12 @@ export function createHoverBridge({
      * the exemption exists to preserve.
      */
     const isPressOnInertSibling = (event: PointerEvent | MouseEvent): boolean => {
+      // Inert the moment this suppression ends, so a guard that outlives its
+      // teardown can never keep swallowing presses over the container.
+      if (suppressedElement !== element) {
+        return false;
+      }
+
       if (trigger && event.composedPath().includes(trigger.nativeElement)) {
         return false;
       }
@@ -204,6 +210,12 @@ export function createHoverBridge({
    * carried rather than blanking a consumer's own pointer-events.
    */
   function restoreSiblingPointerEvents(): void {
+    // Detached first: everything below can throw (onSuppressionChange runs
+    // consumer code), and a leaked document guard would block every press over
+    // the container for the rest of the page's life.
+    removePressGuards?.();
+    removePressGuards = undefined;
+
     if (suppressedElement) {
       suppressedElement.style.pointerEvents = previousContainerPointerEvents;
       suppressedElement = null;
@@ -214,9 +226,6 @@ export function createHoverBridge({
 
       onSuppressionChange?.(false);
     }
-
-    removePressGuards?.();
-    removePressGuards = undefined;
   }
 
   function isMovingAway(point: HoverBridgePoint): boolean {

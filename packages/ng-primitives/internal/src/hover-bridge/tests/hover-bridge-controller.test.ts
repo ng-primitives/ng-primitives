@@ -282,6 +282,31 @@ describe('createHoverBridge - sibling pointer-events suppression', () => {
       container.remove();
     });
 
+    it('stops blocking presses even when the suppression callback throws on teardown', () => {
+      const container = appendContainer();
+      const { bridge } = setup({
+        siblingContainer: () => container,
+        onSuppressionChange: active => {
+          if (!active) {
+            throw new Error('consumer teardown failed');
+          }
+        },
+      });
+
+      bridge.track(TRACK_OPTIONS);
+
+      try {
+        bridge.clear();
+      } catch {
+        // The consumer blew up mid-teardown. A document guard that survived it
+        // would swallow every press over the container for the page's lifetime.
+      }
+
+      expect(clickAt(document.body, OVER_CONTAINER)).toBe(true);
+      expect(pointerDownAt(OVER_CONTAINER).defaultPrevented).toBe(false);
+      container.remove();
+    });
+
     it('releases both press guards after a repeated track() with no intervening clear()', () => {
       const container = appendContainer();
       const { bridge } = setup({ siblingContainer: () => container });
