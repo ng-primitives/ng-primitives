@@ -142,6 +142,26 @@ describe('createHoverBridge - sibling pointer-events suppression', () => {
     expect(container.style.pointerEvents).toBe('');
   });
 
+  it('tears the corridor down on the idle fallback even when the pointer is back in the anchor', () => {
+    vi.useFakeTimers({ shouldAdvanceTime: true });
+    const container = document.createElement('div');
+    const isPointerInAnchor = vi.fn(() => true);
+    const { bridge, close } = setup({
+      siblingContainer: () => container,
+      isPointerInAnchor,
+      timeoutMs: 150,
+    });
+
+    bridge.track(TRACK_OPTIONS);
+    vi.advanceTimersByTime(150);
+
+    // Declining to tear down here would leave the container suppressed with no
+    // timer pending - only a later pointermove could ever restore it.
+    expect(container.style.pointerEvents).toBe('');
+    expect(bridge.isActive()).toBe(false);
+    expect(close).not.toHaveBeenCalled();
+  });
+
   it('restores pointer-events on the same element track() applied it to, even if siblingContainer would now resolve differently', () => {
     const containerA = document.createElement('div');
     const containerB = document.createElement('div');

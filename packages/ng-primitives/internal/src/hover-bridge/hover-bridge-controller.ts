@@ -263,8 +263,18 @@ export function createHoverBridge({
     fallbackTimeoutId = setTimeout(() => {
       fallbackTimeoutId = undefined;
 
-      if (!isPointerInAnchor() && polygon()) {
-        clear();
+      if (!polygon()) {
+        return;
+      }
+
+      // Always tear the corridor down, whether or not the overlay should close
+      // with it. Leaving it live because the pointer happens to be in the safe
+      // area would strand the container suppressed with no timer pending and
+      // nothing but a future pointermove to rescue it.
+      const shouldClose = !isPointerInAnchor();
+      clear();
+
+      if (shouldClose) {
         close();
       }
     }, timeoutMs);
