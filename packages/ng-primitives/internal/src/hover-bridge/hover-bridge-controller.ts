@@ -30,6 +30,14 @@ export interface HoverBridgeOptions {
   resetFallbackOnMove?: boolean;
   /** Idle-fallback timeout in ms. Defaults to HOVER_BRIDGE_TIMEOUT_MS. */
   timeoutMs?: number;
+  /**
+   * Element containing this trigger's siblings. While the bridge is active,
+   * pointer-events are suppressed on it so a sibling can't receive its own
+   * pointerenter mid-transit toward the open panel - the browser's hit-testing
+   * withholds the event entirely rather than the sibling needing to know
+   * anything about this bridge. Omit for triggers with no siblings to protect.
+   */
+  siblingContainer?: () => HTMLElement | null;
 }
 
 export interface HoverBridgeTrackOptions {
@@ -65,6 +73,7 @@ export function createHoverBridge({
   requireForwardMovement = false,
   resetFallbackOnMove = true,
   timeoutMs = HOVER_BRIDGE_TIMEOUT_MS,
+  siblingContainer,
 }: HoverBridgeOptions): HoverBridgeController {
   const disposables = injectDisposables();
   const destroyRef = inject(DestroyRef);
@@ -73,11 +82,54 @@ export function createHoverBridge({
   let lastPointer: HoverBridgePoint | null = null;
   let removePointerMoveListener: (() => void) | undefined = undefined;
   let fallbackTimeoutId: ReturnType<typeof setTimeout> | undefined = undefined;
+  let suppressedElement: HTMLElement | null = null;
+  let removePointerDownGuard: (() => void) | undefined = undefined;
 
   // One reusable timer with a single destroy hook. The fallback reschedules on
   // every in-corridor pointermove, and going through disposables.setTimeout would
   // register a new DestroyRef cleanup per move that is never released.
   destroyRef.onDestroy(() => clearTimeout(fallbackTimeoutId));
+
+  // The inline style mutation below is a raw DOM write, not something
+  // disposables tracks, so it needs its own explicit restore on destroy in
+  // case the injector is torn down mid-corridor without clear() running first.
+  destroyRef.onDestroy(() => restoreSiblingPointerEvents());
+
+  /**
+   * Suppress hit-testing on the sibling container for the duration of the
+   * corridor, so a sibling's own pointerenter is never delivered mid-transit -
+   * the browser withholds the event entirely rather than the sibling needing
+   * to know anything about this bridge. Paired with a capture-phase pointerdown
+   * guard, since pointer-events: none would otherwise let a click fall through
+   * to whatever is now hit-testable underneath.
+   */
+  function suppressSiblingPointerEvents(): void {
+    const element = siblingContainer?.();
+    if (!element) {
+      return;
+    }
+
+    suppressedElement = element;
+    element.style.pointerEvents = 'none';
+
+    removePointerDownGuard = disposables.addEventListener(
+      document,
+      'pointerdown',
+      (event: PointerEvent) => event.preventDefault(),
+      true,
+    );
+  }
+
+  /** Restore exactly the element suppression was applied to, not whatever siblingContainer() resolves to now. */
+  function restoreSiblingPointerEvents(): void {
+    if (suppressedElement) {
+      suppressedElement.style.pointerEvents = '';
+      suppressedElement = null;
+    }
+
+    removePointerDownGuard?.();
+    removePointerDownGuard = undefined;
+  }
 
   function isMovingAway(point: HoverBridgePoint): boolean {
     if (!requireForwardMovement || !direction || !lastPointer) {
@@ -154,6 +206,7 @@ export function createHoverBridge({
     lastPointer = exitPoint;
     registerPointerMoveListener();
     scheduleFallback();
+    suppressSiblingPointerEvents();
     return true;
   }
 
@@ -164,6 +217,7 @@ export function createHoverBridge({
     clearTimeout(fallbackTimeoutId);
     fallbackTimeoutId = undefined;
     removePointerMoveListener?.();
+    restoreSiblingPointerEvents();
   }
 
   return {

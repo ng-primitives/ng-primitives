@@ -217,6 +217,7 @@ export const [
       isPointerInAnchor: isPointerOverSubmenu,
       close: () => hide('mouse'),
       requireForwardMovement: true,
+      siblingContainer: () => parentMenu()?.element.nativeElement ?? null,
     });
 
     // Tear down any hover bridge whenever the submenu closes - including close

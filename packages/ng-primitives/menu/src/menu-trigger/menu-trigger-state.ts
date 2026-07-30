@@ -11,6 +11,7 @@ import {
   WritableSignal,
 } from '@angular/core';
 import { createHoverBridge, injectElementRef } from 'ng-primitives/internal';
+import { injectMenuTriggerGroupState } from '../menu-trigger-group/menu-trigger-group-state';
 import {
   createOverlay,
   NgpFlip,
@@ -255,6 +256,11 @@ export const [
     const pointerOverContent = signal(false);
     const isPointerOverMenuArea = computed(() => pointerOverTrigger() || pointerOverContent());
 
+    // Siblings only have a shared container to protect when the consumer opted
+    // in by wrapping this trigger and its siblings in NgpMenuTriggerGroup - a
+    // lone trigger has no group and the bridge is a no-op there.
+    const triggerGroup = injectMenuTriggerGroupState({ optional: true });
+
     // Safe-polygon hover intent: while the pointer travels inside a corridor from
     // the trigger exit point toward the open menu, the menu stays open. Reversing
     // away closes it (requireForwardMovement).
@@ -262,6 +268,7 @@ export const [
       isPointerInAnchor: isPointerOverMenuArea,
       close: () => hide(),
       requireForwardMovement: true,
+      siblingContainer: () => triggerGroup()?.element.nativeElement ?? null,
     });
 
     // Reset pointer tracking when menu closes

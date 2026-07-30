@@ -1,6 +1,6 @@
 import { FocusOrigin } from '@angular/cdk/a11y';
 import { Directionality } from '@angular/cdk/bidi';
-import { computed, inject } from '@angular/core';
+import { computed, ElementRef, inject } from '@angular/core';
 import { ngpFocusTrap } from 'ng-primitives/focus-trap';
 import { injectElementRef } from 'ng-primitives/internal';
 import { injectOverlay } from 'ng-primitives/portal';
@@ -19,6 +19,12 @@ export interface NgpMenuState {
    * @internal
    */
   readonly closeSubmenus: Subject<HTMLElement>;
+  /**
+   * The panel's host element - the shared container a submenu trigger
+   * suppresses pointer-events on while a sibling's hover-bridge is active.
+   * @internal
+   */
+  readonly element: ElementRef<HTMLElement>;
 }
 
 export interface NgpMenuProps {}
@@ -123,6 +129,7 @@ export const [NgpMenuStateToken, ngpMenu, injectMenuState, provideMenuState] = c
     return {
       closeAllMenus,
       closeSubmenus,
+      element,
     } satisfies NgpMenuState;
   },
 );

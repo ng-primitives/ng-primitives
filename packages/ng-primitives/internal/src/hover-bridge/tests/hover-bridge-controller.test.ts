@@ -1,0 +1,228 @@
+import {
+  createEnvironmentInjector,
+  EnvironmentInjector,
+  runInInjectionContext,
+} from '@angular/core';
+import { TestBed } from '@angular/core/testing';
+import {
+  createHoverBridge,
+  HoverBridgeController,
+  HoverBridgeOptions,
+} from 'ng-primitives/internal';
+import { afterEach, describe, expect, it, vi } from 'vitest';
+
+/**
+ * A horizontal corridor from a trigger on the left to a panel on the right,
+ * matching the fixtures in hover-bridge.test.ts. Reused by every test here so
+ * only the options under test vary.
+ */
+const TRACK_OPTIONS = {
+  triggerRect: new DOMRect(0, 0, 40, 20),
+  targetRect: new DOMRect(120, 0, 80, 40),
+  exitPoint: { x: 40, y: 10 },
+};
+
+const INSIDE_CORRIDOR_POINT = { x: 80, y: 10 };
+const OUTSIDE_CORRIDOR_POINT = { x: 80, y: 300 };
+
+// The pointerdown guard is registered on the real, shared `document`, so a
+// bridge left tracking at the end of a test would otherwise leak a
+// preventDefault-everything listener into every later test in the file.
+const activeEnvironments: EnvironmentInjector[] = [];
+
+afterEach(() => {
+  activeEnvironments.splice(0).forEach(env => env.destroy());
+});
+
+function setup(options: Partial<HoverBridgeOptions> = {}) {
+  const env = createEnvironmentInjector([], TestBed.inject(EnvironmentInjector));
+  activeEnvironments.push(env);
+  const close = vi.fn();
+  const isPointerInAnchor = vi.fn(() => false);
+
+  const bridge: HoverBridgeController = runInInjectionContext(env, () =>
+    createHoverBridge({ isPointerInAnchor, close, ...options }),
+  );
+
+  const destroy = () => {
+    const index = activeEnvironments.indexOf(env);
+    if (index !== -1) {
+      activeEnvironments.splice(index, 1);
+    }
+    env.destroy();
+  };
+
+  return { bridge, close, isPointerInAnchor, destroy };
+}
+
+function movePointer(point: { x: number; y: number }): void {
+  document.dispatchEvent(
+    new PointerEvent('pointermove', { clientX: point.x, clientY: point.y }),
+  );
+}
+
+describe('createHoverBridge - sibling pointer-events suppression', () => {
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  it('does nothing when siblingContainer is not provided', () => {
+    const { bridge } = setup();
+
+    expect(() => bridge.track(TRACK_OPTIONS)).not.toThrow();
+    expect(bridge.isActive()).toBe(true);
+  });
+
+  it('does nothing when siblingContainer resolves to null', () => {
+    const { bridge } = setup({ siblingContainer: () => null });
+
+    expect(() => bridge.track(TRACK_OPTIONS)).not.toThrow();
+    expect(bridge.isActive()).toBe(true);
+  });
+
+  it('applies pointer-events: none to the sibling container once a corridor is tracked', () => {
+    const container = document.createElement('div');
+    const { bridge } = setup({ siblingContainer: () => container });
+
+    bridge.track(TRACK_OPTIONS);
+
+    expect(container.style.pointerEvents).toBe('none');
+  });
+
+  it('restores the sibling container pointer-events when the bridge is cleared', () => {
+    const container = document.createElement('div');
+    const { bridge } = setup({ siblingContainer: () => container });
+
+    bridge.track(TRACK_OPTIONS);
+    bridge.clear();
+
+    expect(container.style.pointerEvents).toBe('');
+  });
+
+  it('restores pointer-events when the pointer leaves the corridor', () => {
+    const container = document.createElement('div');
+    const { bridge, close } = setup({ siblingContainer: () => container });
+
+    bridge.track(TRACK_OPTIONS);
+    movePointer(OUTSIDE_CORRIDOR_POINT);
+
+    expect(close).toHaveBeenCalledTimes(1);
+    expect(container.style.pointerEvents).toBe('');
+  });
+
+  it('keeps suppressing pointer-events while the pointer moves validly through the corridor', () => {
+    const container = document.createElement('div');
+    const { bridge, close } = setup({ siblingContainer: () => container });
+
+    bridge.track(TRACK_OPTIONS);
+    movePointer(INSIDE_CORRIDOR_POINT);
+
+    expect(close).not.toHaveBeenCalled();
+    expect(container.style.pointerEvents).toBe('none');
+  });
+
+  it('restores pointer-events via the idle fallback when the pointer never reaches the anchor', () => {
+    vi.useFakeTimers({ shouldAdvanceTime: true });
+    const container = document.createElement('div');
+    const { bridge, close } = setup({ siblingContainer: () => container, timeoutMs: 150 });
+
+    bridge.track(TRACK_OPTIONS);
+    vi.advanceTimersByTime(150);
+
+    expect(close).toHaveBeenCalledTimes(1);
+    expect(container.style.pointerEvents).toBe('');
+  });
+
+  it('restores pointer-events on the same element track() applied it to, even if siblingContainer would now resolve differently', () => {
+    const containerA = document.createElement('div');
+    const containerB = document.createElement('div');
+    let current: HTMLElement = containerA;
+    const { bridge } = setup({ siblingContainer: () => current });
+
+    bridge.track(TRACK_OPTIONS);
+    expect(containerA.style.pointerEvents).toBe('none');
+
+    // Swap what the accessor would return before clearing - clear() must still
+    // target the element it actually suppressed, not whatever the accessor
+    // reports now.
+    current = containerB;
+    bridge.clear();
+
+    expect(containerA.style.pointerEvents).toBe('');
+    expect(containerB.style.pointerEvents).toBe('');
+  });
+
+  it('restores pointer-events when the injection context is destroyed mid-corridor', () => {
+    const container = document.createElement('div');
+    const { bridge, destroy } = setup({ siblingContainer: () => container });
+
+    bridge.track(TRACK_OPTIONS);
+    expect(container.style.pointerEvents).toBe('none');
+
+    destroy();
+
+    expect(container.style.pointerEvents).toBe('');
+  });
+
+  it('does not leak suppression across repeated track/clear cycles on different containers', () => {
+    const containerA = document.createElement('div');
+    const containerB = document.createElement('div');
+    let current: HTMLElement = containerA;
+    const { bridge } = setup({ siblingContainer: () => current });
+
+    bridge.track(TRACK_OPTIONS);
+    bridge.clear();
+    expect(containerA.style.pointerEvents).toBe('');
+
+    current = containerB;
+    bridge.track(TRACK_OPTIONS);
+    expect(containerB.style.pointerEvents).toBe('none');
+    expect(containerA.style.pointerEvents).toBe('');
+
+    bridge.clear();
+    expect(containerB.style.pointerEvents).toBe('');
+  });
+
+  describe('pointerdown guard', () => {
+    it('prevents a pointerdown on the sibling container while the corridor is active', () => {
+      const container = document.createElement('div');
+      document.body.appendChild(container);
+      const { bridge } = setup({ siblingContainer: () => container });
+
+      bridge.track(TRACK_OPTIONS);
+
+      const event = new PointerEvent('pointerdown', { cancelable: true, bubbles: true });
+      container.dispatchEvent(event);
+
+      expect(event.defaultPrevented).toBe(true);
+      container.remove();
+    });
+
+    it('does not prevent a pointerdown once the corridor has cleared', () => {
+      const container = document.createElement('div');
+      document.body.appendChild(container);
+      const { bridge } = setup({ siblingContainer: () => container });
+
+      bridge.track(TRACK_OPTIONS);
+      bridge.clear();
+
+      const event = new PointerEvent('pointerdown', { cancelable: true, bubbles: true });
+      container.dispatchEvent(event);
+
+      expect(event.defaultPrevented).toBe(false);
+      container.remove();
+    });
+
+    it('does not prevent a pointerdown when no corridor was ever tracked', () => {
+      const container = document.createElement('div');
+      document.body.appendChild(container);
+      setup({ siblingContainer: () => container });
+
+      const event = new PointerEvent('pointerdown', { cancelable: true, bubbles: true });
+      container.dispatchEvent(event);
+
+      expect(event.defaultPrevented).toBe(false);
+      container.remove();
+    });
+  });
+});
