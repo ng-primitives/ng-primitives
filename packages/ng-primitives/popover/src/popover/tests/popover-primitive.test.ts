@@ -931,9 +931,10 @@ describe('NgpPopover', () => {
 
         // A show() landing between the teardown and the detach settling must not resurrect
         // the overlay, which would leave its view mounted with no trigger left to own it.
-        void overlay?.show();
+        const shown = overlay?.show();
 
         gate.release();
+        await shown;
         await waitFor(() => {
           expect(destroyView).toHaveBeenCalledTimes(1);
         });
