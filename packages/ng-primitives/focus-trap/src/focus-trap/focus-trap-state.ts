@@ -1,6 +1,6 @@
 import { FocusMonitor, FocusOrigin, InteractivityChecker } from '@angular/cdk/a11y';
 import { afterNextRender, inject, Injector, NgZone, signal, Signal } from '@angular/core';
-import { injectElementRef } from 'ng-primitives/internal';
+import { explicitEffect, injectElementRef } from 'ng-primitives/internal';
 import { NgpOverlay, NgpOverlayRegistry } from 'ng-primitives/portal';
 import {
   attrBinding,
@@ -128,12 +128,22 @@ export const [NgpFocusTrapStateToken, ngpFocusTrap, injectFocusTrapState, provid
       // Store the last focused element
       let lastFocusedElement: HTMLElement | null = null;
 
+      // Whether the trap is currently armed - on the stack, observing, and listening.
+      // Setup and teardown can each be reached more than once (an overlay closing, then
+      // being shown again with the same view), so both are idempotent.
+      let armed = false;
+
       // Host bindings
       attrBinding(element, 'tabindex', '-1');
       dataBinding(element, 'data-focus-trap', () => (disabled() ? null : ''));
 
       // Setup the focus trap
       function setupFocusTrap(): void {
+        if (armed) {
+          return;
+        }
+
+        armed = true;
         focusTrapStack.add(focusTrap);
 
         mutationObserver = new MutationObserver(handleMutations);
@@ -172,6 +182,12 @@ export const [NgpFocusTrapStateToken, ngpFocusTrap, injectFocusTrapState, provid
       }
 
       function teardownFocusTrap(): void {
+        if (!armed) {
+          return;
+        }
+
+        armed = false;
+
         // Remove from stack (this also deactivates the trap)
         focusTrapStack.remove(focusTrap);
         mutationObserver?.disconnect();
@@ -364,11 +380,21 @@ export const [NgpFocusTrapStateToken, ngpFocusTrap, injectFocusTrapState, provid
       // Listen to keydown events
       listener(element, 'keydown', handleKeyDown);
 
-      // if this is used within an overlay we must remove the focus trap from the stack as soon as the overlay is closing
-      // this prevents reactivation of parent focus traps during component destruction
-      overlay?.closing.pipe(safeTakeUntilDestroyed()).subscribe(() => {
-        focusTrapStack.remove(focusTrap);
-      });
+      // if this is used within an overlay we must tear the focus trap down as soon as the
+      // overlay is closing rather than waiting for destruction - this prevents reactivation
+      // of parent focus traps during component destruction
+      overlay?.closing.pipe(safeTakeUntilDestroyed()).subscribe(() => teardownFocusTrap());
+
+      // An overlay that keeps its content mounted reuses this view when shown again, so the
+      // factory - and the `setupFocusTrap()` above - does not run a second time. Re-arm on
+      // each open instead, or a reopened overlay would neither move focus inside nor trap it.
+      if (overlay) {
+        explicitEffect([overlay.isOpen], ([isOpen]) => {
+          if (isOpen) {
+            setupFocusTrap();
+          }
+        });
+      }
 
       return {} satisfies NgpFocusTrapState;
     },

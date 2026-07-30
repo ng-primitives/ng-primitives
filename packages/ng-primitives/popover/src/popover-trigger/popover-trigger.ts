@@ -183,6 +183,19 @@ export class NgpPopoverTrigger<T = null> {
   });
 
   /**
+   * When true, hiding the popover removes its content from the DOM but keeps the
+   * underlying component/view instance alive in memory instead of destroying it - a
+   * later show reuses the same instance rather than creating a new one, so the content
+   * is not re-instantiated and any one-time setup (e.g. a network fetch) is not repeated.
+   * The kept-alive view stays attached to change detection while it is hidden.
+   * @default false
+   */
+  readonly keepMounted = input<boolean, BooleanInput>(this.config.keepMounted, {
+    alias: 'ngpPopoverTriggerKeepMounted',
+    transform: booleanAttribute,
+  });
+
+  /**
    * Event emitted when the popover open state changes.
    */
   readonly openChange = output<boolean>({
@@ -209,6 +222,7 @@ export class NgpPopoverTrigger<T = null> {
     anchor: this.anchor,
     trackPosition: this.trackPosition,
     cooldown: this.cooldown,
+    keepMounted: this.keepMounted,
     onOpenChange: (value: boolean) => this.openChange.emit(value),
   });
 

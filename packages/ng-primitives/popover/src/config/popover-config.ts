@@ -79,6 +79,16 @@ export interface NgpPopoverConfig {
    * @default 0
    */
   cooldown: number;
+
+  /**
+   * When true, hiding the popover removes its content from the DOM but keeps the
+   * underlying component/view instance alive in memory instead of destroying it - a
+   * later show reuses the same instance rather than creating a new one, so the content
+   * is not re-instantiated and any one-time setup (e.g. a network fetch) is not repeated.
+   * The kept-alive view stays attached to change detection while it is hidden.
+   * @default false
+   */
+  keepMounted: boolean;
 }
 
 export const defaultPopoverConfig: NgpPopoverConfig = {
@@ -94,6 +104,7 @@ export const defaultPopoverConfig: NgpPopoverConfig = {
   shift: undefined,
   trackPosition: false,
   cooldown: 0,
+  keepMounted: false,
 };
 
 export const NgpPopoverConfigToken = new InjectionToken<NgpPopoverConfig>('NgpPopoverConfigToken');

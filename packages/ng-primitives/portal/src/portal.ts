@@ -16,6 +16,29 @@ export interface NgpPortalAttachOptions {
   immediate?: boolean;
 }
 
+export interface NgpPortalDetachOptions {
+  /** If true, skip exit animations and remove immediately. */
+  immediate?: boolean;
+  /**
+   * If true, remove the root nodes from the DOM but keep the underlying view/component
+   * instance alive instead of destroying it, so `reattach()` can cheaply re-insert it
+   * later without the content being re-created.
+   */
+  keepMounted?: boolean;
+}
+
+/**
+ * Clear the animation state a previous attach cycle left on a node. Re-inserting an element
+ * restarts its CSS animations, so a kept-mounted node still marked `data-exit` would replay
+ * its exit animation; a fresh attach starts with neither attribute set.
+ */
+function clearAnimationState(node: Node): void {
+  if (node instanceof HTMLElement) {
+    node.removeAttribute('data-enter');
+    node.removeAttribute('data-exit');
+  }
+}
+
 export abstract class NgpPortal {
   constructor(
     protected readonly viewContainerRef: ViewContainerRef | null,
@@ -46,15 +69,29 @@ export abstract class NgpPortal {
 
   /**
    * Detach the portal from the DOM.
-   * @param immediate If true, skip exit animations and remove immediately
+   * @param options Optional detach configuration
    */
-  abstract detach(immediate?: boolean): Promise<void>;
+  abstract detach(options?: NgpPortalDetachOptions): Promise<void>;
 
   /**
    * Cancel an in-progress detach operation. If exit animations are running,
    * they are cancelled and the portal transitions back to the enter state.
    */
   abstract cancelDetach(): void;
+
+  /**
+   * Re-insert a previously detached-but-kept-mounted portal's root nodes into a container.
+   * Only valid after a `detach({ keepMounted: true })` call that left the underlying view alive.
+   * @param container The DOM element to reattach the portal to.
+   * @param options Optional attach configuration
+   */
+  abstract reattach(container: HTMLElement, options?: NgpPortalAttachOptions): void;
+
+  /**
+   * Destroy the underlying view, releasing the content instance. Safe to call more than
+   * once, and the only way to release a portal left alive by `detach({ keepMounted: true })`.
+   */
+  abstract destroyView(): void;
 
   /**
    * Angular v20 removes `_unusedComponentFactoryResolver` and `_document` from DomPortalOutlet's
@@ -141,9 +178,9 @@ export class NgpComponentPortal<T> extends NgpPortal {
 
   /**
    * Detach the portal from the DOM.
-   * @param immediate If true, skip exit animations and remove immediately
+   * @param options Optional detach configuration
    */
-  async detach(immediate?: boolean): Promise<void> {
+  async detach({ immediate, keepMounted }: NgpPortalDetachOptions = {}): Promise<void> {
     if (this.isDestroying) {
       return;
     }
@@ -161,6 +198,36 @@ export class NgpComponentPortal<T> extends NgpPortal {
       return;
     }
 
+    if (!keepMounted) {
+      this.destroyView();
+      return;
+    }
+
+    if (this.viewRef) {
+      (this.viewRef.location.nativeElement as HTMLElement).remove();
+      // Reusable for a future detach() cycle once reattach() is called.
+      this.isDestroying = false;
+    }
+  }
+
+  /**
+   * Re-insert a previously detached-but-kept-mounted component's root element into a container.
+   */
+  reattach(container: HTMLElement, options?: NgpPortalAttachOptions): void {
+    if (!this.viewRef) {
+      throw new Error('Cannot reattach a component portal that has been destroyed.');
+    }
+
+    const element = this.viewRef.location.nativeElement as HTMLElement;
+    clearAnimationState(element);
+    container.appendChild(element);
+    this.exitAnimationRef = setupExitAnimation({ element, immediate: options?.immediate });
+  }
+
+  /**
+   * Destroy the underlying view. Safe to call more than once.
+   */
+  destroyView(): void {
     if (this.viewRef) {
       this.viewRef.destroy();
       this.viewRef = null;
@@ -230,7 +297,8 @@ export class NgpTemplatePortal<T> extends NgpPortal {
    * Whether the portal is attached to a DOM element.
    */
   getAttached(): boolean {
-    return !!this.viewRef && this.viewRef.rootNodes.length > 0;
+    // A kept-mounted view still has its root nodes, so being in the document is what counts.
+    return !!this.viewRef && this.viewRef.rootNodes.some((node: Node) => node.isConnected);
   }
 
   /**
@@ -248,9 +316,9 @@ export class NgpTemplatePortal<T> extends NgpPortal {
 
   /**
    * Detach the portal from the DOM.
-   * @param immediate If true, skip exit animations and remove immediately
+   * @param options Optional detach configuration
    */
-  async detach(immediate?: boolean): Promise<void> {
+  async detach({ immediate, keepMounted }: NgpPortalDetachOptions = {}): Promise<void> {
     if (this.isDestroying) {
       return;
     }
@@ -269,6 +337,42 @@ export class NgpTemplatePortal<T> extends NgpPortal {
       return;
     }
 
+    if (!keepMounted) {
+      this.destroyView();
+      return;
+    }
+
+    if (this.viewRef) {
+      for (const node of this.viewRef.rootNodes) {
+        node.parentNode?.removeChild(node);
+      }
+      // Reusable for a future detach() cycle once reattach() is called.
+      this.isDestroying = false;
+    }
+  }
+
+  /**
+   * Re-insert a previously detached-but-kept-mounted embedded view's root nodes into a container.
+   */
+  reattach(container: HTMLElement, options?: NgpPortalAttachOptions): void {
+    if (!this.viewRef) {
+      throw new Error('Cannot reattach a template portal that has been destroyed.');
+    }
+
+    for (const node of this.viewRef.rootNodes) {
+      clearAnimationState(node);
+      container.appendChild(node);
+    }
+
+    this.exitAnimationRefs = this.viewRef.rootNodes
+      .filter((node): node is HTMLElement => node instanceof HTMLElement)
+      .map(element => setupExitAnimation({ element, immediate: options?.immediate }));
+  }
+
+  /**
+   * Destroy the underlying view. Safe to call more than once.
+   */
+  destroyView(): void {
     if (this.viewRef) {
       this.viewRef.destroy();
       this.viewRef = null;
