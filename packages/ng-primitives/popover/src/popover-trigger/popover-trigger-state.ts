@@ -118,6 +118,15 @@ export interface NgpPopoverTriggerState<T> {
    */
   readonly cooldown: WritableSignal<number>;
   /**
+   * When true, hiding the popover removes its content from the DOM but keeps the
+   * underlying component/view instance alive in memory instead of destroying it - a
+   * later show reuses the same instance rather than creating a new one, so the content
+   * is not re-instantiated and any one-time setup (e.g. a network fetch) is not repeated.
+   * The kept-alive view stays attached to change detection while it is hidden.
+   * @default false
+   */
+  readonly keepMounted: Signal<boolean>;
+  /**
    * The overlay that manages the popover
    * @internal
    */
@@ -159,6 +168,8 @@ export interface NgpPopoverTriggerState<T> {
   setTrackPosition: (trackPosition: boolean) => void;
   /** Set the cooldown duration in milliseconds. */
   setCooldown: (cooldown: number) => void;
+  /** Set whether hiding the popover keeps its content mounted instead of destroying it. */
+  setKeepMounted: (keepMounted: boolean) => void;
   /**
    * Show the popover.
    * @returns A promise that resolves when the popover has been shown
@@ -255,6 +266,15 @@ export interface NgpPopoverTriggerProps<T> {
    * @default 0
    */
   readonly cooldown?: Signal<number>;
+  /**
+   * When true, hiding the popover removes its content from the DOM but keeps the
+   * underlying component/view instance alive in memory instead of destroying it - a
+   * later show reuses the same instance rather than creating a new one, so the content
+   * is not re-instantiated and any one-time setup (e.g. a network fetch) is not repeated.
+   * The kept-alive view stays attached to change detection while it is hidden.
+   * @default false
+   */
+  readonly keepMounted?: Signal<boolean>;
   /** Callback fired when the open state changes.  */
   readonly onOpenChange?: (value: boolean) => void;
 }
@@ -283,6 +303,7 @@ export const [
     anchor: _anchor,
     trackPosition: _trackPosition,
     cooldown: _cooldown,
+    keepMounted: _keepMounted,
     onOpenChange,
   }: NgpPopoverTriggerProps<T>): NgpPopoverTriggerState<T> => {
     const elementRef = injectElementRef<HTMLElement>();
@@ -310,6 +331,7 @@ export const [
     const anchor = controlled<HTMLElement | null>(_anchor, null);
     const trackPosition = controlled(_trackPosition, false);
     const cooldown = controlled(_cooldown, 0);
+    const keepMounted = controlled(_keepMounted, false);
 
     const overlay = signal<NgpOverlay<T> | null>(null);
     const open = computed(() => overlay()?.isOpen() ?? false);
@@ -366,6 +388,7 @@ export const [
         trackPosition: trackPosition(),
         overlayType: 'popover',
         cooldown: cooldown(),
+        keepMounted: keepMounted,
         onClose: () => {
           if (!destroyed) {
             onOpenChange?.(false);
@@ -486,6 +509,10 @@ export const [
       cooldown.set(duration);
     }
 
+    function setKeepMounted(shouldKeepMounted: boolean): void {
+      keepMounted.set(shouldKeepMounted);
+    }
+
     return {
       elementRef,
       popover: deprecatedSetter(popover, 'setPopover', setPopover),
@@ -508,6 +535,7 @@ export const [
       anchor: deprecatedSetter(anchor, 'setAnchor', setAnchor),
       trackPosition: deprecatedSetter(trackPosition, 'setTrackPosition', setTrackPosition),
       cooldown: deprecatedSetter(cooldown, 'setCooldown', setCooldown),
+      keepMounted,
       overlay,
       open,
       setPopover,
@@ -526,6 +554,7 @@ export const [
       setAnchor,
       setTrackPosition,
       setCooldown,
+      setKeepMounted,
       show,
       hide,
     } satisfies NgpPopoverTriggerState<T>;

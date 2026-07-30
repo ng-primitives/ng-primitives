@@ -53,6 +53,16 @@ jobs:
       - run: pnpm exec nx affected -t lint,build,test
         env:
           NODE_OPTIONS: '--max-old-space-size=8192' # Increase memory to 8GB
+
+      # Skipped on PRs where ng-primitives isn't affected, so no report was produced.
+      - name: Upload coverage to Codecov
+        if: hashFiles('coverage/packages/ng-primitives/coverage-final.json') != ''
+        uses: codecov/codecov-action@v5
+        with:
+          files: coverage/packages/ng-primitives/coverage-final.json
+          token: ${{ secrets.CODECOV_TOKEN }}
+          fail_ci_if_error: false
+
       # `nx affected` only builds the packages a PR touches, so a docs- or
       # components-only PR produces no `dist/packages/*` and `pkg-pr-new publish`
       # would fail with "No packages". Skip the preview publish when nothing was built.
