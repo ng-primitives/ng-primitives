@@ -133,8 +133,27 @@ export function createHoverBridge({
       trigger.nativeElement.style.pointerEvents = 'auto';
     }
 
-    // Only presses over the inert container are blocked - anywhere else on the
-    // page keeps its normal focus and activation behaviour.
+    /**
+     * Only presses over the inert container are blocked - anywhere else on the
+     * page keeps its normal focus and activation behaviour. The trigger keeps
+     * its own presses too: it sits inside the container's rect but is exempt
+     * from the suppression, so a coordinate test alone would cancel the presses
+     * the exemption exists to preserve.
+     */
+    const isPressOnInertSibling = (event: PointerEvent | MouseEvent): boolean => {
+      if (trigger && event.composedPath().includes(trigger.nativeElement)) {
+        return false;
+      }
+
+      const { left, right, top, bottom } = element.getBoundingClientRect();
+      return (
+        event.clientX >= left &&
+        event.clientX <= right &&
+        event.clientY >= top &&
+        event.clientY <= bottom
+      );
+    };
+
     const removePointerDown = disposables.addEventListener(
       document,
       'pointerdown',
@@ -165,28 +184,6 @@ export function createHoverBridge({
       removePointerDown();
       removeClick();
     };
-  }
-
-  /**
-   * The trigger keeps its own presses: it sits inside the container's rect but
-   * is exempt from the suppression, so a coordinate test alone would cancel the
-   * presses the exemption exists to preserve.
-   */
-  function isPressOnInertSibling(event: PointerEvent | MouseEvent): boolean {
-    if (trigger && event.composedPath().includes(trigger.nativeElement)) {
-      return false;
-    }
-
-    return isPointOverSuppressedElement(event.clientX, event.clientY);
-  }
-
-  function isPointOverSuppressedElement(x: number, y: number): boolean {
-    if (!suppressedElement) {
-      return false;
-    }
-
-    const { left, right, top, bottom } = suppressedElement.getBoundingClientRect();
-    return x >= left && x <= right && y >= top && y <= bottom;
   }
 
   /**
