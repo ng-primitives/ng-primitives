@@ -27,6 +27,24 @@ export default defineConfig(({ mode }) => ({
     },
     exclude: ['schematics/**/*.node.test.ts'],
     reporters: ['default'],
+    coverage: {
+      provider: 'v8',
+      reportsDirectory: '../../coverage/packages/ng-primitives',
+      reporter: ['text-summary', 'html', 'json', 'json-summary'],
+      // Explicit include so untested primitives count against the total rather than
+      // being invisible. Every primitive's source lives at `<primitive>/src/**`, which
+      // also leaves out the test helpers in `src/` and `date-time/testing/`.
+      include: ['*/src/**/*.ts'],
+      // Exclude globs are matched against absolute paths, so they all need the `**/` prefix.
+      exclude: [
+        '**/*.test.ts',
+        '**/*.test-d.ts',
+        '**/*.d.ts',
+        '**/tests/**',
+        '**/index.ts',
+        '**/packages/ng-primitives/src/**',
+      ],
+    },
     browser: {
       enabled: true,
       headless: true,
