@@ -10,7 +10,11 @@ import {
   ViewContainerRef,
   WritableSignal,
 } from '@angular/core';
-import { createHoverBridge, injectElementRef } from 'ng-primitives/internal';
+import {
+  createHoverBridge,
+  createHoverTransitDecline,
+  injectElementRef,
+} from 'ng-primitives/internal';
 import {
   createOverlay,
   NgpFlip,
@@ -32,6 +36,7 @@ import {
 } from 'ng-primitives/state';
 import { injectDisposables } from 'ng-primitives/utils';
 import { NgpMenuTriggerType } from '../config/menu-config';
+import { injectMenuTriggerGroupState } from '../menu-trigger-group/menu-trigger-group-state';
 
 export interface NgpMenuTriggerState<T = unknown> {
   /**
@@ -255,6 +260,11 @@ export const [
     const pointerOverContent = signal(false);
     const isPointerOverMenuArea = computed(() => pointerOverTrigger() || pointerOverContent());
 
+    // Siblings only have a shared container to protect when the consumer opted
+    // in by wrapping this trigger and its siblings in NgpMenuTriggerGroup - a
+    // lone trigger has no group and the bridge is a no-op there.
+    const triggerGroup = injectMenuTriggerGroupState({ optional: true });
+
     // Safe-polygon hover intent: while the pointer travels inside a corridor from
     // the trigger exit point toward the open menu, the menu stays open. Reversing
     // away closes it (requireForwardMovement).
@@ -262,6 +272,21 @@ export const [
       isPointerInAnchor: isPointerOverMenuArea,
       close: () => hide(),
       requireForwardMovement: true,
+      siblingContainer: () => triggerGroup()?.element.nativeElement ?? null,
+      onSuppressionChange: active =>
+        active
+          ? triggerGroup()?.setTransitSource(element.nativeElement)
+          : triggerGroup()?.clearTransitSource(element.nativeElement),
+    });
+
+    /**
+     * A sibling's corridor can't withhold an enter the browser resolved before
+     * pointer-events applied, so the sibling has to decline it itself.
+     */
+    const declineHoverDuringTransit = createHoverTransitDecline({
+      isBlocked: () => triggerGroup()?.isTransitBlocked(element.nativeElement) ?? false,
+      isPointerOverTrigger: pointerOverTrigger,
+      show: () => show('mouse'),
     });
 
     // Reset pointer tracking when menu closes
@@ -322,6 +347,10 @@ export const [
       if (open()) {
         hoverBridge.clear();
         overlay()?.cancelPendingClose();
+        return;
+      }
+
+      if (declineHoverDuringTransit()) {
         return;
       }
 

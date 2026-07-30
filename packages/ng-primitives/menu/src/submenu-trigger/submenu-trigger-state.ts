@@ -9,7 +9,11 @@ import {
   ViewContainerRef,
   WritableSignal,
 } from '@angular/core';
-import { createHoverBridge, injectElementRef } from 'ng-primitives/internal';
+import {
+  createHoverBridge,
+  createHoverTransitDecline,
+  injectElementRef,
+} from 'ng-primitives/internal';
 import {
   createOverlay,
   NgpFlip,
@@ -217,6 +221,21 @@ export const [
       isPointerInAnchor: isPointerOverSubmenu,
       close: () => hide('mouse'),
       requireForwardMovement: true,
+      siblingContainer: () => parentMenu()?.element.nativeElement ?? null,
+      onSuppressionChange: active =>
+        active
+          ? parentMenu()?.setTransitSource(element.nativeElement)
+          : parentMenu()?.clearTransitSource(element.nativeElement),
+    });
+
+    /**
+     * A sibling's corridor can't withhold an enter the browser resolved before
+     * pointer-events applied, so the sibling has to decline it itself.
+     */
+    const declineHoverDuringTransit = createHoverTransitDecline({
+      isBlocked: () => parentMenu()?.isTransitBlocked(element.nativeElement) ?? false,
+      isPointerOverTrigger: pointerOverTrigger,
+      show: () => show('mouse'),
     });
 
     // Tear down any hover bridge whenever the submenu closes - including close
@@ -375,6 +394,10 @@ export const [
       pointerOverTrigger.set(true);
       // The pointer is back on the trigger - drop any in-progress hover bridge.
       hoverBridge.clear();
+
+      if (declineHoverDuringTransit()) {
+        return;
+      }
 
       show('mouse');
     }

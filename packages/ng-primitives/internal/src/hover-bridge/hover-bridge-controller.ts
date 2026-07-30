@@ -1,4 +1,4 @@
-import { DestroyRef, inject, signal, Signal } from '@angular/core';
+import { DestroyRef, ElementRef, inject, signal, Signal } from '@angular/core';
 import { injectDisposables } from 'ng-primitives/utils';
 import {
   createHoverBridgePolygon,
@@ -30,6 +30,23 @@ export interface HoverBridgeOptions {
   resetFallbackOnMove?: boolean;
   /** Idle-fallback timeout in ms. Defaults to HOVER_BRIDGE_TIMEOUT_MS. */
   timeoutMs?: number;
+  /**
+   * Element containing this trigger's siblings. While the bridge is active,
+   * pointer-events are suppressed on it so a sibling can't receive its own
+   * pointerenter mid-transit toward the open panel - the browser's hit-testing
+   * withholds the event entirely rather than the sibling needing to know
+   * anything about this bridge. The trigger itself is exempted. Omit for
+   * triggers with no siblings to protect.
+   */
+  siblingContainer?: () => HTMLElement | null;
+  /**
+   * Notified when sibling suppression engages or releases. Siblings must ignore
+   * their own hover while it is active as well: the browser resolves a
+   * movement's hit-test before dispatching its boundary events, so a fast
+   * sample that jumps straight onto a sibling still delivers that sibling an
+   * enter, whatever pointer-events says by the time it arrives.
+   */
+  onSuppressionChange?: (active: boolean) => void;
 }
 
 export interface HoverBridgeTrackOptions {
@@ -54,6 +71,14 @@ export interface HoverBridgeController {
 }
 
 /**
+ * Refcounted per container, because suppression is not owned by one bridge:
+ * every trigger in a group has its own, and they all suppress the same element.
+ * A second corridor starting before the first tears down would otherwise record
+ * 'none' as the value to put back and leave the container inert for good.
+ */
+const containerSuppressions = new WeakMap<HTMLElement, { count: number; previous: string }>();
+
+/**
  * Shared safe-polygon hover-intent state machine used by the menu, submenu and
  * tooltip triggers. While the pointer travels inside the corridor toward the
  * panel the overlay stays open; it closes when the pointer leaves the corridor,
@@ -65,19 +90,162 @@ export function createHoverBridge({
   requireForwardMovement = false,
   resetFallbackOnMove = true,
   timeoutMs = HOVER_BRIDGE_TIMEOUT_MS,
+  siblingContainer,
+  onSuppressionChange,
 }: HoverBridgeOptions): HoverBridgeController {
   const disposables = injectDisposables();
   const destroyRef = inject(DestroyRef);
+  // Optional so the controller can still be created outside an element
+  // injection context; every real caller is a trigger's state factory.
+  const trigger = inject<ElementRef<HTMLElement>>(ElementRef, { optional: true });
   const polygon = signal<HoverBridgePoint[] | null>(null);
   let direction: HoverBridgeDirection | null = null;
   let lastPointer: HoverBridgePoint | null = null;
   let removePointerMoveListener: (() => void) | undefined = undefined;
   let fallbackTimeoutId: ReturnType<typeof setTimeout> | undefined = undefined;
+  let suppressedElement: HTMLElement | null = null;
+  let previousTriggerPointerEvents = '';
+  let removePressGuards: (() => void) | undefined = undefined;
 
   // One reusable timer with a single destroy hook. The fallback reschedules on
   // every in-corridor pointermove, and going through disposables.setTimeout would
   // register a new DestroyRef cleanup per move that is never released.
   destroyRef.onDestroy(() => clearTimeout(fallbackTimeoutId));
+
+  // The inline style mutation below is a raw DOM write, not something
+  // disposables tracks, so it needs its own explicit restore on destroy in
+  // case the injector is torn down mid-corridor without clear() running first.
+  destroyRef.onDestroy(() => restoreSiblingPointerEvents());
+
+  /**
+   * Suppress hit-testing on the sibling container for the duration of the
+   * corridor, so a sibling's own pointerenter is never delivered mid-transit -
+   * the browser withholds the event entirely rather than the sibling needing
+   * to know anything about this bridge. The trigger is exempted: the corridor
+   * is latched, so a pointer returning to an inert trigger would read as
+   * leaving the corridor and close the overlay instead of cancelling the
+   * bridge. Paired with capture-phase press guards, since a press while the
+   * container is inert would otherwise reach whatever is now hit-testable
+   * underneath.
+   */
+  function suppressSiblingPointerEvents(): void {
+    // Idempotent, like registerPointerMoveListener - a second track() without an
+    // intervening clear() would otherwise orphan the guards registered here.
+    if (suppressedElement) {
+      return;
+    }
+
+    const element = siblingContainer?.();
+    if (!element) {
+      return;
+    }
+
+    suppressedElement = element;
+
+    const existing = containerSuppressions.get(element);
+    if (existing) {
+      existing.count++;
+    } else {
+      containerSuppressions.set(element, { count: 1, previous: element.style.pointerEvents });
+    }
+
+    element.style.pointerEvents = 'none';
+
+    if (trigger) {
+      previousTriggerPointerEvents = trigger.nativeElement.style.pointerEvents;
+      trigger.nativeElement.style.pointerEvents = 'auto';
+    }
+
+    /**
+     * Only presses over the inert container are blocked - anywhere else on the
+     * page keeps its normal focus and activation behaviour. The trigger keeps
+     * its own presses too: it sits inside the container's rect but is exempt
+     * from the suppression, so a coordinate test alone would cancel the presses
+     * the exemption exists to preserve.
+     */
+    const isPressOnInertSibling = (event: PointerEvent | MouseEvent): boolean => {
+      // Inert the moment this suppression ends, so a guard that outlives its
+      // teardown can never keep swallowing presses over the container.
+      if (suppressedElement !== element) {
+        return false;
+      }
+
+      if (trigger && event.composedPath().includes(trigger.nativeElement)) {
+        return false;
+      }
+
+      const { left, right, top, bottom } = element.getBoundingClientRect();
+      return (
+        event.clientX >= left &&
+        event.clientX <= right &&
+        event.clientY >= top &&
+        event.clientY <= bottom
+      );
+    };
+
+    const removePointerDown = disposables.addEventListener(
+      document,
+      'pointerdown',
+      (event: PointerEvent) => {
+        if (isPressOnInertSibling(event)) {
+          event.preventDefault();
+          event.stopPropagation();
+        }
+      },
+      true,
+    );
+
+    // Cancelling pointerdown stops focus moving but not the click: click is not
+    // a compatibility mouse event, so it still activates whatever the inert
+    // container was covering. Stop it in capture, before it reaches a target.
+    const removeClick = disposables.addEventListener(
+      document,
+      'click',
+      (event: MouseEvent) => {
+        if (isPressOnInertSibling(event)) {
+          event.preventDefault();
+          event.stopPropagation();
+        }
+      },
+      true,
+    );
+
+    removePressGuards = () => {
+      removePointerDown();
+      removeClick();
+    };
+
+    onSuppressionChange?.(true);
+  }
+
+  /**
+   * Restore exactly the element suppression was applied to, not whatever
+   * siblingContainer() resolves to now, and put back whatever inline value it
+   * carried rather than blanking a consumer's own pointer-events.
+   */
+  function restoreSiblingPointerEvents(): void {
+    // Detached first: everything below can throw (onSuppressionChange runs
+    // consumer code), and a leaked document guard would block every press over
+    // the container for the rest of the page's life.
+    removePressGuards?.();
+    removePressGuards = undefined;
+
+    if (suppressedElement) {
+      const suppression = containerSuppressions.get(suppressedElement);
+      if (suppression && --suppression.count === 0) {
+        suppressedElement.style.pointerEvents = suppression.previous;
+        containerSuppressions.delete(suppressedElement);
+      }
+
+      suppressedElement = null;
+
+      if (trigger) {
+        trigger.nativeElement.style.pointerEvents = previousTriggerPointerEvents;
+      }
+
+      onSuppressionChange?.(false);
+    }
+  }
 
   function isMovingAway(point: HoverBridgePoint): boolean {
     if (!requireForwardMovement || !direction || !lastPointer) {
@@ -95,8 +263,18 @@ export function createHoverBridge({
     fallbackTimeoutId = setTimeout(() => {
       fallbackTimeoutId = undefined;
 
-      if (!isPointerInAnchor() && polygon()) {
-        clear();
+      if (!polygon()) {
+        return;
+      }
+
+      // Always tear the corridor down, whether or not the overlay should close
+      // with it. Leaving it live because the pointer happens to be in the safe
+      // area would strand the container suppressed with no timer pending and
+      // nothing but a future pointermove to rescue it.
+      const shouldClose = !isPointerInAnchor();
+      clear();
+
+      if (shouldClose) {
         close();
       }
     }, timeoutMs);
@@ -154,6 +332,7 @@ export function createHoverBridge({
     lastPointer = exitPoint;
     registerPointerMoveListener();
     scheduleFallback();
+    suppressSiblingPointerEvents();
     return true;
   }
 
@@ -164,6 +343,7 @@ export function createHoverBridge({
     clearTimeout(fallbackTimeoutId);
     fallbackTimeoutId = undefined;
     removePointerMoveListener?.();
+    restoreSiblingPointerEvents();
   }
 
   return {

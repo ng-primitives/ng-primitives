@@ -19,6 +19,7 @@ import {
   NgpMenu,
   NgpMenuItem,
   NgpMenuTrigger,
+  NgpMenuTriggerGroup,
   NgpSubmenuTrigger,
   NgpMenuItemCheckbox,
   NgpMenuItemRadioGroup,
@@ -205,6 +206,14 @@ Enable keyboard triggers to allow users to open menus using Enter or arrow keys:
 - Only works when trigger is focused
 - Perfect for sidebar/navigation menus
 
+### Grouping Root Triggers
+
+In a vertical navigation menu, each top-level item is often its own `NgpMenuTrigger` that opens a menu to the side on hover. Moving the pointer from the trigger toward that menu can pass over a sibling trigger on the way, since diagonal mouse movement rarely follows a straight line - without protection, that sibling would open its own menu and steal focus from the one you were heading toward.
+
+Nested `NgpSubmenuTrigger`s inside an already-open menu are protected from this automatically. Root-level triggers are not, since they may have no shared parent at all - wrap them in `NgpMenuTriggerGroup` to opt in:
+
+<docs-example name="menu-trigger-group"></docs-example>
+
 ## API Reference
 
 The following directives are available to import from the `ng-primitives/menu` package:
@@ -218,6 +227,12 @@ The following directives are available to import from the `ng-primitives/menu` p
 <api-reference-attributes>
   <api-attribute name="data-open" description="Applied when the menu is open." />
 </api-reference-attributes>
+
+### NgpMenuTriggerGroup
+
+<api-docs name="NgpMenuTriggerGroup"></api-docs>
+
+<api-reference-props name="NgpMenuTriggerGroup"></api-reference-props>
 
 ### NgpMenu
 

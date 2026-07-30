@@ -18,6 +18,12 @@ export {
   isPointInHoverBridgePolygon,
 } from './hover-bridge/hover-bridge';
 export {
+  createHoverTransitDecline,
+  createHoverTransitTracker,
+  HoverTransitDeclineOptions,
+  HoverTransitTracker,
+} from './hover-bridge/transit-tracker';
+export {
   createHoverBridge,
   HoverBridgeController,
   HoverBridgeOptions,
