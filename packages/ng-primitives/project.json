@@ -141,7 +141,9 @@
     "build": {
       "executor": "nx:run-commands",
       "outputs": ["{workspaceRoot}/dist/{projectRoot}"],
-      "dependsOn": ["build:lib"],
+      "dependsOn": [{ "target": "build:lib", "params": "forward" }],
+      "configurations": { "production": {} },
+      "defaultConfiguration": "production",
       "options": {
         "command": "node packages/ng-primitives/postbuild-schematics.mjs"
       }
