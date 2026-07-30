@@ -201,6 +201,30 @@ describe('NgpSubmenuTrigger sibling suppression - real layout, real pointer move
     );
   });
 
+  it('keeps the open submenu trigger hit-testable inside the suppressed parent menu', async () => {
+    const triggerA = await openRootMenu();
+
+    await userEvent.pointer({ target: triggerA, coords: { x: 10, y: 16 } });
+    await waitFor(() =>
+      expect(document.querySelector('[data-testid="submenu-a"]')).toBeInTheDocument(),
+    );
+
+    const rectA = triggerA.getBoundingClientRect();
+    const exitPoint = { x: rectA.right + 2, y: rectA.bottom + 2 };
+    const backOnTrigger = { x: rectA.left + 10, y: rectA.top + 10 };
+
+    leavePointerAt(triggerA, exitPoint);
+    movePointerTo(exitPoint);
+
+    // Here the suppressed container is the parent menu panel and the exempted
+    // trigger is a menu item inside it, so the exemption has to survive a
+    // different containment shape from the root trigger-group case.
+    expect(document.elementFromPoint(backOnTrigger.x, backOnTrigger.y)).toBe(triggerA);
+
+    movePointerTo(backOnTrigger);
+    expect(document.querySelector('[data-testid="submenu-a"]')).toBeInTheDocument();
+  });
+
   it('does not suppress the open submenu panel itself, only the sibling row', async () => {
     const triggerA = await openRootMenu();
     const triggerB = document.querySelector('[data-testid="trigger-b"]') as HTMLElement;

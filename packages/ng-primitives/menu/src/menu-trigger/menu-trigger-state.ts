@@ -12,7 +12,7 @@ import {
 } from '@angular/core';
 import {
   createHoverBridge,
-  HOVER_BRIDGE_TIMEOUT_MS,
+  createHoverTransitDecline,
   injectElementRef,
 } from 'ng-primitives/internal';
 import {
@@ -283,9 +283,11 @@ export const [
      * A sibling's corridor can't withhold an enter the browser resolved before
      * pointer-events applied, so the sibling has to decline it itself.
      */
-    function isBlockedBySiblingTransit(): boolean {
-      return triggerGroup()?.isTransitBlocked(element.nativeElement) ?? false;
-    }
+    const declineHoverDuringTransit = createHoverTransitDecline({
+      isBlocked: () => triggerGroup()?.isTransitBlocked(element.nativeElement) ?? false,
+      isPointerOverTrigger: pointerOverTrigger,
+      show: () => show('mouse'),
+    });
 
     // Reset pointer tracking when menu closes
     effect(() => {
@@ -348,14 +350,7 @@ export const [
         return;
       }
 
-      if (isBlockedBySiblingTransit()) {
-        // The pointer may have genuinely landed here rather than passing
-        // through, so retry once the sibling's corridor has had time to end.
-        disposables.setTimeout(() => {
-          if (pointerOverTrigger() && !isBlockedBySiblingTransit()) {
-            show('mouse');
-          }
-        }, HOVER_BRIDGE_TIMEOUT_MS);
+      if (declineHoverDuringTransit()) {
         return;
       }
 

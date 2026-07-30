@@ -1,4 +1,6 @@
-import { signal } from '@angular/core';
+import { signal, Signal } from '@angular/core';
+import { injectDisposables } from 'ng-primitives/utils';
+import { HOVER_BRIDGE_TIMEOUT_MS } from './hover-bridge';
 
 export interface HoverTransitTracker {
   /** @internal */
@@ -28,5 +30,46 @@ export function createHoverTransitTracker(): HoverTransitTracker {
       }
     },
     isTransitBlocked: trigger => source() !== null && source() !== trigger,
+  };
+}
+
+export interface HoverTransitDeclineOptions {
+  /** Whether a sibling's corridor currently owns the transit. */
+  isBlocked: () => boolean;
+  /** Whether the pointer is still over this trigger when the retry fires. */
+  isPointerOverTrigger: Signal<boolean>;
+  /** Open this trigger's overlay. */
+  show: () => void;
+}
+
+/**
+ * Builds the hover-decline check a trigger runs before opening. Call it from
+ * the state factory; the returned function goes in the pointerenter handler and
+ * reports whether the hover was declined.
+ *
+ * A hover that arrives while a sibling's corridor is in flight is declined and
+ * retried once that corridor has had time to end - the pointer may have
+ * genuinely landed here rather than passing through, and a declined enter is
+ * never re-delivered on its own.
+ */
+export function createHoverTransitDecline({
+  isBlocked,
+  isPointerOverTrigger,
+  show,
+}: HoverTransitDeclineOptions): () => boolean {
+  const disposables = injectDisposables();
+
+  return () => {
+    if (!isBlocked()) {
+      return false;
+    }
+
+    disposables.setTimeout(() => {
+      if (isPointerOverTrigger() && !isBlocked()) {
+        show();
+      }
+    }, HOVER_BRIDGE_TIMEOUT_MS);
+
+    return true;
   };
 }
