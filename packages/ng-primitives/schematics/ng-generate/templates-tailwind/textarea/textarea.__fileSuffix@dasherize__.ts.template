@@ -1,0 +1,14 @@
+import { Component } from '@angular/core';
+import { NgpTextarea } from 'ng-primitives/textarea';
+
+@Component({
+  selector: 'textarea[<% if (prefix) { %><%= prefix %>-<% } %>textarea]',
+  hostDirectives: [{ directive: NgpTextarea, inputs: ['disabled'] }],
+  host: {
+    class: 'h-18 [width:90%] rounded-lg py-2 px-3 border-none shadow-(--ngp-input-shadow) [outline:none] [font-family:inherit] data-focus:[outline:2px_solid_var(--ngp-focus-ring)] data-focus:[outline-offset:0] placeholder:text-(--ngp-text-placeholder)',
+  },
+  template: `
+    <ng-content />
+  `,
+})
+export class Textarea<%= componentSuffix %> {}

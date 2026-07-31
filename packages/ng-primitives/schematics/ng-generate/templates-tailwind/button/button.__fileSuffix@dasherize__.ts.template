@@ -1,0 +1,86 @@
+import { Component, input } from '@angular/core';
+import { NgpButton } from 'ng-primitives/button';
+
+/**
+ * The size of the button.
+ */
+export type ButtonSize = 'sm' | 'md' | 'lg' | 'xl';
+
+/**
+ * The variant of the button.
+ */
+export type ButtonVariant = 'primary' | 'secondary' | 'destructive' | 'outline' | 'ghost' | 'link';
+
+@Component({
+  selector: 'button[<% if (prefix) { %><%= prefix %>-<% } %>button]',
+  hostDirectives: [{ directive: NgpButton, inputs: ['disabled'] }],
+  template: `
+    <ng-content select="[slot=leading]" />
+    <ng-content />
+    <ng-content select="[slot=trailing]" />
+  `,
+  host: {
+    class: 'pl-4 pr-4 rounded-lg text-(--ngp-text-primary) border-none h-10 font-medium bg-(--ngp-background) [transition:background-color_300ms_cubic-bezier(0.4,_0,_0.2,_1)] shadow-(--ngp-button-shadow) box-border inline-flex items-center justify-center cursor-pointer gap-2 data-hover:bg-(--ngp-background-hover) data-focus-visible:[outline:2px_solid_var(--ngp-focus-ring)] data-press:bg-(--ngp-background-active) data-[variant=primary]:bg-(--ngp-background) data-[variant=primary]:text-(--ngp-text-primary) data-[variant=primary]:border-none [&:not([data-variant])]:bg-(--ngp-background) [&:not([data-variant])]:text-(--ngp-text-primary) [&:not([data-variant])]:border-none data-[variant=primary]:data-hover:bg-(--ngp-background-hover) [&:not([data-variant])]:data-hover:bg-(--ngp-background-hover) data-[variant=primary]:data-press:bg-(--ngp-background-active) [&:not([data-variant])]:data-press:bg-(--ngp-background-active) data-[variant=secondary]:[background-color:var(--ngp-secondary-background,_#f1f5f9)] data-[variant=secondary]:[color:var(--ngp-secondary-text,_#0f172a)] data-[variant=secondary]:border-none data-[variant=secondary]:data-hover:[background-color:var(--ngp-secondary-background-hover,_#e2e8f0)] data-[variant=secondary]:data-press:[background-color:var(--ngp-secondary-background-active,_#cbd5e1)] data-[variant=destructive]:[background-color:var(--ngp-destructive-background,_#ef4444)] data-[variant=destructive]:[color:var(--ngp-destructive-text,_#ffffff)] data-[variant=destructive]:border-none data-[variant=destructive]:data-hover:[background-color:var(--ngp-destructive-background-hover,_#dc2626)] data-[variant=destructive]:data-press:[background-color:var(--ngp-destructive-background-active,_#b91c1c)] data-[variant=outline]:bg-transparent data-[variant=outline]:text-(--ngp-text-primary) data-[variant=outline]:[border:1px_solid_var(--ngp-outline-border,_#e2e8f0)] data-[variant=outline]:[box-shadow:none] data-[variant=outline]:data-hover:bg-(--ngp-background-hover) data-[variant=outline]:data-hover:[border-color:var(--ngp-outline-border-hover,_#cbd5e1)] data-[variant=outline]:data-press:[background-color:var(--ngp-outline-background-active,_rgba(15,_23,_42,_0.1))] data-[variant=ghost]:bg-transparent data-[variant=ghost]:text-(--ngp-text-primary) data-[variant=ghost]:border-none data-[variant=ghost]:[box-shadow:none] data-[variant=ghost]:data-hover:bg-(--ngp-background-hover) data-[variant=ghost]:data-press:bg-(--ngp-background-active) data-[variant=link]:bg-transparent data-[variant=link]:[color:var(--ngp-link-color,_#3b82f6)] data-[variant=link]:border-none data-[variant=link]:[box-shadow:none] data-[variant=link]:[text-decoration:underline] data-[variant=link]:[text-underline-offset:4px] data-[variant=link]:data-hover:[text-decoration-thickness:2px] motion-reduce:[transition-duration:0s]',
+    '[attr.data-size]': 'size()',
+    '[attr.data-variant]': 'variant()',
+  },
+  styles: `
+/* These styles rely on CSS variables that can be imported from ng-primitives/example-theme/index.css in your global styles */
+
+    :host[data-size='sm'] {
+      height: 2rem;
+      padding-left: 0.75rem;
+      padding-right: 0.75rem;
+      font-size: 0.875rem;
+      --ng-icon__size: 0.875rem;
+    }
+
+    :host[data-size='md'] {
+      height: 2.5rem;
+      padding-left: 1rem;
+      padding-right: 1rem;
+      font-size: 0.875rem;
+      --ng-icon__size: 0.875rem;
+    }
+
+    :host:not([data-size]) {
+      height: 2.5rem;
+      padding-left: 1rem;
+      padding-right: 1rem;
+      font-size: 0.875rem;
+      --ng-icon__size: 0.875rem;
+    }
+
+    :host[data-size='lg'] {
+      height: 3rem;
+      padding-left: 1.25rem;
+      padding-right: 1.25rem;
+      font-size: 1rem;
+      --ng-icon__size: 1rem;
+    }
+
+    :host[data-size='xl'] {
+      height: 3.5rem;
+      padding-left: 1.5rem;
+      padding-right: 1.5rem;
+      font-size: 1.125rem;
+      --ng-icon__size: 1.125rem;
+    }
+
+    :host[disabled] {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+  `,
+})
+export class Button<%= componentSuffix %> {
+  /**
+   * The size of the button.
+   */
+  readonly size = input<ButtonSize>('md');
+
+  /**
+   * The variant of the button.
+   */
+  readonly variant = input<ButtonVariant>('primary');
+}

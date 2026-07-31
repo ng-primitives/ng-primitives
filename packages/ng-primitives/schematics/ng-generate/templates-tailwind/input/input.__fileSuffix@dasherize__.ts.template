@@ -1,0 +1,12 @@
+import { Component } from '@angular/core';
+import { NgpInput } from 'ng-primitives/input';
+
+@Component({
+  selector: 'input[<% if (prefix) { %><%= prefix %>-<% } %>input]',
+  hostDirectives: [{ directive: NgpInput, inputs: ['disabled'] }],
+  host: {
+    class: 'h-9 w-full rounded-lg py-0 px-4 border-none shadow-(--ngp-input-shadow) [outline:none] box-border focus:[outline:2px_solid_var(--ngp-focus-ring)] focus:[outline-offset:2px] placeholder:text-(--ngp-text-placeholder)',
+  },
+  template: '',
+})
+export class Input<%= componentSuffix %> {}
