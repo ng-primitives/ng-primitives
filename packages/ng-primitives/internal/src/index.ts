@@ -12,6 +12,7 @@ export {
   createHoverBridgePolygon,
   getHoverBridgeDirection,
   HOVER_BRIDGE_DIRECTION_TOLERANCE_PX,
+  HOVER_BRIDGE_SIBLING_TIMEOUT_MS,
   HOVER_BRIDGE_TIMEOUT_MS,
   HoverBridgeDirection,
   HoverBridgePoint,

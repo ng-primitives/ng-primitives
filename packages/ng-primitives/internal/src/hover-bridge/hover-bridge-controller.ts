@@ -4,6 +4,7 @@ import {
   createHoverBridgePolygon,
   getHoverBridgeDirection,
   HOVER_BRIDGE_DIRECTION_TOLERANCE_PX,
+  HOVER_BRIDGE_SIBLING_TIMEOUT_MS,
   HOVER_BRIDGE_TIMEOUT_MS,
   HoverBridgeDirection,
   HoverBridgePoint,
@@ -104,6 +105,10 @@ export function createHoverBridge({
   let removePointerMoveListener: (() => void) | undefined = undefined;
   let fallbackTimeoutId: ReturnType<typeof setTimeout> | undefined = undefined;
   let suppressedElement: HTMLElement | null = null;
+  // Captured once per corridor: neither element moves while one is in flight,
+  // and reading them back would force layout on every pointermove.
+  let siblingBounds: DOMRect | null = null;
+  let triggerBounds: DOMRect | null = null;
   let previousTriggerPointerEvents = '';
   let removePressGuards: (() => void) | undefined = undefined;
 
@@ -256,8 +261,21 @@ export function createHoverBridge({
     return delta * direction.sign < -HOVER_BRIDGE_DIRECTION_TOLERANCE_PX;
   }
 
+  /**
+   * Whether the pointer is over one of the trigger's siblings rather than the
+   * open gap. This never rejects the point - the corridor deliberately covers
+   * that ground, because a diagonal approach to the panel has to cross it. It
+   * only shortens how long a pointer that has *stopped* there is waited on.
+   */
+  function isOverSibling({ x, y }: HoverBridgePoint): boolean {
+    const within = (rect: DOMRect | null): boolean =>
+      !!rect && x >= rect.left && x <= rect.right && y >= rect.top && y <= rect.bottom;
+
+    return within(siblingBounds) && !within(triggerBounds);
+  }
+
   /** (Re)start the idle timer - reset on valid movement so it only fires when idle. */
-  function scheduleFallback(): void {
+  function scheduleFallback(delay: number = timeoutMs): void {
     clearTimeout(fallbackTimeoutId);
 
     fallbackTimeoutId = setTimeout(() => {
@@ -277,7 +295,7 @@ export function createHoverBridge({
       if (shouldClose) {
         close();
       }
-    }, timeoutMs);
+    }, delay);
   }
 
   function registerPointerMoveListener(): void {
@@ -309,7 +327,9 @@ export function createHoverBridge({
         // but continuous traversal isn't cut off mid-corridor. Callers that want
         // a fixed cap (tooltip) opt out via resetFallbackOnMove: false.
         if (resetFallbackOnMove) {
-          scheduleFallback();
+          scheduleFallback(
+            isOverSibling(point) ? Math.min(HOVER_BRIDGE_SIBLING_TIMEOUT_MS, timeoutMs) : timeoutMs,
+          );
         }
       },
       true,
@@ -330,7 +350,13 @@ export function createHoverBridge({
     polygon.set(points);
     direction = getHoverBridgeDirection(triggerRect, targetRect);
     lastPointer = exitPoint;
+    siblingBounds = siblingContainer?.()?.getBoundingClientRect() ?? null;
+    triggerBounds = trigger?.nativeElement.getBoundingClientRect() ?? null;
     registerPointerMoveListener();
+    // Deliberately the full window, whatever the exit point sits over: the gap
+    // between two stacked triggers belongs to the container, so leaving one and
+    // pausing to aim would otherwise get the short sibling window at the very
+    // moment a pause is most likely. The first move re-evaluates.
     scheduleFallback();
     suppressSiblingPointerEvents();
     return true;
@@ -340,6 +366,8 @@ export function createHoverBridge({
     polygon.set(null);
     direction = null;
     lastPointer = null;
+    siblingBounds = null;
+    triggerBounds = null;
     clearTimeout(fallbackTimeoutId);
     fallbackTimeoutId = undefined;
     removePointerMoveListener?.();

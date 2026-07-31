@@ -272,7 +272,7 @@ export const [
       isPointerInAnchor: isPointerOverMenuArea,
       close: () => hide(),
       requireForwardMovement: true,
-      siblingContainer: () => triggerGroup()?.element.nativeElement ?? null,
+      siblingContainer: () => triggerGroup()?.siblingContainer() ?? null,
       onSuppressionChange: active =>
         active
           ? triggerGroup()?.setTransitSource(element.nativeElement)

@@ -1,4 +1,5 @@
-import { Directive } from '@angular/core';
+import { BooleanInput } from '@angular/cdk/coercion';
+import { booleanAttribute, Directive, input } from '@angular/core';
 import { ngpMenuTriggerGroup, provideMenuTriggerGroupState } from './menu-trigger-group-state';
 
 /**
@@ -13,5 +14,17 @@ import { ngpMenuTriggerGroup, provideMenuTriggerGroupState } from './menu-trigge
   providers: [provideMenuTriggerGroupState()],
 })
 export class NgpMenuTriggerGroup {
-  protected readonly state = ngpMenuTriggerGroup({});
+  /**
+   * Whether the group coordinates hover between its sibling triggers. Turn it off
+   * when the siblings no longer sit between a trigger and its menu - a collapsed
+   * icon rail, say, where the pointer reaches the panel without crossing anything,
+   * so the coordination only costs the siblings their responsiveness. Takes effect
+   * from the next transit; one already in flight finishes as it started.
+   */
+  readonly siblingTracking = input<boolean, BooleanInput>(true, {
+    alias: 'ngpMenuTriggerGroupSiblingTracking',
+    transform: booleanAttribute,
+  });
+
+  protected readonly state = ngpMenuTriggerGroup({ siblingTracking: this.siblingTracking });
 }

@@ -1,4 +1,4 @@
-import { ElementRef } from '@angular/core';
+import { computed, Signal, signal } from '@angular/core';
 import {
   createHoverTransitTracker,
   HoverTransitTracker,
@@ -8,25 +8,39 @@ import { createPrimitive } from 'ng-primitives/state';
 
 export interface NgpMenuTriggerGroupState extends HoverTransitTracker {
   /**
-   * The group's host element - the shared container a root NgpMenuTrigger
-   * suppresses pointer-events on while a sibling's hover-bridge is active.
+   * The shared container a root NgpMenuTrigger suppresses pointer-events on
+   * while its hover bridge is active, or null while sibling tracking is off.
    * @internal
    */
-  readonly element: ElementRef<HTMLElement>;
+  readonly siblingContainer: Signal<HTMLElement | null>;
 }
 
-export interface NgpMenuTriggerGroupProps {}
+export interface NgpMenuTriggerGroupProps {
+  /** Whether the group coordinates hover between its sibling triggers. */
+  siblingTracking?: Signal<boolean>;
+}
 
 export const [
   NgpMenuTriggerGroupStateToken,
   ngpMenuTriggerGroup,
   injectMenuTriggerGroupState,
   provideMenuTriggerGroupState,
-] = createPrimitive('NgpMenuTriggerGroup', (_: NgpMenuTriggerGroupProps) => {
-  const element = injectElementRef<HTMLElement>();
+] = createPrimitive(
+  'NgpMenuTriggerGroup',
+  ({ siblingTracking = signal(true) }: NgpMenuTriggerGroupProps) => {
+    const element = injectElementRef<HTMLElement>();
+    const tracker = createHoverTransitTracker();
 
-  return {
-    element,
-    ...createHoverTransitTracker(),
-  } satisfies NgpMenuTriggerGroupState;
-});
+    // Only read when a corridor starts, so switching tracking off takes effect
+    // from the next transit rather than stranding one already in flight.
+    const siblingContainer = computed(() => (siblingTracking() ? element.nativeElement : null));
+
+    return {
+      siblingContainer,
+      ...tracker,
+      // A trigger that never suppressed its siblings must not decline their
+      // hovers either, or they would be inert with nothing to release them.
+      isTransitBlocked: trigger => siblingTracking() && tracker.isTransitBlocked(trigger),
+    } satisfies NgpMenuTriggerGroupState;
+  },
+);
