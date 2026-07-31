@@ -91,6 +91,38 @@ The following directives are available to import from the `ng-primitives/file-up
   <api-attribute name="data-disabled" description="Applied when the element is disabled." />
 </api-reference-attributes>
 
+## Global Configuration
+
+You can configure the default options for all file uploads and file dropzones in your application by using the `provideFileUploadConfig` and `provideFileDropzoneConfig` functions in a providers array.
+
+```ts
+import { provideFileDropzoneConfig, provideFileUploadConfig } from 'ng-primitives/file-upload';
+
+bootstrapApplication(AppComponent, {
+  providers: [
+    provideFileUploadConfig({
+      fileTypes: ['image/png', '.jpg'],
+      multiple: true,
+      dragAndDrop: false,
+    }),
+    provideFileDropzoneConfig({
+      fileTypes: ['image/png', '.jpg'],
+      multiple: true,
+    }),
+  ],
+});
+```
+
+Any input set on a primitive takes precedence over the configured default.
+
+### NgpFileUploadConfig
+
+<api-reference-config name="NgpFileUploadConfig"></api-reference-config>
+
+### NgpFileDropzoneConfig
+
+<api-reference-config name="NgpFileDropzoneConfig"></api-reference-config>
+
 ## Accessibility
 
 The file upload primitive should be applied to a `<button>` element or another interactive element for keyboard accessibility. The file dropzone is a drag-and-drop target and is not keyboard accessible by default — ensure an alternative method (such as the file upload trigger) is always available.

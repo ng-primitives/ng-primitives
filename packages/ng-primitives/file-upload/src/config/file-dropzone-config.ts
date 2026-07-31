@@ -2,8 +2,7 @@ import { InjectionToken, Provider, inject } from '@angular/core';
 
 export interface NgpFileDropzoneConfig {
   /**
-   * The accepted file types. This can be an array of strings or a comma-separated string.
-   * Accepted types can either be file extensions (e.g. `.jpg`) or MIME types (e.g. `image/jpeg`).
+   * The accepted file types, either file extensions (e.g. `.jpg`) or MIME types (e.g. `image/jpeg`).
    * @default undefined
    */
   fileTypes: string[] | undefined;
