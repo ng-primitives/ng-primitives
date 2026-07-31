@@ -103,9 +103,104 @@ class GroupedRootTriggersComponent {
 })
 class UngroupedRootTriggersComponent {}
 
+/** The grouped fixture with sibling tracking switched off, as a collapsed rail would. */
+@Component({
+  template: `
+    <div
+      [ngpMenuTriggerGroupSiblingTracking]="false"
+      ngpMenuTriggerGroup
+      data-testid="trigger-group"
+      style="display: flex; flex-direction: column; position: relative;"
+    >
+      <button
+        [ngpMenuTrigger]="menuA"
+        [ngpMenuTriggerOpenTriggers]="['hover']"
+        [ngpMenuTriggerPlacement]="'right-start'"
+        [ngpMenuTriggerOffset]="60"
+        data-testid="trigger-a"
+        style="width: 100px; height: 32px; padding: 0; margin: 0;"
+      >
+        Trigger A
+      </button>
+      <button
+        [ngpMenuTrigger]="menuB"
+        [ngpMenuTriggerOpenTriggers]="['hover']"
+        [ngpMenuTriggerPlacement]="'right-start'"
+        data-testid="trigger-b"
+        style="width: 100px; height: 32px; padding: 0; margin: 0;"
+      >
+        Trigger B
+      </button>
+    </div>
+
+    <ng-template #menuA>
+      <div ngpMenu data-testid="menu-a" style="width: 140px; height: 80px;">
+        <button ngpMenuItem data-testid="menu-a-item-1">A Item 1</button>
+      </div>
+    </ng-template>
+
+    <ng-template #menuB>
+      <div ngpMenu data-testid="menu-b" style="width: 140px; height: 80px;">
+        <button ngpMenuItem data-testid="menu-b-item-1">B Item 1</button>
+      </div>
+    </ng-template>
+  `,
+  imports: [NgpMenuTrigger, NgpMenu, NgpMenuItem, NgpMenuTriggerGroup],
+})
+class UntrackedRootTriggersComponent {
+  readonly menuA = viewChild<TemplateRef<unknown>>('menuA');
+  readonly menuB = viewChild<TemplateRef<unknown>>('menuB');
+}
+
 describe('NgpMenuTriggerGroup sibling suppression - real layout, real pointer movement', () => {
   afterEach(() => {
     document.querySelectorAll('[data-overlay]').forEach(el => el.remove());
+  });
+
+  it('leaves the sibling row hit-testable when sibling tracking is off', async () => {
+    await render(UntrackedRootTriggersComponent);
+    const triggerA = document.querySelector('[data-testid="trigger-a"]') as HTMLElement;
+    const triggerB = document.querySelector('[data-testid="trigger-b"]') as HTMLElement;
+    const group = document.querySelector('[data-testid="trigger-group"]') as HTMLElement;
+
+    await userEvent.pointer({ target: triggerA, coords: { x: 10, y: 16 } });
+    await waitFor(() =>
+      expect(document.querySelector('[data-testid="menu-a"]')).toBeInTheDocument(),
+    );
+
+    const rectA = triggerA.getBoundingClientRect();
+    const rectB = triggerB.getBoundingClientRect();
+    const onSibling = { x: rectB.left + 10, y: rectB.top + rectB.height / 2 };
+
+    leavePointerAt(triggerA, { x: rectA.left + 10, y: rectB.top + 2 });
+    movePointerTo({ x: rectA.left + 10, y: rectB.top + 2 });
+
+    expect(group.style.pointerEvents).toBe('');
+    expect(document.elementFromPoint(onSibling.x, onSibling.y)).toBe(triggerB);
+  });
+
+  it('opens a sibling immediately when sibling tracking is off', async () => {
+    await render(UntrackedRootTriggersComponent);
+    const triggerA = document.querySelector('[data-testid="trigger-a"]') as HTMLElement;
+    const triggerB = document.querySelector('[data-testid="trigger-b"]') as HTMLElement;
+
+    await userEvent.pointer({ target: triggerA, coords: { x: 10, y: 16 } });
+    await waitFor(() =>
+      expect(document.querySelector('[data-testid="menu-a"]')).toBeInTheDocument(),
+    );
+
+    const rectA = triggerA.getBoundingClientRect();
+    const rectB = triggerB.getBoundingClientRect();
+
+    // The same transit the grouped fixture protects. Without tracking the
+    // sibling takes the hover rather than declining it.
+    leavePointerAt(triggerA, { x: rectA.left + 10, y: rectB.top + 2 });
+    movePointerTo({ x: rectA.left + 10, y: rectB.top + 2 });
+    await userEvent.pointer({ target: triggerB, coords: { x: 10, y: 16 } });
+
+    await waitFor(() =>
+      expect(document.querySelector('[data-testid="menu-b"]')).toBeInTheDocument(),
+    );
   });
 
   it('does not open a sibling root trigger while the pointer transits validly toward the open menu', async () => {

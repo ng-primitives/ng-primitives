@@ -214,6 +214,14 @@ Nested `NgpSubmenuTrigger`s inside an already-open menu are protected from this 
 
 <docs-example name="menu-trigger-group"></docs-example>
 
+The coordination only earns its keep while the siblings actually sit between a trigger and its menu. In a collapsible navigation, that stops being true once the rail collapses to icons - the pointer reaches the panel without crossing anything, so all the group does is hold the siblings inert a moment longer than they need to be. Bind `ngpMenuTriggerGroupSiblingTracking` to turn it off for as long as that is the case:
+
+```html
+<nav ngpMenuTriggerGroup [ngpMenuTriggerGroupSiblingTracking]="!collapsed()">
+  <!-- triggers -->
+</nav>
+```
+
 ## API Reference
 
 The following directives are available to import from the `ng-primitives/menu` package:
