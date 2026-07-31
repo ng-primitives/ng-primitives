@@ -1,3 +1,18 @@
+## 0.128.6 (2026-07-31)
+
+### 🚀 Features
+
+- **file-upload:** add file upload/dropzone config ([#888](https://github.com/ng-primitives/ng-primitives/pull/888))
+
+### 🩹 Fixes
+
+- **menu:** shorten the hover corridor's idle wait over a sibling ([#889](https://github.com/ng-primitives/ng-primitives/pull/889))
+
+### ❤️ Thank You
+
+- Ashley Hunter
+- Marc Stammerjohann @marcjulian
+
 ## 0.128.5 (2026-07-30)
 
 ### 🚀 Features
