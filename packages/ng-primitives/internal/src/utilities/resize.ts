@@ -72,9 +72,27 @@ export function fromResizeEvent(
 
         observer.observe(element);
 
-        // Emit an initial measurement immediately to avoid one-frame stale layout
-        // while waiting for the first ResizeObserver callback.
-        observable.next(getElementDimensions(element));
+        // Emit an initial measurement to avoid one-frame stale layout while waiting
+        // for the first ResizeObserver callback, but defer it to a microtask.
+        //
+        // Measuring here synchronously would force a layout flush in the middle of
+        // whatever is creating the element, so a framework creating N observed
+        // elements in one pass pays N interleaved reflows — the cost grows with the
+        // document, and on a dense page it blocks the main thread for seconds.
+        // Microtasks run after the current task's DOM writes but still before paint,
+        // so every element created in that pass shares a single layout flush and the
+        // measurement is no less timely.
+        //
+        // The observer's own initial callback is not a substitute. It does fire for a
+        // newly observed element, but it is delivered at rendering time — before paint,
+        // yet after every microtask — so anything reading the measurement in the
+        // current task still sees the pre-observation value. A tooltip hovered in the
+        // same task it rendered would decide it has no overflow and never open.
+        queueMicrotask(() => {
+          if (observer) {
+            observable.next(getElementDimensions(element));
+          }
+        });
       }
     }
 
