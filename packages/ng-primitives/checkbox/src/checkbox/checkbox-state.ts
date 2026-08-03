@@ -1,4 +1,4 @@
-import { computed, Signal, signal, WritableSignal } from '@angular/core';
+import { computed, Signal, signal } from '@angular/core';
 import { injectCheckboxGroupState } from 'ng-primitives/checkbox-group';
 import { ngpFormControl } from 'ng-primitives/form-field';
 import { ngpInteractions } from 'ng-primitives/interactions';
@@ -9,7 +9,6 @@ import {
   controlledState,
   createPrimitive,
   dataBinding,
-  deprecatedSetter,
   emitter,
   listener,
   SetterOptions,
@@ -28,15 +27,15 @@ export interface NgpCheckboxState {
   /**
    * Whether the checkbox is checked.
    */
-  readonly checked: WritableSignal<boolean>;
+  readonly checked: Signal<boolean>;
   /**
    * Whether the checkbox is indeterminate.
    */
-  readonly indeterminate: WritableSignal<boolean>;
+  readonly indeterminate: Signal<boolean>;
   /**
    * Whether the checkbox is disabled.
    */
-  readonly disabled: WritableSignal<boolean>;
+  readonly disabled: Signal<boolean>;
   /**
    * Emits when the checked state changes.
    */
@@ -266,13 +265,9 @@ export const [NgpCheckboxStateToken, ngpCheckbox, injectCheckboxState, provideCh
 
       return {
         id,
-        checked: deprecatedSetter(checked as WritableSignal<boolean>, 'setChecked', setChecked),
-        indeterminate: deprecatedSetter(
-          indeterminate as WritableSignal<boolean>,
-          'setIndeterminate',
-          setIndeterminate,
-        ),
-        disabled: deprecatedSetter(disabled as WritableSignal<boolean>, 'setDisabled', setDisabled),
+        checked,
+        indeterminate,
+        disabled,
         checkedChange,
         indeterminateChange: indeterminateChange.asObservable(),
         toggle,

@@ -1,4 +1,4 @@
-import { Signal, signal, WritableSignal } from '@angular/core';
+import { Signal, signal } from '@angular/core';
 import { ngpFormControl } from 'ng-primitives/form-field';
 import { injectElementRef } from 'ng-primitives/internal';
 import {
@@ -7,7 +7,6 @@ import {
   controlledState,
   createPrimitive,
   dataBinding,
-  deprecatedSetter,
   SetterOptions,
   StateInjectionOptions,
 } from 'ng-primitives/state';
@@ -16,9 +15,9 @@ import { Observable } from 'rxjs';
 
 export interface NgpCheckboxGroupState<T = string> {
   readonly id: Signal<string>;
-  readonly value: WritableSignal<T[]>;
+  readonly value: Signal<T[]>;
   readonly allValues: Signal<T[] | undefined>;
-  readonly disabled: WritableSignal<boolean>;
+  readonly disabled: Signal<boolean>;
   readonly compareWith: Signal<(a: T, b: T) => boolean>;
   readonly valueChange: Observable<T[]>;
   select(value: T): void;
@@ -108,9 +107,9 @@ export const [
 
     return {
       id,
-      value: deprecatedSetter(value, 'setValue', setValue),
+      value,
       allValues: _allValues,
-      disabled: deprecatedSetter(disabled, 'setDisabled', setDisabled),
+      disabled,
       compareWith,
       valueChange,
       select,
