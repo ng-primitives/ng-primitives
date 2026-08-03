@@ -219,6 +219,21 @@ describe('fromResizeEvent', () => {
     expect(MockResizeObserver.instances[0].observedElements).toHaveLength(0);
   });
 
+  it('should stop reacting to the disabled signal after teardown', async () => {
+    const disabled = signal(true);
+
+    const subscription = fromResizeEvent(element, { disabled, injector }).subscribe();
+    subscription.unsubscribe();
+
+    // Enabling after teardown must not resurrect the observer: the effect watching
+    // `disabled` outlives the subscription unless it is disposed with it.
+    disabled.set(false);
+    TestBed.flushEffects();
+    await Promise.resolve();
+
+    expect(MockResizeObserver.instances).toHaveLength(0);
+  });
+
   it('should not create an observer while disabled', () => {
     const reads = countLayoutReads(element, () => {
       fromResizeEvent(element, { disabled: signal(true), injector }).subscribe();

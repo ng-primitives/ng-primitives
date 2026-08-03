@@ -121,9 +121,15 @@ export function fromResizeEvent(
 
     setupOrTeardownObserver();
 
-    explicitEffect([disabled], () => setupOrTeardownObserver(), { injector });
+    const disabledEffect = explicitEffect([disabled], () => setupOrTeardownObserver(), {
+      injector,
+    });
 
     return () => {
+      // The effect lives on its injector, not the subscription, so without this a later
+      // `disabled` change would build a fresh observer — and schedule a fresh layout
+      // read — for a subscription nobody is listening to.
+      disabledEffect.destroy();
       observer?.disconnect();
       observer = null;
     };
