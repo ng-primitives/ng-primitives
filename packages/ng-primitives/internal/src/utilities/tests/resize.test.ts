@@ -204,6 +204,43 @@ describe('fromResizeEvent', () => {
     expect(emissions).toEqual([{ width: 132.5, height: 52.25 }]);
   });
 
+  it('should include the scrollbar in a content-box measurement', async () => {
+    const emissions: { width: number; height: number }[] = [];
+    element.style.boxSizing = 'content-box';
+    element.style.overflowY = 'scroll';
+    element.innerHTML = '<div style="height: 400px"></div>';
+
+    // The border box the observer reports. A scrollbar sits inside it but comes off the
+    // content-box `width`, so where scrollbars take layout space the two only agree if
+    // the baseline adds it back. (Overlay scrollbars take none, so on those platforms
+    // this is just the border box.)
+    const borderBox = { width: element.offsetWidth, height: element.offsetHeight };
+
+    fromResizeEvent(element, { injector }).subscribe(dimensions => emissions.push(dimensions));
+    await Promise.resolve();
+
+    MockResizeObserver.instances[0].trigger([
+      { borderBoxSize: [{ inlineSize: borderBox.width, blockSize: borderBox.height }] },
+    ]);
+
+    expect(emissions).toEqual([borderBox]);
+  });
+
+  it('should not measure a percentage size as pixels', async () => {
+    const emissions: { width: number; height: number }[] = [];
+    element.style.display = 'none';
+    element.style.width = '50%';
+    element.style.height = '25%';
+
+    fromResizeEvent(element, { injector }).subscribe(dimensions => emissions.push(dimensions));
+    await Promise.resolve();
+
+    // A non-rendered element keeps its units, so `50%` must not be read as 50px. The
+    // observer reports 0x0 for it, and a consumer watching for a hidden element — the
+    // overlay closes when its trigger is hidden — has to see the same.
+    expect(emissions).toEqual([{ width: 0, height: 0 }]);
+  });
+
   it('should not repeat the baseline for an inline element', async () => {
     const emissions: { width: number; height: number }[] = [];
     const inline = document.createElement('span');
