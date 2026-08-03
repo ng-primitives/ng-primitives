@@ -408,13 +408,24 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
 
     // Monitor trigger element resize
     const elementToMonitor = this.config.anchorElement || this.config.triggerElement;
+    let hasMeasuredNonZeroTrigger = false;
     fromResizeEvent(elementToMonitor)
       .pipe(safeTakeUntilDestroyed(this.destroyRef))
       .subscribe(({ width, height }) => {
         this.triggerWidth.set(width);
 
-        // if the element has been hidden, hide immediately
-        if (width === 0 || height === 0) {
+        if (width !== 0 && height !== 0) {
+          hasMeasuredNonZeroTrigger = true;
+          return;
+        }
+
+        // If the element *has been* hidden, hide immediately. That means a transition
+        // from a real size to none — not merely a zero reading, of which there can be
+        // several before the trigger ever has a box (an empty inline trigger measures
+        // 0x0, and both the initial measurement and the observer's first callback
+        // report it). Closing on those tears down an overlay that was only just
+        // opened, and the trigger may still be about to grow.
+        if (hasMeasuredNonZeroTrigger) {
           this.hideImmediate();
         }
       });

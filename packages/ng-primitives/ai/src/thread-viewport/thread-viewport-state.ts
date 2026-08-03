@@ -2,6 +2,7 @@ import { signal, Signal } from '@angular/core';
 import { explicitEffect, fromResizeEvent, injectElementRef } from 'ng-primitives/internal';
 import { createPrimitive, listener, onDestroy } from 'ng-primitives/state';
 import { safeTakeUntilDestroyed } from 'ng-primitives/utils';
+import { skip } from 'rxjs/operators';
 import { injectThreadState } from '../thread/thread-state';
 
 export interface NgpThreadViewportState {
@@ -46,8 +47,16 @@ export const [
     /** Store the last known scroll position */
     let lastScrollTop = 0;
 
-    /** Determine if we are at the bottom of the scrollable container (within the threshold) */
-    let isAtBottom = false;
+    /**
+     * Determine if we are at the bottom of the scrollable container (within the threshold).
+     *
+     * A thread opens pinned to its latest message, so this starts true and only
+     * becomes false once the user scrolls away. It must not be inferred from an
+     * initial measurement: the viewport is empty until its messages render, so an
+     * early measurement reports "at the bottom" for any thread whatsoever, and a
+     * later one reports "not at the bottom" for every thread long enough to scroll.
+     */
+    let isAtBottom = true;
 
     function scrollToBottom(behavior: ScrollBehavior): void {
       if (!autoScroll()) {
@@ -86,8 +95,13 @@ export const [
     // no scroll event fires when the threshold itself changes, so recompute against the new value
     explicitEffect([threshold], () => onScroll());
 
+    // `skip(1)` drops the baseline measurement the observer emits on setup. Only an
+    // actual size *change* should pull the viewport back down — reacting to the
+    // baseline would scroll a thread the moment it renders, and running `onScroll`
+    // against it would read a viewport that is already full and conclude the user
+    // had scrolled away before they ever touched it.
     fromResizeEvent(element.nativeElement)
-      .pipe(safeTakeUntilDestroyed())
+      .pipe(skip(1), safeTakeUntilDestroyed())
       .subscribe(() => {
         scrollToBottomIfNeeded('instant');
         onScroll();

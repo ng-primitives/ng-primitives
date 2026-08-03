@@ -3,8 +3,7 @@ import { setupTestBed } from '@analogjs/vitest-angular/setup-testbed';
 import '@angular/compiler';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import '@testing-library/jest-dom/vitest';
-import { afterEach, vi } from 'vitest';
-import { installVitestDomPolyfills } from './test-dom-polyfills';
+import { afterEach } from 'vitest';
 
 setupTestBed({
   browserMode: true,
@@ -31,8 +30,6 @@ ComponentFixture.prototype.detectChanges = function (
   TestBed.flushEffects();
   return result;
 };
-
-installVitestDomPolyfills(() => vi.fn());
 
 // Disable CSS transitions and animations so overlay enter/exit states resolve instantly
 const style = document.createElement('style');
