@@ -170,6 +170,23 @@ describe('fromResizeEvent', () => {
     expect(emissions).toEqual([{ width: 120, height: 40 }]);
   });
 
+  it('should not repeat the baseline for a fractionally sized element', async () => {
+    const emissions: { width: number; height: number }[] = [];
+    element.style.width = '120.5px';
+    element.style.height = '40.25px';
+
+    fromResizeEvent(element, { injector }).subscribe(dimensions => emissions.push(dimensions));
+    await Promise.resolve();
+
+    // The observer reports fractional border-box sizes, so the baseline has to be read
+    // at the same precision or the same unchanged size looks like a resize.
+    MockResizeObserver.instances[0].trigger([
+      { borderBoxSize: [{ inlineSize: 120.5, blockSize: 40.25 }] },
+    ]);
+
+    expect(emissions).toEqual([{ width: 120.5, height: 40.25 }]);
+  });
+
   it('should emit again once the size actually changes', async () => {
     const emissions: { width: number; height: number }[] = [];
 

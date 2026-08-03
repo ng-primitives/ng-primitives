@@ -178,9 +178,13 @@ function getElementDimensions(element: HTMLElement, entry?: ResizeObserverEntry)
     width = borderSize.inlineSize;
     height = borderSize.blockSize;
   } else {
-    // fallback for browsers that don't support borderBoxSize
-    width = element.offsetWidth;
-    height = element.offsetHeight;
+    // Read at the same precision the observer reports. `offsetWidth`/`offsetHeight`
+    // round to whole pixels, so a fractionally sized element measured here and then
+    // by the observer produces two different values for one unchanged size — which
+    // both reports the wrong number and defeats the de-duplication above.
+    const rect = element.getBoundingClientRect();
+    width = rect.width;
+    height = rect.height;
   }
 
   // For inline elements, ResizeObserver may report 0,0 dimensions
