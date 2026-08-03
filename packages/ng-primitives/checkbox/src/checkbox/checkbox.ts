@@ -91,7 +91,7 @@ export class NgpCheckbox<T = string> implements OnInit {
   /**
    * The state of the checkbox.
    */
-  readonly state = ngpCheckbox({
+  readonly state = ngpCheckbox<T>({
     id: this.id,
     checked: this.checked,
     defaultChecked: this.defaultChecked,

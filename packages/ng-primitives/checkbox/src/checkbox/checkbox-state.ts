@@ -69,7 +69,7 @@ export interface NgpCheckboxState {
 /**
  * Inputs for configuring the Checkbox primitive.
  */
-export interface NgpCheckboxProps {
+export interface NgpCheckboxProps<T = string> {
   /**
    * The id of the checkbox.
    */
@@ -85,7 +85,7 @@ export interface NgpCheckboxProps {
   /**
    * The value represented by the checkbox in a checkbox group.
    */
-  readonly value?: Signal<unknown>;
+  readonly value?: Signal<T | undefined>;
   /**
    * Whether this checkbox controls all values in its checkbox group.
    */
@@ -115,20 +115,20 @@ export interface NgpCheckboxProps {
 export const [NgpCheckboxStateToken, ngpCheckbox, injectCheckboxState, provideCheckboxState] =
   createPrimitive(
     'NgpCheckbox',
-    ({
+    <T = string>({
       id = signal(uniqueId('ngp-checkbox')),
       checked: _checked = signal<boolean | undefined>(undefined),
       defaultChecked: _defaultChecked,
-      value: _value = signal<unknown>(undefined),
+      value: _value = signal<T | undefined>(undefined),
       parent: _parent = signal(false),
       indeterminate: _indeterminate = signal(false),
       disabled: _disabled = signal(false),
       required: _required = signal(false),
       onCheckedChange,
       onIndeterminateChange,
-    }: NgpCheckboxProps): NgpCheckboxState => {
+    }: NgpCheckboxProps<T>): NgpCheckboxState => {
       const element = injectElementRef();
-      const checkboxGroup = injectCheckboxGroupState<unknown>({ optional: true });
+      const checkboxGroup = injectCheckboxGroupState<T>({ optional: true });
       const defaultChecked = controlled(_defaultChecked, false);
       const [baseChecked, setBaseChecked, checkedChange] = controlledState({
         value: _checked,
@@ -148,7 +148,8 @@ export const [NgpCheckboxStateToken, ngpCheckbox, injectCheckboxState, provideCh
           return !!allValues?.length && allValues.every(itemValue => group.isSelected(itemValue));
         }
 
-        return _value() !== undefined && group.isSelected(_value());
+        const itemValue = _value();
+        return itemValue !== undefined && group.isSelected(itemValue);
       });
       const indeterminate = computed(() => {
         const group = checkboxGroup();
@@ -222,8 +223,11 @@ export const [NgpCheckboxStateToken, ngpCheckbox, injectCheckboxState, provideCh
           if (allValues) {
             group.setValue(nextChecked ? [...allValues] : []);
           }
-        } else if (group && _value() !== undefined) {
-          group.toggle(_value());
+        } else if (group) {
+          const itemValue = _value();
+          if (itemValue !== undefined) {
+            group.toggle(itemValue);
+          }
         } else {
           setBaseChecked(nextChecked);
         }
@@ -252,11 +256,14 @@ export const [NgpCheckboxStateToken, ngpCheckbox, injectCheckboxState, provideCh
         const group = checkboxGroup();
         if (group && _parent() && group.allValues()) {
           group.setValue(value ? [...group.allValues()!] : [], options);
-        } else if (group && _value() !== undefined) {
-          if (value) {
-            group.select(_value());
-          } else {
-            group.deselect(_value());
+        } else if (group) {
+          const itemValue = _value();
+          if (itemValue !== undefined) {
+            if (value) {
+              group.select(itemValue);
+            } else {
+              group.deselect(itemValue);
+            }
           }
         } else {
           setBaseChecked(value, options);
