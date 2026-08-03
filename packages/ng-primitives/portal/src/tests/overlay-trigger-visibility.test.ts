@@ -46,6 +46,10 @@ describe('overlay trigger visibility', () => {
   afterEach(() => {
     restoreResizeObserver?.();
     restoreResizeObserver = undefined;
+
+    // The overlay renders into a portal on `body`, so a test that ends with it open
+    // would leave it behind for the next test's `popoverElement()` to find.
+    document.querySelectorAll('[ngpPopover]').forEach(element => element.remove());
   });
 
   it('should keep the overlay open when the trigger measures zero as it opens', async () => {
