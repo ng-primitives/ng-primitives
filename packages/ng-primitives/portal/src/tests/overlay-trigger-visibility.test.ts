@@ -53,7 +53,7 @@ describe('overlay trigger visibility', () => {
     // that could have closed the overlay have demonstrably been delivered — otherwise
     // it passes just as well when neither measurement ever arrived. Wrapping the real
     // observer rather than replacing it keeps the measurement genuine.
-    const observed = observeFirstDelivery();
+    const observed = observeFirstDelivery(target => target.matches('[data-testid="trigger"]'));
 
     const { getByTestId } = await render(EmptyInlineTriggerComponent);
 
@@ -96,10 +96,16 @@ describe('overlay trigger visibility', () => {
 });
 
 /**
- * Wraps the native `ResizeObserver` so a test can await its first delivery. The
- * observer still measures for real; only the notification is tapped.
+ * Wraps the native `ResizeObserver` so a test can await the delivery for a specific
+ * element. The observer still measures for real; only the notification is tapped.
+ *
+ * Matching on the target matters: several elements are observed while an overlay
+ * opens, and resolving on whichever reports first would let the assertion run before
+ * the element under test had been measured at all.
  */
-function observeFirstDelivery(): { firstDelivery: Promise<void> } {
+function observeFirstDelivery(matches: (target: Element) => boolean): {
+  firstDelivery: Promise<void>;
+} {
   const Native = window.ResizeObserver;
   let delivered!: () => void;
   const firstDelivery = new Promise<void>(resolve => (delivered = resolve));
@@ -108,7 +114,10 @@ function observeFirstDelivery(): { firstDelivery: Promise<void> } {
     constructor(callback: ResizeObserverCallback) {
       super((entries, observer) => {
         callback(entries, observer);
-        delivered();
+
+        if (entries.some(entry => matches(entry.target))) {
+          delivered();
+        }
       });
     }
   };
