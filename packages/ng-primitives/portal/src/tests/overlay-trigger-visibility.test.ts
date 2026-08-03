@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { fireEvent, render, waitFor } from '@testing-library/angular';
 import { NgpPopover, NgpPopoverTrigger } from 'ng-primitives/popover';
-import { describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it } from 'vitest';
 
 /**
  * The overlay watches its trigger for resizes so it can close when the trigger is
@@ -40,16 +40,30 @@ class BlockTriggerComponent {}
 })
 class EmptyInlineTriggerComponent {}
 
+let restoreResizeObserver: (() => void) | undefined;
+
 describe('overlay trigger visibility', () => {
+  afterEach(() => {
+    restoreResizeObserver?.();
+    restoreResizeObserver = undefined;
+  });
+
   it('should keep the overlay open when the trigger measures zero as it opens', async () => {
+    // This assertion is that nothing happens, so it needs a point at which the events
+    // that could have closed the overlay have demonstrably been delivered — otherwise
+    // it passes just as well when neither measurement ever arrived. Wrapping the real
+    // observer rather than replacing it keeps the measurement genuine.
+    const observed = observeFirstDelivery();
+
     const { getByTestId } = await render(EmptyInlineTriggerComponent);
 
     fireEvent.click(getByTestId('trigger'));
     await waitFor(() => expect(popoverElement()).toBeInTheDocument());
 
-    // Long enough for the initial measurement and the observer's first callback
-    // to have been delivered and acted on.
-    await new Promise(resolve => setTimeout(resolve, 100));
+    // The observer has reported the trigger's 0x0 size...
+    await observed.firstDelivery;
+    // ...and the deferred baseline, which reports 0x0 for it too, has flushed.
+    await Promise.resolve();
 
     expect(popoverElement()).toBeInTheDocument();
   });
@@ -80,6 +94,31 @@ describe('overlay trigger visibility', () => {
     await waitFor(() => expect(popoverElement()).not.toBeInTheDocument());
   });
 });
+
+/**
+ * Wraps the native `ResizeObserver` so a test can await its first delivery. The
+ * observer still measures for real; only the notification is tapped.
+ */
+function observeFirstDelivery(): { firstDelivery: Promise<void> } {
+  const Native = window.ResizeObserver;
+  let delivered!: () => void;
+  const firstDelivery = new Promise<void>(resolve => (delivered = resolve));
+
+  window.ResizeObserver = class extends Native {
+    constructor(callback: ResizeObserverCallback) {
+      super((entries, observer) => {
+        callback(entries, observer);
+        delivered();
+      });
+    }
+  };
+
+  restoreResizeObserver = () => {
+    window.ResizeObserver = Native;
+  };
+
+  return { firstDelivery };
+}
 
 /** The overlay renders into a portal on `body`, outside the test container. */
 function popoverElement(): HTMLElement | null {
