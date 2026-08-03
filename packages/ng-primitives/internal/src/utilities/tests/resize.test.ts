@@ -187,6 +187,23 @@ describe('fromResizeEvent', () => {
     expect(emissions).toEqual([{ width: 120.5, height: 40.25 }]);
   });
 
+  it('should report a border-box size that excludes transforms and padding rounding', async () => {
+    const emissions: { width: number; height: number }[] = [];
+    element.style.width = '120.5px';
+    element.style.height = '40.25px';
+    element.style.padding = '5px';
+    element.style.border = '1px solid';
+    element.style.boxSizing = 'content-box';
+    // A transform changes what the element looks like, not how it is laid out — the
+    // observer reports the layout size, so the baseline must too.
+    element.style.transform = 'scale(2)';
+
+    fromResizeEvent(element, { injector }).subscribe(dimensions => emissions.push(dimensions));
+    await Promise.resolve();
+
+    expect(emissions).toEqual([{ width: 132.5, height: 52.25 }]);
+  });
+
   it('should emit again once the size actually changes', async () => {
     const emissions: { width: number; height: number }[] = [];
 

@@ -178,13 +178,12 @@ function getElementDimensions(element: HTMLElement, entry?: ResizeObserverEntry)
     width = borderSize.inlineSize;
     height = borderSize.blockSize;
   } else {
-    // Read at the same precision the observer reports. `offsetWidth`/`offsetHeight`
-    // round to whole pixels, so a fractionally sized element measured here and then
-    // by the observer produces two different values for one unchanged size — which
-    // both reports the wrong number and defeats the de-duplication above.
-    const rect = element.getBoundingClientRect();
-    width = rect.width;
-    height = rect.height;
+    // Match what the observer reports: an untransformed border-box size at full
+    // precision. `offsetWidth`/`offsetHeight` are untransformed but round to whole
+    // pixels, and `getBoundingClientRect()` is fractional but includes transforms —
+    // either would describe the same unchanged element differently from the observer,
+    // reporting the wrong number and defeating the de-duplication above.
+    ({ width, height } = getBorderBoxSize(element));
   }
 
   // For inline elements, ResizeObserver may report 0,0 dimensions
@@ -196,6 +195,41 @@ function getElementDimensions(element: HTMLElement, entry?: ResizeObserverEntry)
   }
 
   return { width, height };
+}
+
+/**
+ * The element's border-box size, excluding any transform, in fractional pixels —
+ * the same quantity a `ResizeObserver` entry reports.
+ *
+ * `width`/`height` resolve to whichever box `box-sizing` selects, so only the
+ * content-box case has to add padding and borders back on.
+ */
+function getBorderBoxSize(element: HTMLElement): Dimensions {
+  const style = getComputedStyle(element);
+  const width = parseFloat(style.width);
+  const height = parseFloat(style.height);
+
+  // An element with no box resolves these to `auto`; it has no size to report.
+  if (Number.isNaN(width) || Number.isNaN(height)) {
+    return { width: element.offsetWidth, height: element.offsetHeight };
+  }
+
+  if (style.boxSizing === 'border-box') {
+    return { width, height };
+  }
+
+  const horizontal =
+    parseFloat(style.paddingLeft) +
+    parseFloat(style.paddingRight) +
+    parseFloat(style.borderLeftWidth) +
+    parseFloat(style.borderRightWidth);
+  const vertical =
+    parseFloat(style.paddingTop) +
+    parseFloat(style.paddingBottom) +
+    parseFloat(style.borderTopWidth) +
+    parseFloat(style.borderBottomWidth);
+
+  return { width: width + horizontal, height: height + vertical };
 }
 
 export interface Dimensions {
