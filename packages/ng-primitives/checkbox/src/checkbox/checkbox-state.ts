@@ -1,4 +1,5 @@
 import { computed, Signal, signal, WritableSignal } from '@angular/core';
+import { injectCheckboxGroupState } from 'ng-primitives/checkbox-group';
 import { ngpFormControl } from 'ng-primitives/form-field';
 import { ngpInteractions } from 'ng-primitives/interactions';
 import { injectElementRef } from 'ng-primitives/internal';
@@ -83,6 +84,14 @@ export interface NgpCheckboxProps {
    */
   readonly defaultChecked?: Signal<boolean>;
   /**
+   * The value represented by the checkbox in a checkbox group.
+   */
+  readonly value?: Signal<unknown>;
+  /**
+   * Whether this checkbox controls all values in its checkbox group.
+   */
+  readonly parent?: Signal<boolean>;
+  /**
    * Whether the checkbox is indeterminate.
    */
   readonly indeterminate?: Signal<boolean>;
@@ -111,6 +120,8 @@ export const [NgpCheckboxStateToken, ngpCheckbox, injectCheckboxState, provideCh
       id = signal(uniqueId('ngp-checkbox')),
       checked: _checked = signal<boolean | undefined>(undefined),
       defaultChecked: _defaultChecked,
+      value: _value = signal<unknown>(undefined),
+      parent: _parent = signal(false),
       indeterminate: _indeterminate = signal(false),
       disabled: _disabled = signal(false),
       required: _required = signal(false),
@@ -118,14 +129,42 @@ export const [NgpCheckboxStateToken, ngpCheckbox, injectCheckboxState, provideCh
       onIndeterminateChange,
     }: NgpCheckboxProps): NgpCheckboxState => {
       const element = injectElementRef();
+      const checkboxGroup = injectCheckboxGroupState<unknown>({ optional: true });
       const defaultChecked = controlled(_defaultChecked, false);
-      const [checked, setChecked, checkedChange] = controlledState({
+      const [baseChecked, setBaseChecked, checkedChange] = controlledState({
         value: _checked,
         defaultValue: defaultChecked,
         onChange: onCheckedChange,
       });
-      const indeterminate = controlled(_indeterminate);
-      const disabled = controlled(_disabled);
+      const baseIndeterminate = controlled(_indeterminate);
+      const baseDisabled = controlled(_disabled);
+      const checked = computed(() => {
+        const group = checkboxGroup();
+        if (!group) {
+          return baseChecked();
+        }
+
+        if (_parent()) {
+          const allValues = group.allValues();
+          return !!allValues?.length && allValues.every(itemValue => group.isSelected(itemValue));
+        }
+
+        return _value() !== undefined && group.isSelected(_value());
+      });
+      const indeterminate = computed(() => {
+        const group = checkboxGroup();
+        if (!group || !_parent()) {
+          return baseIndeterminate();
+        }
+
+        const allValues = group.allValues();
+        const selectedCount =
+          allValues?.filter(itemValue => group.isSelected(itemValue)).length ?? 0;
+        return (
+          baseIndeterminate() || (selectedCount > 0 && selectedCount < (allValues?.length ?? 0))
+        );
+      });
+      const disabled = computed(() => baseDisabled() || !!checkboxGroup()?.disabled());
       const indeterminateChange = emitter<boolean>();
       const tabindex = computed(() => (disabled() ? -1 : 0));
 
@@ -146,6 +185,17 @@ export const [NgpCheckboxStateToken, ngpCheckbox, injectCheckboxState, provideCh
 
       // Event listeners
       listener(element, 'click', event => toggle(event));
+      const label = element.nativeElement.closest('label');
+      if (label) {
+        listener(label, 'click', event => {
+          // The checkbox listener already handles clicks on itself and its contents.
+          if (event.target instanceof Node && element.nativeElement.contains(event.target)) {
+            return;
+          }
+
+          toggle(event);
+        });
+      }
       listener(element, 'keydown', (event: KeyboardEvent) => {
         if (event.key === 'Enter') {
           // According to WAI ARIA, checkboxes don't activate on enter keypress
@@ -167,7 +217,21 @@ export const [NgpCheckboxStateToken, ngpCheckbox, injectCheckboxState, provideCh
         event?.preventDefault();
 
         const nextChecked = indeterminate() ? true : !checked();
-        setChecked(nextChecked);
+        const group = checkboxGroup();
+        if (group && _parent()) {
+          const allValues = group.allValues();
+          if (allValues) {
+            group.setValue(nextChecked ? [...allValues] : []);
+          }
+        } else if (group && _value() !== undefined) {
+          group.toggle(_value());
+        } else {
+          setBaseChecked(nextChecked);
+        }
+
+        if (group) {
+          onCheckedChange?.(nextChecked);
+        }
 
         // if the checkbox was indeterminate, it isn't anymore
         if (indeterminate()) {
@@ -176,20 +240,39 @@ export const [NgpCheckboxStateToken, ngpCheckbox, injectCheckboxState, provideCh
       }
 
       function setIndeterminate(value: boolean): void {
-        indeterminate.set(value);
+        baseIndeterminate.set(value);
         onIndeterminateChange?.(value);
         indeterminateChange.emit(value);
       }
 
       function setDisabled(value: boolean): void {
-        disabled.set(value);
+        baseDisabled.set(value);
+      }
+
+      function setChecked(value: boolean, options?: SetterOptions): void {
+        const group = checkboxGroup();
+        if (group && _parent() && group.allValues()) {
+          group.setValue(value ? [...group.allValues()!] : [], options);
+        } else if (group && _value() !== undefined) {
+          if (value) {
+            group.select(_value());
+          } else {
+            group.deselect(_value());
+          }
+        } else {
+          setBaseChecked(value, options);
+        }
       }
 
       return {
         id,
-        checked: deprecatedSetter(checked, 'setChecked', setChecked),
-        indeterminate: deprecatedSetter(indeterminate, 'setIndeterminate', setIndeterminate),
-        disabled: deprecatedSetter(disabled, 'setDisabled', setDisabled),
+        checked: deprecatedSetter(checked as WritableSignal<boolean>, 'setChecked', setChecked),
+        indeterminate: deprecatedSetter(
+          indeterminate as WritableSignal<boolean>,
+          'setIndeterminate',
+          setIndeterminate,
+        ),
+        disabled: deprecatedSetter(disabled as WritableSignal<boolean>, 'setDisabled', setDisabled),
         checkedChange,
         indeterminateChange: indeterminateChange.asObservable(),
         toggle,
