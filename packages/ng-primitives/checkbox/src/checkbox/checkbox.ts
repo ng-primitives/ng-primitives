@@ -10,6 +10,7 @@ import { ngpCheckbox, provideCheckboxState } from './checkbox-state';
  */
 @Directive({
   selector: '[ngpCheckbox]',
+  exportAs: 'ngpCheckbox',
   providers: [provideCheckboxState({ inherit: false })],
 })
 export class NgpCheckbox<T = string> implements OnInit {
@@ -90,7 +91,7 @@ export class NgpCheckbox<T = string> implements OnInit {
   /**
    * The state of the checkbox.
    */
-  protected readonly state = ngpCheckbox({
+  readonly state = ngpCheckbox({
     id: this.id,
     checked: this.checked,
     defaultChecked: this.defaultChecked,

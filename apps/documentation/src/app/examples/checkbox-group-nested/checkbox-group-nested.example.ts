@@ -1,10 +1,13 @@
 import { Component, signal } from '@angular/core';
+import { NgIcon, provideIcons } from '@ng-icons/core';
+import { heroCheckMini, heroMinusMini } from '@ng-icons/heroicons/mini';
 import { NgpCheckbox } from 'ng-primitives/checkbox';
 import { NgpCheckboxGroup } from 'ng-primitives/checkbox-group';
 
 @Component({
   selector: 'app-checkbox-group-nested',
-  imports: [NgpCheckbox, NgpCheckboxGroup],
+  imports: [NgIcon, NgpCheckbox, NgpCheckboxGroup],
+  providers: [provideIcons({ heroCheckMini, heroMinusMini })],
   template: `
     <div class="permissions">
       <div
@@ -15,17 +18,31 @@ import { NgpCheckboxGroup } from 'ng-primitives/checkbox-group';
         aria-label="Permissions"
       >
         <label>
-          <span ngpCheckbox ngpCheckboxParent></span>
+          <span #permissions="ngpCheckbox" ngpCheckbox ngpCheckboxParent>
+            @if (permissions.state.indeterminate()) {
+              <ng-icon name="heroMinusMini" aria-hidden="true" />
+            } @else if (permissions.state.checked()) {
+              <ng-icon name="heroCheckMini" aria-hidden="true" />
+            }
+          </span>
           Permissions
         </label>
 
         <label class="child">
-          <span ngpCheckbox ngpCheckboxValue="view-dashboard"></span>
+          <span #dashboard="ngpCheckbox" ngpCheckbox ngpCheckboxValue="view-dashboard">
+            @if (dashboard.state.checked()) {
+              <ng-icon name="heroCheckMini" aria-hidden="true" />
+            }
+          </span>
           View Dashboard
         </label>
 
         <label class="child">
-          <span ngpCheckbox ngpCheckboxValue="access-reports"></span>
+          <span #reports="ngpCheckbox" ngpCheckbox ngpCheckboxValue="access-reports">
+            @if (reports.state.checked()) {
+              <ng-icon name="heroCheckMini" aria-hidden="true" />
+            }
+          </span>
           Access Reports
         </label>
 
@@ -38,27 +55,49 @@ import { NgpCheckboxGroup } from 'ng-primitives/checkbox-group';
           aria-label="User permissions"
         >
           <label>
-            <span ngpCheckbox ngpCheckboxParent></span>
+            <span #userPermissions="ngpCheckbox" ngpCheckbox ngpCheckboxParent>
+              @if (userPermissions.state.indeterminate()) {
+                <ng-icon name="heroMinusMini" aria-hidden="true" />
+              } @else if (userPermissions.state.checked()) {
+                <ng-icon name="heroCheckMini" aria-hidden="true" />
+              }
+            </span>
             User Permissions
           </label>
 
           <label class="child">
-            <span ngpCheckbox ngpCheckboxValue="create-user"></span>
+            <span #createUser="ngpCheckbox" ngpCheckbox ngpCheckboxValue="create-user">
+              @if (createUser.state.checked()) {
+                <ng-icon name="heroCheckMini" aria-hidden="true" />
+              }
+            </span>
             Create User
           </label>
 
           <label class="child">
-            <span ngpCheckbox ngpCheckboxValue="edit-user"></span>
+            <span #editUser="ngpCheckbox" ngpCheckbox ngpCheckboxValue="edit-user">
+              @if (editUser.state.checked()) {
+                <ng-icon name="heroCheckMini" aria-hidden="true" />
+              }
+            </span>
             Edit User
           </label>
 
           <label class="child">
-            <span ngpCheckbox ngpCheckboxValue="delete-user"></span>
+            <span #deleteUser="ngpCheckbox" ngpCheckbox ngpCheckboxValue="delete-user">
+              @if (deleteUser.state.checked()) {
+                <ng-icon name="heroCheckMini" aria-hidden="true" />
+              }
+            </span>
             Delete User
           </label>
 
           <label class="child">
-            <span ngpCheckbox ngpCheckboxValue="assign-roles"></span>
+            <span #assignRoles="ngpCheckbox" ngpCheckbox ngpCheckboxValue="assign-roles">
+              @if (assignRoles.state.checked()) {
+                <ng-icon name="heroCheckMini" aria-hidden="true" />
+              }
+            </span>
             Assign Roles
           </label>
         </div>
@@ -95,41 +134,55 @@ import { NgpCheckboxGroup } from 'ng-primitives/checkbox-group';
 
     [ngpCheckbox] {
       display: inline-flex;
-      width: 1.125rem;
-      height: 1.125rem;
-      flex: none;
+      vertical-align: middle;
+      width: 1.25rem;
+      height: 1.25rem;
+      cursor: pointer;
       align-items: center;
       justify-content: center;
-      border: 1px solid var(--ngp-border-secondary);
-      border-radius: 0.3125rem;
+      border-radius: 0.4375rem;
+      border: 1.5px solid var(--ngp-border-secondary);
+      background-color: var(--ngp-background);
+      padding: 0;
       outline: none;
+      flex: none;
+      color: var(--ngp-primary-text);
+      font-size: 0.8125rem;
+      transition:
+        background-color 160ms cubic-bezier(0.4, 0, 0.2, 1),
+        border-color 160ms cubic-bezier(0.4, 0, 0.2, 1),
+        box-shadow 160ms cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    [ngpCheckbox][data-hover] {
+      border-color: var(--ngp-primary);
     }
 
     [ngpCheckbox][data-checked],
     [ngpCheckbox][data-indeterminate] {
       border-color: var(--ngp-primary);
       background: var(--ngp-primary);
+      box-shadow:
+        inset 0 1px 0 0 rgba(255, 255, 255, 0.28),
+        0 1px 1px 0 rgba(0, 0, 0, 0.06);
     }
 
-    [ngpCheckbox][data-checked]::after {
-      width: 0.35rem;
-      height: 0.6rem;
-      border: solid var(--ngp-primary-text);
-      border-width: 0 2px 2px 0;
-      transform: rotate(45deg) translate(-1px, -1px);
-      content: '';
+    [ngpCheckbox][data-checked][data-hover],
+    [ngpCheckbox][data-indeterminate][data-hover] {
+      border-color: var(--ngp-primary-hover);
+      background: var(--ngp-primary-hover);
     }
 
-    [ngpCheckbox][data-indeterminate]::after {
-      width: 0.55rem;
-      height: 2px;
-      background: var(--ngp-primary-text);
-      content: '';
+    ng-icon {
+      width: 0.8125rem;
+      height: 0.8125rem;
+      color: var(--ngp-primary-text);
     }
 
     [ngpCheckbox][data-focus-visible] {
-      outline: 2px solid var(--ngp-focus-ring);
-      outline-offset: 2px;
+      box-shadow:
+        0 0 0 2px var(--ngp-background),
+        0 0 0 4px var(--ngp-focus-ring);
     }
   `,
 })
