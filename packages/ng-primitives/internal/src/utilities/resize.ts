@@ -169,7 +169,7 @@ export function observeResize(elementFn: () => HTMLElement | undefined): Signal<
 }
 
 function getElementDimensions(element: HTMLElement, entry?: ResizeObserverEntry): Dimensions {
-  if (!entry || !('borderBoxSize' in entry)) {
+  if (!entry) {
     // Match what the observer reports: an untransformed border-box size at full
     // precision. `offsetWidth`/`offsetHeight` are untransformed but round to whole
     // pixels, and `getBoundingClientRect()` is fractional but includes transforms —
