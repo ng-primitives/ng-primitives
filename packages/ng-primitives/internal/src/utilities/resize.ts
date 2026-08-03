@@ -48,12 +48,33 @@ export function fromResizeEvent(
     }
 
     let observer: ResizeObserver | null = null;
+    let lastEmitted: Dimensions | null = null;
+
+    // The deferred baseline below and the observer's own initial callback both report
+    // the starting size, so a rendered element would otherwise announce it twice.
+    // Consumers that treat every emission as a change — the thread viewport skips the
+    // baseline to find real resizes — would act on that duplicate as if the element
+    // had resized.
+    function emit(dimensions: Dimensions): void {
+      if (
+        lastEmitted &&
+        lastEmitted.width === dimensions.width &&
+        lastEmitted.height === dimensions.height
+      ) {
+        return;
+      }
+
+      lastEmitted = dimensions;
+      observable.next(dimensions);
+    }
 
     function setupOrTeardownObserver() {
       if (disabled()) {
         if (observer) {
           observer.disconnect();
           observer = null;
+          // Re-enabling should produce a fresh baseline even at an unchanged size.
+          lastEmitted = null;
         }
         return;
       }
@@ -67,7 +88,7 @@ export function fromResizeEvent(
 
           // otherwise, take the first entry and emit the dimensions
           const entry = entries[0];
-          observable.next(getElementDimensions(element, entry));
+          emit(getElementDimensions(element, entry));
         });
 
         observer.observe(element);
@@ -89,8 +110,10 @@ export function fromResizeEvent(
         // current task still sees the pre-observation value. A tooltip hovered in the
         // same task it rendered would decide it has no overflow and never open.
         queueMicrotask(() => {
+          // `observer` is nulled on teardown, so an unsubscribed observable performs no
+          // measurement — the layout read is the cost this whole change exists to avoid.
           if (observer) {
-            observable.next(getElementDimensions(element));
+            emit(getElementDimensions(element));
           }
         });
       }
@@ -100,7 +123,10 @@ export function fromResizeEvent(
 
     explicitEffect([disabled], () => setupOrTeardownObserver(), { injector });
 
-    return () => observer?.disconnect();
+    return () => {
+      observer?.disconnect();
+      observer = null;
+    };
   });
 }
 

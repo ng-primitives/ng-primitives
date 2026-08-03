@@ -154,6 +154,71 @@ describe('fromResizeEvent', () => {
     expect(reads).toBe(0);
   });
 
+  it('should not repeat the baseline when the observer reports the same size', async () => {
+    const emissions: { width: number; height: number }[] = [];
+
+    fromResizeEvent(element, { injector }).subscribe(dimensions => emissions.push(dimensions));
+    await Promise.resolve();
+
+    // A real observer delivers its own initial observation for a rendered element, so
+    // the starting size arrives twice. Consumers that read every emission as a change
+    // must not see the second one.
+    MockResizeObserver.instances[0].trigger([
+      { borderBoxSize: [{ inlineSize: 120, blockSize: 40 }] },
+    ]);
+
+    expect(emissions).toEqual([{ width: 120, height: 40 }]);
+  });
+
+  it('should emit again once the size actually changes', async () => {
+    const emissions: { width: number; height: number }[] = [];
+
+    fromResizeEvent(element, { injector }).subscribe(dimensions => emissions.push(dimensions));
+    await Promise.resolve();
+
+    MockResizeObserver.instances[0].trigger([
+      { borderBoxSize: [{ inlineSize: 120, blockSize: 40 }] },
+    ]);
+    MockResizeObserver.instances[0].trigger([
+      { borderBoxSize: [{ inlineSize: 200, blockSize: 60 }] },
+    ]);
+
+    expect(emissions).toEqual([
+      { width: 120, height: 40 },
+      { width: 200, height: 60 },
+    ]);
+  });
+
+  it('should not measure the element after the subscription is torn down', async () => {
+    const emissions: { width: number; height: number }[] = [];
+    let reads = 0;
+
+    // Counted inline rather than through countLayoutReads: the read under test happens
+    // in a microtask, so the spies have to outlive a synchronous helper.
+    const offsetWidth = Object.getOwnPropertyDescriptor(HTMLElement.prototype, 'offsetWidth');
+    Object.defineProperty(element, 'offsetWidth', {
+      configurable: true,
+      get() {
+        reads++;
+        return offsetWidth!.get!.call(this);
+      },
+    });
+
+    const subscription = fromResizeEvent(element, { injector }).subscribe(dimensions =>
+      emissions.push(dimensions),
+    );
+    subscription.unsubscribe();
+
+    // The deferred measurement is still queued at this point; it must not run, since a
+    // layout read is exactly the cost being avoided.
+    await Promise.resolve();
+    Reflect.deleteProperty(element, 'offsetWidth');
+
+    expect(reads).toBe(0);
+    expect(emissions).toHaveLength(0);
+    expect(MockResizeObserver.instances[0].observedElements).toHaveLength(0);
+  });
+
   it('should not create an observer while disabled', () => {
     const reads = countLayoutReads(element, () => {
       fromResizeEvent(element, { disabled: signal(true), injector }).subscribe();
