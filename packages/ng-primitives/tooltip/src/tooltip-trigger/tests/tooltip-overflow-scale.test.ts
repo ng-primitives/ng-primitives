@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { NgpTooltip } from 'ng-primitives/tooltip';
-import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { beforeEach, describe, expect, it } from 'vitest';
 import { NgpTooltipTrigger } from '../tooltip-trigger';
 
 /**
@@ -53,13 +53,6 @@ class ManyOverflowTriggersComponent {
 }
 
 describe('tooltip showOnOverflow at scale', () => {
-  let restore: (() => void) | undefined;
-
-  afterEach(() => {
-    restore?.();
-    restore = undefined;
-  });
-
   beforeEach(() => {
     TestBed.configureTestingModule({});
   });
@@ -108,18 +101,13 @@ describe('tooltip showOnOverflow at scale', () => {
       return computedStyle(...args);
     }) as typeof computedStyle;
 
-    restore = () => {
+    try {
+      run();
+    } finally {
       Object.defineProperty(prototype, 'offsetWidth', offsetWidth);
       Object.defineProperty(prototype, 'offsetHeight', offsetHeight);
       Element.prototype.getBoundingClientRect = boundingRect;
       window.getComputedStyle = computedStyle;
-    };
-
-    try {
-      run();
-    } finally {
-      restore();
-      restore = undefined;
     }
 
     return reads;
