@@ -209,9 +209,14 @@ function getBorderBoxSize(element: HTMLElement): Dimensions {
   const width = parseFloat(style.width);
   const height = parseFloat(style.height);
 
-  // An element with no box resolves these to `auto`; it has no size to report.
+  // Inline elements resolve both to `auto`. Fall back to the rect, which is what the
+  // observer path uses for them too — the observer reports 0x0 for an inline box, so
+  // measuring differently here would announce an unchanged size twice, and inline
+  // triggers are the common case. `transform` does not apply to non-replaced inline
+  // boxes, so the rect is the untransformed border box for them.
   if (Number.isNaN(width) || Number.isNaN(height)) {
-    return { width: element.offsetWidth, height: element.offsetHeight };
+    const rect = element.getBoundingClientRect();
+    return { width: rect.width, height: rect.height };
   }
 
   if (style.boxSizing === 'border-box') {

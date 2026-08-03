@@ -204,6 +204,26 @@ describe('fromResizeEvent', () => {
     expect(emissions).toEqual([{ width: 132.5, height: 52.25 }]);
   });
 
+  it('should not repeat the baseline for an inline element', async () => {
+    const emissions: { width: number; height: number }[] = [];
+    const inline = document.createElement('span');
+    inline.style.display = 'inline';
+    inline.textContent = 'inline trigger';
+    document.body.appendChild(inline);
+    const rect = inline.getBoundingClientRect();
+
+    fromResizeEvent(inline, { injector }).subscribe(dimensions => emissions.push(dimensions));
+    await Promise.resolve();
+
+    // An inline element has no computed width/height, and the observer reports 0x0 for
+    // it, so both paths fall back to the rect — they must agree, or the most common
+    // kind of trigger announces an unchanged size twice.
+    MockResizeObserver.instances[0].trigger([{ borderBoxSize: [{ inlineSize: 0, blockSize: 0 }] }]);
+    inline.remove();
+
+    expect(emissions).toEqual([{ width: rect.width, height: rect.height }]);
+  });
+
   it('should emit again once the size actually changes', async () => {
     const emissions: { width: number; height: number }[] = [];
 
