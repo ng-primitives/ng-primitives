@@ -1,3 +1,13 @@
+## 0.128.7 (2026-08-03)
+
+### 🩹 Fixes
+
+- **internal:** defer the initial resize measurement to a microtask ([#895](https://github.com/ng-primitives/ng-primitives/pull/895), [#415](https://github.com/ng-primitives/ng-primitives/issues/415), [#692](https://github.com/ng-primitives/ng-primitives/issues/692))
+
+### ❤️ Thank You
+
+- Ashley Hunter
+
 ## 0.128.6 (2026-07-31)
 
 ### 🚀 Features
