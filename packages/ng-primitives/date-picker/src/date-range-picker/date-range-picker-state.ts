@@ -36,11 +36,11 @@ export interface NgpDateRangePickerState<T> extends NgpDateControllerState<T> {
   /**
    * Set the start date.
    */
-  setStart(value: T | undefined, options: SetterOptions): void;
+  setStart(value: T | undefined, options?: SetterOptions): void;
   /**
    * Set the end date.
    */
-  setEnd(value: T | undefined, options: SetterOptions): void;
+  setEnd(value: T | undefined, options?: SetterOptions): void;
   /**
    * Set the default (uncontrolled) start date.
    */
