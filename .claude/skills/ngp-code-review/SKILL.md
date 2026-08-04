@@ -164,11 +164,11 @@ This section is about cost that scales. Constant-factor micro-optimisation is no
 - Don't flag `map`/`filter`/spread over a small fixed collection, an extra object allocation, or a string concatenation.
 - Don't propose memoising something that runs once per instance and is already cheap.
 - Don't flag a cost that is genuinely bounded — a single overlay's positioning work is bounded by "one overlay is open", however expensive it looks.
-- Severity follows the axis, not the instinct: **HIGH** for forced layout in a creation/render path, a superlinear registration, or a permanent global listener per instance; **MEDIUM** for a constant per-instance overhead that is real but not layout-forcing; below that, drop it.
+- Severity follows the axis, not the instinct (this mapping takes precedence over the general severity guidance below for performance findings): **HIGH** for forced layout in a creation/render path, a superlinear registration, or a permanent global listener per instance; **MEDIUM** for a constant per-instance overhead that is real but not layout-forcing; below that, drop it.
 
 #### Testing a scale fix
 
-When the change is about cost rather than behaviour, the test has to assert the cost. Reject wall-clock assertions (`expect(elapsed).toBeLessThan(...)`) — on a slow CI box they either flake or are set so loose they catch nothing. Instead render N instances and **count operations**: patch the layout-reading accessors, or spy on the method whose call count is the invariant, and assert the count stays sub-linear in N (`tooltip/src/tooltip-trigger/tests/tooltip-overflow-scale.test.ts`). Check the counter actually covers the work: a counter restored before a deferred microtask flushes never sees the deferred reads at all.
+When the change is about cost rather than behaviour, the test has to assert the cost. Reject wall-clock assertions (`expect(elapsed).toBeLessThan(...)`) — on a slow CI box they either flake or are set so loose they catch nothing. Instead render N instances and **count operations**: patch the layout-reading accessors, or spy on the method whose call count is the invariant, and assert the count matches the intended complexity for that code path (`tooltip/src/tooltip-trigger/tests/tooltip-overflow-scale.test.ts`). O(N) total work is expected and correct when N independent instances each require constant setup; reject O(N²) or unnecessary repeated/duplicated work per instance (e.g., superlinear registration that re-scans all children on each hookup). Check the counter actually covers the work: a counter restored before a deferred microtask flushes never sees the deferred reads at all.
 
 ### 8. Documentation & examples
 
@@ -230,7 +230,7 @@ Each finding is its own block. Group blocks under the file they belong to, order
 
 Always prefix the severity tag with its emoji so the reader can scan the review visually:
 
-- 🔴 **HIGH** — correctness bug, lint-rule violation, public API regression, accessibility regression, a performance cost that scales with instance count or event frequency (§7), broken test, missing required test for a behaviour change. The PR should not merge without addressing it.
+- 🔴 **HIGH** — correctness bug, lint-rule violation, public API regression, accessibility regression, a performance finding that §7 maps to HIGH (forced layout in a creation/render path, superlinear registration, or a permanent global listener per instance — see §7's severity mapping, which takes precedence for performance findings), broken test, missing required test for a behaviour change. The PR should not merge without addressing it.
 - 🟡 **MEDIUM** — clarity, maintainability, type-safety, or a convention miss that isn't lint-enforced. Worth fixing in this PR but not a blocker.
 - 🟢 **LOW** — style or naming nits, usually auto-fixable by `pnpm format`. Mention briefly or omit.
 
