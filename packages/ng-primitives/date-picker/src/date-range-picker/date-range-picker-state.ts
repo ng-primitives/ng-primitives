@@ -34,6 +34,14 @@ export interface NgpDateRangePickerState<T> extends NgpDateControllerState<T> {
    */
   readonly endDateChange: Observable<T | undefined>;
   /**
+   * Set the start date.
+   */
+  setStart(value: T | undefined, options: SetterOptions): void;
+  /**
+   * Set the end date.
+   */
+  setEnd(value: T | undefined, options: SetterOptions): void;
+  /**
    * Set the default (uncontrolled) start date.
    */
   setDefaultStartDate(value: T | undefined): void;
@@ -359,6 +367,8 @@ export const [
       endDate,
       startDateChange,
       endDateChange,
+      setStart,
+      setEnd,
       setFocusedDate,
       select,
       setDisabled,
