@@ -22,6 +22,8 @@ Use this skill when reviewing changes on a branch or PR in this repo. The goal i
 
 **Filter speculative findings.** Drop any finding whose justification only kicks in under hypothetical future changes ("if someone later adds X…", "if this describe block grows…", "if this primitive ever supports Y…"). Only raise issues that affect the code **as it stands today** — i.e. there is a concrete current call site, test, or usage that demonstrates the problem. If a future-proofing concern is genuinely important, reframe it as a concrete present-day risk or drop it. This rule supersedes anything else in the checklist.
 
+**Scale is not speculation.** The one exception: §7 asks what the changed code costs per instance and per event. That is a property of the code as written, not a hypothetical future change — a headless library ships into pages its authors never see, so you may reason about cost × N without pointing at a call site that already does it. The escape hatch is bounded by §7's own "what not to flag" list; it does not license micro-optimisation findings.
+
 ## Checklist
 
 ### 0. Scope of the change
@@ -110,7 +112,65 @@ Accessibility is first-class per `CONTRIBUTING.md`. Flag:
 - Focus-trap interactions that don't account for `NgpOverlayRegistry` — if a new overlay/portal primitive lets focus move outside a host element, verify focus-trap will treat it as an allowed external target.
 - Hardcoded `tabindex` values that conflict with `FocusMonitor` / focus-trap logic.
 
-### 7. Documentation & examples
+### 7. Performance at scale
+
+A headless library ships into pages its authors never see. Review the diff through one question: **what does this cost when the primitive is on the page a thousand times, or when its handler fires sixty times a second?** Work that is invisible on one instance is a hung tab on a dense page.
+
+Three axes. Ask each of the changed code:
+
+- **Per instance × N** — what runs for every instance, whether or not the user ever interacts with it.
+- **Per event × frequency** — what runs inside a `pointermove` / `scroll` / `wheel` / `input` / `keydown` handler.
+- **Per notification, superlinear** — work whose cost grows with the number of _siblings_, so adding one child re-does work for all of them.
+
+#### What to flag
+
+**Forced synchronous layout.** Grep the diff first — this is mechanical, so do it before reading:
+
+```bash
+git diff next...HEAD | grep -nE '^\+.*\b(getBoundingClientRect|getClientRects|getComputedStyle|scrollIntoView|offset(Width|Height|Top|Left|Parent)|client(Width|Height|Top|Left)|scroll(Width|Height|Top|Left))\b'
+```
+
+Every hit is a layout read. It costs nothing on its own; it costs a full reflow when layout is dirty. So judge each by **what writes DOM before it**:
+
+- **In a state factory body, a directive constructor, or anything running while Angular creates elements.** Angular is writing DOM in the same pass, so each read forces its own reflow — N instances cost N reflows, each growing with the document. Defer to `queueMicrotask` (still ahead of paint, so nothing is a frame staler, and the whole creation pass shares one flush) or to the `earlyRead` phase of `afterRenderEffect`. `fromResizeEvent` (`internal/src/utilities/resize.ts`) is the worked example.
+- **Interleaved with writes in one `afterRenderEffect`.** Plain `afterRenderEffect(fn)` is the mixed-read-write phase: a callback that measures and then writes styles or attributes dirties layout for every instance that follows it. Use the phased form so all reads land before any write.
+
+  ```ts
+  afterRenderEffect({
+    earlyRead: () => element.nativeElement.scrollHeight,
+    write: height => element.nativeElement.style.setProperty(heightVar, `${height()}px`),
+  });
+  ```
+
+- **Inside a subscriber to a batched producer.** `fromResizeEvent` and `fromMutationObserver` batch their own reads into one microtask checkpoint; a synchronous DOM write in any subscriber breaks that batch for every instance after it.
+- **Inside a high-frequency handler** without caching. A `pointermove` handler that re-reads the track's rect on every move is a reflow per frame per active pointer — read once on `pointerdown`, or on resize.
+
+**DOM traversal per instance or per event.** `closest()`, `querySelector`/`querySelectorAll`, `matches()` in a loop, and hand-rolled `parentElement` walks are all O(depth) or O(document). Flag them in a factory body or a hot handler; hoist to the parent state and share the result, or cache the resolved element. An ancestor walk that runs on every scroll event, once per overlay, is the shape to watch (`portal/src/scroll-strategy.ts`).
+
+**Superlinear parent/child registration.** Container primitives collect children (`roving-focus`, `listbox`, `select`, `menu`, `tree`, `toolbar`) and these are exactly the primitives that appear in the thousands. Registration must be O(1) amortised. Flag a `register`/`unregister` that scans, sorts, re-indexes, or compares document position across the whole collection on each call — N children then cost O(N²) to mount, which is the difference between a 200-row listbox and a 5,000-row one. The same applies to a parent `computed` that rebuilds an array every time any child changes while every child reads it.
+
+**Per-instance observers, listeners and timers.** For each one added:
+
+- **Lazy?** A `ResizeObserver` / `MutationObserver` / `IntersectionObserver` created for a feature that is switched off wastes an observer per instance. Gate it on a `disabled` signal.
+- **Torn down?** Disconnected on destroy _and_ when the feature is disabled — and any effect that could rebuild it destroyed alongside the subscription, or it rebuilds observers nobody listens to.
+- **Hoisted or scoped?** A `document`/`window` listener held for the lifetime of an instance is a HIGH finding. Either hoist it into a root-level singleton (`NgpOverlayRegistry`, `hover-interaction`) or attach it only for the duration of a gesture (pointerdown → pointerup), as the slider and colour thumbs do. Scroll/wheel/touch listeners need `{ passive: true }` unless they call `preventDefault`.
+
+**Eager work in the factory.** Everything in a state factory body runs once per instance at construction, before any interaction. Flag anything heavier than a field assignment that isn't needed until the user acts: building an `Intl` formatter, compiling a regex, cloning config, materialising a list, subscribing to a stream for an off-by-default feature, or an `effect`/`explicitEffect` created unconditionally for a feature the inputs disabled. `computed()` is lazy and cached — prefer it to an eager `const`, and prefer one `computed` to an `effect` that writes a signal.
+
+#### What not to flag
+
+This section is about cost that scales. Constant-factor micro-optimisation is noise and will bury the findings that matter:
+
+- Don't flag `map`/`filter`/spread over a small fixed collection, an extra object allocation, or a string concatenation.
+- Don't propose memoising something that runs once per instance and is already cheap.
+- Don't flag a cost that is genuinely bounded — a single overlay's positioning work is bounded by "one overlay is open", however expensive it looks.
+- Severity follows the axis, not the instinct: **HIGH** for forced layout in a creation/render path, a superlinear registration, or a permanent global listener per instance; **MEDIUM** for a constant per-instance overhead that is real but not layout-forcing; below that, drop it.
+
+#### Testing a scale fix
+
+When the change is about cost rather than behaviour, the test has to assert the cost. Reject wall-clock assertions (`expect(elapsed).toBeLessThan(...)`) — on a slow CI box they either flake or are set so loose they catch nothing. Instead render N instances and **count operations**: patch the layout-reading accessors, or spy on the method whose call count is the invariant, and assert the count stays sub-linear in N (`tooltip/src/tooltip-trigger/tests/tooltip-overflow-scale.test.ts`). Check the counter actually covers the work: a counter restored before a deferred microtask flushes never sees the deferred reads at all.
+
+### 8. Documentation & examples
 
 PR template requires docs updates for features and bug fixes. For new public behaviour:
 
@@ -132,13 +192,13 @@ If the diff touches files under `apps/documentation/src/app/examples/`, check th
 - **Typography/radii off-scale** (500/600 weights instead of 510/590, no negative tracking, dark panels using `bg-black` / `gray-700` instead of `zinc-950` / `zinc-800`).
 - **Dialog overlay** missing `z-index: 1000` / `z-[1000]` (backdrop renders under the navbar).
 
-### 8. Commits & PR template
+### 9. Commits & PR template
 
 - Conventional Commits required: `feat(scope): …`, `fix(scope): …`, `docs(scope): …`, `chore(scope): …`. Scope is usually the primitive name (`combobox`, `focus-trap`, `tooltip`).
 - Flag malformed commit messages before suggesting merge.
 - PR template checklist: tests added, docs updated, issue linked (`Closes #...`), breaking change disclosed.
 
-### 9. Formatting
+### 10. Formatting
 
 Formatting is enforced by `.prettierrc` plus the Prettier plugins (`@trivago/prettier-plugin-sort-imports`, `prettier-plugin-organize-attributes`, `prettier-plugin-tailwindcss`). If something looks off, suggest `pnpm format` rather than nitpicking line-by-line.
 
@@ -170,7 +230,7 @@ Each finding is its own block. Group blocks under the file they belong to, order
 
 Always prefix the severity tag with its emoji so the reader can scan the review visually:
 
-- 🔴 **HIGH** — correctness bug, lint-rule violation, public API regression, accessibility regression, broken test, missing required test for a behaviour change. The PR should not merge without addressing it.
+- 🔴 **HIGH** — correctness bug, lint-rule violation, public API regression, accessibility regression, a performance cost that scales with instance count or event frequency (§7), broken test, missing required test for a behaviour change. The PR should not merge without addressing it.
 - 🟡 **MEDIUM** — clarity, maintainability, type-safety, or a convention miss that isn't lint-enforced. Worth fixing in this PR but not a blocker.
 - 🟢 **LOW** — style or naming nits, usually auto-fixable by `pnpm format`. Mention briefly or omit.
 
