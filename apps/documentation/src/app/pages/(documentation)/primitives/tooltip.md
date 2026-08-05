@@ -187,6 +187,8 @@ If you need component-scoped styles, use template-based or component-based toolt
 
 The `showOnOverflow` input allows you to show tooltips only when the trigger element has overflowing content. This is particularly useful for text that might be truncated with ellipsis.
 
+<docs-example name="tooltip-show-on-overflow"></docs-example>
+
 ```html
 <div
   class="truncated-text"
@@ -196,6 +198,8 @@ The `showOnOverflow` input allows you to show tooltips only when the trigger ele
   This text might be truncated
 </div>
 ```
+
+Overflow is measured each time the tooltip is about to show, so a trigger whose content changes without the element resizing is handled correctly.
 
 ## Hoverable Tooltip Content
 
