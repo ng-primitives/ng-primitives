@@ -8,12 +8,7 @@ import {
   computed,
   ElementRef,
 } from '@angular/core';
-import {
-  createHoverBridge,
-  HoverBridgePoint,
-  injectElementRef,
-  setupOverflowListener,
-} from 'ng-primitives/internal';
+import { createHoverBridge, HoverBridgePoint, injectElementRef } from 'ng-primitives/internal';
 import {
   createOverlay,
   NgpFlip,
@@ -374,9 +369,8 @@ export const [
     const triggerHovered = signal<boolean>(false);
     const contentHovered = signal<boolean>(false);
     const overlay = signal<NgpOverlay<T | string> | null>(null);
-    const hasOverflow = setupOverflowListener(trigger.nativeElement, {
-      disabled: computed(() => !showOnOverflow()),
-    });
+    // Measured fresh in `performShow` rather than tracked via an observer.
+    const hasOverflow = signal(false);
 
     const open = computed(() => overlay()?.isOpen() ?? false);
 
@@ -437,9 +431,18 @@ export const [
         return;
       }
 
-      // if we should only show when there is overflow, check if the trigger has overflow
-      if (tooltipTriggerState().showOnOverflow() && !hasOverflow()) {
-        return;
+      // Measuring here, rather than via an observer, also catches a content-only change
+      // that never resizes the element.
+      if (tooltipTriggerState().showOnOverflow()) {
+        const overflowing =
+          trigger.nativeElement.scrollWidth > trigger.nativeElement.clientWidth ||
+          trigger.nativeElement.scrollHeight > trigger.nativeElement.clientHeight;
+
+        hasOverflow.set(overflowing);
+
+        if (!overflowing) {
+          return;
+        }
       }
 
       // Create the overlay if it doesn't exist yet
