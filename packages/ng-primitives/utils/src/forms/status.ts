@@ -195,7 +195,9 @@ function setupValidatorChangeSubscription(
       return;
     }
 
-    currentState.consumers.filter(x => x.ngControl !== ngControl && x.status() !== status());
+    currentState.consumers = currentState.consumers.filter(
+      x => x.ngControl !== ngControl && x.status() !== status(),
+    );
 
     // If no consumers remain, restore original methods and delete the WeakMap entry
     if (currentState.consumers.length === 0) {
