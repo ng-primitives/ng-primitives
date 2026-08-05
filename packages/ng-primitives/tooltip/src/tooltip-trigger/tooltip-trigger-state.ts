@@ -143,7 +143,8 @@ export interface NgpTooltipTriggerState<T> {
    */
   readonly open: Signal<boolean>;
   /**
-   * Determine if the trigger element has overflow.
+   * Whether the trigger element overflowed at the last `showOnOverflow` show attempt.
+   * Only measured then, so it stays `false` while `showOnOverflow` is disabled.
    */
   readonly hasOverflow: Signal<boolean>;
   /**

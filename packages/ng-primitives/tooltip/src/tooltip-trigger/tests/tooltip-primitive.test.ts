@@ -1144,6 +1144,61 @@ describe('NgpTooltipTrigger (primitive)', () => {
         expect(document.querySelector('[ngpTooltip]')).toBeInTheDocument();
       });
     });
+
+    describe('hasOverflow on the injected state', () => {
+      @Directive({ selector: '[readHasOverflow]' })
+      class ReadHasOverflow {
+        readonly trigger = injectTooltipTriggerState();
+      }
+
+      async function renderWithStateReader(showOnOverflow: boolean) {
+        const { fixture, getByRole } = await render(
+          `
+            <button
+              [ngpTooltipTrigger]="content"
+              [ngpTooltipTriggerShowOnOverflow]="${showOnOverflow}"
+              readHasOverflow
+              style="width: 50px; height: 20px; overflow: hidden; white-space: nowrap;"
+            >
+              This is a very long text that will definitely overflow the button width
+            </button>
+
+            <ng-template #content>
+              <div ngpTooltip>Tooltip content</div>
+            </ng-template>
+          `,
+          { imports: [NgpTooltipTrigger, NgpTooltip, ReadHasOverflow] },
+        );
+
+        const state = fixture.debugElement.children[0].injector.get(ReadHasOverflow);
+        return { state, trigger: getByRole('button') };
+      }
+
+      it('should report the measurement taken at the last show attempt', async () => {
+        const { state, trigger } = await renderWithStateReader(true);
+
+        expect(state.trigger().hasOverflow()).toBe(false);
+
+        fireEvent.mouseEnter(trigger);
+
+        await waitFor(() => {
+          expect(state.trigger().hasOverflow()).toBe(true);
+        });
+      });
+
+      it('should stay false while showOnOverflow is disabled, even when overflowing', async () => {
+        const { state, trigger } = await renderWithStateReader(false);
+
+        fireEvent.mouseEnter(trigger);
+
+        await waitFor(() => {
+          expect(document.querySelector('[ngpTooltip]')).toBeInTheDocument();
+        });
+
+        // Never measured, since the show path has no reason to.
+        expect(state.trigger().hasOverflow()).toBe(false);
+      });
+    });
   });
 
   describe('cooldown', () => {
