@@ -54,7 +54,10 @@ function updateStatus(control: NgControl, status: WritableSignal<NgpControlStatu
       pending: source.pending ?? null,
       disabled: source.disabled ?? null,
       errors: source.errors ? Object.keys(source.errors) : null,
-      required: source.hasValidator(Validators.required) ?? null,
+      required:
+        (source.hasValidator(Validators.required) ||
+          source.hasValidator(Validators.requiredTrue)) ??
+        null,
     };
 
     untracked(() => status.set(newStatus));
@@ -113,7 +116,12 @@ function setupValidatorChangeSubscription(
   // `setValidators`/`setAsyncValidators` are the primitives that every other
   // mutator (`addValidators`, `removeValidators`, `addAsyncValidators`,
   // `removeAsyncValidators`) delegates to on `AbstractControl`.
-  for (const method of ['setValidators', 'setAsyncValidators'] as const) {
+  for (const method of [
+    'setValidators',
+    'setAsyncValidators',
+    'clearValidators',
+    'clearAsyncValidators',
+  ] as const) {
     const original = underlyingControl[method].bind(underlyingControl);
 
     underlyingControl[method] = (...args: unknown[]) => {
