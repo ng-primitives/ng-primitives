@@ -256,7 +256,6 @@ export function controlStatus(
     }
 
     if (control()) {
-      setup(control()!);
       updateStatus(control()!, status);
     }
   });

@@ -136,9 +136,17 @@ describe('FormField (reusable component) — standalone', () => {
           <label ngpLabel>Username</label>
           <input [formControl]="formControl" ngpFormControl />
           <div ngpDescription>Hint</div>
+          <div ngpError ngpErrorValidator="required">Required</div>
         </app-form-field>`,
       {
-        imports: [FormField, NgpLabel, NgpFormControl, NgpDescription, ReactiveFormsModule],
+        imports: [
+          FormField,
+          NgpLabel,
+          NgpError,
+          NgpFormControl,
+          NgpDescription,
+          ReactiveFormsModule,
+        ],
         componentProperties: { formControl },
       },
     );
@@ -147,6 +155,7 @@ describe('FormField (reusable component) — standalone', () => {
     expect(container.querySelector('label')).not.toHaveAttribute('data-required');
     expect(container.querySelector('input')).not.toHaveAttribute('data-required');
     expect(container.querySelector('[ngpDescription]')).not.toHaveAttribute('data-required');
+    expect(container.querySelector('[ngpError]')).not.toHaveAttribute('data-required');
 
     formControl.addValidators(Validators.required);
     fixture.detectChanges();
@@ -156,5 +165,6 @@ describe('FormField (reusable component) — standalone', () => {
     expect(container.querySelector('label')).toHaveAttribute('data-required');
     expect(container.querySelector('input')).toHaveAttribute('data-required');
     expect(container.querySelector('[ngpDescription]')).toHaveAttribute('data-required');
+    expect(container.querySelector('[ngpError]')).toHaveAttribute('data-required');
   });
 });
