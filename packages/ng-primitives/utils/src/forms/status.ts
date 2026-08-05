@@ -16,7 +16,7 @@ import { safeTakeUntilDestroyed } from '../observables/take-until-destroyed';
 
 // Avoid multiple patch from different `controlStatus` on the same NgControl
 interface PatchState {
-  consumers: { ngControl: NgControl; status: WritableSignal<NgpControlStatus> }[];
+  consumers: { status: WritableSignal<NgpControlStatus> }[];
   // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
   originalMethods: Record<string, Function>;
   // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
@@ -117,7 +117,7 @@ function setupEventSubscription(
  * A global `WeakMap` tracks patch state per `AbstractControl`. It stores:
  * - the original validator methods
  * - the patched methods
- * - a list of consumers (each with its `NgControl` and `status` signal)
+ * - a list of consumers (each with its `status` signal)
  *
  * On the first consumer: the original methods are saved, patched versions are
  * installed on the control, and the consumer is registered.
@@ -182,10 +182,10 @@ function setupValidatorChangeSubscription(
       underlyingControl[method] = patchedMethods[method];
     }
 
-    state = { consumers: [{ ngControl, status }], originalMethods, patchedMethods };
+    state = { consumers: [{ status }], originalMethods, patchedMethods };
     patchRegistry.set(underlyingControl, state);
   } else {
-    state.consumers.push({ ngControl, status });
+    state.consumers.push({ status });
   }
 
   return () => {
@@ -195,9 +195,9 @@ function setupValidatorChangeSubscription(
       return;
     }
 
-    currentState.consumers = currentState.consumers.filter(
-      x => x.ngControl !== ngControl && x.status() !== status(),
-    );
+    // We check by reference of signal, not value
+    // eslint-disable-next-line @angular-eslint/no-uncalled-signals
+    currentState.consumers = currentState.consumers.filter(x => x.status !== status);
 
     // If no consumers remain, restore original methods and delete the WeakMap entry
     if (currentState.consumers.length === 0) {
