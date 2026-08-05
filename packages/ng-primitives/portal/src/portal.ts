@@ -281,9 +281,13 @@ export class NgpTemplatePortal<T> extends NgpPortal {
 
   /**
    * Get the root elements of the portal.
+   *
+   * Root nodes are not all elements: a nested `<ng-template>` renders as a comment.
    */
   getElements(): HTMLElement[] {
-    return this.viewRef ? this.viewRef.rootNodes : [];
+    return this.viewRef
+      ? this.viewRef.rootNodes.filter(rootNode => rootNode instanceof HTMLElement)
+      : [];
   }
 
   /**
