@@ -5,6 +5,7 @@ import {
   WritableSignal,
   effect,
   inject,
+  linkedSignal,
   signal,
   untracked,
 } from '@angular/core';
@@ -20,6 +21,7 @@ export interface NgpControlStatus {
   touched: boolean | null;
   pending: boolean | null;
   disabled: boolean | null;
+  errors: string[] | null;
   required: boolean | null;
 }
 
@@ -51,6 +53,7 @@ function updateStatus(control: NgControl, status: WritableSignal<NgpControlStatu
       touched: source.touched ?? null,
       pending: source.pending ?? null,
       disabled: source.disabled ?? null,
+      errors: source.errors ? Object.keys(source.errors) : null,
       required: source.hasValidator(Validators.required) ?? null,
     };
 
@@ -121,7 +124,9 @@ function setupValidatorChangeSubscription(
   }
 }
 
-export function controlStatus(): Signal<NgpControlStatus> {
+export function controlStatus(
+  ngControl?: Signal<NgControl | null | undefined>,
+): Signal<NgpControlStatus> {
   const injector = inject(Injector);
   const destroyRef = inject(DestroyRef);
 
@@ -133,14 +138,17 @@ export function controlStatus(): Signal<NgpControlStatus> {
     touched: null,
     pending: null,
     disabled: null,
+    errors: null,
     required: null,
   });
 
-  const control = signal<NgControl | null>(null);
+  const control = linkedSignal<NgControl | null>(() => ngControl?.() ?? null);
 
   onMount(() => {
-    // Try to inject NgControl immediately for initial state
-    control.set(inject(NgControl, { optional: true }));
+    if (!control()) {
+      // Try to inject NgControl immediately for initial state
+      control.set(inject(NgControl, { optional: true }));
+    }
 
     // If we have a control immediately, update initial status
     if (control()) {
