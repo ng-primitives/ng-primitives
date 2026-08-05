@@ -8,7 +8,7 @@ import {
   signal,
   untracked,
 } from '@angular/core';
-import { NgControl } from '@angular/forms';
+import { NgControl, Validators } from '@angular/forms';
 import { onMount } from 'ng-primitives/state';
 import { safeTakeUntilDestroyed } from '../observables/take-until-destroyed';
 
@@ -20,6 +20,7 @@ export interface NgpControlStatus {
   touched: boolean | null;
   pending: boolean | null;
   disabled: boolean | null;
+  required: boolean | null;
 }
 
 /**
@@ -50,6 +51,7 @@ function updateStatus(control: NgControl, status: WritableSignal<NgpControlStatu
       touched: source.touched ?? null,
       pending: source.pending ?? null,
       disabled: source.disabled ?? null,
+      required: source.hasValidator(Validators.required) ?? null,
     };
 
     untracked(() => status.set(newStatus));
@@ -83,6 +85,42 @@ function setupEventSubscription(
   }
 }
 
+/**
+ * Patches the underlying control's validator mutators so that adding/removing
+ * validators re-reads the control status. Classic `AbstractControl` mutators
+ * (`setValidators`, `addValidators`, `removeValidators`, ...) do not emit any
+ * events, so without this the `required` state (derived from `hasValidator`)
+ * would stay stale until an unrelated value/status change.
+ * @internal
+ */
+function setupValidatorChangeSubscription(
+  ngControl: NgControl,
+  status: WritableSignal<NgpControlStatus>,
+): void {
+  // For classic controls, also subscribe to the events observable.
+  const underlyingControl = (ngControl as any).control;
+
+  // Signal-forms interop controls don't expose `setValidators` — skip them.
+  // They're already reactive: `hasValidator(Validators.required)` reads
+  // `field().required()`, a signal tracked by the effect below.
+  if (!underlyingControl || typeof underlyingControl.setValidators !== 'function') {
+    return;
+  }
+
+  // `setValidators`/`setAsyncValidators` are the primitives that every other
+  // mutator (`addValidators`, `removeValidators`, `addAsyncValidators`,
+  // `removeAsyncValidators`) delegates to on `AbstractControl`.
+  for (const method of ['setValidators', 'setAsyncValidators'] as const) {
+    const original = underlyingControl[method].bind(underlyingControl);
+
+    underlyingControl[method] = (...args: unknown[]) => {
+      original(...args);
+      // Re-read the status so `required` reflects the new validators.
+      updateStatus(ngControl, status);
+    };
+  }
+}
+
 export function controlStatus(): Signal<NgpControlStatus> {
   const injector = inject(Injector);
   const destroyRef = inject(DestroyRef);
@@ -95,6 +133,7 @@ export function controlStatus(): Signal<NgpControlStatus> {
     touched: null,
     pending: null,
     disabled: null,
+    required: null,
   });
 
   const control = signal<NgControl | null>(null);
@@ -125,6 +164,9 @@ export function controlStatus(): Signal<NgpControlStatus> {
 
     // Set up event subscription for reactive updates
     setupEventSubscription(mountControl, status, destroyRef);
+
+    // Set up validator "subscription" for reactive updates
+    setupValidatorChangeSubscription(mountControl, status);
   });
 
   // Use an effect to reactively track status changes.
