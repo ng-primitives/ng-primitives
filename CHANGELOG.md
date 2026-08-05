@@ -1,3 +1,18 @@
+## 0.128.8 (2026-08-05)
+
+### 🚀 Features
+
+- **date-picker:** allow set start and end date on range picker ([#897](https://github.com/ng-primitives/ng-primitives/pull/897))
+
+### 🩹 Fixes
+
+- **ng-primitives:** allow TypeScript 6 by bumping tsquery to 6.2.0 ([#899](https://github.com/ng-primitives/ng-primitives/pull/899))
+
+### ❤️ Thank You
+
+- Anton Pieper @AntonPieper
+- Miguel Gremy @MGREMY
+
 ## 0.128.7 (2026-08-03)
 
 ### 🩹 Fixes
