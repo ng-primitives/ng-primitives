@@ -130,7 +130,7 @@ Three axes. Ask each of the changed code:
 git diff next...HEAD | grep -nE '^\+.*\b(getBoundingClientRect|getClientRects|getComputedStyle|scrollIntoView|offset(Width|Height|Top|Left|Parent)|client(Width|Height|Top|Left)|scroll(Width|Height|Top|Left))\b'
 ```
 
-Every hit is a layout read. It costs nothing on its own; it costs a full reflow when layout is dirty. So judge each by **what writes DOM before it**:
+Every hit except `scrollIntoView` is a layout read. A read costs nothing on its own; it costs a full reflow when layout is dirty. `scrollIntoView` differs: it always scrolls the element into view (forcing layout to compute the destination), so it is a side effect, not a read. Judge each hit by what runs around it — and for a read, by **what writes DOM before it**:
 
 - **In a state factory body, a directive constructor, or anything running while Angular creates elements.** Angular is writing DOM in the same pass, so each read forces its own reflow — N instances cost N reflows, each growing with the document. Defer to `queueMicrotask` (still ahead of paint, so nothing is a frame staler, and the whole creation pass shares one flush) or to the `earlyRead` phase of `afterRenderEffect`. `fromResizeEvent` (`internal/src/utilities/resize.ts`) is the worked example.
 - **Interleaved with writes in one `afterRenderEffect`.** Plain `afterRenderEffect(fn)` is the mixed-read-write phase: a callback that measures and then writes styles or attributes dirties layout for every instance that follows it. Use the phased form so all reads land before any write.
