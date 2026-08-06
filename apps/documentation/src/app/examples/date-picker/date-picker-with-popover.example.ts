@@ -13,6 +13,7 @@ import {
   NgpDatePickerPreviousMonth,
   NgpDatePickerRowRender,
 } from 'ng-primitives/date-picker';
+import { NgpFormControl } from 'ng-primitives/form-field';
 import { NgpPopover, NgpPopoverTrigger } from 'ng-primitives/popover';
 
 @Component({
@@ -30,6 +31,7 @@ import { NgpPopover, NgpPopoverTrigger } from 'ng-primitives/popover';
     NgpDatePickerDateButton,
     NgpPopoverTrigger,
     NgpPopover,
+    NgpFormControl,
     DatePipe,
   ],
   providers: [provideIcons({ heroChevronRightMini, heroChevronLeftMini })],
@@ -37,12 +39,13 @@ import { NgpPopover, NgpPopoverTrigger } from 'ng-primitives/popover';
     <input
       [ngpPopoverTrigger]="datePickerPopover"
       [value]="date() | date: 'longDate'"
+      aria-label="Select a date"
       ngpFormControl
       readonly
       placeholder="Select a date"
     />
 
-    <ng-template #datePickerPopover let-ctx>
+    <ng-template #datePickerPopover>
       <div ngpPopover>
         <div [(ngpDatePickerDate)]="date" [(ngpDatePickerFocusedDate)]="focused" ngpDatePicker>
           <div class="date-picker-header">
@@ -232,6 +235,28 @@ import { NgpPopover, NgpPopoverTrigger } from 'ng-primitives/popover';
 
     [ngpFormControl]::placeholder {
       color: var(--ngp-text-placeholder);
+    }
+
+    @keyframes popover-show {
+      0% {
+        opacity: 0;
+        transform: scale(0.9);
+      }
+      100% {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+
+    @keyframes popover-hide {
+      0% {
+        opacity: 1;
+        transform: scale(1);
+      }
+      100% {
+        opacity: 0;
+        transform: scale(0.9);
+      }
     }
   `,
 })

@@ -93,7 +93,7 @@ The date range picker allows users to select a range of dates by selecting the s
 
 ### Date Picker inside a Popover
 
-When using forms, it can be useful to use a popover to select a date and let a separate component displays the value.
+When using forms, it can be useful to use a popover to select a date and let a separate component display the value.
 
 <docs-example name="date-picker-with-popover"></docs-example>
 
