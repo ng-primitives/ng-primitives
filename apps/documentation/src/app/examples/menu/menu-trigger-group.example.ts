@@ -115,7 +115,6 @@ import { NgpMenu, NgpMenuItem, NgpMenuTrigger, NgpMenuTriggerGroup } from 'ng-pr
       font-weight: 510;
       letter-spacing: -0.006em;
       color: var(--ngp-text-primary);
-      transition: background-color 150ms cubic-bezier(0.4, 0, 0.2, 1);
       outline: none;
     }
 
@@ -124,6 +123,11 @@ import { NgpMenu, NgpMenuItem, NgpMenuTrigger, NgpMenuTriggerGroup } from 'ng-pr
       --ng-icon__size: 1.125rem;
     }
 
+    /*
+     * Deliberately not transitioned: the highlight marks which menu is open, and
+     * within the cooldown that swaps in a single frame. Fading it leaves the row
+     * you came from lit underneath the menu you moved to.
+     */
     .sidebar-item[data-hover],
     .sidebar-item[data-open] {
       background-color: var(--ngp-background-hover);

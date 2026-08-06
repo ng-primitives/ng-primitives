@@ -21,7 +21,7 @@ import { NgpMenu, NgpMenuItem, NgpMenuTrigger, NgpMenuTriggerGroup } from 'ng-pr
 
       <div class="flex flex-col gap-1 px-2 pb-2">
         <button
-          class="flex h-[2.125rem] cursor-pointer items-center gap-2.5 rounded-lg border-none bg-transparent px-2.5 text-left text-sm font-[510] tracking-[-0.006em] text-gray-900 outline-hidden transition-colors hover:bg-gray-100 focus-visible:shadow-[0_0_0_2px_var(--ngp-focus-ring)] active:bg-gray-200 data-open:bg-gray-100 dark:text-gray-100 dark:hover:bg-white/10 dark:active:bg-white/20 dark:data-open:bg-white/10"
+          class="flex h-[2.125rem] cursor-pointer items-center gap-2.5 rounded-lg border-none bg-transparent px-2.5 text-left text-sm font-[510] tracking-[-0.006em] text-gray-900 outline-hidden hover:bg-gray-100 focus-visible:shadow-[0_0_0_2px_var(--ngp-focus-ring)] active:bg-gray-200 data-open:bg-gray-100 dark:text-gray-100 dark:hover:bg-white/10 dark:active:bg-white/20 dark:data-open:bg-white/10"
           [ngpMenuTrigger]="teamMenu"
           [ngpMenuTriggerOpenTriggers]="['hover']"
           [ngpMenuTriggerCooldown]="300"
@@ -36,7 +36,7 @@ import { NgpMenu, NgpMenuItem, NgpMenuTrigger, NgpMenuTriggerGroup } from 'ng-pr
           Team
         </button>
         <button
-          class="flex h-[2.125rem] cursor-pointer items-center gap-2.5 rounded-lg border-none bg-transparent px-2.5 text-left text-sm font-[510] tracking-[-0.006em] text-gray-900 outline-hidden transition-colors hover:bg-gray-100 focus-visible:shadow-[0_0_0_2px_var(--ngp-focus-ring)] active:bg-gray-200 data-open:bg-gray-100 dark:text-gray-100 dark:hover:bg-white/10 dark:active:bg-white/20 dark:data-open:bg-white/10"
+          class="flex h-[2.125rem] cursor-pointer items-center gap-2.5 rounded-lg border-none bg-transparent px-2.5 text-left text-sm font-[510] tracking-[-0.006em] text-gray-900 outline-hidden hover:bg-gray-100 focus-visible:shadow-[0_0_0_2px_var(--ngp-focus-ring)] active:bg-gray-200 data-open:bg-gray-100 dark:text-gray-100 dark:hover:bg-white/10 dark:active:bg-white/20 dark:data-open:bg-white/10"
           [ngpMenuTrigger]="projectsMenu"
           [ngpMenuTriggerOpenTriggers]="['hover']"
           [ngpMenuTriggerCooldown]="300"
@@ -51,7 +51,7 @@ import { NgpMenu, NgpMenuItem, NgpMenuTrigger, NgpMenuTriggerGroup } from 'ng-pr
           Projects
         </button>
         <button
-          class="flex h-[2.125rem] cursor-pointer items-center gap-2.5 rounded-lg border-none bg-transparent px-2.5 text-left text-sm font-[510] tracking-[-0.006em] text-gray-900 outline-hidden transition-colors hover:bg-gray-100 focus-visible:shadow-[0_0_0_2px_var(--ngp-focus-ring)] active:bg-gray-200 data-open:bg-gray-100 dark:text-gray-100 dark:hover:bg-white/10 dark:active:bg-white/20 dark:data-open:bg-white/10"
+          class="flex h-[2.125rem] cursor-pointer items-center gap-2.5 rounded-lg border-none bg-transparent px-2.5 text-left text-sm font-[510] tracking-[-0.006em] text-gray-900 outline-hidden hover:bg-gray-100 focus-visible:shadow-[0_0_0_2px_var(--ngp-focus-ring)] active:bg-gray-200 data-open:bg-gray-100 dark:text-gray-100 dark:hover:bg-white/10 dark:active:bg-white/20 dark:data-open:bg-white/10"
           [ngpMenuTrigger]="reportsMenu"
           [ngpMenuTriggerOpenTriggers]="['hover']"
           [ngpMenuTriggerCooldown]="300"
@@ -74,19 +74,19 @@ import { NgpMenu, NgpMenuItem, NgpMenuTrigger, NgpMenuTriggerGroup } from 'ng-pr
         ngpMenu
       >
         <button
-          class="flex min-w-[140px] cursor-pointer items-center rounded-md border-none bg-transparent py-[0.4375rem] pr-2 pl-3 text-left text-sm font-[510] tracking-[-0.006em] text-gray-900 outline-hidden transition-colors hover:bg-gray-100 focus-visible:bg-gray-100 active:bg-gray-200 dark:text-gray-100 dark:hover:bg-white/10 dark:focus-visible:bg-white/10 dark:active:bg-white/20"
+          class="flex min-w-[140px] cursor-pointer items-center rounded-md border-none bg-transparent py-[0.4375rem] pr-2 pl-3 text-left text-sm font-[510] tracking-[-0.006em] text-gray-900 outline-hidden hover:bg-gray-100 focus-visible:bg-gray-100 active:bg-gray-200 dark:text-gray-100 dark:hover:bg-white/10 dark:focus-visible:bg-white/10 dark:active:bg-white/20"
           ngpMenuItem
         >
           Members
         </button>
         <button
-          class="flex min-w-[140px] cursor-pointer items-center rounded-md border-none bg-transparent py-[0.4375rem] pr-2 pl-3 text-left text-sm font-[510] tracking-[-0.006em] text-gray-900 outline-hidden transition-colors hover:bg-gray-100 focus-visible:bg-gray-100 active:bg-gray-200 dark:text-gray-100 dark:hover:bg-white/10 dark:focus-visible:bg-white/10 dark:active:bg-white/20"
+          class="flex min-w-[140px] cursor-pointer items-center rounded-md border-none bg-transparent py-[0.4375rem] pr-2 pl-3 text-left text-sm font-[510] tracking-[-0.006em] text-gray-900 outline-hidden hover:bg-gray-100 focus-visible:bg-gray-100 active:bg-gray-200 dark:text-gray-100 dark:hover:bg-white/10 dark:focus-visible:bg-white/10 dark:active:bg-white/20"
           ngpMenuItem
         >
           Roles
         </button>
         <button
-          class="flex min-w-[140px] cursor-pointer items-center rounded-md border-none bg-transparent py-[0.4375rem] pr-2 pl-3 text-left text-sm font-[510] tracking-[-0.006em] text-gray-900 outline-hidden transition-colors hover:bg-gray-100 focus-visible:bg-gray-100 active:bg-gray-200 dark:text-gray-100 dark:hover:bg-white/10 dark:focus-visible:bg-white/10 dark:active:bg-white/20"
+          class="flex min-w-[140px] cursor-pointer items-center rounded-md border-none bg-transparent py-[0.4375rem] pr-2 pl-3 text-left text-sm font-[510] tracking-[-0.006em] text-gray-900 outline-hidden hover:bg-gray-100 focus-visible:bg-gray-100 active:bg-gray-200 dark:text-gray-100 dark:hover:bg-white/10 dark:focus-visible:bg-white/10 dark:active:bg-white/20"
           ngpMenuItem
         >
           Invitations
@@ -100,19 +100,19 @@ import { NgpMenu, NgpMenuItem, NgpMenuTrigger, NgpMenuTriggerGroup } from 'ng-pr
         ngpMenu
       >
         <button
-          class="flex min-w-[140px] cursor-pointer items-center rounded-md border-none bg-transparent py-[0.4375rem] pr-2 pl-3 text-left text-sm font-[510] tracking-[-0.006em] text-gray-900 outline-hidden transition-colors hover:bg-gray-100 focus-visible:bg-gray-100 active:bg-gray-200 dark:text-gray-100 dark:hover:bg-white/10 dark:focus-visible:bg-white/10 dark:active:bg-white/20"
+          class="flex min-w-[140px] cursor-pointer items-center rounded-md border-none bg-transparent py-[0.4375rem] pr-2 pl-3 text-left text-sm font-[510] tracking-[-0.006em] text-gray-900 outline-hidden hover:bg-gray-100 focus-visible:bg-gray-100 active:bg-gray-200 dark:text-gray-100 dark:hover:bg-white/10 dark:focus-visible:bg-white/10 dark:active:bg-white/20"
           ngpMenuItem
         >
           Active
         </button>
         <button
-          class="flex min-w-[140px] cursor-pointer items-center rounded-md border-none bg-transparent py-[0.4375rem] pr-2 pl-3 text-left text-sm font-[510] tracking-[-0.006em] text-gray-900 outline-hidden transition-colors hover:bg-gray-100 focus-visible:bg-gray-100 active:bg-gray-200 dark:text-gray-100 dark:hover:bg-white/10 dark:focus-visible:bg-white/10 dark:active:bg-white/20"
+          class="flex min-w-[140px] cursor-pointer items-center rounded-md border-none bg-transparent py-[0.4375rem] pr-2 pl-3 text-left text-sm font-[510] tracking-[-0.006em] text-gray-900 outline-hidden hover:bg-gray-100 focus-visible:bg-gray-100 active:bg-gray-200 dark:text-gray-100 dark:hover:bg-white/10 dark:focus-visible:bg-white/10 dark:active:bg-white/20"
           ngpMenuItem
         >
           Archived
         </button>
         <button
-          class="flex min-w-[140px] cursor-pointer items-center rounded-md border-none bg-transparent py-[0.4375rem] pr-2 pl-3 text-left text-sm font-[510] tracking-[-0.006em] text-gray-900 outline-hidden transition-colors hover:bg-gray-100 focus-visible:bg-gray-100 active:bg-gray-200 dark:text-gray-100 dark:hover:bg-white/10 dark:focus-visible:bg-white/10 dark:active:bg-white/20"
+          class="flex min-w-[140px] cursor-pointer items-center rounded-md border-none bg-transparent py-[0.4375rem] pr-2 pl-3 text-left text-sm font-[510] tracking-[-0.006em] text-gray-900 outline-hidden hover:bg-gray-100 focus-visible:bg-gray-100 active:bg-gray-200 dark:text-gray-100 dark:hover:bg-white/10 dark:focus-visible:bg-white/10 dark:active:bg-white/20"
           ngpMenuItem
         >
           Templates
@@ -126,19 +126,19 @@ import { NgpMenu, NgpMenuItem, NgpMenuTrigger, NgpMenuTriggerGroup } from 'ng-pr
         ngpMenu
       >
         <button
-          class="flex min-w-[140px] cursor-pointer items-center rounded-md border-none bg-transparent py-[0.4375rem] pr-2 pl-3 text-left text-sm font-[510] tracking-[-0.006em] text-gray-900 outline-hidden transition-colors hover:bg-gray-100 focus-visible:bg-gray-100 active:bg-gray-200 dark:text-gray-100 dark:hover:bg-white/10 dark:focus-visible:bg-white/10 dark:active:bg-white/20"
+          class="flex min-w-[140px] cursor-pointer items-center rounded-md border-none bg-transparent py-[0.4375rem] pr-2 pl-3 text-left text-sm font-[510] tracking-[-0.006em] text-gray-900 outline-hidden hover:bg-gray-100 focus-visible:bg-gray-100 active:bg-gray-200 dark:text-gray-100 dark:hover:bg-white/10 dark:focus-visible:bg-white/10 dark:active:bg-white/20"
           ngpMenuItem
         >
           Overview
         </button>
         <button
-          class="flex min-w-[140px] cursor-pointer items-center rounded-md border-none bg-transparent py-[0.4375rem] pr-2 pl-3 text-left text-sm font-[510] tracking-[-0.006em] text-gray-900 outline-hidden transition-colors hover:bg-gray-100 focus-visible:bg-gray-100 active:bg-gray-200 dark:text-gray-100 dark:hover:bg-white/10 dark:focus-visible:bg-white/10 dark:active:bg-white/20"
+          class="flex min-w-[140px] cursor-pointer items-center rounded-md border-none bg-transparent py-[0.4375rem] pr-2 pl-3 text-left text-sm font-[510] tracking-[-0.006em] text-gray-900 outline-hidden hover:bg-gray-100 focus-visible:bg-gray-100 active:bg-gray-200 dark:text-gray-100 dark:hover:bg-white/10 dark:focus-visible:bg-white/10 dark:active:bg-white/20"
           ngpMenuItem
         >
           Usage
         </button>
         <button
-          class="flex min-w-[140px] cursor-pointer items-center rounded-md border-none bg-transparent py-[0.4375rem] pr-2 pl-3 text-left text-sm font-[510] tracking-[-0.006em] text-gray-900 outline-hidden transition-colors hover:bg-gray-100 focus-visible:bg-gray-100 active:bg-gray-200 dark:text-gray-100 dark:hover:bg-white/10 dark:focus-visible:bg-white/10 dark:active:bg-white/20"
+          class="flex min-w-[140px] cursor-pointer items-center rounded-md border-none bg-transparent py-[0.4375rem] pr-2 pl-3 text-left text-sm font-[510] tracking-[-0.006em] text-gray-900 outline-hidden hover:bg-gray-100 focus-visible:bg-gray-100 active:bg-gray-200 dark:text-gray-100 dark:hover:bg-white/10 dark:focus-visible:bg-white/10 dark:active:bg-white/20"
           ngpMenuItem
         >
           Billing
