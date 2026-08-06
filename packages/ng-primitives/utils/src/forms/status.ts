@@ -14,17 +14,6 @@ import { onDestroy, onMount } from 'ng-primitives/state';
 import { Subscription } from 'rxjs';
 import { safeTakeUntilDestroyed } from '../observables/take-until-destroyed';
 
-// Avoid multiple patch from different `controlStatus` on the same NgControl
-interface PatchState {
-  consumers: { status: WritableSignal<NgpControlStatus> }[];
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
-  originalMethods: Record<string, Function>;
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
-  patchedMethods: Record<string, Function>;
-}
-
-const patchRegistry = new WeakMap<NgControl, PatchState>();
-
 export interface NgpControlStatus {
   valid: boolean | null;
   invalid: boolean | null;
@@ -67,8 +56,8 @@ function updateStatus(control: NgControl, status: WritableSignal<NgpControlStatu
       disabled: source.disabled ?? null,
       errors: source.errors ? Object.keys(source.errors) : null,
       required:
-        (source.hasValidator(Validators.required) ||
-          source.hasValidator(Validators.requiredTrue)) ??
+        source.hasValidator(Validators.required) ||
+        source.hasValidator(Validators.requiredTrue) ||
         null,
     };
 
@@ -105,111 +94,6 @@ function setupEventSubscription(
   return undefined;
 }
 
-/**
- * Patches the underlying control's validator mutators so that adding/removing
- * validators re-reads the control status. Classic `AbstractControl` mutators
- * (`setValidators`, `addValidators`, `removeValidators`, ...) do not emit any
- * events, so without this the `required` state (derived from `hasValidator`)
- * would stay stale until an unrelated value/status change.
- *
- * Implementation details:
- *
- * A global `WeakMap` tracks patch state per `AbstractControl`. It stores:
- * - the original validator methods
- * - the patched methods
- * - a list of consumers (each with its `status` signal)
- *
- * On the first consumer: the original methods are saved, patched versions are
- * installed on the control, and the consumer is registered.
- *
- * On subsequent consumers: they are added to the consumer list without
- * re-patching the control.
- *
- * When validators change: the patched method notifies all registered consumers
- * by calling `updateStatus` with their respective status signals.
- *
- * On cleanup: the consumer is removed from the list. If no consumers remain,
- * the original methods are restored and the `WeakMap` entry is deleted.
- * @internal
- */
-function setupValidatorChangeSubscription(
-  ngControl: NgControl,
-  status: WritableSignal<NgpControlStatus>,
-): () => void {
-  // For classic controls, also subscribe to the events observable.
-  const underlyingControl = (ngControl as any).control;
-
-  // Signal-forms interop controls don't expose `setValidators` — skip them.
-  // They're already reactive: `hasValidator(Validators.required)` reads
-  // `field().required()`, a signal tracked by the effect below.
-  if (!underlyingControl || typeof underlyingControl.setValidators !== 'function') {
-    // eslint-disable-next-line @typescript-eslint/no-empty-function
-    return () => {}; // no-op unpatch
-  }
-
-  let state = patchRegistry.get(underlyingControl);
-
-  if (!state) {
-    // First consumer: save true originals, create patched versions
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
-    const originalMethods: Record<string, Function> = {};
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
-    const patchedMethods: Record<string, Function> = {};
-
-    // `setValidators`/`setAsyncValidators` are the primitives that every other
-    // mutator (`addValidators`, `removeValidators`, `addAsyncValidators`,
-    // `removeAsyncValidators`) delegates to on `AbstractControl`.
-    for (const method of [
-      'setValidators',
-      'setAsyncValidators',
-      'clearValidators',
-      'clearAsyncValidators',
-    ] as const) {
-      const original = underlyingControl[method].bind(underlyingControl);
-
-      originalMethods[method] = original;
-
-      patchedMethods[method] = (...args: unknown[]) => {
-        original(...args);
-
-        // state is guaranteed non-null here: the patched method only runs after
-        // the first consumer creates the PatchState entry (which includes itself).
-        for (const consumer of state!.consumers) {
-          updateStatus(ngControl, consumer.status);
-        }
-      };
-
-      underlyingControl[method] = patchedMethods[method];
-    }
-
-    state = { consumers: [{ status }], originalMethods, patchedMethods };
-    patchRegistry.set(underlyingControl, state);
-  } else {
-    state.consumers.push({ status });
-  }
-
-  return () => {
-    const currentState = patchRegistry.get(underlyingControl);
-
-    if (!currentState) {
-      return;
-    }
-
-    // We check by reference of signal, not value
-    // eslint-disable-next-line @angular-eslint/no-uncalled-signals
-    currentState.consumers = currentState.consumers.filter(x => x.status !== status);
-
-    // If no consumers remain, restore original methods and delete the WeakMap entry
-    if (currentState.consumers.length === 0) {
-      for (const [method, original] of Object.entries(currentState.originalMethods)) {
-        underlyingControl[method] = original;
-      }
-
-      patchRegistry.delete(underlyingControl);
-    }
-  };
-}
-
 export function controlStatus(
   ngControl?: Signal<NgControl | null | undefined>,
 ): Signal<NgpControlStatus> {
@@ -227,26 +111,17 @@ export function controlStatus(
     errors: null,
     required: null,
   });
+  const eventSubscription = signal<Subscription | undefined>(undefined);
 
   const control = linkedSignal<NgControl | null>(() => ngControl?.() ?? null);
 
-  let currentCleanup: {
-    eventSubscription?: Subscription;
-    unpatch?: () => void;
-  } = {};
-
   function cleanup(): void {
-    currentCleanup.eventSubscription?.unsubscribe();
-    currentCleanup.unpatch?.();
-    currentCleanup = {};
+    eventSubscription()?.unsubscribe();
   }
 
   function setup(ngControl: NgControl): void {
     // Set up event subscription for reactive updates
-    currentCleanup.eventSubscription = setupEventSubscription(ngControl, status, destroyRef);
-
-    // Set up validator "subscription" for reactive updates
-    currentCleanup.unpatch = setupValidatorChangeSubscription(ngControl, status);
+    eventSubscription.set(setupEventSubscription(ngControl, status, destroyRef));
   }
 
   onMount(() => {

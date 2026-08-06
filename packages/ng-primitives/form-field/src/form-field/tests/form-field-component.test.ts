@@ -158,6 +158,7 @@ describe('FormField (reusable component) — standalone', () => {
     expect(container.querySelector('[ngpError]')).not.toHaveAttribute('data-required');
 
     formControl.addValidators(Validators.required);
+    formControl.updateValueAndValidity();
     fixture.detectChanges();
     await fixture.whenStable();
 
