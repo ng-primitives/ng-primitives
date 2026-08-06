@@ -111,17 +111,17 @@ export function controlStatus(
     errors: null,
     required: null,
   });
-  const eventSubscription = signal<Subscription | undefined>(undefined);
+  let eventSubscription: Subscription | undefined = undefined;
 
   const control = linkedSignal<NgControl | null>(() => ngControl?.() ?? null);
 
   function cleanup(): void {
-    eventSubscription()?.unsubscribe();
+    eventSubscription?.unsubscribe();
   }
 
   function setup(ngControl: NgControl): void {
     // Set up event subscription for reactive updates
-    eventSubscription.set(setupEventSubscription(ngControl, status, destroyRef));
+    eventSubscription = setupEventSubscription(ngControl, status, destroyRef);
   }
 
   onMount(() => {
