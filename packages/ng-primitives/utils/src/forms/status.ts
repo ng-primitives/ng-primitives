@@ -45,6 +45,7 @@ function updateStatus(control: NgControl, status: WritableSignal<NgpControlStatu
     // For interop controls, read directly from the control (which has signal getters).
     // For classic controls, read from the underlying AbstractControl.
     const source = isInteropControl(control) ? control : ((control as any).control ?? control);
+    const hasValidatorExists = typeof source.hasValidator === 'function';
 
     const newStatus: NgpControlStatus = {
       valid: source.valid ?? null,
@@ -55,10 +56,17 @@ function updateStatus(control: NgControl, status: WritableSignal<NgpControlStatu
       pending: source.pending ?? null,
       disabled: source.disabled ?? null,
       errors: source.errors ? Object.keys(source.errors) : null,
-      required:
-        source.hasValidator(Validators.required) ||
-        source.hasValidator(Validators.requiredTrue) ||
-        null,
+      required: hasValidatorExists
+        ? // In signal forms, the hasValidators checks for field().required() which is a signal
+          // Otherwise, it'll trigger the base hasValidator method, returning a boolean
+          //
+          // As hasValidator only check references on a array of validator, that means
+          // using Validators.compose(Validators.required) will not be flagged as required
+          // That's the only limitation of this API
+          source.hasValidator(Validators.required) ||
+          source.hasValidator(Validators.requiredTrue) ||
+          null
+        : null,
     };
 
     untracked(() => status.set(newStatus));
@@ -100,7 +108,7 @@ export function controlStatus(
   const injector = inject(Injector);
   const destroyRef = inject(DestroyRef);
 
-  const status = signal<NgpControlStatus>({
+  const initialStatus: NgpControlStatus = {
     valid: null,
     invalid: null,
     pristine: null,
@@ -110,7 +118,9 @@ export function controlStatus(
     disabled: null,
     errors: null,
     required: null,
-  });
+  };
+
+  const status = signal<NgpControlStatus>(initialStatus);
   let eventSubscription: Subscription | undefined = undefined;
 
   const control = linkedSignal<NgControl | null>(() => ngControl?.() ?? null);
@@ -128,10 +138,6 @@ export function controlStatus(
     if (!control()) {
       // Try to inject NgControl immediately for initial state
       control.set(inject(NgControl, { optional: true }));
-    }
-
-    if (control()) {
-      updateStatus(control()!, status);
     }
   });
 
@@ -152,6 +158,8 @@ export function controlStatus(
       if (c) {
         setup(c);
         updateStatus(c, status);
+      } else {
+        untracked(() => status.set(initialStatus));
       }
     },
     { injector },
