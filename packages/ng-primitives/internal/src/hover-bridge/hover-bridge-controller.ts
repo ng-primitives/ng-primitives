@@ -110,7 +110,10 @@ export function createHoverBridge({
   // and reading them back would force layout on every pointermove.
   let siblingBounds: DOMRect | null = null;
   let triggerBounds: DOMRect | null = null;
-  let siblingItemBounds: DOMRect[] = [];
+  // Measured on first use, not with the rects above: a pointer heading straight
+  // for the panel never touches the container's own space, and these are every
+  // row the container lays out - for a submenu, every item in the parent menu.
+  let siblingItemBounds: DOMRect[] | null = null;
   let previousTriggerPointerEvents = '';
   let removePressGuards: (() => void) | undefined = undefined;
 
@@ -344,20 +347,25 @@ export function createHoverBridge({
    * a pointer parked out there closes on the usual timers.
    */
   function isOverContainerDeadSpace(point: HoverBridgePoint): boolean {
-    if (!isOverSibling(point) || siblingItemBounds.some(rect => isWithin(rect, point))) {
+    if (!isOverSibling(point)) {
       return false;
     }
 
-    return [triggerBounds, ...siblingItemBounds].some(rect =>
-      isWithin(rect, point, HOVER_BRIDGE_ROW_GRACE_PX),
-    );
+    const rows = (siblingItemBounds ??= readSiblingItemBounds());
+
+    if (rows.some(rect => isWithin(rect, point))) {
+      return false;
+    }
+
+    return [triggerBounds, ...rows].some(rect => isWithin(rect, point, HOVER_BRIDGE_ROW_GRACE_PX));
   }
 
   /**
    * The rows the container lays out around this trigger. Read from the
    * trigger's own DOM siblings rather than the container's descendants: what
    * counts as occupied space is whatever shares the trigger's row box - a
-   * sibling trigger, a plain menu item, a wrapper around either.
+   * sibling trigger, a plain menu item, a wrapper around either. Called at most
+   * once per corridor, the first time the pointer is over the container.
    */
   function readSiblingItemBounds(): DOMRect[] {
     const self = trigger?.nativeElement;
@@ -471,7 +479,7 @@ export function createHoverBridge({
     lastPointer = exitPoint;
     siblingBounds = siblingContainer?.()?.getBoundingClientRect() ?? null;
     triggerBounds = trigger?.nativeElement.getBoundingClientRect() ?? null;
-    siblingItemBounds = readSiblingItemBounds();
+    siblingItemBounds = null;
     registerPointerMoveListener();
     // Deliberately the full window, whatever the exit point sits over: the gap
     // between two stacked triggers belongs to the container, so leaving one and
@@ -488,7 +496,7 @@ export function createHoverBridge({
     lastPointer = null;
     siblingBounds = null;
     triggerBounds = null;
-    siblingItemBounds = [];
+    siblingItemBounds = null;
     clearTimeout(fallbackTimeoutId);
     fallbackTimeoutId = undefined;
     removePointerMoveListener?.();
