@@ -17,6 +17,7 @@ import { NgpMenu, NgpMenuItem, NgpMenuTrigger, NgpMenuTriggerGroup } from 'ng-pr
           class="sidebar-item"
           [ngpMenuTrigger]="teamMenu"
           [ngpMenuTriggerOpenTriggers]="['hover']"
+          [ngpMenuTriggerCooldown]="300"
           ngpButton
           ngpMenuTriggerPlacement="right-start"
         >
@@ -27,6 +28,7 @@ import { NgpMenu, NgpMenuItem, NgpMenuTrigger, NgpMenuTriggerGroup } from 'ng-pr
           class="sidebar-item"
           [ngpMenuTrigger]="projectsMenu"
           [ngpMenuTriggerOpenTriggers]="['hover']"
+          [ngpMenuTriggerCooldown]="300"
           ngpButton
           ngpMenuTriggerPlacement="right-start"
         >
@@ -37,6 +39,7 @@ import { NgpMenu, NgpMenuItem, NgpMenuTrigger, NgpMenuTriggerGroup } from 'ng-pr
           class="sidebar-item"
           [ngpMenuTrigger]="reportsMenu"
           [ngpMenuTriggerOpenTriggers]="['hover']"
+          [ngpMenuTriggerCooldown]="300"
           ngpButton
           ngpMenuTriggerPlacement="right-start"
         >
@@ -156,6 +159,11 @@ import { NgpMenu, NgpMenuItem, NgpMenuTrigger, NgpMenuTriggerGroup } from 'ng-pr
 
     [ngpMenu][data-exit] {
       animation: menu-hide 0.2s ease-out;
+    }
+
+    /* Swapping menus within the cooldown is one movement, not two animations. */
+    [ngpMenu][data-instant] {
+      animation: none;
     }
 
     [ngpMenuItem] {
