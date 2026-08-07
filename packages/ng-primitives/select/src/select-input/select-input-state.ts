@@ -81,23 +81,22 @@ export const [
     listener(elementRef, 'keydown', handleKeydown);
     listener(elementRef, 'blur', onBlur);
 
-    /** Handle keydown events for accessibility. */
+    /**
+     * Handle keydown events for accessibility.
+     *
+     * The input lives inside the dropdown, so it only exists while the dropdown is open and
+     * only ever receives a key while it is. Nothing here needs to open the dropdown, and any
+     * closed-state branch would be unreachable: the overlay reports itself open for the whole
+     * exit animation and the view is gone by the time it reports otherwise.
+     */
     function handleKeydown(event: KeyboardEvent): void {
       switch (event.key) {
         case 'ArrowDown':
-          if (selectState().open()) {
-            selectState().activateNextOption();
-          } else {
-            selectState().openDropdown();
-          }
+          selectState().activateNextOption();
           event.preventDefault();
           break;
         case 'ArrowUp':
-          if (selectState().open()) {
-            selectState().activatePreviousOption();
-          } else {
-            void selectState().openDropdown({ activate: 'last' });
-          }
+          selectState().activatePreviousOption();
           event.preventDefault();
           break;
         case 'Home':
@@ -106,46 +105,28 @@ export const [
         case 'End':
           // let the caret move within the search term
           break;
-        case 'Enter':
-          if (selectState().open()) {
-            const activeId = selectState().activeDescendantManager.id();
+        case 'Enter': {
+          const activeId = selectState().activeDescendantManager.id();
 
-            if (activeId) {
-              const option = selectState()
-                .sortedOptions()
-                .find(opt => opt.id() === activeId);
-              option?.select();
-            }
-
-            if (!selectState().multiple()) {
-              selectState().focus();
-            }
+          if (activeId) {
+            const option = selectState()
+              .sortedOptions()
+              .find(opt => opt.id() === activeId);
+            option?.select();
           }
+
+          if (!selectState().multiple()) {
+            selectState().focus();
+          }
+
           event.preventDefault();
           break;
+        }
         case 'Escape':
           selectState().closeDropdown();
           selectState().focus();
           event.preventDefault();
           break;
-        case 'Backspace':
-          // if the input is not empty then open the dropdown
-          if (elementRef.nativeElement.value.length > 0) {
-            selectState().openDropdown();
-          }
-          break;
-        default:
-          // Ignore keys with length > 1 (e.g., 'Shift', 'ArrowLeft', etc.)
-          // and control/meta key combos (e.g., Ctrl+C)
-          if (
-            event.key !== 'Unidentified' &&
-            (event.key.length > 1 || event.ctrlKey || event.metaKey || event.altKey)
-          ) {
-            return;
-          }
-
-          // if this was a character key, we want to open the dropdown
-          selectState().openDropdown();
       }
     }
 
