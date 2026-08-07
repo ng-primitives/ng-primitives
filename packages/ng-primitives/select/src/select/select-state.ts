@@ -523,10 +523,19 @@ export const [NgpSelectStateToken, ngpSelect, _injectSelectState, provideSelectS
         // by the caller would run before any option has registered, and would then be
         // overwritten when this function resumes.
         if (options?.activate === 'last') {
+          // reset first so the index stays at -1 when there is nothing to activate, rather than
+          // keeping the 0 it starts on
+          activeDescendantManagerInstance.reset();
           activeDescendantManagerInstance.last();
+
+          const activeIndex = activeDescendantManagerInstance.index();
+
           // the manager scrolls through a callback that bails out until the overlay has been
           // positioned, which has not happened yet, so scroll here like the selected branch does
-          scrollTo(activeDescendantManagerInstance.index());
+          if (activeIndex !== -1) {
+            scrollTo(activeIndex);
+          }
+
           return;
         }
 

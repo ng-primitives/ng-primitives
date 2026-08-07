@@ -440,6 +440,43 @@ describe('NgpSelect', () => {
       });
     });
 
+    it('should not scroll when ArrowUp opens a dropdown with no activatable option', async () => {
+      const scrollToOption = vi.fn();
+
+      @Component({
+        template: `
+          <div
+            [(ngpSelectValue)]="value"
+            [ngpSelectScrollToOption]="scrollToOption"
+            ngpSelect
+            data-testid="empty-select"
+          >
+            <span data-testid="placeholder">Select an option</span>
+
+            <div *ngpSelectPortal ngpSelectDropdown data-testid="dropdown"></div>
+          </div>
+        `,
+        imports: [NgpSelect, NgpSelectDropdown, NgpSelectPortal],
+      })
+      class TestEmptySelectComponent {
+        readonly value = signal<string | undefined>(undefined);
+        readonly scrollToOption = scrollToOption;
+      }
+
+      await render(TestEmptySelectComponent);
+
+      const select = screen.getByTestId('empty-select');
+      select.focus();
+
+      fireEvent.keyDown(select, { key: 'ArrowUp' });
+
+      await waitFor(() => {
+        expect(select).toHaveAttribute('aria-expanded', 'true');
+      });
+
+      expect(scrollToOption).not.toHaveBeenCalled();
+    });
+
     it('should keep the selected option active when ArrowUp opens the dropdown', async () => {
       const { fixture } = await render(TestSelectComponent);
       fixture.componentInstance.value.set('Banana');
