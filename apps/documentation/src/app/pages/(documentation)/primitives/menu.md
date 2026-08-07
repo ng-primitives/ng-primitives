@@ -214,7 +214,7 @@ Nested `NgpSubmenuTrigger`s inside an already-open menu are protected from this 
 
 <docs-example name="menu-trigger-group"></docs-example>
 
-Moving between siblings closes one menu and opens another in quick succession, so the example also sets `ngpMenuTriggerCooldown`. Within that window the swap is treated as a single movement: the outgoing menu is dropped rather than animating out behind its replacement, and the incoming one is marked `data-instant` so its own animation can be skipped.
+Moving between siblings closes one menu and opens another in quick succession, so the example also sets `ngpMenuTriggerCooldown`. Within that window, the swap is treated as a single movement: the outgoing menu is dropped rather than animating out behind its replacement, and the incoming one is marked `data-instant` so its own animation can be skipped.
 
 The coordination only earns its keep while the siblings actually sit between a trigger and its menu. In a collapsible navigation, that stops being true once the rail collapses to icons - the pointer reaches the panel without crossing anything, so all the group does is hold the siblings inert a moment longer than they need to be. Bind `ngpMenuTriggerGroupSiblingTracking` to turn it off for as long as that is the case:
 
