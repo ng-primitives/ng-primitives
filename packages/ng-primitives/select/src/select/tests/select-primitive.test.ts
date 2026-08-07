@@ -2183,6 +2183,27 @@ describe('NgpSelect', () => {
         });
       });
 
+      it('should leave Home and End to the browser so the caret can move', async () => {
+        await render(TestSelectInputComponent);
+        const select = screen.getByTestId('select-with-input');
+
+        fireEvent.click(select);
+
+        const input = await screen.findByTestId('select-input');
+
+        fireEvent.keyDown(input, { key: 'ArrowDown' });
+        await waitFor(() => {
+          expect(screen.getByTestId('option-Banana')).toHaveAttribute('data-active', '');
+        });
+
+        // the input is an editable combobox, so Home and End are text editing keys and
+        // must not be consumed for option navigation
+        expect(fireEvent.keyDown(input, { key: 'Home' })).toBe(true);
+        expect(fireEvent.keyDown(input, { key: 'End' })).toBe(true);
+
+        expect(screen.getByTestId('option-Banana')).toHaveAttribute('data-active', '');
+      });
+
       it('should close the dropdown and return focus to the trigger when Escape is pressed', async () => {
         await render(TestSelectInputComponent);
         const select = screen.getByTestId('select-with-input');

@@ -102,16 +102,10 @@ export const [
           event.preventDefault();
           break;
         case 'Home':
-          if (selectState().open()) {
-            selectState().activeDescendantManager.first({ origin: 'keyboard' });
-          }
-          event.preventDefault();
+          // let the caret move within the search term
           break;
         case 'End':
-          if (selectState().open()) {
-            selectState().activeDescendantManager.last({ origin: 'keyboard' });
-          }
-          event.preventDefault();
+          // let the caret move within the search term
           break;
         case 'Enter':
           if (selectState().open()) {
