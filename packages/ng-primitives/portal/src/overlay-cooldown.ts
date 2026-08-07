@@ -2,7 +2,7 @@ import { Injectable, WritableSignal } from '@angular/core';
 
 /** Interface for overlays that can be closed immediately */
 export interface CooldownOverlay {
-  hideImmediate(): void;
+  hideImmediate(options?: { skipExitAnimation?: boolean }): void;
   /** Optional signal to mark the transition as instant due to cooldown */
   instantTransition?: WritableSignal<boolean>;
   /**
@@ -90,11 +90,15 @@ export class NgpOverlayCooldownManager {
         return;
       }
       stack.pop();
-      // Enable instant transition only if cooldown is active
-      if (cooldown > 0) {
+      // Enable instant transition only if cooldown is active. The same condition
+      // decides whether an overlay already animating out is cut short: within a
+      // cooldown the swap should read as one movement, without one the outgoing
+      // overlay keeps the exit animation it was given.
+      const isInstant = cooldown > 0;
+      if (isInstant) {
         top.instantTransition?.set(true);
       }
-      top.hideImmediate();
+      top.hideImmediate({ skipExitAnimation: isInstant });
     }
 
     // Push as the topmost active overlay, avoiding a duplicate entry if it is

@@ -41,6 +41,8 @@ export interface NgpExitAnimationRef {
   exit: () => Promise<void>;
   /** Cancel an in-progress exit animation and transition back to enter state. */
   cancel: () => void;
+  /** End an in-progress exit animation now, leaving the element on its way out. */
+  finish: () => void;
 }
 
 /**
@@ -169,6 +171,38 @@ export function setupExitAnimation({
         // element is removed mid-animation) resolve exactly like success.
         Promise.allSettled(animations.map(anim => anim.finished)).then(settle);
       });
+    },
+    finish: () => {
+      if (state !== 'exit') {
+        return;
+      }
+
+      clearExitTimeout();
+
+      // Jump to the animation's end state rather than cancelling: the element is
+      // leaving, and cancel() would snap it back to how it looked before the
+      // exit began for however long it takes the caller to remove it. Infinite
+      // animations are skipped - `finish()` throws on them, and `exit()` never
+      // waited on them in the first place.
+      const animations = canAnimate ? element.getAnimations() : [];
+      for (const animation of animations) {
+        if (isInfinite(animation)) {
+          continue;
+        }
+        try {
+          animation.finish();
+        } catch {
+          // `finish()` also throws on a paused-at-rate-zero animation, which
+          // nothing here creates but a consumer can. Resolving the exit matters
+          // more than the frame it ends on - throwing past the resolve below
+          // would strand the detach this exists to unstick.
+        }
+      }
+
+      if (exitResolve) {
+        exitResolve();
+        exitResolve = null;
+      }
     },
     cancel: () => {
       if (state === 'exit') {

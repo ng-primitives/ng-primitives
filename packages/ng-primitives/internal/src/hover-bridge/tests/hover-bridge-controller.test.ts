@@ -1,5 +1,6 @@
 import {
   createEnvironmentInjector,
+  ElementRef,
   EnvironmentInjector,
   runInInjectionContext,
 } from '@angular/core';
@@ -36,8 +37,11 @@ afterEach(() => {
   activeEnvironments.splice(0).forEach(env => env.destroy());
 });
 
-function setup(options: Partial<HoverBridgeOptions> = {}) {
-  const env = createEnvironmentInjector([], TestBed.inject(EnvironmentInjector));
+function setup(options: Partial<HoverBridgeOptions> = {}, element?: HTMLElement) {
+  const env = createEnvironmentInjector(
+    element ? [{ provide: ElementRef, useValue: new ElementRef(element) }] : [],
+    TestBed.inject(EnvironmentInjector),
+  );
   activeEnvironments.push(env);
   const close = vi.fn();
   const isPointerInAnchor = vi.fn(() => false);
@@ -76,13 +80,27 @@ describe('createHoverBridge - idling over a sibling', () => {
   };
   const OVER_SIBLING = { x: 160, y: 60 };
   const IN_THE_GAP = { x: 202, y: 60 };
+  const BETWEEN_SIBLINGS = { x: 100, y: 36 };
+  const OPEN_GROUND = { x: 190, y: 190 };
 
   let container: HTMLElement;
+  let triggerElement: HTMLElement;
 
   beforeEach(() => {
     vi.useFakeTimers();
     container = document.createElement('div');
-    container.style.cssText = 'position:fixed;left:0;top:0;width:200px;height:120px';
+    container.style.cssText = 'position:fixed;left:0;top:0;width:200px;height:260px';
+    // A sidebar's shape, laid out to match GROUP_OPTIONS: the trigger, a
+    // sibling row 8px below it, and a row pinned to the bottom - so a point can
+    // be over a row, on the strip between two of them, or out on the open
+    // ground the container leaves in between.
+    triggerElement = document.createElement('div');
+    triggerElement.style.cssText = 'position:absolute;left:0;top:0;width:200px;height:32px';
+    const sibling = document.createElement('div');
+    sibling.style.cssText = 'position:absolute;left:0;top:40px;width:200px;height:80px';
+    const bottomRow = document.createElement('div');
+    bottomRow.style.cssText = 'position:absolute;left:0;bottom:0;width:200px;height:32px';
+    container.append(triggerElement, sibling, bottomRow);
     document.body.appendChild(container);
   });
 
@@ -92,7 +110,7 @@ describe('createHoverBridge - idling over a sibling', () => {
   });
 
   function trackOverGroup(options = {}) {
-    const harness = setup({ siblingContainer: () => container, ...options });
+    const harness = setup({ siblingContainer: () => container, ...options }, triggerElement);
     harness.bridge.track(GROUP_OPTIONS);
     return harness;
   }
@@ -135,6 +153,84 @@ describe('createHoverBridge - idling over a sibling', () => {
 
     vi.advanceTimersByTime(HOVER_BRIDGE_TIMEOUT_MS - HOVER_BRIDGE_SIBLING_TIMEOUT_MS);
     expect(close).toHaveBeenCalledTimes(1);
+  });
+
+  it('never closes while the pointer rests on the container between two siblings', () => {
+    const { bridge, close } = trackOverGroup();
+
+    movePointer(BETWEEN_SIBLINGS);
+
+    // The strip between two rows is a few pixels of inert layout, not the way
+    // out - a hand drifting across it must not close and reopen the overlay.
+    vi.advanceTimersByTime(HOVER_BRIDGE_TIMEOUT_MS * 10);
+
+    expect(close).not.toHaveBeenCalled();
+    // Still tracking, so leaving the container is still noticed.
+    expect(bridge.isActive()).toBe(true);
+  });
+
+  it('reads a point on a row boundary the way the browser hit-tests it', () => {
+    const { close } = trackOverGroup();
+
+    // Exactly on the sibling row's bottom edge. Boxes are half-open, so that
+    // point is not *in* the row - it is the inert strip past it, still inside
+    // the row's grace margin. Reading the edge as the row instead hands the
+    // hover to a row the browser has not put the pointer on, and closes the
+    // overlay on the shorter sibling timeout with nothing to take its place.
+    movePointer({ x: 160, y: 120 });
+
+    vi.advanceTimersByTime(HOVER_BRIDGE_TIMEOUT_MS * 4);
+
+    expect(close).not.toHaveBeenCalled();
+  });
+
+  it('closes when the pointer rests on open ground well clear of the rows', () => {
+    const { close } = trackOverGroup();
+
+    // A sidebar with rows at its top and bottom leaves a lot of container in
+    // between. That is not a gap between rows - the pointer has left them.
+    movePointer(OPEN_GROUND);
+
+    vi.advanceTimersByTime(HOVER_BRIDGE_SIBLING_TIMEOUT_MS);
+    expect(close).toHaveBeenCalledTimes(1);
+  });
+
+  it('closes once the pointer moves off the inert strip and out of the corridor', () => {
+    const { close } = trackOverGroup();
+
+    movePointer(BETWEEN_SIBLINGS);
+    vi.advanceTimersByTime(HOVER_BRIDGE_TIMEOUT_MS);
+    movePointer({ x: 100, y: 400 });
+
+    expect(close).toHaveBeenCalledTimes(1);
+  });
+
+  it('announces the pointer to the sibling it came to rest on once suppression lifts', () => {
+    const sibling = container.children[1] as HTMLElement;
+    const enters: Event[] = [];
+    sibling.addEventListener('pointerenter', event => enters.push(event));
+
+    trackOverGroup();
+    movePointer(OVER_SIBLING);
+    expect(document.elementFromPoint(OVER_SIBLING.x, OVER_SIBLING.y)).not.toBe(sibling);
+
+    vi.advanceTimersByTime(HOVER_BRIDGE_SIBLING_TIMEOUT_MS);
+
+    // The browser withheld the enter while the container was inert and will not
+    // re-hit-test without movement, so the sibling would never learn the
+    // pointer is sitting on it.
+    expect(enters).toHaveLength(1);
+  });
+
+  it('announces nothing to the trigger, which was hit-testable throughout', () => {
+    const enters: Event[] = [];
+    triggerElement.addEventListener('pointerenter', event => enters.push(event));
+
+    trackOverGroup();
+    movePointer({ x: 100, y: 16 });
+    vi.advanceTimersByTime(HOVER_BRIDGE_TIMEOUT_MS);
+
+    expect(enters).toHaveLength(0);
   });
 
   it('never shortens past a caller that configured a tighter timeout', () => {

@@ -626,12 +626,10 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
       // Reset instant transition for normal closes so exit animations can play.
       // When being replaced by another overlay during cooldown, hideImmediate()
       // is called instead (which doesn't come through here), and registerActive
-      // sets instantTransition to true before that call.
+      // sets instantTransition to true before that call. The `data-instant`
+      // attribute itself is dropped later, as the element switches to its exit
+      // state - see clearInstantAttribute().
       this.instantTransition.set(false);
-      // Remove data-instant attribute so CSS exit animations can play
-      for (const element of this.getElements()) {
-        element.removeAttribute('data-instant');
-      }
       this.closeTimeout = this.disposables.setTimeout(dispose, delay);
     }
   }
@@ -701,6 +699,14 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
    * @param options Optional hide configuration
    */
   hideImmediate(options?: OverlayHideImmediateOptions): void {
+    // An exit already under way owns the portal - `portal()` is nulled the
+    // moment destroyOverlay starts - so ending it is the only way an immediate
+    // hide reaches an overlay that has begun animating out. Opt-in, because a
+    // plain close still owes the caller the exit animation it asked for.
+    if (options?.skipExitAnimation) {
+      this.destroyingPortal?.finishDetach();
+    }
+
     // Cancel any pending operations
     if (this.openTimeout) {
       this.openTimeout();
@@ -1178,11 +1184,6 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
     // Deregister from the overlay registry
     this.registry.deregister(this.id());
 
-    // Unregister from active overlays
-    if (this.config.overlayType) {
-      this.cooldownManager.unregisterActive(this.config.overlayType, this);
-    }
-
     // Clear portal reference to prevent double destruction
     this.portal.set(null);
 
@@ -1204,6 +1205,15 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
     // one acted on after the await.
     const reusableContent =
       !forceDestroy && (this.config.keepMounted?.() ?? false) ? this.renderedContent : null;
+
+    // Captured up front for the same reason: `updateConfig()` can replace the
+    // config while the exit animation runs, and unregistering under a new type
+    // would leave this overlay registered under its old one forever.
+    const overlayType = this.config.overlayType;
+
+    // Synchronous with the switch to the exit state below, so the element never
+    // renders a frame in its enter state without it.
+    this.clearInstantAttribute(portal);
 
     // Detach the portal (waits for exit animations unless immediate).
     // During this await, cancelDestruction() may be called if the user
@@ -1230,10 +1240,35 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
         }
       }
 
+      // Unregister only once the overlay is really gone. An exit animation
+      // leaves it on screen for a while yet, and a same-type overlay opening in
+      // that window has to be able to replace it rather than fade in over it.
+      // Skipped when destruction was cancelled - it is live again.
+      if (overlayType) {
+        this.cooldownManager.unregisterActive(overlayType, this);
+      }
+
       this.renderedContent = null;
       this.isOpen.set(false);
       this.finalPlacement.set(undefined);
       this.instantTransition.set(false);
+    }
+  }
+
+  /**
+   * Drop `data-instant` as the element goes into its exit state, so a normal
+   * close still animates out.
+   *
+   * The timing is the whole point. Consumers opt out of instant transitions with
+   * `[data-instant][data-enter] { animation: none }`, so an element left in its
+   * enter state without the attribute matches its entrance rule again and
+   * replays that animation from its opening frame - the panel blinks out and
+   * back before it exits. Removing it here keeps that window closed: the exit
+   * state is applied synchronously by the `detach()` that follows.
+   */
+  private clearInstantAttribute(portal: NgpPortal): void {
+    for (const element of portal.getElements()) {
+      element.removeAttribute('data-instant');
     }
   }
 
@@ -1345,6 +1380,12 @@ export interface OverlayHideImmediateOptions {
    * overlay itself is being torn down (see `destroy()`), not just hidden.
    */
   forceDestroy?: boolean;
+  /**
+   * When true, end an exit animation that is already running instead of letting it play out.
+   * Used when another overlay of the same type is replacing this one during its cooldown, so
+   * the swap reads as one movement rather than a cross-fade.
+   */
+  skipExitAnimation?: boolean;
 }
 
 interface OverlayDestroyOptions extends OverlayHideImmediateOptions {

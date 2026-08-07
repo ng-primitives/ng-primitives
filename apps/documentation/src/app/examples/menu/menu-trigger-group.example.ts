@@ -17,6 +17,7 @@ import { NgpMenu, NgpMenuItem, NgpMenuTrigger, NgpMenuTriggerGroup } from 'ng-pr
           class="sidebar-item"
           [ngpMenuTrigger]="teamMenu"
           [ngpMenuTriggerOpenTriggers]="['hover']"
+          [ngpMenuTriggerCooldown]="300"
           ngpButton
           ngpMenuTriggerPlacement="right-start"
         >
@@ -27,6 +28,7 @@ import { NgpMenu, NgpMenuItem, NgpMenuTrigger, NgpMenuTriggerGroup } from 'ng-pr
           class="sidebar-item"
           [ngpMenuTrigger]="projectsMenu"
           [ngpMenuTriggerOpenTriggers]="['hover']"
+          [ngpMenuTriggerCooldown]="300"
           ngpButton
           ngpMenuTriggerPlacement="right-start"
         >
@@ -37,6 +39,7 @@ import { NgpMenu, NgpMenuItem, NgpMenuTrigger, NgpMenuTriggerGroup } from 'ng-pr
           class="sidebar-item"
           [ngpMenuTrigger]="reportsMenu"
           [ngpMenuTriggerOpenTriggers]="['hover']"
+          [ngpMenuTriggerCooldown]="300"
           ngpButton
           ngpMenuTriggerPlacement="right-start"
         >
@@ -112,7 +115,6 @@ import { NgpMenu, NgpMenuItem, NgpMenuTrigger, NgpMenuTriggerGroup } from 'ng-pr
       font-weight: 510;
       letter-spacing: -0.006em;
       color: var(--ngp-text-primary);
-      transition: background-color 150ms cubic-bezier(0.4, 0, 0.2, 1);
       outline: none;
     }
 
@@ -121,6 +123,11 @@ import { NgpMenu, NgpMenuItem, NgpMenuTrigger, NgpMenuTriggerGroup } from 'ng-pr
       --ng-icon__size: 1.125rem;
     }
 
+    /*
+     * Deliberately not transitioned: the highlight marks which menu is open, and
+     * within the cooldown that swaps in a single frame. Fading it leaves the row
+     * you came from lit underneath the menu you moved to.
+     */
     .sidebar-item[data-hover],
     .sidebar-item[data-open] {
       background-color: var(--ngp-background-hover);
@@ -156,6 +163,11 @@ import { NgpMenu, NgpMenuItem, NgpMenuTrigger, NgpMenuTriggerGroup } from 'ng-pr
 
     [ngpMenu][data-exit] {
       animation: menu-hide 0.2s ease-out;
+    }
+
+    /* Swapping menus within the cooldown is one movement, not two animations. */
+    [ngpMenu][data-instant][data-enter] {
+      animation: none;
     }
 
     [ngpMenuItem] {

@@ -4,6 +4,7 @@ import {
   createHoverBridgePolygon,
   getHoverBridgeDirection,
   HOVER_BRIDGE_DIRECTION_TOLERANCE_PX,
+  HOVER_BRIDGE_ROW_GRACE_PX,
   HOVER_BRIDGE_SIBLING_TIMEOUT_MS,
   HOVER_BRIDGE_TIMEOUT_MS,
   HoverBridgeDirection,
@@ -109,6 +110,10 @@ export function createHoverBridge({
   // and reading them back would force layout on every pointermove.
   let siblingBounds: DOMRect | null = null;
   let triggerBounds: DOMRect | null = null;
+  // Measured on first use, not with the rects above: a pointer heading straight
+  // for the panel never touches the container's own space, and these are every
+  // row the container lays out - for a submenu, every item in the parent menu.
+  let siblingItemBounds: DOMRect[] | null = null;
   let previousTriggerPointerEvents = '';
   let removePressGuards: (() => void) | undefined = undefined;
 
@@ -252,6 +257,46 @@ export function createHoverBridge({
     }
   }
 
+  /**
+   * Deliver the enter the browser withheld. Hit-testing is redone on pointer
+   * movement, not when pointer-events changes back, so a pointer that came to
+   * rest on a sibling while the container was inert is never announced to it -
+   * the overlay closes and the sibling the pointer is sitting on never opens.
+   * This is the boundary event a single pixel of movement would have produced.
+   */
+  function announcePointerToRestoredContainer(
+    container: HTMLElement,
+    point: HoverBridgePoint,
+  ): void {
+    const hit = document.elementFromPoint(point.x, point.y);
+
+    // Nothing to announce when the pointer left the container behind, or when
+    // it is over the trigger, which stayed hit-testable throughout.
+    if (!hit || !container.contains(hit) || trigger?.nativeElement.contains(hit)) {
+      return;
+    }
+
+    // pointerenter does not bubble: the browser fires it on each element from
+    // the container down to the target, and so do we.
+    const chain: Element[] = [];
+    for (let element: Element | null = hit; element; element = element.parentElement) {
+      chain.unshift(element);
+      if (element === container) {
+        break;
+      }
+    }
+
+    for (const element of chain) {
+      element.dispatchEvent(
+        new PointerEvent('pointerenter', {
+          clientX: point.x,
+          clientY: point.y,
+          pointerType: 'mouse',
+        }),
+      );
+    }
+  }
+
   function isMovingAway(point: HoverBridgePoint): boolean {
     if (!requireForwardMovement || !direction || !lastPointer) {
       return false;
@@ -262,16 +307,82 @@ export function createHoverBridge({
   }
 
   /**
+   * Half-open, the way the browser's own hit-testing treats a box: a point
+   * exactly on the right or bottom edge belongs to whatever is laid out next,
+   * not to this rect. Element edges land on fractional pixels, so a closed test
+   * disagrees with the browser about which row a resting pointer is on - and a
+   * hand-over to a row the browser has not put the pointer on closes the
+   * overlay with nothing to take its place.
+   */
+  function isWithin(rect: DOMRect | null, { x, y }: HoverBridgePoint, margin = 0): boolean {
+    return (
+      !!rect &&
+      x >= rect.left - margin &&
+      x < rect.right + margin &&
+      y >= rect.top - margin &&
+      y < rect.bottom + margin
+    );
+  }
+
+  /**
    * Whether the pointer is over one of the trigger's siblings rather than the
    * open gap. This never rejects the point - the corridor deliberately covers
    * that ground, because a diagonal approach to the panel has to cross it. It
    * only shortens how long a pointer that has *stopped* there is waited on.
    */
-  function isOverSibling({ x, y }: HoverBridgePoint): boolean {
-    const within = (rect: DOMRect | null): boolean =>
-      !!rect && x >= rect.left && x <= rect.right && y >= rect.top && y <= rect.bottom;
+  function isOverSibling(point: HoverBridgePoint): boolean {
+    return isWithin(siblingBounds, point) && !isWithin(triggerBounds, point);
+  }
 
-    return within(siblingBounds) && !within(triggerBounds);
+  /**
+   * Whether the pointer is on the few pixels of layout the container puts
+   * between its rows - the gap between two triggers, the padding around
+   * them - rather than on a row itself. A hand cannot hold a mouse inside a 4px
+   * gap, so treating that strip as "left" closes the menu and reopens it on the
+   * next drift back; a pointer resting there is still among the rows, and the
+   * menu stays as it is until a sibling takes the hover or the pointer leaves.
+   *
+   * Deliberately bounded to the rows' immediate surroundings: the empty middle
+   * of a sidebar with rows at its top and bottom is open ground, not a gap, and
+   * a pointer parked out there closes on the usual timers.
+   */
+  function isOverContainerDeadSpace(point: HoverBridgePoint): boolean {
+    if (!isOverSibling(point)) {
+      return false;
+    }
+
+    const rows = (siblingItemBounds ??= readSiblingItemBounds());
+
+    if (rows.some(rect => isWithin(rect, point))) {
+      return false;
+    }
+
+    return [triggerBounds, ...rows].some(rect => isWithin(rect, point, HOVER_BRIDGE_ROW_GRACE_PX));
+  }
+
+  /**
+   * The rows the container lays out around this trigger. Read from the
+   * trigger's own DOM siblings rather than the container's descendants: what
+   * counts as occupied space is whatever shares the trigger's row box - a
+   * sibling trigger, a plain menu item, a wrapper around either. Called at most
+   * once per corridor, the first time the pointer is over the container.
+   *
+   * Deliberately does not consult `siblingContainer()`: the caller has already
+   * placed the pointer inside the container the corridor captured, and re-asking
+   * the live accessor would return null - and drop the rows - if tracking were
+   * switched off mid-corridor, while every other rect stayed as captured.
+   */
+  function readSiblingItemBounds(): DOMRect[] {
+    const self = trigger?.nativeElement;
+    const parent = self?.parentElement;
+
+    if (!self || !parent) {
+      return [];
+    }
+
+    return Array.from(parent.children)
+      .filter(child => child !== self)
+      .map(child => child.getBoundingClientRect());
   }
 
   /** (Re)start the idle timer - reset on valid movement so it only fires when idle. */
@@ -285,15 +396,30 @@ export function createHoverBridge({
         return;
       }
 
+      // A pointer resting on the container's inert space hasn't gone anywhere.
+      // The corridor stays live with no timer pending: only movement can change
+      // where the pointer is, and movement reschedules this.
+      if (lastPointer && isOverContainerDeadSpace(lastPointer)) {
+        return;
+      }
+
       // Always tear the corridor down, whether or not the overlay should close
       // with it. Leaving it live because the pointer happens to be in the safe
       // area would strand the container suppressed with no timer pending and
       // nothing but a future pointermove to rescue it.
       const shouldClose = !isPointerInAnchor();
+      // Where the pointer came to rest. Only sound on this path: the timer
+      // fires precisely because nothing has moved since.
+      const restingPoint = lastPointer;
+      const restoredContainer = suppressedElement;
       clear();
 
       if (shouldClose) {
         close();
+      }
+
+      if (restingPoint && restoredContainer) {
+        announcePointerToRestoredContainer(restoredContainer, restingPoint);
       }
     }, delay);
   }
@@ -313,11 +439,17 @@ export function createHoverBridge({
         }
 
         const point: HoverBridgePoint = { x: event.clientX, y: event.clientY };
-        const inside = isPointInHoverBridgePolygon(point, polygon()!);
         const away = isMovingAway(point);
         lastPointer = point;
 
-        if (!inside || away) {
+        // The corridor's geometry doesn't apply over the container's inert
+        // space: the pointer is parked among the rows, so the corridor just
+        // keeps watching for it to leave.
+        if (isOverContainerDeadSpace(point)) {
+          return;
+        }
+
+        if (!isPointInHoverBridgePolygon(point, polygon()!) || away) {
           clear();
           close();
           return;
@@ -352,6 +484,7 @@ export function createHoverBridge({
     lastPointer = exitPoint;
     siblingBounds = siblingContainer?.()?.getBoundingClientRect() ?? null;
     triggerBounds = trigger?.nativeElement.getBoundingClientRect() ?? null;
+    siblingItemBounds = null;
     registerPointerMoveListener();
     // Deliberately the full window, whatever the exit point sits over: the gap
     // between two stacked triggers belongs to the container, so leaving one and
@@ -368,6 +501,7 @@ export function createHoverBridge({
     lastPointer = null;
     siblingBounds = null;
     triggerBounds = null;
+    siblingItemBounds = null;
     clearTimeout(fallbackTimeoutId);
     fallbackTimeoutId = undefined;
     removePointerMoveListener?.();

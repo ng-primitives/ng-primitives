@@ -210,4 +210,35 @@ describe('setupExitAnimation', () => {
     expect(element).toHaveAttribute('data-enter');
     expect(element).not.toHaveAttribute('data-exit');
   });
+
+  it('finish() ends a pending exit without returning to the enter state', async () => {
+    const element = document.createElement('div');
+    const finished: string[] = [];
+    const { animation } = finiteAnimation();
+    (animation as unknown as { finish: () => void }).finish = () => finished.push('animation');
+    element.getAnimations = () => [animation];
+
+    const ref = setupExitAnimation({ element, immediate: true });
+    const exit = ref.exit();
+
+    ref.finish();
+
+    // The element is on its way out, so it jumps to the animation's end state
+    // rather than snapping back to how it looked before the exit began.
+    await expect(exit).resolves.toBeUndefined();
+    expect(finished).toEqual(['animation']);
+    expect(element).toHaveAttribute('data-exit');
+    expect(element).not.toHaveAttribute('data-enter');
+  });
+
+  it('finish() does nothing when no exit is in progress', async () => {
+    const element = document.createElement('div');
+    element.getAnimations = () => [];
+
+    const ref = setupExitAnimation({ element, immediate: true });
+    ref.finish();
+
+    expect(element).toHaveAttribute('data-enter');
+    expect(element).not.toHaveAttribute('data-exit');
+  });
 });

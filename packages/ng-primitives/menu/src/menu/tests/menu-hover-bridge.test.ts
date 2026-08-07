@@ -1,6 +1,6 @@
 import { Component, TemplateRef, viewChild } from '@angular/core';
 import { fireEvent, render, waitFor } from '@testing-library/angular';
-import { HOVER_BRIDGE_SIBLING_TIMEOUT_MS } from 'ng-primitives/internal';
+import { HOVER_BRIDGE_SIBLING_TIMEOUT_MS, HOVER_BRIDGE_TIMEOUT_MS } from 'ng-primitives/internal';
 import { NgpMenu, NgpMenuItem, NgpMenuTrigger, NgpSubmenuTrigger } from 'ng-primitives/menu';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
@@ -418,5 +418,40 @@ describe('NgpMenuTrigger safe-polygon hover bridge', () => {
     await vi.advanceTimersByTimeAsync(0);
 
     expect(document.querySelector('[data-testid="submenu"]')).toBeInTheDocument();
+  });
+
+  /**
+   * The panel lays its rows out with padding around them, so a submenu's
+   * corridor has to tell the strip beside a row apart from the open panel
+   * beyond it. Placing the sibling row explicitly is what makes "beside" and
+   * "well clear of" mean something in these coordinates.
+   */
+  function placeSiblingRow(): void {
+    const siblingRow = document.querySelector('[data-testid="item-1"]') as HTMLElement;
+    vi.spyOn(siblingRow, 'getBoundingClientRect').mockReturnValue(new DOMRect(0, 32, 200, 40));
+  }
+
+  it('keeps the submenu open while the pointer rests on the padding beside a row', async () => {
+    await leaveSubmenuTriggerDownward();
+    placeSiblingRow();
+
+    // The panel's own padding under the last row: inert space the pointer is
+    // resting on, not a sibling waiting to take the hover over.
+    fireEvent.pointerMove(document, { clientX: 140, clientY: 76 });
+
+    await vi.advanceTimersByTimeAsync(HOVER_BRIDGE_TIMEOUT_MS * 4);
+    expect(document.querySelector('[data-testid="submenu"]')).toBeInTheDocument();
+  });
+
+  it('closes once the pointer parks on the panel well clear of its rows', async () => {
+    await leaveSubmenuTriggerDownward();
+    placeSiblingRow();
+
+    // Far enough past the rows to be open ground rather than the gap between
+    // them - the grace around a row is a few pixels, not the whole container.
+    fireEvent.pointerMove(document, { clientX: 140, clientY: 110 });
+
+    await vi.advanceTimersByTimeAsync(HOVER_BRIDGE_TIMEOUT_MS);
+    expect(document.querySelector('[data-testid="submenu"]')).not.toBeInTheDocument();
   });
 });

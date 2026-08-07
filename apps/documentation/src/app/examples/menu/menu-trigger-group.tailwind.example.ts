@@ -21,9 +21,10 @@ import { NgpMenu, NgpMenuItem, NgpMenuTrigger, NgpMenuTriggerGroup } from 'ng-pr
 
       <div class="flex flex-col gap-1 px-2 pb-2">
         <button
-          class="flex h-[2.125rem] cursor-pointer items-center gap-2.5 rounded-lg border-none bg-transparent px-2.5 text-left text-sm font-[510] tracking-[-0.006em] text-gray-900 outline-hidden transition-colors hover:bg-gray-100 focus-visible:shadow-[0_0_0_2px_var(--ngp-focus-ring)] active:bg-gray-200 data-open:bg-gray-100 dark:text-gray-100 dark:hover:bg-white/10 dark:active:bg-white/20 dark:data-open:bg-white/10"
+          class="flex h-[2.125rem] cursor-pointer items-center gap-2.5 rounded-lg border-none bg-transparent px-2.5 text-left text-sm font-[510] tracking-[-0.006em] text-gray-900 outline-hidden hover:bg-gray-100 focus-visible:shadow-[0_0_0_2px_var(--ngp-focus-ring)] active:bg-gray-200 data-open:bg-gray-100 dark:text-gray-100 dark:hover:bg-white/10 dark:active:bg-white/20 dark:data-open:bg-white/10"
           [ngpMenuTrigger]="teamMenu"
           [ngpMenuTriggerOpenTriggers]="['hover']"
+          [ngpMenuTriggerCooldown]="300"
           ngpButton
           ngpMenuTriggerPlacement="right-start"
         >
@@ -35,9 +36,10 @@ import { NgpMenu, NgpMenuItem, NgpMenuTrigger, NgpMenuTriggerGroup } from 'ng-pr
           Team
         </button>
         <button
-          class="flex h-[2.125rem] cursor-pointer items-center gap-2.5 rounded-lg border-none bg-transparent px-2.5 text-left text-sm font-[510] tracking-[-0.006em] text-gray-900 outline-hidden transition-colors hover:bg-gray-100 focus-visible:shadow-[0_0_0_2px_var(--ngp-focus-ring)] active:bg-gray-200 data-open:bg-gray-100 dark:text-gray-100 dark:hover:bg-white/10 dark:active:bg-white/20 dark:data-open:bg-white/10"
+          class="flex h-[2.125rem] cursor-pointer items-center gap-2.5 rounded-lg border-none bg-transparent px-2.5 text-left text-sm font-[510] tracking-[-0.006em] text-gray-900 outline-hidden hover:bg-gray-100 focus-visible:shadow-[0_0_0_2px_var(--ngp-focus-ring)] active:bg-gray-200 data-open:bg-gray-100 dark:text-gray-100 dark:hover:bg-white/10 dark:active:bg-white/20 dark:data-open:bg-white/10"
           [ngpMenuTrigger]="projectsMenu"
           [ngpMenuTriggerOpenTriggers]="['hover']"
+          [ngpMenuTriggerCooldown]="300"
           ngpButton
           ngpMenuTriggerPlacement="right-start"
         >
@@ -49,9 +51,10 @@ import { NgpMenu, NgpMenuItem, NgpMenuTrigger, NgpMenuTriggerGroup } from 'ng-pr
           Projects
         </button>
         <button
-          class="flex h-[2.125rem] cursor-pointer items-center gap-2.5 rounded-lg border-none bg-transparent px-2.5 text-left text-sm font-[510] tracking-[-0.006em] text-gray-900 outline-hidden transition-colors hover:bg-gray-100 focus-visible:shadow-[0_0_0_2px_var(--ngp-focus-ring)] active:bg-gray-200 data-open:bg-gray-100 dark:text-gray-100 dark:hover:bg-white/10 dark:active:bg-white/20 dark:data-open:bg-white/10"
+          class="flex h-[2.125rem] cursor-pointer items-center gap-2.5 rounded-lg border-none bg-transparent px-2.5 text-left text-sm font-[510] tracking-[-0.006em] text-gray-900 outline-hidden hover:bg-gray-100 focus-visible:shadow-[0_0_0_2px_var(--ngp-focus-ring)] active:bg-gray-200 data-open:bg-gray-100 dark:text-gray-100 dark:hover:bg-white/10 dark:active:bg-white/20 dark:data-open:bg-white/10"
           [ngpMenuTrigger]="reportsMenu"
           [ngpMenuTriggerOpenTriggers]="['hover']"
+          [ngpMenuTriggerCooldown]="300"
           ngpButton
           ngpMenuTriggerPlacement="right-start"
         >
@@ -67,7 +70,7 @@ import { NgpMenu, NgpMenuItem, NgpMenuTrigger, NgpMenuTriggerGroup } from 'ng-pr
 
     <ng-template #teamMenu>
       <div
-        class="animate-in fade-in-0 zoom-in-95 fixed flex w-max origin-(--ngp-menu-transform-origin) flex-col rounded-[0.625rem] border border-gray-200 bg-white p-1 shadow-lg outline-none dark:border-zinc-800 dark:bg-zinc-950"
+        class="animate-in fade-in-0 zoom-in-95 fixed flex w-max origin-(--ngp-menu-transform-origin) flex-col rounded-[0.625rem] border border-gray-200 bg-white p-1 shadow-lg outline-none data-instant:data-enter:animate-none dark:border-zinc-800 dark:bg-zinc-950"
         ngpMenu
       >
         <button
@@ -93,7 +96,7 @@ import { NgpMenu, NgpMenuItem, NgpMenuTrigger, NgpMenuTriggerGroup } from 'ng-pr
 
     <ng-template #projectsMenu>
       <div
-        class="animate-in fade-in-0 zoom-in-95 fixed flex w-max origin-(--ngp-menu-transform-origin) flex-col rounded-[0.625rem] border border-gray-200 bg-white p-1 shadow-lg outline-none dark:border-zinc-800 dark:bg-zinc-950"
+        class="animate-in fade-in-0 zoom-in-95 fixed flex w-max origin-(--ngp-menu-transform-origin) flex-col rounded-[0.625rem] border border-gray-200 bg-white p-1 shadow-lg outline-none data-instant:data-enter:animate-none dark:border-zinc-800 dark:bg-zinc-950"
         ngpMenu
       >
         <button
@@ -119,7 +122,7 @@ import { NgpMenu, NgpMenuItem, NgpMenuTrigger, NgpMenuTriggerGroup } from 'ng-pr
 
     <ng-template #reportsMenu>
       <div
-        class="animate-in fade-in-0 zoom-in-95 fixed flex w-max origin-(--ngp-menu-transform-origin) flex-col rounded-[0.625rem] border border-gray-200 bg-white p-1 shadow-lg outline-none dark:border-zinc-800 dark:bg-zinc-950"
+        class="animate-in fade-in-0 zoom-in-95 fixed flex w-max origin-(--ngp-menu-transform-origin) flex-col rounded-[0.625rem] border border-gray-200 bg-white p-1 shadow-lg outline-none data-instant:data-enter:animate-none dark:border-zinc-800 dark:bg-zinc-950"
         ngpMenu
       >
         <button

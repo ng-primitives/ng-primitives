@@ -152,6 +152,67 @@ class UntrackedRootTriggersComponent {
   readonly menuB = viewChild<TemplateRef<unknown>>('menuB');
 }
 
+/**
+ * The docs sidebar's shape: the triggers sit in a padded row wrapper inside the
+ * group, separated by a 4px gap - the inert space a hand inevitably drifts
+ * across when moving between two items.
+ */
+@Component({
+  template: `
+    <nav
+      ngpMenuTriggerGroup
+      data-testid="trigger-group"
+      style="display: flex; flex-direction: column; width: 120px; position: relative;"
+    >
+      <div data-testid="header" style="height: 20px;">Workspace</div>
+      <div style="display: flex; flex-direction: column; gap: 4px; padding: 0 8px 8px;">
+        <button
+          [ngpMenuTrigger]="menuA"
+          [ngpMenuTriggerOpenTriggers]="['hover']"
+          [ngpMenuTriggerPlacement]="'right-start'"
+          data-testid="trigger-a"
+          style="height: 32px; padding: 0; margin: 0;"
+        >
+          Trigger A
+        </button>
+        <button
+          [ngpMenuTrigger]="menuB"
+          [ngpMenuTriggerOpenTriggers]="['hover']"
+          [ngpMenuTriggerPlacement]="'right-start'"
+          data-testid="trigger-b"
+          style="height: 32px; padding: 0; margin: 0;"
+        >
+          Trigger B
+        </button>
+      </div>
+      <!-- Rows pinned to the bottom of the rail leave open ground in between. -->
+      <div data-testid="spacer" style="height: 200px;"></div>
+      <div style="padding: 0 8px 8px;">
+        <button data-testid="settings" style="height: 32px; padding: 0; margin: 0;">
+          Settings
+        </button>
+      </div>
+    </nav>
+
+    <ng-template #menuA>
+      <div ngpMenu data-testid="menu-a" style="width: 140px; height: 80px;">
+        <button ngpMenuItem data-testid="menu-a-item-1">A Item 1</button>
+      </div>
+    </ng-template>
+
+    <ng-template #menuB>
+      <div ngpMenu data-testid="menu-b" style="width: 140px; height: 80px;">
+        <button ngpMenuItem data-testid="menu-b-item-1">B Item 1</button>
+      </div>
+    </ng-template>
+  `,
+  imports: [NgpMenuTrigger, NgpMenu, NgpMenuItem, NgpMenuTriggerGroup],
+})
+class GappedRootTriggersComponent {
+  readonly menuA = viewChild<TemplateRef<unknown>>('menuA');
+  readonly menuB = viewChild<TemplateRef<unknown>>('menuB');
+}
+
 describe('NgpMenuTriggerGroup sibling suppression - real layout, real pointer movement', () => {
   afterEach(() => {
     document.querySelectorAll('[data-overlay]').forEach(el => el.remove());
@@ -411,5 +472,145 @@ describe('NgpMenuTriggerGroup sibling suppression - real layout, real pointer mo
     await waitFor(() =>
       expect(document.querySelector('[data-testid="menu-b"]')).toBeInTheDocument(),
     );
+  });
+
+  describe('inert space between siblings', () => {
+    async function openTriggerB(): Promise<{ gap: { x: number; y: number }; onB: DOMRect }> {
+      await render(GappedRootTriggersComponent);
+      const triggerA = document.querySelector('[data-testid="trigger-a"]') as HTMLElement;
+      const triggerB = document.querySelector('[data-testid="trigger-b"]') as HTMLElement;
+
+      // Item 1, then item 2, as a pointer travelling down the nav does.
+      await userEvent.pointer({ target: triggerA, coords: { x: 10, y: 16 } });
+      await waitFor(() =>
+        expect(document.querySelector('[data-testid="menu-a"]')).toBeInTheDocument(),
+      );
+      await userEvent.pointer({ target: triggerB, coords: { x: 10, y: 16 } });
+      await waitFor(() =>
+        expect(document.querySelector('[data-testid="menu-b"]')).toBeInTheDocument(),
+      );
+
+      const rectA = triggerA.getBoundingClientRect();
+      const rectB = triggerB.getBoundingClientRect();
+
+      return {
+        gap: { x: rectB.left + 10, y: (rectA.bottom + rectB.top) / 2 },
+        onB: rectB,
+      };
+    }
+
+    it('keeps the menu open while the pointer rests in the gap between two siblings', async () => {
+      const { gap } = await openTriggerB();
+      const triggerB = document.querySelector('[data-testid="trigger-b"]') as HTMLElement;
+
+      leavePointerAt(triggerB, gap);
+      movePointerTo(gap);
+
+      // The gap is inert layout space inside the group, not the way out: a
+      // pointer resting there is still in the nav, so the menu it just opened
+      // must stay put rather than close and reopen as the hand drifts.
+      await new Promise(resolve => setTimeout(resolve, 400));
+
+      expect(document.querySelector('[data-testid="menu-b"]')).toBeInTheDocument();
+    });
+
+    it('does not flicker as the pointer drifts across the gap boundary', async () => {
+      const { gap, onB } = await openTriggerB();
+      const triggerB = document.querySelector('[data-testid="trigger-b"]') as HTMLElement;
+
+      let closures = 0;
+      for (let i = 0; i < 6; i++) {
+        leavePointerAt(triggerB, gap);
+        movePointerTo(gap);
+        await new Promise(resolve => setTimeout(resolve, 120));
+        if (!document.querySelector('[data-testid="menu-b"]')) {
+          closures++;
+        }
+
+        movePointerTo({ x: onB.left + 10, y: onB.top + 16 });
+        await new Promise(resolve => setTimeout(resolve, 120));
+      }
+
+      expect(closures).toBe(0);
+    });
+
+    it('closes when the pointer parks on the rail well below the items', async () => {
+      const { gap } = await openTriggerB();
+      const triggerB = document.querySelector('[data-testid="trigger-b"]') as HTMLElement;
+      const spacer = document.querySelector('[data-testid="spacer"]') as HTMLElement;
+      const rectSpacer = spacer.getBoundingClientRect();
+      const openGround = { x: gap.x, y: rectSpacer.top + rectSpacer.height / 2 };
+
+      leavePointerAt(triggerB, openGround);
+      movePointerTo(openGround);
+
+      // Sparing the gap between two items must not spare the whole rail: a
+      // sidebar with items top and bottom is mostly empty space, and a pointer
+      // parked out there has left the items behind.
+      await waitFor(() =>
+        expect(document.querySelector('[data-testid="menu-b"]')).not.toBeInTheDocument(),
+      );
+    });
+
+    it('opens the sibling the pointer came to rest on while the corridor held it inert', async () => {
+      await openTriggerB();
+      const triggerA = document.querySelector('[data-testid="trigger-a"]') as HTMLElement;
+      const triggerB = document.querySelector('[data-testid="trigger-b"]') as HTMLElement;
+      const rectA = triggerA.getBoundingClientRect();
+      const onA = { x: rectA.left + 20, y: rectA.bottom - 2 };
+
+      // The corridor makes trigger-a inert before the pointer arrives, so the
+      // browser withholds its enter entirely - and it re-hit-tests on movement,
+      // not when pointer-events changes back. Nothing would ever tell trigger-a
+      // the pointer is sitting on it, leaving the group with nothing open.
+      leavePointerAt(triggerB, onA);
+      movePointerTo(onA);
+      expect(document.elementFromPoint(onA.x, onA.y)).not.toBe(triggerA);
+
+      await waitFor(() =>
+        expect(document.querySelector('[data-testid="menu-a"]')).toBeInTheDocument(),
+      );
+    });
+
+    it('announces nothing when the corridor ends with the pointer outside the group', async () => {
+      const { onB } = await openTriggerB();
+      const triggerB = document.querySelector('[data-testid="trigger-b"]') as HTMLElement;
+      const farPoint = { x: onB.left, y: onB.bottom + 400 };
+
+      leavePointerAt(triggerB, farPoint);
+      movePointerTo(farPoint);
+
+      await waitFor(() =>
+        expect(document.querySelector('[data-testid="menu-b"]')).not.toBeInTheDocument(),
+      );
+
+      // Restoring the container must not hand a hover to a trigger the pointer
+      // is nowhere near.
+      await new Promise(resolve => setTimeout(resolve, 200));
+      expect(document.querySelector('[ngpmenu]')).toBeNull();
+    });
+
+    it('still hands the hover over when the pointer settles on the sibling itself', async () => {
+      await render(GappedRootTriggersComponent);
+      const triggerA = document.querySelector('[data-testid="trigger-a"]') as HTMLElement;
+      const triggerB = document.querySelector('[data-testid="trigger-b"]') as HTMLElement;
+
+      await userEvent.pointer({ target: triggerA, coords: { x: 10, y: 16 } });
+      await waitFor(() =>
+        expect(document.querySelector('[data-testid="menu-a"]')).toBeInTheDocument(),
+      );
+
+      const rectB = triggerB.getBoundingClientRect();
+      const ontoB = { clientX: rectB.left + 50, clientY: rectB.top + 16, pointerType: 'mouse' };
+
+      // Sparing the gap must not spare the sibling row: a pointer that has
+      // genuinely landed on trigger-b still gets trigger-b's menu.
+      fireEvent.pointerLeave(triggerA, ontoB);
+      fireEvent.pointerEnter(triggerB, ontoB);
+
+      await waitFor(() =>
+        expect(document.querySelector('[data-testid="menu-b"]')).toBeInTheDocument(),
+      );
+    });
   });
 });

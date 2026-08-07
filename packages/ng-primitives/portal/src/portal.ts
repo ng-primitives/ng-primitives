@@ -80,6 +80,18 @@ export abstract class NgpPortal {
   abstract cancelDetach(): void;
 
   /**
+   * End an in-progress detach now, skipping the rest of any exit animation, so
+   * the pending `detach()` resolves and tears the view down.
+   *
+   * Concrete rather than abstract: `NgpPortal` is exported, so an abstract
+   * member added here would stop any subclass outside this repo compiling.
+   * Doing nothing is the honest default for a portal that doesn't animate.
+   */
+  finishDetach(): void {
+    // no-op
+  }
+
+  /**
    * Re-insert a previously detached-but-kept-mounted portal's root nodes into a container.
    * Only valid after a `detach({ keepMounted: true })` call that left the underlying view alive.
    * @param container The DOM element to reattach the portal to.
@@ -173,6 +185,15 @@ export class NgpComponentPortal<T> extends NgpPortal {
       this.detachCancelled = true;
       this.exitAnimationRef?.cancel();
       this.isDestroying = false;
+    }
+  }
+
+  /**
+   * End an in-progress detach now, skipping the rest of any exit animation.
+   */
+  override finishDetach(): void {
+    if (this.isDestroying) {
+      this.exitAnimationRef?.finish();
     }
   }
 
@@ -311,6 +332,17 @@ export class NgpTemplatePortal<T> extends NgpPortal {
         ref.cancel();
       }
       this.isDestroying = false;
+    }
+  }
+
+  /**
+   * End an in-progress detach now, skipping the rest of any exit animation.
+   */
+  override finishDetach(): void {
+    if (this.isDestroying) {
+      for (const ref of this.exitAnimationRefs) {
+        ref.finish();
+      }
     }
   }
 
