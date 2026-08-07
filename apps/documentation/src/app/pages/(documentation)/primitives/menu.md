@@ -351,11 +351,12 @@ The `ngpMenu` will also add the `data-enter` and `data-exit` attributes to the e
 When using the `cooldown` option to allow quick switching between menus, the `data-instant` attribute is applied. Use this to skip animations for instant transitions:
 
 ```css
-:host[data-instant][data-enter],
-:host[data-instant][data-exit] {
+:host[data-instant][data-enter] {
   animation: none;
 }
 ```
+
+`data-instant` comes off as the menu switches to its exit state, so the rule only ever needs the enter state - the exit animation is never suppressed by it.
 
 ## Global Configuration
 

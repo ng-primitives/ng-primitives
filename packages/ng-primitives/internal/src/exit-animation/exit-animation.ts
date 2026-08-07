@@ -186,8 +186,16 @@ export function setupExitAnimation({
       // waited on them in the first place.
       const animations = canAnimate ? element.getAnimations() : [];
       for (const animation of animations) {
-        if (!isInfinite(animation)) {
+        if (isInfinite(animation)) {
+          continue;
+        }
+        try {
           animation.finish();
+        } catch {
+          // `finish()` also throws on a paused-at-rate-zero animation, which
+          // nothing here creates but a consumer can. Resolving the exit matters
+          // more than the frame it ends on - throwing past the resolve below
+          // would strand the detach this exists to unstick.
         }
       }
 

@@ -70,7 +70,7 @@ import { NgpMenu, NgpMenuItem, NgpMenuTrigger, NgpMenuTriggerGroup } from 'ng-pr
 
     <ng-template #teamMenu>
       <div
-        class="animate-in fade-in-0 zoom-in-95 fixed flex w-max origin-(--ngp-menu-transform-origin) flex-col rounded-[0.625rem] border border-gray-200 bg-white p-1 shadow-lg outline-none data-instant:data-enter:animate-none data-instant:data-exit:animate-none dark:border-zinc-800 dark:bg-zinc-950"
+        class="animate-in fade-in-0 zoom-in-95 fixed flex w-max origin-(--ngp-menu-transform-origin) flex-col rounded-[0.625rem] border border-gray-200 bg-white p-1 shadow-lg outline-none data-instant:data-enter:animate-none dark:border-zinc-800 dark:bg-zinc-950"
         ngpMenu
       >
         <button
@@ -96,7 +96,7 @@ import { NgpMenu, NgpMenuItem, NgpMenuTrigger, NgpMenuTriggerGroup } from 'ng-pr
 
     <ng-template #projectsMenu>
       <div
-        class="animate-in fade-in-0 zoom-in-95 fixed flex w-max origin-(--ngp-menu-transform-origin) flex-col rounded-[0.625rem] border border-gray-200 bg-white p-1 shadow-lg outline-none data-instant:data-enter:animate-none data-instant:data-exit:animate-none dark:border-zinc-800 dark:bg-zinc-950"
+        class="animate-in fade-in-0 zoom-in-95 fixed flex w-max origin-(--ngp-menu-transform-origin) flex-col rounded-[0.625rem] border border-gray-200 bg-white p-1 shadow-lg outline-none data-instant:data-enter:animate-none dark:border-zinc-800 dark:bg-zinc-950"
         ngpMenu
       >
         <button
@@ -122,7 +122,7 @@ import { NgpMenu, NgpMenuItem, NgpMenuTrigger, NgpMenuTriggerGroup } from 'ng-pr
 
     <ng-template #reportsMenu>
       <div
-        class="animate-in fade-in-0 zoom-in-95 fixed flex w-max origin-(--ngp-menu-transform-origin) flex-col rounded-[0.625rem] border border-gray-200 bg-white p-1 shadow-lg outline-none data-instant:data-enter:animate-none data-instant:data-exit:animate-none dark:border-zinc-800 dark:bg-zinc-950"
+        class="animate-in fade-in-0 zoom-in-95 fixed flex w-max origin-(--ngp-menu-transform-origin) flex-col rounded-[0.625rem] border border-gray-200 bg-white p-1 shadow-lg outline-none data-instant:data-enter:animate-none dark:border-zinc-800 dark:bg-zinc-950"
         ngpMenu
       >
         <button

@@ -366,12 +366,17 @@ export function createHoverBridge({
    * counts as occupied space is whatever shares the trigger's row box - a
    * sibling trigger, a plain menu item, a wrapper around either. Called at most
    * once per corridor, the first time the pointer is over the container.
+   *
+   * Deliberately does not consult `siblingContainer()`: the caller has already
+   * placed the pointer inside the container the corridor captured, and re-asking
+   * the live accessor would return null - and drop the rows - if tracking were
+   * switched off mid-corridor, while every other rect stayed as captured.
    */
   function readSiblingItemBounds(): DOMRect[] {
     const self = trigger?.nativeElement;
     const parent = self?.parentElement;
 
-    if (!self || !parent || !siblingContainer?.()) {
+    if (!self || !parent) {
       return [];
     }
 
