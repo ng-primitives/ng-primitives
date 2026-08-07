@@ -149,8 +149,7 @@ export class NgpDialogManager implements OnDestroy {
       context,
     );
 
-    // Attach the portal to document.body
-    portal.attach(this.document.body);
+    portal.attach(this.resolveContainer(config.container));
 
     // Store the portal reference on the dialog ref for element access and cleanup
     dialogRef.portal = portal;
@@ -347,25 +346,76 @@ export class NgpDialogManager implements OnDestroy {
   }
 
   /**
+   * Resolve the container element the dialog should be rendered into.
+   */
+  private resolveContainer(container: NgpDialogConfig['container']): HTMLElement {
+    if (!container) {
+      return this.document.body;
+    }
+
+    if (typeof container === 'string') {
+      const element = this.document.querySelector<HTMLElement>(container);
+
+      if (!element) {
+        console.warn(
+          `NgPrimitives: Container element with selector "${container}" not found. Falling back to document.body.`,
+        );
+        return this.document.body;
+      }
+
+      return element;
+    }
+
+    return container;
+  }
+
+  /**
    * Hides all of the content that isn't a dialog portal from assistive technology.
    */
   private hideNonDialogContentFromAssistiveTechnology(portalElements: HTMLElement[]) {
     const body = this.document.body;
-    const bodyChildren = body.children;
 
-    for (let i = bodyChildren.length - 1; i > -1; i--) {
-      const sibling = bodyChildren[i];
+    // Walk from each portal element up to the body, hiding the siblings at every level. Hiding
+    // only the body children would hide the dialog itself when it renders into a nested container.
+    for (const portalElement of portalElements) {
+      // A portal's root nodes can include comments (an `<ng-container>` root), so anchor the walk
+      // on the nearest element.
+      let current: Element | null =
+        portalElement instanceof Element ? portalElement : (portalElement as Node).parentElement;
 
-      if (
-        !portalElements.includes(sibling as HTMLElement) &&
-        sibling.nodeName !== 'SCRIPT' &&
-        sibling.nodeName !== 'STYLE' &&
-        !sibling.hasAttribute('aria-live')
-      ) {
-        this.ariaHiddenElements.set(sibling, sibling.getAttribute('aria-hidden'));
-        sibling.setAttribute('aria-hidden', 'true');
+      while (current && current !== body) {
+        const parent: Element | null = current.parentElement;
+
+        if (!parent) {
+          break;
+        }
+
+        for (const sibling of Array.from(parent.children)) {
+          if (sibling !== current && !portalElements.includes(sibling as HTMLElement)) {
+            this.hideFromAssistiveTechnology(sibling);
+          }
+        }
+
+        current = parent;
       }
     }
+  }
+
+  /**
+   * Hide a single element from assistive technology, remembering its previous value.
+   */
+  private hideFromAssistiveTechnology(element: Element): void {
+    if (
+      this.ariaHiddenElements.has(element) ||
+      element.nodeName === 'SCRIPT' ||
+      element.nodeName === 'STYLE' ||
+      element.hasAttribute('aria-live')
+    ) {
+      return;
+    }
+
+    this.ariaHiddenElements.set(element, element.getAttribute('aria-hidden'));
+    element.setAttribute('aria-hidden', 'true');
   }
 
   private getAfterAllClosed(): Subject<void> {

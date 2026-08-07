@@ -1,4 +1,4 @@
-export { NgpDialogConfig, provideDialogConfig } from './config/dialog-config';
+export { NgpDialogConfig, injectDialogConfig, provideDialogConfig } from './config/dialog-config';
 export { NgpDialogDescription } from './dialog-description/dialog-description';
 export { NgpDialogOverlay } from './dialog-overlay/dialog-overlay';
 export { NgpDialogTitle } from './dialog-title/dialog-title';

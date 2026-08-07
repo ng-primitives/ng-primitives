@@ -41,6 +41,14 @@ export class NgpDialogTrigger<T = unknown> {
     },
   );
 
+  /**
+   * The container element or selector the dialog should be rendered into.
+   * @default 'body'
+   */
+  readonly container = input<HTMLElement | string | null>(this.config.container ?? 'body', {
+    alias: 'ngpDialogTriggerContainer',
+  });
+
   /** Emits whenever the dialog is closed with the given result. */
   readonly closed = output<T>({ alias: 'ngpDialogTriggerClosed' });
 
@@ -48,6 +56,7 @@ export class NgpDialogTrigger<T = unknown> {
     template: this.template,
     closeOnEscape: this.closeOnEscape,
     closeOnOutsideClick: this.closeOnOutsideClick,
+    container: this.container,
     onClosedChange: (value: T) => this.closed.emit(value),
   });
 }

@@ -202,6 +202,34 @@ Reference returned by `NgpDialogManager.open()`. Provides methods to interact wi
   Updates the position of the dialog. Currently a no-op as dialogs are CSS-centered.
 </prop-details>
 
+## Global Configuration
+
+You can configure the default options for all dialogs in your application by using the `provideDialogConfig` function in a providers array.
+
+```ts
+import { provideDialogConfig } from 'ng-primitives/dialog';
+
+bootstrapApplication(AppComponent, {
+  providers: [
+    provideDialogConfig({
+      container: '#app-root',
+      role: 'dialog',
+      modal: true,
+    }),
+  ],
+});
+```
+
+By default dialogs render into `document.body`. The `container` option accepts an element or a
+selector, which is useful when the dialog must live inside a specific subtree — for example a
+shadow-DOM host, a micro-frontend root, or an element carrying your theme class. It can be
+overridden per dialog through `NgpDialogTrigger`'s `ngpDialogTriggerContainer` input, or through the
+`container` option passed to `NgpDialogManager.open()`.
+
+### NgpDialogConfig
+
+<api-reference-config name="NgpDialogConfig"></api-reference-config>
+
 ## Accessibility
 
 Adheres to the [WAI-ARIA design pattern](https://www.w3.org/WAI/ARIA/apg/patterns/dialog-modal/examples/dialog/).
