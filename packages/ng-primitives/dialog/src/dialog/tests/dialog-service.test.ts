@@ -213,20 +213,32 @@ describe('NgpDialogManager router integration', () => {
 
 describe('NgpDialogManager container', () => {
   let container: HTMLElement;
+  let siblingContainer: HTMLElement;
   let sibling: HTMLElement;
+  let liveRegion: HTMLElement;
 
   beforeEach(() => {
     container = document.createElement('div');
     container.id = 'ngp-dialog-container';
     document.body.appendChild(container);
 
+    siblingContainer = document.createElement('div');
+    document.body.appendChild(siblingContainer);
+
     sibling = document.createElement('div');
     document.body.appendChild(sibling);
+
+    liveRegion = document.createElement('div');
+    liveRegion.setAttribute('aria-live', 'polite');
+    document.body.appendChild(liveRegion);
   });
 
   afterEach(() => {
+    vi.restoreAllMocks();
     container.remove();
+    siblingContainer.remove();
     sibling.remove();
+    liveRegion.remove();
   });
 
   it('should render the dialog in the body by default', () => {
@@ -262,7 +274,14 @@ describe('NgpDialogManager container', () => {
     expect(warn).toHaveBeenCalled();
 
     ref.close();
-    warn.mockRestore();
+  });
+
+  it('should render the dialog in the body when the container is null', () => {
+    const dialog = TestBed.inject(NgpDialogManager);
+    const ref = dialog.open(TestDialog, { container: null });
+
+    expect(container.textContent).not.toContain('Test');
+    ref.close();
   });
 
   it('should render the dialog in the container from the global configuration', () => {
@@ -287,5 +306,38 @@ describe('NgpDialogManager container', () => {
     ref.close();
 
     expect(sibling.hasAttribute('aria-hidden')).toBe(false);
+  });
+
+  it('should not hide live regions from assistive technology', () => {
+    const dialog = TestBed.inject(NgpDialogManager);
+    const ref = dialog.open(TestDialog, { container });
+
+    expect(liveRegion.hasAttribute('aria-hidden')).toBe(false);
+    ref.close();
+  });
+
+  it('should keep both dialogs accessible when they open into sibling containers', () => {
+    const dialog = TestBed.inject(NgpDialogManager);
+
+    const first = dialog.open(TestDialog, { container });
+    expect(siblingContainer.getAttribute('aria-hidden')).toBe('true');
+
+    // The second container was hidden on behalf of the first dialog, opening into it must
+    // recompute the hidden set rather than leave the new dialog inside an aria-hidden subtree.
+    const second = dialog.open(TestDialog, { container: siblingContainer });
+
+    expect(container.hasAttribute('aria-hidden')).toBe(false);
+    expect(siblingContainer.hasAttribute('aria-hidden')).toBe(false);
+    expect(sibling.getAttribute('aria-hidden')).toBe('true');
+
+    second.close();
+
+    expect(siblingContainer.getAttribute('aria-hidden')).toBe('true');
+    expect(container.hasAttribute('aria-hidden')).toBe(false);
+
+    first.close();
+
+    expect(sibling.hasAttribute('aria-hidden')).toBe(false);
+    expect(siblingContainer.hasAttribute('aria-hidden')).toBe(false);
   });
 });
