@@ -358,6 +358,102 @@ describe('NgpSelect', () => {
       });
     });
 
+    it('should activate the last option when ArrowUp opens the dropdown', async () => {
+      await render(TestSelectComponent);
+
+      const select = screen.getByTestId('select');
+      select.focus();
+
+      fireEvent.keyDown(select, { key: 'ArrowUp' });
+
+      await waitFor(() => {
+        expect(screen.getByTestId('option-Cherry')).toHaveAttribute('data-active', '');
+      });
+    });
+
+    it('should scroll the last option into view when ArrowUp opens the dropdown', async () => {
+      @Component({
+        template: `
+          <div [(ngpSelectValue)]="value" ngpSelect data-testid="scrollable-select">
+            <span data-testid="placeholder">Select an option</span>
+
+            <div *ngpSelectPortal ngpSelectDropdown data-testid="dropdown">
+              <div class="scrollable" data-testid="scrollable">
+                @for (option of options; track option) {
+                  <div
+                    [ngpSelectOptionValue]="option"
+                    [attr.data-testid]="'option-' + option"
+                    ngpSelectOption
+                  >
+                    {{ option }}
+                  </div>
+                }
+              </div>
+            </div>
+          </div>
+        `,
+        imports: [NgpSelect, NgpSelectDropdown, NgpSelectOption, NgpSelectPortal],
+        styles: `
+          /* the docs examples open the dropdown with an entrance animation that starts at
+             scale(0.9). a static transform stands in for it so the assertion does not depend
+             on where the animation happens to be when the scroll runs */
+          [ngpSelectDropdown] {
+            overflow: hidden;
+            transform: scale(0.9);
+          }
+
+          .scrollable {
+            max-height: 100px;
+            overflow-y: auto;
+          }
+
+          [ngpSelectOption] {
+            height: 30px;
+          }
+        `,
+      })
+      class TestScrollableSelectComponent {
+        readonly options = Array.from({ length: 20 }, (_, index) => `Option${index}`);
+        readonly value = signal<string | undefined>(undefined);
+      }
+
+      await render(TestScrollableSelectComponent);
+
+      const select = screen.getByTestId('scrollable-select');
+      select.focus();
+
+      fireEvent.keyDown(select, { key: 'ArrowUp' });
+
+      const scrollable = await screen.findByTestId('scrollable');
+
+      await waitFor(() => {
+        const lastOption = screen.getByTestId('option-Option19');
+        expect(lastOption).toHaveAttribute('data-active', '');
+
+        // compare both rects in the same coordinate space: the option sits inside the scroll
+        // container, so the transform applies to both and cancels out
+        const optionRect = lastOption.getBoundingClientRect();
+        const scrollableRect = scrollable.getBoundingClientRect();
+
+        expect(optionRect.bottom).toBeLessThanOrEqual(scrollableRect.bottom + 0.5);
+        expect(optionRect.top).toBeGreaterThanOrEqual(scrollableRect.top - 0.5);
+      });
+    });
+
+    it('should keep the selected option active when ArrowUp opens the dropdown', async () => {
+      const { fixture } = await render(TestSelectComponent);
+      fixture.componentInstance.value.set('Banana');
+
+      const select = screen.getByTestId('select');
+      select.focus();
+
+      fireEvent.keyDown(select, { key: 'ArrowUp' });
+
+      await waitFor(() => {
+        expect(screen.getByTestId('option-Banana')).toHaveAttribute('data-active', '');
+      });
+    });
+
     it('should open dropdown when Enter is pressed', async () => {
       await render(TestSelectComponent);
 
