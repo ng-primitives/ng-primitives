@@ -241,11 +241,16 @@ describe('NgpDialogManager container', () => {
     liveRegion.remove();
   });
 
+  /** The element the dialog portal was attached to. */
+  function hostOf(ref: NgpDialogRef): HTMLElement | null | undefined {
+    return ref.getElements()[0]?.parentElement;
+  }
+
   it('should render the dialog in the body by default', () => {
     const dialog = TestBed.inject(NgpDialogManager);
     const ref = dialog.open(TestDialog);
 
-    expect(container.textContent).not.toContain('Test');
+    expect(hostOf(ref)).toBe(document.body);
     ref.close();
   });
 
@@ -270,7 +275,7 @@ describe('NgpDialogManager container', () => {
     const dialog = TestBed.inject(NgpDialogManager);
     const ref = dialog.open(TestDialog, { container: '#does-not-exist' });
 
-    expect(container.textContent).not.toContain('Test');
+    expect(hostOf(ref)).toBe(document.body);
     expect(warn).toHaveBeenCalled();
 
     ref.close();
@@ -280,7 +285,7 @@ describe('NgpDialogManager container', () => {
     const dialog = TestBed.inject(NgpDialogManager);
     const ref = dialog.open(TestDialog, { container: null });
 
-    expect(container.textContent).not.toContain('Test');
+    expect(hostOf(ref)).toBe(document.body);
     ref.close();
   });
 
