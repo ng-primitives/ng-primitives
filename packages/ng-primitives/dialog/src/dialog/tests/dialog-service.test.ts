@@ -3,8 +3,13 @@ import { Component, TemplateRef, Type, ViewContainerRef, inject, viewChild } fro
 import { TestBed } from '@angular/core/testing';
 import { Router, provideRouter } from '@angular/router';
 import { render } from '@testing-library/angular';
-import { NgpDialogContext, NgpDialogManager, NgpDialogRef } from 'ng-primitives/dialog';
-import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import {
+  NgpDialogContext,
+  NgpDialogManager,
+  NgpDialogRef,
+  provideDialogConfig,
+} from 'ng-primitives/dialog';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 @Component({ selector: 'ngp-test-dialog', template: '<p>Test</p>' })
 class TestDialog {}
@@ -203,5 +208,141 @@ describe('NgpDialogManager router integration', () => {
 
     expect(dialogManager.openDialogs.length).toBe(1);
     expect(dialogManager.openDialogs[0].config.closeOnNavigation).toBe(false);
+  });
+});
+
+describe('NgpDialogManager container', () => {
+  let container: HTMLElement;
+  let siblingContainer: HTMLElement;
+  let sibling: HTMLElement;
+  let liveRegion: HTMLElement;
+
+  beforeEach(() => {
+    container = document.createElement('div');
+    container.id = 'ngp-dialog-container';
+    document.body.appendChild(container);
+
+    siblingContainer = document.createElement('div');
+    document.body.appendChild(siblingContainer);
+
+    sibling = document.createElement('div');
+    document.body.appendChild(sibling);
+
+    liveRegion = document.createElement('div');
+    liveRegion.setAttribute('aria-live', 'polite');
+    document.body.appendChild(liveRegion);
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+    container.remove();
+    siblingContainer.remove();
+    sibling.remove();
+    liveRegion.remove();
+  });
+
+  /** The element the dialog portal was attached to. */
+  function hostOf(ref: NgpDialogRef): HTMLElement | null | undefined {
+    return ref.getElements()[0]?.parentElement;
+  }
+
+  it('should render the dialog in the body by default', () => {
+    const dialog = TestBed.inject(NgpDialogManager);
+    const ref = dialog.open(TestDialog);
+
+    expect(hostOf(ref)).toBe(document.body);
+    ref.close();
+  });
+
+  it('should render the dialog in a container element', () => {
+    const dialog = TestBed.inject(NgpDialogManager);
+    const ref = dialog.open(TestDialog, { container });
+
+    expect(container.textContent).toContain('Test');
+    ref.close();
+  });
+
+  it('should render the dialog in a container resolved from a selector', () => {
+    const dialog = TestBed.inject(NgpDialogManager);
+    const ref = dialog.open(TestDialog, { container: '#ngp-dialog-container' });
+
+    expect(container.textContent).toContain('Test');
+    ref.close();
+  });
+
+  it('should fall back to the body when the container selector does not match', () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+    const dialog = TestBed.inject(NgpDialogManager);
+    const ref = dialog.open(TestDialog, { container: '#does-not-exist' });
+
+    expect(hostOf(ref)).toBe(document.body);
+    expect(warn).toHaveBeenCalled();
+
+    ref.close();
+  });
+
+  it('should render the dialog in the body when the container is null', () => {
+    const dialog = TestBed.inject(NgpDialogManager);
+    const ref = dialog.open(TestDialog, { container: null });
+
+    expect(hostOf(ref)).toBe(document.body);
+    ref.close();
+  });
+
+  it('should render the dialog in the container from the global configuration', () => {
+    TestBed.configureTestingModule({
+      providers: [provideDialogConfig({ container: '#ngp-dialog-container' })],
+    });
+
+    const dialog = TestBed.inject(NgpDialogManager);
+    const ref = dialog.open(TestDialog);
+
+    expect(container.textContent).toContain('Test');
+    ref.close();
+  });
+
+  it('should not hide the container from assistive technology', () => {
+    const dialog = TestBed.inject(NgpDialogManager);
+    const ref = dialog.open(TestDialog, { container });
+
+    expect(container.hasAttribute('aria-hidden')).toBe(false);
+    expect(sibling.getAttribute('aria-hidden')).toBe('true');
+
+    ref.close();
+
+    expect(sibling.hasAttribute('aria-hidden')).toBe(false);
+  });
+
+  it('should not hide live regions from assistive technology', () => {
+    const dialog = TestBed.inject(NgpDialogManager);
+    const ref = dialog.open(TestDialog, { container });
+
+    expect(liveRegion.hasAttribute('aria-hidden')).toBe(false);
+    ref.close();
+  });
+
+  it('should keep both dialogs accessible when they open into sibling containers', () => {
+    const dialog = TestBed.inject(NgpDialogManager);
+
+    const first = dialog.open(TestDialog, { container });
+    expect(siblingContainer.getAttribute('aria-hidden')).toBe('true');
+
+    // The second container was hidden on behalf of the first dialog, opening into it must
+    // recompute the hidden set rather than leave the new dialog inside an aria-hidden subtree.
+    const second = dialog.open(TestDialog, { container: siblingContainer });
+
+    expect(container.hasAttribute('aria-hidden')).toBe(false);
+    expect(siblingContainer.hasAttribute('aria-hidden')).toBe(false);
+    expect(sibling.getAttribute('aria-hidden')).toBe('true');
+
+    second.close();
+
+    expect(siblingContainer.getAttribute('aria-hidden')).toBe('true');
+    expect(container.hasAttribute('aria-hidden')).toBe(false);
+
+    first.close();
+
+    expect(sibling.hasAttribute('aria-hidden')).toBe(false);
+    expect(siblingContainer.hasAttribute('aria-hidden')).toBe(false);
   });
 });
