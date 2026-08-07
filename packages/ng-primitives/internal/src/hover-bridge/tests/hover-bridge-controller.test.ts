@@ -172,11 +172,11 @@ describe('createHoverBridge - idling over a sibling', () => {
   it('reads a point on a row boundary the way the browser hit-tests it', () => {
     const { close } = trackOverGroup();
 
-    // Exactly on the sibling row's bottom edge. Boxes are half-open, so the
-    // browser puts a point there on whatever is laid out next - this is the
-    // strip between rows, not the row. Counting it as the row hands the hover
-    // to something the browser has not put the pointer on, which closes the
-    // overlay with nothing to take its place.
+    // Exactly on the sibling row's bottom edge. Boxes are half-open, so that
+    // point is not *in* the row - it is the inert strip past it, still inside
+    // the row's grace margin. Reading the edge as the row instead hands the
+    // hover to a row the browser has not put the pointer on, and closes the
+    // overlay on the shorter sibling timeout with nothing to take its place.
     movePointer({ x: 160, y: 120 });
 
     vi.advanceTimersByTime(HOVER_BRIDGE_TIMEOUT_MS * 4);

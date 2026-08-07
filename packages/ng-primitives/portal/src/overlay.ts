@@ -1206,6 +1206,11 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
     const reusableContent =
       !forceDestroy && (this.config.keepMounted?.() ?? false) ? this.renderedContent : null;
 
+    // Captured up front for the same reason: `updateConfig()` can replace the
+    // config while the exit animation runs, and unregistering under a new type
+    // would leave this overlay registered under its old one forever.
+    const overlayType = this.config.overlayType;
+
     // Synchronous with the switch to the exit state below, so the element never
     // renders a frame in its enter state without it.
     this.clearInstantAttribute(portal);
@@ -1239,8 +1244,8 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
       // leaves it on screen for a while yet, and a same-type overlay opening in
       // that window has to be able to replace it rather than fade in over it.
       // Skipped when destruction was cancelled - it is live again.
-      if (this.config.overlayType) {
-        this.cooldownManager.unregisterActive(this.config.overlayType, this);
+      if (overlayType) {
+        this.cooldownManager.unregisterActive(overlayType, this);
       }
 
       this.renderedContent = null;
