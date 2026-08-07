@@ -70,7 +70,7 @@ export const [
       return selectState().list()?.id() ?? selectState().dropdown()?.id();
     });
     attrBinding(elementRef, 'aria-activedescendant', () =>
-      selectState().activeDescendantManager.id(),
+      selectState().open() ? selectState().activeDescendantManager.id() : undefined,
     );
     attrBinding(elementRef, 'disabled', () => (selectState().disabled() ? '' : null));
     dataBinding(elementRef, 'data-open', () => (selectState().open() ? '' : null));
@@ -191,15 +191,29 @@ export const [
 
     selectState().registerInput(state);
 
-    // when the input is rendered (e.g. the dropdown opened), move focus to it.
     afterNextRender(
       () => {
-        focus();
+        if (ngDevMode) {
+          const insideDropdown = selectState()
+            .dropdown()
+            ?.elementRef.nativeElement.contains(elementRef.nativeElement);
 
-        if (ngDevMode && !selectState().list()) {
-          console.error(
-            '[ngpSelectInput]: When using ngpSelectInput, the options must be wrapped in an element with the ngpSelectList directive (role="listbox"). Without it the input (role="combobox") is nested inside the listbox, which is invalid.',
-          );
+          if (!insideDropdown) {
+            console.error(
+              '[ngpSelectInput]: The input must be placed inside the element with the ngpSelectDropdown directive. For an editable trigger, use ngpCombobox instead.',
+            );
+          }
+
+          if (!selectState().list()) {
+            console.error(
+              '[ngpSelectInput]: When using ngpSelectInput, the options must be wrapped in an element with the ngpSelectList directive (role="listbox"). Without it the input (role="combobox") is nested inside the listbox, which is invalid.',
+            );
+          }
+        }
+
+        // the input is only rendered once the dropdown has opened, so move focus to it.
+        if (selectState().open()) {
+          focus();
         }
       },
       { injector },

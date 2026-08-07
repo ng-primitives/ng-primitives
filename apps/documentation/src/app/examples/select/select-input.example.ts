@@ -26,7 +26,12 @@ import {
     <div class="select-field">
       <span class="select-label" id="select-search-label">Searchable select</span>
 
-      <div [(ngpSelectValue)]="value" (ngpSelectOpenChange)="onOpen($event)" ngpSelect>
+      <div
+        [(ngpSelectValue)]="value"
+        (ngpSelectOpenChange)="onOpen($event)"
+        ngpSelect
+        aria-labelledby="select-search-label"
+      >
         @if (value(); as selected) {
           <span class="select-value">{{ selected }}</span>
         } @else {
@@ -56,12 +61,6 @@ import {
     </div>
   `,
   styles: `
-    .select-examples {
-      display: flex;
-      flex-direction: column;
-      gap: 24px;
-    }
-
     .select-field {
       display: flex;
       flex-direction: column;
@@ -110,21 +109,29 @@ import {
       color: var(--ngp-text-secondary);
     }
 
+    /* Search field pinned at the top of the dropdown */
     [ngpSelectInput] {
-      flex: 1;
+      width: 100%;
       min-width: 0;
-      padding: 0 16px;
+      height: 2.25rem;
+      padding: 0 0.75rem;
       border: none;
+      border-bottom: 1px solid var(--ngp-border);
       background-color: transparent;
       color: var(--ngp-text-primary);
       font-family: inherit;
       font-size: 14px;
-      height: 100%;
       outline: none;
+      box-sizing: border-box;
     }
 
     [ngpSelectInput]::placeholder {
       color: var(--ngp-text-tertiary);
+    }
+
+    [ngpSelectInput][data-focus-visible] {
+      border-bottom-color: var(--ngp-focus-ring);
+      box-shadow: inset 0 -1px 0 0 var(--ngp-focus-ring);
     }
 
     ng-icon {
@@ -155,20 +162,6 @@ import {
 
     [ngpSelectDropdown][data-exit] {
       animation: select-input-hide 0.1s ease-out;
-    }
-
-    /* Search field pinned at the top of the dropdown (layout A) */
-    [ngpSelectDropdown] > [ngpSelectInput] {
-      width: 100%;
-      flex: none;
-      height: 2.25rem;
-      padding: 0 0.75rem;
-      border-bottom: 1px solid var(--ngp-border);
-    }
-
-    [ngpSelectDropdown] > [ngpSelectInput][data-focus-visible] {
-      border-bottom-color: var(--ngp-focus-ring);
-      box-shadow: inset 0 -1px 0 0 var(--ngp-focus-ring);
     }
 
     .select-scrollable {

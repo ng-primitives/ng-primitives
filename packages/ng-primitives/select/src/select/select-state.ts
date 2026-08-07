@@ -447,7 +447,7 @@ export const [NgpSelectStateToken, ngpSelect, _injectSelectState, provideSelectS
       attrBinding(elementRef, 'id', id);
       attrBinding(elementRef, 'aria-expanded', () => (input() ? undefined : open()));
       attrBinding(elementRef, 'aria-controls', () =>
-        input() ? undefined : open() ? dropdown()?.id() : undefined,
+        input() ? undefined : open() ? (list()?.id() ?? dropdown()?.id()) : undefined,
       );
       attrBinding(elementRef, 'aria-activedescendant', () =>
         input() ? undefined : open() ? activeDescendantManagerInstance.id() : undefined,
@@ -466,14 +466,13 @@ export const [NgpSelectStateToken, ngpSelect, _injectSelectState, provideSelectS
       listener(elementRef, 'blur', onBlur);
 
       function onClick(event: MouseEvent): void {
-        // if the click originated from the input, let the input keep focus
-        // (clicking it should not toggle the dropdown closed when it is placed
-        // inside the select element)
+        // if the click originated from the input, let the input keep focus. the event only
+        // reaches us when the dropdown is rendered into a container inside the select element.
         if (event.target === input()?.elementRef.nativeElement) {
           return;
         }
 
-        toggleDropdown();
+        void toggleDropdown();
       }
 
       /**
@@ -831,8 +830,8 @@ export const [NgpSelectStateToken, ngpSelect, _injectSelectState, provideSelectS
 
       /** Handle keydown events for accessibility. */
       function handleKeydown(event: KeyboardEvent): void {
-        // if the event originated from the input element, let the input handle it
-        // (the event bubbles up when the input is placed inside the select element)
+        // if the event originated from the input element, let the input handle it. the event only
+        // bubbles here when the dropdown is rendered into a container inside the select element.
         if (event.target === input()?.elementRef.nativeElement) {
           return;
         }
@@ -842,7 +841,7 @@ export const [NgpSelectStateToken, ngpSelect, _injectSelectState, provideSelectS
             if (open()) {
               activateNextOption();
             } else {
-              openDropdown();
+              void openDropdown();
             }
             event.preventDefault();
             break;
@@ -850,7 +849,7 @@ export const [NgpSelectStateToken, ngpSelect, _injectSelectState, provideSelectS
             if (open()) {
               activatePreviousOption();
             } else {
-              openDropdown();
+              void openDropdown();
               activeDescendantManagerInstance.last();
             }
             event.preventDefault();
@@ -876,12 +875,12 @@ export const [NgpSelectStateToken, ngpSelect, _injectSelectState, provideSelectS
                 option?.select();
               }
             } else {
-              openDropdown();
+              void openDropdown();
             }
             event.preventDefault();
             break;
           case ' ':
-            toggleDropdown();
+            void toggleDropdown();
             event.preventDefault();
             break;
         }
@@ -895,8 +894,8 @@ export const [NgpSelectStateToken, ngpSelect, _injectSelectState, provideSelectS
           return;
         }
 
-        // if the blur was caused by focus moving to the input, don't close
-        // (the input may be placed inside the select element)
+        // if the blur was caused by focus moving to the input, don't close. opening the
+        // dropdown moves focus from the trigger to the input, which blurs the trigger.
         if (relatedTarget === input()?.elementRef.nativeElement) {
           return;
         }
