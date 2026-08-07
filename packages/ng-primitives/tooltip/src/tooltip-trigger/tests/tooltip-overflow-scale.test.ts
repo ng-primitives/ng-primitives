@@ -4,19 +4,41 @@ import { NgpTooltip } from 'ng-primitives/tooltip';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { NgpTooltipTrigger } from '../tooltip-trigger';
 
+/** Overflow is measured on demand now, so no observer should exist until then. */
+function countObserverInstances(run: () => void): { resize: number; mutation: number } {
+  let resize = 0;
+  let mutation = 0;
+
+  const OriginalResizeObserver = window.ResizeObserver;
+  const OriginalMutationObserver = window.MutationObserver;
+
+  window.ResizeObserver = class extends OriginalResizeObserver {
+    constructor(...args: ConstructorParameters<typeof OriginalResizeObserver>) {
+      resize++;
+      super(...args);
+    }
+  };
+  window.MutationObserver = class extends OriginalMutationObserver {
+    constructor(...args: ConstructorParameters<typeof OriginalMutationObserver>) {
+      mutation++;
+      super(...args);
+    }
+  };
+
+  try {
+    run();
+  } finally {
+    window.ResizeObserver = OriginalResizeObserver;
+    window.MutationObserver = OriginalMutationObserver;
+  }
+
+  return { resize, mutation };
+}
+
 /**
- * Guards the cost of rendering many `showOnOverflow` triggers at once.
- *
- * Every such trigger observes its element for resizes. If that observation measures
- * the element synchronously while Angular is still creating elements, each read
- * forces a layout flush in the middle of a pass full of DOM writes — so N triggers
- * cost N reflows, and each reflow grows with the document. That is not a constant
- * factor to tune later: it is what took a dense page from milliseconds to tens of
- * seconds of blocked main thread.
- *
- * The assertion counts layout reads rather than elapsed time deliberately. Wall
- * clock varies with the machine and would either flake or be set so loose it caught
- * nothing; the read count is deterministic and expresses the invariant directly.
+ * Guards the cost of rendering many `showOnOverflow` triggers at once. Counts layout
+ * reads rather than elapsed time, since wall clock flakes or is set too loose to catch
+ * a regression; the read count is deterministic and expresses the invariant directly.
  */
 const TRIGGER_COUNT = 200;
 
@@ -66,6 +88,15 @@ describe('tooltip showOnOverflow at scale', () => {
     // trigger — `offsetWidth` and `offsetHeight` each — plus the inline fallback's
     // `getComputedStyle`, all interleaved with Angular's own DOM writes.
     expect(reads).toBeLessThan(TRIGGER_COUNT);
+  });
+
+  it('should not construct a ResizeObserver or MutationObserver while rendering', () => {
+    const fixture = TestBed.createComponent(ManyOverflowTriggersComponent);
+
+    const { resize, mutation } = countObserverInstances(() => fixture.detectChanges());
+
+    expect(resize).toBe(0);
+    expect(mutation).toBe(0);
   });
 
   /** Counts layout-invalidating reads on any element for the duration of `run`. */

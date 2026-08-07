@@ -1004,6 +1004,201 @@ describe('NgpTooltipTrigger (primitive)', () => {
 
       expect(document.querySelector('[ngpTooltip]')).toBeInTheDocument();
     });
+
+    it('should not show tooltip when showOnOverflow is true, not overflowing, and triggered via focus', async () => {
+      const { getByRole } = await render(
+        `
+          <button
+            [ngpTooltipTrigger]="content"
+            ngpTooltipTriggerShowOnOverflow="true"
+            style="width: 200px; height: 40px; overflow: hidden;"
+          >
+            Short text
+          </button>
+
+          <ng-template #content>
+            <div ngpTooltip>Tooltip content</div>
+          </ng-template>
+        `,
+        { imports: [NgpTooltipTrigger, NgpTooltip] },
+      );
+
+      fireEvent.focus(getByRole('button'));
+
+      await new Promise(resolve => setTimeout(resolve, 100));
+
+      expect(document.querySelector('[ngpTooltip]')).not.toBeInTheDocument();
+    });
+
+    it('should show tooltip when showOnOverflow is true, overflowing, and triggered via focus', async () => {
+      const { getByRole } = await render(
+        `
+          <button
+            [ngpTooltipTrigger]="content"
+            ngpTooltipTriggerShowOnOverflow="true"
+            style="width: 50px; height: 20px; overflow: hidden; white-space: nowrap;"
+          >
+            This is a very long text that will definitely overflow the button width
+          </button>
+
+          <ng-template #content>
+            <div ngpTooltip>Tooltip content</div>
+          </ng-template>
+        `,
+        { imports: [NgpTooltipTrigger, NgpTooltip] },
+      );
+
+      fireEvent.focus(getByRole('button'));
+
+      await new Promise(resolve => setTimeout(resolve, 100));
+
+      expect(document.querySelector('[ngpTooltip]')).toBeInTheDocument();
+    });
+
+    it('should not show the tooltip via show() when showOnOverflow is true and the element is not overflowing', async () => {
+      const { fixture } = await render(
+        `
+          <button
+            [ngpTooltipTrigger]="content"
+            ngpTooltipTriggerShowOnOverflow="true"
+            style="width: 200px; height: 40px; overflow: hidden;"
+          >
+            Short text
+          </button>
+
+          <ng-template #content>
+            <div ngpTooltip>Tooltip content</div>
+          </ng-template>
+        `,
+        { imports: [NgpTooltipTrigger, NgpTooltip] },
+      );
+
+      const triggerDirective = fixture.debugElement.children[0].injector.get(NgpTooltipTrigger);
+      triggerDirective.show();
+
+      await new Promise(resolve => setTimeout(resolve, 100));
+
+      expect(document.querySelector('[ngpTooltip]')).not.toBeInTheDocument();
+    });
+
+    it('should show the tooltip via show() when showOnOverflow is true and the element is overflowing', async () => {
+      const { fixture } = await render(
+        `
+          <button
+            [ngpTooltipTrigger]="content"
+            ngpTooltipTriggerShowOnOverflow="true"
+            style="width: 50px; height: 20px; overflow: hidden; white-space: nowrap;"
+          >
+            This is a very long text that will definitely overflow the button width
+          </button>
+
+          <ng-template #content>
+            <div ngpTooltip>Tooltip content</div>
+          </ng-template>
+        `,
+        { imports: [NgpTooltipTrigger, NgpTooltip] },
+      );
+
+      const triggerDirective = fixture.debugElement.children[0].injector.get(NgpTooltipTrigger);
+      triggerDirective.show();
+
+      await waitFor(() => {
+        expect(document.querySelector('[ngpTooltip]')).toBeInTheDocument();
+      });
+    });
+
+    it('should re-evaluate overflow on every show attempt instead of relying on a stale measurement', async () => {
+      // Box size never changes, so a resize-driven listener alone would miss this.
+      const { fixture, getByRole } = await render(
+        `
+          <button
+            [ngpTooltipTrigger]="content"
+            ngpTooltipTriggerShowOnOverflow="true"
+            style="width: 150px; height: 40px; overflow: hidden; white-space: nowrap;"
+          >
+            {{ text }}
+          </button>
+
+          <ng-template #content>
+            <div ngpTooltip>Tooltip content</div>
+          </ng-template>
+        `,
+        { imports: [NgpTooltipTrigger, NgpTooltip], componentProperties: { text: 'Short' } },
+      );
+
+      fireEvent.mouseEnter(getByRole('button'));
+
+      await new Promise(resolve => setTimeout(resolve, 100));
+
+      expect(document.querySelector('[ngpTooltip]')).not.toBeInTheDocument();
+
+      fireEvent.mouseLeave(getByRole('button'));
+
+      fixture.componentInstance.text =
+        'This is a very long text that will definitely overflow the button width';
+      fixture.detectChanges();
+
+      fireEvent.mouseEnter(getByRole('button'));
+
+      await waitFor(() => {
+        expect(document.querySelector('[ngpTooltip]')).toBeInTheDocument();
+      });
+    });
+
+    describe('hasOverflow on the injected state', () => {
+      @Directive({ selector: '[readHasOverflow]' })
+      class ReadHasOverflow {
+        readonly trigger = injectTooltipTriggerState();
+      }
+
+      async function renderWithStateReader(showOnOverflow: boolean) {
+        const { fixture, getByRole } = await render(
+          `
+            <button
+              [ngpTooltipTrigger]="content"
+              [ngpTooltipTriggerShowOnOverflow]="${showOnOverflow}"
+              readHasOverflow
+              style="width: 50px; height: 20px; overflow: hidden; white-space: nowrap;"
+            >
+              This is a very long text that will definitely overflow the button width
+            </button>
+
+            <ng-template #content>
+              <div ngpTooltip>Tooltip content</div>
+            </ng-template>
+          `,
+          { imports: [NgpTooltipTrigger, NgpTooltip, ReadHasOverflow] },
+        );
+
+        const state = fixture.debugElement.children[0].injector.get(ReadHasOverflow);
+        return { state, trigger: getByRole('button') };
+      }
+
+      it('should report the measurement taken at the last show attempt', async () => {
+        const { state, trigger } = await renderWithStateReader(true);
+
+        expect(state.trigger().hasOverflow()).toBe(false);
+
+        fireEvent.mouseEnter(trigger);
+
+        await waitFor(() => {
+          expect(state.trigger().hasOverflow()).toBe(true);
+        });
+      });
+
+      it('should stay false while showOnOverflow is disabled, even when overflowing', async () => {
+        const { state, trigger } = await renderWithStateReader(false);
+
+        fireEvent.mouseEnter(trigger);
+
+        await waitFor(() => {
+          expect(document.querySelector('[ngpTooltip]')).toBeInTheDocument();
+        });
+
+        // Never measured, since the show path has no reason to.
+        expect(state.trigger().hasOverflow()).toBe(false);
+      });
+    });
   });
 
   describe('cooldown', () => {
