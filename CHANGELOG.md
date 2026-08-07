@@ -1,3 +1,13 @@
+## 0.130.0 (2026-08-07)
+
+### 🩹 Fixes
+
+- **menu:** stop the trigger-group hover flickering between siblings ([#909](https://github.com/ng-primitives/ng-primitives/pull/909))
+
+### ❤️ Thank You
+
+- Ashley Hunter
+
 ## 0.129.0 (2026-08-07)
 
 ### 🩹 Fixes
