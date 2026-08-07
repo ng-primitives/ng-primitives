@@ -1,3 +1,13 @@
+## 0.129.0 (2026-08-07)
+
+### 🩹 Fixes
+
+- **tooltip:** measure showOnOverflow on demand instead of observing ([#901](https://github.com/ng-primitives/ng-primitives/pull/901))
+
+### ❤️ Thank You
+
+- Ashley Hunter
+
 ## 0.128.8 (2026-08-05)
 
 ### 🚀 Features
