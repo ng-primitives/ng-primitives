@@ -213,3 +213,5 @@ When a search input (`ngpSelectInput`) is used, the combobox semantics move to t
 - <kbd>ArrowUp</kbd>: Open the dropdown or move to the previous option.
 - <kbd>Home</kbd>: Move to the first option.
 - <kbd>End</kbd>: Move to the last option.
+
+When a search input (`ngpSelectInput`) has focus, <kbd>Home</kbd> and <kbd>End</kbd> keep their text editing behaviour and move the caret within the search term. <kbd>Space</kbd> types a space rather than toggling the dropdown.
