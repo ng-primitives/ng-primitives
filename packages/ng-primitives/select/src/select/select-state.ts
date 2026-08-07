@@ -32,6 +32,14 @@ import type { NgpSelectListState } from '../select-list/select-list-state';
 import type { NgpSelectOptionState } from '../select-option/select-option-state';
 import { NgpSelectPortalState } from '../select-portal/select-portal-state';
 
+export interface NgpSelectOpenOptions {
+  /**
+   * Which option to activate once the dropdown has opened and its options have registered.
+   * A selected option always wins over this preference. Defaults to `'first'`.
+   */
+  readonly activate?: 'first' | 'last';
+}
+
 export interface NgpSelectState<T> {
   /**
    * @internal Access the select element.
@@ -142,7 +150,7 @@ export interface NgpSelectState<T> {
    * Open the dropdown.
    * @internal
    */
-  openDropdown(): Promise<void>;
+  openDropdown(options?: NgpSelectOpenOptions): Promise<void>;
 
   /**
    * Close the dropdown.
@@ -479,7 +487,7 @@ export const [NgpSelectStateToken, ngpSelect, _injectSelectState, provideSelectS
        * Open the dropdown.
        * @internal
        */
-      async function openDropdown(): Promise<void> {
+      async function openDropdown(options?: NgpSelectOpenOptions): Promise<void> {
         if (disabled() || open()) {
           return;
         }
@@ -510,7 +518,18 @@ export const [NgpSelectStateToken, ngpSelect, _injectSelectState, provideSelectS
           return;
         }
 
-        // activate the selected option or the first option
+        // nothing is selected, so honour the caller's preference. this must happen here rather
+        // than at the call site: openDropdown suspends on the portal, so an activation queued
+        // by the caller would run before any option has registered, and would then be
+        // overwritten when this function resumes.
+        if (options?.activate === 'last') {
+          activeDescendantManagerInstance.last();
+          // the manager scrolls through a callback that bails out until the overlay has been
+          // positioned, which has not happened yet, so scroll here like the selected branch does
+          scrollTo(activeDescendantManagerInstance.index());
+          return;
+        }
+
         activeDescendantManagerInstance.first();
       }
 
@@ -849,8 +868,7 @@ export const [NgpSelectStateToken, ngpSelect, _injectSelectState, provideSelectS
             if (open()) {
               activatePreviousOption();
             } else {
-              void openDropdown();
-              activeDescendantManagerInstance.last();
+              void openDropdown({ activate: 'last' });
             }
             event.preventDefault();
             break;

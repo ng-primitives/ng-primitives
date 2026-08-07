@@ -96,8 +96,7 @@ export const [
           if (selectState().open()) {
             selectState().activatePreviousOption();
           } else {
-            selectState().openDropdown();
-            selectState().activeDescendantManager.last();
+            void selectState().openDropdown({ activate: 'last' });
           }
           event.preventDefault();
           break;
