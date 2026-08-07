@@ -203,7 +203,7 @@ bootstrapApplication(AppComponent, {
 
 The select primitive follows the [WAI-ARIA Combobox pattern](https://www.w3.org/WAI/ARIA/apg/patterns/combobox/). The trigger uses `role="combobox"` with `aria-expanded` and `aria-controls`. The dropdown uses `role="listbox"` and options use `role="option"` with `aria-selected`. Focus is managed using `aria-activedescendant`.
 
-When a search input (`ngpSelectInput`) is used, the combobox semantics move to the input, which receives focus when the dropdown opens. The dropdown becomes a `dialog` wrapping the input and an `ngpSelectList` (`role="listbox"`), and the input drives the options via `aria-activedescendant` and `aria-controls`.
+When a search input (`ngpSelectInput`) is used, the combobox semantics move to the input, which receives focus when the dropdown opens. The dropdown becomes a `dialog` wrapping the input and an `ngpSelectList` (`role="listbox"`), and the input drives the options via `aria-activedescendant` and `aria-controls`. Naming is left to the consumer, so add an `aria-label` (or `aria-labelledby`) to both the dropdown dialog and the list.
 
 ### Keyboard Interactions
 

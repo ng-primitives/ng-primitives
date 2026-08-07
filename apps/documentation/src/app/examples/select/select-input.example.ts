@@ -42,7 +42,7 @@ import {
             placeholder="Search…"
             aria-labelledby="select-search-label"
           />
-          <div class="select-scrollable" ngpSelectList>
+          <div class="select-scrollable" ngpSelectList aria-label="Options">
             @for (option of filteredOptions(); track option) {
               <div [ngpSelectOptionValue]="option" ngpSelectOption>
                 {{ option }}
