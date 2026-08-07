@@ -11,8 +11,15 @@ class PortalContent {}
 
 describe('NgpComponentPortal', () => {
   let container: HTMLElement;
+  let attached: NgpComponentPortal<PortalContent> | undefined;
 
-  afterEach(() => container?.remove());
+  // The view is attached to the root ApplicationRef, not to a fixture, so
+  // removing the container alone leaves it live for the rest of the run.
+  afterEach(() => {
+    attached?.destroyView();
+    attached = undefined;
+    container?.remove();
+  });
 
   /**
    * A fake animation that never settles on its own, so a detach waiting on it
@@ -36,6 +43,7 @@ describe('NgpComponentPortal', () => {
 
     const portal = new NgpComponentPortal(PortalContent, null, TestBed.inject(Injector));
     portal.attach(container);
+    attached = portal;
     return portal;
   }
 

@@ -166,7 +166,8 @@ import { NgpMenu, NgpMenuItem, NgpMenuTrigger, NgpMenuTriggerGroup } from 'ng-pr
     }
 
     /* Swapping menus within the cooldown is one movement, not two animations. */
-    [ngpMenu][data-instant] {
+    [ngpMenu][data-instant][data-enter],
+    [ngpMenu][data-instant][data-exit] {
       animation: none;
     }
 
