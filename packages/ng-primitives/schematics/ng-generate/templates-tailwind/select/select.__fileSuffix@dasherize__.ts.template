@@ -1,0 +1,138 @@
+import { Component, input } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { ControlValueAccessor } from '@angular/forms';
+import { NgIcon, provideIcons } from '@ng-icons/core';
+import { heroChevronDown } from '@ng-icons/heroicons/outline';
+import {
+  injectSelectState,
+  NgpSelect,
+  NgpSelectDropdown,
+  NgpSelectOption,
+  NgpSelectPortal,
+} from 'ng-primitives/select';
+import { ChangeFn, provideValueAccessor, TouchedFn } from 'ng-primitives/utils';
+
+@Component({
+  selector: '<% if (prefix) { %><%= prefix %>-<% } %>select',
+  hostDirectives: [
+    {
+      directive: NgpSelect,
+      inputs: ['ngpSelectValue:value', 'ngpSelectMultiple:multiple', 'ngpSelectDisabled:disabled'],
+      outputs: ['ngpSelectValueChange:valueChange'],
+    },
+  ],
+  providers: [provideIcons({ heroChevronDown }), provideValueAccessor(Select<%= componentSuffix %>)],
+  imports: [NgpSelectDropdown, NgpSelectOption, NgpSelectPortal, NgIcon],
+  template: `
+    @if (state().value(); as value) {
+      <span class="select-value flex items-center flex-1 py-0 px-4 bg-transparent text-(--ngp-text-primary) [font-family:inherit] [font-size:14px] py-0 px-4 h-full">{{ value }}</span>
+    } @else {
+      <span class="select-placeholder flex items-center flex-1 py-0 px-4 bg-transparent text-(--ngp-text-primary) [font-family:inherit] [font-size:14px] py-0 px-4 h-full text-(--ngp-text-secondary)">{{ placeholder() }}</span>
+    }
+
+    <ng-icon class="inline-flex justify-center items-center h-full mx-2 [font-size:14px]" name="heroChevronDown" />
+
+    <div class="bg-(--ngp-background) border border-(--ngp-border) p-1 rounded-xl [outline:none] absolute animate-[popover-show_0.1s_ease-out] [width:var(--ngp-select-width)] shadow-(--ngp-shadow-lg) box-border mt-1 max-h-60 overflow-y-auto [transform-origin:var(--ngp-select-transform-origin)] motion-reduce:[animation-duration:0s]" *ngpSelectPortal ngpSelectDropdown>
+      @for (option of options(); track option) {
+        <div class="flex items-center gap-2 [padding:0.375rem_0.75rem] cursor-pointer rounded-lg w-full h-9 [font-size:14px] text-(--ngp-text-primary) box-border data-hover:bg-(--ngp-background-hover) data-press:bg-(--ngp-background-active) data-active:bg-(--ngp-background-active)" [ngpSelectOptionValue]="option" ngpSelectOption>
+          {{ option }}
+        </div>
+      } @empty {
+        <div class="empty-message flex justify-center items-center p-2 text-(--ngp-text-secondary) [font-size:14px] font-medium text-center">No options found</div>
+      }
+    </div>
+  `,
+  styles: `
+/* These styles rely on CSS variables that can be imported from ng-primitives/example-theme/index.css in your global styles */
+
+    [ngpSelectDropdown][data-enter] {
+      animation: select-show 0.1s ease-out;
+    }
+
+    [ngpSelectDropdown][data-exit] {
+      animation: select-hide 0.1s ease-out;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      [ngpSelectDropdown][data-enter] {
+        animation-duration: 0s;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      [ngpSelectDropdown][data-exit] {
+        animation-duration: 0s;
+      }
+    }
+
+    @keyframes select-show {
+        0% {
+          opacity: 0;
+          transform: translateY(-10px) scale(0.9);
+        }
+        100% {
+          opacity: 1;
+          transform: translateY(0) scale(1);
+        }
+      }
+
+    @keyframes select-hide {
+        0% {
+          opacity: 1;
+          transform: translateY(0) scale(1);
+        }
+        100% {
+          opacity: 0;
+          transform: translateY(-10px) scale(0.9);
+        }
+      }
+  `,
+  host: {
+    class: 'flex justify-between items-center h-9 w-75 rounded-lg border-none bg-(--ngp-background) shadow-(--ngp-input-shadow) box-border data-focus:[outline:2px_solid_var(--ngp-focus-ring)] data-focus:[outline-offset:2px]',
+    '[attr.aria-label]': 'ariaLabel() || null',
+    '(focusout)': 'onTouched?.()',
+  },
+})
+export class Select<%= componentSuffix %> implements ControlValueAccessor {
+  /** Access the underlying select primitive state. */
+  protected readonly state = injectSelectState<string>();
+
+  /** The options for the select. */
+  readonly options = input<string[]>([]);
+
+  /** The placeholder for the input. */
+  readonly placeholder = input<string>('');
+
+  /** The accessible label for the select trigger. */
+  readonly ariaLabel = input<string>('');
+
+  /** Form change callback. */
+  private onChange?: ChangeFn<string | undefined>;
+
+  /** Form touched callback. */
+  protected onTouched?: TouchedFn;
+
+  constructor() {
+    // Forward primitive value changes (user-driven selections) to the form.
+    this.state()
+      .valueChange.pipe(takeUntilDestroyed())
+      .subscribe(value => this.onChange?.(value as string | undefined));
+  }
+
+  writeValue(value: string | undefined): void {
+    // Pass { emit: false } so writeValue doesn't bounce back through onChange.
+    this.state().setValue(value, { emit: false });
+  }
+
+  registerOnChange(fn: ChangeFn<string | undefined>): void {
+    this.onChange = fn;
+  }
+
+  registerOnTouched(fn: TouchedFn): void {
+    this.onTouched = fn;
+  }
+
+  setDisabledState(isDisabled: boolean): void {
+    this.state().setDisabled(isDisabled);
+  }
+}

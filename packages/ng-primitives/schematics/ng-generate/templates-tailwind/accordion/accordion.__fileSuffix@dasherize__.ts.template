@@ -1,0 +1,25 @@
+import { Component } from '@angular/core';
+import { NgpAccordion } from 'ng-primitives/accordion';
+
+@Component({
+  selector: '<% if (prefix) { %><%= prefix %>-<% } %>accordion',
+  hostDirectives: [
+    {
+      directive: NgpAccordion,
+      inputs: [
+        'ngpAccordionValue:value',
+        'ngpAccordionType:type',
+        'ngpAccordionCollapsible:collapsible',
+        'ngpAccordionDisabled:disabled',
+        'ngpAccordionOrientation:orientation',
+      ],
+    },
+  ],
+  host: {
+    class: 'block w-full max-w-96 rounded-xl border border-(--ngp-border) bg-(--ngp-background) shadow-(--ngp-shadow)',
+  },
+  template: `
+    <ng-content />
+  `,
+})
+export class Accordion<%= componentSuffix %> {}

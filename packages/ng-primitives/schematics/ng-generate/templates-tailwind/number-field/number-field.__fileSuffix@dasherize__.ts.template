@@ -1,0 +1,36 @@
+import { Component } from '@angular/core';
+import {
+  NgpNumberField,
+  NgpNumberFieldDecrement,
+  NgpNumberFieldIncrement,
+  NgpNumberFieldInput,
+} from 'ng-primitives/number-field';
+
+@Component({
+  selector: '<% if (prefix) { %><%= prefix %>-<% } %>number-field',
+  hostDirectives: [
+    {
+      directive: NgpNumberField,
+      inputs: [
+        'ngpNumberFieldValue:value',
+        'ngpNumberFieldMin:min',
+        'ngpNumberFieldMax:max',
+        'ngpNumberFieldStep:step',
+        'ngpNumberFieldLargeStep:largeStep',
+        'ngpNumberFieldDisabled:disabled',
+        'ngpNumberFieldReadonly:readonly',
+      ],
+      outputs: ['ngpNumberFieldValueChange:valueChange'],
+    },
+  ],
+  imports: [NgpNumberFieldInput, NgpNumberFieldIncrement, NgpNumberFieldDecrement],
+  host: {
+    class: 'inline-flex items-center rounded-lg shadow-(--ngp-input-shadow) bg-(--ngp-background) overflow-hidden focus-within:[outline:2px_solid_var(--ngp-focus-ring)] focus-within:[outline-offset:2px]',
+  },
+  template: `
+    <button class="flex items-center justify-center w-9 h-9 border-none bg-transparent text-(--ngp-text-secondary) cursor-pointer [font-size:1rem] select-none [-webkit-touch-callout:none] [transition:color_150ms_ease,_background-color_150ms_ease] data-hover:bg-(--ngp-background-hover) data-hover:text-(--ngp-text-primary) data-press:bg-(--ngp-background-active) data-disabled:opacity-40 data-disabled:cursor-not-allowed data-disabled:data-hover:bg-transparent data-disabled:data-hover:text-(--ngp-text-secondary) motion-reduce:[transition-duration:0s]" ngpNumberFieldDecrement aria-label="Decrement">−</button>
+    <input class="w-16 h-9 border-none [outline:none] text-center [font-size:0.875rem] text-(--ngp-text-primary) bg-transparent box-border p-0 placeholder:text-(--ngp-text-placeholder)" ngpNumberFieldInput />
+    <button class="flex items-center justify-center w-9 h-9 border-none bg-transparent text-(--ngp-text-secondary) cursor-pointer [font-size:1rem] select-none [-webkit-touch-callout:none] [transition:color_150ms_ease,_background-color_150ms_ease] data-hover:bg-(--ngp-background-hover) data-hover:text-(--ngp-text-primary) data-press:bg-(--ngp-background-active) data-disabled:opacity-40 data-disabled:cursor-not-allowed data-disabled:data-hover:bg-transparent data-disabled:data-hover:text-(--ngp-text-secondary) motion-reduce:[transition-duration:0s]" ngpNumberFieldIncrement aria-label="Increment">+</button>
+  `,
+})
+export class NumberField<%= componentSuffix %> {}

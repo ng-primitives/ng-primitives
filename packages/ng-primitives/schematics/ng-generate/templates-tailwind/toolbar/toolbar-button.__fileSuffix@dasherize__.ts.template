@@ -1,0 +1,22 @@
+import { Component } from '@angular/core';
+import { NgpButton } from 'ng-primitives/button';
+import { NgpRovingFocusItem } from 'ng-primitives/roving-focus';
+
+@Component({
+  selector: 'button[<% if (prefix) { %><%= prefix %>-<% } %>toolbar-button]',
+  hostDirectives: [
+    { directive: NgpButton, inputs: ['disabled'] },
+    {
+      directive: NgpRovingFocusItem,
+      inputs: ['ngpRovingFocusItemDisabled:disabled'],
+    },
+  ],
+  host: {
+    class: 'flex w-8 h-8 items-center justify-center rounded [border:1px_solid_transparent] bg-transparent [outline:none] [transition:background-color_150ms_cubic-bezier(0.4,_0,_0.2,_1)] box-border text-(--ngp-text-primary) cursor-pointer data-hover:bg-(--ngp-background-hover) data-hover:border-(--ngp-border) data-focus-visible:[outline:2px_solid_var(--ngp-focus-ring)] data-press:bg-(--ngp-background-active) data-selected:bg-(--ngp-background-inverse) data-selected:text-(--ngp-text-inverse) motion-reduce:[transition-duration:0s]',
+    type: 'button',
+  },
+  template: `
+    <ng-content />
+  `,
+})
+export class ToolbarButton<%= componentSuffix %> {}

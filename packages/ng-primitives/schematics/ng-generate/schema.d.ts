@@ -64,10 +64,12 @@ export interface AngularPrimitivesComponentSchema {
 
   /**
    * How component styles should be generated.
-   * `css` includes the full example styles; `unstyled` omits them entirely so you
-   * can style the component yourself.
+   * `css` includes the full example styles; `tailwind` styles the elements with
+   * Tailwind CSS classes instead, keeping a small CSS block only for what
+   * Tailwind cannot express (keyframes); `unstyled` omits styling entirely so
+   * you can style the component yourself.
    */
-  styles?: 'css' | 'unstyled';
+  styles?: 'css' | 'tailwind' | 'unstyled';
 
   /**
    * Whether example styles should be included.
