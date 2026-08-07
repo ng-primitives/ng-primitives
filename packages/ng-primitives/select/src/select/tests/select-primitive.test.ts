@@ -235,7 +235,7 @@ describe('NgpSelect', () => {
   afterEach(() => {
     // the dropdown should be removed from the DOM after each test
     // to avoid interference with other tests - it may linger due to waiting for animations
-    document.querySelectorAll('[ngpselectdropdown]').forEach(dropdown => dropdown.remove());
+    document.querySelectorAll('[ngpSelectDropdown]').forEach(dropdown => dropdown.remove());
   });
 
   describe('Basic functionality', () => {
@@ -1989,7 +1989,7 @@ describe('NgpSelect', () => {
       fireEvent.click(select);
 
       const input = await screen.findByTestId('select-input');
-      await user.type(input, 'test');
+      fireEvent.input(input, { target: { value: 'test' } });
 
       expect(component.search()).toBe('test');
 
@@ -2065,6 +2065,160 @@ describe('NgpSelect', () => {
 
         await waitFor(() => {
           expect(screen.getByTestId('options-list')).toHaveAttribute('role', 'listbox');
+        });
+      });
+
+      it('should point aria-controls at the list rather than the dropdown', async () => {
+        await render(TestSelectInputComponent);
+        const select = screen.getByTestId('select-with-input');
+
+        fireEvent.click(select);
+
+        const input = await screen.findByTestId('select-input');
+        const list = screen.getByTestId('options-list');
+
+        await waitFor(() => {
+          expect(input).toHaveAttribute('aria-controls', list.getAttribute('id')!);
+        });
+      });
+
+      it('should point the trigger aria-controls at the list when there is no input', async () => {
+        @Component({
+          template: `
+            <div [(ngpSelectValue)]="value" ngpSelect data-testid="select-with-list">
+              <span data-testid="placeholder">Select an option</span>
+
+              <div *ngpSelectPortal ngpSelectDropdown data-testid="dropdown">
+                <div ngpSelectList data-testid="options-list">
+                  @for (option of options; track option) {
+                    <div [ngpSelectOptionValue]="option" ngpSelectOption>{{ option }}</div>
+                  }
+                </div>
+              </div>
+            </div>
+          `,
+          imports: [NgpSelect, NgpSelectDropdown, NgpSelectList, NgpSelectOption, NgpSelectPortal],
+        })
+        class TestSelectListOnlyComponent {
+          readonly options = ['Apple', 'Banana'];
+          readonly value = signal<string | undefined>(undefined);
+        }
+
+        await render(TestSelectListOnlyComponent);
+        const select = screen.getByTestId('select-with-list');
+
+        fireEvent.click(select);
+
+        const list = await screen.findByTestId('options-list');
+
+        await waitFor(() => {
+          expect(select).toHaveAttribute('aria-controls', list.getAttribute('id')!);
+        });
+      });
+    });
+
+    describe('Keyboard navigation from the input', () => {
+      it('should navigate through options with arrow keys', async () => {
+        await render(TestSelectInputComponent);
+        const select = screen.getByTestId('select-with-input');
+
+        fireEvent.click(select);
+
+        const input = await screen.findByTestId('select-input');
+
+        await waitFor(() => {
+          expect(screen.getByTestId('option-Apple')).toHaveAttribute('data-active', '');
+        });
+
+        fireEvent.keyDown(input, { key: 'ArrowDown' });
+        await waitFor(() => {
+          expect(screen.getByTestId('option-Banana')).toHaveAttribute('data-active', '');
+        });
+
+        fireEvent.keyDown(input, { key: 'ArrowUp' });
+        await waitFor(() => {
+          expect(screen.getByTestId('option-Apple')).toHaveAttribute('data-active', '');
+        });
+      });
+
+      it('should keep aria-activedescendant in sync with the active option', async () => {
+        await render(TestSelectInputComponent);
+        const select = screen.getByTestId('select-with-input');
+
+        fireEvent.click(select);
+
+        const input = await screen.findByTestId('select-input');
+
+        fireEvent.keyDown(input, { key: 'ArrowDown' });
+
+        await waitFor(() => {
+          const banana = screen.getByTestId('option-Banana');
+          expect(banana).toHaveAttribute('data-active', '');
+          expect(input).toHaveAttribute('aria-activedescendant', banana.getAttribute('id')!);
+        });
+      });
+
+      it('should select the active option when Enter is pressed', async () => {
+        const { fixture } = await render(TestSelectInputComponent);
+        const component = fixture.componentInstance;
+        const select = screen.getByTestId('select-with-input');
+
+        fireEvent.click(select);
+
+        const input = await screen.findByTestId('select-input');
+
+        await waitFor(() => {
+          expect(screen.getByTestId('option-Apple')).toHaveAttribute('data-active', '');
+        });
+
+        fireEvent.keyDown(input, { key: 'ArrowDown' });
+        await waitFor(() => {
+          expect(screen.getByTestId('option-Banana')).toHaveAttribute('data-active', '');
+        });
+
+        fireEvent.keyDown(input, { key: 'Enter' });
+
+        await waitFor(() => {
+          expect(component.value()).toBe('Banana');
+        });
+      });
+
+      it('should close the dropdown and return focus to the trigger when Escape is pressed', async () => {
+        await render(TestSelectInputComponent);
+        const select = screen.getByTestId('select-with-input');
+
+        fireEvent.click(select);
+
+        const input = await screen.findByTestId('select-input');
+        fireEvent.keyDown(input, { key: 'Escape' });
+
+        await waitFor(() => {
+          expect(screen.queryByTestId('select-input')).not.toBeInTheDocument();
+          expect(select).toHaveFocus();
+        });
+      });
+
+      it('should move the active option onto a rendered option when filtering removes the active one', async () => {
+        await render(TestSelectInputComponent);
+        const select = screen.getByTestId('select-with-input');
+
+        fireEvent.click(select);
+
+        const input = await screen.findByTestId('select-input');
+
+        await waitFor(() => {
+          expect(screen.getByTestId('option-Apple')).toHaveAttribute('data-active', '');
+        });
+
+        // filter Apple out, the active descendant must not point at a removed option
+        fireEvent.input(input, { target: { value: 'an' } });
+
+        await waitFor(() => {
+          expect(screen.queryByTestId('option-Apple')).not.toBeInTheDocument();
+
+          const activeId = input.getAttribute('aria-activedescendant');
+          expect(activeId).toBeTruthy();
+          expect(document.getElementById(activeId!)).toBeInTheDocument();
         });
       });
     });
