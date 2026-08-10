@@ -90,21 +90,19 @@ function setupForSignal(
         return;
       }
 
-      if (s) {
-        // No need to subscribe to anything since everything is signal based
-        status.set({
-          valid: s().valid(),
-          invalid: s().invalid(),
-          pristine: !s().dirty(),
-          dirty: s().dirty(),
-          touched: s().touched(),
-          pending: s().pending(),
-          errors: s()
-            .errors()
-            .map(x => x.kind),
-          disabled: s().disabled(),
-        });
-      }
+      // No need to subscribe to anything since everything is signal based
+      status.set({
+        valid: s().valid(),
+        invalid: s().invalid(),
+        pristine: !s().dirty(),
+        dirty: s().dirty(),
+        touched: s().touched(),
+        pending: s().pending(),
+        errors: s()
+          .errors()
+          .map(x => x.kind),
+        disabled: s().disabled(),
+      });
     },
     { injector },
   );
