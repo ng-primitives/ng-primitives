@@ -81,7 +81,12 @@ function setupForSignal(
     () => {
       const s = source();
 
-      if (!s || typeof s !== 'function') {
+      if (!s) {
+        status.set(initialStatus);
+        return;
+      }
+
+      if (typeof s !== 'function') {
         return;
       }
 
