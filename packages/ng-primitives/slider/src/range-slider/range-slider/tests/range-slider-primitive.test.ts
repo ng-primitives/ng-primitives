@@ -578,6 +578,32 @@ describe('NgpRangeSlider', () => {
   });
 
   describe('disabled', () => {
+    it('should set data-disabled on the host when disabled from the first render', async () => {
+      await render(TestComponent, { componentProperties: { disabled: signal(true) } });
+
+      expect(screen.getByTestId('range-slider')).toHaveAttribute('data-disabled', '');
+    });
+
+    it('should set and remove data-disabled on the host when disabled changes', async () => {
+      const { fixture } = await render(TestComponent);
+      const component = fixture.componentInstance;
+      const slider = screen.getByTestId('range-slider');
+
+      expect(slider).not.toHaveAttribute('data-disabled');
+
+      component.disabled.set(true);
+      fixture.detectChanges();
+      await fixture.whenStable();
+
+      expect(slider).toHaveAttribute('data-disabled', '');
+
+      component.disabled.set(false);
+      fixture.detectChanges();
+      await fixture.whenStable();
+
+      expect(slider).not.toHaveAttribute('data-disabled');
+    });
+
     it('should respect disabled state', async () => {
       const { fixture } = await render(TestComponent);
       const component = fixture.componentInstance;
