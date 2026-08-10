@@ -2,7 +2,7 @@ import { Signal, computed, signal } from '@angular/core';
 import { NgControl } from '@angular/forms';
 import { injectElementRef } from 'ng-primitives/internal';
 import { createPrimitive, dataBinding } from 'ng-primitives/state';
-import { controlStatus, FormFieldSource, sourceStatus } from 'ng-primitives/utils';
+import { controlStatus, FormFieldSource } from 'ng-primitives/utils';
 
 /**
  * The state interface for the FormField primitive.
@@ -96,10 +96,11 @@ export const [NgpFormFieldStateToken, ngpFormField, injectFormFieldState, provid
   createPrimitive('NgpFormField', ({ ngControl, formFieldSource }: NgpFormFieldProps) => {
     const element = injectElementRef();
 
-    const formFieldStatus = sourceStatus(formFieldSource);
-
     // Access the form control status.
-    const status = controlStatus(ngControl);
+    const status = controlStatus({
+      source: formFieldSource,
+      control: ngControl,
+    });
 
     // Store the form labels
     const labels = signal<string[]>([]);
@@ -111,16 +112,16 @@ export const [NgpFormFieldStateToken, ngpFormField, injectFormFieldState, provid
     const formControl = signal<string | null>(null);
 
     // Store the validation error messages
-    const errors = computed<string[]>(() => formFieldStatus().errors ?? status().errors ?? []);
+    const errors = computed<string[]>(() => status().errors ?? []);
 
     // Form control state signals
-    const pristine = computed<boolean | null>(() => formFieldStatus().pristine ?? status().pristine);
-    const touched = computed<boolean | null>(() => formFieldStatus().touched ?? status().touched);
-    const dirty = computed<boolean | null>(() => formFieldStatus().dirty ?? status().dirty);
-    const valid = computed<boolean | null>(() => formFieldStatus().valid ?? status().valid);
-    const invalid = computed<boolean | null>(() => formFieldStatus().invalid ?? status().invalid);
-    const pending = computed<boolean | null>(() => formFieldStatus().pending ?? status().pending);
-    const disabled = computed<boolean | null>(() => formFieldStatus().disabled ?? status().disabled);
+    const pristine = computed<boolean | null>(() => status().pristine);
+    const touched = computed<boolean | null>(() => status().touched);
+    const dirty = computed<boolean | null>(() => status().dirty);
+    const valid = computed<boolean | null>(() => status().valid);
+    const invalid = computed<boolean | null>(() => status().invalid);
+    const pending = computed<boolean | null>(() => status().pending);
+    const disabled = computed<boolean | null>(() => status().disabled);
 
     // Host bindings
     dataBinding(element, 'data-invalid', invalid);

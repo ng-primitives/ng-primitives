@@ -1,5 +1,5 @@
 import { AbstractControl } from '@angular/forms';
-import { FieldState, FieldTree } from '@angular/forms/signals';
+import { FieldTree } from '@angular/forms/signals';
 
 /**
  * A utility type for Angular's onChange function.

@@ -1,5 +1,5 @@
 export { provideValueAccessor } from './forms/providers';
-export { controlStatus, NgpControlStatus, sourceStatus } from './forms/status';
+export { controlStatus, NgpControlStatus } from './forms/status';
 export { ChangeFn, TouchedFn, FormFieldSource } from './forms/types';
 export { booleanAttributeBinding } from './helpers/attributes';
 export { coerceBooleanOrUndefined, coerceNumberOrUndefined } from './helpers/coercion';
