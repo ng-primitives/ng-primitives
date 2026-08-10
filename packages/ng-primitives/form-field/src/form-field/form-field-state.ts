@@ -87,7 +87,15 @@ export interface NgpFormFieldProps {
    */
   readonly ngControl: Signal<NgControl | undefined>;
   /**
-   * Provide any AbstractControl or FieldTree if no NgControl is inside its DOM.
+   * The form control associated with the form field, used when the control is not
+   * located within the form field's own DOM.
+   *
+   * Accepts either a Reactive Forms `AbstractControl`, typically bound with
+   * `[formControl]`, or a Signal Forms `FieldTree`, typically bound with `[formField]`.
+   *
+   * When omitted, the form field automatically looks up the `NgControl` contained
+   * within its own DOM. This input is only necessary when the control lives outside
+   * the form field.
    */
   readonly formFieldSource: Signal<FormFieldSource | undefined>;
 }

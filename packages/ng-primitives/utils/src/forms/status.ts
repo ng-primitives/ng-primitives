@@ -37,6 +37,21 @@ const initialStatus: NgpControlStatus = {
   errors: null,
 };
 
+/**
+ * Create a reactive signal that tracks the status of an Angular form control.
+ *
+ * The control can be provided as a signal-based source (`FormFieldSource`, such as a
+ * signal `FieldTree` or interop control) or as a `NgControl`/classic `AbstractControl`.
+ *
+ * - Signal-based controls are read directly through their signal getters.
+ * - Classic controls are derived from the control and re-synced on `control.events`.
+ *
+ * If neither `source` nor `control` is provided, the nearest injected `NgControl` is used.
+ * @param options The options for the status.
+ * @param options.source A signal resolving to a `FormFieldSource` (signal-based control) or `NgControl`.
+ * @param options.control A signal resolving to a `NgControl`, used when no `source` is provided.
+ * @returns A reactive signal of the control's current status.
+ */
 export function controlStatus(options?: {
   source?: Signal<FormFieldSource | null | undefined>;
   control?: Signal<NgControl | null | undefined>;
@@ -53,19 +68,20 @@ export function controlStatus(options?: {
   return status;
 }
 
+/**
+ * Set up the status for a signal-based control by reading its signal getters.
+ * @internal
+ */
 function setupForSignal(
   source: Signal<FormFieldSource | NgControl | null | undefined>,
   status: WritableSignal<NgpControlStatus>,
   injector: Injector,
 ): void {
-  let canReset = true;
-
   effect(
     () => {
       const s = source();
 
       if (!s || typeof s !== 'function') {
-        canReset = false;
         return;
       }
 
@@ -83,32 +99,30 @@ function setupForSignal(
             .map(x => x.kind),
           disabled: s().disabled(),
         });
-      } else if (canReset) {
-        status.set(initialStatus);
       }
     },
     { injector },
   );
 }
 
+/**
+ * Set up the status for a `NgControl` or classic `AbstractControl`, re-syncing on
+ * `control.events`. Falls back to the injected `NgControl` when no source is provided.
+ * @internal
+ */
 function setupForObservable(
   source: WritableSignal<FormFieldSource | NgControl | null | undefined>,
   status: WritableSignal<NgpControlStatus>,
   destroyRef: DestroyRef,
   injector: Injector,
 ) {
-  let canReset = true;
-  let canUnsubscribe = true;
   let subscription: Subscription | undefined;
   const control = linkedSignal<AbstractControl | null>(() => {
     const s = source();
 
     if (!s || typeof s === 'function') {
-      canReset = false;
       return null;
     }
-
-    canUnsubscribe = false;
 
     if ('control' in s) {
       return s.control;
@@ -164,15 +178,11 @@ function setupForObservable(
     () => {
       const c = control();
 
-      if (canUnsubscribe) {
-        subscription?.unsubscribe();
-      }
+      subscription?.unsubscribe();
 
       if (c) {
         setup(c);
         updateStatus(c);
-      } else if (canReset) {
-        untracked(() => status.set(initialStatus));
       }
     },
     { injector },
