@@ -1,6 +1,6 @@
 import { Directive, contentChild, input } from '@angular/core';
 import { NgControl } from '@angular/forms';
-import { FormFieldSource } from 'packages/ng-primitives/utils/src/forms/types';
+import { FormFieldSource } from 'ng-primitives/utils';
 import { ngpFormField, provideFormFieldState } from './form-field-state';
 
 /**
