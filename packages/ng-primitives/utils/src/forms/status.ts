@@ -7,6 +7,7 @@ import {
   inject,
   linkedSignal,
   signal,
+  untracked,
 } from '@angular/core';
 import { AbstractControl, NgControl } from '@angular/forms';
 import { onDestroy, onMount } from 'ng-primitives/state';
@@ -25,28 +26,29 @@ export interface NgpControlStatus {
   disabled: boolean | null;
 }
 
+const initialStatus: NgpControlStatus = {
+  valid: null,
+  invalid: null,
+  pristine: null,
+  dirty: null,
+  touched: null,
+  pending: null,
+  disabled: null,
+  errors: null,
+};
+
 export function controlStatus(options?: {
   source?: Signal<FormFieldSource | null | undefined>;
   control?: Signal<NgControl | null | undefined>;
 }): Signal<NgpControlStatus> {
   const injector = inject(Injector);
   const destroyRef = inject(DestroyRef);
-  const initialStatus: NgpControlStatus = {
-    valid: null,
-    invalid: null,
-    pristine: null,
-    dirty: null,
-    touched: null,
-    pending: null,
-    disabled: null,
-    errors: null,
-  };
   const status = signal(initialStatus);
 
-  const source = linkedSignal(() => options?.source?.() ?? options?.control?.());
+  const optionSource = linkedSignal(() => options?.source?.() ?? options?.control?.());
 
-  setupForSignal(source, status, injector, initialStatus);
-  setupForObservable(source, status, destroyRef, injector, initialStatus);
+  setupForSignal(optionSource, status, injector);
+  setupForObservable(optionSource, status, destroyRef, injector);
 
   return status;
 }
@@ -55,7 +57,6 @@ function setupForSignal(
   source: Signal<FormFieldSource | NgControl | null | undefined>,
   status: WritableSignal<NgpControlStatus>,
   injector: Injector,
-  initialStatus: NgpControlStatus,
 ): void {
   let canReset = true;
 
@@ -91,15 +92,14 @@ function setupForSignal(
 }
 
 function setupForObservable(
-  source: Signal<FormFieldSource | NgControl | null | undefined>,
+  source: WritableSignal<FormFieldSource | NgControl | null | undefined>,
   status: WritableSignal<NgpControlStatus>,
   destroyRef: DestroyRef,
   injector: Injector,
-  initialStatus: NgpControlStatus,
 ) {
   let canReset = true;
   let canUnsubscribe = true;
-  const subscription = new Subscription();
+  let subscription: Subscription | undefined;
   const control = linkedSignal<AbstractControl | null>(() => {
     const s = source();
 
@@ -122,27 +122,42 @@ function setupForObservable(
     // For classic controls, read from the underlying AbstractControl.
     const source = isInteropControl(control) ? control : ((control as any).control ?? control);
 
-    status.set({
-      valid: source.valid ?? null,
-      invalid: source.invalid ?? null,
-      pristine: source.pristine ?? null,
-      dirty: source.dirty ?? null,
-      touched: source.touched ?? null,
-      pending: source.pending ?? null,
-      disabled: source.disabled ?? null,
-      errors: source.errors ? Object.keys(source.errors!) : null,
-    });
+    try {
+      untracked(() =>
+        status.set({
+          valid: source.valid ?? null,
+          invalid: source.invalid ?? null,
+          pristine: source.pristine ?? null,
+          dirty: source.dirty ?? null,
+          touched: source.touched ?? null,
+          pending: source.pending ?? null,
+          disabled: source.disabled ?? null,
+          errors: source.errors ? Object.keys(source.errors!) : null,
+        }),
+      );
+    } catch {
+      // NG0950: Required input not available yet. The effect will re-run
+      // when the signal input becomes available.
+    }
   }
 
-  onMount(() => {
-    if (!control()) {
-      const ngControl = inject(NgControl, { optional: true });
-      control.set(ngControl?.control ?? null);
+  function setup(control: AbstractControl) {
+    if (control.events) {
+      subscription = control.events
+        .pipe(safeTakeUntilDestroyed(destroyRef))
+        .subscribe(() => updateStatus(control));
     }
-  });
+  }
 
   onDestroy(() => {
-    subscription.unsubscribe();
+    subscription?.unsubscribe();
+  });
+
+  onMount(() => {
+    if (!source()) {
+      const ngControl = inject(NgControl, { optional: true });
+      source.set(ngControl?.control ?? null);
+    }
   });
 
   effect(
@@ -150,17 +165,14 @@ function setupForObservable(
       const c = control();
 
       if (canUnsubscribe) {
-        subscription.unsubscribe();
+        subscription?.unsubscribe();
       }
 
       if (c) {
-        subscription.add(
-          c.events.pipe(safeTakeUntilDestroyed(destroyRef)).subscribe(() => updateStatus(c)),
-        );
-
+        setup(c);
         updateStatus(c);
       } else if (canReset) {
-        status.set(initialStatus);
+        untracked(() => status.set(initialStatus));
       }
     },
     { injector },
