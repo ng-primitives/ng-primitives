@@ -59,6 +59,12 @@ ng g ng-primitives:primitive form-field
 - `styles`: How component styles should be generated. `css` (default) includes the full example styles; `unstyled` omits them entirely so you can style the component yourself.
 - `example-styles` (deprecated): still supported for compatibility - `true` maps to `styles: css`, `false` maps to `styles: unstyled`.
 
+### Outer FormField
+
+This example demonstrates form-field with a form source input. Works both with ReactiveForms and SignalForms.
+
+<docs-example name="outer-form-field"></docs-example>
+
 ## API Reference
 
 The following directives are available to import from the `ng-primitives/form-field` package:

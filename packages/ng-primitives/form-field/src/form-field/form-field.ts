@@ -1,5 +1,6 @@
-import { Directive, contentChild } from '@angular/core';
+import { Directive, contentChild, input } from '@angular/core';
 import { NgControl } from '@angular/forms';
+import { FormFieldSource } from 'packages/ng-primitives/utils/src/forms/types';
 import { ngpFormField, provideFormFieldState } from './form-field-state';
 
 /**
@@ -15,12 +16,20 @@ export class NgpFormField {
    * Find any NgControl within the form field.
    * @internal
    */
-  private readonly ngControl = contentChild(NgControl);
+  private readonly ngControlChild = contentChild(NgControl);
+
+  /**
+   * Provide any AbstractControl or FieldTree if no NgControl is inside its DOM.
+   */
+  readonly formFieldSource = input<FormFieldSource | undefined>(undefined, {
+    alias: 'ngpFormFieldSource',
+  });
 
   /**
    * The form field state.
    */
-  constructor() {
-    ngpFormField({ ngControl: this.ngControl });
-  }
+  protected readonly state = ngpFormField({
+    ngControl: this.ngControlChild,
+    formFieldSource: this.formFieldSource,
+  });
 }
