@@ -1,13 +1,12 @@
 import { InjectionToken, Provider, inject } from '@angular/core';
-import { NgpFlip, NgpOffset } from 'ng-primitives/portal';
-import { NgpComboboxPlacement } from '../combobox/combobox-state';
+import { NgpFlip, NgpOffset, NgpPlacement } from 'ng-primitives/portal';
 
 export interface NgpComboboxConfig {
   /**
    * The default placement for the combobox dropdown.
    * @default 'bottom'
    */
-  placement: NgpComboboxPlacement;
+  placement: NgpPlacement;
 
   /**
    * The container element or selector for the combobox dropdown.

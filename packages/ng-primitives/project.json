@@ -65,6 +65,7 @@
     },
     "build:schematics:test": {
       "executor": "@nx/js:tsc",
+      "dependsOn": ["build:templates"],
       "outputs": ["{options.outputPath}"],
       "options": {
         "clean": true,
@@ -107,8 +108,10 @@
     },
     "test-browser": {
       "executor": "@analogjs/vitest-angular:test",
+      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
       "options": {
-        "configFile": "vite.config.ts"
+        "configFile": "vite.config.ts",
+        "coverage": true
       }
     },
     "test-node": {

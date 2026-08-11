@@ -61,6 +61,14 @@ import { ChangeFn, provideValueAccessor, TouchedFn } from 'ng-primitives/utils';
     [ngpSwitchThumb][data-checked] {
       transform: translateX(17px);
     }
+
+    /* Reduce motion for users who prefer reduced motion. */
+    @media (prefers-reduced-motion: reduce) {
+      :host,
+      [ngpSwitchThumb] {
+        transition-duration: 0s;
+      }
+    }
   `,
   providers: [provideValueAccessor(Switch)],
   host: {
@@ -86,7 +94,8 @@ export class Switch implements ControlValueAccessor {
 
   /** Write a new value to the switch. */
   writeValue(value: boolean): void {
-    this.switch().setChecked(value);
+    // writing a value from the model must not re-emit through onChange
+    this.switch().setChecked(value, { emit: false });
   }
 
   /** Register a callback function to be called when the value changes. */

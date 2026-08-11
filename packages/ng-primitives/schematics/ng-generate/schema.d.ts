@@ -12,6 +12,7 @@ export interface AngularPrimitivesComponentSchema {
     | 'pagination'
     | 'progress'
     | 'radio'
+    | 'rating'
     | 'switch'
     | 'toggle'
     | 'toggle-group'
@@ -62,7 +63,16 @@ export interface AngularPrimitivesComponentSchema {
   fileSuffix?: string;
 
   /**
+   * How component styles should be generated.
+   * `css` includes the full example styles; `unstyled` omits them entirely so you
+   * can style the component yourself.
+   */
+  styles?: 'css' | 'unstyled';
+
+  /**
    * Whether example styles should be included.
+   *
+   * @deprecated Use `styles` instead: `true` maps to `--styles css`, `false` to `--styles unstyled`.
    */
   exampleStyles?: boolean;
   /**

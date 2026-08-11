@@ -116,9 +116,10 @@ export class RangeSlider implements ControlValueAccessor {
     }
 
     const [low, high] = value;
-    // Use the directive's clamping setters to respect min/max and ordering
-    this.state().setLowValue(low);
-    this.state().setHighValue(high);
+    // Use the directive's clamping setters to respect min/max and ordering.
+    // writing a value from the model must not re-emit through onChange
+    this.state().setLowValue(low, { emit: false });
+    this.state().setHighValue(high, { emit: false });
   }
 
   registerOnChange(fn: ChangeFn<[number, number]>): void {

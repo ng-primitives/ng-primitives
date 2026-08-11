@@ -1,4 +1,5 @@
 ---
+title: Number Field | Angular Primitives
 name: 'Number Field'
 sourceUrl: 'https://github.com/ng-primitives/ng-primitives/tree/next/packages/ng-primitives/number-field'
 ---
@@ -52,7 +53,8 @@ ng g ng-primitives:primitive number-field
 - `prefix`: The prefix to apply to the generated component selector.
 - `component-suffix`: The suffix to apply to the generated component class name.
 - `file-suffix`: The suffix to apply to the generated component file name. Defaults to `component`.
-- `example-styles`: Whether to include example styles in the generated component file. Defaults to `true`.
+- `styles`: How component styles should be generated. `css` (default) includes the full example styles; `unstyled` omits them entirely so you can style the component yourself.
+- `example-styles` (deprecated): still supported for compatibility - `true` maps to `styles: css`, `false` maps to `styles: unstyled`.
 
 ## API Reference
 
@@ -148,6 +150,8 @@ Adheres to the [Spinbutton WAI-ARIA design pattern](https://www.w3.org/WAI/ARIA/
 - <kbd>Arrow Down</kbd>: Decrease the value by the step.
 - <kbd>Shift</kbd> + <kbd>Arrow Up</kbd>: Increase the value by the large step.
 - <kbd>Shift</kbd> + <kbd>Arrow Down</kbd>: Decrease the value by the large step.
+- <kbd>Page Up</kbd>: Increase the value by the large step.
+- <kbd>Page Down</kbd>: Decrease the value by the large step.
 - <kbd>Home</kbd>: Set the value to the minimum (if finite).
 - <kbd>End</kbd>: Set the value to the maximum (if finite).
 - <kbd>Enter</kbd>: Commit the typed value.

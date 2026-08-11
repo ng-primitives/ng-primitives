@@ -44,30 +44,45 @@ export class NgpNativeDateAdapter implements NgpDateAdapter<Date> {
    * Add a duration to the date time object.
    */
   add(date: Date, duration: NgpDuration): Date {
-    return new Date(
-      date.getFullYear() + (duration.years ?? 0),
-      date.getMonth() + (duration.months ?? 0),
-      date.getDate() + (duration.days ?? 0),
-      date.getHours() + (duration.hours ?? 0),
-      date.getMinutes() + (duration.minutes ?? 0),
-      date.getSeconds() + (duration.seconds ?? 0),
-      date.getMilliseconds() + (duration.milliseconds ?? 0),
-    );
+    return this.shift(date, duration, 1);
   }
 
   /**
    * Subtract a duration from the date time object
    */
   subtract(date: Date, duration: NgpDuration): Date {
-    return new Date(
-      date.getFullYear() - (duration.years ?? 0),
-      date.getMonth() - (duration.months ?? 0),
-      date.getDate() - (duration.days ?? 0),
-      date.getHours() - (duration.hours ?? 0),
-      date.getMinutes() - (duration.minutes ?? 0),
-      date.getSeconds() - (duration.seconds ?? 0),
-      date.getMilliseconds() - (duration.milliseconds ?? 0),
+    return this.shift(date, duration, -1);
+  }
+
+  /**
+   * Apply a duration in `sign` direction. Year/month are applied first with the
+   * day clamped to the target month's length (so 31 Jan + 1 month is 28 Feb, not
+   * 3 Mar), matching the Luxon and date-fns adapters; day/time deltas follow.
+   */
+  private shift(date: Date, duration: NgpDuration, sign: 1 | -1): Date {
+    const year = date.getFullYear() + sign * (duration.years ?? 0);
+    const month = date.getMonth() + sign * (duration.months ?? 0);
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    const day = Math.min(date.getDate(), daysInMonth);
+
+    const result = new Date(
+      year,
+      month,
+      day,
+      date.getHours(),
+      date.getMinutes(),
+      date.getSeconds(),
+      date.getMilliseconds(),
     );
+
+    result.setDate(result.getDate() + sign * (duration.days ?? 0));
+    result.setHours(
+      result.getHours() + sign * (duration.hours ?? 0),
+      result.getMinutes() + sign * (duration.minutes ?? 0),
+      result.getSeconds() + sign * (duration.seconds ?? 0),
+      result.getMilliseconds() + sign * (duration.milliseconds ?? 0),
+    );
+    return result;
   }
 
   /**
@@ -194,7 +209,7 @@ export class NgpNativeDateAdapter implements NgpDateAdapter<Date> {
    * Get the last day of the month.
    */
   endOfMonth(date: Date): Date {
-    return new Date(date.getFullYear(), date.getMonth() + 1, 0);
+    return new Date(date.getFullYear(), date.getMonth() + 1, 0, 23, 59, 59, 999);
   }
 
   /**

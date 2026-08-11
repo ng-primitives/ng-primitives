@@ -1,3 +1,272 @@
+## 0.130.0 (2026-08-07)
+
+### 🩹 Fixes
+
+- **menu:** stop the trigger-group hover flickering between siblings ([#909](https://github.com/ng-primitives/ng-primitives/pull/909))
+
+### ❤️ Thank You
+
+- Ashley Hunter
+
+## 0.129.0 (2026-08-07)
+
+### 🩹 Fixes
+
+- **tooltip:** measure showOnOverflow on demand instead of observing ([#901](https://github.com/ng-primitives/ng-primitives/pull/901))
+
+### ❤️ Thank You
+
+- Ashley Hunter
+
+## 0.128.8 (2026-08-05)
+
+### 🚀 Features
+
+- **date-picker:** allow set start and end date on range picker ([#897](https://github.com/ng-primitives/ng-primitives/pull/897))
+
+### 🩹 Fixes
+
+- **ng-primitives:** allow TypeScript 6 by bumping tsquery to 6.2.0 ([#899](https://github.com/ng-primitives/ng-primitives/pull/899))
+
+### ❤️ Thank You
+
+- Anton Pieper @AntonPieper
+- Miguel Gremy @MGREMY
+
+## 0.128.7 (2026-08-03)
+
+### 🩹 Fixes
+
+- **internal:** defer the initial resize measurement to a microtask ([#895](https://github.com/ng-primitives/ng-primitives/pull/895), [#415](https://github.com/ng-primitives/ng-primitives/issues/415), [#692](https://github.com/ng-primitives/ng-primitives/issues/692))
+
+### ❤️ Thank You
+
+- Ashley Hunter
+
+## 0.128.6 (2026-07-31)
+
+### 🚀 Features
+
+- **file-upload:** add file upload/dropzone config ([#888](https://github.com/ng-primitives/ng-primitives/pull/888))
+
+### 🩹 Fixes
+
+- **menu:** shorten the hover corridor's idle wait over a sibling ([#889](https://github.com/ng-primitives/ng-primitives/pull/889))
+
+### ❤️ Thank You
+
+- Ashley Hunter
+- Marc Stammerjohann @marcjulian
+
+## 0.128.5 (2026-07-30)
+
+### 🚀 Features
+
+- **ai:** make the dictation language configurable and stop it overwriting user edits ([#881](https://github.com/ng-primitives/ng-primitives/pull/881))
+- **input-otp:** add valueChange and completeChange Observable in InputOtp state ([#877](https://github.com/ng-primitives/ng-primitives/pull/877))
+- **popover,portal:** add keepMounted option to preserve overlay content across close/reopen ([#884](https://github.com/ng-primitives/ng-primitives/pull/884))
+
+### 🩹 Fixes
+
+- **menu:** prevent a sibling trigger from opening while the pointer transits to an open menu ([#885](https://github.com/ng-primitives/ng-primitives/pull/885))
+
+### ❤️ Thank You
+
+- Ashley Hunter
+- Miguel Gremy @MGREMY
+- Paul Barahona
+
+## 0.128.4 (2026-07-29)
+
+This was a version bump only, there were no code changes.
+
+## 0.128.3 (2026-07-28)
+
+### 🩹 Fixes
+
+- **state:** run element listeners outside the active reactive consumer ([#880](https://github.com/ng-primitives/ng-primitives/pull/880))
+
+### ❤️ Thank You
+
+- Ashley Hunter
+
+## 0.128.2 (2026-07-28)
+
+### 🚀 Features
+
+- **tooltip,popover,input-otp:** round out the imperative trigger APIs ([#878](https://github.com/ng-primitives/ng-primitives/pull/878))
+
+### ❤️ Thank You
+
+- Ashley Hunter
+
+## 0.128.1 (2026-07-28)
+
+### 🚀 Features
+
+- **popover,tooltip:** expose a setter for every trigger input ([#875](https://github.com/ng-primitives/ng-primitives/pull/875))
+
+### 🩹 Fixes
+
+- **radio:** disable a radio item when its group is disabled ([#876](https://github.com/ng-primitives/ng-primitives/pull/876))
+
+### ❤️ Thank You
+
+- Ashley Hunter
+
+## 0.128.0 (2026-07-28)
+
+### 🚀 Features
+
+- **ai:** migrate ai state ([#846](https://github.com/ng-primitives/ng-primitives/pull/846))
+- **date-picker:** migrate date-picker state ([#849](https://github.com/ng-primitives/ng-primitives/pull/849), [#850](https://github.com/ng-primitives/ng-primitives/issues/850))
+- **input-otp:** migrate input-otp state ([#834](https://github.com/ng-primitives/ng-primitives/pull/834), [#833](https://github.com/ng-primitives/ng-primitives/issues/833))
+- **listbox:** migrate listbox state ([#835](https://github.com/ng-primitives/ng-primitives/pull/835))
+- **meter:** migrate meter state ([#830](https://github.com/ng-primitives/ng-primitives/pull/830), [#829](https://github.com/ng-primitives/ng-primitives/issues/829))
+- **portal:** expose overflow boundary options on flip and shift ([#866](https://github.com/ng-primitives/ng-primitives/pull/866), [#689](https://github.com/ng-primitives/ng-primitives/issues/689))
+- **schematics:** add a styles option to the primitive schematic ([#854](https://github.com/ng-primitives/ng-primitives/pull/854))
+- **search:** migrate search state ([#838](https://github.com/ng-primitives/ng-primitives/pull/838))
+
+### 🩹 Fixes
+
+- **ai:** only submit prompt on unmodified Enter ([#860](https://github.com/ng-primitives/ng-primitives/pull/860))
+- **ai:** apply the thread viewport threshold and gate auto-scroll on it ([#871](https://github.com/ng-primitives/ng-primitives/pull/871))
+- **ai:** read speech recognition from globalThis so dictation survives SSR ([#873](https://github.com/ng-primitives/ng-primitives/pull/873))
+- **date-picker:** bound disabled-date search to min/max in setFocusedDate ([#858](https://github.com/ng-primitives/ng-primitives/pull/858))
+- **dialog,toast:** preserve caller injector for portal-rendered content ([#845](https://github.com/ng-primitives/ng-primitives/pull/845), [#823](https://github.com/ng-primitives/ng-primitives/issues/823))
+- **form-field:** gate aria-invalid on interaction ([#827](https://github.com/ng-primitives/ng-primitives/pull/827), [#826](https://github.com/ng-primitives/ng-primitives/issues/826))
+- **internal:** harden exit-animation system and align with native animate.leave ([#847](https://github.com/ng-primitives/ng-primitives/pull/847))
+- **listbox:** correct option data-attribute behaviour and docs ([#852](https://github.com/ng-primitives/ng-primitives/pull/852), [#697](https://github.com/ng-primitives/ng-primitives/issues/697))
+- **ng-primitives:** route deprecated setters through their state setters ([#859](https://github.com/ng-primitives/ng-primitives/pull/859))
+- **portal:** keep the positioning strategy on overlay position updates ([#857](https://github.com/ng-primitives/ng-primitives/pull/857), [#758](https://github.com/ng-primitives/ng-primitives/issues/758))
+- ⚠️  **portal:** render overlay content that changes after the overlay is created ([#861](https://github.com/ng-primitives/ng-primitives/pull/861), [#711](https://github.com/ng-primitives/ng-primitives/issues/711))
+- **schematics:** generate templates that compile ([#841](https://github.com/ng-primitives/ng-primitives/pull/841))
+- **schematics:** honour --prefix in camelCase selectors and aliases ([#856](https://github.com/ng-primitives/ng-primitives/pull/856))
+
+### ⚠️  Breaking Changes
+
+- **portal:** render overlay content that changes after the overlay is created  ([#861](https://github.com/ng-primitives/ng-primitives/pull/861), [#711](https://github.com/ng-primitives/ng-primitives/issues/711))
+  `NgpOverlayConfig.content` is a `Signal<NgpOverlayContent<T> |
+  null | undefined>` rather than a plain value. The interface is marked
+  `@internal`, so this only affects callers building overlays through
+  `createOverlay()` directly; pass a signal instead of a value.
+  Closes #711
+  Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>
+  Claude-Session: https://claude.ai/code/session_0173yN3hG6meJzsrgEMMjFbT
+  * test(tooltip): restore the console spy in a finally
+  A failing assertion left `console.error` stubbed for the rest of the run, which
+  would swallow diagnostics from every test after it. Matches the try/finally the
+  exit-animation tests in this file already use.
+  Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>
+  Claude-Session: https://claude.ai/code/session_0173yN3hG6meJzsrgEMMjFbT
+
+### ❤️ Thank You
+
+- Ashley Hunter
+- Claude
+- Claude Opus 4.8
+- Claude Opus 5
+- Paul Barahona
+
+## 0.127.0 (2026-07-11)
+
+### 🚀 Features
+
+- **collapsible:** add collapsible primitive and share its core with accordion ([#820](https://github.com/ng-primitives/ng-primitives/pull/820))
+- **color:** add color primitives ([#819](https://github.com/ng-primitives/ng-primitives/pull/819))
+- **dialog:** migrate dialog state ([#776](https://github.com/ng-primitives/ng-primitives/pull/776))
+- **rating:** add rating primitive ([#821](https://github.com/ng-primitives/ng-primitives/pull/821))
+
+### ❤️ Thank You
+
+- Ashley Hunter
+- Miguel Gremy @MGREMY
+
+## 0.126.0 (2026-07-09)
+
+### 🚀 Features
+
+- **password:** add password primitive with show/hide toggle ([#818](https://github.com/ng-primitives/ng-primitives/pull/818), [#642](https://github.com/ng-primitives/ng-primitives/issues/642))
+
+### ❤️ Thank You
+
+- Ashley Hunter
+
+## 0.125.0 (2026-07-07)
+
+### 🚀 Features
+
+- **date-time:** add date-fns date adapter ([#816](https://github.com/ng-primitives/ng-primitives/pull/816))
+- **toggle-group:** make value type generic ([#810](https://github.com/ng-primitives/ng-primitives/pull/810))
+
+### 🩹 Fixes
+
+- ⚠️  **date-time:** align date adapters and expand contract coverage ([#817](https://github.com/ng-primitives/ng-primitives/pull/817))
+- **toggle-group:** expose aria-pressed toggle buttons in multiple-select groups ([#814](https://github.com/ng-primitives/ng-primitives/pull/814), [#813](https://github.com/ng-primitives/ng-primitives/issues/813))
+
+### ⚠️  Breaking Changes
+
+- **date-time:** align date adapters and expand contract coverage  ([#817](https://github.com/ng-primitives/ng-primitives/pull/817))
+  the native adapter's `endOfMonth` now returns the end of
+  the day rather than midnight, and its `add`/`subtract` clamp month/year
+  arithmetic instead of overflowing. The Luxon adapter's `getMonth` now
+  returns a zero-based month (0-11) to match the native adapter.
+  * docs(date-time): clarify one-based create vs zero-based set month
+
+### ❤️ Thank You
+
+- Antoine Delahaye
+- Anton Pieper @AntonPieper
+- Ashley Hunter
+- Claude Sonnet 4.6
+- DELAHAYE Antoine
+
+## 0.124.0 (2026-07-04)
+
+### 🩹 Fixes
+
+- **pagination:** restore keyboard activation ([#807](https://github.com/ng-primitives/ng-primitives/pull/807))
+- **radio:** expose radio group and item state publicly ([#811](https://github.com/ng-primitives/ng-primitives/pull/811))
+
+### ❤️ Thank You
+
+- Ashley Hunter
+- Claude
+- Zonaib Bokhari @xonaib
+
+## 0.123.1 (2026-07-03)
+
+### 🩹 Fixes
+
+- **menu:** stop nested submenu triggers hijacking the parent trigger state ([#806](https://github.com/ng-primitives/ng-primitives/pull/806), [#805](https://github.com/ng-primitives/ng-primitives/issues/805))
+
+### ❤️ Thank You
+
+- Ashley Hunter
+- Claude
+- Claude Fable 5
+
+## 0.123.0 (2026-07-02)
+
+### 🚀 Features
+
+- **menu:** add safe-polygon hover intent for menu and submenus ([#802](https://github.com/ng-primitives/ng-primitives/pull/802))
+- **submenu:** support setContainer/container on submenu trigger ([#799](https://github.com/ng-primitives/ng-primitives/pull/799))
+
+### 🩹 Fixes
+
+- **datepicker:** correct comparison logic ([#797](https://github.com/ng-primitives/ng-primitives/pull/797))
+- **portal:** don't evict ancestor overlays when registering a nested overlay ([#790](https://github.com/ng-primitives/ng-primitives/pull/790), [#789](https://github.com/ng-primitives/ng-primitives/issues/789))
+- **select,combobox:** validate active descendant when options change while open ([#787](https://github.com/ng-primitives/ng-primitives/pull/787), [#775](https://github.com/ng-primitives/ng-primitives/issues/775))
+- **utils:** release DestroyRef registrations when disposables are cleaned up ([#803](https://github.com/ng-primitives/ng-primitives/pull/803))
+
+### ❤️ Thank You
+
+- Ashley Hunter
+- Kokkinis99 @Kokkinis99
+- Marco Rinaldi @MRinaldi9
+- Matt Van Horn @mvanhorn
+
 ## 0.122.0 (2026-06-18)
 
 ### 🚀 Features

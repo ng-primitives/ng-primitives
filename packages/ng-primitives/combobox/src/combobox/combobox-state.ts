@@ -10,7 +10,7 @@ import {
 import { activeDescendantManager } from 'ng-primitives/a11y';
 import { ngpInteractions } from 'ng-primitives/interactions';
 import { domSort, injectElementRef } from 'ng-primitives/internal';
-import { NgpFlip, NgpOffset, NgpOverlay } from 'ng-primitives/portal';
+import { NgpFlip, NgpOffset, NgpOverlay, NgpPlacement } from 'ng-primitives/portal';
 import {
   attrBinding,
   controlled,
@@ -857,16 +857,9 @@ export function injectComboboxState<T>(
   return _injectComboboxState(options) as Signal<NgpComboboxState<T>>;
 }
 
-export type NgpComboboxPlacement =
-  | 'top'
-  | 'right'
-  | 'bottom'
-  | 'left'
-  | 'top-start'
-  | 'top-end'
-  | 'right-start'
-  | 'right-end'
-  | 'bottom-start'
-  | 'bottom-end'
-  | 'left-start'
-  | 'left-end';
+/**
+ * Where the combobox dropdown is placed relative to its trigger.
+ * @deprecated Identical to `NgpPlacement` from `ng-primitives/portal` - use that instead.
+ * Will be removed in a future major.
+ */
+export type NgpComboboxPlacement = NgpPlacement;

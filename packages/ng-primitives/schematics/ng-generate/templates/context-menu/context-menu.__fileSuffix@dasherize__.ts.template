@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { NgpContextMenu } from 'ng-primitives/context-menu';
 
 @Component({
-  selector: '<%= prefix %>-context-menu',
+  selector: '<% if (prefix) { %><%= prefix %>-<% } %>context-menu',
   hostDirectives: [NgpContextMenu],
   template: `
     <ng-content />
@@ -47,6 +47,14 @@ import { NgpContextMenu } from 'ng-primitives/context-menu';
       100% {
         opacity: 0;
         transform: scale(0.9);
+      }
+    }
+
+    /* Reduce motion for users who prefer reduced motion. */
+    @media (prefers-reduced-motion: reduce) {
+      :host,
+      :host[data-exit] {
+        animation-duration: 0s;
       }
     }
   `,

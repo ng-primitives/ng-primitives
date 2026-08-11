@@ -101,6 +101,14 @@ import { NgpButton } from 'ng-primitives/button';
         height: 0;
       }
     }
+
+    /* Reduce motion for users who prefer reduced motion. */
+    @media (prefers-reduced-motion: reduce) {
+      [ngpAccordionContent][data-open],
+      [ngpAccordionContent][data-closed] {
+        animation-duration: 0s;
+      }
+    }
   `,
 })
 export class AccordionItem {

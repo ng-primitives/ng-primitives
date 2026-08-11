@@ -386,6 +386,51 @@
       "contributions": [
         "code"
       ]
+    },
+    {
+      "login": "Kokkinis99",
+      "name": "Kokkinis99",
+      "avatar_url": "https://avatars.githubusercontent.com/u/77012231?v=4",
+      "profile": "https://github.com/Kokkinis99",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "MRinaldi9",
+      "name": "Marco Rinaldi",
+      "avatar_url": "https://avatars.githubusercontent.com/u/23497095?v=4",
+      "profile": "https://github.com/MRinaldi9",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "xonaib",
+      "name": "Zonaib Bokhari",
+      "avatar_url": "https://avatars.githubusercontent.com/u/48220328?v=4",
+      "profile": "https://www.zonaibhassan.com",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "AntonPieper",
+      "name": "Anton Pieper",
+      "avatar_url": "https://avatars.githubusercontent.com/u/94118572?v=4",
+      "profile": "https://github.com/AntonPieper",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "pauldvlp",
+      "name": "Paul Barahona",
+      "avatar_url": "https://avatars.githubusercontent.com/u/72539686?v=4",
+      "profile": "https://paulbarahona.com",
+      "contributions": [
+        "code"
+      ]
     }
   ],
   "contributorsPerLine": 7,

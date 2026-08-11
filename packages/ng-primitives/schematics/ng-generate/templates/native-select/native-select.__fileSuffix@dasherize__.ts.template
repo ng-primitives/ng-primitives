@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { NgpNativeSelect } from 'ng-primitives/select';
 
 @Component({
-  selector: 'select[<%= prefix %>-select]',
+  selector: 'select[<% if (prefix) { %><%= prefix %>-<% } %>select]',
   hostDirectives: [{ directive: NgpNativeSelect, inputs: ['ngpNativeSelectDisabled:disabled'] }],
   template: `
     <ng-content />

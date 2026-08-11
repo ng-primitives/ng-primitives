@@ -1,4 +1,5 @@
 ---
+title: Navigation Menu | Angular Primitives
 name: 'Navigation Menu'
 sourceUrl: 'https://github.com/ng-primitives/ng-primitives/tree/next/packages/ng-primitives/navigation-menu'
 ---
@@ -139,23 +140,6 @@ A standalone navigation link within the menu list.
   <api-attribute name="data-disabled" description="Applied when the link is disabled" />
 </api-reference-attributes>
 
-## Accessibility
-
-The navigation menu uses `role="navigation"` on the container, `aria-haspopup="menu"` and `aria-expanded` on triggers, and `role="menu"` with `aria-labelledby` on content panels. This follows the [WAI-ARIA Navigation Menu pattern](https://www.w3.org/WAI/ARIA/apg/patterns/menubar/).
-
-### Keyboard Interactions
-
-| Key                        | Action                                              |
-| -------------------------- | --------------------------------------------------- |
-| `ArrowRight` / `ArrowLeft` | Navigate between triggers (horizontal orientation)  |
-| `ArrowUp` / `ArrowDown`    | Navigate between triggers (vertical orientation)    |
-| `ArrowDown` (horizontal)   | Open content and focus first item                   |
-| `ArrowRight` (vertical)    | Open content and focus first item                   |
-| `Enter` / `Space`          | Open content and focus first item, or activate link |
-| `Escape`                   | Close content and return focus to trigger           |
-| `Home` / `End`             | Navigate to first/last trigger                      |
-| `Tab`                      | Move focus out of the navigation menu               |
-
 ## Styling
 
 The navigation menu content uses a portal and should be positioned using `position: fixed` or `position: absolute`.
@@ -232,3 +216,20 @@ bootstrapApplication(AppComponent, {
 ### NgpNavigationMenuConfig
 
 <api-reference-config name="NgpNavigationMenuConfig"></api-reference-config>
+
+## Accessibility
+
+The navigation menu uses `role="navigation"` on the container, `aria-haspopup="menu"` and `aria-expanded` on triggers, and `role="menu"` with `aria-labelledby` on content panels. This follows the [WAI-ARIA Navigation Menu pattern](https://www.w3.org/WAI/ARIA/apg/patterns/menubar/).
+
+### Keyboard Interactions
+
+| Key                        | Action                                              |
+| -------------------------- | --------------------------------------------------- |
+| `ArrowRight` / `ArrowLeft` | Navigate between triggers (horizontal orientation)  |
+| `ArrowUp` / `ArrowDown`    | Navigate between triggers (vertical orientation)    |
+| `ArrowDown` (horizontal)   | Open content and focus first item                   |
+| `ArrowRight` (vertical)    | Open content and focus first item                   |
+| `Enter` / `Space`          | Open content and focus first item, or activate link |
+| `Escape`                   | Close content and return focus to trigger           |
+| `Home` / `End`             | Navigate to first/last trigger                      |
+| `Tab`                      | Move focus out of the navigation menu               |

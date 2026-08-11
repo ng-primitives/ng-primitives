@@ -1,25 +1,25 @@
 import { Directive, input } from '@angular/core';
 import { injectPopoverTriggerState } from 'ng-primitives/popover';
 import { NgpPopoverTrigger } from 'ng-primitives/popover';
-import { Popover } from './popover';
+import { Popover<%= componentSuffix %> } from './popover<% if (fileSuffix) { %>.<%= dasherize(fileSuffix) %><% } %>';
 
 @Directive({
-  selector: '[appPopoverTrigger]',
+  selector: '[<%= camelize(prefix + "PopoverTrigger") %>]',
   hostDirectives: [
     {
       directive: NgpPopoverTrigger,
       inputs: [
-        'ngpPopoverTriggerDisabled:appPopoverTriggerDisabled',
-        'ngpPopoverTriggerPlacement:appPopoverTriggerPlacement',
-        'ngpPopoverTriggerOffset:appPopoverTriggerOffset',
-        'ngpPopoverTriggerShowDelay:appPopoverTriggerShowDelay',
-        'ngpPopoverTriggerHideDelay:appPopoverTriggerHideDelay',
-        'ngpPopoverTriggerFlip:appPopoverTriggerFlip',
-        'ngpPopoverTriggerContainer:appPopoverTriggerContainer',
-        'ngpPopoverTriggerCloseOnOutsideClick:appPopoverTriggerCloseOnOutsideClick',
-        'ngpPopoverTriggerCloseOnEscape:appPopoverTriggerCloseOnEscape',
-        'ngpPopoverTriggerScrollBehavior:appPopoverTriggerScrollBehavior',
-        'ngpPopoverTriggerContext:appPopoverTrigger',
+        'ngpPopoverTriggerDisabled:<%= camelize(prefix + "PopoverTriggerDisabled") %>',
+        'ngpPopoverTriggerPlacement:<%= camelize(prefix + "PopoverTriggerPlacement") %>',
+        'ngpPopoverTriggerOffset:<%= camelize(prefix + "PopoverTriggerOffset") %>',
+        'ngpPopoverTriggerShowDelay:<%= camelize(prefix + "PopoverTriggerShowDelay") %>',
+        'ngpPopoverTriggerHideDelay:<%= camelize(prefix + "PopoverTriggerHideDelay") %>',
+        'ngpPopoverTriggerFlip:<%= camelize(prefix + "PopoverTriggerFlip") %>',
+        'ngpPopoverTriggerContainer:<%= camelize(prefix + "PopoverTriggerContainer") %>',
+        'ngpPopoverTriggerCloseOnOutsideClick:<%= camelize(prefix + "PopoverTriggerCloseOnOutsideClick") %>',
+        'ngpPopoverTriggerCloseOnEscape:<%= camelize(prefix + "PopoverTriggerCloseOnEscape") %>',
+        'ngpPopoverTriggerScrollBehavior:<%= camelize(prefix + "PopoverTriggerScrollBehavior") %>',
+        'ngpPopoverTriggerContext:<%= camelize(prefix + "PopoverTrigger") %>',
       ],
     },
   ],
@@ -30,10 +30,10 @@ export class PopoverTrigger {
 
   /** Define the content of the popover */
   readonly content = input.required<string>({
-    alias: 'appPopoverTrigger',
+    alias: '<%= camelize(prefix + "PopoverTrigger") %>',
   });
 
   constructor() {
-    this.popoverTrigger().popover.set(Popover);
+    this.popoverTrigger().setPopover(Popover<%= componentSuffix %>);
   }
 }

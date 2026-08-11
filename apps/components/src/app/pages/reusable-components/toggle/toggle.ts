@@ -50,6 +50,13 @@ import { ChangeFn, provideValueAccessor, TouchedFn } from 'ng-primitives/utils';
       background-color: var(--ngp-background-inverse);
       color: var(--ngp-text-inverse);
     }
+
+    /* Reduce motion for users who prefer reduced motion. */
+    @media (prefers-reduced-motion: reduce) {
+      :host {
+        transition-duration: 0s;
+      }
+    }
   `,
   providers: [provideValueAccessor(Toggle)],
   host: {

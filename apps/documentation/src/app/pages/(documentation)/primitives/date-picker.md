@@ -1,4 +1,5 @@
 ---
+title: Date Picker | Angular Primitives
 name: 'Date Picker'
 sourceUrl: 'https://github.com/ng-primitives/ng-primitives/tree/next/packages/ng-primitives/date-picker'
 ---
@@ -77,7 +78,8 @@ ng g ng-primitives:primitive date-picker
 - `prefix`: The prefix to apply to the generated component selector.
 - `component-suffix`: The suffix to apply to the generated component class name.
 - `file-suffix`: The suffix to apply to the generated component file name. Defaults to `component`.
-- `example-styles`: Whether to include example styles in the generated component file. Defaults to `true`.
+- `styles`: How component styles should be generated. `css` (default) includes the full example styles; `unstyled` omits them entirely so you can style the component yourself.
+- `example-styles` (deprecated): still supported for compatibility - `true` maps to `styles: css`, `false` maps to `styles: unstyled`.
 
 ## Examples
 
@@ -210,23 +212,6 @@ The following context fields are available on the `ngpDatePickerCellRender` dire
   <api-attribute name="data-range-between" description="Applied when the button is between the start and end of a date range." />
 </api-reference-attributes>
 
-## Accessibility
-
-Adheres to the [WAI-ARIA design pattern](https://www.w3.org/WAI/ARIA/apg/patterns/dialog-modal/examples/datepicker-dialog/).
-
-### Keyboard Interactions
-
-- <kbd>Space</kbd> - Selects the focused date.
-- <kbd>Enter</kbd> - Selects the focused date.
-- <kbd>ArrowUp</kbd> - Moves focus to the same day of the previous week.
-- <kbd>ArrowDown</kbd> - Moves focus to the same day of the next week.
-- <kbd>ArrowLeft</kbd> - Moves focus to the previous day.
-- <kbd>ArrowRight</kbd> - Moves focus to the next day.
-- <kbd>Home</kbd> - Moves focus to the first day of the month.
-- <kbd>End</kbd> - Moves focus to the last day of the month.
-- <kbd>PageUp</kbd> - Moves focus to the same date in the previous month.
-- <kbd>PageDown</kbd> - Moves focus to the same date in the next month.
-
 ## Global Configuration
 
 You can configure the default options for all `NgpDatePicker` and `NgpDateRangePicker` calendars in your application by using the `provideDatePickerConfig` function in a providers array.
@@ -246,3 +231,20 @@ bootstrapApplication(AppComponent, {
 ### NgpDatePickerConfig
 
 <api-reference-config name="NgpDatePickerConfig"></api-reference-config>
+
+## Accessibility
+
+Adheres to the [WAI-ARIA design pattern](https://www.w3.org/WAI/ARIA/apg/patterns/dialog-modal/examples/datepicker-dialog/).
+
+### Keyboard Interactions
+
+- <kbd>Space</kbd> - Selects the focused date.
+- <kbd>Enter</kbd> - Selects the focused date.
+- <kbd>ArrowUp</kbd> - Moves focus to the same day of the previous week.
+- <kbd>ArrowDown</kbd> - Moves focus to the same day of the next week.
+- <kbd>ArrowLeft</kbd> - Moves focus to the previous day.
+- <kbd>ArrowRight</kbd> - Moves focus to the next day.
+- <kbd>Home</kbd> - Moves focus to the first day of the month.
+- <kbd>End</kbd> - Moves focus to the last day of the month.
+- <kbd>PageUp</kbd> - Moves focus to the same date in the previous month.
+- <kbd>PageDown</kbd> - Moves focus to the same date in the next month.

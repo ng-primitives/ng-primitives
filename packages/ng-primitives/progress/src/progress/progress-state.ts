@@ -66,7 +66,8 @@ export interface NgpProgressState {
   readonly max: WritableSignal<number>;
 
   /**
-   * Get the progress value text.
+   * Get the progress value text. An empty string while the progress is
+   * indeterminate (the `aria-valuetext` attribute is omitted in that case).
    */
   readonly valueText: Signal<string>;
 
@@ -100,6 +101,11 @@ export interface NgpProgressState {
   setLabel(id: string): void;
 
   /**
+   * Remove the label of the progress bar.
+   */
+  removeLabel(id: string): void;
+
+  /**
    * Set the value of the progress bar.
    * @param value The progress value
    */
@@ -122,7 +128,10 @@ export const [NgpProgressStateToken, ngpProgress, injectProgressState, providePr
   createPrimitive(
     'NgpProgress',
     ({
-      valueLabel: _valueLabel = signal((value, max) => `${Math.round((value / max) * 100)}%`),
+      valueLabel: _valueLabel = signal(
+        (value, max, min) =>
+          `${max === min ? 0 : Math.round(((value - min) / (max - min)) * 100)}%`,
+      ),
       value: _value = signal(null),
       min: _min = signal(0),
       max: _max = signal(100),
@@ -145,39 +154,74 @@ export const [NgpProgressStateToken, ngpProgress, injectProgressState, providePr
       /**
        * Determine if the progress is in a progressing state.
        */
-      const progressing = computed(() => value() != null && value()! > 0 && value()! < max());
+      const progressing = computed(
+        () => !indeterminate() && valueNow()! > min() && valueNow()! < max(),
+      );
 
       /**
        * Determine if the progress is complete.
        */
-      const complete = computed(() => !!(value() && max() && value() === max()));
+      const complete = computed(() => !indeterminate() && valueNow()! >= max() && max() > min());
 
       /**
-       * Get the progress value text.
+       * The raw value exposed via `aria-valuenow`, clamped to the [min, max] range.
+       * Per the ARIA progressbar pattern, `aria-valuenow` is the actual value on the
+       * same scale as `aria-valuemin`/`aria-valuemax`, not a 0-100 percentage. It is
+       * omitted entirely (null) while the progress is indeterminate.
+       */
+      const valueNow = computed(() => {
+        const currentValue = value();
+
+        if (currentValue == null) {
+          return null;
+        }
+
+        return Math.min(Math.max(currentValue, min()), max());
+      });
+
+      /**
+       * Get the progress value text. Empty while indeterminate; the
+       * aria-valuetext binding omits the attribute in that case.
        */
       const valueText = computed(() => {
-        const currentValue = value();
+        const currentValue = valueNow();
 
         if (currentValue == null) {
           return '';
         }
 
-        return valueLabel()(currentValue, max());
+        // use the clamped value so aria-valuetext stays consistent with aria-valuenow
+        return valueLabel()(currentValue, max(), min());
       });
 
       const labelId = signal<string | undefined>(undefined);
 
-      function setLabel(id: string) {
+      // `setLabel` only accepts a concrete id, but the label id signal permits undefined, so the
+      // deprecated setter routes through this instead of asserting the id is defined.
+      function setLabelId(id: string | undefined): void {
         labelId.set(id);
+      }
+
+      function setLabel(id: string) {
+        setLabelId(id);
+      }
+
+      function removeLabel(id: string): void {
+        // Only clear if this label is still the active one, so a newer label that has
+        // taken over isn't clobbered when an old label is torn down.
+        if (labelId() === id) {
+          setLabelId(undefined);
+        }
       }
 
       // Attribute bindings
       attrBinding(element, 'role', 'progressbar');
       attrBinding(element, 'id', id);
       attrBinding(element, 'aria-valuemax', max);
-      attrBinding(element, 'aria-valuemin', 0);
-      attrBinding(element, 'aria-valuenow', value);
-      attrBinding(element, 'aria-valuetext', valueText);
+      attrBinding(element, 'aria-valuemin', min);
+      attrBinding(element, 'aria-valuenow', valueNow);
+      // omit the attribute entirely while indeterminate rather than binding an empty string
+      attrBinding(element, 'aria-valuetext', () => (indeterminate() ? null : valueText()));
       attrBinding(element, 'aria-labelledby', () => (labelId() ? labelId() : null));
       dataBinding(element, 'data-progressing', () => progressing());
       dataBinding(element, 'data-indeterminate', () => indeterminate());
@@ -196,16 +240,17 @@ export const [NgpProgressStateToken, ngpProgress, injectProgressState, providePr
       }
 
       return {
-        max: deprecatedSetter(max, 'setMax'),
-        min: deprecatedSetter(min, 'setMin'),
-        value: deprecatedSetter(value, 'setValue'),
-        labelId: deprecatedSetter(labelId, 'setLabel'),
+        max: deprecatedSetter(max, 'setMax', setMax),
+        min: deprecatedSetter(min, 'setMin', setMin),
+        value: deprecatedSetter(value, 'setValue', setValue),
+        labelId: deprecatedSetter(labelId, 'setLabel', setLabelId),
         valueText,
         id,
         indeterminate,
         progressing,
         complete,
         setLabel,
+        removeLabel,
         setValue,
         setMin,
         setMax,

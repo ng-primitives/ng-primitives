@@ -1,6 +1,10 @@
 import { BooleanInput } from '@angular/cdk/coercion';
-import { booleanAttribute, Directive, input, Signal } from '@angular/core';
-import { ngpRovingFocusItem, provideRovingFocusItemState } from 'ng-primitives/roving-focus';
+import { booleanAttribute, Directive, effect, input, Signal, untracked } from '@angular/core';
+import {
+  injectRovingFocusGroupState,
+  ngpRovingFocusItem,
+  provideRovingFocusItemState,
+} from 'ng-primitives/roving-focus';
 import { ngpTabButton, provideTabButtonState } from './tab-button-state';
 
 /**
@@ -45,7 +49,18 @@ export class NgpTabButton {
   readonly active = this.state.active;
 
   constructor() {
-    ngpRovingFocusItem({ disabled: this.disabled });
+    const rovingItem = ngpRovingFocusItem({ disabled: this.disabled });
+    const group = injectRovingFocusGroupState();
+
+    // the selected tab holds the roving tab stop (roving focus takes over on
+    // keyboard nav). setTabStop moves the tab stop without stealing focus.
+    effect(() => {
+      const groupState = group();
+      if (!groupState || !this.active() || this.disabled()) {
+        return;
+      }
+      untracked(() => groupState.setTabStop(rovingItem.id()));
+    });
   }
 
   /**

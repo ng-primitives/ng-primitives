@@ -1,4 +1,5 @@
 ---
+title: Tooltip | Angular Primitives
 name: 'Tooltip'
 sourceUrl: 'https://github.com/ng-primitives/ng-primitives/tree/next/packages/ng-primitives/tooltip'
 ---
@@ -49,7 +50,8 @@ ng g ng-primitives:primitive tooltip
 - `prefix`: The prefix to apply to the generated component selector.
 - `component-suffix`: The suffix to apply to the generated component class name.
 - `file-suffix`: The suffix to apply to the generated component file name. Defaults to `component`.
-- `example-styles`: Whether to include example styles in the generated component file. Defaults to `true`.
+- `styles`: How component styles should be generated. `css` (default) includes the full example styles; `unstyled` omits them entirely so you can style the component yourself.
+- `example-styles` (deprecated): still supported for compatibility - `true` maps to `styles: css`, `false` maps to `styles: unstyled`.
 
 ## Examples
 
@@ -104,6 +106,121 @@ You can customize the shift behavior to control how the tooltip stays within the
 </button>
 ```
 
+### Overflow Boundary
+
+By default, the tooltip is kept within the viewport and its clipping ancestors. Pass `boundary` or `rootBoundary` to `flip` or `shift` to measure overflow against something else:
+
+```html
+<!-- Keep the tooltip inside a container element -->
+<div #boundary>
+  <button [ngpTooltipTrigger]="tooltip" [ngpTooltipTriggerFlip]="{boundary: boundary}">
+    Tooltip constrained to a container
+  </button>
+</div>
+
+<!-- Keep the tooltip inside whatever scrolls the trigger -->
+<div style="overflow: auto">
+  <button [ngpTooltipTrigger]="tooltip" [ngpTooltipTriggerFlip]="{altBoundary: true}">
+    Tooltip constrained to the trigger's scroll container
+  </button>
+</div>
+
+<!-- Measure against the whole document rather than the viewport -->
+<button [ngpTooltipTrigger]="tooltip" [ngpTooltipTriggerFlip]="{rootBoundary: 'document'}">
+  Tooltip that does not flip while off-screen
+</button>
+```
+
+`altBoundary` measures against the trigger's clipping ancestors rather than the tooltip's. The tooltip is portalled to the body, so its own clipping ancestors are effectively the viewport - set this when the trigger sits in a scroll container. It applies only while `boundary` is left at its default; an explicit boundary always wins.
+
+`crossAxis` widens the axis each option checks. For `flip` it is the alignment axis, on by default - that is how `bottom-end` becomes `bottom-start` near an edge. For `shift` it is the side axis, off by default; enabling it lets the panel move along the placement direction too:
+
+```html
+<button [ngpTooltipTrigger]="tooltip" [ngpTooltipTriggerFlip]="{crossAxis: false}">
+  Keep the alignment
+</button>
+<button [ngpTooltipTrigger]="tooltip" [ngpTooltipTriggerShift]="{crossAxis: true}">
+  Shift on both axes
+</button>
+```
+
+The `--ngp-tooltip-available-width` and `--ngp-tooltip-available-height` custom properties are measured against the flip boundary, or the shift boundary when flip does not set one.
+
+### Using Text Content as Tooltip
+
+The `useTextContent` input (enabled by default) allows the tooltip to automatically use the text content of the trigger element as the tooltip content. This is particularly useful for displaying full text when content is truncated with ellipsis.
+
+```html
+<!-- Simple usage - uses text content automatically -->
+<div class="truncated-text" ngpTooltipTrigger>
+  This text might be truncated with ellipsis and show the full content in the tooltip
+</div>
+
+<!-- Passing content directly takes precedence -->
+<button [ngpTooltipTrigger]="myToolip">This won't show a tooltip unless content is provided</button>
+```
+
+#### Important: Global Styles Required
+
+When using the `useTextContent` feature or string values, the tooltip styles **must be global** and not encapsulated to the component. This is because the tooltip content is rendered in a portal outside of your component's scope.
+
+```css
+/* ✅ Global styles (in styles.css or with ViewEncapsulation.None) */
+[ngpTooltip] {
+  position: absolute;
+  background-color: #333;
+  color: white;
+  padding: 8px 12px;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+/* ❌ Encapsulated styles won't work with useTextContent */
+.my-component [ngpTooltip] {
+  /* This won't be applied to text content tooltips */
+}
+```
+
+If you need component-scoped styles, use template-based or component-based tooltips instead of `useTextContent`.
+
+### Show on Overflow
+
+The `showOnOverflow` input allows you to show tooltips only when the trigger element has overflowing content. This is particularly useful for text that might be truncated with ellipsis.
+
+<docs-example name="tooltip-show-on-overflow"></docs-example>
+
+```html
+<div
+  class="truncated-text"
+  appTooltipTrigger="This tooltip only shows when text overflows"
+  ngpTooltipTriggerShowOnOverflow
+>
+  This text might be truncated
+</div>
+```
+
+Overflow is measured each time the tooltip is about to show, so a trigger whose content changes without the element resizing is handled correctly.
+
+### Hoverable Tooltip Content
+
+Tooltips keep strict tooltip semantics (`role="tooltip"`) while supporting pointer movement from trigger to tooltip content.
+
+<docs-example name="tooltip-hoverable-content"></docs-example>
+
+Use `ngpTooltipTriggerHoverableContent` to control whether hovering tooltip content keeps it open:
+
+```html
+<!-- Default: closes when pointer leaves trigger -->
+<button [ngpTooltipTrigger]="tooltip">Default behavior</button>
+
+<!-- Opt in: stays open while pointer moves into tooltip content -->
+<button [ngpTooltipTrigger]="tooltip" ngpTooltipTriggerHoverableContent="true">
+  Hover bridge enabled
+</button>
+```
+
+If tooltip content needs to be interactive or focusable, use [`Popover`](/primitives/popover) instead.
+
 ## API Reference
 
 The following directives are available to import from the `ng-primitives/tooltip` package:
@@ -123,8 +240,8 @@ The following directives are available to import from the `ng-primitives/tooltip
 <api-reference-css-vars>
   <api-css-var name="--ngp-tooltip-transform-origin" description="The transform origin of the tooltip for animations." />
   <api-css-var name="--ngp-tooltip-trigger-width" description="The width of the trigger element." />
-  <api-css-var name="--ngp-tooltip-available-width" description="The available width of the tooltip before it overflows the viewport." />
-  <api-css-var name="--ngp-tooltip-available-height" description="The available height of the tooltip before it overflows the viewport." />
+  <api-css-var name="--ngp-tooltip-available-width" description="The available width of the tooltip before it overflows the flip boundary, or the shift boundary when flip does not set one. Defaults to the viewport." />
+  <api-css-var name="--ngp-tooltip-available-height" description="The available height of the tooltip before it overflows the flip boundary, or the shift boundary when flip does not set one. Defaults to the viewport." />
 </api-reference-css-vars>
 
 ### NgpTooltipTrigger
@@ -161,77 +278,6 @@ The arrow can be styled conditionally based on the tooltip's final placement usi
 <api-reference-attributes>
   <api-attribute name="data-placement" description="The final rendered placement of the tooltip." />
 </api-reference-attributes>
-
-## Using Text Content as Tooltip
-
-The `useTextContent` input (enabled by default) allows the tooltip to automatically use the text content of the trigger element as the tooltip content. This is particularly useful for displaying full text when content is truncated with ellipsis.
-
-```html
-<!-- Simple usage - uses text content automatically -->
-<div class="truncated-text" ngpTooltipTrigger>
-  This text might be truncated with ellipsis and show the full content in the tooltip
-</div>
-
-<!-- Passing content directly takes precedence -->
-<button [ngpTooltipTrigger]="myToolip">This won't show a tooltip unless content is provided</button>
-```
-
-### Important: Global Styles Required
-
-When using the `useTextContent` feature or string values, the tooltip styles **must be global** and not encapsulated to the component. This is because the tooltip content is rendered in a portal outside of your component's scope.
-
-```css
-/* ✅ Global styles (in styles.css or with ViewEncapsulation.None) */
-[ngpTooltip] {
-  position: absolute;
-  background-color: #333;
-  color: white;
-  padding: 8px 12px;
-  border-radius: 4px;
-  font-size: 14px;
-}
-
-/* ❌ Encapsulated styles won't work with useTextContent */
-.my-component [ngpTooltip] {
-  /* This won't be applied to text content tooltips */
-}
-```
-
-If you need component-scoped styles, use template-based or component-based tooltips instead of `useTextContent`.
-
-## Conditional Tooltips
-
-The `showOnOverflow` input allows you to show tooltips only when the trigger element has overflowing content. This is particularly useful for text that might be truncated with ellipsis.
-
-```html
-<div
-  class="truncated-text"
-  appTooltipTrigger="This tooltip only shows when text overflows"
-  ngpTooltipTriggerShowOnOverflow
->
-  This text might be truncated
-</div>
-```
-
-## Hoverable Tooltip Content
-
-Tooltips keep strict tooltip semantics (`role="tooltip"`) while supporting pointer movement from trigger to tooltip content.
-
-<docs-example name="tooltip-hoverable-content"></docs-example>
-
-Use `ngpTooltipTriggerHoverableContent` to control whether hovering tooltip content keeps it open:
-
-```html
-<!-- Default: closes when pointer leaves trigger -->
-<button [ngpTooltipTrigger]="tooltip">Default behavior</button>
-
-<!-- Opt in: stays open while pointer moves into tooltip content -->
-<button [ngpTooltipTrigger]="tooltip" ngpTooltipTriggerHoverableContent="true">
-  Hover bridge enabled
-</button>
-```
-
-If tooltip content needs to be interactive or focusable, use [`Popover`](/primitives/popover) instead.
 
 ## Styling
 

@@ -52,14 +52,13 @@ export const [
 
     // Host binding
     attrBinding(elementRef, 'tabindex', () => (disabled() ? -1 : 0));
-    attrBinding(elementRef, 'aria-current', selected);
+    attrBinding(elementRef, 'aria-current', () => (selected() ? 'page' : null));
     dataBinding(elementRef, 'data-page', () => page().toString());
     dataBinding(elementRef, 'data-selected', () => (selected() ? '' : null));
 
     // Listeners
     listener(elementRef, 'click', goToPage);
-    listener(elementRef, 'keydown.space', handleOnEnter);
-    listener(elementRef, 'keydown.enter', handleOnEnter);
+    listener(elementRef, 'keydown', handleKeydown);
 
     function goToPage(): void {
       if (disabled()) {
@@ -69,7 +68,11 @@ export const [
       paginationState().goToPage(page());
     }
 
-    function handleOnEnter(event: Event): void {
+    function handleKeydown(event: KeyboardEvent): void {
+      if (event.repeat || (event.key !== 'Enter' && event.key !== ' ')) {
+        return;
+      }
+
       event.preventDefault();
       event.stopPropagation();
       goToPage();

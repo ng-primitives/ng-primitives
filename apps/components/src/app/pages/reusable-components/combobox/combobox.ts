@@ -184,6 +184,15 @@ import { ChangeFn, provideValueAccessor, TouchedFn } from 'ng-primitives/utils';
         transform: translateY(-10px) scale(0.9);
       }
     }
+
+    /* Reduce motion for users who prefer reduced motion. */
+    @media (prefers-reduced-motion: reduce) {
+      [ngpComboboxDropdown],
+      [ngpComboboxDropdown][data-enter],
+      [ngpComboboxDropdown][data-exit] {
+        animation-duration: 0s;
+      }
+    }
   `,
 })
 export class Combobox implements ControlValueAccessor {
@@ -213,7 +222,7 @@ export class Combobox implements ControlValueAccessor {
   protected readonly formDisabled = signal(false);
 
   /** The on change callback */
-  private onChange?: ChangeFn<string>;
+  private onChange?: ChangeFn<string | undefined>;
 
   /** The on touch callback */
   protected onTouched?: TouchedFn;
@@ -252,9 +261,10 @@ export class Combobox implements ControlValueAccessor {
       return;
     }
 
-    // if the filter value is empty, set the value to undefined
+    // if the filter value is empty, clear the value and notify the form control
     if (this.filter() === '') {
       this.value.set(undefined);
+      this.onChange?.(undefined);
     } else {
       // otherwise set the filter value to the selected value
       this.filter.set(this.value() ?? '');

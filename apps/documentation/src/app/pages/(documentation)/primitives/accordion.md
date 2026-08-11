@@ -1,4 +1,5 @@
 ---
+title: Accordion | Angular Primitives
 name: 'Accordion'
 sourceUrl: 'https://github.com/ng-primitives/ng-primitives/tree/next/packages/ng-primitives/accordion'
 ---
@@ -64,7 +65,8 @@ ng g ng-primitives:primitive accordion
 - `prefix`: The prefix to apply to the generated component selector.
 - `component-suffix`: The suffix to apply to the generated component class name.
 - `file-suffix`: The suffix to apply to the generated component file name. Defaults to `component`.
-- `example-styles`: Whether to include example styles in the generated component file. Defaults to `true`.
+- `styles`: How component styles should be generated. `css` (default) includes the full example styles; `unstyled` omits them entirely so you can style the component yourself.
+- `example-styles` (deprecated): still supported for compatibility - `true` maps to `styles: css`, `false` maps to `styles: unstyled`.
 
 ## API Reference
 
@@ -90,6 +92,7 @@ The following directives are available to import from the `ng-primitives/accordi
 <api-reference-attributes>
   <api-attribute name="data-orientation" description="The orientation of the accordion." value="horizontal | vertical" />
   <api-attribute name="data-open" description="Applied when the accordion item is open." />
+  <api-attribute name="data-closed" description="Applied when the accordion item is closed." />
   <api-attribute name="data-disabled" description="Applied when the accordion item is disabled." />
 </api-reference-attributes>
 
@@ -102,6 +105,7 @@ The following directives are available to import from the `ng-primitives/accordi
 <api-reference-attributes>
   <api-attribute name="data-orientation" description="The orientation of the accordion." value="horizontal | vertical" />
   <api-attribute name="data-open" description="Applied when the accordion item is open." />
+  <api-attribute name="data-closed" description="Applied when the accordion item is closed." />
   <api-attribute name="data-disabled" description="Applied when the accordion item is disabled." />
 </api-reference-attributes>
 
@@ -114,6 +118,8 @@ The following directives are available to import from the `ng-primitives/accordi
 <api-reference-attributes>
   <api-attribute name="data-orientation" description="The orientation of the accordion." value="horizontal | vertical" />
   <api-attribute name="data-open" description="Applied when the accordion item is open." />
+  <api-attribute name="data-closed" description="Applied when the accordion item is closed." />
+  <api-attribute name="data-disabled" description="Applied when the accordion item is disabled." />
   <api-attribute name="data-enter" description="Applied when the accordion item is opening (user interaction). Removed on the content element's animationend event." />
   <api-attribute name="data-exit" description="Applied when the accordion item is closing (user interaction). Removed on the content element's animationend event." />
 </api-reference-attributes>

@@ -1,5 +1,5 @@
 import { BooleanInput } from '@angular/cdk/coercion';
-import { booleanAttribute, Component, input, model } from '@angular/core';
+import { booleanAttribute, Component, input } from '@angular/core';
 import { ControlValueAccessor } from '@angular/forms';
 import { provideIcons } from '@ng-icons/core';
 import { heroChevronDownSolid } from '@ng-icons/heroicons/solid';
@@ -17,7 +17,6 @@ import { ChangeFn, provideValueAccessor, TouchedFn } from 'ng-primitives/utils';
   imports: [NgpListbox],
   template: `
     <div
-      [(ngpListboxValue)]="value"
       [ngpListboxMode]="mode()"
       [ngpListboxDisabled]="disabled()"
       [ngpListboxCompareWith]="compareWith()"
@@ -41,23 +40,19 @@ import { ChangeFn, provideValueAccessor, TouchedFn } from 'ng-primitives/utils';
   `,
   host: {
     '[attr.aria-label]': 'null',
+    '(focusout)': 'onTouch?.()',
   },
 })
 export class Listbox implements ControlValueAccessor {
   /**
    * Access the listbox state
    */
-  protected readonly state = injectListboxState<NgpListbox<string>>();
+  protected readonly state = injectListboxState<string>();
 
   /**
    * The listbox mode.
    */
   readonly mode = input<NgpSelectionMode>('single');
-
-  /**
-   * The listbox value.
-   */
-  readonly value = model<string[]>([]);
 
   /**
    * The listbox disabled state.
@@ -94,7 +89,8 @@ export class Listbox implements ControlValueAccessor {
   protected onTouch?: TouchedFn;
 
   writeValue(value: string[]): void {
-    this.state()?.value.set(value);
+    // writing a value from the model must not re-emit through onChange
+    this.state()?.setValue(value, { emit: false });
   }
 
   registerOnChange(fn: ChangeFn<string[]>): void {
@@ -106,11 +102,10 @@ export class Listbox implements ControlValueAccessor {
   }
 
   setDisabledState(isDisabled: boolean): void {
-    this.state()?.disabled.set(isDisabled);
+    this.state()?.setDisabled(isDisabled);
   }
 
   onListboxValueChange(value: string[]): void {
-    this.value.set(value);
-    if (this.onChange) this.onChange(value);
+    this.onChange?.(value);
   }
 }

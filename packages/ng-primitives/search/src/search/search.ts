@@ -1,7 +1,5 @@
-import { computed, DestroyRef, Directive, HostListener, inject, signal } from '@angular/core';
-import { safeTakeUntilDestroyed } from 'ng-primitives/utils';
-import { fromEvent } from 'rxjs';
-import { provideSearchState, searchState } from './search-state';
+import { Directive } from '@angular/core';
+import { ngpSearch, provideSearchState } from './search-state';
 
 /**
  * The `NgpSearch` directive is a container for the search field components.
@@ -10,60 +8,23 @@ import { provideSearchState, searchState } from './search-state';
   selector: '[ngpSearch]',
   exportAs: 'ngpSearch',
   providers: [provideSearchState()],
-  host: {
-    '[attr.data-empty]': 'empty() ? "" : null',
-  },
 })
 export class NgpSearch {
   /**
-   * The destroy reference.
+   * The search field state.
    */
-  private readonly destroyRef = inject(DestroyRef);
-
-  /**
-   * The input field.
-   */
-  private readonly input = signal<HTMLInputElement | null>(null);
-
-  /**
-   * The value of the input.
-   */
-  private readonly value = signal<string>('');
+  private readonly state = ngpSearch();
 
   /**
    * Whether the input field is empty.
    * @internal
    */
-  readonly empty = computed(() => this.value() === '');
+  readonly empty = this.state.empty;
 
   /**
-   * The search field state.
+   * Clear the input field.
    */
-  protected readonly state = searchState<NgpSearch>(this);
-
-  @HostListener('keydown.escape')
   clear(): void {
-    const input = this.input();
-
-    if (!input) {
-      return;
-    }
-
-    input.value = '';
-    input.dispatchEvent(new Event('input', { bubbles: true }));
-  }
-
-  /**
-   * Register the input field.
-   * @param input The input field.
-   * @internal
-   */
-  registerInput(input: HTMLInputElement): void {
-    this.input.set(input);
-    this.value.set(input.value);
-
-    fromEvent(input, 'input')
-      .pipe(safeTakeUntilDestroyed(this.destroyRef))
-      .subscribe(() => this.value.set(input.value));
+    this.state.clear();
   }
 }

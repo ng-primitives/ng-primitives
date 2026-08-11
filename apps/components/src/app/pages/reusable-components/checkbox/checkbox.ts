@@ -92,7 +92,8 @@ export class Checkbox implements ControlValueAccessor {
   }
 
   writeValue(checked: boolean): void {
-    this.state().setChecked(checked);
+    // writing a value from the model must not re-emit through onChange
+    this.state().setChecked(checked, { emit: false });
   }
 
   registerOnChange(fn: ChangeFn<boolean>): void {

@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { NgpMenu } from 'ng-primitives/menu';
 
 @Component({
-  selector: '<%= prefix %>-menu',
+  selector: '<% if (prefix) { %><%= prefix %>-<% } %>menu',
   hostDirectives: [NgpMenu],
   template: `
     <ng-content />
@@ -46,6 +46,14 @@ import { NgpMenu } from 'ng-primitives/menu';
       100% {
         opacity: 0;
         transform: scale(0.9);
+      }
+    }
+
+    /* Reduce motion for users who prefer reduced motion. */
+    @media (prefers-reduced-motion: reduce) {
+      :host,
+      :host[data-exit] {
+        animation-duration: 0s;
       }
     }
   `,

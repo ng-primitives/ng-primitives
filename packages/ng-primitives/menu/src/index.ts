@@ -1,5 +1,5 @@
 export { injectOverlayContext as injectMenuContext } from 'ng-primitives/portal';
-export { NgpMenuConfig, provideMenuConfig } from './config/menu-config';
+export { NgpMenuConfig, provideMenuConfig, type NgpMenuTriggerType } from './config/menu-config';
 export { NgpMenuItem } from './menu-item/menu-item';
 export {
   ngpMenuItem,
@@ -59,3 +59,12 @@ export {
   NgpSubmenuTriggerState,
   provideSubmenuTriggerState,
 } from './submenu-trigger/submenu-trigger-state';
+export { NgpMenuTriggerGroup } from './menu-trigger-group/menu-trigger-group';
+export {
+  NgpMenuTriggerGroupStateToken,
+  ngpMenuTriggerGroup,
+  injectMenuTriggerGroupState,
+  provideMenuTriggerGroupState,
+  type NgpMenuTriggerGroupState,
+  type NgpMenuTriggerGroupProps,
+} from './menu-trigger-group/menu-trigger-group-state';

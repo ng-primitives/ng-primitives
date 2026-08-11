@@ -1,6 +1,7 @@
 import { FocusMonitor, FocusOrigin } from '@angular/cdk/a11y';
 import {
   computed,
+  effect,
   inject,
   Injector,
   signal,
@@ -8,7 +9,11 @@ import {
   ViewContainerRef,
   WritableSignal,
 } from '@angular/core';
-import { injectElementRef } from 'ng-primitives/internal';
+import {
+  createHoverBridge,
+  createHoverTransitDecline,
+  injectElementRef,
+} from 'ng-primitives/internal';
 import {
   createOverlay,
   NgpFlip,
@@ -16,6 +21,7 @@ import {
   NgpOverlay,
   NgpOverlayConfig,
   NgpOverlayContent,
+  NgpPlacement,
 } from 'ng-primitives/portal';
 import {
   attrBinding,
@@ -25,8 +31,7 @@ import {
   deprecatedSetter,
   listener,
 } from 'ng-primitives/state';
-import { safeTakeUntilDestroyed } from 'ng-primitives/utils';
-import { NgpMenuPlacement } from '../menu-trigger/menu-trigger';
+import { injectDisposables, safeTakeUntilDestroyed } from 'ng-primitives/utils';
 import { injectMenuState } from '../menu/menu-state';
 
 export interface NgpSubmenuTriggerState {
@@ -38,7 +43,7 @@ export interface NgpSubmenuTriggerState {
   /**
    * The computed placement of the menu.
    */
-  readonly placement: WritableSignal<NgpMenuPlacement>;
+  readonly placement: WritableSignal<NgpPlacement>;
 
   /**
    * Whether the menu is open.
@@ -59,6 +64,12 @@ export interface NgpSubmenuTriggerState {
    * Whether the menu should flip when there is not enough space.
    */
   readonly flip: WritableSignal<NgpFlip>;
+
+  /**
+   * The container in which the menu should be attached.
+   * @default document.body
+   */
+  readonly container: WritableSignal<HTMLElement | string | null>;
 
   /**
    * The focus origin used to open the submenu.
@@ -101,7 +112,7 @@ export interface NgpSubmenuTriggerState {
    * Set the placement of the menu.
    * @param placement - The menu placement
    */
-  setPlacement(placement: NgpMenuPlacement): void;
+  setPlacement(placement: NgpPlacement): void;
 
   /**
    * Set the offset of the menu.
@@ -116,14 +127,21 @@ export interface NgpSubmenuTriggerState {
   setFlip(shouldFlip: NgpFlip): void;
 
   /**
+   * Set the container in which the menu should be attached. Takes effect the
+   * next time the menu is opened; it does not move a menu that is already open.
+   * @param container - The new container
+   */
+  setContainer(container: HTMLElement | string | null): void;
+
+  /**
    * Focus the trigger element.
    * @param origin - The focus origin
    */
   focus(origin: FocusOrigin): void;
 
   /**
-   * Set whether the pointer is over the menu content.
-   * For submenus, this is a no-op as hover is handled via showSubmenuOnHover.
+   * Set whether the pointer is over the submenu content. Entering the submenu
+   * tears down the hover bridge (the pointer arrived safely).
    * @param isOver - Whether the pointer is over the content
    * @internal
    */
@@ -142,7 +160,7 @@ export interface NgpSubmenuTriggerProps<T = unknown> {
   /**
    * The placement of the menu.
    */
-  readonly placement?: Signal<NgpMenuPlacement>;
+  readonly placement?: Signal<NgpPlacement>;
   /**
    * The offset of the menu.
    */
@@ -151,6 +169,10 @@ export interface NgpSubmenuTriggerProps<T = unknown> {
    * Whether the menu should flip when there is not enough space.
    */
   readonly flip?: Signal<NgpFlip>;
+  /**
+   * The container in which the menu should be attached.
+   */
+  readonly container?: Signal<HTMLElement | string | null>;
 }
 
 export const [
@@ -166,12 +188,14 @@ export const [
     placement: _placement = signal('right-start'),
     offset: _offset = signal(0),
     flip: _flip = signal(true),
+    container: _container,
   }: NgpSubmenuTriggerProps<T>) => {
     const element = injectElementRef();
     const injector = inject(Injector);
     const viewContainerRef = inject(ViewContainerRef);
     const parentMenu = injectMenuState({ optional: true });
     const focusMonitor = inject(FocusMonitor);
+    const disposables = injectDisposables();
 
     // Controlled properties
     const menu = controlled(_menu);
@@ -179,10 +203,54 @@ export const [
     const placement = controlled(_placement);
     const flip = controlled(_flip);
     const offset = controlled(_offset);
+    const container = controlled(_container, 'body');
 
     const overlay = signal<NgpOverlay<T> | null>(null);
     const open = computed(() => overlay()?.isOpen() ?? false);
     const openOrigin = signal<FocusOrigin>('program');
+
+    // Track pointer presence for the safe-polygon hover bridge.
+    const pointerOverTrigger = signal(false);
+    const pointerOverContent = signal(false);
+    const isPointerOverSubmenu = computed(() => pointerOverTrigger() || pointerOverContent());
+
+    // Safe-polygon hover intent: while the pointer travels inside a corridor from
+    // the submenu trigger toward the open submenu, sibling hover events are
+    // ignored so the submenu doesn't collapse mid-traversal.
+    const hoverBridge = createHoverBridge({
+      isPointerInAnchor: isPointerOverSubmenu,
+      close: () => hide('mouse'),
+      requireForwardMovement: true,
+      siblingContainer: () => parentMenu()?.element.nativeElement ?? null,
+      onSuppressionChange: active =>
+        active
+          ? parentMenu()?.setTransitSource(element.nativeElement)
+          : parentMenu()?.clearTransitSource(element.nativeElement),
+    });
+
+    /**
+     * A sibling's corridor can't withhold an enter the browser resolved before
+     * pointer-events applied, so the sibling has to decline it itself.
+     */
+    const declineHoverDuringTransit = createHoverTransitDecline({
+      isBlocked: () => parentMenu()?.isTransitBlocked(element.nativeElement) ?? false,
+      isPointerOverTrigger: pointerOverTrigger,
+      show: () => show('mouse'),
+    });
+
+    // Tear down any hover bridge whenever the submenu closes - including close
+    // paths that bypass hide() (e.g. an outside click on the overlay), so a
+    // stale corridor can't linger or wrongly suppress the next sibling hover.
+    // Also reset the pointer flags: destroying the panel under the pointer never
+    // fires its pointerleave, and a stuck pointerOverContent would make every
+    // future corridor treat the pointer as anchored and never close.
+    effect(() => {
+      if (!open()) {
+        hoverBridge.clear();
+        pointerOverTrigger.set(false);
+        pointerOverContent.set(false);
+      }
+    });
 
     // Subscribe to parent menu's closeSubmenus
     parentMenu()
@@ -190,6 +258,13 @@ export const [
       .subscribe(submenuElement => {
         // if the element is not the trigger, we want to close the menu
         if (submenuElement === element.nativeElement) {
+          return;
+        }
+
+        // While the pointer is still inside the safe-polygon corridor toward this
+        // submenu, ignore sibling hover-driven closes. The pointer-move listener
+        // closes the submenu itself once the pointer actually leaves the corridor.
+        if (hoverBridge.isActive()) {
           return;
         }
 
@@ -205,6 +280,7 @@ export const [
     listener(element, 'click', onClick);
     listener(element, 'keydown', handleArrowKey);
     listener(element, 'pointerenter', showSubmenuOnHover);
+    listener(element, 'pointerleave', onPointerLeave);
 
     // Methods
     function onClick(event: MouseEvent): void {
@@ -250,6 +326,9 @@ export const [
         return;
       }
 
+      // The submenu is closing - any active hover bridge is no longer relevant.
+      hoverBridge.clear();
+
       // Hide the overlay
       overlay()?.hide({ origin });
     }
@@ -268,9 +347,10 @@ export const [
       // closeOnEscape is false because we handle Escape in menu-state.ts to ensure
       // proper focus restoration through closeAllMenus.
       const config: NgpOverlayConfig<T> = {
-        content: menuContent,
+        content: menu,
         triggerElement: element.nativeElement,
         injector,
+        container: container(),
         placement,
         offset: offset(),
         flip: flip(),
@@ -311,7 +391,49 @@ export const [
         return;
       }
 
+      pointerOverTrigger.set(true);
+      // The pointer is back on the trigger - drop any in-progress hover bridge.
+      hoverBridge.clear();
+
+      if (declineHoverDuringTransit()) {
+        return;
+      }
+
       show('mouse');
+    }
+
+    function onPointerLeave(event: Event): void {
+      if (event instanceof PointerEvent === false || event.pointerType === 'touch') {
+        return;
+      }
+
+      pointerOverTrigger.set(false);
+
+      const currentOverlay = overlay();
+
+      // Only build a corridor while the submenu is actually open.
+      if (!open() || !currentOverlay) {
+        return;
+      }
+
+      const submenuElement = currentOverlay.getElements()[0];
+      const started =
+        !!submenuElement &&
+        hoverBridge.track({
+          triggerRect: element.nativeElement.getBoundingClientRect(),
+          targetRect: submenuElement.getBoundingClientRect(),
+          exitPoint: { x: event.clientX, y: event.clientY },
+        });
+
+      if (!started) {
+        // Defensive fallback: if the corridor can't be built, close after a short
+        // grace period rather than leaving the submenu stuck open.
+        disposables.setTimeout(() => {
+          if (!isPointerOverSubmenu()) {
+            hide('mouse');
+          }
+        }, 50);
+      }
     }
 
     function setDisabled(isDisabled: boolean): void {
@@ -326,7 +448,7 @@ export const [
       menu.set(newMenu);
     }
 
-    function setPlacement(newPlacement: NgpMenuPlacement): void {
+    function setPlacement(newPlacement: NgpPlacement): void {
       placement.set(newPlacement);
     }
 
@@ -338,24 +460,30 @@ export const [
       flip.set(shouldFlip);
     }
 
+    function setContainer(newContainer: HTMLElement | string | null): void {
+      container.set(newContainer);
+    }
+
     function focus(origin: FocusOrigin): void {
       focusMonitor.focusVia(element.nativeElement, origin, { preventScroll: true });
     }
 
-    // No-op for submenus - hover behavior is handled via showSubmenuOnHover on the trigger element
+    function setPointerOverContent(isOver: boolean): void {
+      pointerOverContent.set(isOver);
 
-    function setPointerOverContent(_isOver: boolean): void {
-      // Submenus don't need pointer tracking on content because:
-      // 1. The submenu trigger handles hover via showSubmenuOnHover
-      // 2. Closing on hover-out is handled by the parent menu's closeSubmenus mechanism
+      // Reaching the submenu content means the pointer arrived safely, so the
+      // hover bridge corridor is no longer needed.
+      if (isOver) {
+        hoverBridge.clear();
+      }
     }
 
     return {
-      placement: deprecatedSetter(placement, 'setPlacement'),
-      offset: deprecatedSetter(offset, 'setOffset'),
-      disabled: deprecatedSetter(disabled, 'setDisabled'),
-      menu: deprecatedSetter(menu, 'setMenu'),
-      flip: deprecatedSetter(flip, 'setFlip'),
+      placement: deprecatedSetter(placement, 'setPlacement', setPlacement),
+      offset: deprecatedSetter(offset, 'setOffset', setOffset),
+      disabled: deprecatedSetter(disabled, 'setDisabled', setDisabled),
+      menu: deprecatedSetter(menu, 'setMenu', setMenu),
+      flip: deprecatedSetter(flip, 'setFlip', setFlip),
       open,
       openOrigin,
       show,
@@ -366,8 +494,10 @@ export const [
       setFlip,
       setPlacement,
       setOffset,
+      setContainer,
       focus,
       setPointerOverContent,
+      container: deprecatedSetter(container, 'setContainer', setContainer),
     } satisfies NgpSubmenuTriggerState;
   },
 );

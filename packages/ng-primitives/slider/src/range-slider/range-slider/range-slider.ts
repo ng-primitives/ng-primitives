@@ -1,7 +1,7 @@
 import { BooleanInput, NumberInput } from '@angular/cdk/coercion';
 import { Directive, booleanAttribute, input, numberAttribute, output } from '@angular/core';
 import { NgpOrientation } from 'ng-primitives/common';
-import { uniqueId } from 'ng-primitives/utils';
+import { coerceNumberOrUndefined, uniqueId } from 'ng-primitives/utils';
 import { ngpRangeSlider, provideRangeSliderState } from './range-slider-state';
 
 /**
@@ -19,11 +19,20 @@ export class NgpRangeSlider {
   readonly id = input<string>(uniqueId('ngp-range-slider'));
 
   /**
-   * The low value of the range slider.
+   * The low value of the range slider. When defined the low thumb is controlled.
    */
-  readonly low = input<number, NumberInput>(0, {
+  readonly low = input<number | undefined, NumberInput>(undefined, {
     alias: 'ngpRangeSliderLow',
-    transform: numberAttribute,
+    transform: coerceNumberOrUndefined,
+  });
+
+  /**
+   * The default low value for uncontrolled usage.
+   * @default 0
+   */
+  readonly defaultLow = input<number, NumberInput>(0, {
+    alias: 'ngpRangeSliderDefaultLow',
+    transform: (value: NumberInput) => numberAttribute(value, 0),
   });
 
   /**
@@ -34,11 +43,20 @@ export class NgpRangeSlider {
   });
 
   /**
-   * The high value of the range slider.
+   * The high value of the range slider. When defined the high thumb is controlled.
    */
-  readonly high = input<number, NumberInput>(100, {
+  readonly high = input<number | undefined, NumberInput>(undefined, {
     alias: 'ngpRangeSliderHigh',
-    transform: numberAttribute,
+    transform: coerceNumberOrUndefined,
+  });
+
+  /**
+   * The default high value for uncontrolled usage.
+   * @default 100
+   */
+  readonly defaultHigh = input<number, NumberInput>(100, {
+    alias: 'ngpRangeSliderDefaultHigh',
+    transform: (value: NumberInput) => numberAttribute(value, 100),
   });
 
   /**
@@ -93,7 +111,9 @@ export class NgpRangeSlider {
   private readonly state = ngpRangeSlider({
     id: this.id,
     low: this.low,
+    defaultLow: this.defaultLow,
     high: this.high,
+    defaultHigh: this.defaultHigh,
     min: this.min,
     max: this.max,
     step: this.step,

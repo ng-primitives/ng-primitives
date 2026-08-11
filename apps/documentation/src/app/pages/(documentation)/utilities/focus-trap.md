@@ -1,4 +1,5 @@
 ---
+title: Focus Trap | Angular Primitives
 name: 'Focus Trap'
 sourceUrl: 'https://github.com/ng-primitives/ng-primitives/tree/next/packages/ng-primitives/focus-trap'
 ---

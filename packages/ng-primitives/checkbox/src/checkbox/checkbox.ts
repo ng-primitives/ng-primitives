@@ -1,7 +1,7 @@
 import { BooleanInput } from '@angular/cdk/coercion';
 import { Directive, booleanAttribute, input, output } from '@angular/core';
 import { SetterOptions } from 'ng-primitives/state';
-import { uniqueId } from 'ng-primitives/utils';
+import { coerceBooleanOrUndefined, uniqueId } from 'ng-primitives/utils';
 import { ngpCheckbox, provideCheckboxState } from './checkbox-state';
 
 /**
@@ -23,7 +23,7 @@ export class NgpCheckbox {
    */
   readonly checked = input<boolean | undefined, BooleanInput>(undefined, {
     alias: 'ngpCheckboxChecked',
-    transform: booleanAttribute,
+    transform: coerceBooleanOrUndefined,
   });
 
   /**
@@ -82,6 +82,7 @@ export class NgpCheckbox {
     defaultChecked: this.defaultChecked,
     indeterminate: this.indeterminate,
     disabled: this.disabled,
+    required: this.required,
     onCheckedChange: value => this.checkedChange.emit(value),
     onIndeterminateChange: value => this.indeterminateChange.emit(value),
   });

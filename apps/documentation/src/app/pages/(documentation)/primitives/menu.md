@@ -1,4 +1,5 @@
 ---
+title: Menu | Angular Primitives
 name: 'Menu'
 sourceUrl: 'https://github.com/ng-primitives/ng-primitives/tree/next/packages/ng-primitives/menu'
 ---
@@ -18,6 +19,7 @@ import {
   NgpMenu,
   NgpMenuItem,
   NgpMenuTrigger,
+  NgpMenuTriggerGroup,
   NgpSubmenuTrigger,
   NgpMenuItemCheckbox,
   NgpMenuItemRadioGroup,
@@ -62,7 +64,8 @@ ng g ng-primitives:primitive menu
 - `prefix`: The prefix to apply to the generated component selector.
 - `component-suffix`: The suffix to apply to the generated component class name.
 - `file-suffix`: The suffix to apply to the generated component file name. Defaults to `component`.
-- `example-styles`: Whether to include example styles in the generated component file. Defaults to `true`.
+- `styles`: How component styles should be generated. `css` (default) includes the full example styles; `unstyled` omits them entirely so you can style the component yourself.
+- `example-styles` (deprecated): still supported for compatibility - `true` maps to `styles: css`, `false` maps to `styles: unstyled`.
 
 ## Examples
 
@@ -117,6 +120,46 @@ You can customize the shift behavior to control how the menu stays within the vi
 </button>
 ```
 
+### Overflow Boundary
+
+By default, the menu is kept within the viewport and its clipping ancestors. Pass `boundary` or `rootBoundary` to `flip` or `shift` to measure overflow against something else:
+
+```html
+<!-- Keep the menu inside a container element -->
+<div #boundary>
+  <button [ngpMenuTrigger]="menu" [ngpMenuTriggerFlip]="{boundary: boundary}">
+    Menu constrained to a container
+  </button>
+</div>
+
+<!-- Keep the menu inside whatever scrolls the trigger -->
+<div style="overflow: auto">
+  <button [ngpMenuTrigger]="menu" [ngpMenuTriggerFlip]="{altBoundary: true}">
+    Menu constrained to the trigger's scroll container
+  </button>
+</div>
+
+<!-- Measure against the whole document rather than the viewport -->
+<button [ngpMenuTrigger]="menu" [ngpMenuTriggerFlip]="{rootBoundary: 'document'}">
+  Menu that does not flip while off-screen
+</button>
+```
+
+`altBoundary` measures against the trigger's clipping ancestors rather than the menu's. The menu is portalled to the body, so its own clipping ancestors are effectively the viewport - set this when the trigger sits in a scroll container. It applies only while `boundary` is left at its default; an explicit boundary always wins.
+
+`crossAxis` widens the axis each option checks. For `flip` it is the alignment axis, on by default - that is how `bottom-end` becomes `bottom-start` near an edge. For `shift` it is the side axis, off by default; enabling it lets the panel move along the placement direction too:
+
+```html
+<button [ngpMenuTrigger]="menu" [ngpMenuTriggerFlip]="{crossAxis: false}">
+  Keep the alignment
+</button>
+<button [ngpMenuTrigger]="menu" [ngpMenuTriggerShift]="{crossAxis: true}">
+  Shift on both axes
+</button>
+```
+
+The `--ngp-menu-available-width` and `--ngp-menu-available-height` custom properties are measured against the flip boundary, or the shift boundary when flip does not set one.
+
 ### Keyboard Triggers
 
 Enable keyboard triggers to allow users to open menus using Enter or arrow keys:
@@ -163,6 +206,24 @@ Enable keyboard triggers to allow users to open menus using Enter or arrow keys:
 - Only works when trigger is focused
 - Perfect for sidebar/navigation menus
 
+### Grouping Root Triggers
+
+In a vertical navigation menu, each top-level item is often its own `NgpMenuTrigger` that opens a menu to the side on hover. Moving the pointer from the trigger toward that menu can pass over a sibling trigger on the way, since diagonal mouse movement rarely follows a straight line - without protection, that sibling would open its own menu and steal focus from the one you were heading toward.
+
+Nested `NgpSubmenuTrigger`s inside an already-open menu are protected from this automatically. Root-level triggers are not, since they may have no shared parent at all - wrap them in `NgpMenuTriggerGroup` to opt in:
+
+<docs-example name="menu-trigger-group"></docs-example>
+
+Moving between siblings closes one menu and opens another in quick succession, so the example also sets `ngpMenuTriggerCooldown`. Within that window, the swap is treated as a single movement: the outgoing menu is dropped rather than animating out behind its replacement, and the incoming one is marked `data-instant` so its own animation can be skipped.
+
+The coordination only earns its keep while the siblings actually sit between a trigger and its menu. In a collapsible navigation, that stops being true once the rail collapses to icons - the pointer reaches the panel without crossing anything, so all the group does is hold the siblings inert a moment longer than they need to be. Bind `ngpMenuTriggerGroupSiblingTracking` to turn it off for as long as that is the case:
+
+```html
+<nav ngpMenuTriggerGroup [ngpMenuTriggerGroupSiblingTracking]="!collapsed()">
+  <!-- triggers -->
+</nav>
+```
+
 ## API Reference
 
 The following directives are available to import from the `ng-primitives/menu` package:
@@ -176,6 +237,12 @@ The following directives are available to import from the `ng-primitives/menu` p
 <api-reference-attributes>
   <api-attribute name="data-open" description="Applied when the menu is open." />
 </api-reference-attributes>
+
+### NgpMenuTriggerGroup
+
+<api-docs name="NgpMenuTriggerGroup"></api-docs>
+
+<api-reference-props name="NgpMenuTriggerGroup"></api-reference-props>
 
 ### NgpMenu
 
@@ -193,8 +260,8 @@ The following directives are available to import from the `ng-primitives/menu` p
 <api-reference-css-vars>
   <api-css-var name="--ngp-menu-transform-origin" description="The transform origin of the menu for animations." />
   <api-css-var name="--ngp-menu-trigger-width" description="The width of the trigger element." />
-  <api-css-var name="--ngp-menu-available-width" description="The available width of the menu before it overflows the viewport." />
-  <api-css-var name="--ngp-menu-available-height" description="The available height of the menu before it overflows the viewport." />
+  <api-css-var name="--ngp-menu-available-width" description="The available width of the menu before it overflows the flip boundary, or the shift boundary when flip does not set one. Defaults to the viewport." />
+  <api-css-var name="--ngp-menu-available-height" description="The available height of the menu before it overflows the flip boundary, or the shift boundary when flip does not set one. Defaults to the viewport." />
 </api-reference-css-vars>
 
 ### NgpMenuItem
@@ -284,11 +351,12 @@ The `ngpMenu` will also add the `data-enter` and `data-exit` attributes to the e
 When using the `cooldown` option to allow quick switching between menus, the `data-instant` attribute is applied. Use this to skip animations for instant transitions:
 
 ```css
-:host[data-instant][data-enter],
-:host[data-instant][data-exit] {
+:host[data-instant][data-enter] {
   animation: none;
 }
 ```
+
+`data-instant` comes off as the menu switches to its exit state, so the rule only ever needs the enter state - the exit animation is never suppressed by it.
 
 ## Global Configuration
 

@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { By } from '@angular/platform-browser';
 import { fireEvent, render } from '@testing-library/angular';
 import { provideRovingFocusGroupState } from 'ng-primitives/roving-focus';
 import { describe, expect, it, vi } from 'vitest';
@@ -54,6 +55,32 @@ describe('NgpToggleGroup', () => {
       const group = getByRole('group');
       expect(group).toHaveAttribute('data-type', 'single');
       expect(group).toHaveAttribute('data-orientation', 'horizontal');
+    });
+
+    it('should expose radio semantics on items', async () => {
+      const { getByTestId } = await render(
+        `
+        <div ngpToggleGroup>
+          <div data-testid="toggle-item-1" ngpToggleGroupItem ngpToggleGroupItemValue="option-1"></div>
+          <div data-testid="toggle-item-2" ngpToggleGroupItem ngpToggleGroupItemValue="option-2"></div>
+        </div>
+        `,
+        {
+          imports: [NgpToggleGroup, NgpToggleGroupItem],
+        },
+      );
+
+      const item1 = getByTestId('toggle-item-1');
+      const item2 = getByTestId('toggle-item-2');
+      expect(item1).toHaveAttribute('role', 'radio');
+      expect(item1).toHaveAttribute('aria-checked', 'false');
+      expect(item1).not.toHaveAttribute('aria-pressed');
+
+      fireEvent.click(item1);
+
+      expect(item1).toHaveAttribute('aria-checked', 'true');
+      expect(item1).not.toHaveAttribute('aria-pressed');
+      expect(item2).toHaveAttribute('aria-checked', 'false');
     });
 
     it('should allow deselection', async () => {
@@ -150,6 +177,34 @@ describe('NgpToggleGroup', () => {
       const group = getByRole('group');
       expect(group).toHaveAttribute('data-type', 'multiple');
       expect(group).toHaveAttribute('data-orientation', 'horizontal');
+    });
+
+    it('should expose toggle button semantics on items', async () => {
+      const { getByTestId } = await render(
+        `
+        <div ngpToggleGroup ngpToggleGroupType="multiple">
+          <div data-testid="toggle-item-1" ngpToggleGroupItem ngpToggleGroupItemValue="option-1"></div>
+          <div data-testid="toggle-item-2" ngpToggleGroupItem ngpToggleGroupItemValue="option-2"></div>
+        </div>
+        `,
+        {
+          imports: [NgpToggleGroup, NgpToggleGroupItem],
+        },
+      );
+
+      const item1 = getByTestId('toggle-item-1');
+      const item2 = getByTestId('toggle-item-2');
+      expect(item1).not.toHaveAttribute('role');
+      expect(item1).not.toHaveAttribute('aria-checked');
+      expect(item1).toHaveAttribute('aria-pressed', 'false');
+
+      fireEvent.click(item1);
+      fireEvent.click(item2);
+
+      expect(item1).toHaveAttribute('aria-pressed', 'true');
+      expect(item2).toHaveAttribute('aria-pressed', 'true');
+      expect(item1).not.toHaveAttribute('role');
+      expect(item1).not.toHaveAttribute('aria-checked');
     });
 
     it('should allow multiple selections', async () => {
@@ -628,6 +683,36 @@ describe('NgpToggleGroup', () => {
       fireEvent.keyDown(item1, { key: 'ArrowLeft', code: 'ArrowLeft' });
       expect(document.activeElement).toBe(item1);
     });
+
+    it('should disable keyboard navigation when disabled programmatically via setDisabled', async () => {
+      const { getByTestId, fixture } = await render(
+        `
+        <div ngpToggleGroup>
+          <div data-testid="toggle-item-1" ngpToggleGroupItem ngpToggleGroupItemValue="option-1" tabindex="0"></div>
+          <div data-testid="toggle-item-2" ngpToggleGroupItem ngpToggleGroupItemValue="option-2" tabindex="-1"></div>
+        </div>
+        `,
+        { imports: [NgpToggleGroup, NgpToggleGroupItem] },
+      );
+
+      const item1 = getByTestId('toggle-item-1');
+      const item2 = getByTestId('toggle-item-2');
+      const toggleGroup = fixture.debugElement
+        .query(By.directive(NgpToggleGroup))
+        .injector.get(NgpToggleGroup);
+
+      item1.focus();
+      expect(document.activeElement).toBe(item1);
+
+      // disabling programmatically (e.g. from a form control) must also stop
+      // the shared roving focus group from roaming
+      toggleGroup.setDisabled(true);
+      fixture.detectChanges();
+
+      fireEvent.keyDown(item1, { key: 'ArrowRight', code: 'ArrowRight' });
+      expect(document.activeElement).toBe(item1);
+      expect(item2).not.toHaveFocus();
+    });
   });
 
   describe('state hoisting with projected content', () => {
@@ -706,6 +791,87 @@ describe('NgpToggleGroup', () => {
       const item1 = getByTestId('item-1');
       fireEvent.click(item1);
       expect(item1).toHaveAttribute('data-selected');
+    });
+  });
+
+  describe('compareWith (non-string values)', () => {
+    it('supports numeric values', async () => {
+      const spy = vi.fn();
+      const { getByTestId } = await render(
+        `
+        <div ngpToggleGroup (ngpToggleGroupValueChange)="onValueChange($event)">
+          <div data-testid="item-1" ngpToggleGroupItem [ngpToggleGroupItemValue]="1"></div>
+          <div data-testid="item-2" ngpToggleGroupItem [ngpToggleGroupItemValue]="2"></div>
+        </div>
+        `,
+        {
+          imports: [NgpToggleGroup, NgpToggleGroupItem],
+          componentProperties: { onValueChange: spy },
+        },
+      );
+
+      fireEvent.click(getByTestId('item-1'));
+      // The emitted value is the number 1, not the string "1".
+      expect(spy).toHaveBeenCalledWith([1]);
+      expect(getByTestId('item-1')).toHaveAttribute('data-selected');
+    });
+
+    it('selects by value equality when the default value is a different object instance', async () => {
+      // The default value is a distinct object instance from item-1's value but
+      // equal by id. With the default reference comparator this would not match;
+      // compareWith(id) makes it select.
+      const { getByTestId } = await render(
+        `
+        <div
+          ngpToggleGroup
+          [ngpToggleGroupCompareWith]="compareById"
+          [ngpToggleGroupDefaultValue]="[{ id: 1 }]"
+        >
+          <div data-testid="item-1" ngpToggleGroupItem [ngpToggleGroupItemValue]="{ id: 1 }"></div>
+          <div data-testid="item-2" ngpToggleGroupItem [ngpToggleGroupItemValue]="{ id: 2 }"></div>
+        </div>
+        `,
+        {
+          imports: [NgpToggleGroup, NgpToggleGroupItem],
+          componentProperties: {
+            compareById: (a: { id: number }, b: { id: number }) => a.id === b.id,
+          },
+        },
+      );
+
+      expect(getByTestId('item-1')).toHaveAttribute('data-selected');
+      expect(getByTestId('item-2')).not.toHaveAttribute('data-selected');
+    });
+
+    it('toggles recreated object instances off via compareWith', async () => {
+      // Template object literals are recreated on each change detection, so the
+      // instance stored on select differs from the one checked on the second
+      // click. Deselection only works because it goes through compareWith.
+      const { getByTestId } = await render(
+        `
+        <div
+          ngpToggleGroup
+          ngpToggleGroupType="multiple"
+          ngpToggleGroupAllowDeselection="true"
+          [ngpToggleGroupCompareWith]="compareById"
+        >
+          <div data-testid="item-1" ngpToggleGroupItem [ngpToggleGroupItemValue]="{ id: 1 }"></div>
+        </div>
+        `,
+        {
+          imports: [NgpToggleGroup, NgpToggleGroupItem],
+          componentProperties: {
+            compareById: (a: { id: number }, b: { id: number }) => a.id === b.id,
+          },
+        },
+      );
+
+      const item1 = getByTestId('item-1');
+      fireEvent.click(item1);
+      expect(item1).toHaveAttribute('data-selected');
+
+      fireEvent.click(item1);
+      expect(item1).not.toHaveAttribute('data-selected');
     });
   });
 });

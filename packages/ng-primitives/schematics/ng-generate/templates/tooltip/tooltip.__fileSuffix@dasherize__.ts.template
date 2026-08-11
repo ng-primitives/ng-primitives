@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { injectTooltipContext, NgpTooltip } from 'ng-primitives/tooltip';
 
 @Component({
-  selector: '<%= prefix %>-tooltip',
+  selector: '<% if (prefix) { %><%= prefix %>-<% } %>tooltip',
   hostDirectives: [NgpTooltip],
   template: `
     {{ content() }}
@@ -50,6 +50,14 @@ import { injectTooltipContext, NgpTooltip } from 'ng-primitives/tooltip';
       100% {
         opacity: 0;
         transform: scale(0.9);
+      }
+    }
+
+    /* Reduce motion for users who prefer reduced motion. */
+    @media (prefers-reduced-motion: reduce) {
+      :host[data-enter],
+      :host[data-exit] {
+        animation-duration: 0s;
       }
     }
   `,

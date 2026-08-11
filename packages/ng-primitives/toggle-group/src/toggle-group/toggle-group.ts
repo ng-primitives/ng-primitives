@@ -1,7 +1,7 @@
 import { BooleanInput } from '@angular/cdk/coercion';
 import { booleanAttribute, Directive, input, output } from '@angular/core';
 import { NgpOrientation } from 'ng-primitives/common';
-import { ngpRovingFocusGroup, provideRovingFocusGroupState } from 'ng-primitives/roving-focus';
+import { provideRovingFocusGroupState } from 'ng-primitives/roving-focus';
 import { SetterOptions } from 'ng-primitives/state';
 import { injectToggleGroupConfig } from '../config/toggle-group-config';
 import { ngpToggleGroup, provideToggleGroupState } from './toggle-group-state';
@@ -11,7 +11,7 @@ import { ngpToggleGroup, provideToggleGroupState } from './toggle-group-state';
   exportAs: 'ngpToggleGroup',
   providers: [provideToggleGroupState(), provideRovingFocusGroupState({ inherit: true })],
 })
-export class NgpToggleGroup {
+export class NgpToggleGroup<T = string> {
   /**
    * Access the global toggle group configuration.
    */
@@ -50,18 +50,27 @@ export class NgpToggleGroup {
   /**
    * The selected value(s) of the toggle group.
    */
-  readonly value = input<string[] | undefined>(undefined, { alias: 'ngpToggleGroupValue' });
+  readonly value = input<T[] | undefined>(undefined, { alias: 'ngpToggleGroupValue' });
 
   /**
    * The default selected value(s) for uncontrolled usage.
    * @default []
    */
-  readonly defaultValue = input<string[]>([], { alias: 'ngpToggleGroupDefaultValue' });
+  readonly defaultValue = input<T[]>([], { alias: 'ngpToggleGroupDefaultValue' });
 
   /**
    * Emits when the value of the toggle group changes.
    */
-  readonly valueChange = output<string[]>({ alias: 'ngpToggleGroupValueChange' });
+  readonly valueChange = output<T[]>({ alias: 'ngpToggleGroupValueChange' });
+
+  /**
+   * The comparator used to determine whether two values are equal.
+   * Useful when values are objects and equality should be checked by value rather than by reference.
+   * @default (a, b) => a === b
+   */
+  readonly compareWith = input<(a: T, b: T) => boolean>((a, b) => a === b, {
+    alias: 'ngpToggleGroupCompareWith',
+  });
 
   /**
    * Whether the toggle group is disabled.
@@ -74,39 +83,36 @@ export class NgpToggleGroup {
   /**
    * The state of the toggle group.
    */
-  protected readonly state = ngpToggleGroup({
-    rovingFocusGroup: ngpRovingFocusGroup({
-      orientation: this.orientation,
-      disabled: this.disabled,
-      wrap: this.wrap,
-    }),
+  protected readonly state = ngpToggleGroup<T>({
     orientation: this.orientation,
+    wrap: this.wrap,
     allowDeselection: this.allowDeselection,
     type: this.type,
     value: this.value,
     defaultValue: this.defaultValue,
     disabled: this.disabled,
-    onValueChange: (value: string[]) => this.valueChange.emit(value),
+    compareWith: this.compareWith,
+    onValueChange: (value: T[]) => this.valueChange.emit(value),
   });
 
   /**
    * Toggle a value in the toggle group.
    */
-  toggle(value: string): void {
+  toggle(value: T): void {
     this.state.toggle(value);
   }
 
   /**
    * Set the value(s) of the toggle group.
    */
-  setValue(newValue: string[], options?: SetterOptions): void {
+  setValue(newValue: T[], options?: SetterOptions): void {
     this.state.setValue(newValue, options);
   }
 
   /**
    * Set the default value(s) of the toggle group.
    */
-  setDefaultValue(defaultValue: string[]): void {
+  setDefaultValue(defaultValue: T[]): void {
     this.state.setDefaultValue(defaultValue);
   }
 

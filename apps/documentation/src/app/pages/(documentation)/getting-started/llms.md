@@ -1,4 +1,5 @@
 ---
+title: llms.txt | Angular Primitives
 name: llms.txt
 order: 5
 icon: phosphorRobotDuotone

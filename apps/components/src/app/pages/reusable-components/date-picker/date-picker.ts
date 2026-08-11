@@ -226,7 +226,8 @@ export class DatePicker implements ControlValueAccessor {
   }
 
   writeValue(date: Date): void {
-    this.state().select(date);
+    // writing a value from the model must not re-emit through onChange
+    this.state().select(date, false, { emit: false });
   }
 
   registerOnChange(fn: ChangeFn<Date | undefined>): void {
@@ -238,6 +239,6 @@ export class DatePicker implements ControlValueAccessor {
   }
 
   setDisabledState(isDisabled: boolean): void {
-    this.state().disabled.set(isDisabled);
+    this.state().setDisabled(isDisabled);
   }
 }

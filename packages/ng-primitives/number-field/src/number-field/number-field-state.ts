@@ -3,6 +3,7 @@ import { injectElementRef } from 'ng-primitives/internal';
 import {
   attrBinding,
   controlled,
+  controlledState,
   createPrimitive,
   dataBinding,
   deprecatedSetter,
@@ -64,6 +65,10 @@ export interface NgpNumberFieldState {
    */
   setValue(value: number | null): void;
   /**
+   * Set the default value used in uncontrolled mode.
+   */
+  setDefaultValue(value: number | null): void;
+  /**
    * Increment the value by one step.
    */
   increment(multiplier?: number): void;
@@ -92,9 +97,13 @@ export interface NgpNumberFieldProps {
    */
   readonly id?: Signal<string>;
   /**
-   * The current value.
+   * The current value. When defined the number field is controlled.
    */
-  readonly value?: Signal<number | null>;
+  readonly value?: Signal<number | null | undefined>;
+  /**
+   * The default value for uncontrolled usage.
+   */
+  readonly defaultValue?: Signal<number | null>;
   /**
    * The minimum value.
    */
@@ -134,7 +143,8 @@ export const [
   'NgpNumberField',
   ({
     id = signal(uniqueId('ngp-number-field')),
-    value: _value = signal<number | null>(null),
+    value: _value = signal<number | null | undefined>(undefined),
+    defaultValue: _defaultValue,
     min = signal(-Infinity),
     max = signal(Infinity),
     step = signal(1),
@@ -144,7 +154,16 @@ export const [
     onValueChange,
   }: NgpNumberFieldProps): NgpNumberFieldState => {
     const element = injectElementRef();
-    const value = controlled(_value);
+    // `controlledState` provides controlled/uncontrolled latching. The number
+    // field's emit choreography (silent input commit + manual-emit fallback in
+    // increment/decrement) is bespoke, so we drive emits through our own
+    // emitter rather than controlledState's change observable, and always call
+    // its setter with `emit: false`.
+    const defaultValue = controlled(_defaultValue, null);
+    const [value, setValueInternal] = controlledState<number | null>({
+      value: _value,
+      defaultValue,
+    });
     const disabled = controlled(_disabled);
     const readonly = controlled(_readonly);
 
@@ -208,7 +227,9 @@ export const [
       const finalValue = newValue !== null ? clampAndStep(newValue) : null;
       // Skip emit when value is unchanged
       if (finalValue === value()) return;
-      value.set(finalValue);
+      // `emit: false` keeps controlledState from firing its own change; we emit
+      // manually below to preserve the number field's emit choreography.
+      setValueInternal(finalValue, { emit: false });
       if (!suppressEmit) {
         onValueChange?.(finalValue);
         valueChange.emit(finalValue);
@@ -285,17 +306,18 @@ export const [
 
     return {
       id,
-      value,
+      value: deprecatedSetter(value, 'setValue', setValue),
       min,
       max,
       step,
       largeStep: _largeStep,
-      disabled: deprecatedSetter(disabled, 'setDisabled'),
-      readonly: deprecatedSetter(readonly, 'setReadonly'),
+      disabled: deprecatedSetter(disabled, 'setDisabled', setDisabled),
+      readonly: deprecatedSetter(readonly, 'setReadonly', setReadonly),
       canIncrement,
       canDecrement,
       valueChange: valueChange.asObservable(),
       setValue,
+      setDefaultValue: defaultValue.set,
       increment,
       decrement,
       setDisabled,

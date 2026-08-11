@@ -35,9 +35,13 @@ export class NgpToastManager {
 
   /** Show a toast notification */
   show(toast: TemplateRef<void> | Type<unknown>, options: NgpToastOptions = {}): NgpToastRef {
-    // services can't access the view container directly, so this is a workaround
+    // services can't access the view container directly, so this is a workaround.
+    // Fall back to the caller's injector when no root component is available.
     const rootComponent = this.applicationRef.components[0];
-    const viewContainerRef = rootComponent?.injector.get(ViewContainerRef) ?? null;
+    const viewContainerRef =
+      rootComponent?.injector.get(ViewContainerRef) ??
+      options.injector?.get(ViewContainerRef, null) ??
+      null;
 
     let instance: NgpToast | null = null;
     const placement = options.placement ?? this.config.placement;
@@ -48,7 +52,9 @@ export class NgpToastManager {
       toast,
       viewContainerRef,
       Injector.create({
-        parent: this.injector,
+        // Scope toast content to the caller's injector when provided, so its DI
+        // resolves from their subtree rather than the root injector. See #823.
+        parent: options.injector ?? this.injector,
         providers: [
           provideToastContext(options.context),
           provideToastOptions({
@@ -120,6 +126,13 @@ export class NgpToastManager {
   private createContainer(placement: string): HTMLElement {
     const container = this.renderer.createElement('section') as HTMLElement;
     this.renderer.setAttribute(container, 'aria-live', this.config.ariaLive);
+    // pair the live region with the role matching its politeness so assistive tech
+    // reliably announces additions (status = polite, alert = assertive)
+    this.renderer.setAttribute(
+      container,
+      'role',
+      this.config.ariaLive === 'assertive' ? 'alert' : 'status',
+    );
     this.renderer.setAttribute(container, 'aria-atomic', 'false');
     this.renderer.setAttribute(container, 'tabindex', '-1');
     this.renderer.setAttribute(container, 'data-ngp-toast-container', placement);
@@ -200,6 +213,12 @@ export interface NgpToastOptions<T = unknown> {
 
   /** When true, the toast will not auto-dismiss and must be dismissed explicitly */
   persistent?: boolean;
+
+  /**
+   * The injector used to render the toast content. Provide the calling component's
+   * injector when the toast depends on component-scoped providers. Defaults to root.
+   */
+  injector?: Injector;
 }
 
 interface NgpToastRecord {

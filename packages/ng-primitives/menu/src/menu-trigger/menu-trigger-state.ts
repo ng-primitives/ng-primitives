@@ -10,7 +10,11 @@ import {
   ViewContainerRef,
   WritableSignal,
 } from '@angular/core';
-import { injectElementRef } from 'ng-primitives/internal';
+import {
+  createHoverBridge,
+  createHoverTransitDecline,
+  injectElementRef,
+} from 'ng-primitives/internal';
 import {
   createOverlay,
   NgpFlip,
@@ -18,6 +22,7 @@ import {
   NgpOverlay,
   NgpOverlayConfig,
   NgpOverlayContent,
+  NgpPlacement,
   NgpShift,
 } from 'ng-primitives/portal';
 import {
@@ -29,8 +34,9 @@ import {
   listener,
   StateInjectionOptions,
 } from 'ng-primitives/state';
+import { injectDisposables } from 'ng-primitives/utils';
 import { NgpMenuTriggerType } from '../config/menu-config';
-import { NgpMenuPlacement } from './menu-trigger';
+import { injectMenuTriggerGroupState } from '../menu-trigger-group/menu-trigger-group-state';
 
 export interface NgpMenuTriggerState<T = unknown> {
   /**
@@ -40,7 +46,7 @@ export interface NgpMenuTriggerState<T = unknown> {
   /**
    * The computed placement of the menu.
    */
-  readonly placement: WritableSignal<NgpMenuPlacement>;
+  readonly placement: WritableSignal<NgpPlacement>;
   /**
    * Whether the menu is open.
    */
@@ -93,7 +99,7 @@ export interface NgpMenuTriggerState<T = unknown> {
    * Set the placement of the menu.
    * @param placement - The new placement
    */
-  setPlacement(placement: NgpMenuPlacement): void;
+  setPlacement(placement: NgpPlacement): void;
 
   /**
    * Set the offset of the menu.
@@ -157,7 +163,7 @@ export interface NgpMenuTriggerProps<T = unknown> {
   /**
    * The placement of the menu.
    */
-  readonly placement?: Signal<NgpMenuPlacement>;
+  readonly placement?: Signal<NgpPlacement>;
   /**
    * The offset of the menu.
    */
@@ -215,7 +221,7 @@ export const [
   <T>({
     disabled: _disabled = signal(false),
     menu: _menu = signal<NgpOverlayContent<T> | undefined>(undefined),
-    placement: _placement = signal('bottom-start' as NgpMenuPlacement),
+    placement: _placement = signal('bottom-start' as NgpPlacement),
     offset: _offset = signal(4),
     flip: _flip = signal(true),
     shift: _shift = signal(undefined),
@@ -231,6 +237,7 @@ export const [
     const injector = inject(Injector);
     const viewContainerRef = inject(ViewContainerRef);
     const directionality = inject(Directionality);
+    const disposables = injectDisposables();
 
     // Controlled properties
     const menu = controlled(_menu);
@@ -253,12 +260,43 @@ export const [
     const pointerOverContent = signal(false);
     const isPointerOverMenuArea = computed(() => pointerOverTrigger() || pointerOverContent());
 
+    // Siblings only have a shared container to protect when the consumer opted
+    // in by wrapping this trigger and its siblings in NgpMenuTriggerGroup - a
+    // lone trigger has no group and the bridge is a no-op there.
+    const triggerGroup = injectMenuTriggerGroupState({ optional: true });
+
+    // Safe-polygon hover intent: while the pointer travels inside a corridor from
+    // the trigger exit point toward the open menu, the menu stays open. Reversing
+    // away closes it (requireForwardMovement).
+    const hoverBridge = createHoverBridge({
+      isPointerInAnchor: isPointerOverMenuArea,
+      close: () => hide(),
+      requireForwardMovement: true,
+      siblingContainer: () => triggerGroup()?.siblingContainer() ?? null,
+      onSuppressionChange: active =>
+        active
+          ? triggerGroup()?.setTransitSource(element.nativeElement)
+          : triggerGroup()?.clearTransitSource(element.nativeElement),
+    });
+
+    /**
+     * A sibling's corridor can't withhold an enter the browser resolved before
+     * pointer-events applied, so the sibling has to decline it itself.
+     */
+    const declineHoverDuringTransit = createHoverTransitDecline({
+      isBlocked: () => triggerGroup()?.isTransitBlocked(element.nativeElement) ?? false,
+      isPointerOverTrigger: pointerOverTrigger,
+      show: () => show('mouse'),
+    });
+
     // Reset pointer tracking when menu closes
     effect(() => {
       const isOpen = open();
 
-      // When menu closes, reset pointer tracking state
+      // When menu closes, reset pointer tracking state and tear down any
+      // in-progress hover bridge (and its global listener).
       if (!isOpen) {
+        hoverBridge.clear();
         pointerOverTrigger.set(false);
         pointerOverContent.set(false);
       }
@@ -304,9 +342,15 @@ export const [
 
       pointerOverTrigger.set(true);
 
-      // If already open, cancel any pending hide
+      // If already open, cancel any pending hide - the pointer is back on the
+      // trigger, so any in-progress hover bridge is no longer needed.
       if (open()) {
+        hoverBridge.clear();
         overlay()?.cancelPendingClose();
+        return;
+      }
+
+      if (declineHoverDuringTransit()) {
         return;
       }
 
@@ -325,18 +369,36 @@ export const [
 
       pointerOverTrigger.set(false);
 
+      const currentOverlay = overlay();
+
       // If the overlay hasn't been created, there's nothing to cancel
-      if (!overlay()) {
+      if (!currentOverlay) {
         return;
       }
 
-      // Use a small delay to allow moving to content
-      setTimeout(() => {
-        // Only hide if pointer is not over trigger or content
+      // Build a safe-polygon corridor from the pointer exit point toward the
+      // open menu. While the pointer stays inside it the menu stays open, so
+      // diagonal travel across the offset gap doesn't collapse the menu.
+      const menuElement = open() ? currentOverlay.getElements()[0] : undefined;
+      const started =
+        !!menuElement &&
+        hoverBridge.track({
+          triggerRect: element.nativeElement.getBoundingClientRect(),
+          targetRect: menuElement.getBoundingClientRect(),
+          exitPoint: { x: event.clientX, y: event.clientY },
+        });
+
+      if (started) {
+        currentOverlay.cancelPendingClose();
+        return;
+      }
+
+      // Fall back to a small grace period when we can't build the corridor.
+      disposables.setTimeout(() => {
         if (!isPointerOverMenuArea()) {
           hide();
         }
-      }, 50); // Small grace period for moving between trigger and content
+      }, 50);
     }
 
     function onFocus(): void {
@@ -480,7 +542,7 @@ export const [
 
       // Create config for the overlay
       const config: NgpOverlayConfig<T> = {
-        content: menuContent,
+        content: menu,
         triggerElement: element.nativeElement,
         viewContainerRef,
         injector,
@@ -520,7 +582,7 @@ export const [
       flip.set(shouldFlip);
     }
 
-    function setPlacement(newPlacement: NgpMenuPlacement): void {
+    function setPlacement(newPlacement: NgpPlacement): void {
       placement.set(newPlacement);
     }
 
@@ -543,9 +605,15 @@ export const [
     function setPointerOverContent(isOver: boolean): void {
       pointerOverContent.set(isOver);
 
-      if (!isOver && open() && triggers().includes('hover')) {
+      if (isOver) {
+        // The pointer reached the menu - the hover bridge has served its purpose.
+        hoverBridge.clear();
+        return;
+      }
+
+      if (open() && triggers().includes('hover')) {
         // Use a small delay to allow pointer to move back to trigger
-        setTimeout(() => {
+        disposables.setTimeout(() => {
           // Only hide if pointer is not over trigger or content
           if (!isPointerOverMenuArea()) {
             hide();
@@ -555,11 +623,11 @@ export const [
     }
 
     return {
-      menu: deprecatedSetter(menu, 'setMenu'),
-      placement: deprecatedSetter(placement, 'setPlacement'),
-      offset: deprecatedSetter(offset, 'setOffset'),
-      disabled: deprecatedSetter(disabled, 'setDisabled'),
-      context: deprecatedSetter(context, 'setContext'),
+      menu: deprecatedSetter(menu, 'setMenu', setMenu),
+      placement: deprecatedSetter(placement, 'setPlacement', setPlacement),
+      offset: deprecatedSetter(offset, 'setOffset', setOffset),
+      disabled: deprecatedSetter(disabled, 'setDisabled', setDisabled),
+      context: deprecatedSetter(context, 'setContext', setContext),
       open,
       openOrigin,
       show,

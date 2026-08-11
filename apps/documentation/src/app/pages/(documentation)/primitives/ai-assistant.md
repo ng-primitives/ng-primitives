@@ -1,4 +1,5 @@
 ---
+title: AI Assistant | Angular Primitives
 name: AI Assistant
 sourceUrl: 'https://github.com/ng-primitives/ng-primitives/tree/next/packages/ng-primitives/ai-assistant'
 ---
@@ -135,6 +136,22 @@ The `NgpPromptComposerDictation` directive enables voice input functionality for
   <api-attribute name="data-dictation-supported" description="Added when speech dictation is supported by the browser." />
   <api-attribute name="data-prompt" description="Added when there is text content in the prompt." />
 </api-reference-attributes>
+
+## Global Configuration
+
+You can configure the default options for all AI assistant primitives in your application by using the `provideAiConfig` function in a providers array.
+
+```ts
+import { provideAiConfig } from 'ng-primitives/ai';
+
+bootstrapApplication(AppComponent, {
+  providers: [provideAiConfig({ dictationLanguage: 'es-ES' })],
+});
+```
+
+### NgpAiConfig
+
+<api-reference-config name="NgpAiConfig"></api-reference-config>
 
 ## Accessibility
 

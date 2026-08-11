@@ -9,13 +9,13 @@ import { ngpAccordionContent } from './accordion-content-state';
   selector: '[ngpAccordionContent]',
   exportAs: 'ngpAccordionContent',
 })
-export class NgpAccordionContent<T> {
+export class NgpAccordionContent {
   /**
    * The id of the content region
    */
   readonly id = input<string>(uniqueId('ngp-accordion-content'));
 
   constructor() {
-    ngpAccordionContent<T>({ id: this.id });
+    ngpAccordionContent({ id: this.id });
   }
 }

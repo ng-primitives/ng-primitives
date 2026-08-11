@@ -76,7 +76,7 @@ export class NgpDatePickerRowRender<T> implements OnDestroy {
     });
 
     // collect all the days to display.
-    while (firstDay <= lastDay) {
+    while (this.dateAdapter.compare(firstDay, lastDay) <= 0) {
       days.push(firstDay);
       firstDay = this.dateAdapter.add(firstDay, { days: 1 });
     }

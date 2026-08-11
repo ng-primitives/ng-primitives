@@ -1,13 +1,6 @@
 import { FocusOrigin } from '@angular/cdk/a11y';
 import { BooleanInput, NumberInput } from '@angular/cdk/coercion';
-import {
-  booleanAttribute,
-  Directive,
-  input,
-  numberAttribute,
-  OnDestroy,
-  output,
-} from '@angular/core';
+import { booleanAttribute, Directive, input, numberAttribute, output } from '@angular/core';
 import {
   coerceFlip,
   dismissGuardAttribute,
@@ -16,6 +9,7 @@ import {
   NgpFlip,
   NgpFlipInput,
   NgpOverlayContent,
+  NgpPlacement,
   coerceOffset,
   NgpOffset,
   NgpOffsetInput,
@@ -24,11 +18,7 @@ import {
   NgpShiftInput,
 } from 'ng-primitives/portal';
 import { injectPopoverConfig } from '../config/popover-config';
-import {
-  NgpPopoverPlacement,
-  ngpPopoverTrigger,
-  providePopoverTriggerState,
-} from './popover-trigger-state';
+import { ngpPopoverTrigger, providePopoverTriggerState } from './popover-trigger-state';
 
 /**
  * Apply the `ngpPopoverTrigger` directive to an element that triggers the popover to show.
@@ -38,7 +28,7 @@ import {
   exportAs: 'ngpPopoverTrigger',
   providers: [providePopoverTriggerState({ inherit: false })],
 })
-export class NgpPopoverTrigger<T = null> implements OnDestroy {
+export class NgpPopoverTrigger<T = null> {
   /**
    * Access the global popover configuration.
    */
@@ -64,7 +54,7 @@ export class NgpPopoverTrigger<T = null> implements OnDestroy {
    * Define the placement of the popover relative to the trigger.
    * @default 'top'
    */
-  readonly placement = input<NgpPopoverPlacement>(this.config.placement, {
+  readonly placement = input<NgpPlacement>(this.config.placement, {
     alias: 'ngpPopoverTriggerPlacement',
   });
 
@@ -193,6 +183,19 @@ export class NgpPopoverTrigger<T = null> implements OnDestroy {
   });
 
   /**
+   * When true, hiding the popover removes its content from the DOM but keeps the
+   * underlying component/view instance alive in memory instead of destroying it - a
+   * later show reuses the same instance rather than creating a new one, so the content
+   * is not re-instantiated and any one-time setup (e.g. a network fetch) is not repeated.
+   * The kept-alive view stays attached to change detection while it is hidden.
+   * @default false
+   */
+  readonly keepMounted = input<boolean, BooleanInput>(this.config.keepMounted, {
+    alias: 'ngpPopoverTriggerKeepMounted',
+    transform: booleanAttribute,
+  });
+
+  /**
    * Event emitted when the popover open state changes.
    */
   readonly openChange = output<boolean>({
@@ -219,12 +222,9 @@ export class NgpPopoverTrigger<T = null> implements OnDestroy {
     anchor: this.anchor,
     trackPosition: this.trackPosition,
     cooldown: this.cooldown,
+    keepMounted: this.keepMounted,
     onOpenChange: (value: boolean) => this.openChange.emit(value),
   });
-
-  ngOnDestroy(): void {
-    this.state.destroy();
-  }
 
   /**
    * Show the popover.

@@ -3,7 +3,7 @@ import { NgpButton } from 'ng-primitives/button';
 import { NgpRovingFocusItem } from 'ng-primitives/roving-focus';
 
 @Component({
-  selector: 'button[<%= prefix %>-toolbar-button]',
+  selector: 'button[<% if (prefix) { %><%= prefix %>-<% } %>toolbar-button]',
   hostDirectives: [
     { directive: NgpButton, inputs: ['disabled'] },
     {
@@ -52,6 +52,13 @@ import { NgpRovingFocusItem } from 'ng-primitives/roving-focus';
     :host[data-selected] {
       background-color: var(--ngp-background-inverse);
       color: var(--ngp-text-inverse);
+    }
+
+    /* Reduce motion for users who prefer reduced motion. */
+    @media (prefers-reduced-motion: reduce) {
+      :host {
+        transition-duration: 0s;
+      }
     }
   `,
 })

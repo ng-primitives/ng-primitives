@@ -6,10 +6,11 @@ import { injectElementRef } from 'ng-primitives/internal';
 import {
   attrBinding,
   controlled,
+  controlledState,
   createPrimitive,
   dataBinding,
   deprecatedSetter,
-  emitter,
+  SetterOptions,
 } from 'ng-primitives/state';
 import { uniqueId } from 'ng-primitives/utils';
 import { Observable } from 'rxjs';
@@ -65,7 +66,11 @@ export interface NgpSliderState {
   /**
    * Set the current value (clamped).
    */
-  setValue(value: number): void;
+  setValue(value: number, options?: SetterOptions): void;
+  /**
+   * Set the default value used in uncontrolled mode.
+   */
+  setDefaultValue(value: number): void;
   /**
    * Register the track element.
    */
@@ -97,9 +102,13 @@ export interface NgpSliderProps {
    */
   readonly id?: Signal<string>;
   /**
-   * The slider value.
+   * The slider value. When defined the slider is controlled.
    */
-  readonly value?: Signal<number>;
+  readonly value?: Signal<number | undefined>;
+  /**
+   * The default value for uncontrolled usage.
+   */
+  readonly defaultValue?: Signal<number>;
   /**
    * The minimum value.
    */
@@ -131,7 +140,8 @@ export const [NgpSliderStateToken, ngpSlider, injectSliderState, provideSliderSt
     'NgpSlider',
     ({
       id = signal(uniqueId('ngp-slider')),
-      value: _value = signal(0),
+      value: _value = signal<number | undefined>(undefined),
+      defaultValue: _defaultValue,
       min = signal(0),
       max = signal(100),
       step = signal(1),
@@ -141,11 +151,15 @@ export const [NgpSliderStateToken, ngpSlider, injectSliderState, provideSliderSt
     }: NgpSliderProps): NgpSliderState => {
       const element = injectElementRef();
       const focusMonitor = inject(FocusMonitor);
-      const value = controlled(_value);
+      const defaultValue = controlled(_defaultValue, 0);
+      const [value, setValueInternal, valueChange] = controlledState<number>({
+        value: _value,
+        defaultValue,
+        onChange: onValueChange,
+      });
       const disabled = controlled(_disabled);
       const orientation = controlled(_orientation);
 
-      const valueChange = emitter<number>();
       const track = signal<ElementRef<HTMLElement> | undefined>(undefined);
       const thumb = signal<ElementRef<HTMLElement> | undefined>(undefined);
 
@@ -181,13 +195,11 @@ export const [NgpSliderStateToken, ngpSlider, injectSliderState, provideSliderSt
         }
       }
 
-      function setValue(newValue: number): void {
+      function setValue(newValue: number, options?: SetterOptions): void {
         const clamped = Math.min(max(), Math.max(min(), newValue));
         const stepped = Math.round((clamped - min()) / step()) * step() + min();
         const finalValue = Math.min(max(), Math.max(min(), stepped));
-        value.set(finalValue);
-        onValueChange?.(finalValue);
-        valueChange.emit(finalValue);
+        setValueInternal(finalValue, options);
       }
 
       function setDisabled(isDisabled: boolean): void {
@@ -200,17 +212,18 @@ export const [NgpSliderStateToken, ngpSlider, injectSliderState, provideSliderSt
 
       return {
         id,
-        value,
+        value: deprecatedSetter(value, 'setValue', setValue),
         min,
         max,
         step,
-        orientation: deprecatedSetter(orientation, 'setOrientation'),
-        disabled: deprecatedSetter(disabled, 'setDisabled'),
-        valueChange: valueChange.asObservable(),
+        orientation: deprecatedSetter(orientation, 'setOrientation', setOrientation),
+        disabled: deprecatedSetter(disabled, 'setDisabled', setDisabled),
+        valueChange,
         percentage,
         track,
         thumb,
         setValue,
+        setDefaultValue: defaultValue.set,
         setTrack,
         setThumb,
         focusThumb,

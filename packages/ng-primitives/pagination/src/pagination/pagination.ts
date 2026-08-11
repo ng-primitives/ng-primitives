@@ -1,5 +1,6 @@
 import { BooleanInput, NumberInput } from '@angular/cdk/coercion';
 import { booleanAttribute, Directive, input, numberAttribute, output } from '@angular/core';
+import { coerceNumberOrUndefined } from 'ng-primitives/utils';
 import { ngpPagination, providePaginationState } from './pagination-state';
 
 /**
@@ -17,7 +18,7 @@ export class NgpPagination {
    */
   readonly page = input<number | undefined, NumberInput>(undefined, {
     alias: 'ngpPaginationPage',
-    transform: numberAttribute,
+    transform: coerceNumberOrUndefined,
   });
 
   /**
@@ -26,7 +27,7 @@ export class NgpPagination {
    */
   readonly defaultPage = input<number, NumberInput>(1, {
     alias: 'ngpPaginationDefaultPage',
-    transform: numberAttribute,
+    transform: (value: NumberInput) => numberAttribute(value, 1),
   });
 
   /**

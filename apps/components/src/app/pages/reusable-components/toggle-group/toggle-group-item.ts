@@ -52,6 +52,13 @@ import { NgpToggleGroupItem } from 'ng-primitives/toggle-group';
       color: var(--ngp-text-inverse);
       border-color: transparent;
     }
+
+    /* Reduce motion for users who prefer reduced motion. */
+    @media (prefers-reduced-motion: reduce) {
+      :host {
+        transition-duration: 0s;
+      }
+    }
   `,
 })
 export class ToggleGroupItem {}

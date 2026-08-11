@@ -8,7 +8,6 @@ import {
   ViewContainerRef,
   WritableSignal,
 } from '@angular/core';
-import { Placement } from '@floating-ui/dom';
 import { injectElementRef } from 'ng-primitives/internal';
 import { NgpMenuTriggerStateToken } from 'ng-primitives/menu';
 import {
@@ -18,6 +17,7 @@ import {
   NgpOverlay,
   NgpOverlayConfig,
   NgpOverlayContent,
+  NgpPlacement,
   NgpPosition,
   NgpShift,
 } from 'ng-primitives/portal';
@@ -283,7 +283,7 @@ export const [
       }
 
       const config: NgpOverlayConfig<T> = {
-        content: menuContent,
+        content: menu,
         triggerElement: element.nativeElement,
         viewContainerRef,
         injector,
@@ -292,7 +292,7 @@ export const [
         offset: offset(),
         flip: flip(),
         shift,
-        placement: signal<Placement>('right-start'),
+        placement: signal<NgpPlacement>('right-start'),
         closeOnOutsideClick: true,
         closeOnEscape: true,
         treatTriggerClickAsOutside: true,

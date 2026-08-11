@@ -34,6 +34,13 @@ import { Toast } from './toast';
     .toast-trigger[data-press] {
       background-color: var(--ngp-background-active);
     }
+
+    /* Reduce motion for users who prefer reduced motion. */
+    @media (prefers-reduced-motion: reduce) {
+      .toast-trigger {
+        transition-duration: 0s;
+      }
+    }
   `,
 })
 export default class App {

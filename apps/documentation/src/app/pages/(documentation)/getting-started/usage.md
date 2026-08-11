@@ -1,4 +1,5 @@
 ---
+title: Usage | Angular Primitives
 name: Usage
 order: 4
 icon: phosphorLightbulbDuotone

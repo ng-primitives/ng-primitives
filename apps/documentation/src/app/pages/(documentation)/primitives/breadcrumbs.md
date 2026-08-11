@@ -1,4 +1,5 @@
 ---
+title: Breadcrumbs | Angular Primitives
 name: 'Breadcrumbs'
 sourceUrl: 'https://github.com/ng-primitives/ng-primitives/tree/next/packages/ng-primitives/breadcrumbs'
 ---

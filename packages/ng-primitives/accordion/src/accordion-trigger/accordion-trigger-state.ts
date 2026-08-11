@@ -1,9 +1,7 @@
-import { HOST_TAG_NAME, inject, signal, Signal } from '@angular/core';
-import { injectElementRef } from 'ng-primitives/internal';
-import { attrBinding, createPrimitive, dataBinding, listener } from 'ng-primitives/state';
+import { signal, Signal } from '@angular/core';
+import { ngpCollapsibleTrigger } from 'ng-primitives/collapsible';
+import { createPrimitive } from 'ng-primitives/state';
 import { uniqueId } from 'ng-primitives/utils';
-import { injectAccordionItemState } from '../accordion-item/accordion-item-state';
-import { injectAccordionState } from '../accordion/accordion-state';
 
 export interface NgpAccordionTriggerState {
   /**
@@ -30,40 +28,12 @@ export const [
   provideAccordionTriggerState,
 ] = createPrimitive(
   'NgpAccordionTrigger',
-  <T>({ id = signal(uniqueId('ngp-accordion-trigger')) }: NgpAccordionTriggerProps) => {
-    const element = injectElementRef();
-    const tagName = inject(HOST_TAG_NAME);
-    const accordion = injectAccordionState<T>();
-    const accordionItem = injectAccordionItemState<T>();
+  ({ id = signal(uniqueId('ngp-accordion-trigger')) }: NgpAccordionTriggerProps) => {
+    // The accordion trigger is the shared collapsible trigger - it wires the
+    // button semantics (type, aria-expanded, aria-controls), registers its id
+    // with the item's collapsible state, and toggles on click.
+    const trigger = ngpCollapsibleTrigger({ id });
 
-    // Host bindings
-    attrBinding(element, 'id', id);
-    attrBinding(element, 'type', tagName === 'button' ? 'button' : null);
-    attrBinding(element, 'aria-controls', accordionItem().contentId);
-    attrBinding(element, 'aria-expanded', accordionItem().open);
-    dataBinding(element, 'data-orientation', accordion().orientation);
-    dataBinding(element, 'data-open', accordionItem().open);
-    dataBinding(
-      element,
-      'data-disabled',
-      () => accordionItem().disabled() || accordion().disabled(),
-    );
-
-    // register the trigger with the accordion item
-    accordionItem().setTrigger(id());
-
-    // Methods
-    function toggle(): void {
-      if (accordionItem().disabled() || accordion().disabled()) {
-        return;
-      }
-
-      accordion().toggle(accordionItem().value()!);
-    }
-
-    // Event listeners
-    listener(element, 'click', toggle);
-
-    return { id, toggle } satisfies NgpAccordionTriggerState;
+    return { id: trigger.id, toggle: trigger.toggle } satisfies NgpAccordionTriggerState;
   },
 );

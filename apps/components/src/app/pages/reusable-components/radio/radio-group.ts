@@ -1,7 +1,12 @@
 import { Component } from '@angular/core';
 import { ControlValueAccessor } from '@angular/forms';
 import { injectRadioGroupState, NgpRadioGroup } from 'ng-primitives/radio';
-import { ChangeFn, provideValueAccessor, TouchedFn } from 'ng-primitives/utils';
+import {
+  ChangeFn,
+  provideValueAccessor,
+  safeTakeUntilDestroyed,
+  TouchedFn,
+} from 'ng-primitives/utils';
 
 @Component({
   selector: 'app-radio-group',
@@ -42,12 +47,14 @@ export class RadioGroup implements ControlValueAccessor {
   protected onTouched?: TouchedFn;
 
   constructor() {
-    this.state().valueChange.subscribe(value => this.onChange?.(value));
+    this.state()
+      .valueChange.pipe(safeTakeUntilDestroyed())
+      .subscribe(value => this.onChange?.(value));
   }
 
   /** Write a new value to the radio group */
-  writeValue(value: string): void {
-    this.state().value.set(value);
+  writeValue(value: string | null): void {
+    this.state().setValue(value, { emit: false });
   }
 
   /** Register the on change callback */
@@ -58,5 +65,10 @@ export class RadioGroup implements ControlValueAccessor {
   /** Register the on touched callback */
   registerOnTouched(onTouched: TouchedFn): void {
     this.onTouched = onTouched;
+  }
+
+  /** Set the disabled state of the radio group */
+  setDisabledState(isDisabled: boolean): void {
+    this.state().setDisabled(isDisabled);
   }
 }

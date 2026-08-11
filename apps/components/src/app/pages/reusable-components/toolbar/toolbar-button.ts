@@ -51,6 +51,13 @@ import { NgpRovingFocusItem } from 'ng-primitives/roving-focus';
       background-color: var(--ngp-background-inverse);
       color: var(--ngp-text-inverse);
     }
+
+    /* Reduce motion for users who prefer reduced motion. */
+    @media (prefers-reduced-motion: reduce) {
+      :host {
+        transition-duration: 0s;
+      }
+    }
   `,
 })
 export class ToolbarButton {}

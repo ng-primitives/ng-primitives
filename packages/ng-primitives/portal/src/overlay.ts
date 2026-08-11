@@ -16,9 +16,6 @@ import {
 } from '@angular/core';
 import { ControlContainer } from '@angular/forms';
 import {
-  Middleware,
-  Placement,
-  Strategy,
   VirtualElement,
   arrow,
   autoUpdate,
@@ -31,20 +28,21 @@ import {
 import { explicitEffect, fromResizeEvent } from 'ng-primitives/internal';
 import { injectDisposables, safeTakeUntilDestroyed, uniqueId } from 'ng-primitives/utils';
 import { Subject } from 'rxjs';
-import { NgpFlip } from './flip';
+import { NgpFlip, NgpFlipOptions } from './flip';
 import { NgpOffset } from './offset';
 import { CooldownOverlay, NgpOverlayCooldownManager } from './overlay-cooldown';
 import { NgpDismissGuard, NgpOverlayRegistry } from './overlay-registry';
 import { provideOverlayContext } from './overlay-token';
 import { NgpPortal, createPortal } from './portal';
 import { NgpPosition } from './position';
+import { NgpMiddleware, NgpPlacement, NgpPositioningStrategy } from './positioning';
 import {
   BlockScrollStrategy,
   CloseScrollStrategy,
   NoopScrollStrategy,
   ScrollStrategy,
 } from './scroll-strategy';
-import { NgpShift } from './shift';
+import { NgpShift, NgpShiftOptions } from './shift';
 
 /**
  * Bit values of the internal inject flags used by Angular's DI system. These are
@@ -118,12 +116,34 @@ class EmbeddedViewInjector extends Injector {
 }
 
 /**
+ * Normalise a `boolean | options | undefined` middleware config to its options object, or
+ * `undefined` when the middleware is disabled. Both middleware are enabled by default.
+ */
+function resolveOverflowOptions<T extends NgpFlipOptions | NgpShiftOptions>(
+  config: boolean | T | undefined,
+): T | undefined {
+  if (config === false) {
+    return undefined;
+  }
+
+  return config === true || config === undefined ? ({} as T) : config;
+}
+
+/**
  * Configuration options for creating an overlay
  * @internal
  */
 export interface NgpOverlayConfig<T = unknown> {
-  /** Content to display in the overlay (component or template) */
-  content: NgpOverlayContent<T>;
+  /**
+   * Content to display in the overlay (component or template). Read whenever the
+   * overlay opens, and while it is open a change swaps the rendered content, so a
+   * trigger can hand over an input signal and let it change.
+   *
+   * Clearing it closes the overlay immediately - there is nothing left to render, so
+   * neither the hide delay nor the exit animation applies - and an overlay with no
+   * content will not open.
+   */
+  content: Signal<NgpOverlayContent<T> | null | undefined>;
 
   /** The element that triggers the overlay */
   triggerElement: HTMLElement;
@@ -143,7 +163,7 @@ export interface NgpOverlayConfig<T = unknown> {
   container?: HTMLElement | string | null;
 
   /** Preferred placement of the overlay relative to the trigger. */
-  placement?: Signal<Placement>;
+  placement?: Signal<NgpPlacement>;
 
   /** Offset distance between the overlay and trigger. Can be a number or an object with axis-specific offsets */
   offset?: NgpOffset;
@@ -161,7 +181,7 @@ export interface NgpOverlayConfig<T = unknown> {
   hideDelay?: number;
 
   /** Whether the overlay should be positioned with fixed or absolute strategy */
-  strategy?: Strategy;
+  strategy?: NgpPositioningStrategy;
 
   /** The scroll strategy to use for the overlay */
   scrollBehaviour?: 'reposition' | 'block' | 'close';
@@ -182,7 +202,7 @@ export interface NgpOverlayConfig<T = unknown> {
    */
   onClose?: (origin: FocusOrigin) => void;
   /** Additional middleware for floating UI positioning */
-  additionalMiddleware?: Middleware[];
+  additionalMiddleware?: NgpMiddleware[];
 
   /** Additional providers */
   providers?: Provider[];
@@ -210,6 +230,18 @@ export interface NgpOverlayConfig<T = unknown> {
    * the second one immediately without the showDelay.
    */
   overlayType?: string;
+
+  /**
+   * When true, hiding the overlay removes its content from the DOM but keeps the
+   * underlying component/view instance alive in memory instead of destroying it -
+   * a later `show()` re-inserts the same instance rather than creating a new one, so
+   * the content is not re-instantiated and any one-time setup is not repeated.
+   * The kept-alive view stays attached to change detection while it is hidden.
+   *
+   * Read on each hide, so a trigger can hand over an input signal and let it change.
+   * @default false
+   */
+  keepMounted?: Signal<boolean>;
 
   /**
    * Cooldown duration in milliseconds.
@@ -250,6 +282,8 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
   private readonly portal = signal<NgpPortal | null>(null);
   /** The dedicated outlet element registered by the overlay directive (e.g. NgpMenu) */
   private registeredOutletElement: HTMLElement | null = null;
+  /** The content the current portal was built from, to tell a real change from a repeat */
+  private renderedContent: NgpOverlayContent<T> | null = null;
 
   /** Signal tracking the overlay position */
   readonly position = signal<{ x: number | undefined; y: number | undefined }>({
@@ -278,7 +312,7 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
   readonly availableHeight = signal<number | null>(null);
 
   /** Signal tracking the final placement of the overlay */
-  readonly finalPlacement = signal<Placement | undefined>(undefined);
+  readonly finalPlacement = signal<NgpPlacement | undefined>(undefined);
 
   /** Function to dispose the positioning auto-update */
   private disposePositioning?: () => void;
@@ -291,6 +325,18 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
 
   /** Portal currently being destroyed (for cancel support during exit animations) */
   private destroyingPortal: NgpPortal | null = null;
+
+  /**
+   * Portal kept alive (detached from the DOM but not destroyed) after a keepMounted hide,
+   * with the content it was built from so a later show can check it is still reusable.
+   */
+  private keptMounted: { portal: NgpPortal; content: NgpOverlayContent<T> } | null = null;
+
+  /**
+   * Whether the overlay itself has been torn down. A hide already in flight when that happens
+   * finishes on its own clock, so it checks this before keeping its view mounted for reuse.
+   */
+  private forceDestroyed = false;
 
   /** Signal tracking whether the overlay is open */
   readonly isOpen = signal(false);
@@ -353,18 +399,33 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
       explicitEffect([config.position], () => this.updatePosition());
     }
 
+    // Listen for content changes to re-render what is on screen. A closed overlay needs
+    // nothing here - it reads the content when it opens.
+    explicitEffect([config.content], () => this.replaceContent());
+
     // this must be done after the config is set
     this.transformOrigin.set(this.getTransformOrigin());
 
     // Monitor trigger element resize
     const elementToMonitor = this.config.anchorElement || this.config.triggerElement;
+    let hasMeasuredNonZeroTrigger = false;
     fromResizeEvent(elementToMonitor)
       .pipe(safeTakeUntilDestroyed(this.destroyRef))
       .subscribe(({ width, height }) => {
         this.triggerWidth.set(width);
 
-        // if the element has been hidden, hide immediately
-        if (width === 0 || height === 0) {
+        if (width !== 0 && height !== 0) {
+          hasMeasuredNonZeroTrigger = true;
+          return;
+        }
+
+        // If the element *has been* hidden, hide immediately. That means a transition
+        // from a real size to none — not merely a zero reading, of which there can be
+        // several before the trigger ever has a box (an empty inline trigger measures
+        // 0x0, and both the initial measurement and the observer's first callback
+        // report it). Closing on those tears down an overlay that was only just
+        // opened, and the trigger may still be about to grow.
+        if (hasMeasuredNonZeroTrigger) {
           this.hideImmediate();
         }
       });
@@ -455,7 +516,10 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
    */
   private cancelDestruction(): void {
     const portal = this.destroyingPortal;
-    if (!portal) {
+
+    // Teardown is terminal - a destroyed overlay must not be brought back, and its portal
+    // stays on the destroy path so the view is released when the detach settles.
+    if (!portal || this.forceDestroyed) {
       return;
     }
 
@@ -479,6 +543,10 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
     if (this.config.overlayType) {
       this.cooldownManager.registerActive(this.config.overlayType, this, this.config.cooldown ?? 0);
     }
+
+    // Content changes are skipped while a close is under way, so the restored portal can
+    // be rendering content the trigger has already moved on from.
+    this.replaceContent();
   }
 
   /**
@@ -558,14 +626,57 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
       // Reset instant transition for normal closes so exit animations can play.
       // When being replaced by another overlay during cooldown, hideImmediate()
       // is called instead (which doesn't come through here), and registerActive
-      // sets instantTransition to true before that call.
+      // sets instantTransition to true before that call. The `data-instant`
+      // attribute itself is dropped later, as the element switches to its exit
+      // state - see clearInstantAttribute().
       this.instantTransition.set(false);
-      // Remove data-instant attribute so CSS exit animations can play
-      for (const element of this.getElements()) {
-        element.removeAttribute('data-instant');
-      }
       this.closeTimeout = this.disposables.setTimeout(dispose, delay);
     }
+  }
+
+  /**
+   * Render the current content. The portal captures its content when it is created, so
+   * content that changes while the overlay is on screen has to rebuild it; a closed
+   * overlay needs nothing, as opening reads the content afresh.
+   */
+  private replaceContent(): void {
+    // A close that is already under way owns the current portal - rebuilding it here
+    // would put the overlay back on screen after it was dismissed.
+    if (!this.isOpen() || this.closeTimeout || this.destroyingPortal) {
+      return;
+    }
+
+    const portal = this.portal();
+
+    if (!portal) {
+      return;
+    }
+
+    const content = this.config.content();
+
+    // Already rendering this content. The effect runs for its initial value too, and
+    // this is also reached from cancelDestruction, so neither costs an open overlay its
+    // DOM when nothing actually changed.
+    if (content === this.renderedContent) {
+      return;
+    }
+
+    // Nothing left to render - close rather than leave the previous content on screen.
+    if (!content) {
+      this.hideImmediate();
+      return;
+    }
+
+    this.portal.set(null);
+    this.disposePositioning?.();
+    this.disposePositioning = undefined;
+    this.registeredOutletElement = null;
+
+    // Immediate on both sides: the exit animation belongs to the content being
+    // replaced, and replaying the entrance would read as a close and reopen rather
+    // than a content change.
+    portal.detach({ immediate: true });
+    this.attachPortal(content, true);
   }
 
   /**
@@ -585,8 +696,17 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
    * Immediately hide the overlay without any delay.
    * When called during cooldown transitions, this destroys the overlay
    * immediately without exit animations.
+   * @param options Optional hide configuration
    */
-  hideImmediate(): void {
+  hideImmediate(options?: OverlayHideImmediateOptions): void {
+    // An exit already under way owns the portal - `portal()` is nulled the
+    // moment destroyOverlay starts - so ending it is the only way an immediate
+    // hide reaches an overlay that has begun animating out. Opt-in, because a
+    // plain close still owes the caller the exit animation it asked for.
+    if (options?.skipExitAnimation) {
+      this.destroyingPortal?.finishDetach();
+    }
+
     // Cancel any pending operations
     if (this.openTimeout) {
       this.openTimeout();
@@ -611,7 +731,7 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
       this.closeOrigin.set('program');
       this.config.onClose?.('program');
     }
-    this.destroyOverlay(true);
+    this.destroyOverlay({ immediate: true, forceDestroy: options?.forceDestroy });
   }
 
   /**
@@ -649,7 +769,7 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
    * Completely destroy this overlay instance
    */
   destroy(): void {
-    this.hideImmediate();
+    this.hideImmediate({ forceDestroy: true });
     this.disposePositioning?.();
     this.scrollStrategy.disable();
   }
@@ -715,6 +835,28 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
   }
 
   /**
+   * Determine whether this overlay is a descendant of the given overlay - i.e.
+   * its trigger is rendered within the other overlay's content. Walks the parent
+   * overlay chain established through dependency injection.
+   *
+   * Used by the cooldown manager to avoid evicting an ancestor overlay when a
+   * nested overlay of the same type is activated.
+   * @internal
+   */
+  isDescendantOf(other: CooldownOverlay): boolean {
+    let current: NgpOverlay | null = this.parentOverlay;
+
+    while (current) {
+      if (current === other) {
+        return true;
+      }
+      current = current.parentOverlay;
+    }
+
+    return false;
+  }
+
+  /**
    * Check if the event path includes any child overlay elements (recursively).
    * @internal
    */
@@ -736,61 +878,16 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
    * @param skipCooldown If true, skip registering with the cooldown manager
    */
   private createOverlay(skipCooldown?: boolean): void {
-    if (!this.config.content) {
-      throw new Error('Overlay content must be provided');
+    const content = this.config.content();
+
+    // Nothing to render: either the trigger never had content, or it was cleared while
+    // the show delay was running. Either way there is nothing to open with.
+    if (!content) {
+      return;
     }
 
-    // Create a new portal with context.
-    // The injector is wrapped in EmbeddedViewInjector to work around an Angular 19 bug
-    // where @SkipSelf() causes the embedded view injector's ControlContainer: null to be
-    // bypassed. See https://github.com/angular/angular/issues/57390
-    const portal = createPortal(
-      this.config.content,
-      this.viewContainerRef,
-      new EmbeddedViewInjector(
-        Injector.create({
-          parent: this.config.injector,
-          providers: [
-            ...(this.config.providers || []),
-            { provide: NgpOverlay, useValue: this },
-            provideOverlayContext<T>(this.config.context),
-            { provide: ControlContainer, useValue: null },
-          ],
-        }),
-      ),
-      { $implicit: this.config.context } as NgpOverlayTemplateContext<T>,
-    );
-
-    // Attach portal to container (skip enter animation delay if instant transition)
-    const container = this.resolveContainer();
-    const isInstant = this.instantTransition();
-    portal.attach(container, { immediate: isInstant });
-
-    // Update portal signal
-    this.portal.set(portal);
-
-    // If instant transition is active, set data-instant attribute synchronously
-    // so CSS can use it for styling purposes
-    if (isInstant) {
-      for (const element of portal.getElements()) {
-        element.setAttribute('data-instant', '');
-      }
-    }
-
-    // Ensure view is up to date
-    portal.detectChanges();
-
-    // find a dedicated outlet element
-    // this is the element that has the `data-overlay` attribute
-    // if no such element exists, we use the first element in the portal
-    const outletElement = this.findOutletElement(portal);
-
-    if (!outletElement) {
-      throw new Error('Overlay element is not available.');
-    }
-
-    // Set up positioning
-    this.setupPositioning(outletElement);
+    // Skip the enter animation delay if this is an instant transition
+    this.attachPortal(content, this.instantTransition());
 
     // Mark as open
     this.isOpen.set(true);
@@ -820,6 +917,83 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
   }
 
   /**
+   * Create the portal for the current content, attach it to the container and start
+   * positioning it. Shared by the initial open and by content swaps.
+   * @param content The content to render
+   * @param immediate If true, skip the enter animation
+   */
+  private attachPortal(content: NgpOverlayContent<T>, immediate: boolean): void {
+    this.renderedContent = content;
+
+    let portal: NgpPortal;
+    const keptMounted = this.keptMounted;
+
+    if (keptMounted?.content === content) {
+      // Reuse the portal kept alive from a previous keepMounted hide - re-inserts its
+      // existing DOM nodes rather than creating a new view/component instance, so the
+      // content is not re-instantiated and its one-time setup does not re-run.
+      this.keptMounted = null;
+      portal = keptMounted.portal;
+      portal.reattach(this.resolveContainer(), { immediate });
+    } else {
+      // A kept-mounted portal from a previous hide no longer matches the current
+      // content (e.g. the overlay's content input changed while it was hidden) -
+      // it can't be reused, so its view is destroyed instead of leaking.
+      this.discardKeptMounted();
+
+      // Create a new portal with context.
+      // The injector is wrapped in EmbeddedViewInjector to work around an Angular 19 bug
+      // where @SkipSelf() causes the embedded view injector's ControlContainer: null to be
+      // bypassed. See https://github.com/angular/angular/issues/57390
+      portal = createPortal(
+        content,
+        this.viewContainerRef,
+        new EmbeddedViewInjector(
+          Injector.create({
+            parent: this.config.injector,
+            providers: [
+              ...(this.config.providers || []),
+              { provide: NgpOverlay, useValue: this },
+              provideOverlayContext<T>(this.config.context),
+              { provide: ControlContainer, useValue: null },
+            ],
+          }),
+        ),
+        { $implicit: this.config.context } as NgpOverlayTemplateContext<T>,
+      );
+
+      // Attach portal to container
+      portal.attach(this.resolveContainer(), { immediate });
+    }
+
+    // Update portal signal
+    this.portal.set(portal);
+
+    // If instant transition is active, set data-instant attribute synchronously
+    // so CSS can use it for styling purposes
+    if (this.instantTransition()) {
+      for (const element of portal.getElements()) {
+        element.setAttribute('data-instant', '');
+      }
+    }
+
+    // Ensure view is up to date
+    portal.detectChanges();
+
+    // find a dedicated outlet element
+    // this is the element that has the `data-overlay` attribute
+    // if no such element exists, we use the first element in the portal
+    const outletElement = this.findOutletElement(portal);
+
+    if (!outletElement) {
+      throw new Error('Overlay element is not available.');
+    }
+
+    // Set up positioning
+    this.setupPositioning(outletElement);
+  }
+
+  /**
    * Create the appropriate scroll strategy based on the configuration.
    */
   private createScrollStrategy(): ScrollStrategy {
@@ -841,12 +1015,6 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
    * Internal method to setup positioning of the overlay
    */
   private setupPositioning(overlayElement: HTMLElement): void {
-    // Determine positioning strategy based on overlay element's CSS
-    const strategy =
-      getComputedStyle(overlayElement).position === 'fixed'
-        ? 'fixed'
-        : this.config.strategy || 'absolute';
-
     // Get the reference for auto-update - use trigger element for resize/scroll tracking
     // even when using programmatic position (the virtual element is created dynamically in computePosition)
     const referenceElement = this.config.anchorElement || this.config.triggerElement;
@@ -855,41 +1023,70 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
     this.disposePositioning = autoUpdate(
       referenceElement,
       overlayElement,
-      () => this.computePosition(overlayElement, strategy),
+      () => this.computePosition(overlayElement),
       { animationFrame: this.config.trackPosition ?? false },
     );
   }
 
   /**
+   * Determine the positioning strategy from the overlay element's computed CSS.
+   *
+   * Resolved per pass so every caller agrees: `updatePosition()` used to reach
+   * `computePosition()` without one and take the `absolute` default, which offsets a
+   * `fixed` panel by the page scroll.
+   */
+  private resolveStrategy(overlayElement: HTMLElement): NgpPositioningStrategy {
+    return getComputedStyle(overlayElement).position === 'fixed'
+      ? 'fixed'
+      : this.config.strategy || 'absolute';
+  }
+
+  /**
    * Compute the overlay position using floating-ui
    */
-  private async computePosition(
-    overlayElement: HTMLElement,
-    strategy: Strategy = 'absolute',
-  ): Promise<void> {
+  private async computePosition(overlayElement: HTMLElement): Promise<void> {
+    const strategy = this.resolveStrategy(overlayElement);
+
     // Create middleware array
     // Order matters: offset → flip → shift → size → arrow (per Floating UI docs)
-    const middleware: Middleware[] = [offset(this.config.offset ?? 0)];
+    const middleware: NgpMiddleware[] = [offset(this.config.offset ?? 0)];
+
+    // Resolved before the middleware are added so `size` can reuse the overflow boundary.
+    const flipOptions = resolveOverflowOptions(this.config.flip);
+    const shiftOptions = resolveOverflowOptions(this.config.shift);
 
     // Add flip middleware if requested
     // Flip must come before shift so that shift doesn't prevent flip from triggering
-    const flipConfig = this.config.flip;
-    if (flipConfig !== false) {
-      const flipOptions = flipConfig === undefined || flipConfig === true ? {} : flipConfig;
+    if (flipOptions) {
       middleware.push(flip(flipOptions));
     }
 
     // Add shift middleware (enabled by default for backward compatibility)
     // Shift keeps the overlay in view by shifting it along its axis when it would otherwise overflow the viewport
-    const shiftConfig = this.config.shift;
-    if (shiftConfig !== false) {
-      const shiftOptions = shiftConfig === undefined || shiftConfig === true ? {} : shiftConfig;
+    if (shiftOptions) {
       middleware.push(shift(shiftOptions));
     }
 
-    // Add size middleware to expose available dimensions
+    // Add size middleware to expose available dimensions. It measures the space before the
+    // overlay overflows, so it has to read against the same boundary that keeps the overlay
+    // in view: flip's when flip sets one, otherwise shift's. Enabled-by-default flip resolves
+    // to `{}`, so the test is whether it names a boundary rather than whether it exists -
+    // `{}` would otherwise mask a boundary set on shift. Taken together, so the fields can't
+    // be composed from different middleware into a region neither measures against.
+    // Padding is deliberately not shared: adopting it would shrink the reported dimensions
+    // for anyone already setting it on flip or shift.
+    const overflowOptions =
+      flipOptions?.boundary !== undefined ||
+      flipOptions?.rootBoundary !== undefined ||
+      flipOptions?.altBoundary !== undefined
+        ? flipOptions
+        : shiftOptions;
+
     middleware.push(
       size({
+        boundary: overflowOptions?.boundary,
+        rootBoundary: overflowOptions?.rootBoundary,
+        altBoundary: overflowOptions?.altBoundary,
         apply: ({ availableWidth, availableHeight }) => {
           this.availableWidth.set(availableWidth);
           this.availableHeight.set(availableHeight);
@@ -924,6 +1121,7 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
 
     // Update final placement signal
     this.finalPlacement.set(position.placement);
+    this.transformOrigin.set(this.getTransformOrigin(position.placement));
 
     // Update arrow position if available
     if (this.arrowElement) {
@@ -958,12 +1156,25 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
 
   /**
    * Internal method to destroy the overlay portal
-   * @param immediate If true, skip exit animations and remove immediately
+   * @param options Optional destroy configuration
    */
-  private async destroyOverlay(immediate?: boolean): Promise<void> {
+  private async destroyOverlay({
+    immediate,
+    forceDestroy,
+  }: OverlayDestroyOptions = {}): Promise<void> {
+    if (forceDestroy) {
+      this.forceDestroyed = true;
+    }
+
     const portal = this.portal();
 
     if (!portal) {
+      // Nothing currently shown - but if a kept-mounted portal is sitting hidden from a
+      // previous close and we're being force-destroyed (overlay itself torn down), its
+      // underlying view still needs to be destroyed too.
+      if (forceDestroy) {
+        this.discardKeptMounted();
+      }
       return;
     }
 
@@ -972,11 +1183,6 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
 
     // Deregister from the overlay registry
     this.registry.deregister(this.id());
-
-    // Unregister from active overlays
-    if (this.config.overlayType) {
-      this.cooldownManager.unregisterActive(this.config.overlayType, this);
-    }
 
     // Clear portal reference to prevent double destruction
     this.portal.set(null);
@@ -993,10 +1199,28 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
     this.scrollStrategy.disable();
     this.scrollStrategy = new NoopScrollStrategy();
 
+    // The content the portal was built from, captured up front because it is cleared below
+    // but is needed to hand the portal back for reuse. It is the single source of truth for
+    // whether to keep the view alive, so the flag `detach()` is given cannot drift from the
+    // one acted on after the await.
+    const reusableContent =
+      !forceDestroy && (this.config.keepMounted?.() ?? false) ? this.renderedContent : null;
+
+    // Captured up front for the same reason: `updateConfig()` can replace the
+    // config while the exit animation runs, and unregistering under a new type
+    // would leave this overlay registered under its old one forever.
+    const overlayType = this.config.overlayType;
+
+    // Synchronous with the switch to the exit state below, so the element never
+    // renders a frame in its enter state without it.
+    this.clearInstantAttribute(portal);
+
     // Detach the portal (waits for exit animations unless immediate).
     // During this await, cancelDestruction() may be called if the user
     // re-hovers the trigger. (See: https://github.com/ng-primitives/ng-primitives/issues/681)
-    await portal.detach(immediate);
+    // When keeping the content mounted, this removes the DOM nodes but leaves the underlying
+    // view/component instance alive so attachPortal() can reuse it later.
+    await portal.detach({ immediate, keepMounted: reusableContent !== null });
 
     // Only complete destruction if it was not cancelled during exit animation.
     // finalPlacement and instantTransition are intentionally cleared here
@@ -1004,6 +1228,27 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
     if (this.destroyingPortal === portal) {
       this.destroyingPortal = null;
       this.registeredOutletElement = null;
+
+      if (reusableContent) {
+        // The overlay was torn down while this hide was still awaiting its exit animation,
+        // so there is nothing left to reuse the view - release it rather than keeping it
+        // alive past the teardown that already ran.
+        if (this.forceDestroyed) {
+          portal.destroyView();
+        } else {
+          this.keptMounted = { portal, content: reusableContent };
+        }
+      }
+
+      // Unregister only once the overlay is really gone. An exit animation
+      // leaves it on screen for a while yet, and a same-type overlay opening in
+      // that window has to be able to replace it rather than fade in over it.
+      // Skipped when destruction was cancelled - it is live again.
+      if (overlayType) {
+        this.cooldownManager.unregisterActive(overlayType, this);
+      }
+
+      this.renderedContent = null;
       this.isOpen.set(false);
       this.finalPlacement.set(undefined);
       this.instantTransition.set(false);
@@ -1011,10 +1256,35 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
   }
 
   /**
+   * Drop `data-instant` as the element goes into its exit state, so a normal
+   * close still animates out.
+   *
+   * The timing is the whole point. Consumers opt out of instant transitions with
+   * `[data-instant][data-enter] { animation: none }`, so an element left in its
+   * enter state without the attribute matches its entrance rule again and
+   * replays that animation from its opening frame - the panel blinks out and
+   * back before it exits. Removing it here keeps that window closed: the exit
+   * state is applied synchronously by the `detach()` that follows.
+   */
+  private clearInstantAttribute(portal: NgpPortal): void {
+    for (const element of portal.getElements()) {
+      element.removeAttribute('data-instant');
+    }
+  }
+
+  /**
+   * Destroy the view of a portal kept alive by `keepMounted`, if there is one. Used when it
+   * can no longer be reused (the content changed) or when the overlay itself is torn down.
+   */
+  private discardKeptMounted(): void {
+    this.keptMounted?.portal.destroyView();
+    this.keptMounted = null;
+  }
+
+  /**
    * Get the transform origin for the overlay
    */
-  private getTransformOrigin(): string {
-    const placement = this.config.placement?.() ?? 'top';
+  private getTransformOrigin(placement = this.config.placement?.() ?? 'top'): string {
     const basePlacement = placement.split('-')[0]; // Extract "top", "bottom", etc.
     const alignment = placement.split('-')[1]; // Extract "start" or "end"
 
@@ -1102,6 +1372,25 @@ export function createOverlay<T>(config: NgpOverlayConfig<T>): NgpOverlay<T> {
  */
 export function injectOverlay<T>(): NgpOverlay<T> {
   return inject(NgpOverlay);
+}
+
+export interface OverlayHideImmediateOptions {
+  /**
+   * When true, bypass `keepMounted` and fully destroy any kept-alive portal - used when the
+   * overlay itself is being torn down (see `destroy()`), not just hidden.
+   */
+  forceDestroy?: boolean;
+  /**
+   * When true, end an exit animation that is already running instead of letting it play out.
+   * Used when another overlay of the same type is replacing this one during its cooldown, so
+   * the swap reads as one movement rather than a cross-fade.
+   */
+  skipExitAnimation?: boolean;
+}
+
+interface OverlayDestroyOptions extends OverlayHideImmediateOptions {
+  /** If true, skip exit animations and remove immediately. */
+  immediate?: boolean;
 }
 
 export interface OverlayTriggerOptions {

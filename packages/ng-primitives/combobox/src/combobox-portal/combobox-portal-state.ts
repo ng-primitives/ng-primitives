@@ -29,7 +29,7 @@ export const [
   injectComboboxPortalState,
   provideComboboxPortalState,
 ] = createPrimitive('NgpComboboxPortal', ({}: NgpComboboxPortalProps) => {
-  const templateRef = inject(TemplateRef);
+  const templateRef = signal(inject(TemplateRef));
   const viewContainerRef = inject(ViewContainerRef);
   const injector = inject(Injector);
   const comboboxState = injectComboboxState();

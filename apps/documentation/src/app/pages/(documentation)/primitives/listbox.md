@@ -1,4 +1,5 @@
 ---
+title: Listbox | Angular Primitives
 name: 'Listbox'
 sourceUrl: 'https://github.com/ng-primitives/ng-primitives/tree/next/packages/ng-primitives/listbox'
 ---
@@ -49,7 +50,8 @@ ng g ng-primitives:primitive listbox
 - `prefix`: The prefix to apply to the generated component selector.
 - `component-suffix`: The suffix to apply to the generated component class name.
 - `file-suffix`: The suffix to apply to the generated component file name. Defaults to `component`.
-- `example-styles`: Whether to include example styles in the generated component file. Defaults to `true`.
+- `styles`: How component styles should be generated. `css` (default) includes the full example styles; `unstyled` omits them entirely so you can style the component yourself.
+- `example-styles` (deprecated): still supported for compatibility - `true` maps to `styles: css`, `false` maps to `styles: unstyled`.
 
 ## Examples
 
@@ -93,9 +95,7 @@ The following directives are available to import from the `ng-primitives/listbox
 
 <api-reference-attributes>
   <api-attribute name="data-hover" description="Applied to the listbox option when hovered." />
-  <api-attribute name="data-focus" description="Applied to the listbox option when focused." />
-  <api-attribute name="data-focus-visible" description="Applied to the listbox option when focused via the keyboard." />
-  <api-attribute name="data-active" description="Applied to the listbox option when it is the active descendant." />
+  <api-attribute name="data-active" description="Applied to the listbox option while the listbox is focused and the option is the active descendant (the option the listbox is currently pointing at via keyboard navigation, hover, or selection)." />
   <api-attribute name="data-disabled" description="Applied to the listbox option when it is disabled." />
   <api-attribute name="data-selected" description="Applied to the listbox option when it is selected." />
 </api-reference-attributes>
@@ -120,10 +120,12 @@ Adheres to the [WAI-ARIA Listbox Design Pattern](https://www.w3.org/TR/wai-aria-
 
 ### Keyboard Interactions
 
-- <kbd>Arrow Down</kbd> - Move focus to the next option.
-- <kbd>Arrow Up</kbd> - Move focus to the previous option.
-- <kbd>Home</kbd> - Move focus to the first option.
-- <kbd>End</kbd> - Move focus to the last option.
-- <kbd>Space</kbd> - Select the focused option.
-- <kbd>Enter</kbd> - Select the focused option.
+DOM focus stays on the listbox container; keyboard navigation moves the active descendant (`aria-activedescendant`) between options rather than focusing them individually.
+
+- <kbd>Arrow Down</kbd> - Move the active descendant to the next option.
+- <kbd>Arrow Up</kbd> - Move the active descendant to the previous option.
+- <kbd>Home</kbd> - Move the active descendant to the first option.
+- <kbd>End</kbd> - Move the active descendant to the last option.
+- <kbd>Space</kbd> - Select the active option.
+- <kbd>Enter</kbd> - Select the active option.
 - <kbd>Escape</kbd> - Close the listbox.

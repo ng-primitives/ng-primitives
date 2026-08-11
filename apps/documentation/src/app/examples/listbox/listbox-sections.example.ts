@@ -15,9 +15,9 @@ import {
   template: `
     <div [(ngpListboxValue)]="selection" ngpListbox aria-label="Sections">
       @for (section of sections; track section.name) {
-        <header class="listbox-header" ngpListboxHeader>{{ section.name }}</header>
-
         <div ngpListboxSection>
+          <header class="listbox-header" ngpListboxHeader>{{ section.name }}</header>
+
           @for (option of section.options; track option.id) {
             <div [ngpListboxOptionValue]="option" ngpListboxOption>
               <ng-icon name="heroCheckSolid" size="16px" />

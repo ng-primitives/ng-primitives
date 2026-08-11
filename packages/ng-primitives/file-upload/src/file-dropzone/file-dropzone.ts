@@ -1,5 +1,6 @@
 import { BooleanInput, coerceStringArray } from '@angular/cdk/coercion';
 import { booleanAttribute, Directive, input, output } from '@angular/core';
+import { injectFileDropzoneConfig } from '../config/file-dropzone-config';
 import { ngpFileDropzone, provideFileDropzoneState } from './file-dropzone-state';
 
 /**
@@ -12,10 +13,15 @@ import { ngpFileDropzone, provideFileDropzoneState } from './file-dropzone-state
 })
 export class NgpFileDropzone {
   /**
+   * Access the global file dropzone configuration.
+   */
+  private readonly config = injectFileDropzoneConfig();
+
+  /**
    * The accepted file types. This can be an array of strings or a comma-separated string.
    * Accepted types can either be file extensions (e.g. `.jpg`) or MIME types (e.g. `image/jpeg`).
    */
-  readonly fileTypes = input<string[], string | string[]>(undefined, {
+  readonly fileTypes = input<string[] | undefined, string | string[]>(this.config.fileTypes, {
     alias: 'ngpFileDropzoneFileTypes',
     transform: types => coerceStringArray(types, ','),
   });
@@ -23,7 +29,7 @@ export class NgpFileDropzone {
   /**
    * Whether to allow multiple files to be selected.
    */
-  readonly multiple = input<boolean, BooleanInput>(false, {
+  readonly multiple = input<boolean, BooleanInput>(this.config.multiple, {
     alias: 'ngpFileDropzoneMultiple',
     transform: booleanAttribute,
   });
@@ -31,15 +37,15 @@ export class NgpFileDropzone {
   /**
    * Whether to allow the user to select directories.
    */
-  readonly directory = input<boolean, BooleanInput>(false, {
+  readonly directory = input<boolean, BooleanInput>(this.config.directory, {
     alias: 'ngpFileDropzoneDirectory',
     transform: booleanAttribute,
   });
 
   /**
-   * Whether the file upload is disabled.
+   * Whether the file dropzone is disabled.
    */
-  readonly disabled = input<boolean, BooleanInput>(false, {
+  readonly disabled = input<boolean, BooleanInput>(this.config.disabled, {
     alias: 'ngpFileDropzoneDisabled',
     transform: booleanAttribute,
   });

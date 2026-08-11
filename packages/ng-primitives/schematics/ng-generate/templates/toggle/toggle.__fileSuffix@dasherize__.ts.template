@@ -6,7 +6,7 @@ import { injectToggleState, NgpToggle } from 'ng-primitives/toggle';
 import { ChangeFn, provideValueAccessor, TouchedFn } from 'ng-primitives/utils';
 
 @Component({
-  selector: 'button[<%= prefix %>-toggle]',
+  selector: 'button[<% if (prefix) { %><%= prefix %>-<% } %>toggle]',
   hostDirectives: [
     {
       directive: NgpToggle,
@@ -51,6 +51,13 @@ import { ChangeFn, provideValueAccessor, TouchedFn } from 'ng-primitives/utils';
     :host[data-selected] {
       background-color: var(--ngp-background-inverse);
       color: var(--ngp-text-inverse);
+    }
+
+    /* Reduce motion for users who prefer reduced motion. */
+    @media (prefers-reduced-motion: reduce) {
+      :host {
+        transition-duration: 0s;
+      }
     }
   `,
   providers: [provideValueAccessor(Toggle<%= componentSuffix %>)],

@@ -7,6 +7,7 @@ import {
   NgpFlipInput,
   NgpOffset,
   NgpOffsetInput,
+  NgpPlacement,
 } from 'ng-primitives/portal';
 import { NgpComboboxButtonState } from '../combobox-button/combobox-button-state';
 import { NgpComboboxDropdownState } from '../combobox-dropdown/combobox-dropdown-state';
@@ -14,7 +15,7 @@ import { NgpComboboxInputState } from '../combobox-input/combobox-input-state';
 import { NgpComboboxOptionState } from '../combobox-option/combobox-option-state';
 import { NgpComboboxPortalState } from '../combobox-portal/combobox-portal-state';
 import { injectComboboxConfig } from '../config/combobox-config';
-import { ngpCombobox, NgpComboboxPlacement, provideComboboxState } from './combobox-state';
+import { ngpCombobox, provideComboboxState } from './combobox-state';
 
 /**
  * Ideally we would use a generic type here, unfortunately, unlike in React,
@@ -78,7 +79,7 @@ export class NgpCombobox {
   });
 
   /** The position of the dropdown. */
-  readonly placement = input<NgpComboboxPlacement>(this.config.placement, {
+  readonly placement = input<NgpPlacement>(this.config.placement, {
     alias: 'ngpComboboxDropdownPlacement',
   });
 

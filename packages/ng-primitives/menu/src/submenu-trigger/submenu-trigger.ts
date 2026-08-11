@@ -9,8 +9,8 @@ import {
   NgpOffset,
   NgpOffsetInput,
   NgpOverlayContent,
+  NgpPlacement,
 } from 'ng-primitives/portal';
-import { NgpMenuPlacement } from '../menu-trigger/menu-trigger';
 import { NgpMenuTriggerStateToken } from '../menu-trigger/menu-trigger-state';
 import {
   NgpSubmenuTriggerStateToken,
@@ -22,7 +22,11 @@ import {
   selector: '[ngpSubmenuTrigger]',
   exportAs: 'ngpSubmenuTrigger',
   providers: [
-    provideSubmenuTriggerState(),
+    // inherit: false - a nested submenu trigger lives inside the DI scope of its
+    // parent submenu trigger (via the overlay's injector). Inheriting would reuse
+    // the parent trigger's state signal and overwrite it with this trigger's
+    // state, so the parent's menu would start talking to the wrong trigger.
+    provideSubmenuTriggerState({ inherit: false }),
     // Also provide as NgpMenuTriggerStateToken so the submenu's menu-state
     // can find this trigger's openOrigin for :focus-visible styling
     { provide: NgpMenuTriggerStateToken, useExisting: NgpSubmenuTriggerStateToken },
@@ -49,7 +53,7 @@ export class NgpSubmenuTrigger<T = unknown> {
    * Define the placement of the menu relative to the trigger.
    * @default 'right-start'
    */
-  readonly placement = input<NgpMenuPlacement>('right-start', {
+  readonly placement = input<NgpPlacement>('right-start', {
     alias: 'ngpSubmenuTriggerPlacement',
   });
 
@@ -74,6 +78,14 @@ export class NgpSubmenuTrigger<T = unknown> {
   });
 
   /**
+   * Define the container in which the menu should be attached.
+   * @default document.body
+   */
+  readonly container = input<HTMLElement | string | null>(null, {
+    alias: 'ngpSubmenuTriggerContainer',
+  });
+
+  /**
    * Access the menu trigger state.
    */
   private readonly state = ngpSubmenuTrigger<T>({
@@ -82,6 +94,7 @@ export class NgpSubmenuTrigger<T = unknown> {
     placement: this.placement,
     offset: this.offset,
     flip: this.flip,
+    container: this.container,
   });
 
   /**

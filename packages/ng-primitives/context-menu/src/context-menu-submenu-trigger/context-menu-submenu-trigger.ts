@@ -4,10 +4,9 @@ import { booleanAttribute, Directive, input } from '@angular/core';
 import {
   NgpMenuTriggerStateToken,
   NgpSubmenuTrigger,
-  NgpSubmenuTriggerStateToken,
   ngpSubmenuTrigger,
+  NgpSubmenuTriggerStateToken,
   provideSubmenuTriggerState,
-  type NgpMenuPlacement,
 } from 'ng-primitives/menu';
 import {
   coerceFlip,
@@ -17,6 +16,7 @@ import {
   NgpOffset,
   NgpOffsetInput,
   NgpOverlayContent,
+  NgpPlacement,
 } from 'ng-primitives/portal';
 
 /**
@@ -26,7 +26,11 @@ import {
   selector: '[ngpContextMenuSubmenuTrigger]',
   exportAs: 'ngpContextMenuSubmenuTrigger',
   providers: [
-    provideSubmenuTriggerState(),
+    // inherit: false - a nested submenu trigger lives inside the DI scope of its
+    // parent submenu trigger (via the overlay's injector). Inheriting would reuse
+    // the parent trigger's state signal and overwrite it with this trigger's
+    // state, so the parent's menu would start talking to the wrong trigger.
+    provideSubmenuTriggerState({ inherit: false }),
     { provide: NgpMenuTriggerStateToken, useExisting: NgpSubmenuTriggerStateToken },
     // Provide as NgpSubmenuTrigger so ngpMenuItem can detect this is a submenu trigger
     { provide: NgpSubmenuTrigger, useExisting: NgpContextMenuSubmenuTrigger },
@@ -53,7 +57,7 @@ export class NgpContextMenuSubmenuTrigger<T = unknown> {
    * Define the placement of the submenu relative to the trigger.
    * @default 'right-start'
    */
-  readonly placement = input<NgpMenuPlacement>('right-start', {
+  readonly placement = input<NgpPlacement>('right-start', {
     alias: 'ngpContextMenuSubmenuTriggerPlacement',
   });
 

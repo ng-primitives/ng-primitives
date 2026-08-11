@@ -1,9 +1,8 @@
 import { computed, Signal, signal } from '@angular/core';
-import { injectElementRef } from 'ng-primitives/internal';
+import { ngpCollapsible } from 'ng-primitives/collapsible';
 import {
   controlled,
   createPrimitive,
-  dataBinding,
   deprecatedSetter,
   StateInjectionOptions,
 } from 'ng-primitives/state';
@@ -64,20 +63,21 @@ export const [
   'NgpAccordionItem',
   <T>({ value, disabled: _disabled = signal(false) }: NgpAccordionItemProps<T>) => {
     const accordion = injectAccordionState<T>();
-    const element = injectElementRef();
 
+    // Item-level disabled (public); the effective disabled also factors in the group.
     const disabled = controlled(_disabled);
 
-    // Whether the accordion item is expanded.
-    const open = computed<boolean>(() => accordion().isOpen(value()));
-
-    const trigger = signal<string | undefined>(undefined);
-    const content = signal<string | undefined>(undefined);
-
-    // Setup host data bindings
-    dataBinding(element, 'data-orientation', accordion().orientation);
-    dataBinding(element, 'data-open', open);
-    dataBinding(element, 'data-disabled', () => disabled() || accordion().disabled());
+    // Compose the shared collapsible core. `open` is derived from the group, so it
+    // is controlled - toggles route through onOpenChange -> accordion.toggle and the
+    // group stays authoritative (it may reject a toggle in single, non-collapsible
+    // mode). The core owns the item's data-orientation/open/closed/disabled bindings
+    // and the trigger/content id registration.
+    const collapsible = ngpCollapsible({
+      open: computed(() => accordion().isOpen(value())),
+      disabled: computed(() => disabled() || accordion().disabled()),
+      orientation: accordion().orientation,
+      onOpenChange: () => accordion().toggle(value() as T),
+    });
 
     // Set the disabled state of the accordion item.
     function setDisabled(value: boolean) {
@@ -85,19 +85,19 @@ export const [
     }
 
     function setTrigger(id: string) {
-      trigger.set(id);
+      collapsible.setTrigger(id);
     }
 
     function setContent(id: string) {
-      content.set(id);
+      collapsible.setContent(id);
     }
 
     return {
       value,
-      open,
-      disabled: deprecatedSetter(disabled, 'setDisabled'),
-      triggerId: deprecatedSetter(trigger, 'setTrigger'),
-      contentId: deprecatedSetter(content, 'setContent'),
+      open: collapsible.open,
+      disabled: deprecatedSetter(disabled, 'setDisabled', setDisabled),
+      triggerId: collapsible.triggerId,
+      contentId: collapsible.contentId,
       setDisabled,
       setTrigger,
       setContent,

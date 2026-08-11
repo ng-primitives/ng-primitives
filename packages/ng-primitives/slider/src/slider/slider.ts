@@ -1,7 +1,8 @@
 import { BooleanInput, NumberInput } from '@angular/cdk/coercion';
 import { Directive, booleanAttribute, input, numberAttribute, output } from '@angular/core';
 import { NgpOrientation } from 'ng-primitives/common';
-import { uniqueId } from 'ng-primitives/utils';
+import { SetterOptions } from 'ng-primitives/state';
+import { coerceNumberOrUndefined, uniqueId } from 'ng-primitives/utils';
 import { ngpSlider, provideSliderState } from './slider-state';
 
 /**
@@ -21,9 +22,18 @@ export class NgpSlider {
   /**
    * The value of the slider.
    */
-  readonly value = input<number, NumberInput>(0, {
+  readonly value = input<number | undefined, NumberInput>(undefined, {
     alias: 'ngpSliderValue',
-    transform: numberAttribute,
+    transform: coerceNumberOrUndefined,
+  });
+
+  /**
+   * The default value of the slider for uncontrolled usage.
+   * @default 0
+   */
+  readonly defaultValue = input<number, NumberInput>(0, {
+    alias: 'ngpSliderDefaultValue',
+    transform: (value: NumberInput) => numberAttribute(value, 0),
   });
 
   /**
@@ -79,6 +89,7 @@ export class NgpSlider {
   protected readonly state = ngpSlider({
     id: this.id,
     value: this.value,
+    defaultValue: this.defaultValue,
     min: this.min,
     max: this.max,
     step: this.step,
@@ -90,8 +101,8 @@ export class NgpSlider {
   /**
    * Set the value of the slider.
    */
-  setValue(value: number): void {
-    this.state.setValue(value);
+  setValue(value: number, options?: SetterOptions): void {
+    this.state.setValue(value, options);
   }
   /**
    * Set the disabled state.

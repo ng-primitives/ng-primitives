@@ -7,33 +7,40 @@ import { ToggleGroup, ToggleGroupItemFixture } from './toggle-group-forms.fixtur
 describe('ToggleGroup (reusable component) — template-driven forms', () => {
   it('binds with [(ngModel)] two-way', async () => {
     const ngModelChange = vi.fn();
-    const { getByTestId, fixture, rerender } = await render(
-      `
-      <app-toggle-group [(ngModel)]="value" (ngModelChange)="ngModelChange($event)">
-        <button app-toggle-group-item data-testid="item-1" value="option-1">1</button>
-        <button app-toggle-group-item data-testid="item-2" value="option-2">2</button>
-      </app-toggle-group>
-      `,
-      {
-        imports: [ToggleGroup, ToggleGroupItemFixture, NgpToggleGroupItem, FormsModule],
-        componentProperties: { value: [] as string[], ngModelChange },
-      },
-    );
+    const consoleError = vi.spyOn(console, 'error').mockImplementation(() => undefined);
 
-    await fixture.whenStable();
-    const item1 = getByTestId('item-1');
-    expect(item1).not.toHaveAttribute('data-selected');
+    try {
+      const { getByTestId, fixture, rerender } = await render(
+        `
+        <app-toggle-group [(ngModel)]="value" (ngModelChange)="ngModelChange($event)">
+          <button app-toggle-group-item data-testid="item-1" value="option-1">1</button>
+          <button app-toggle-group-item data-testid="item-2" value="option-2">2</button>
+        </app-toggle-group>
+        `,
+        {
+          imports: [ToggleGroup, ToggleGroupItemFixture, NgpToggleGroupItem, FormsModule],
+          componentProperties: { value: [] as string[], ngModelChange },
+        },
+      );
 
-    fireEvent.click(item1);
-    await fixture.whenStable();
-    expect(item1).toHaveAttribute('data-selected');
-    expect(ngModelChange).toHaveBeenCalledTimes(1);
-    expect(ngModelChange).toHaveBeenLastCalledWith(['option-1']);
+      await fixture.whenStable();
+      const item1 = getByTestId('item-1');
+      expect(item1).not.toHaveAttribute('data-selected');
 
-    await rerender({ componentProperties: { value: [], ngModelChange } });
-    await fixture.whenStable();
-    expect(item1).not.toHaveAttribute('data-selected');
-    expect(ngModelChange).toHaveBeenCalledTimes(1);
+      fireEvent.click(item1);
+      await fixture.whenStable();
+      expect(item1).toHaveAttribute('data-selected');
+      expect(ngModelChange).toHaveBeenCalledTimes(1);
+      expect(ngModelChange).toHaveBeenLastCalledWith(['option-1']);
+
+      await rerender({ componentProperties: { value: [], ngModelChange } });
+      await fixture.whenStable();
+      expect(item1).not.toHaveAttribute('data-selected');
+      expect(ngModelChange).toHaveBeenCalledTimes(1);
+      expect(consoleError).not.toHaveBeenCalled();
+    } finally {
+      consoleError.mockRestore();
+    }
   });
 });
 
@@ -82,6 +89,38 @@ describe('ToggleGroup (reusable component) — reactive forms', () => {
     formControl.setValue([]);
     fixture.detectChanges();
     expect(item1).not.toHaveAttribute('data-selected');
+  });
+
+  it('handles a null value from form control reset', async () => {
+    const consoleError = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+    const formControl = new FormControl<string[]>(['option-1']);
+
+    try {
+      const { getByTestId, fixture } = await render(
+        `
+        <app-toggle-group [formControl]="formControl">
+          <button app-toggle-group-item data-testid="item-1" value="option-1">1</button>
+          <button app-toggle-group-item data-testid="item-2" value="option-2">2</button>
+        </app-toggle-group>
+        `,
+        {
+          imports: [ToggleGroup, ToggleGroupItemFixture, NgpToggleGroupItem, ReactiveFormsModule],
+          componentProperties: { formControl },
+        },
+      );
+
+      const item1 = getByTestId('item-1');
+      expect(item1).toHaveAttribute('data-selected');
+
+      // reset() writes `null` into writeValue — the group should clear, not throw.
+      formControl.reset();
+      fixture.detectChanges();
+
+      expect(item1).not.toHaveAttribute('data-selected');
+      expect(consoleError).not.toHaveBeenCalled();
+    } finally {
+      consoleError.mockRestore();
+    }
   });
 
   it('reflects disabled state from form control', async () => {

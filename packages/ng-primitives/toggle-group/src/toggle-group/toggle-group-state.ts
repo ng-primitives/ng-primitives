@@ -1,7 +1,7 @@
 import { Signal, WritableSignal } from '@angular/core';
 import { NgpOrientation } from 'ng-primitives/common';
 import { injectElementRef } from 'ng-primitives/internal';
-import { NgpRovingFocusGroupState } from 'ng-primitives/roving-focus';
+import { ngpRovingFocusGroup } from 'ng-primitives/roving-focus';
 import {
   attrBinding,
   controlled,
@@ -10,22 +10,23 @@ import {
   dataBinding,
   deprecatedSetter,
   SetterOptions,
+  StateInjectionOptions,
 } from 'ng-primitives/state';
 import { Observable } from 'rxjs';
 
 /**
  * The state interface for the ToggleGroup pattern.
  */
-export interface NgpToggleGroupState {
+export interface NgpToggleGroupState<T = string> {
   /**
    * The current value(s) of the toggle group.
    */
-  readonly value: WritableSignal<string[]>;
+  readonly value: WritableSignal<T[]>;
 
   /**
    * Emit when the value changes.
    */
-  readonly valueChange: Observable<string[]>;
+  readonly valueChange: Observable<T[]>;
 
   /**
    * Whether the toggle group is disabled.
@@ -36,35 +37,41 @@ export interface NgpToggleGroupState {
    * The orientation of the toggle group.
    */
   readonly orientation: WritableSignal<NgpOrientation>;
+
+  /**
+   * The type of the toggle group, whether only one item can be selected or multiple.
+   */
+  readonly type: Signal<'single' | 'multiple'>;
+
   /**
    * Select a value in the toggle group.
    */
-  select(selection: string): void;
+  select(selection: T): void;
 
   /**
    * De-select a value in the toggle group.
    */
-  deselect(selection: string): void;
+  deselect(selection: T): void;
 
   /**
    * Check if a value is selected in the toggle group.
    */
-  isSelected(selection: string): boolean;
+  isSelected(selection: T): boolean;
 
   /**
    * Toggle a value in the toggle group.
    */
-  toggle(selection: string): void;
+  toggle(selection: T): void;
 
   /**
    * Set the value(s) of the toggle group.
    */
-  setValue(newValue: string[], options?: SetterOptions): void;
+  setValue(newValue: T[], options?: SetterOptions): void;
 
   /**
    * Set the default value(s) of the toggle group.
    */
-  setDefaultValue(defaultValue: string[]): void;
+  setDefaultValue(defaultValue: T[]): void;
 
   /**
    * Set the disabled state of the toggle group.
@@ -80,16 +87,15 @@ export interface NgpToggleGroupState {
 /**
  * The props interface for the ToggleGroup pattern.
  */
-export interface NgpToggleGroupProps {
-  /**
-   * The roving focus group state for the toggle-group.
-   */
-  readonly rovingFocusGroup: NgpRovingFocusGroupState;
-
+export interface NgpToggleGroupProps<T = string> {
   /**
    * The orientation of the toggle-group.
    */
   readonly orientation?: Signal<NgpOrientation>;
+  /**
+   * Whether focus should wrap around when reaching the end of the toggle-group.
+   */
+  readonly wrap?: Signal<boolean>;
   /**
    * Whether deselection is allowed in the toggle-group.
    */
@@ -101,51 +107,65 @@ export interface NgpToggleGroupProps {
   /**
    * The value(s) of the toggle-group.
    */
-  readonly value: Signal<string[] | undefined>;
+  readonly value: Signal<T[] | undefined>;
   /**
    * The default value(s) of the toggle-group for uncontrolled usage.
    */
-  readonly defaultValue?: Signal<string[]>;
+  readonly defaultValue?: Signal<T[]>;
   /**
    * Whether the toggle-group is disabled.
    */
   readonly disabled?: Signal<boolean>;
   /**
+   * The comparator used to determine whether two values are equal.
+   * @default (a, b) => a === b
+   */
+  readonly compareWith?: Signal<(a: T, b: T) => boolean>;
+  /**
    * Emit when the value changes.
    */
-  readonly onValueChange?: (value: string[]) => void;
+  readonly onValueChange?: (value: T[]) => void;
 }
 
 export const [
   NgpToggleGroupStateToken,
   ngpToggleGroup,
-  injectToggleGroupState,
+  _injectToggleGroupState,
   provideToggleGroupState,
 ] = createPrimitive(
   'NgpToggleGroup',
-  ({
-    rovingFocusGroup,
+  <T = string>({
     orientation: _orientation,
+    wrap: _wrap,
     allowDeselection: _allowDeselection,
     type: _type,
     value: _value,
     defaultValue: _defaultValue,
     disabled: _disabled,
+    compareWith: _compareWith,
     onValueChange,
-  }: NgpToggleGroupProps): NgpToggleGroupState => {
+  }: NgpToggleGroupProps<T>): NgpToggleGroupState<T> => {
     const element = injectElementRef();
 
     const allowDeselection = controlled(_allowDeselection, true);
     const type = controlled(_type, 'single');
     const disabled = controlled(_disabled, false);
     const orientation = controlled(_orientation, 'horizontal');
+    const wrap = controlled(_wrap, true);
     const defaultValue = controlled(_defaultValue, []);
+    const compareWith = controlled(_compareWith, (a: T, b: T) => a === b);
 
-    const [value, setValueInternal, valueChange] = controlledState<string[]>({
+    const [value, setValueInternal, valueChange] = controlledState<T[]>({
       value: _value,
       defaultValue,
       onChange: onValueChange,
     });
+
+    // Own the roving focus group so it shares the group's `disabled` and
+    // `orientation` signals directly. This keeps keyboard navigation in sync
+    // with programmatic/form-driven changes (e.g. `setDisabled`, `setOrientation`)
+    // without needing to re-push each value across a directive boundary.
+    ngpRovingFocusGroup({ orientation, disabled, wrap });
 
     // Host bindings
     attrBinding(element, 'role', 'group');
@@ -156,12 +176,12 @@ export const [
     /**
      * Select a value in the toggle group.
      */
-    function select(selection: string): void {
+    function select(selection: T): void {
       if (disabled()) {
         return;
       }
 
-      let newValue: string[] = [];
+      let newValue: T[] = [];
 
       if (type() === 'single') {
         newValue = [selection];
@@ -175,12 +195,13 @@ export const [
     /**
      * De-select a value in the toggle group.
      */
-    function deselect(selection: string): void {
+    function deselect(selection: T): void {
       if (disabled() || !allowDeselection()) {
         return;
       }
 
-      const newValue = value().filter(v => v !== selection);
+      const cmp = compareWith();
+      const newValue = value().filter(v => !cmp(v, selection));
       setValue(newValue);
     }
 
@@ -188,15 +209,16 @@ export const [
      * Check if a value is selected in the toggle group.
      * @internal
      */
-    function isSelected(itemValue: string): boolean {
-      return value().includes(itemValue);
+    function isSelected(itemValue: T): boolean {
+      const cmp = compareWith();
+      return value().some(v => cmp(v, itemValue));
     }
 
     /**
      * Toggle a value in the toggle group.
      * @internal
      */
-    function toggle(itemValue: string): void {
+    function toggle(itemValue: T): void {
       if (isSelected(itemValue)) {
         deselect(itemValue);
       } else {
@@ -204,7 +226,7 @@ export const [
       }
     }
 
-    function setValue(newValue: string[], options?: SetterOptions): void {
+    function setValue(newValue: T[], options?: SetterOptions): void {
       setValueInternal(newValue, options);
     }
 
@@ -213,23 +235,33 @@ export const [
     }
 
     function setOrientation(newOrientation: NgpOrientation): void {
+      // The roving focus group shares this signal, so it stays in sync.
       orientation.set(newOrientation);
-      rovingFocusGroup.setOrientation(newOrientation);
     }
 
     return {
       select,
       deselect,
-      disabled: deprecatedSetter(disabled, 'setDisabled'),
+      disabled: deprecatedSetter(disabled, 'setDisabled', setDisabled),
       isSelected,
       toggle,
       value: deprecatedSetter(value, 'setValue', setValue),
       orientation: deprecatedSetter(orientation, 'setOrientation', setOrientation),
+      type,
       setValue,
       setDefaultValue: defaultValue.set,
       setDisabled,
       setOrientation,
       valueChange,
-    } satisfies NgpToggleGroupState;
+    } satisfies NgpToggleGroupState<T>;
   },
 );
+
+/**
+ * Injects the ToggleGroup state, typed to the value type `T`.
+ */
+export function injectToggleGroupState<T = string>(
+  options?: StateInjectionOptions,
+): Signal<NgpToggleGroupState<T>> {
+  return _injectToggleGroupState(options) as Signal<NgpToggleGroupState<T>>;
+}

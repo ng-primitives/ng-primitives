@@ -40,7 +40,7 @@ import { ChangeFn, provideValueAccessor, TouchedFn } from 'ng-primitives/utils';
     NgIcon,
   ],
   providers: [
-    provideValueAccessor(NgpPagination),
+    provideValueAccessor(Pagination),
     provideIcons({
       heroChevronDoubleLeft,
       heroChevronDoubleRight,
@@ -140,6 +140,17 @@ import { ChangeFn, provideValueAccessor, TouchedFn } from 'ng-primitives/utils';
         color: var(--ngp-text-inverse);
       }
     }
+
+    /* Reduce motion for users who prefer reduced motion. */
+    @media (prefers-reduced-motion: reduce) {
+      [ngpPaginationFirst],
+      [ngpPaginationPrevious],
+      [ngpPaginationButton],
+      [ngpPaginationNext],
+      [ngpPaginationLast] {
+        transition-duration: 0s;
+      }
+    }
   `,
   host: {
     '(focusout)': 'onTouched?.()',
@@ -166,7 +177,8 @@ export class Pagination implements ControlValueAccessor {
 
   /** Write a new value to the control */
   writeValue(value: number): void {
-    this.state().page.set(value);
+    // writing a value from the model must not re-emit through onChange
+    this.state().setPage(value, { emit: false });
   }
 
   /** Register a callback to be called when the value changes */
@@ -177,5 +189,10 @@ export class Pagination implements ControlValueAccessor {
   /** Register a callback to be called when the control is touched */
   registerOnTouched(fn: TouchedFn): void {
     this.onTouched = fn;
+  }
+
+  /** Reflect the form control's disabled state onto the pagination. */
+  setDisabledState(isDisabled: boolean): void {
+    this.state().setDisabled(isDisabled);
   }
 }

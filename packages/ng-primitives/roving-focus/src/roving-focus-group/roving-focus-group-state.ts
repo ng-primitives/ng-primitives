@@ -38,6 +38,13 @@ export interface NgpRovingFocusGroupState {
    */
   setActiveItem(id: string | null, origin?: FocusOrigin): void;
   /**
+   * Set which item holds the tab stop without moving focus. Used by items that
+   * declare themselves active (e.g. the selected tab) to claim the tab stop
+   * without stealing focus.
+   * @param id The id of the item that should hold the tab stop.
+   */
+  setTabStop(id: string | null): void;
+  /**
    * Register an item with the roving focus group.
    * @param item The item to register
    */
@@ -128,7 +135,9 @@ export const [
     }
 
     /**
-     * Store the active item in the roving focus group.
+     * Store the active item in the roving focus group. This is the single source
+     * of truth for the tab stop; items push to it via setActiveItem when they
+     * become active (e.g. the selected tab), and roving navigation updates it too.
      */
     const activeItem = signal<string | null>(null);
 
@@ -144,6 +153,11 @@ export const [
       if (item) {
         item.focus(origin);
       }
+    }
+
+    // set the tab stop without moving focus (see interface docs)
+    function setTabStop(id: string | null): void {
+      activeItem.set(id);
     }
 
     /**
@@ -310,7 +324,11 @@ export const [
     function register(item: NgpRovingFocusItemState): void {
       items.update(items => [...items, item]);
 
-      // if there is no active item, make the first item the tabbable item
+      // seed the first non-disabled item as the tab stop; an active item (e.g. the
+      // selected tab) overrides this by pushing to setActiveItem once it registers.
+      if (item.disabled()) {
+        return;
+      }
       if (!activeItem()) {
         activeItem.set(item.id());
       }
@@ -346,6 +364,7 @@ export const [
       disabled,
       activeItem,
       setActiveItem,
+      setTabStop,
       setOrientation,
       onKeydown,
       register,

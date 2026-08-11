@@ -88,6 +88,26 @@ export default defineConfig(({ mode }) => {
               themes: ['github-light', 'github-dark'],
             },
           },
+          markedOptions: {
+            extensions: [
+              {
+                // AnalogJS's build-time codespan renderer inserts the raw token
+                // text, so inline code such as `<button>` leaks into the page as
+                // a real element. Escape it so tag names in backticks render
+                // literally. Registered after the default renderer, so it wins.
+                renderer: {
+                  codespan(token: { text: string }) {
+                    const escaped = token.text
+                      .replace(/&/g, '&amp;')
+                      .replace(/</g, '&lt;')
+                      .replace(/>/g, '&gt;')
+                      .replace(/"/g, '&quot;');
+                    return `<code>${escaped}</code>`;
+                  },
+                },
+              },
+            ],
+          },
         },
       }),
       nxViteTsPaths(),
