@@ -1,4 +1,5 @@
 import { fireEvent, render, screen } from '@testing-library/angular';
+import { userEvent } from '@testing-library/user-event';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { NgpNumberFieldDecrement } from '../../number-field-decrement/number-field-decrement';
 import { NgpNumberFieldIncrement } from '../../number-field-increment/number-field-increment';
@@ -1094,6 +1095,53 @@ describe('NgpNumberField', () => {
 
       expect(valueChange).toHaveBeenCalledWith(42);
       expect(input.value).toBe('42');
+    });
+  });
+
+  // The `beforeinput` filter backs the documented "invalid characters are rejected as
+  // you type" behaviour, and its negative-sign rule reads `min` - the one place the
+  // bound normalisation feeds something other than the value/stepper paths.
+  describe('input character filtering', () => {
+    it('should accept digits and a single decimal point', async () => {
+      await renderNumberField();
+      const input = screen.getByTestId('input') as HTMLInputElement;
+      await userEvent.type(input, '12.5');
+      expect(input.value).toBe('12.5');
+    });
+
+    it('should reject letters', async () => {
+      await renderNumberField();
+      const input = screen.getByTestId('input') as HTMLInputElement;
+      await userEvent.type(input, '1a2b');
+      expect(input.value).toBe('12');
+    });
+
+    it('should reject a second decimal point', async () => {
+      await renderNumberField();
+      const input = screen.getByTestId('input') as HTMLInputElement;
+      await userEvent.type(input, '1.2.3');
+      expect(input.value).toBe('1.23');
+    });
+
+    it('should allow a leading minus when the field is unbounded below', async () => {
+      await renderNumberField();
+      const input = screen.getByTestId('input') as HTMLInputElement;
+      await userEvent.type(input, '-5');
+      expect(input.value).toBe('-5');
+    });
+
+    it('should reject a minus when min is zero', async () => {
+      await renderNumberField('[ngpNumberFieldMin]="0"');
+      const input = screen.getByTestId('input') as HTMLInputElement;
+      await userEvent.type(input, '-5');
+      expect(input.value).toBe('5');
+    });
+
+    it('should still allow a minus when the min binding is NaN', async () => {
+      await renderNumberField('[ngpNumberFieldMin]="min"', vi.fn(), { min: NaN });
+      const input = screen.getByTestId('input') as HTMLInputElement;
+      await userEvent.type(input, '-5');
+      expect(input.value).toBe('-5');
     });
   });
 
