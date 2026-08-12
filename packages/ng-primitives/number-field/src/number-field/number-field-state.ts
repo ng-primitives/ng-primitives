@@ -134,6 +134,11 @@ export interface NgpNumberFieldProps {
   readonly onValueChange?: (value: number | null) => void;
 }
 
+/** A `NaN` bound to a numeric option means it was never really set - use the default. */
+function defaultIfNaN(value: number, fallback: number): number {
+  return Number.isNaN(value) ? fallback : value;
+}
+
 export const [
   NgpNumberFieldStateToken,
   ngpNumberField,
@@ -145,9 +150,9 @@ export const [
     id = signal(uniqueId('ngp-number-field')),
     value: _value = signal<number | null | undefined>(undefined),
     defaultValue: _defaultValue,
-    min = signal(-Infinity),
-    max = signal(Infinity),
-    step = signal(1),
+    min: _min = signal(-Infinity),
+    max: _max = signal(Infinity),
+    step: _step = signal(1),
     largeStep: _largeStep = signal(10),
     disabled: _disabled = signal(false),
     readonly: _readonly = signal(false),
@@ -160,10 +165,23 @@ export const [
     // emitter rather than controlledState's change observable, and always call
     // its setter with `emit: false`.
     const defaultValue = controlled(_defaultValue, null);
-    const [value, setValueInternal] = controlledState<number | null>({
+    const [storedValue, setValueInternal] = controlledState<number | null>({
       value: _value,
       defaultValue,
     });
+    // A non-finite binding (`Number(someOptionalField)` is `NaN`) never passes through
+    // `setValue`'s guard. Normalise after resolution so the `value` and `defaultValue`
+    // bindings and `setDefaultValue` are all covered, and `controlledState` keeps its
+    // `undefined` sentinel - an absent binding must still mean uncontrolled.
+    const value = computed(() => {
+      const current = storedValue();
+      return current !== null && !Number.isFinite(current) ? null : current;
+    });
+    // A `NaN` here would poison `clampAndStep` and the stepper guards.
+    const min = computed(() => defaultIfNaN(_min(), -Infinity));
+    const max = computed(() => defaultIfNaN(_max(), Infinity));
+    const step = computed(() => defaultIfNaN(_step(), 1));
+    const largeStep = computed(() => defaultIfNaN(_largeStep(), 10));
     const disabled = controlled(_disabled);
     const readonly = controlled(_readonly);
 
@@ -223,10 +241,12 @@ export const [
 
     function setValue(newValue: number | null): void {
       if (disabled() || readonly()) return;
-      if (newValue !== null && isNaN(newValue)) return;
+      if (newValue !== null && !Number.isFinite(newValue)) return;
       const finalValue = newValue !== null ? clampAndStep(newValue) : null;
-      // Skip emit when value is unchanged
-      if (finalValue === value()) return;
+      // Skip emit when value is unchanged. Compared against the stored value rather
+      // than the normalised one so a parent holding a non-finite value is still
+      // notified when a commit resolves it to `null`.
+      if (finalValue === storedValue()) return;
       // `emit: false` keeps controlledState from firing its own change; we emit
       // manually below to preserve the number field's emit choreography.
       setValueInternal(finalValue, { emit: false });
@@ -310,7 +330,7 @@ export const [
       min,
       max,
       step,
-      largeStep: _largeStep,
+      largeStep,
       disabled: deprecatedSetter(disabled, 'setDisabled', setDisabled),
       readonly: deprecatedSetter(readonly, 'setReadonly', setReadonly),
       canIncrement,

@@ -20,6 +20,7 @@ export class NgpNumberField {
 
   /**
    * The value of the number field. When defined the number field is controlled.
+   * A non-finite value (`NaN`, `±Infinity`) is treated as empty.
    */
   readonly value = input<number | null | undefined, NumberInput>(undefined, {
     alias: 'ngpNumberFieldValue',

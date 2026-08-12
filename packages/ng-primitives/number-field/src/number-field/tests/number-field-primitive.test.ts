@@ -27,10 +27,10 @@ describe('NgpNumberField', () => {
     `;
   }
 
-  function renderNumberField(extraProps = '', valueChange = vi.fn()) {
+  function renderNumberField(extraProps = '', valueChange = vi.fn(), componentProperties = {}) {
     return render(createTemplate(extraProps), {
       imports,
-      componentProperties: { valueChange },
+      componentProperties: { valueChange, ...componentProperties },
     });
   }
 
@@ -171,6 +171,178 @@ describe('NgpNumberField', () => {
     });
   });
 
+  describe('non-finite bindings', () => {
+    it('should render an empty input when the value binding is NaN', async () => {
+      const { fixture } = await renderNumberField('[ngpNumberFieldValue]="value"', vi.fn(), {
+        value: Number(undefined),
+      });
+      await fixture.whenStable();
+      expect((screen.getByTestId('input') as HTMLInputElement).value).toBe('');
+      expect(screen.getByTestId('input')).not.toHaveAttribute('aria-valuenow');
+    });
+
+    it('should keep both steppers enabled when the value binding is NaN', async () => {
+      await renderNumberField(
+        '[ngpNumberFieldValue]="value" [ngpNumberFieldMin]="0" [ngpNumberFieldMax]="100"',
+        vi.fn(),
+        { value: Number(undefined) },
+      );
+      for (const testId of ['increment', 'decrement']) {
+        expect(screen.getByTestId(testId)).not.toHaveAttribute('disabled');
+        expect(screen.getByTestId(testId)).not.toHaveAttribute('data-disabled');
+      }
+    });
+
+    it('should increment from min when the value binding is NaN', async () => {
+      const valueChange = vi.fn();
+      await renderNumberField(
+        '[ngpNumberFieldValue]="value" [ngpNumberFieldMin]="0" [ngpNumberFieldMax]="100"',
+        valueChange,
+        { value: NaN },
+      );
+      fireEvent.pointerDown(screen.getByTestId('increment'));
+      expect(valueChange).toHaveBeenCalledWith(1);
+    });
+
+    it('should decrement from max when the value binding is NaN', async () => {
+      const valueChange = vi.fn();
+      await renderNumberField(
+        '[ngpNumberFieldValue]="value" [ngpNumberFieldMax]="10"',
+        valueChange,
+        { value: NaN },
+      );
+      fireEvent.pointerDown(screen.getByTestId('decrement'));
+      expect(valueChange).toHaveBeenCalledWith(9);
+    });
+
+    it('should render an empty input when the value binding is Infinity', async () => {
+      const { fixture } = await renderNumberField('[ngpNumberFieldValue]="value"', vi.fn(), {
+        value: Number.POSITIVE_INFINITY,
+      });
+      await fixture.whenStable();
+      expect((screen.getByTestId('input') as HTMLInputElement).value).toBe('');
+    });
+
+    it('should render an empty input when the value binding is a non-numeric string', async () => {
+      const { fixture } = await renderNumberField('[ngpNumberFieldValue]="value"', vi.fn(), {
+        value: 'abc',
+      });
+      await fixture.whenStable();
+      expect((screen.getByTestId('input') as HTMLInputElement).value).toBe('');
+    });
+
+    it('should recover through a two-way binding when the value starts as NaN', async () => {
+      const { fixture } = await render(
+        `<div ngpNumberField [(ngpNumberFieldValue)]="value" data-testid="number-field">
+          <button ngpNumberFieldDecrement data-testid="decrement">-</button>
+          <input ngpNumberFieldInput data-testid="input" />
+          <button ngpNumberFieldIncrement data-testid="increment">+</button>
+        </div>`,
+        { imports, componentProperties: { value: Number(undefined) } },
+      );
+
+      fireEvent.pointerDown(screen.getByTestId('increment'));
+      await fixture.whenStable();
+
+      expect(fixture.componentInstance.value).toBe(1);
+      expect((screen.getByTestId('input') as HTMLInputElement).value).toBe('1');
+    });
+
+    it('should render an empty input when the default value is NaN', async () => {
+      const { fixture } = await renderNumberField('[ngpNumberFieldDefaultValue]="value"', vi.fn(), {
+        value: NaN,
+      });
+      await fixture.whenStable();
+      expect((screen.getByTestId('input') as HTMLInputElement).value).toBe('');
+    });
+
+    it('should let interaction seed the value when the default value is NaN', async () => {
+      const valueChange = vi.fn();
+      const { fixture } = await renderNumberField(
+        '[ngpNumberFieldDefaultValue]="value"',
+        valueChange,
+        { value: NaN },
+      );
+      fireEvent.pointerDown(screen.getByTestId('increment'));
+      await fixture.whenStable();
+
+      expect(valueChange).toHaveBeenCalledWith(1);
+      expect((screen.getByTestId('input') as HTMLInputElement).value).toBe('1');
+    });
+
+    it('should stay uncontrolled when the value binding evaluates to undefined', async () => {
+      const { fixture } = await renderNumberField(
+        '[ngpNumberFieldValue]="value" [ngpNumberFieldDefaultValue]="7"',
+        vi.fn(),
+        { value: undefined },
+      );
+      fireEvent.pointerDown(screen.getByTestId('increment'));
+      await fixture.whenStable();
+
+      expect((screen.getByTestId('input') as HTMLInputElement).value).toBe('8');
+      expect(screen.getByTestId('input')).toHaveAttribute('aria-valuenow', '8');
+    });
+
+    it('should treat a null value binding as controlled and empty', async () => {
+      const valueChange = vi.fn();
+      const { fixture } = await renderNumberField('[ngpNumberFieldValue]="value"', valueChange, {
+        value: null,
+      });
+      fireEvent.pointerDown(screen.getByTestId('increment'));
+      await fixture.whenStable();
+
+      // controlled, so the parent is notified but the DOM must not move on its own
+      expect(valueChange).toHaveBeenCalledWith(1);
+      expect((screen.getByTestId('input') as HTMLInputElement).value).toBe('');
+    });
+
+    it('should treat a NaN min as unbounded', async () => {
+      const valueChange = vi.fn();
+      await renderNumberField('[ngpNumberFieldValue]="5" [ngpNumberFieldMin]="min"', valueChange, {
+        min: Number(undefined),
+      });
+      fireEvent.keyDown(screen.getByTestId('input'), { key: 'ArrowUp' });
+
+      expect(valueChange).toHaveBeenCalledWith(6);
+      expect(valueChange).not.toHaveBeenCalledWith(NaN);
+      expect(screen.getByTestId('input')).not.toHaveAttribute('aria-valuemin');
+    });
+
+    it('should treat a NaN max as unbounded', async () => {
+      const valueChange = vi.fn();
+      await renderNumberField('[ngpNumberFieldValue]="5" [ngpNumberFieldMax]="max"', valueChange, {
+        max: Number(undefined),
+      });
+      fireEvent.keyDown(screen.getByTestId('input'), { key: 'ArrowUp' });
+
+      expect(valueChange).toHaveBeenCalledWith(6);
+      expect(valueChange).not.toHaveBeenCalledWith(NaN);
+      expect(screen.getByTestId('input')).not.toHaveAttribute('aria-valuemax');
+    });
+
+    it('should fall back to a step of 1 when the step binding is NaN', async () => {
+      const valueChange = vi.fn();
+      await renderNumberField(
+        '[ngpNumberFieldValue]="5" [ngpNumberFieldStep]="step"',
+        valueChange,
+        { step: NaN },
+      );
+      fireEvent.keyDown(screen.getByTestId('input'), { key: 'ArrowUp' });
+      expect(valueChange).toHaveBeenCalledWith(6);
+    });
+
+    it('should fall back to a large step of 10 when the large step binding is NaN', async () => {
+      const valueChange = vi.fn();
+      await renderNumberField(
+        '[ngpNumberFieldValue]="5" [ngpNumberFieldLargeStep]="largeStep"',
+        valueChange,
+        { largeStep: NaN },
+      );
+      fireEvent.keyDown(screen.getByTestId('input'), { key: 'ArrowUp', shiftKey: true });
+      expect(valueChange).toHaveBeenCalledWith(15);
+    });
+  });
+
   describe('value / min / max / step', () => {
     it('should display the initial value', async () => {
       const { fixture } = await renderNumberField('[ngpNumberFieldValue]="5"');
@@ -231,6 +403,18 @@ describe('NgpNumberField', () => {
 
       const numberField = fixture.debugElement.children[0].injector.get(NgpNumberField);
       numberField.setValue(NaN);
+
+      expect(valueChange).not.toHaveBeenCalled();
+      await fixture.whenStable();
+      expect((screen.getByTestId('input') as HTMLInputElement).value).toBe('5');
+    });
+
+    it('should reject Infinity passed to setValue', async () => {
+      const valueChange = vi.fn();
+      const { fixture } = await renderNumberField('[ngpNumberFieldValue]="5"', valueChange);
+
+      const numberField = fixture.debugElement.children[0].injector.get(NgpNumberField);
+      numberField.setValue(Infinity);
 
       expect(valueChange).not.toHaveBeenCalled();
       await fixture.whenStable();

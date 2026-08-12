@@ -118,8 +118,8 @@ export const [
 
     // Sync input display value when the number field value changes
     // (programmatically, via stepping, or on commit)
-    explicitEffect([() => numberField().value()], ([value]) => {
-      elementRef.nativeElement.value = value !== null ? String(value) : '';
+    explicitEffect([() => numberField().value()], () => {
+      elementRef.nativeElement.value = formatDisplayValue();
     });
 
     listener(elementRef, 'focus', () => {
