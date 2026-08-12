@@ -1112,9 +1112,6 @@ describe('NgpNumberField', () => {
     });
   });
 
-  // The `beforeinput` filter backs the documented "invalid characters are rejected as
-  // you type" behaviour, and its negative-sign rule reads `min` - the one place the
-  // bound normalisation feeds something other than the value/stepper paths.
   describe('increment after an uncommitted edit', () => {
     // increment/decrement silently commit the typed text first. When the stepped result
     // then clamps back to that committed value, setValue is a no-op and would emit
@@ -1138,6 +1135,9 @@ describe('NgpNumberField', () => {
     });
   });
 
+  // The `beforeinput` filter backs the documented "invalid characters are rejected as
+  // you type" behaviour, and its negative-sign rule reads `min` - the one place the
+  // bound normalisation feeds something other than the value/stepper paths.
   describe('input character filtering', () => {
     it('should accept digits and a single decimal point', async () => {
       await renderNumberField();
