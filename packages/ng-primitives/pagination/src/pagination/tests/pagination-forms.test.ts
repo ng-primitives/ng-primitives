@@ -55,6 +55,27 @@ describe('Pagination (reusable component) — reactive forms', () => {
     expect(formControl.value).toBe(2);
   });
 
+  it('falls back to the first page when the control is reset to null', async () => {
+    // Angular writes null on reset (and before the initial value on init); the CVA must
+    // not pass it through, or the data-page binding throws inside an afterRenderEffect -
+    // which Angular swallows into a console error rather than failing anything.
+    const formControl = new FormControl<number | null>(3);
+    const { getByRole, fixture } = await render(
+      `<app-pagination [formControl]="formControl" pageCount="5"></app-pagination>`,
+      {
+        imports: [Pagination, ReactiveFormsModule],
+        componentProperties: { formControl },
+      },
+    );
+    await fixture.whenStable();
+    expect(getByRole('navigation')).toHaveAttribute('data-page', '3');
+
+    formControl.reset();
+    await fixture.whenStable();
+
+    expect(getByRole('navigation')).toHaveAttribute('data-page', '1');
+  });
+
   it('updates the form control on click and the DOM on setValue', async () => {
     const formControl = new FormControl(1);
     const { getByRole, fixture } = await render(

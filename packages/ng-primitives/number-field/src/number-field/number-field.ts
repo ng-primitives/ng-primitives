@@ -20,6 +20,7 @@ export class NgpNumberField {
 
   /**
    * The value of the number field. When defined the number field is controlled.
+   * A non-finite value (`NaN`, `±Infinity`) is treated as empty.
    */
   readonly value = input<number | null | undefined, NumberInput>(undefined, {
     alias: 'ngpNumberFieldValue',
@@ -29,6 +30,7 @@ export class NgpNumberField {
 
   /**
    * The default value of the number field for uncontrolled usage.
+   * A non-finite value (`NaN`, `±Infinity`) is treated as empty.
    * @default null
    */
   readonly defaultValue = input<number | null, NumberInput>(null, {
@@ -45,7 +47,8 @@ export class NgpNumberField {
   });
 
   /**
-   * The minimum value.
+   * The minimum value. A non-finite value (`NaN`, `±Infinity`) is treated as unset,
+   * leaving the field unbounded below.
    */
   readonly min = input<number, NumberInput>(-Infinity, {
     alias: 'ngpNumberFieldMin',
@@ -53,7 +56,8 @@ export class NgpNumberField {
   });
 
   /**
-   * The maximum value.
+   * The maximum value. A non-finite value (`NaN`, `±Infinity`) is treated as unset,
+   * leaving the field unbounded above.
    */
   readonly max = input<number, NumberInput>(Infinity, {
     alias: 'ngpNumberFieldMax',
@@ -61,7 +65,7 @@ export class NgpNumberField {
   });
 
   /**
-   * The step value.
+   * The step value. A non-finite value (`NaN`, `±Infinity`) falls back to `1`.
    */
   readonly step = input<number, NumberInput>(1, {
     alias: 'ngpNumberFieldStep',
@@ -69,7 +73,7 @@ export class NgpNumberField {
   });
 
   /**
-   * The large step value (used with Shift key).
+   * The large step value (used with Shift key). A non-finite value (`NaN`, `±Infinity`) falls back to `10`.
    */
   readonly largeStep = input<number, NumberInput>(10, {
     alias: 'ngpNumberFieldLargeStep',
@@ -109,7 +113,8 @@ export class NgpNumberField {
   });
 
   /**
-   * Set the value of the number field.
+   * Set the value of the number field. A non-finite value (`NaN`, `±Infinity`) is
+   * rejected - pass `null` to clear the field.
    */
   setValue(value: number | null): void {
     this.state.setValue(value);

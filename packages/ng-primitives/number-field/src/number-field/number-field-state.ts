@@ -21,7 +21,7 @@ export interface NgpNumberFieldState {
    */
   readonly id: Signal<string>;
   /**
-   * The current value.
+   * The current value. Always finite or `null`.
    */
   readonly value: WritableSignal<number | null>;
   /**
@@ -61,11 +61,13 @@ export interface NgpNumberFieldState {
    */
   readonly valueChange: Observable<number | null>;
   /**
-   * Set the current value (clamped and stepped).
+   * Set the current value (clamped and stepped). A non-finite value is rejected rather
+   * than treated as empty - this is a transition, and `null` already means empty.
    */
   setValue(value: number | null): void;
   /**
-   * Set the default value used in uncontrolled mode.
+   * Set the default value used in uncontrolled mode. Like the binding it mirrors, a
+   * non-finite value is treated as empty.
    */
   setDefaultValue(value: number | null): void;
   /**
@@ -98,26 +100,27 @@ export interface NgpNumberFieldProps {
   readonly id?: Signal<string>;
   /**
    * The current value. When defined the number field is controlled.
+   * A non-finite value (`NaN`, `±Infinity`) is treated as empty.
    */
   readonly value?: Signal<number | null | undefined>;
   /**
-   * The default value for uncontrolled usage.
+   * The default value for uncontrolled usage. A non-finite value (`NaN`, `±Infinity`) is treated as empty.
    */
   readonly defaultValue?: Signal<number | null>;
   /**
-   * The minimum value.
+   * The minimum value. A non-finite value (`NaN`, `±Infinity`) is treated as unset.
    */
   readonly min?: Signal<number>;
   /**
-   * The maximum value.
+   * The maximum value. A non-finite value (`NaN`, `±Infinity`) is treated as unset.
    */
   readonly max?: Signal<number>;
   /**
-   * The step value.
+   * The step value. A non-finite value (`NaN`, `±Infinity`) falls back to `1`.
    */
   readonly step?: Signal<number>;
   /**
-   * The large step value (used with Shift key).
+   * The large step value (used with Shift key). A non-finite value (`NaN`, `±Infinity`) falls back to `10`.
    */
   readonly largeStep?: Signal<number>;
   /**
@@ -134,6 +137,11 @@ export interface NgpNumberFieldProps {
   readonly onValueChange?: (value: number | null) => void;
 }
 
+/** A non-finite value bound to a numeric option means it was never really set. */
+function defaultIfNonFinite(value: number, fallback: number): number {
+  return Number.isFinite(value) ? value : fallback;
+}
+
 export const [
   NgpNumberFieldStateToken,
   ngpNumberField,
@@ -145,9 +153,9 @@ export const [
     id = signal(uniqueId('ngp-number-field')),
     value: _value = signal<number | null | undefined>(undefined),
     defaultValue: _defaultValue,
-    min = signal(-Infinity),
-    max = signal(Infinity),
-    step = signal(1),
+    min: _min = signal(-Infinity),
+    max: _max = signal(Infinity),
+    step: _step = signal(1),
     largeStep: _largeStep = signal(10),
     disabled: _disabled = signal(false),
     readonly: _readonly = signal(false),
@@ -160,10 +168,22 @@ export const [
     // emitter rather than controlledState's change observable, and always call
     // its setter with `emit: false`.
     const defaultValue = controlled(_defaultValue, null);
-    const [value, setValueInternal] = controlledState<number | null>({
+    const [storedValue, setValueInternal] = controlledState<number | null>({
       value: _value,
       defaultValue,
     });
+    // Normalised after resolution, not on the way in, so `controlledState` keeps its
+    // `undefined` sentinel - an absent binding must still mean uncontrolled.
+    const value = computed(() => {
+      const current = storedValue();
+      return current !== null && !Number.isFinite(current) ? null : current;
+    });
+    // `clampAndStep` runs past `setValue`'s guard, so a non-finite bound would turn a
+    // finite value into an infinity and store it.
+    const min = computed(() => defaultIfNonFinite(_min(), -Infinity));
+    const max = computed(() => defaultIfNonFinite(_max(), Infinity));
+    const step = computed(() => defaultIfNonFinite(_step(), 1));
+    const largeStep = computed(() => defaultIfNonFinite(_largeStep(), 10));
     const disabled = controlled(_disabled);
     const readonly = controlled(_readonly);
 
@@ -206,9 +226,10 @@ export const [
 
     function clampAndStep(val: number): number {
       const clamped = Math.min(max(), Math.max(min(), val));
-      // Round to nearest step
-      if (isFinite(step()) && step() > 0) {
-        const base = isFinite(min()) ? min() : 0;
+      // Round to nearest step. `step` is normalised to a finite value, so only its
+      // sign matters here.
+      if (step() > 0) {
+        const base = Number.isFinite(min()) ? min() : 0;
         const precision = Math.max(getDecimalPlaces(step()), getDecimalPlaces(base));
         const stepped = roundToPrecision(
           Math.round((clamped - base) / step()) * step() + base,
@@ -223,10 +244,14 @@ export const [
 
     function setValue(newValue: number | null): void {
       if (disabled() || readonly()) return;
-      if (newValue !== null && isNaN(newValue)) return;
+      if (newValue !== null && !Number.isFinite(newValue)) return;
       const finalValue = newValue !== null ? clampAndStep(newValue) : null;
-      // Skip emit when value is unchanged
-      if (finalValue === value()) return;
+      // `clamped - base` overflows once the span exceeds Number.MAX_VALUE, so finite
+      // arguments can still produce a non-finite result.
+      if (finalValue !== null && !Number.isFinite(finalValue)) return;
+      // Compared against the stored value, not the normalised one, so a parent holding
+      // a non-finite value is still notified when a commit resolves it to `null`.
+      if (finalValue === storedValue()) return;
       // `emit: false` keeps controlledState from firing its own change; we emit
       // manually below to preserve the number field's emit choreography.
       setValueInternal(finalValue, { emit: false });
@@ -258,7 +283,7 @@ export const [
     }
 
     function getStepPrecision(): number {
-      const base = isFinite(min()) ? min() : 0;
+      const base = Number.isFinite(min()) ? min() : 0;
       return Math.max(getDecimalPlaces(step()), getDecimalPlaces(base));
     }
 
@@ -267,7 +292,7 @@ export const [
       const valueBefore = value();
       commitPendingInputSilently();
       const valueAfterCommit = value();
-      const current = valueAfterCommit ?? (isFinite(min()) ? min() : 0);
+      const current = valueAfterCommit ?? (Number.isFinite(min()) ? min() : 0);
       const precision = getStepPrecision();
       setValue(roundToPrecision(current + step() * multiplier, precision));
       // If the silent commit changed the value but setValue was a no-op
@@ -284,7 +309,7 @@ export const [
       const valueBefore = value();
       commitPendingInputSilently();
       const valueAfterCommit = value();
-      const current = valueAfterCommit ?? (isFinite(max()) ? max() : 0);
+      const current = valueAfterCommit ?? (Number.isFinite(max()) ? max() : 0);
       const precision = getStepPrecision();
       setValue(roundToPrecision(current - step() * multiplier, precision));
       // If the silent commit changed the value but setValue was a no-op
@@ -310,7 +335,7 @@ export const [
       min,
       max,
       step,
-      largeStep: _largeStep,
+      largeStep,
       disabled: deprecatedSetter(disabled, 'setDisabled', setDisabled),
       readonly: deprecatedSetter(readonly, 'setReadonly', setReadonly),
       canIncrement,
