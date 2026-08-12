@@ -4,6 +4,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { NgpNumberFieldDecrement } from '../../number-field-decrement/number-field-decrement';
 import { NgpNumberFieldIncrement } from '../../number-field-increment/number-field-increment';
 import { NgpNumberFieldInput } from '../../number-field-input/number-field-input';
+import { NgpNumberFieldInputStateToken } from '../../number-field-input/number-field-input-state';
 import { NgpNumberField } from '../number-field';
 import { NgpNumberFieldStateToken } from '../number-field-state';
 
@@ -626,6 +627,19 @@ describe('NgpNumberField', () => {
       expect((screen.getByTestId('input') as HTMLInputElement).value).toBe('5');
     });
 
+    it('should not move the value when the step is zero', async () => {
+      const valueChange = vi.fn();
+      const { fixture } = await renderNumberField(
+        '[ngpNumberFieldDefaultValue]="5" [ngpNumberFieldStep]="0"',
+        valueChange,
+      );
+      fireEvent.keyDown(screen.getByTestId('input'), { key: 'ArrowUp' });
+      await fixture.whenStable();
+
+      expect(valueChange).not.toHaveBeenCalled();
+      expect((screen.getByTestId('input') as HTMLInputElement).value).toBe('5');
+    });
+
     it('should reject Infinity passed to setValue', async () => {
       const valueChange = vi.fn();
       const { fixture } = await renderNumberField('[ngpNumberFieldValue]="5"', valueChange);
@@ -1101,6 +1115,29 @@ describe('NgpNumberField', () => {
   // The `beforeinput` filter backs the documented "invalid characters are rejected as
   // you type" behaviour, and its negative-sign rule reads `min` - the one place the
   // bound normalisation feeds something other than the value/stepper paths.
+  describe('increment after an uncommitted edit', () => {
+    // increment/decrement silently commit the typed text first. When the stepped result
+    // then clamps back to that committed value, setValue is a no-op and would emit
+    // nothing - so the parent would never learn about the text the user typed.
+    it('should emit the committed value when the step clamps back to it', async () => {
+      const valueChange = vi.fn();
+      const { fixture } = await renderNumberField(
+        '[ngpNumberFieldDefaultValue]="5" [ngpNumberFieldMax]="10"',
+        valueChange,
+      );
+      const input = screen.getByTestId('input') as HTMLInputElement;
+
+      input.focus();
+      input.value = '10';
+      fireEvent.pointerDown(screen.getByTestId('increment'));
+      await fixture.whenStable();
+
+      expect(valueChange).toHaveBeenCalledTimes(1);
+      expect(valueChange).toHaveBeenCalledWith(10);
+      expect(input.value).toBe('10');
+    });
+  });
+
   describe('input character filtering', () => {
     it('should accept digits and a single decimal point', async () => {
       await renderNumberField();
@@ -1137,11 +1174,45 @@ describe('NgpNumberField', () => {
       expect(input.value).toBe('5');
     });
 
+    it('should not filter deletions', async () => {
+      await renderNumberField();
+      const input = screen.getByTestId('input') as HTMLInputElement;
+      await userEvent.type(input, '12{backspace}');
+      expect(input.value).toBe('1');
+    });
+
+    it('should not filter while readonly', async () => {
+      // The field rejects the edit itself; the filter must not also claim the event
+      await renderNumberField('[ngpNumberFieldReadonly]="true"');
+      const notPrevented = screen.getByTestId('input').dispatchEvent(
+        new InputEvent('beforeinput', {
+          inputType: 'insertText',
+          data: 'a',
+          cancelable: true,
+          bubbles: true,
+        }),
+      );
+      expect(notPrevented).toBe(true);
+    });
+
     it('should still allow a minus when the min binding is NaN', async () => {
       await renderNumberField('[ngpNumberFieldMin]="min"', vi.fn(), { min: NaN });
       const input = screen.getByTestId('input') as HTMLInputElement;
       await userEvent.type(input, '-5');
       expect(input.value).toBe('-5');
+    });
+  });
+
+  describe('input state focus()', () => {
+    it('should focus the input element', async () => {
+      const { fixture } = await renderNumberField();
+      const input = screen.getByTestId('input');
+      const state = fixture.debugElement
+        .query((de: { nativeElement: HTMLElement }) => de.nativeElement === input)
+        .injector.get(NgpNumberFieldInputStateToken)();
+
+      state.focus();
+      expect(document.activeElement).toBe(input);
     });
   });
 
@@ -1201,6 +1272,63 @@ describe('NgpNumberField', () => {
   });
 
   describe('mouse wheel', () => {
+    // `allowWheelScrub` is an input-level directive input, so it must be bound on the
+    // input element, not the number-field root.
+    function renderWheelField(inputProps = 'ngpNumberFieldInputAllowWheelScrub') {
+      const valueChange = vi.fn();
+      return render(
+        `
+          <div
+            ngpNumberField
+            data-testid="number-field"
+            [ngpNumberFieldDefaultValue]="5"
+            (ngpNumberFieldValueChange)="valueChange($event)">
+            <button ngpNumberFieldDecrement data-testid="decrement">-</button>
+            <input ngpNumberFieldInput data-testid="input" ${inputProps} />
+            <button ngpNumberFieldIncrement data-testid="increment">+</button>
+          </div>
+        `,
+        { imports, componentProperties: { valueChange } },
+      ).then(result => ({ ...result, valueChange }));
+    }
+
+    it('should increment when scrolling up over the focused input', async () => {
+      const { fixture, valueChange } = await renderWheelField();
+      const input = screen.getByTestId('input') as HTMLInputElement;
+      input.focus();
+      fireEvent.wheel(input, { deltaY: -1 });
+      await fixture.whenStable();
+
+      expect(valueChange).toHaveBeenCalledWith(6);
+      expect(input.value).toBe('6');
+    });
+
+    it('should decrement when scrolling down over the focused input', async () => {
+      const { fixture, valueChange } = await renderWheelField();
+      const input = screen.getByTestId('input') as HTMLInputElement;
+      input.focus();
+      fireEvent.wheel(input, { deltaY: 1 });
+      await fixture.whenStable();
+
+      expect(valueChange).toHaveBeenCalledWith(4);
+      expect(input.value).toBe('4');
+    });
+
+    it('should ignore the wheel when the input is not focused', async () => {
+      // Scrubbing an unfocused field would hijack page scrolling
+      const { valueChange } = await renderWheelField();
+      fireEvent.wheel(screen.getByTestId('input'), { deltaY: -1 });
+      expect(valueChange).not.toHaveBeenCalled();
+    });
+
+    it('should ignore the wheel when allowWheelScrub is not set', async () => {
+      const { valueChange } = await renderWheelField('');
+      const input = screen.getByTestId('input') as HTMLInputElement;
+      input.focus();
+      fireEvent.wheel(input, { deltaY: -1 });
+      expect(valueChange).not.toHaveBeenCalled();
+    });
+
     it('should not change the value on Ctrl+wheel (browser zoom)', async () => {
       const valueChange = vi.fn();
       // `allowWheelScrub` is an input-level directive input, so it must be bound
