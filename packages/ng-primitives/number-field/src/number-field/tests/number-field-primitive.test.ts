@@ -341,6 +341,67 @@ describe('NgpNumberField', () => {
       fireEvent.keyDown(screen.getByTestId('input'), { key: 'ArrowUp', shiftKey: true });
       expect(valueChange).toHaveBeenCalledWith(15);
     });
+
+    // An inverted infinite bound is the dangerous case: it is not rejected by the
+    // entry guard (the argument is finite) but `clampAndStep` turns it into an
+    // infinity, so the value would be stored and emitted while the display shows
+    // empty. The bound's own default has the opposite sign, so falling back to it
+    // is a no-op for `min = -Infinity` / `max = Infinity`.
+    // Uncontrolled so the stored value is observable through the DOM: before the bound
+    // was normalised this stored and emitted `Infinity` while the input showed empty.
+    it('should treat a +Infinity min as unset', async () => {
+      const valueChange = vi.fn();
+      const { fixture } = await renderNumberField(
+        '[ngpNumberFieldDefaultValue]="5" [ngpNumberFieldMin]="min"',
+        valueChange,
+        { min: Number.POSITIVE_INFINITY },
+      );
+      fireEvent.keyDown(screen.getByTestId('input'), { key: 'ArrowUp' });
+      await fixture.whenStable();
+
+      expect(valueChange).toHaveBeenCalledWith(6);
+      expect(valueChange).not.toHaveBeenCalledWith(Infinity);
+      expect((screen.getByTestId('input') as HTMLInputElement).value).toBe('6');
+      expect(screen.getByTestId('input')).not.toHaveAttribute('aria-valuemin');
+    });
+
+    it('should treat a -Infinity max as unset', async () => {
+      const valueChange = vi.fn();
+      const { fixture } = await renderNumberField(
+        '[ngpNumberFieldDefaultValue]="5" [ngpNumberFieldMax]="max"',
+        valueChange,
+        { max: Number.NEGATIVE_INFINITY },
+      );
+      fireEvent.keyDown(screen.getByTestId('input'), { key: 'ArrowUp' });
+      await fixture.whenStable();
+
+      expect(valueChange).toHaveBeenCalledWith(6);
+      expect(valueChange).not.toHaveBeenCalledWith(-Infinity);
+      expect((screen.getByTestId('input') as HTMLInputElement).value).toBe('6');
+      expect(screen.getByTestId('input')).not.toHaveAttribute('aria-valuemax');
+    });
+
+    it('should keep an unbounded min and max working', async () => {
+      const valueChange = vi.fn();
+      await renderNumberField(
+        '[ngpNumberFieldValue]="5" [ngpNumberFieldMin]="min" [ngpNumberFieldMax]="max"',
+        valueChange,
+        { min: Number.NEGATIVE_INFINITY, max: Number.POSITIVE_INFINITY },
+      );
+      fireEvent.keyDown(screen.getByTestId('input'), { key: 'ArrowUp' });
+      expect(valueChange).toHaveBeenCalledWith(6);
+    });
+
+    it('should fall back to a step of 1 when the step binding is Infinity', async () => {
+      const valueChange = vi.fn();
+      await renderNumberField(
+        '[ngpNumberFieldValue]="5" [ngpNumberFieldStep]="step"',
+        valueChange,
+        { step: Number.POSITIVE_INFINITY },
+      );
+      fireEvent.keyDown(screen.getByTestId('input'), { key: 'ArrowUp' });
+      expect(valueChange).toHaveBeenCalledWith(6);
+    });
   });
 
   describe('value / min / max / step', () => {

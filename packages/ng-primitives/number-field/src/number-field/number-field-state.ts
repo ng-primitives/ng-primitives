@@ -134,9 +134,13 @@ export interface NgpNumberFieldProps {
   readonly onValueChange?: (value: number | null) => void;
 }
 
-/** A `NaN` bound to a numeric option means it was never really set - use the default. */
-function defaultIfNaN(value: number, fallback: number): number {
-  return Number.isNaN(value) ? fallback : value;
+/**
+ * A non-finite value bound to a numeric option means it was never really set - use the
+ * default. Each bound's default carries the sign that leaves it unbounded, so this is a
+ * no-op for `min = -Infinity` / `max = Infinity` and only corrects an inverted bound.
+ */
+function defaultIfNonFinite(value: number, fallback: number): number {
+  return Number.isFinite(value) ? value : fallback;
 }
 
 export const [
@@ -177,11 +181,13 @@ export const [
       const current = storedValue();
       return current !== null && !Number.isFinite(current) ? null : current;
     });
-    // A `NaN` here would poison `clampAndStep` and the stepper guards.
-    const min = computed(() => defaultIfNaN(_min(), -Infinity));
-    const max = computed(() => defaultIfNaN(_max(), Infinity));
-    const step = computed(() => defaultIfNaN(_step(), 1));
-    const largeStep = computed(() => defaultIfNaN(_largeStep(), 10));
+    // A non-finite bound here would poison `clampAndStep` and the stepper guards, and
+    // `clampAndStep` runs past `setValue`'s guard - so a finite value could still be
+    // stored and emitted as an infinity.
+    const min = computed(() => defaultIfNonFinite(_min(), -Infinity));
+    const max = computed(() => defaultIfNonFinite(_max(), Infinity));
+    const step = computed(() => defaultIfNonFinite(_step(), 1));
+    const largeStep = computed(() => defaultIfNonFinite(_largeStep(), 10));
     const disabled = controlled(_disabled);
     const readonly = controlled(_readonly);
 
@@ -243,6 +249,9 @@ export const [
       if (disabled() || readonly()) return;
       if (newValue !== null && !Number.isFinite(newValue)) return;
       const finalValue = newValue !== null ? clampAndStep(newValue) : null;
+      // Guard the result too, not just the argument: the invariant is established
+      // here, so it must not rest on an audit of `clampAndStep`'s arithmetic.
+      if (finalValue !== null && !Number.isFinite(finalValue)) return;
       // Skip emit when value is unchanged. Compared against the stored value rather
       // than the normalised one so a parent holding a non-finite value is still
       // notified when a commit resolves it to `null`.
