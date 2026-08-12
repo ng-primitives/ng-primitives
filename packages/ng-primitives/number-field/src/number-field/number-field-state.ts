@@ -226,8 +226,9 @@ export const [
 
     function clampAndStep(val: number): number {
       const clamped = Math.min(max(), Math.max(min(), val));
-      // Round to nearest step
-      if (Number.isFinite(step()) && step() > 0) {
+      // Round to nearest step. `step` is normalised to a finite value, so only its
+      // sign matters here.
+      if (step() > 0) {
         const base = Number.isFinite(min()) ? min() : 0;
         const precision = Math.max(getDecimalPlaces(step()), getDecimalPlaces(base));
         const stepped = roundToPrecision(

@@ -167,7 +167,8 @@ export const [
 
       function getLargeStepMultiplier(): number {
         const s = numberField().step();
-        if (!Number.isFinite(s) || s <= 0) return 1;
+        // `step` is normalised to a finite value; guard only against dividing by zero
+        if (s <= 0) return 1;
         return numberField().largeStep() / s;
       }
 
