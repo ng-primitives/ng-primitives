@@ -4,6 +4,7 @@ import { NgpNumberFieldDecrement } from '../../number-field-decrement/number-fie
 import { NgpNumberFieldIncrement } from '../../number-field-increment/number-field-increment';
 import { NgpNumberFieldInput } from '../../number-field-input/number-field-input';
 import { NgpNumberField } from '../number-field';
+import { NgpNumberFieldStateToken } from '../number-field-state';
 
 describe('NgpNumberField', () => {
   const imports = [
@@ -342,13 +343,8 @@ describe('NgpNumberField', () => {
       expect(valueChange).toHaveBeenCalledWith(15);
     });
 
-    // An inverted infinite bound is the dangerous case: it is not rejected by the
-    // entry guard (the argument is finite) but `clampAndStep` turns it into an
-    // infinity, so the value would be stored and emitted while the display shows
-    // empty. The bound's own default has the opposite sign, so falling back to it
-    // is a no-op for `min = -Infinity` / `max = Infinity`.
-    // Uncontrolled so the stored value is observable through the DOM: before the bound
-    // was normalised this stored and emitted `Infinity` while the input showed empty.
+    // The inverted bound slips past the entry guard (the argument is finite) and only
+    // turns non-finite inside `clampAndStep`. Uncontrolled so the DOM shows what was stored.
     it('should treat a +Infinity min as unset', async () => {
       const valueChange = vi.fn();
       const { fixture } = await renderNumberField(
@@ -356,6 +352,10 @@ describe('NgpNumberField', () => {
         valueChange,
         { min: Number.POSITIVE_INFINITY },
       );
+      // `canDecrement` was `5 > Infinity` before the bound was normalised
+      expect(screen.getByTestId('decrement')).not.toHaveAttribute('disabled');
+      expect(screen.getByTestId('decrement')).not.toHaveAttribute('data-disabled');
+
       fireEvent.keyDown(screen.getByTestId('input'), { key: 'ArrowUp' });
       await fixture.whenStable();
 
@@ -372,6 +372,10 @@ describe('NgpNumberField', () => {
         valueChange,
         { max: Number.NEGATIVE_INFINITY },
       );
+      // `canIncrement` was `5 < -Infinity` before the bound was normalised
+      expect(screen.getByTestId('increment')).not.toHaveAttribute('disabled');
+      expect(screen.getByTestId('increment')).not.toHaveAttribute('data-disabled');
+
       fireEvent.keyDown(screen.getByTestId('input'), { key: 'ArrowUp' });
       await fixture.whenStable();
 
@@ -401,6 +405,157 @@ describe('NgpNumberField', () => {
       );
       fireEvent.keyDown(screen.getByTestId('input'), { key: 'ArrowUp' });
       expect(valueChange).toHaveBeenCalledWith(6);
+    });
+
+    // `numberAttribute(undefined)` is NaN, so an optional config value is how a real app
+    // reaches a non-finite bound - not by binding NaN literally, as the tests above do.
+    it('should apply the defaults when the bound options are undefined', async () => {
+      const valueChange = vi.fn();
+      await renderNumberField(
+        '[ngpNumberFieldValue]="5" [ngpNumberFieldMin]="min" [ngpNumberFieldMax]="max" [ngpNumberFieldStep]="step"',
+        valueChange,
+        { min: undefined, max: undefined, step: undefined },
+      );
+      for (const testId of ['increment', 'decrement']) {
+        expect(screen.getByTestId(testId)).not.toHaveAttribute('data-disabled');
+      }
+
+      fireEvent.keyDown(screen.getByTestId('input'), { key: 'ArrowUp' });
+      expect(valueChange).toHaveBeenCalledWith(6);
+    });
+
+    it('should keep both steppers enabled when the min and max bindings are NaN', async () => {
+      // `5 > NaN` and `5 < NaN` are both false, so each bound disabled its own stepper
+      await renderNumberField(
+        '[ngpNumberFieldValue]="5" [ngpNumberFieldMin]="min" [ngpNumberFieldMax]="max"',
+        vi.fn(),
+        { min: NaN, max: NaN },
+      );
+      for (const testId of ['increment', 'decrement']) {
+        expect(screen.getByTestId(testId)).not.toHaveAttribute('disabled');
+        expect(screen.getByTestId(testId)).not.toHaveAttribute('data-disabled');
+      }
+    });
+
+    it('should set inputmode from the fallback step when the step binding is NaN', async () => {
+      // `NaN % 1 !== 0` read as "step has decimals" and pushed the mobile keyboard to decimal
+      await renderNumberField('[ngpNumberFieldMin]="0" [ngpNumberFieldStep]="step"', vi.fn(), {
+        step: NaN,
+      });
+      expect(screen.getByTestId('input')).toHaveAttribute('inputmode', 'numeric');
+    });
+
+    // The bindings above all start non-finite. `Number(response.count)` landing on an
+    // already-rendered field is the realistic shape, and it is the path where
+    // controlledState's latch and the normalising computed actually interact.
+    it('should clear and restore the display when the value binding turns NaN after init', async () => {
+      const valueChange = vi.fn();
+      const { fixture, rerender } = await renderNumberField(
+        '[ngpNumberFieldValue]="value"',
+        valueChange,
+        { value: 5 },
+      );
+      await fixture.whenStable();
+      expect((screen.getByTestId('input') as HTMLInputElement).value).toBe('5');
+
+      await rerender({ componentProperties: { valueChange, value: NaN } });
+      await fixture.whenStable();
+      expect((screen.getByTestId('input') as HTMLInputElement).value).toBe('');
+      expect(screen.getByTestId('input')).not.toHaveAttribute('aria-valuenow');
+      expect(screen.getByTestId('increment')).not.toHaveAttribute('data-disabled');
+
+      await rerender({ componentProperties: { valueChange, value: 5 } });
+      await fixture.whenStable();
+      expect((screen.getByTestId('input') as HTMLInputElement).value).toBe('5');
+      expect(screen.getByTestId('input')).toHaveAttribute('aria-valuenow', '5');
+    });
+
+    it('should re-enable decrement when the min binding turns NaN after init', async () => {
+      const { fixture, rerender } = await renderNumberField(
+        '[ngpNumberFieldDefaultValue]="5" [ngpNumberFieldMin]="min"',
+        vi.fn(),
+        { min: 5 },
+      );
+      await fixture.whenStable();
+      expect(screen.getByTestId('decrement')).toHaveAttribute('data-disabled');
+
+      await rerender({ componentProperties: { valueChange: vi.fn(), min: NaN } });
+      await fixture.whenStable();
+      expect(screen.getByTestId('decrement')).not.toHaveAttribute('data-disabled');
+      expect(screen.getByTestId('input')).not.toHaveAttribute('aria-valuemin');
+    });
+
+    it('should not emit when the value binding starts non-finite', async () => {
+      const valueChange = vi.fn();
+      const { fixture } = await renderNumberField('[ngpNumberFieldValue]="value"', valueChange, {
+        value: NaN,
+      });
+      await fixture.whenStable();
+      // Normalising to `null` is a read-side rule - it must not write back to the parent
+      expect(valueChange).not.toHaveBeenCalled();
+    });
+
+    it('should commit typed text when the value binding is NaN', async () => {
+      const valueChange = vi.fn();
+      const { fixture } = await renderNumberField('[ngpNumberFieldValue]="value"', valueChange, {
+        value: NaN,
+      });
+      const input = screen.getByTestId('input') as HTMLInputElement;
+
+      fireEvent.focus(input);
+      input.value = '42';
+      fireEvent.blur(input);
+      await fixture.whenStable();
+
+      expect(valueChange).toHaveBeenCalledWith(42);
+      // Controlled and bound one-way, so the parent still holds NaN and the display
+      // snaps back to empty - the same round-trip as any unhandled controlled value.
+      expect(input.value).toBe('');
+    });
+
+    it('should fall back to a large step of 10 when the large step binding is Infinity', async () => {
+      const valueChange = vi.fn();
+      await renderNumberField(
+        '[ngpNumberFieldValue]="5" [ngpNumberFieldLargeStep]="largeStep"',
+        valueChange,
+        { largeStep: Number.POSITIVE_INFINITY },
+      );
+      fireEvent.keyDown(screen.getByTestId('input'), { key: 'ArrowUp', shiftKey: true });
+      expect(valueChange).toHaveBeenCalledWith(15);
+    });
+
+    // `clampAndStep` can manufacture an infinity from finite inputs: `clamped - base`
+    // overflows when the span exceeds Number.MAX_VALUE. Dropping the value is the
+    // least-bad outcome - the alternative is emitting Infinity while rendering empty.
+    it('should reject a value whose clamped result overflows to Infinity', async () => {
+      const valueChange = vi.fn();
+      const { fixture } = await renderNumberField(
+        '[ngpNumberFieldValue]="5" [ngpNumberFieldMin]="min"',
+        valueChange,
+        { min: -Number.MAX_VALUE },
+      );
+      const numberField = fixture.debugElement.children[0].injector.get(NgpNumberField);
+      numberField.setValue(Number.MAX_VALUE);
+      await fixture.whenStable();
+
+      expect(valueChange).not.toHaveBeenCalled();
+      expect((screen.getByTestId('input') as HTMLInputElement).value).toBe('5');
+    });
+
+    it('should treat a NaN passed to setDefaultValue as empty', async () => {
+      const valueChange = vi.fn();
+      const { fixture } = await renderNumberField('', valueChange);
+      const state = fixture.debugElement.children[0].injector.get(NgpNumberFieldStateToken)();
+
+      state.setDefaultValue(NaN);
+      await fixture.whenStable();
+
+      expect((screen.getByTestId('input') as HTMLInputElement).value).toBe('');
+      expect(screen.getByTestId('increment')).not.toHaveAttribute('data-disabled');
+
+      fireEvent.pointerDown(screen.getByTestId('increment'));
+      await fixture.whenStable();
+      expect(valueChange).toHaveBeenCalledWith(1);
     });
   });
 
@@ -476,6 +631,18 @@ describe('NgpNumberField', () => {
 
       const numberField = fixture.debugElement.children[0].injector.get(NgpNumberField);
       numberField.setValue(Infinity);
+
+      expect(valueChange).not.toHaveBeenCalled();
+      await fixture.whenStable();
+      expect((screen.getByTestId('input') as HTMLInputElement).value).toBe('5');
+    });
+
+    it('should reject -Infinity passed to setValue', async () => {
+      const valueChange = vi.fn();
+      const { fixture } = await renderNumberField('[ngpNumberFieldValue]="5"', valueChange);
+
+      const numberField = fixture.debugElement.children[0].injector.get(NgpNumberField);
+      numberField.setValue(-Infinity);
 
       expect(valueChange).not.toHaveBeenCalled();
       await fixture.whenStable();
