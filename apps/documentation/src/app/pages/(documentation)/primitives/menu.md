@@ -160,6 +160,16 @@ By default, the menu is kept within the viewport and its clipping ancestors. Pas
 
 The `--ngp-menu-available-width` and `--ngp-menu-available-height` custom properties are measured against the flip boundary, or the shift boundary when flip does not set one.
 
+### Custom Anchor
+
+You can provide a separate anchor element using `ngpMenuTriggerAnchor` to control where the menu appears while keeping the full trigger area interactive. Clicks on the anchor are treated as inside the menu, so they do not dismiss it.
+
+<docs-example name="menu-custom-anchor"></docs-example>
+
+The anchor also becomes the element `--ngp-menu-trigger-width` measures, so a menu sized to that property matches the anchor - which is rarely what you want when the anchor is a small icon.
+
+The anchor is captured once, when the menu overlay is created on the first open. Changing the binding afterwards has no effect - not even on a later open - so bind an element that stays where it is rather than one you intend to swap.
+
 ### Keyboard Triggers
 
 Enable keyboard triggers to allow users to open menus using Enter or arrow keys:
