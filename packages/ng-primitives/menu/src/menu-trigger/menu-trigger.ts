@@ -120,6 +120,14 @@ export class NgpMenuTrigger<T = unknown> {
   });
 
   /**
+   * Define an anchor element for positioning the menu.
+   * If provided, the menu will be positioned relative to this element instead of the trigger.
+   */
+  readonly anchor = input<HTMLElement | null>(null, {
+    alias: 'ngpMenuTriggerAnchor',
+  });
+
+  /**
    * Define which trigger types are enabled for the menu.
    * @default ['click']
    */
@@ -159,6 +167,7 @@ export class NgpMenuTrigger<T = unknown> {
     scrollBehavior: this.scrollBehavior,
     cooldown: this.cooldown,
     context: this.context as Signal<T>,
+    anchor: this.anchor,
     triggers: this.triggers,
     showDelay: this.showDelay,
     hideDelay: this.hideDelay,

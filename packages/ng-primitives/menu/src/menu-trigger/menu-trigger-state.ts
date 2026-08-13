@@ -78,6 +78,12 @@ export interface NgpMenuTriggerState<T = unknown> {
   readonly context: WritableSignal<T>;
 
   /**
+   * Define an anchor element for positioning the menu.
+   * If provided, the menu will be positioned relative to this element instead of the trigger.
+   */
+  readonly anchor: WritableSignal<HTMLElement | null>;
+
+  /**
    * The focus origin that was used to open the menu.
    * @internal
    */
@@ -112,6 +118,13 @@ export interface NgpMenuTriggerState<T = unknown> {
    * @param context - The new context
    */
   setContext(context: T): void;
+
+  /**
+   * Set the anchor element the menu is positioned against. Takes effect the next
+   * time the menu is opened; it does not move a menu that is already open.
+   * @param anchor - The new anchor element
+   */
+  setAnchor(anchor: HTMLElement | null): void;
 
   /**
    * Set the container in which the menu should be attached. Takes effect the
@@ -190,6 +203,12 @@ export interface NgpMenuTriggerProps<T = unknown> {
    * Context to provide to the menu.
    */
   readonly context?: Signal<T>;
+
+  /**
+   * Define an anchor element for positioning the menu.
+   * If provided, the menu will be positioned relative to this element instead of the trigger.
+   */
+  readonly anchor?: Signal<HTMLElement | null>;
   /**
    * Cooldown duration in milliseconds.
    */
@@ -226,6 +245,7 @@ export const [
     flip: _flip = signal(true),
     shift: _shift = signal(undefined),
     context: _context = signal<T>(undefined as T),
+    anchor: _anchor,
     container: _container,
     scrollBehavior,
     cooldown,
@@ -247,6 +267,7 @@ export const [
     const shift = controlled(_shift);
     const offset = controlled(_offset);
     const context = controlled(_context);
+    const anchor = controlled<HTMLElement | null>(_anchor, null);
     const container = controlled(_container, 'body');
 
     // Internal state
@@ -544,6 +565,7 @@ export const [
       const config: NgpOverlayConfig<T> = {
         content: menu,
         triggerElement: element.nativeElement,
+        anchorElement: anchor(),
         viewContainerRef,
         injector,
         context,
@@ -594,6 +616,10 @@ export const [
       context.set(newContext);
     }
 
+    function setAnchor(newAnchor: HTMLElement | null): void {
+      anchor.set(newAnchor);
+    }
+
     function setContainer(newContainer: HTMLElement | string | null): void {
       container.set(newContainer);
     }
@@ -628,6 +654,7 @@ export const [
       offset: deprecatedSetter(offset, 'setOffset', setOffset),
       disabled: deprecatedSetter(disabled, 'setDisabled', setDisabled),
       context: deprecatedSetter(context, 'setContext', setContext),
+      anchor: deprecatedSetter(anchor, 'setAnchor', setAnchor),
       open,
       openOrigin,
       show,
@@ -639,6 +666,7 @@ export const [
       setPlacement,
       setOffset,
       setContext,
+      setAnchor,
       setContainer,
       setPointerOverContent,
       flip,
