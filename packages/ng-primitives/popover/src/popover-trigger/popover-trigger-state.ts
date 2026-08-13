@@ -370,7 +370,7 @@ export const [
       const config: NgpOverlayConfig<T> = {
         content: popover,
         triggerElement: elementRef.nativeElement,
-        anchorElement: anchor(),
+        anchorElement: anchor,
         injector: injector,
         context: context,
         container: container(),

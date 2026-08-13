@@ -168,7 +168,7 @@ You can provide a separate anchor element using `ngpMenuTriggerAnchor` to contro
 
 The anchor also becomes the element `--ngp-menu-trigger-width` measures, so a menu sized to that property matches the anchor - which is rarely what you want when the anchor is a small icon.
 
-The anchor is captured once, when the menu overlay is created on the first open. Changing the binding afterwards has no effect - not even on a later open - so bind an element that stays where it is rather than one you intend to swap.
+The anchor is live: rebinding it moves an already-open menu to the new element, and the new element is the one that counts as inside for dismissal. A single menu can therefore be pointed at whichever of many elements was interacted with, instead of giving each one its own trigger.
 
 ### Keyboard Triggers
 

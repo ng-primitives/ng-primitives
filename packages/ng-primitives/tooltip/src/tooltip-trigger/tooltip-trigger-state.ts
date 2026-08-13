@@ -663,7 +663,7 @@ export const [
       const config: NgpOverlayConfig<T | string> = {
         content,
         triggerElement: trigger.nativeElement,
-        anchorElement: anchor(),
+        anchorElement: anchor,
         injector: injector,
         context,
         container: container(),

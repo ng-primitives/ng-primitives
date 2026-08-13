@@ -138,6 +138,8 @@ The popover can be anchored to a different element than the trigger.
 
 <docs-example name="popover-anchor"></docs-example>
 
+The anchor is live - rebinding it moves an already-open popover to the new element, and it is the new element that counts as inside for dismissal.
+
 ### Dismiss Guard
 
 Use dismiss guards to prevent a popover from closing when there are unsaved changes. The `closeOnOutsideClick` and `closeOnEscape` options accept a guard function that returns a boolean or a `Promise<boolean>`.
