@@ -5,10 +5,10 @@ import { NgpMenu, NgpMenuItem, NgpMenuTrigger } from 'ng-primitives/menu';
 import { describe, expect, it } from 'vitest';
 
 /**
- * The anchor sits well above the trigger, so which of the two the menu is
- * placed against is unambiguous on the vertical axis. Horizontal placement is
- * clamped by the shift middleware near the viewport edge, so the assertions
- * lead with the vertical axis.
+ * The anchor sits well above and to the left of the trigger, so the two are
+ * separable on both axes. `menuRect.top >= anchorRect.bottom` holds either way
+ * and only checks the placement is below - it is the left-edge alignment and
+ * `menuRect.top < triggerRect.top` that say which element was followed.
  */
 @Component({
   template: `

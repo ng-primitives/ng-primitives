@@ -204,7 +204,6 @@ export interface NgpMenuTriggerProps<T = unknown> {
    * Context to provide to the menu.
    */
   readonly context?: Signal<T>;
-
   /**
    * Define an anchor element for positioning the menu.
    * If provided, the menu will be positioned relative to this element instead of the trigger.
