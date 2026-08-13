@@ -97,8 +97,9 @@ class MovingAnchorMenuComponent {
     </div>
     <button
       #anchorB
-      (mousedown)="claim('mousedown', anchorB)"
       (click)="claim('click', anchorB)"
+      (mousedown)="claim('mousedown', anchorB)"
+      (pointerdown)="claim('pointerdown', anchorB)"
       data-testid="anchor-b"
       type="button"
       style="position: absolute; top: 260px; left: 200px; width: 50px; height: 30px;"
@@ -124,14 +125,47 @@ class MovingAnchorMenuComponent {
 })
 class ClaimedAnchorMenuComponent {
   anchor: HTMLElement | null = null;
-  claimOn: 'mousedown' | 'click' = 'mousedown';
+  claimOn: ClaimEvent = 'pointerdown';
 
-  claim(event: 'mousedown' | 'click', element: HTMLElement): void {
+  claim(event: ClaimEvent, element: HTMLElement): void {
     if (this.claimOn === event) {
       this.anchor = element;
     }
   }
 }
+
+type ClaimEvent = 'pointerdown' | 'mousedown' | 'click';
+
+/** The same shape, but claiming the anchor through `setAnchor` rather than the input. */
+@Component({
+  template: `
+    <button
+      #anchorB
+      (pointerdown)="trigger.setAnchor(anchorB)"
+      data-testid="anchor-b"
+      type="button"
+      style="position: absolute; top: 260px; left: 200px; width: 50px; height: 30px;"
+    >
+      Anchor B
+    </button>
+    <button
+      #trigger="ngpMenuTrigger"
+      [ngpMenuTrigger]="menu"
+      data-testid="trigger"
+      style="position: absolute; top: 400px; left: 400px;"
+    >
+      Open Menu
+    </button>
+
+    <ng-template #menu>
+      <div ngpMenu data-testid="menu" style="position: absolute; width: 120px;">
+        <button ngpMenuItem>Item 1</button>
+      </div>
+    </ng-template>
+  `,
+  imports: [NgpMenuTrigger, NgpMenu, NgpMenuItem],
+})
+class StateClaimedAnchorMenuComponent {}
 
 /**
  * Outside-press dismissal is decided on a capture-phase `mouseup`, so a consumer
@@ -139,27 +173,64 @@ class ClaimedAnchorMenuComponent {
  * that runs. These two tests pin the ordering down from both sides.
  */
 describe('Menu anchor claimed during a press', () => {
-  it('should keep the menu open when the anchor is claimed on mousedown', async () => {
-    const { fixture, getByTestId } = await renderClaimedMenu('mousedown');
+  it.each(['pointerdown', 'mousedown'] as const)(
+    'should keep the menu open when the anchor is claimed on %s',
+    async claimOn => {
+      const { fixture, getByTestId } = await renderClaimedMenu(claimOn);
+      await openMenu(getByTestId('trigger'));
+
+      const menuBefore = menuElement();
+
+      await pressSequence(getByTestId('anchor-b'), fixture);
+      await settle();
+
+      // The capture-phase mouseup saw the new anchor, so the press that moved the
+      // menu did not also dismiss it.
+      expect(document.querySelector('[data-testid="menu"]')).toBeInTheDocument();
+      expect(getByTestId('trigger')).toHaveAttribute('data-open');
+
+      await waitFor(() => {
+        TestBed.flushEffects();
+        expectAnchoredTo(getByTestId('anchor-b'), getByTestId('anchor-a'));
+      });
+
+      // A press that dismissed and reopened would also end up open and correctly
+      // placed; only the node surviving tells the two apart.
+      expect(menuElement()).toBe(menuBefore);
+    },
+  );
+
+  it('should dismiss the menu when a template-bound anchor is claimed within a single frame', async () => {
+    const { getByTestId } = await renderClaimedMenu('pointerdown');
+    await openMenu(getByTestId('trigger'));
+
+    // No change detection between the button phases, which is what a fast tap delivers -
+    // and what a frame the browser is too busy to serve delivers too, the hundreds-of-
+    // targets case this feature is for. Claiming the anchor before `mouseup` is then not
+    // enough on its own: an input binding only reaches the directive on the next pass, so
+    // the registry still reads the previous anchor and dismisses.
+    //
+    // Pinned rather than fixed, because it is a property of Angular's input timing rather
+    // than of this code. `setAnchor` below is the way out, and the reason it exists.
+    pressSequenceWithinFrame(getByTestId('anchor-b'));
+    await settle();
+
+    expect(document.querySelector('[data-testid="menu"]')).not.toBeInTheDocument();
+  });
+
+  it('should keep the menu open when setAnchor claims the anchor within a single frame', async () => {
+    const { getByTestId } = await render(StateClaimedAnchorMenuComponent);
     await openMenu(getByTestId('trigger'));
 
     const menuBefore = menuElement();
 
-    await pressSequence(getByTestId('anchor-b'), fixture);
+    // `setAnchor` writes the signal the dismissal check reads, so it needs no pass in
+    // between and the same press that dismisses above moves the menu here.
+    pressSequenceWithinFrame(getByTestId('anchor-b'));
     await settle();
 
-    // The capture-phase mouseup saw the new anchor, so the press that moved the
-    // menu did not also dismiss it.
     expect(document.querySelector('[data-testid="menu"]')).toBeInTheDocument();
     expect(getByTestId('trigger')).toHaveAttribute('data-open');
-
-    await waitFor(() => {
-      TestBed.flushEffects();
-      expectAnchoredTo(getByTestId('anchor-b'), getByTestId('anchor-a'));
-    });
-
-    // A press that dismissed and reopened would also end up open and correctly
-    // placed; only the node surviving tells the two apart.
     expect(menuElement()).toBe(menuBefore);
   });
 
@@ -293,7 +364,7 @@ describe('Menu anchor element', () => {
   });
 });
 
-async function renderClaimedMenu(claimOn: 'mousedown' | 'click') {
+async function renderClaimedMenu(claimOn: ClaimEvent) {
   const result = await render(ClaimedAnchorMenuComponent);
   result.fixture.componentInstance.claimOn = claimOn;
   result.fixture.autoDetectChanges(true);
@@ -318,6 +389,19 @@ async function pressSequence(
   fixture.detectChanges();
   await Promise.resolve();
 
+  target.dispatchEvent(new MouseEvent('mouseup', init));
+  target.dispatchEvent(new MouseEvent('click', init));
+}
+
+/**
+ * The same press with nothing between the phases - what a fast tap delivers, and what
+ * `pressSequence` above deliberately does not test.
+ */
+function pressSequenceWithinFrame(target: HTMLElement): void {
+  const init = { bubbles: true, composed: true, button: 0 };
+
+  target.dispatchEvent(new PointerEvent('pointerdown', init));
+  target.dispatchEvent(new MouseEvent('mousedown', init));
   target.dispatchEvent(new MouseEvent('mouseup', init));
   target.dispatchEvent(new MouseEvent('click', init));
 }
