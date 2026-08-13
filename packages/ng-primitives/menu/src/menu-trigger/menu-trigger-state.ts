@@ -120,8 +120,9 @@ export interface NgpMenuTriggerState<T = unknown> {
   setContext(context: T): void;
 
   /**
-   * Set the anchor element the menu is positioned against. Takes effect the next
-   * time the menu is opened; it does not move a menu that is already open.
+   * Set the anchor element the menu is positioned against. The anchor is captured
+   * when the overlay is created, on the first open, so a later change does not
+   * reposition the menu - not even when it is closed and opened again.
    * @param anchor - The new anchor element
    */
   setAnchor(anchor: HTMLElement | null): void;

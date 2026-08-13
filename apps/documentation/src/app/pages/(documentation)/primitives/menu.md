@@ -171,7 +171,7 @@ You can provide a separate anchor element using `ngpMenuTriggerAnchor` to contro
 </div>
 ```
 
-The anchor is captured when the menu overlay is created - that is, the first time the menu opens. Changing the binding afterwards does not move a menu that has already been opened.
+The anchor is captured once, when the menu overlay is created on the first open. Changing the binding afterwards has no effect - not even on a later open - so bind an element that stays where it is rather than one you intend to swap.
 
 ### Keyboard Triggers
 
