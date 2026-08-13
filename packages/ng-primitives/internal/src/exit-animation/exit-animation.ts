@@ -112,6 +112,8 @@ export function setupExitAnimation({
     }
   }
 
+  let pendingEnterFrame: number | null = null;
+
   // Set the initial state to 'enter' - immediately if instant or if there is no
   // `requestAnimationFrame` to defer to (e.g. server-side rendering), otherwise
   // next frame so the browser registers the "from" state and plays the enter
@@ -119,13 +121,30 @@ export function setupExitAnimation({
   if (immediate || typeof requestAnimationFrame !== 'function') {
     setState('enter');
   } else {
-    requestAnimationFrame(() => setState('enter'));
+    pendingEnterFrame = requestAnimationFrame(() => {
+      // `exit()` clears the handle to supersede this callback, so a cleared handle means
+      // the element left before the frame arrived and is no longer entering.
+      if (pendingEnterFrame === null) {
+        return;
+      }
+
+      pendingEnterFrame = null;
+      setState('enter');
+    });
   }
 
   return {
     exit: () => {
       return new Promise<void>(resolve => {
         exitResolve = resolve;
+
+        // Supersede the queued enter frame. Leaving before it arrives would otherwise let
+        // the callback for an entrance that never happened land afterwards and mark an
+        // element on its way out as entering, so its exit animation never plays. The
+        // callback checks the handle, so clearing it is enough - there is nothing to gain
+        // from also cancelling a frame whose callback now returns immediately.
+        pendingEnterFrame = null;
+
         setState('exit');
 
         const settle = () => {

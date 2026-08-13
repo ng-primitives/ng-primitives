@@ -69,4 +69,69 @@ describe('NgpComponentPortal', () => {
     expect(finished()).toBe(false);
     expect(portal.getAttached()).toBe(true);
   });
+
+  /**
+   * The enter state is deferred a frame. A portal detached inside that frame - the shape a
+   * quick hover or a same-type overlay swap produces - must not have the queued callback
+   * land afterwards and mark a node that is leaving as entering. Driven through the portal
+   * rather than the animation ref so the wiring is covered, not just the helper.
+   */
+  it('detaching before the first frame leaves the node in the exit state', async () => {
+    const portal = attachPortal();
+    const node = portal.getElements()[0];
+    node.getAnimations = () => [];
+
+    await portal.detach();
+
+    expect(node).toHaveAttribute('data-exit');
+    expect(node).not.toHaveAttribute('data-enter');
+
+    await nextFrame();
+    await nextFrame();
+
+    expect(node).toHaveAttribute('data-exit');
+    expect(node).not.toHaveAttribute('data-enter');
+  });
+
+  /** The deferred enter still has to arrive for a portal that stays attached. */
+  it('a portal that is not detached still reaches the enter state', async () => {
+    const portal = attachPortal();
+    const node = portal.getElements()[0];
+    node.getAnimations = () => [];
+
+    await nextFrame();
+
+    expect(node).toHaveAttribute('data-enter');
+    expect(node).not.toHaveAttribute('data-exit');
+  });
+
+  /**
+   * `cancelDetach()` returns a node to the enter state directly rather than through a
+   * frame, so cancelling an exit that pre-empted the deferred enter still enters.
+   */
+  it('cancelling a detach that pre-empted the first frame returns to the enter state', async () => {
+    const portal = attachPortal();
+    const node = portal.getElements()[0];
+    const { animation } = pendingAnimation();
+    node.getAnimations = () => [animation];
+
+    const detach = portal.detach();
+    expect(node).toHaveAttribute('data-exit');
+
+    portal.cancelDetach();
+    await detach;
+
+    expect(node).toHaveAttribute('data-enter');
+    expect(node).not.toHaveAttribute('data-exit');
+
+    await nextFrame();
+    await nextFrame();
+
+    expect(node).toHaveAttribute('data-enter');
+    expect(node).not.toHaveAttribute('data-exit');
+  });
 });
+
+function nextFrame(): Promise<void> {
+  return new Promise(resolve => requestAnimationFrame(() => resolve()));
+}

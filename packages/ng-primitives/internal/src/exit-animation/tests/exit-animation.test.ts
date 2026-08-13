@@ -241,4 +241,82 @@ describe('setupExitAnimation', () => {
     expect(element).toHaveAttribute('data-enter');
     expect(element).not.toHaveAttribute('data-exit');
   });
+
+  /**
+   * The enter state is deferred a frame so the browser registers the "from" state and
+   * plays the entrance transition. An element that leaves inside that frame - a hover
+   * trigger the pointer crosses quickly, a same-type overlay swap - calls `exit()` while
+   * that callback is still queued. It must not land afterwards and mark an element that
+   * is on its way out as entering.
+   */
+  it('stays in the exit state when the deferred enter frame arrives late', async () => {
+    const element = document.createElement('div');
+    document.body.appendChild(element);
+    // Nothing to wait on, so `exit()` settles without a timing dependency of its own.
+    element.getAnimations = () => [];
+
+    const ref = setupExitAnimation({ element, immediate: false });
+
+    // Exit before the queued frame runs - the element never reached `data-enter`.
+    await ref.exit();
+    expect(element).toHaveAttribute('data-exit');
+
+    await nextFrame();
+    await nextFrame();
+
+    expect(element).toHaveAttribute('data-exit');
+    expect(element).not.toHaveAttribute('data-enter');
+
+    element.remove();
+  });
+
+  /**
+   * Cancellation cannot be relied on: an environment can expose `requestAnimationFrame`
+   * without `cancelAnimationFrame`, and the queued callback then runs regardless. The
+   * callback itself has to notice it has been superseded.
+   */
+  it('stays in the exit state when the environment has no cancelAnimationFrame', async () => {
+    const element = document.createElement('div');
+    document.body.appendChild(element);
+    element.getAnimations = () => [];
+
+    const globals = globalThis as { cancelAnimationFrame?: unknown };
+    const original = globals.cancelAnimationFrame;
+    globals.cancelAnimationFrame = undefined;
+
+    try {
+      const ref = setupExitAnimation({ element, immediate: false });
+      await ref.exit();
+
+      await nextFrame();
+      await nextFrame();
+
+      expect(element).toHaveAttribute('data-exit');
+      expect(element).not.toHaveAttribute('data-enter');
+    } finally {
+      globals.cancelAnimationFrame = original;
+      element.remove();
+    }
+  });
+
+  /** The deferred enter still has to arrive for an element that is not leaving. */
+  it('still enters on the next frame when no exit interrupts it', async () => {
+    const element = document.createElement('div');
+    document.body.appendChild(element);
+    element.getAnimations = () => [];
+
+    setupExitAnimation({ element, immediate: false });
+    expect(element).not.toHaveAttribute('data-enter');
+
+    await nextFrame();
+
+    expect(element).toHaveAttribute('data-enter');
+    expect(element).not.toHaveAttribute('data-exit');
+
+    element.remove();
+  });
 });
+
+function nextFrame(): Promise<void> {
+  return new Promise(resolve => requestAnimationFrame(() => resolve()));
+}
