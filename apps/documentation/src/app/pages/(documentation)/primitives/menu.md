@@ -175,8 +175,12 @@ The anchor is live: rebinding it moves an already-open menu to the new element, 
 When one menu serves many targets, set the anchor on `mousedown`, not on `click`. Outside-press dismissal is decided on a capture-phase `mouseup`, which runs before a bubbling `click` - so an anchor set on click is set too late, and pressing a new target dismisses the menu you were about to move:
 
 ```html
-<span (mousedown)="anchor = token" [class.selected]="anchor === token">{{ token }}</span>
+<button #token type="button" (mousedown)="anchor = token" (click)="anchor = token">
+  {{ label }}
+</button>
 ```
+
+Keep the `click` handler as well: keyboard activation raises `click` without a preceding `mousedown`, and there is no outside press to lose that race against, so it is the binding that makes the interaction reachable without a pointer. Targets have to be focusable for that to mean anything, so use a native `button` rather than a `span`.
 
 Guard the re-anchor if pressing the current anchor again should close the menu, since setting it to the element it already points at leaves the menu open.
 

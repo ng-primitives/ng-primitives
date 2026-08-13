@@ -373,10 +373,19 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
   readonly instantTransition = signal(false);
 
   /**
-   * The configured anchor, normalised to a signal so that a caller passing a plain
-   * element and one passing a signal are handled the same way downstream.
+   * The configured anchor as given, kept in a signal of its own so `updateConfig()`
+   * can replace it wholesale - including swapping between an element and a signal.
    */
-  private readonly anchorElement: Signal<HTMLElement | null | undefined>;
+  private readonly anchorSource = signal<NgpOverlayConfig<T>['anchorElement']>(undefined);
+
+  /**
+   * The anchor resolved to an element, so a caller passing an element, a caller passing
+   * a signal, and a later `updateConfig()` are all handled the same way downstream.
+   */
+  private readonly anchorElement = computed(() => {
+    const source = this.anchorSource();
+    return isSignal(source) ? source() : source;
+  });
 
   /**
    * Resize monitoring for the current reference element. Held so it can be moved to a
@@ -408,9 +417,7 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
     // we cannot inject the viewContainerRef as this can throw an error during hydration in SSR
     this.viewContainerRef = config.viewContainerRef;
 
-    this.anchorElement = isSignal(config.anchorElement)
-      ? config.anchorElement
-      : signal(config.anchorElement);
+    this.anchorSource.set(config.anchorElement);
 
     // Listen for placement signal changes to update position
     // eslint-disable-next-line @angular-eslint/no-uncalled-signals -- checking whether the optional signal was provided, not its value
@@ -434,11 +441,9 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
     // Monitor trigger element resize
     this.monitorReferenceResize();
 
-    // A signal anchor can change while the overlay is open, and everything bound to the
+    // The anchor can change while the overlay is open, and everything bound to the
     // previous element has to follow it - not just the computed position.
-    if (isSignal(config.anchorElement)) {
-      explicitEffect([config.anchorElement], () => this.handleAnchorChange());
-    }
+    explicitEffect([this.anchorElement], () => this.handleAnchorChange());
 
     // Ensure cleanup on destroy
     this.destroyRef.onDestroy(() => {
@@ -502,7 +507,13 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
 
     this.monitorReferenceResize();
 
-    if (!this.isOpen()) {
+    // `isOpen` stays true for the length of the exit animation, but the portal is
+    // cleared and the scroll strategy disabled as soon as teardown begins. Rebuilding
+    // either of them in that window installs listeners nothing disables again, so the
+    // live portal - not `isOpen` - is what says there is something to move.
+    const portal = this.portal();
+
+    if (!portal || !this.isOpen()) {
       return;
     }
 
@@ -513,8 +524,7 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
       this.scrollStrategy.enable();
     }
 
-    const portal = this.portal();
-    const outletElement = portal ? this.findOutletElement(portal) : null;
+    const outletElement = this.findOutletElement(portal);
 
     if (outletElement && this.disposePositioning) {
       this.disposePositioning();
@@ -781,6 +791,12 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
    */
   updateConfig(config: Partial<NgpOverlayConfig<T>>): void {
     this.config = { ...this.config, ...config };
+
+    // Everything anchor-bound reads the resolved signal rather than the config, so a
+    // replacement anchor has to reach it or the overlay keeps using the original.
+    if ('anchorElement' in config) {
+      this.anchorSource.set(config.anchorElement);
+    }
 
     // If the overlay is already open, update its position
     if (this.isOpen()) {
