@@ -1012,7 +1012,13 @@ describe('NgpPopover', () => {
           </button>
 
           <ng-template #content>
-            <div ngpPopover>Popover content</div>
+            <div
+              ngpPopover
+              data-testid="anchored"
+              style="position: fixed; width: 120px; height: 60px;"
+            >
+              Popover content
+            </div>
           </ng-template>
         `,
         imports: [NgpPopoverTrigger, NgpPopover],
@@ -1022,14 +1028,22 @@ describe('NgpPopover', () => {
       const { getByRole } = await render(AnchorTestComponent);
       fireEvent.click(getByRole('button'));
 
+      // The popover should be positioned relative to the anchor (top 100px, left 200px) rather
+      // than the trigger (top 300px, left 400px).
+      //
+      // Two things have to be true for that to be observable at all, and neither was: the panel
+      // needs an explicit size and position, because Floating UI writes `top`/`left` which a
+      // static element ignores; and the assertion has to wait for the position, because
+      // `computePosition` resolves a task after the element is in the document. Without both,
+      // the popover measures 0,0 and "left is less than 300" holds vacuously.
       await waitFor(() => {
-        expect(document.querySelector('[ngpPopover]')).toBeInTheDocument();
-      });
+        const rect = document.querySelector('[data-testid="anchored"]')!.getBoundingClientRect();
 
-      // The popover should be positioned relative to the anchor (left 200px) rather than
-      // the trigger (left 400px).
-      const popover = document.querySelector('[ngpPopover]') as HTMLElement;
-      expect(popover.getBoundingClientRect().left).toBeLessThan(300);
+        expect(rect.left).toBeGreaterThan(100);
+        expect(rect.left).toBeLessThan(300);
+        expect(rect.top).toBeGreaterThanOrEqual(130);
+        expect(rect.top).toBeLessThan(300);
+      });
     });
 
     it('should fall back to the trigger element when the anchor is null', async () => {
@@ -1056,6 +1070,91 @@ describe('NgpPopover', () => {
 
       await waitFor(() => {
         expect(document.querySelector('[ngpPopover]')).toBeInTheDocument();
+      });
+    });
+
+    it('should move an open popover to a rebound anchor and treat it as inside', async () => {
+      @Component({
+        template: `
+          <div
+            #anchorA
+            data-testid="anchor-a"
+            style="position: absolute; top: 100px; left: 200px; width: 50px; height: 30px;"
+          >
+            Anchor A
+          </div>
+          <div
+            #anchorB
+            data-testid="anchor-b"
+            style="position: absolute; top: 400px; left: 200px; width: 50px; height: 30px;"
+          >
+            Anchor B
+          </div>
+          <button
+            [ngpPopoverTrigger]="content"
+            [ngpPopoverTriggerAnchor]="useB ? anchorB : anchorA"
+            style="position: absolute; top: 700px; left: 400px;"
+          >
+            Trigger
+          </button>
+
+          <ng-template #content>
+            <div
+              ngpPopover
+              data-testid="moving"
+              style="position: fixed; width: 120px; height: 60px;"
+            >
+              Popover content
+            </div>
+          </ng-template>
+        `,
+        imports: [NgpPopoverTrigger, NgpPopover],
+      })
+      class MovingAnchorTestComponent {
+        useB = false;
+      }
+
+      const { fixture, getByRole, getByTestId } = await render(MovingAnchorTestComponent);
+      fireEvent.click(getByRole('button'));
+
+      const anchorA = getByTestId('anchor-a');
+      const anchorB = getByTestId('anchor-b');
+      const popover = () => document.querySelector('[data-testid="moving"]');
+      const popoverRect = () => popover()!.getBoundingClientRect();
+
+      // Default placement is `bottom`, so the popover sits just below whichever element it
+      // follows, and the two anchors are far enough apart that only one can be true. `left`
+      // is the settle gate - it is the same for both anchors, and an unpositioned panel
+      // reads 0 while `computePosition` is still resolving.
+      await waitFor(() => {
+        expect(popover()).toBeInTheDocument();
+        expect(popoverRect().left).toBeGreaterThan(100);
+        expect(popoverRect().top).toBeGreaterThanOrEqual(anchorA.getBoundingClientRect().bottom);
+        expect(popoverRect().top).toBeLessThan(anchorB.getBoundingClientRect().top);
+      });
+
+      const popoverBefore = popover();
+
+      fixture.componentInstance.useB = true;
+      fixture.detectChanges();
+
+      await waitFor(() => {
+        expect(popoverRect().top).toBeGreaterThanOrEqual(anchorB.getBoundingClientRect().bottom);
+      });
+
+      // It moved rather than closing and reopening somewhere else.
+      expect(popover()).toBe(popoverBefore);
+
+      // The element the popover now follows counts as inside for outside-press dismissal.
+      fireEvent.mouseUp(anchorB);
+      await waitFor(() => {
+        expect(popover()).toBeInTheDocument();
+      });
+
+      // ...and the one it left behind does not.
+      fireEvent.mouseUp(anchorA);
+      await waitFor(() => {
+        expect(popover()).not.toBeInTheDocument();
       });
     });
   });

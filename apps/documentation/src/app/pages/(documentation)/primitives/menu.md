@@ -168,7 +168,39 @@ You can provide a separate anchor element using `ngpMenuTriggerAnchor` to contro
 
 The anchor also becomes the element `--ngp-menu-trigger-width` measures, so a menu sized to that property matches the anchor - which is rarely what you want when the anchor is a small icon.
 
-The anchor is captured once, when the menu overlay is created on the first open. Changing the binding afterwards has no effect - not even on a later open - so bind an element that stays where it is rather than one you intend to swap.
+The anchor is live: rebinding it moves an already-open menu to the new element, and the new element is the one that counts as inside for dismissal. A single menu can therefore be pointed at whichever of many elements was interacted with, instead of giving each one its own trigger.
+
+#### Serving many targets from one menu
+
+When one menu serves many targets, re-anchor it with `setAnchor` on `pointerdown` rather than by rebinding `ngpMenuTriggerAnchor`:
+
+<docs-example name="menu-dynamic-anchor"></docs-example>
+
+```html
+<button #trigger="ngpMenuTrigger" [ngpMenuTrigger]="menu">Actions</button>
+
+<button
+  #token
+  type="button"
+  (pointerdown)="trigger.setAnchor(token)"
+  (click)="trigger.setAnchor(token)"
+>
+  {{ label }}
+</button>
+```
+
+Two things have to line up, and the input binding only gives you the first:
+
+- **Order.** Outside-press dismissal is decided on a capture-phase `mouseup`, which runs before a bubbling `click`, so an anchor claimed on `click` is claimed too late and the press dismisses the menu you meant to move. `pointerdown` is early enough, and covers mouse, pen and touch alike - `mousedown` works too.
+- **Timing.** `ngpMenuTriggerAnchor` is an input, so a new value only reaches the trigger on the next change detection pass. A press held for a few milliseconds gets one; a fast tap, or a frame the browser is busy rendering hundreds of targets, does not - and the dismissal check then still sees the old anchor. `setAnchor` writes the value the check reads, so there is no pass to wait for.
+
+Keep the `click` handler as well, so the targets work without a pointer: keyboard activation raises `click` with no preceding `pointerdown`. Note that it claims the anchor rather than moving an open menu - activating anything outside an open menu closes it - so from the keyboard the interaction is two steps, claim then open. Targets have to be focusable for any of this to mean anything, so use a native `button` rather than a `span`.
+
+Rebinding `ngpMenuTriggerAnchor` remains the right choice when the anchor changes outside a press - from a selection, a route, or a resize - where nothing is racing the binding.
+
+Guard the re-anchor if pressing the current anchor again should close the menu, since setting it to the element it already points at leaves the menu open.
+
+An anchor that is removed from the DOM closes the menu, so a target recycled out of a virtualized list does not leave the menu stranded at a stale position.
 
 ### Keyboard Triggers
 

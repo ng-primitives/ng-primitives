@@ -11,6 +11,7 @@ import {
   ViewContainerRef,
   computed,
   inject,
+  isSignal,
   runInInjectionContext,
   signal,
 } from '@angular/core';
@@ -27,7 +28,7 @@ import {
 } from '@floating-ui/dom';
 import { explicitEffect, fromResizeEvent } from 'ng-primitives/internal';
 import { injectDisposables, safeTakeUntilDestroyed, uniqueId } from 'ng-primitives/utils';
-import { Subject } from 'rxjs';
+import { Subject, Subscription } from 'rxjs';
 import { NgpFlip, NgpFlipOptions } from './flip';
 import { NgpOffset } from './offset';
 import { CooldownOverlay, NgpOverlayCooldownManager } from './overlay-cooldown';
@@ -148,8 +149,13 @@ export interface NgpOverlayConfig<T = unknown> {
   /** The element that triggers the overlay */
   triggerElement: HTMLElement;
 
-  /** The element to use for positioning the overlay (if different from trigger) */
-  anchorElement?: HTMLElement | null;
+  /**
+   * The element to use for positioning the overlay (if different from trigger).
+   *
+   * Pass a signal to re-anchor an overlay that is already open - a plain element is
+   * read once, when the overlay is created, and never revisited.
+   */
+  anchorElement?: HTMLElement | null | Signal<HTMLElement | null | undefined>;
 
   /** The injector to use for creating the portal */
   injector: Injector;
@@ -366,6 +372,38 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
    */
   readonly instantTransition = signal(false);
 
+  /**
+   * The configured anchor as given, kept in a signal of its own so `updateConfig()`
+   * can replace it wholesale - including swapping between an element and a signal.
+   */
+  private readonly anchorSource = signal<NgpOverlayConfig<T>['anchorElement']>(undefined);
+
+  /**
+   * The anchor resolved to an element, so a caller passing an element, a caller passing
+   * a signal, and a later `updateConfig()` are all handled the same way downstream.
+   */
+  private readonly anchorElement = computed(() => {
+    const source = this.anchorSource();
+    return isSignal(source) ? source() : source;
+  });
+
+  /**
+   * Resize monitoring for the current reference element. Held so it can be moved to a
+   * new element when the anchor changes.
+   */
+  private resizeSubscription?: Subscription;
+
+  /** The element resizeSubscription is currently watching. */
+  private monitoredElement?: HTMLElement;
+
+  /**
+   * The reference the anchor-bound bindings were last built against. Kept apart from
+   * `monitoredElement` so that whether the anchor has moved is not answered by where the
+   * resize observer happens to be pointed - they agree today, and a second reason to move
+   * the observer would silently stop anchor changes being noticed at all.
+   */
+  private boundReference?: HTMLElement;
+
   /** Store the arrow element */
   private arrowElement: HTMLElement | null = null;
 
@@ -387,6 +425,8 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
     // we cannot inject the viewContainerRef as this can throw an error during hydration in SSR
     this.viewContainerRef = config.viewContainerRef;
 
+    this.anchorSource.set(config.anchorElement);
+
     // Listen for placement signal changes to update position
     // eslint-disable-next-line @angular-eslint/no-uncalled-signals -- checking whether the optional signal was provided, not its value
     if (config.placement !== undefined) {
@@ -407,15 +447,46 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
     this.transformOrigin.set(this.getTransformOrigin());
 
     // Monitor trigger element resize
-    const elementToMonitor = this.config.anchorElement || this.config.triggerElement;
-    let hasMeasuredNonZeroTrigger = false;
-    fromResizeEvent(elementToMonitor)
+    this.monitorReferenceResize();
+
+    // The anchor can change while the overlay is open, and everything bound to the
+    // previous element has to follow it - not just the computed position. Seeded with the
+    // reference monitored above, so the effect's first run - which carries the initial
+    // anchor, not a change - has nothing to move.
+    this.boundReference = this.referenceElement;
+    explicitEffect([this.anchorElement], () => this.handleAnchorChange());
+
+    // Ensure cleanup on destroy
+    this.destroyRef.onDestroy(() => {
+      this.destroy();
+    });
+  }
+
+  /**
+   * Watch the reference element for resizes, replacing any previous subscription so a
+   * changed anchor is measured instead of the element it replaced.
+   */
+  private monitorReferenceResize(): void {
+    const element = this.referenceElement;
+
+    // Re-running for the same element would restart the zero-measurement guard below,
+    // which is what keeps a trigger that has not been laid out yet from closing itself.
+    if (this.monitoredElement === element) {
+      return;
+    }
+
+    this.monitoredElement = element;
+    this.resizeSubscription?.unsubscribe();
+
+    let hasMeasuredNonZeroReference = false;
+    // An anchor change reaches this from an effect, where there is no injection context.
+    this.resizeSubscription = fromResizeEvent(element, { injector: this.config.injector })
       .pipe(safeTakeUntilDestroyed(this.destroyRef))
       .subscribe(({ width, height }) => {
         this.triggerWidth.set(width);
 
         if (width !== 0 && height !== 0) {
-          hasMeasuredNonZeroTrigger = true;
+          hasMeasuredNonZeroReference = true;
           return;
         }
 
@@ -425,15 +496,68 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
         // 0x0, and both the initial measurement and the observer's first callback
         // report it). Closing on those tears down an overlay that was only just
         // opened, and the trigger may still be about to grow.
-        if (hasMeasuredNonZeroTrigger) {
+        if (hasMeasuredNonZeroReference) {
           this.hideImmediate();
         }
       });
+  }
 
-    // Ensure cleanup on destroy
-    this.destroyRef.onDestroy(() => {
-      this.destroy();
-    });
+  /**
+   * Move everything bound to the previous anchor across to the new one. The resize
+   * observer, the close-scroll strategy's overflow ancestors and floating-ui's
+   * `autoUpdate` reference all capture the element when they are created, so a changed
+   * anchor has to rebuild them rather than just recompute the position.
+   */
+  private handleAnchorChange(): void {
+    const reference = this.referenceElement;
+
+    // A controlled input can notify without the resolved element differing. Rebuilding for
+    // a reference that has not moved would tear down `autoUpdate` under an overlay
+    // mid-flight for nothing.
+    if (this.boundReference === reference) {
+      return;
+    }
+
+    this.boundReference = reference;
+    this.monitorReferenceResize();
+
+    // `isOpen` stays true for the length of the exit animation, but the portal is
+    // cleared and the scroll strategy disabled as soon as teardown begins. Rebuilding
+    // either of them in that window installs listeners nothing disables again, so the
+    // live portal - not `isOpen` - is what says there is something to move.
+    const portal = this.portal();
+
+    if (!portal || !this.isOpen()) {
+      return;
+    }
+
+    // CloseScrollStrategy resolves the reference's overflow ancestors in enable().
+    if (this.config.scrollBehaviour === 'close') {
+      this.scrollStrategy.disable();
+      this.scrollStrategy = this.createScrollStrategy();
+      this.scrollStrategy.enable();
+    }
+
+    const outletElement = this.findOutletElement(portal);
+
+    if (outletElement && this.disposePositioning) {
+      this.disposePositioning();
+      // `autoUpdate` positions once as it binds, so the overlay is already over the new
+      // anchor - repositioning again here would compute a second time and run change
+      // detection over the portal twice for one anchor change.
+      this.setupPositioning(outletElement);
+      return;
+    }
+
+    this.updatePosition();
+  }
+
+  /**
+   * The element the overlay is positioned and tracked against - the anchor when one is
+   * configured, otherwise the trigger.
+   */
+  private get referenceElement(): HTMLElement {
+    return this.anchorElement() ?? this.config.triggerElement;
   }
 
   /**
@@ -686,6 +810,12 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
   updateConfig(config: Partial<NgpOverlayConfig<T>>): void {
     this.config = { ...this.config, ...config };
 
+    // Everything anchor-bound reads the resolved signal rather than the config, so a
+    // replacement anchor has to reach it or the overlay keeps using the original.
+    if ('anchorElement' in config) {
+      this.anchorSource.set(config.anchorElement);
+    }
+
     // If the overlay is already open, update its position
     if (this.isOpen()) {
       this.updatePosition();
@@ -899,7 +1029,7 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
       overlay: this,
       getElements: () => this.getElements(),
       triggerElement: this.config.triggerElement,
-      anchorElement: this.config.anchorElement,
+      anchorElement: this.anchorElement,
       dismissPolicy: {
         outsidePress: this.config.closeOnOutsideClick ?? false,
         escapeKey: this.config.closeOnEscape ?? false,
@@ -1002,7 +1132,7 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
         return new BlockScrollStrategy(this.viewportRuler, this.document);
       case 'close':
         return new CloseScrollStrategy(
-          this.config.anchorElement || this.config.triggerElement,
+          this.referenceElement,
           () => this.hide({ immediate: true }),
           () => this.getElements(),
         );
@@ -1017,11 +1147,9 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
   private setupPositioning(overlayElement: HTMLElement): void {
     // Get the reference for auto-update - use trigger element for resize/scroll tracking
     // even when using programmatic position (the virtual element is created dynamically in computePosition)
-    const referenceElement = this.config.anchorElement || this.config.triggerElement;
-
     // Setup auto-update for positioning
     this.disposePositioning = autoUpdate(
-      referenceElement,
+      this.referenceElement,
       overlayElement,
       () => this.computePosition(overlayElement),
       { animationFrame: this.config.trackPosition ?? false },
@@ -1151,7 +1279,7 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
         contextElement: this.config.triggerElement,
       };
     }
-    return this.config.anchorElement || this.config.triggerElement;
+    return this.referenceElement;
   }
 
   /**

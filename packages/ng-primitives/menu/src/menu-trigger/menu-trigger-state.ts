@@ -120,9 +120,13 @@ export interface NgpMenuTriggerState<T = unknown> {
   setContext(context: T): void;
 
   /**
-   * Set the anchor element the menu is positioned against. The anchor is captured
-   * when the overlay is created, on the first open, so a later change does not
-   * reposition the menu - not even when it is closed and opened again.
+   * Set the anchor element the menu is positioned against. An open menu moves to the
+   * new anchor.
+   *
+   * When re-anchoring in response to a press, do it on `pointerdown` rather than `click`:
+   * outside-press dismissal is decided on a capture-phase `mouseup`, which runs before
+   * a bubbling `click`, so an anchor claimed there arrives too late and the press that
+   * was meant to move the menu dismisses it instead.
    * @param anchor - The new anchor element
    */
   setAnchor(anchor: HTMLElement | null): void;
@@ -565,7 +569,7 @@ export const [
       const config: NgpOverlayConfig<T> = {
         content: menu,
         triggerElement: element.nativeElement,
-        anchorElement: anchor(),
+        anchorElement: anchor,
         viewContainerRef,
         injector,
         context,

@@ -127,6 +127,11 @@ export class NgpTooltipTrigger<T = null> {
   /**
    * Define an anchor element for positioning the tooltip.
    * If provided, the tooltip will be positioned relative to this element instead of the trigger.
+   *
+   * The anchor is live, so rebinding it moves an open tooltip.
+   *
+   * An input only reaches this directive on the next change detection pass, which a press
+   * can outrun - use `setAnchor()` instead when the anchor is claimed during one.
    */
   readonly anchor = input<HTMLElement | null>(null, { alias: 'ngpTooltipTriggerAnchor' });
 
@@ -228,6 +233,21 @@ export class NgpTooltipTrigger<T = null> {
    */
   hide(immediate = false): void {
     return this.state.hide(immediate);
+  }
+
+  /**
+   * Set the anchor the tooltip is positioned against, taking effect immediately rather than
+   * on the next change detection pass.
+   *
+   * Reach for this over `ngpTooltipTriggerAnchor` when the anchor is claimed during a press.
+   * Outside-press dismissal is decided on a capture-phase `mouseup`, which a fast tap can
+   * deliver in the same frame as the `pointerdown` that claimed the anchor - before the
+   * binding has reached this directive, so the press dismisses the overlay instead of moving
+   * it. Writing the anchor here is visible to that check straight away.
+   * @param anchor - The new anchor element
+   */
+  setAnchor(anchor: HTMLElement | null): void {
+    this.state.setAnchor(anchor);
   }
 
   /**
