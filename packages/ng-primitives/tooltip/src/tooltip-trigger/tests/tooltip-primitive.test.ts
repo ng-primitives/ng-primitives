@@ -1,6 +1,6 @@
 import { Directive, effect, input, OnInit, TemplateRef } from '@angular/core';
 import { By } from '@angular/platform-browser';
-import { fireEvent, render, waitFor } from '@testing-library/angular';
+import { fireEvent, render, screen, waitFor } from '@testing-library/angular';
 import {
   injectTooltipTriggerState,
   NgpTooltip,
@@ -1861,6 +1861,66 @@ describe('NgpTooltipTrigger (primitive)', () => {
       await waitFor(() => {
         expect(document.querySelector('[ngpTooltip]')).toBeInTheDocument();
       });
+    });
+
+    it('should move a showing tooltip to a rebound anchor', async () => {
+      const { fixture, getByRole } = await render(
+        `
+          <div
+            #anchorA
+            data-testid="anchor-a"
+            style="position: absolute; top: 100px; left: 200px; width: 50px; height: 30px;"
+          >
+            Anchor A
+          </div>
+          <div
+            #anchorB
+            data-testid="anchor-b"
+            style="position: absolute; top: 400px; left: 200px; width: 50px; height: 30px;"
+          >
+            Anchor B
+          </div>
+          <button
+            [ngpTooltipTrigger]="content"
+            [ngpTooltipTriggerAnchor]="useB ? anchorB : anchorA"
+            style="position: absolute; top: 700px; left: 400px;"
+          >
+            Trigger
+          </button>
+
+          <ng-template #content>
+            <div ngpTooltip>Tooltip content</div>
+          </ng-template>
+        `,
+        { imports: [NgpTooltipTrigger, NgpTooltip], componentProperties: { useB: false } },
+      );
+
+      fireEvent.mouseEnter(getByRole('button'));
+
+      const anchorA = screen.getByTestId('anchor-a');
+      const anchorB = screen.getByTestId('anchor-b');
+      // The computed offset, not the rendered box: a bare `[ngpTooltip]` in a test has no
+      // `position`, so the coordinates the directive writes never move its rect.
+      const tooltipTop = () =>
+        parseFloat((document.querySelector('[ngpTooltip]') as HTMLElement).style.top);
+
+      await waitFor(() => {
+        expect(document.querySelector('[ngpTooltip]')).toBeInTheDocument();
+        expect(tooltipTop()).toBeLessThan(anchorA.getBoundingClientRect().top);
+      });
+
+      const tooltipBefore = document.querySelector('[ngpTooltip]');
+
+      fixture.componentInstance.useB = true;
+      fixture.detectChanges();
+
+      await waitFor(() => {
+        expect(tooltipTop()).toBeGreaterThan(anchorA.getBoundingClientRect().bottom);
+      });
+
+      expect(tooltipTop()).toBeLessThan(anchorB.getBoundingClientRect().top);
+      // The tooltip moved rather than being closed and shown again somewhere else.
+      expect(document.querySelector('[ngpTooltip]')).toBe(tooltipBefore);
     });
   });
 

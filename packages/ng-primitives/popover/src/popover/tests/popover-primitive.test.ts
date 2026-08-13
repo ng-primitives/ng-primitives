@@ -1058,6 +1058,83 @@ describe('NgpPopover', () => {
         expect(document.querySelector('[ngpPopover]')).toBeInTheDocument();
       });
     });
+
+    it('should move an open popover to a rebound anchor and treat it as inside', async () => {
+      @Component({
+        template: `
+          <div
+            #anchorA
+            data-testid="anchor-a"
+            style="position: absolute; top: 100px; left: 200px; width: 50px; height: 30px;"
+          >
+            Anchor A
+          </div>
+          <div
+            #anchorB
+            data-testid="anchor-b"
+            style="position: absolute; top: 400px; left: 200px; width: 50px; height: 30px;"
+          >
+            Anchor B
+          </div>
+          <button
+            [ngpPopoverTrigger]="content"
+            [ngpPopoverTriggerAnchor]="useB ? anchorB : anchorA"
+            style="position: absolute; top: 700px; left: 400px;"
+          >
+            Trigger
+          </button>
+
+          <ng-template #content>
+            <div ngpPopover>Popover content</div>
+          </ng-template>
+        `,
+        imports: [NgpPopoverTrigger, NgpPopover],
+      })
+      class MovingAnchorTestComponent {
+        useB = false;
+      }
+
+      const { fixture, getByRole, getByTestId } = await render(MovingAnchorTestComponent);
+      fireEvent.click(getByRole('button'));
+
+      const anchorA = getByTestId('anchor-a');
+      const anchorB = getByTestId('anchor-b');
+      // The computed offset, not the rendered box: a bare `[ngpPopover]` in a test has no
+      // `position`, so the coordinates the directive writes never move its rect.
+      const popoverTop = () =>
+        parseFloat((document.querySelector('[ngpPopover]') as HTMLElement).style.top);
+
+      // Default placement is `bottom`, so the popover sits just below whichever element it
+      // follows, and the two anchors are far enough apart that only one can be true.
+      await waitFor(() => {
+        expect(document.querySelector('[ngpPopover]')).toBeInTheDocument();
+        expect(popoverTop()).toBeGreaterThanOrEqual(anchorA.getBoundingClientRect().bottom);
+        expect(popoverTop()).toBeLessThan(anchorB.getBoundingClientRect().top);
+      });
+
+      const popoverBefore = document.querySelector('[ngpPopover]');
+
+      fixture.componentInstance.useB = true;
+      fixture.detectChanges();
+
+      await waitFor(() => {
+        expect(popoverTop()).toBeGreaterThanOrEqual(anchorB.getBoundingClientRect().bottom);
+      });
+      // It moved rather than closing and reopening somewhere else.
+      expect(document.querySelector('[ngpPopover]')).toBe(popoverBefore);
+
+      // The element the popover now follows counts as inside for outside-press dismissal.
+      fireEvent.mouseUp(anchorB);
+      await waitFor(() => {
+        expect(document.querySelector('[ngpPopover]')).toBeInTheDocument();
+      });
+
+      // ...and the one it left behind does not.
+      fireEvent.mouseUp(anchorA);
+      await waitFor(() => {
+        expect(document.querySelector('[ngpPopover]')).not.toBeInTheDocument();
+      });
+    });
   });
 
   describe('control container isolation', () => {

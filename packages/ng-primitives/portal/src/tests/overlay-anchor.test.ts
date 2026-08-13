@@ -39,6 +39,126 @@ class OverlayHostComponent {
 }
 
 /**
+ * Two anchors, each inside its own scroll container, so "which element is this bound to"
+ * can be asked of the resize observer and of the close-scroll strategy independently.
+ */
+@Component({
+  template: `
+    <div
+      data-testid="scroller-a"
+      style="position: absolute; top: 0; left: 0; width: 120px; height: 80px; overflow: auto;"
+    >
+      <div #anchorA data-testid="anchor-a" style="width: 50px; height: 30px;">A</div>
+      <div style="height: 400px"></div>
+    </div>
+    <div
+      data-testid="scroller-b"
+      style="position: absolute; top: 200px; left: 0; width: 120px; height: 80px; overflow: auto;"
+    >
+      <div #anchorB data-testid="anchor-b" style="width: 50px; height: 30px;">B</div>
+      <div style="height: 400px"></div>
+    </div>
+    <button data-testid="trigger" type="button" style="position: absolute; top: 500px; left: 40px;">
+      Trigger
+    </button>
+
+    <ng-template #content>
+      <div data-testid="overlay" style="position: absolute; width: 80px; height: 40px;">
+        Overlay
+      </div>
+    </ng-template>
+  `,
+})
+class TwoAnchorHostComponent {
+  readonly content = viewChild.required<TemplateRef<NgpOverlayTemplateContext<unknown>>>('content');
+  readonly viewContainerRef = inject(ViewContainerRef);
+  readonly injector = inject(Injector);
+}
+
+/**
+ * Positioning re-reads the anchor on every pass, so it keeps working on its own. What does
+ * not are the things that capture an element when they are built - these cover the two that
+ * nothing else exercises, each from both sides, so a rebuild that never happens and one
+ * wired to the wrong element are told apart.
+ */
+describe('overlay anchorElement bindings follow the anchor', () => {
+  let overlay: NgpOverlay<unknown> | null = null;
+
+  afterEach(() => {
+    overlay?.destroy();
+    overlay = null;
+    document.querySelectorAll('[data-testid="overlay"]').forEach(el => el.remove());
+  });
+
+  async function openAnchoredToA(scrollBehaviour?: 'close') {
+    const { fixture, getByTestId } = await render(TwoAnchorHostComponent);
+    fixture.autoDetectChanges(true);
+
+    const host = fixture.componentInstance;
+    const anchor = signal<HTMLElement | null>(getByTestId('anchor-a'));
+
+    overlay = TestBed.runInInjectionContext(() =>
+      createOverlay({
+        content: host.content,
+        triggerElement: getByTestId('trigger'),
+        injector: host.injector,
+        viewContainerRef: host.viewContainerRef,
+        anchorElement: anchor,
+        scrollBehaviour,
+      }),
+    );
+
+    await overlay.show();
+    await waitFor(() => expect(overlay!.position().y).toBeDefined());
+
+    anchor.set(getByTestId('anchor-b'));
+    TestBed.flushEffects();
+
+    // The replacement subscription takes its baseline measurement in a microtask, and
+    // only a reference that has measured a real size closes the overlay when it collapses.
+    await waitFor(() => expect(overlay!.triggerWidth()).not.toBeNull());
+
+    return getByTestId;
+  }
+
+  it('should stop watching the previous anchor for a collapse', async () => {
+    const getByTestId = await openAnchoredToA();
+
+    getByTestId('anchor-a').style.display = 'none';
+    await new Promise(resolve => setTimeout(resolve, 100));
+
+    expect(overlay!.isOpen()).toBe(true);
+  });
+
+  it('should close when the new anchor collapses', async () => {
+    const getByTestId = await openAnchoredToA();
+
+    getByTestId('anchor-b').style.display = 'none';
+
+    await waitFor(() => expect(overlay!.isOpen()).toBe(false));
+  });
+
+  it('should stop closing on scroll of the previous anchor ancestors', async () => {
+    const getByTestId = await openAnchoredToA('close');
+
+    getByTestId('scroller-a').scrollTop = 40;
+    getByTestId('scroller-a').dispatchEvent(new Event('scroll'));
+    await new Promise(resolve => setTimeout(resolve, 100));
+
+    expect(overlay!.isOpen()).toBe(true);
+  });
+
+  it('should close on scroll of the new anchor ancestors', async () => {
+    const getByTestId = await openAnchoredToA('close');
+
+    getByTestId('scroller-b').scrollTop = 40;
+    getByTestId('scroller-b').dispatchEvent(new Event('scroll'));
+
+    await waitFor(() => expect(overlay!.isOpen()).toBe(false));
+  });
+});
+
+/**
  * `updateConfig()` is the overlay's only supported way to replace configuration after
  * construction. Everything anchor-bound reads a resolved signal rather than the config
  * object, so unless the two are wired together a replacement anchor is accepted and then
