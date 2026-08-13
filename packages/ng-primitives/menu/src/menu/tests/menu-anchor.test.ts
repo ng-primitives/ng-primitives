@@ -95,15 +95,16 @@ class MovingAnchorMenuComponent {
     >
       Anchor A
     </div>
-    <div
+    <button
       #anchorB
       (mousedown)="claim('mousedown', anchorB)"
       (click)="claim('click', anchorB)"
       data-testid="anchor-b"
+      type="button"
       style="position: absolute; top: 260px; left: 200px; width: 50px; height: 30px;"
     >
       Anchor B
-    </div>
+    </button>
     <button
       [ngpMenuTrigger]="menu"
       [ngpMenuTriggerAnchor]="anchor"
