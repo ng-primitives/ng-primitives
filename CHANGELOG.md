@@ -1,3 +1,23 @@
+## 0.130.1 (2026-08-13)
+
+### 🚀 Features
+
+- **menu:** support positioning the menu against a separate anchor element ([#921](https://github.com/ng-primitives/ng-primitives/pull/921))
+- **portal:** let an open overlay follow a changing anchor ([#922](https://github.com/ng-primitives/ng-primitives/pull/922))
+
+### 🩹 Fixes
+
+- **internal:** stop a stale enter frame overwriting the exit state ([#923](https://github.com/ng-primitives/ng-primitives/pull/923))
+- **number-field:** treat non-finite values and bounds as unset ([#919](https://github.com/ng-primitives/ng-primitives/pull/919), [#917](https://github.com/ng-primitives/ng-primitives/issues/917))
+- **slider:** set data-disabled on the range slider host when disabled from the start ([#914](https://github.com/ng-primitives/ng-primitives/pull/914), [#913](https://github.com/ng-primitives/ng-primitives/issues/913))
+
+### ❤️ Thank You
+
+- Alexander Ciesielski @alexciesielski
+- Ashley Hunter
+- Claude Opus 5 (1M context)
+- Rikesh Chhunju
+
 ## 0.130.0 (2026-08-07)
 
 ### 🩹 Fixes
