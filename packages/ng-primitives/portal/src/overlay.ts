@@ -493,6 +493,13 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
    * anchor has to rebuild them rather than just recompute the position.
    */
   private handleAnchorChange(): void {
+    // The effect also runs once on creation, and a controlled input can notify without
+    // the resolved element differing. Rebuilding for a reference that has not moved
+    // would tear down `autoUpdate` under an overlay mid-flight for nothing.
+    if (this.monitoredElement === this.referenceElement) {
+      return;
+    }
+
     this.monitorReferenceResize();
 
     if (!this.isOpen()) {
