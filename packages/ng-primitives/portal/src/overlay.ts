@@ -528,7 +528,11 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
 
     if (outletElement && this.disposePositioning) {
       this.disposePositioning();
+      // `autoUpdate` positions once as it binds, so the overlay is already over the new
+      // anchor - repositioning again here would compute a second time and run change
+      // detection over the portal twice for one anchor change.
       this.setupPositioning(outletElement);
+      return;
     }
 
     this.updatePosition();
