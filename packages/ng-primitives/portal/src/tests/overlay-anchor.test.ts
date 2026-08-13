@@ -10,7 +10,7 @@ import {
 import { TestBed } from '@angular/core/testing';
 import { render, waitFor } from '@testing-library/angular';
 import { afterEach, describe, expect, it } from 'vitest';
-import { NgpOverlay, createOverlay } from '../overlay';
+import { NgpOverlay, NgpOverlayTemplateContext, createOverlay } from '../overlay';
 
 @Component({
   template: `
@@ -33,7 +33,7 @@ import { NgpOverlay, createOverlay } from '../overlay';
   `,
 })
 class OverlayHostComponent {
-  readonly content = viewChild.required<TemplateRef<unknown>>('content');
+  readonly content = viewChild.required<TemplateRef<NgpOverlayTemplateContext<unknown>>>('content');
   readonly viewContainerRef = inject(ViewContainerRef);
   readonly injector = inject(Injector);
 }
