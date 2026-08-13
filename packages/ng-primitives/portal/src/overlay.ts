@@ -396,6 +396,14 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
   /** The element resizeSubscription is currently watching. */
   private monitoredElement?: HTMLElement;
 
+  /**
+   * The reference the anchor-bound bindings were last built against. Kept apart from
+   * `monitoredElement` so that whether the anchor has moved is not answered by where the
+   * resize observer happens to be pointed - they agree today, and a second reason to move
+   * the observer would silently stop anchor changes being noticed at all.
+   */
+  private boundReference?: HTMLElement;
+
   /** Store the arrow element */
   private arrowElement: HTMLElement | null = null;
 
@@ -442,7 +450,10 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
     this.monitorReferenceResize();
 
     // The anchor can change while the overlay is open, and everything bound to the
-    // previous element has to follow it - not just the computed position.
+    // previous element has to follow it - not just the computed position. Seeded with the
+    // reference monitored above, so the effect's first run - which carries the initial
+    // anchor, not a change - has nothing to move.
+    this.boundReference = this.referenceElement;
     explicitEffect([this.anchorElement], () => this.handleAnchorChange());
 
     // Ensure cleanup on destroy
@@ -498,13 +509,16 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
    * anchor has to rebuild them rather than just recompute the position.
    */
   private handleAnchorChange(): void {
-    // The effect also runs once on creation, and a controlled input can notify without
-    // the resolved element differing. Rebuilding for a reference that has not moved
-    // would tear down `autoUpdate` under an overlay mid-flight for nothing.
-    if (this.monitoredElement === this.referenceElement) {
+    const reference = this.referenceElement;
+
+    // A controlled input can notify without the resolved element differing. Rebuilding for
+    // a reference that has not moved would tear down `autoUpdate` under an overlay
+    // mid-flight for nothing.
+    if (this.boundReference === reference) {
       return;
     }
 
+    this.boundReference = reference;
     this.monitorReferenceResize();
 
     // `isOpen` stays true for the length of the exit animation, but the portal is
