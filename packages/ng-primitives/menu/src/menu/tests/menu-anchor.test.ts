@@ -143,6 +143,8 @@ describe('Menu anchor claimed during a press', () => {
     const { fixture, getByTestId } = await renderClaimedMenu('mousedown');
     await openMenu(getByTestId('trigger'));
 
+    const menuBefore = menuElement();
+
     await pressSequence(getByTestId('anchor-b'), fixture);
     await settle();
 
@@ -155,6 +157,10 @@ describe('Menu anchor claimed during a press', () => {
       TestBed.flushEffects();
       expectAnchoredTo(getByTestId('anchor-b'), getByTestId('anchor-a'));
     });
+
+    // A press that dismissed and reopened would also end up open and correctly
+    // placed; only the node surviving tells the two apart.
+    expect(menuElement()).toBe(menuBefore);
   });
 
   it('should dismiss the menu when the anchor is only claimed on click', async () => {
@@ -176,11 +182,17 @@ describe('Menu moving anchor', () => {
     await openMenu(getByTestId('trigger'));
     expectAnchoredTo(getByTestId('anchor-a'), getByTestId('anchor-b'));
 
+    const menuBefore = menuElement();
+
     await repoint(fixture, 'b');
 
     // The menu moved without closing.
     expect(getByTestId('trigger')).toHaveAttribute('data-open');
     expectAnchoredTo(getByTestId('anchor-b'), getByTestId('anchor-a'));
+
+    // Same node throughout - closing and reopening somewhere else would satisfy the
+    // position assertions above just as well, and is what the anchor is meant to avoid.
+    expect(menuElement()).toBe(menuBefore);
   });
 
   it('should treat the new anchor as inside once it is bound', async () => {

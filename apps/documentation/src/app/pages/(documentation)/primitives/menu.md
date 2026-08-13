@@ -170,7 +170,9 @@ The anchor also becomes the element `--ngp-menu-trigger-width` measures, so a me
 
 The anchor is live: rebinding it moves an already-open menu to the new element, and the new element is the one that counts as inside for dismissal. A single menu can therefore be pointed at whichever of many elements was interacted with, instead of giving each one its own trigger.
 
-When the new anchor comes from a press, claim it on `mousedown` rather than `click`. Outside-press dismissal is decided on a capture-phase `mouseup`, which runs before a bubbling `click`, so an anchor set there arrives after the decision has been made - the element still counts as outside and the press that was meant to move the menu dismisses it instead:
+#### Serving many targets from one menu
+
+When one menu serves many targets, set the anchor on `mousedown`, not on `click`. Outside-press dismissal is decided on a capture-phase `mouseup`, which runs before a bubbling `click` - so an anchor set on click is set too late, and pressing a new target dismisses the menu you were about to move:
 
 ```html
 <span (mousedown)="anchor = token" [class.selected]="anchor === token">{{ token }}</span>
