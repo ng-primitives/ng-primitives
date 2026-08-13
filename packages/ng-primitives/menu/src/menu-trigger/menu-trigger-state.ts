@@ -122,6 +122,11 @@ export interface NgpMenuTriggerState<T = unknown> {
   /**
    * Set the anchor element the menu is positioned against. An open menu moves to the
    * new anchor.
+   *
+   * When re-anchoring in response to a press, do it on `mousedown` rather than `click`:
+   * outside-press dismissal is decided on a capture-phase `mouseup`, which runs before
+   * a bubbling `click`, so an anchor claimed there arrives too late and the press that
+   * was meant to move the menu dismisses it instead.
    * @param anchor - The new anchor element
    */
   setAnchor(anchor: HTMLElement | null): void;

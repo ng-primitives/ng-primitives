@@ -122,6 +122,10 @@ export class NgpMenuTrigger<T = unknown> {
   /**
    * Define an anchor element for positioning the menu.
    * If provided, the menu will be positioned relative to this element instead of the trigger.
+   *
+   * The anchor is live, so rebinding it moves an open menu. When the new anchor comes from
+   * a press, bind it on `mousedown` rather than `click` - outside-press dismissal is decided
+   * on a capture-phase `mouseup`, so an anchor arriving with `click` arrives too late.
    */
   readonly anchor = input<HTMLElement | null>(null, {
     alias: 'ngpMenuTriggerAnchor',
