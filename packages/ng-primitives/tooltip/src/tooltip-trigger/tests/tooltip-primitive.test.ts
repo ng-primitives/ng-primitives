@@ -1792,7 +1792,9 @@ describe('NgpTooltipTrigger (primitive)', () => {
           </button>
 
           <ng-template #content>
-            <div ngpTooltip>Tooltip content</div>
+            <div ngpTooltip data-testid="anchored" style="position: fixed; width: 120px; height: 60px;">
+              Tooltip content
+            </div>
           </ng-template>
         `,
         { imports: [NgpTooltipTrigger, NgpTooltip] },
@@ -1800,18 +1802,21 @@ describe('NgpTooltipTrigger (primitive)', () => {
 
       fireEvent.mouseEnter(getByRole('button'));
 
-      await waitFor(() => {
-        expect(document.querySelector('[ngpTooltip]')).toBeInTheDocument();
-      });
-
       // The tooltip should be positioned relative to the anchor element (top: 100px, left: 200px)
-      // rather than the trigger element (top: 300px, left: 400px)
-      const tooltip = document.querySelector('[ngpTooltip]') as HTMLElement;
-      const tooltipRect = tooltip.getBoundingClientRect();
+      // rather than the trigger element (top: 300px, left: 400px).
+      //
+      // Two things have to be true for that to be observable at all, and neither was: the panel
+      // needs an explicit size and position, because Floating UI writes `top`/`left` which a
+      // static element ignores; and the assertion has to wait for the position, because
+      // `computePosition` resolves a task after the element is in the document. Without both,
+      // the tooltip measures 0,0 and every "is it near the anchor" bound holds vacuously.
+      await waitFor(() => {
+        const rect = document.querySelector('[data-testid="anchored"]')!.getBoundingClientRect();
 
-      // The tooltip should be positioned close to the anchor's position (200px left)
-      // rather than near the trigger's position (400px left)
-      expect(tooltipRect.left).toBeLessThan(300);
+        expect(rect.left).toBeGreaterThan(100);
+        expect(rect.left).toBeLessThan(300);
+        expect(rect.bottom).toBeLessThanOrEqual(100);
+      });
     });
 
     it('should fall back to trigger element when anchor is null', async () => {
@@ -1889,7 +1894,9 @@ describe('NgpTooltipTrigger (primitive)', () => {
           </button>
 
           <ng-template #content>
-            <div ngpTooltip>Tooltip content</div>
+            <div ngpTooltip data-testid="moving" style="position: fixed; width: 120px; height: 60px;">
+              Tooltip content
+            </div>
           </ng-template>
         `,
         { imports: [NgpTooltipTrigger, NgpTooltip], componentProperties: { useB: false } },
@@ -1899,28 +1906,30 @@ describe('NgpTooltipTrigger (primitive)', () => {
 
       const anchorA = screen.getByTestId('anchor-a');
       const anchorB = screen.getByTestId('anchor-b');
-      // The computed offset, not the rendered box: a bare `[ngpTooltip]` in a test has no
-      // `position`, so the coordinates the directive writes never move its rect.
-      const tooltipTop = () =>
-        parseFloat((document.querySelector('[ngpTooltip]') as HTMLElement).style.top);
+      const tooltip = () => document.querySelector('[data-testid="moving"]');
+      const tooltipRect = () => tooltip()!.getBoundingClientRect();
 
+      // Default placement is `top`, so the tooltip sits above whichever element it follows,
+      // and the two anchors are far enough apart that only one can be true. `left` is the
+      // settle gate - it is the same for both anchors, and an unpositioned panel reads 0.
       await waitFor(() => {
-        expect(document.querySelector('[ngpTooltip]')).toBeInTheDocument();
-        expect(tooltipTop()).toBeLessThan(anchorA.getBoundingClientRect().top);
+        expect(tooltip()).toBeInTheDocument();
+        expect(tooltipRect().left).toBeGreaterThan(100);
+        expect(tooltipRect().bottom).toBeLessThanOrEqual(anchorA.getBoundingClientRect().top);
       });
 
-      const tooltipBefore = document.querySelector('[ngpTooltip]');
+      const tooltipBefore = tooltip();
 
       fixture.componentInstance.useB = true;
       fixture.detectChanges();
 
       await waitFor(() => {
-        expect(tooltipTop()).toBeGreaterThan(anchorA.getBoundingClientRect().bottom);
+        expect(tooltipRect().top).toBeGreaterThan(anchorA.getBoundingClientRect().bottom);
       });
 
-      expect(tooltipTop()).toBeLessThan(anchorB.getBoundingClientRect().top);
+      expect(tooltipRect().bottom).toBeLessThanOrEqual(anchorB.getBoundingClientRect().top);
       // The tooltip moved rather than being closed and shown again somewhere else.
-      expect(document.querySelector('[ngpTooltip]')).toBe(tooltipBefore);
+      expect(tooltip()).toBe(tooltipBefore);
     });
   });
 

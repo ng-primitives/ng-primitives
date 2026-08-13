@@ -55,7 +55,8 @@ class OverlayHostComponent {
       data-testid="scroller-b"
       style="position: absolute; top: 200px; left: 0; width: 120px; height: 80px; overflow: auto;"
     >
-      <div #anchorB data-testid="anchor-b" style="width: 50px; height: 30px;">B</div>
+      <!-- A different width to A, so the resize handover has an observable signature. -->
+      <div #anchorB data-testid="anchor-b" style="width: 70px; height: 30px;">B</div>
       <div style="height: 400px"></div>
     </div>
     <button data-testid="trigger" type="button" style="position: absolute; top: 500px; left: 40px;">
@@ -114,9 +115,11 @@ describe('overlay anchorElement bindings follow the anchor', () => {
     anchor.set(getByTestId('anchor-b'));
     TestBed.flushEffects();
 
-    // The replacement subscription takes its baseline measurement in a microtask, and
-    // only a reference that has measured a real size closes the overlay when it collapses.
-    await waitFor(() => expect(overlay!.triggerWidth()).not.toBeNull());
+    // Wait for the replacement subscription to report B's width, not merely for some width
+    // to exist - A's is already there, so a "not null" gate would wait for nothing and let
+    // the collapse assertions race the handover. Only a reference that has measured a real
+    // size closes the overlay when it collapses, so that baseline has to have landed.
+    await waitFor(() => expect(overlay!.triggerWidth()).toBe(70));
 
     return getByTestId;
   }
@@ -153,6 +156,18 @@ describe('overlay anchorElement bindings follow the anchor', () => {
 
     getByTestId('scroller-b').scrollTop = 40;
     getByTestId('scroller-b').dispatchEvent(new Event('scroll'));
+
+    await waitFor(() => expect(overlay!.isOpen()).toBe(false));
+  });
+
+  it('should close when the anchor is removed from the DOM', async () => {
+    const getByTestId = await openAnchoredToA();
+
+    // Re-anchoring across a virtualized list is what this is for, and there the anchor is
+    // taken out of the document rather than hidden. A detached element is reported at zero
+    // size, which the collapse guard already reads as "the reference is gone" - covered
+    // because that is what stops a recycled row leaving the overlay stranded.
+    getByTestId('anchor-b').remove();
 
     await waitFor(() => expect(overlay!.isOpen()).toBe(false));
   });

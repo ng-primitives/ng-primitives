@@ -1012,7 +1012,13 @@ describe('NgpPopover', () => {
           </button>
 
           <ng-template #content>
-            <div ngpPopover>Popover content</div>
+            <div
+              ngpPopover
+              data-testid="anchored"
+              style="position: fixed; width: 120px; height: 60px;"
+            >
+              Popover content
+            </div>
           </ng-template>
         `,
         imports: [NgpPopoverTrigger, NgpPopover],
@@ -1022,14 +1028,22 @@ describe('NgpPopover', () => {
       const { getByRole } = await render(AnchorTestComponent);
       fireEvent.click(getByRole('button'));
 
+      // The popover should be positioned relative to the anchor (top 100px, left 200px) rather
+      // than the trigger (top 300px, left 400px).
+      //
+      // Two things have to be true for that to be observable at all, and neither was: the panel
+      // needs an explicit size and position, because Floating UI writes `top`/`left` which a
+      // static element ignores; and the assertion has to wait for the position, because
+      // `computePosition` resolves a task after the element is in the document. Without both,
+      // the popover measures 0,0 and "left is less than 300" holds vacuously.
       await waitFor(() => {
-        expect(document.querySelector('[ngpPopover]')).toBeInTheDocument();
-      });
+        const rect = document.querySelector('[data-testid="anchored"]')!.getBoundingClientRect();
 
-      // The popover should be positioned relative to the anchor (left 200px) rather than
-      // the trigger (left 400px).
-      const popover = document.querySelector('[ngpPopover]') as HTMLElement;
-      expect(popover.getBoundingClientRect().left).toBeLessThan(300);
+        expect(rect.left).toBeGreaterThan(100);
+        expect(rect.left).toBeLessThan(300);
+        expect(rect.top).toBeGreaterThanOrEqual(130);
+        expect(rect.top).toBeLessThan(300);
+      });
     });
 
     it('should fall back to the trigger element when the anchor is null', async () => {
@@ -1085,7 +1099,13 @@ describe('NgpPopover', () => {
           </button>
 
           <ng-template #content>
-            <div ngpPopover>Popover content</div>
+            <div
+              ngpPopover
+              data-testid="moving"
+              style="position: fixed; width: 120px; height: 60px;"
+            >
+              Popover content
+            </div>
           </ng-template>
         `,
         imports: [NgpPopoverTrigger, NgpPopover],
@@ -1099,40 +1119,42 @@ describe('NgpPopover', () => {
 
       const anchorA = getByTestId('anchor-a');
       const anchorB = getByTestId('anchor-b');
-      // The computed offset, not the rendered box: a bare `[ngpPopover]` in a test has no
-      // `position`, so the coordinates the directive writes never move its rect.
-      const popoverTop = () =>
-        parseFloat((document.querySelector('[ngpPopover]') as HTMLElement).style.top);
+      const popover = () => document.querySelector('[data-testid="moving"]');
+      const popoverRect = () => popover()!.getBoundingClientRect();
 
       // Default placement is `bottom`, so the popover sits just below whichever element it
-      // follows, and the two anchors are far enough apart that only one can be true.
+      // follows, and the two anchors are far enough apart that only one can be true. `left`
+      // is the settle gate - it is the same for both anchors, and an unpositioned panel
+      // reads 0 while `computePosition` is still resolving.
       await waitFor(() => {
-        expect(document.querySelector('[ngpPopover]')).toBeInTheDocument();
-        expect(popoverTop()).toBeGreaterThanOrEqual(anchorA.getBoundingClientRect().bottom);
-        expect(popoverTop()).toBeLessThan(anchorB.getBoundingClientRect().top);
+        expect(popover()).toBeInTheDocument();
+        expect(popoverRect().left).toBeGreaterThan(100);
+        expect(popoverRect().top).toBeGreaterThanOrEqual(anchorA.getBoundingClientRect().bottom);
+        expect(popoverRect().top).toBeLessThan(anchorB.getBoundingClientRect().top);
       });
 
-      const popoverBefore = document.querySelector('[ngpPopover]');
+      const popoverBefore = popover();
 
       fixture.componentInstance.useB = true;
       fixture.detectChanges();
 
       await waitFor(() => {
-        expect(popoverTop()).toBeGreaterThanOrEqual(anchorB.getBoundingClientRect().bottom);
+        expect(popoverRect().top).toBeGreaterThanOrEqual(anchorB.getBoundingClientRect().bottom);
       });
+
       // It moved rather than closing and reopening somewhere else.
-      expect(document.querySelector('[ngpPopover]')).toBe(popoverBefore);
+      expect(popover()).toBe(popoverBefore);
 
       // The element the popover now follows counts as inside for outside-press dismissal.
       fireEvent.mouseUp(anchorB);
       await waitFor(() => {
-        expect(document.querySelector('[ngpPopover]')).toBeInTheDocument();
+        expect(popover()).toBeInTheDocument();
       });
 
       // ...and the one it left behind does not.
       fireEvent.mouseUp(anchorA);
       await waitFor(() => {
-        expect(document.querySelector('[ngpPopover]')).not.toBeInTheDocument();
+        expect(popover()).not.toBeInTheDocument();
       });
     });
   });
