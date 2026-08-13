@@ -270,6 +270,35 @@ describe('setupExitAnimation', () => {
     element.remove();
   });
 
+  /**
+   * Cancellation cannot be relied on: an environment can expose `requestAnimationFrame`
+   * without `cancelAnimationFrame`, and the queued callback then runs regardless. The
+   * callback itself has to notice it has been superseded.
+   */
+  it('stays in the exit state when the environment has no cancelAnimationFrame', async () => {
+    const element = document.createElement('div');
+    document.body.appendChild(element);
+    element.getAnimations = () => [];
+
+    const globals = globalThis as { cancelAnimationFrame?: unknown };
+    const original = globals.cancelAnimationFrame;
+    globals.cancelAnimationFrame = undefined;
+
+    try {
+      const ref = setupExitAnimation({ element, immediate: false });
+      await ref.exit();
+
+      await nextFrame();
+      await nextFrame();
+
+      expect(element).toHaveAttribute('data-exit');
+      expect(element).not.toHaveAttribute('data-enter');
+    } finally {
+      globals.cancelAnimationFrame = original;
+      element.remove();
+    }
+  });
+
   /** The deferred enter still has to arrive for an element that is not leaving. */
   it('still enters on the next frame when no exit interrupts it', async () => {
     const element = document.createElement('div');

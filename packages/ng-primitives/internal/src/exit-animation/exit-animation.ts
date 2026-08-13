@@ -122,6 +122,12 @@ export function setupExitAnimation({
     setState('enter');
   } else {
     pendingEnterFrame = requestAnimationFrame(() => {
+      // `exit()` clears the handle to supersede this callback, so a cleared handle means
+      // the element left before the frame arrived and is no longer entering.
+      if (pendingEnterFrame === null) {
+        return;
+      }
+
       pendingEnterFrame = null;
       setState('enter');
     });
@@ -132,12 +138,11 @@ export function setupExitAnimation({
       return new Promise<void>(resolve => {
         exitResolve = resolve;
 
-        // Drop the queued enter frame. Leaving before it arrives would otherwise let the
-        // callback for an entrance that never happened land afterwards and mark an element
-        // on its way out as entering, so its exit animation never plays.
-        if (pendingEnterFrame !== null && typeof cancelAnimationFrame === 'function') {
-          cancelAnimationFrame(pendingEnterFrame);
-        }
+        // Supersede the queued enter frame. Leaving before it arrives would otherwise let
+        // the callback for an entrance that never happened land afterwards and mark an
+        // element on its way out as entering, so its exit animation never plays. The
+        // callback checks the handle, so clearing it is enough - there is nothing to gain
+        // from also cancelling a frame whose callback now returns immediately.
         pendingEnterFrame = null;
 
         setState('exit');
