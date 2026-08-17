@@ -323,6 +323,36 @@ describe('NgpDialog', () => {
     });
   });
 
+  describe('document click propagation', () => {
+    it('should not prevent a click inside the dialog panel from reaching a document click listener', async () => {
+      await openDialog();
+
+      const documentClickSpy = vi.fn();
+      document.addEventListener('click', documentClickSpy);
+
+      try {
+        const description = document.querySelector('[data-testid="description"]') as HTMLElement;
+        description.click();
+
+        expect(documentClickSpy).toHaveBeenCalledTimes(1);
+      } finally {
+        document.removeEventListener('click', documentClickSpy);
+      }
+    });
+
+    it('should still close the dialog when the close button inside the panel is clicked', async () => {
+      const { ref } = await openDialog();
+      const closedSpy = vi.fn();
+      ref.closed.subscribe(closedSpy);
+
+      const closeBtn = document.querySelector('[data-testid="close-btn"]') as HTMLElement;
+      closeBtn.click();
+      await new Promise(r => setTimeout(r, 0));
+
+      expect(closedSpy).toHaveBeenCalled();
+    });
+  });
+
   describe('escape key close', () => {
     it('should close on Escape via the overlay registry', async () => {
       const { ref } = await openDialog();
