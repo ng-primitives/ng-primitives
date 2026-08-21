@@ -55,13 +55,17 @@ describe('RangeSlider (reusable component) — signal forms', () => {
     await fixture.whenStable();
 
     const lowThumb = screen.getByTestId('low-thumb');
+    const highThumb = screen.getByTestId('high-thumb');
     expect(lowThumb).toHaveAttribute('tabindex', '0');
+    expect(highThumb).toHaveAttribute('tabindex', '0');
 
     fixture.componentInstance.isDisabled.set(true);
     await fixture.whenStable();
 
     expect(lowThumb).toHaveAttribute('tabindex', '-1');
     expect(lowThumb).toHaveAttribute('data-disabled', '');
+    expect(highThumb).toHaveAttribute('tabindex', '-1');
+    expect(highThumb).toHaveAttribute('data-disabled', '');
   });
 
   it('does not respond to the keyboard while the field is disabled', async () => {
@@ -77,6 +81,15 @@ describe('RangeSlider (reusable component) — signal forms', () => {
     await fixture.whenStable();
 
     expect(lowThumb).toHaveAttribute('aria-valuenow', '20');
+
+    // the high thumb must be inert too, not just the low one
+    const highThumb = screen.getByTestId('high-thumb');
+    highThumb.focus();
+    await userEvent.keyboard('{arrowleft}');
+    await fixture.whenStable();
+
+    expect(highThumb).toHaveAttribute('aria-valuenow', '80');
+    expect(fixture.componentInstance.model().range).toEqual([20, 80]);
 
     fixture.componentInstance.isDisabled.set(false);
     await fixture.whenStable();

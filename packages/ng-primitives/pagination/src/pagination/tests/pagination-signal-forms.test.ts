@@ -64,11 +64,19 @@ describe('Pagination (reusable component) — signal forms', () => {
     expect(getByRole('navigation')).toHaveAttribute('data-disabled', '');
     expect(getByRole('button', { name: 'Next Page' })).toHaveAttribute('tabindex', '-1');
 
+    fireEvent.click(getByRole('button', { name: 'Page 3' }));
+    await fixture.whenStable();
+    expect(fixture.componentInstance.model().page).toBe(1);
+
     fixture.componentInstance.isDisabled.set(false);
     await fixture.whenStable();
 
     expect(getByRole('navigation')).not.toHaveAttribute('data-disabled');
     expect(getByRole('button', { name: 'Next Page' })).toHaveAttribute('tabindex', '0');
+
+    fireEvent.click(getByRole('button', { name: 'Page 3' }));
+    await fixture.whenStable();
+    expect(fixture.componentInstance.model().page).toBe(3);
   });
 
   it('marks the field as touched on focusout', async () => {

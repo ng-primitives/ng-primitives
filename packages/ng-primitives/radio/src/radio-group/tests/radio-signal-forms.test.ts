@@ -91,9 +91,12 @@ describe('RadioGroup (reusable component) — signal forms', () => {
     const one = getByRole('radio', { name: 'One' });
     const two = getByRole('radio', { name: 'Two' });
 
-    // activate the first item so the roving focus group has an active item
+    // activate and focus the first item so the roving focus group has an active item, and so
+    // `not.toHaveFocus()` below cannot pass simply because nothing is focused
     fireEvent.click(one);
+    one.focus();
     await fixture.whenStable();
+    expect(one).toHaveFocus();
 
     fixture.componentInstance.isDisabled.set(true);
     await fixture.whenStable();
@@ -101,6 +104,7 @@ describe('RadioGroup (reusable component) — signal forms', () => {
     fireEvent.keyDown(one, { key: 'ArrowRight' });
     await fixture.whenStable();
 
+    expect(one).toHaveFocus();
     expect(two).not.toHaveFocus();
     expect(two).not.toHaveAttribute('data-checked');
     expect(fixture.componentInstance.model().choice).toBe('1');

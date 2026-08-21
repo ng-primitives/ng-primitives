@@ -62,6 +62,7 @@ describe('Toggle (reusable component) — signal forms', () => {
 
     expect(button).toHaveAttribute('aria-disabled', 'true');
     expect(button).toHaveAttribute('data-disabled', '');
+    expect(button).toBeDisabled();
   });
 
   it('does not toggle while the field is disabled', async () => {

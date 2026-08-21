@@ -24,6 +24,13 @@ import { describe, expect, it } from 'vitest';
  * that path down.
  */
 
+/** `Promise.withResolvers` needs the es2024 lib; the workspace targets es2022. */
+function createDeferred(): { promise: Promise<void>; resolve: () => void } {
+  let resolve!: () => void;
+  const promise = new Promise<void>(r => (resolve = r));
+  return { promise, resolve };
+}
+
 @Component({
   imports: [NgpFormField, NgpFormControl, NgpLabel, NgpDescription, NgpError, SignalFormField],
   template: `
@@ -71,7 +78,7 @@ class DisabledHost {
 })
 class AsyncHost {
   /** Each instance owns its validator's promise, so the test resolves it via the fixture. */
-  readonly deferred = Promise.withResolvers<void>();
+  readonly deferred = createDeferred();
   readonly model = signal({ name: 'Ada' });
   readonly f = form(this.model, path =>
     validateAsync(path.name, {
