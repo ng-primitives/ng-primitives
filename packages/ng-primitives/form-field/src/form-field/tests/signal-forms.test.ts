@@ -61,9 +61,6 @@ class DisabledHost {
   readonly f = form(this.model, path => disabled(path.name));
 }
 
-// Initialised here as well as per-test so rendering AsyncHost never hits an undefined promise.
-let deferred: PromiseWithResolvers<void> = Promise.withResolvers<void>();
-
 @Component({
   imports: [NgpFormField, NgpFormControl, SignalFormField],
   template: `
@@ -73,6 +70,8 @@ let deferred: PromiseWithResolvers<void> = Promise.withResolvers<void>();
   `,
 })
 class AsyncHost {
+  /** Each instance owns its validator's promise, so the test resolves it via the fixture. */
+  readonly deferred = Promise.withResolvers<void>();
   readonly model = signal({ name: 'Ada' });
   readonly f = form(this.model, path =>
     validateAsync(path.name, {
@@ -80,7 +79,7 @@ class AsyncHost {
       factory: params =>
         resource({
           params: () => params(),
-          loader: () => deferred.promise.then(() => true),
+          loader: () => this.deferred.promise.then(() => true),
         }),
       onError: () => [],
       onSuccess: () => [],
@@ -156,7 +155,6 @@ describe('form-field primitives with signal forms', () => {
     });
 
     it('should reflect a pending async validator', async () => {
-      deferred = Promise.withResolvers<void>();
       const { getByTestId, fixture } = await render(AsyncHost);
       const field = getByTestId('field');
 
@@ -167,7 +165,7 @@ describe('form-field primitives with signal forms', () => {
       });
       expect(field).not.toHaveAttribute('data-valid');
 
-      deferred.resolve();
+      fixture.componentInstance.deferred.resolve();
       await fixture.whenStable();
 
       expect(field).not.toHaveAttribute('data-pending');
