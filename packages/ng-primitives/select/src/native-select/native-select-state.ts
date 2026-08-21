@@ -1,8 +1,7 @@
 import { signal, Signal } from '@angular/core';
 import { ngpFormControl } from 'ng-primitives/form-field';
 import { ngpInteractions } from 'ng-primitives/interactions';
-import { injectElementRef } from 'ng-primitives/internal';
-import { attrBinding, controlled, createPrimitive, deprecatedSetter } from 'ng-primitives/state';
+import { controlled, createPrimitive, deprecatedSetter } from 'ng-primitives/state';
 import { uniqueId } from 'ng-primitives/utils';
 
 export interface NgpNativeSelectState {
@@ -41,7 +40,6 @@ export const [
     disabled: _disabled = signal(false),
     id = signal(uniqueId('ngp-native-select')),
   }: NgpNativeSelectProps) => {
-    const element = injectElementRef();
     const disabled = controlled(_disabled);
     // Setup interactions
     ngpInteractions({
@@ -51,9 +49,10 @@ export const [
       focusVisible: true,
       disabled: disabled,
     });
+    // Binds `disabled` from this input *and* the form control status, so there must not be a
+    // second binding here - the last writer wins, and one keyed on the input alone re-enables
+    // the element whenever that input changes while the form control is still disabled.
     ngpFormControl({ id: id, disabled: disabled });
-
-    attrBinding(element, 'disabled', disabled);
 
     function setDisabled(value: boolean): void {
       disabled.set(value);

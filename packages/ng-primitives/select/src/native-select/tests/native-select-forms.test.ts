@@ -34,6 +34,30 @@ describe('NgpNativeSelect — reactive forms', () => {
     expect(getByTestId('select')).not.toHaveAttribute('data-disabled');
   });
 
+  it('stays disabled when its own disabled input is turned off but the control is disabled', async () => {
+    const control = new FormControl({ value: '', disabled: true });
+    const { getByTestId, fixture, rerender } = await render(
+      `<select
+         ngpNativeSelect
+         data-testid="select"
+         [ngpNativeSelectDisabled]="own"
+         [formControl]="control"
+       ></select>`,
+      {
+        imports: [NgpNativeSelect, ReactiveFormsModule],
+        componentProperties: { own: true, control },
+      },
+    );
+    await fixture.whenStable();
+    expect(getByTestId('select')).toBeDisabled();
+
+    // Turning off the primitive's own input must not override the form control.
+    await rerender({ componentProperties: { own: false, control } });
+    await fixture.whenStable();
+
+    expect(getByTestId('select')).toBeDisabled();
+  });
+
   it('disables the select from the ngpNativeSelectDisabled input', async () => {
     const { getByTestId } = await render(
       `<select ngpNativeSelect data-testid="select" [ngpNativeSelectDisabled]="true"></select>`,

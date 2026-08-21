@@ -61,7 +61,8 @@ class DisabledHost {
   readonly f = form(this.model, path => disabled(path.name));
 }
 
-let deferred: PromiseWithResolvers<void>;
+// Initialised here as well as per-test so rendering AsyncHost never hits an undefined promise.
+let deferred: PromiseWithResolvers<void> = Promise.withResolvers<void>();
 
 @Component({
   imports: [NgpFormField, NgpFormControl, SignalFormField],
