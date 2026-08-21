@@ -105,6 +105,7 @@ We welcome contributions from the community. Please refer to our [contributing g
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/AntonPieper"><img src="https://avatars.githubusercontent.com/u/94118572?v=4?s=100" width="100px;" alt="Anton Pieper"/><br /><sub><b>Anton Pieper</b></sub></a><br /><a href="https://github.com/ng-primitives/ng-primitives/commits?author=AntonPieper" title="Code">💻</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://paulbarahona.com"><img src="https://avatars.githubusercontent.com/u/72539686?v=4?s=100" width="100px;" alt="Paul Barahona"/><br /><sub><b>Paul Barahona</b></sub></a><br /><a href="https://github.com/ng-primitives/ng-primitives/commits?author=pauldvlp" title="Code">💻</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/rikeshchhunju-sketch"><img src="https://avatars.githubusercontent.com/u/246430216?v=4?s=100" width="100px;" alt="Rikesh Chhunju"/><br /><sub><b>Rikesh Chhunju</b></sub></a><br /><a href="https://github.com/ng-primitives/ng-primitives/commits?author=rikeshchhunju-sketch" title="Code">💻</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://www.wajrock.me/"><img src="https://avatars.githubusercontent.com/u/157038485?v=4?s=100" width="100px;" alt="Thibaud Wajrock"/><br /><sub><b>Thibaud Wajrock</b></sub></a><br /><a href="https://github.com/ng-primitives/ng-primitives/commits?author=wajrock" title="Code">💻</a></td>
     </tr>
   </tbody>
 </table>
