@@ -39,7 +39,12 @@ export function ngpFormControl({
   const supportsDisabledAttribute = 'disabled' in elementRef.nativeElement;
 
   // Host bindings
-  attrBinding(elementRef, 'disabled', () => (supportsDisabledAttribute && disabled() ? '' : null));
+  // The status has to be part of this, not just the parent's input: a form control disabled by
+  // reactive or signal forms disables the element itself, and a binding that ignored the status
+  // would immediately remove that again and leave a disabled control editable.
+  attrBinding(elementRef, 'disabled', () =>
+    supportsDisabledAttribute && (disabled() || status().disabled) ? '' : null,
+  );
 
   explicitEffect([id], ([id], onCleanup) => {
     formField()?.setFormControl(id);
