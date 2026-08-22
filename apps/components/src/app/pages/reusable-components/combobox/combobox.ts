@@ -200,7 +200,7 @@ export class Combobox implements ControlValueAccessor {
   readonly options = input<string[]>([]);
 
   /** The selected value. */
-  readonly value = model<string | undefined>();
+  readonly value = model<string | null>(null);
 
   /** The placeholder for the input. */
   readonly placeholder = input<string>('');
@@ -222,7 +222,7 @@ export class Combobox implements ControlValueAccessor {
   protected readonly formDisabled = signal(false);
 
   /** The on change callback */
-  private onChange?: ChangeFn<string | undefined>;
+  private onChange?: ChangeFn<string | null>;
 
   /** The on touch callback */
   protected onTouched?: TouchedFn;
@@ -232,12 +232,12 @@ export class Combobox implements ControlValueAccessor {
     this.filter.set(input.value);
   }
 
-  writeValue(value: string | undefined): void {
+  writeValue(value: string | null): void {
     this.value.set(value);
     this.filter.set(value ?? '');
   }
 
-  registerOnChange(fn: ChangeFn<string | undefined>): void {
+  registerOnChange(fn: ChangeFn<string | null>): void {
     this.onChange = fn;
   }
 
@@ -261,10 +261,12 @@ export class Combobox implements ControlValueAccessor {
       return;
     }
 
-    // if the filter value is empty, clear the value and notify the form control
+    // if the filter value is empty, clear the value and notify the form control.
+    // `null` rather than `undefined`: signal forms drops a model key whose value is
+    // `undefined`, which would tear the field out from under `[formField]`.
     if (this.filter() === '') {
-      this.value.set(undefined);
-      this.onChange?.(undefined);
+      this.value.set(null);
+      this.onChange?.(null);
     } else {
       // otherwise set the filter value to the selected value
       this.filter.set(this.value() ?? '');

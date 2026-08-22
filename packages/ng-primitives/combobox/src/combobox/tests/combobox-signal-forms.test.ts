@@ -13,9 +13,9 @@ afterEach(() => {
 /**
  * Read when the host is constructed, so a test can choose the field's starting value.
  * Signal forms builds the field tree from the model's own keys, and a key holding `undefined`
- * produces no subfield at all - so the empty value here is `''`.
+ * produces no subfield at all - so the empty value here is `null`.
  */
-let initialValue = '';
+let initialValue: string | null = null;
 
 @Component({
   imports: [ComboboxFixture, SignalFormField],
@@ -26,14 +26,14 @@ let initialValue = '';
 class Host {
   readonly options = ['Apple', 'Banana', 'Cherry', 'Dragon Fruit', 'Elderberry'];
   readonly isDisabled = signal(false);
-  readonly model = signal({ fruit: initialValue });
+  readonly model = signal<{ fruit: string | null }>({ fruit: initialValue });
   readonly f = form(this.model, path => {
     disabled(path.fruit, () => this.isDisabled());
     required(path.fruit);
   });
 }
 
-function renderHost(fruit = '') {
+function renderHost(fruit: string | null = null) {
   initialValue = fruit;
   return render(Host);
 }
@@ -91,16 +91,29 @@ describe('Combobox (reusable component) — signal forms', () => {
     await fixture.whenStable();
     expect((screen.getByRole('combobox') as HTMLInputElement).value).toBe('Apple');
 
-    fixture.componentInstance.model.set({ fruit: '' });
+    fixture.componentInstance.model.set({ fruit: null });
     await fixture.whenStable();
 
     expect((screen.getByRole('combobox') as HTMLInputElement).value).toBe('');
   });
 
-  // The "empty the input, then close" path is not covered here: the reusable component's
-  // CVA emits `undefined` for a cleared value, and writing `undefined` into a signal-forms
-  // model removes the key's field entirely, so `[formField]` then resolves to undefined and
-  // throws. See the reactive-forms suite for that scenario.
+  it('clears the model when the input is emptied then closed', async () => {
+    const { fixture } = await renderHost('Apple');
+    await fixture.whenStable();
+
+    const input = screen.getByRole('combobox') as HTMLInputElement;
+    expect(input.value).toBe('Apple');
+
+    await userEvent.click(screen.getByTestId('combobox-button'));
+    await userEvent.clear(input);
+    await userEvent.click(document.body);
+    await fixture.whenStable();
+
+    expect(input.value).toBe('');
+    expect(fixture.componentInstance.model().fruit).toBeNull();
+    // the field must survive the clear - signal forms drops a key whose value is `undefined`
+    expect(fixture.componentInstance.f.fruit().invalid()).toBe(true);
+  });
 
   it('reports validation errors from the field', async () => {
     const { fixture } = await renderHost();
