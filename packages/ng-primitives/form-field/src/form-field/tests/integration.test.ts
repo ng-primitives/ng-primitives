@@ -413,7 +413,7 @@ describe('Form Field Integration Tests', () => {
     fixture.componentInstance.control.disable();
     fixture.detectChanges();
     expect(input).toHaveAttribute('data-disabled');
-    expect(input).not.toHaveAttribute('disabled');
+    expect(input).toHaveAttribute('disabled');
   });
 
   it('should clean up all registrations on component destroy', async () => {
