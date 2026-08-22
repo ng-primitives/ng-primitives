@@ -267,8 +267,12 @@ export class Combobox implements ControlValueAccessor {
     // `null` rather than `undefined`: signal forms drops a model key whose value is
     // `undefined`, which would tear the field out from under `[formField]`.
     if (this.filter() === '') {
-      this.value.set(null);
-      this.onChange?.(null);
+      // only emit when there is something to clear, so opening and closing without touching
+      // the input does not mark the control dirty
+      if (this.value() !== null) {
+        this.value.set(null);
+        this.onChange?.(null);
+      }
     } else {
       // otherwise set the filter value to the selected value
       this.filter.set(this.value() ?? '');
