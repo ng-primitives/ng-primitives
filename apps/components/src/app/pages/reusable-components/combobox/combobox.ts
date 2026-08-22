@@ -232,8 +232,10 @@ export class Combobox implements ControlValueAccessor {
     this.filter.set(input.value);
   }
 
-  writeValue(value: string | null): void {
-    this.value.set(value);
+  // Accepts `undefined` and normalises it: a form control can hand one over, and letting it
+  // through would drop the key from a signal-forms model.
+  writeValue(value: string | null | undefined): void {
+    this.value.set(value ?? null);
     this.filter.set(value ?? '');
   }
 
