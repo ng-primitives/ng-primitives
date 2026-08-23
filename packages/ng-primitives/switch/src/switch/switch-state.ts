@@ -126,11 +126,10 @@ export const [NgpSwitchStateToken, ngpSwitch, injectSwitchState, provideSwitchSt
       // Listeners
       listener(element, 'click', event => toggle(event));
       listener(element, 'keydown', (event: KeyboardEvent) => {
-        if (event.key === ' ' || event.key === 'Space') {
+        const isActivationKey = event.key === ' ' || event.key === 'Space' || event.key === 'Enter';
+        if (isActivationKey && !isButton) {
           event.preventDefault();
-          if (!isButton) {
-            toggle(event);
-          }
+          toggle(event);
         }
       });
 
