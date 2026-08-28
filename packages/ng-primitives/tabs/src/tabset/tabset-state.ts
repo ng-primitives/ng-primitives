@@ -26,7 +26,7 @@ export interface NgpTabsetState {
   /**
    * Whether keyboard focus wraps around the tab list.
    */
-  readonly wrap: WritableSignal<boolean>;
+  readonly wrap: Signal<boolean>;
 
   /**
    * Whether tabs should activate on focus.
@@ -120,7 +120,6 @@ export const [NgpTabsetStateToken, ngpTabset, injectTabsetState, provideTabsetSt
       // Controlled properties
       const value = controlled(_value);
       const orientation = controlled(_orientation);
-      const wrap = controlled(_wrap);
       const activateOnFocus = controlled(_activateOnFocus);
 
       // Host bindings
@@ -181,7 +180,7 @@ export const [NgpTabsetStateToken, ngpTabset, injectTabsetState, provideTabsetSt
       return {
         id,
         orientation: deprecatedSetter(orientation, 'setOrientation', setOrientation),
-        wrap,
+        wrap: _wrap,
         activateOnFocus: deprecatedSetter(
           activateOnFocus,
           'setActivateOnFocus',

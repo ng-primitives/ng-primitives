@@ -1,4 +1,4 @@
-import { signal } from '@angular/core';
+import { computed, signal } from '@angular/core';
 import { injectElementRef } from 'ng-primitives/internal';
 import { ngpRovingFocusGroup } from 'ng-primitives/roving-focus';
 import { attrBinding, createPrimitive, dataBinding } from 'ng-primitives/state';
@@ -23,10 +23,12 @@ export const [NgpTabListStateToken, ngpTabList, injectTabListState, provideTabLi
     const element = injectElementRef();
     const tabsetState = injectTabsetState();
 
+    // The tabset state may not be populated yet if the tabset directive is instantiated after this
+    // one (e.g. both directives on the same element), so read through it lazily.
     ngpRovingFocusGroup({
-      orientation: tabsetState().orientation,
+      orientation: computed(() => tabsetState().orientation()),
       disabled: signal(false),
-      wrap: tabsetState().wrap,
+      wrap: computed(() => tabsetState().wrap()),
       homeEnd: signal(true),
       inherit: false,
     });

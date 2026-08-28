@@ -35,6 +35,9 @@ Assemble the tabs directives in your template.
 </div>
 ```
 
+Every `ngpTabButton` must be inside an `ngpTabList`, which owns the keyboard navigation for the
+tabs. Content inside a tab panel keeps its own keyboard navigation.
+
 ## Reusable Component
 
 Create reusable components that uses the tab directives.

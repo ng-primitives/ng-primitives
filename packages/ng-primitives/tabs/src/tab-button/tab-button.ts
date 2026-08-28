@@ -5,6 +5,7 @@ import {
   ngpRovingFocusItem,
   provideRovingFocusItemState,
 } from 'ng-primitives/roving-focus';
+import { injectTabListState } from '../tab-list/tab-list-state';
 import { ngpTabButton, provideTabButtonState } from './tab-button-state';
 
 /**
@@ -49,6 +50,12 @@ export class NgpTabButton {
   readonly active = this.state.active;
 
   constructor() {
+    // The roving focus group lives on the tab list, so without one the roving focus item below
+    // fails with an opaque NG0201.
+    if (!injectTabListState({ optional: true })()) {
+      throw new Error('ngpTabButton must be used within an element with the ngpTabList directive.');
+    }
+
     const rovingItem = ngpRovingFocusItem({ disabled: this.disabled });
     const group = injectRovingFocusGroupState();
 

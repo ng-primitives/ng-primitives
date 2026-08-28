@@ -203,7 +203,7 @@ describe('NgpTabset (primitive)', () => {
 
   describe('roving focus (tabindex)', () => {
     it('should not include nested roving-focus items', async () => {
-      const { getByRole } = await render(
+      const { getByRole, getByTestId } = await render(
         `<div ngpTabset>
           <div ngpTabList>
             <button ngpTabButton ngpTabButtonValue="overview">Overview</button>
@@ -224,8 +224,14 @@ describe('NgpTabset (primitive)', () => {
 
       const overviewTab = getByRole('tab', { name: 'Overview' });
       const featuresTab = getByRole('tab', { name: 'Features' });
+      const firstToggle = getByTestId('toggle-1');
+      const secondToggle = getByTestId('toggle-2');
 
+      // the tab list and the toggle group each keep their own tab stop
       expect(overviewTab).toHaveAttribute('tabindex', '0');
+      expect(firstToggle).toHaveAttribute('tabindex', '0');
+      expect(secondToggle).toHaveAttribute('tabindex', '-1');
+
       overviewTab.focus();
       fireEvent.keyDown(overviewTab, { key: 'ArrowLeft' });
 
@@ -235,6 +241,66 @@ describe('NgpTabset (primitive)', () => {
 
       expect(overviewTab).toHaveAttribute('tabindex', '0');
       expect(document.activeElement).toBe(overviewTab);
+
+      // navigating within the toggle group stays inside the toggle group
+      firstToggle.focus();
+      fireEvent.keyDown(firstToggle, { key: 'ArrowRight' });
+      expect(document.activeElement).toBe(secondToggle);
+    });
+
+    it('should throw when a tab button has no tab list', async () => {
+      await expect(
+        render(
+          `<div ngpTabset>
+            <button ngpTabButton ngpTabButtonValue="overview">Overview</button>
+          </div>`,
+          { imports },
+        ),
+      ).rejects.toThrow(
+        'ngpTabButton must be used within an element with the ngpTabList directive.',
+      );
+    });
+
+    it('should keep the tab list navigable when the tabset shares its element', async () => {
+      const { getByRole } = await render(
+        `<div ngpTabList ngpTabset>
+          <button ngpTabButton ngpTabButtonValue="overview">Overview</button>
+          <button ngpTabButton ngpTabButtonValue="features">Features</button>
+        </div>`,
+        // the directive order decides which state is created first, so the tab list must not
+        // assume the tabset state is already populated
+        { imports: [NgpTabList, NgpTabPanel, NgpTabButton, NgpTabset] },
+      );
+
+      const overviewTab = getByRole('tab', { name: 'Overview' });
+      const featuresTab = getByRole('tab', { name: 'Features' });
+
+      expect(overviewTab).toHaveAttribute('tabindex', '0');
+      overviewTab.focus();
+      fireEvent.keyDown(overviewTab, { key: 'ArrowRight' });
+      expect(document.activeElement).toBe(featuresTab);
+    });
+
+    it('should follow the orientation set after initialisation', async () => {
+      const { getByRole, fixture } = await render(
+        `<div ngpTabset #tabset="ngpTabset">
+          <div ngpTabList>
+            <button ngpTabButton ngpTabButtonValue="overview">Overview</button>
+            <button ngpTabButton ngpTabButtonValue="features">Features</button>
+          </div>
+        </div>`,
+        { imports },
+      );
+
+      fixture.debugElement.children[0].references['tabset'].setOrientation('vertical');
+      fixture.detectChanges();
+
+      const overviewTab = getByRole('tab', { name: 'Overview' });
+      const featuresTab = getByRole('tab', { name: 'Features' });
+
+      overviewTab.focus();
+      fireEvent.keyDown(overviewTab, { key: 'ArrowDown' });
+      expect(document.activeElement).toBe(featuresTab);
     });
 
     it('should place tabindex="0" on one tab and "-1" on the others', async () => {
