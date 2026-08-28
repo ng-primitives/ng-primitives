@@ -1,7 +1,6 @@
 import { BooleanInput } from '@angular/cdk/coercion';
-import { booleanAttribute, Directive, input, output, signal } from '@angular/core';
+import { booleanAttribute, Directive, input, output } from '@angular/core';
 import { NgpOrientation } from 'ng-primitives/common';
-import { ngpRovingFocusGroup, provideRovingFocusGroupState } from 'ng-primitives/roving-focus';
 import { uniqueId } from 'ng-primitives/utils';
 import { injectTabsConfig } from '../config/tabs-config';
 import { ngpTabset, provideTabsetState } from './tabset-state';
@@ -12,10 +11,7 @@ import { ngpTabset, provideTabsetState } from './tabset-state';
 @Directive({
   selector: '[ngpTabset]',
   exportAs: 'ngpTabset',
-  providers: [
-    provideTabsetState({ inherit: false }),
-    provideRovingFocusGroupState({ inherit: false }),
-  ],
+  providers: [provideTabsetState({ inherit: false })],
 })
 export class NgpTabset {
   /**
@@ -71,6 +67,7 @@ export class NgpTabset {
     id: this.id,
     value: this.value,
     orientation: this.orientation,
+    wrap: this.wrap,
     activateOnFocus: this.activateOnFocus,
     onValueChange: value => this.valueChange.emit(value),
   });
@@ -80,15 +77,6 @@ export class NgpTabset {
    * Get the id of the selected tab
    */
   readonly selectedTab = this.state.selectedTab;
-
-  constructor() {
-    ngpRovingFocusGroup({
-      orientation: this.orientation,
-      disabled: signal(false),
-      wrap: this.wrap,
-      homeEnd: signal(true),
-    });
-  }
 
   /**
    * Select a tab by its value
