@@ -121,18 +121,26 @@ export class NgpComboboxInput {
           this.state().openDropdown();
         }
         break;
-      default:
+      default: {
+        // Synthetic events (e.g. browser autofill) can omit `key`.
+        // See angular/components#33359.
+        const key = event.key;
+        if (key == null) {
+          return;
+        }
+
         // Ignore keys with length > 1 (e.g., 'Shift', 'ArrowLeft', 'Enter', etc.)
         // Filter out control/meta key combos (e.g., Ctrl+C)
         if (
-          event.key !== 'Unidentified' &&
-          (event.key.length > 1 || event.ctrlKey || event.metaKey || event.altKey)
+          key !== 'Unidentified' &&
+          (key.length > 1 || event.ctrlKey || event.metaKey || event.altKey)
         ) {
           return;
         }
 
         // if this was a character key, we want to open the dropdown
         this.state().openDropdown();
+      }
     }
   }
 

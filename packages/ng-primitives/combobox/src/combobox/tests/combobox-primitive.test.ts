@@ -721,6 +721,17 @@ describe('NgpComboboxInput', () => {
     await userEvent.type(input, 'Nonexistent Option');
     expect(async () => await userEvent.keyboard('{enter}')).not.toThrow();
   });
+
+  it('should not throw when a synthetic keydown omits key (browser autofill)', async () => {
+    await render(TestComponent);
+    const input = screen.getByRole('combobox');
+
+    const event = new KeyboardEvent('keydown', { bubbles: true });
+    Object.defineProperty(event, 'key', { value: undefined });
+
+    expect(() => input.dispatchEvent(event)).not.toThrow();
+    expect(screen.queryByRole('listbox')).not.toBeInTheDocument();
+  });
 });
 
 describe('NgpComboboxPortal', () => {
