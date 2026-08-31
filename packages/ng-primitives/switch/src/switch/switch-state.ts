@@ -131,8 +131,8 @@ export const [NgpSwitchStateToken, ngpSwitch, injectSwitchState, provideSwitchSt
           // prevented on every repeat too, otherwise a held Space scrolls the page
           event.preventDefault();
 
-          // a native button activates once per press, so autorepeat must not keep toggling
-          if (!event.repeat) {
+          // mirror a native button: Enter clicks on every keydown, Space activates once on keyup
+          if (event.key === 'Enter' || !event.repeat) {
             toggle(event);
           }
         }

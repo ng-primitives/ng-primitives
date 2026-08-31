@@ -4,6 +4,12 @@ import { userEvent } from '@testing-library/user-event';
 import { NgpSwitch } from 'ng-primitives/switch';
 import { describe, expect, it, vi } from 'vitest';
 
+function keydown(element: HTMLElement, key: string, repeat = false): KeyboardEvent {
+  const event = new KeyboardEvent('keydown', { key, repeat, bubbles: true, cancelable: true });
+  element.dispatchEvent(event);
+  return event;
+}
+
 describe('NgpSwitch', () => {
   describe('roles & attributes', () => {
     it('should render with a generated id and default unchecked state', async () => {
@@ -165,7 +171,7 @@ describe('NgpSwitch', () => {
       expect(button).toHaveAttribute('aria-checked', 'true');
     });
 
-    it('should not toggle repeatedly while an activation key is held on a non-button', async () => {
+    it('should not toggle repeatedly while Space is held on a non-button', async () => {
       const checkedChange = vi.fn();
       const { getByRole } = await render(
         `<div ngpSwitch tabindex="0" (ngpSwitchCheckedChange)="checkedChange($event)"></div>`,
@@ -174,19 +180,30 @@ describe('NgpSwitch', () => {
 
       const switchDiv = getByRole('switch');
       fireEvent.keyDown(switchDiv, { key: ' ' });
+      const repeat = keydown(switchDiv, ' ', true);
 
-      const repeat = new KeyboardEvent('keydown', {
-        key: ' ',
-        repeat: true,
-        bubbles: true,
-        cancelable: true,
-      });
-      switchDiv.dispatchEvent(repeat);
-
+      // a native button activates on keyup, so a held Space toggles once
       expect(checkedChange).toHaveBeenCalledTimes(1);
       expect(switchDiv).toHaveAttribute('aria-checked', 'true');
       // still prevented, otherwise a held Space scrolls the page
       expect(repeat.defaultPrevented).toBe(true);
+    });
+
+    it('should toggle on every repeat while Enter is held on a non-button', async () => {
+      const checkedChange = vi.fn();
+      const { getByRole } = await render(
+        `<div ngpSwitch tabindex="0" (ngpSwitchCheckedChange)="checkedChange($event)"></div>`,
+        { imports: [NgpSwitch], componentProperties: { checkedChange } },
+      );
+
+      const switchDiv = getByRole('switch');
+      fireEvent.keyDown(switchDiv, { key: 'Enter' });
+      keydown(switchDiv, 'Enter', true);
+      keydown(switchDiv, 'Enter', true);
+
+      // a native button clicks on every Enter keydown, autorepeat included
+      expect(checkedChange).toHaveBeenCalledTimes(3);
+      expect(switchDiv).toHaveAttribute('aria-checked', 'true');
     });
 
     it('should not toggle on activation keys when a non-button is disabled', async () => {
