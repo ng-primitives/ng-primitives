@@ -126,10 +126,15 @@ export const [NgpSwitchStateToken, ngpSwitch, injectSwitchState, provideSwitchSt
       // Listeners
       listener(element, 'click', event => toggle(event));
       listener(element, 'keydown', (event: KeyboardEvent) => {
-        const isActivationKey = event.key === ' ' || event.key === 'Space' || event.key === 'Enter';
+        const isActivationKey = event.key === ' ' || event.key === 'Enter';
         if (isActivationKey && !isButton) {
+          // prevented on every repeat too, otherwise a held Space scrolls the page
           event.preventDefault();
-          toggle(event);
+
+          // a native button activates once per press, so autorepeat must not keep toggling
+          if (!event.repeat) {
+            toggle(event);
+          }
         }
       });
 
