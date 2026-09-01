@@ -119,11 +119,16 @@ Releases run from the **Release** workflow in GitHub Actions - never locally. np
 publisher is bound to that one workflow file, so a publish from anywhere else has no OIDC
 credentials and produces a package without provenance.
 
-**Always dispatch the workflow from `next`**, and name what to release with the `ref` input.
-`workflow_dispatch` loads the workflow file from the ref it runs against, so dispatching against
-a hotfix branch would run whatever `release.yml` that branch's release tag was cut from - an
-older file, without the current guards. The workflow refuses to run if dispatched from anywhere
-but `next`.
+Two different refs are involved, and it is worth keeping them apart:
+
+- **Where the workflow is dispatched from** - always `next`. `workflow_dispatch` loads the
+  workflow file from the ref it runs against, so dispatching against a hotfix branch would run
+  whatever `release.yml` that branch's release tag was cut from: an older file, without the
+  current guards. Every path, releases and recoveries alike, refuses to run when dispatched
+  from anywhere else.
+- **What gets released** - the `ref` input. `next` for an ordinary release, a `hotfix/v<version>`
+  branch for a hotfix, and for a `publish_only` recovery a `v<version>` tag as well, since a
+  failed release can leave no branch pointing at the commit.
 
 An ordinary release ships everything merged into `next`: run the workflow from `next`, leave
 `ref` as `next`, and pick `patch`, `minor` or `major`.
