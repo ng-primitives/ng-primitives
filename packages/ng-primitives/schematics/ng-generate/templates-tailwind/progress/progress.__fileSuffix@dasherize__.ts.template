@@ -1,0 +1,40 @@
+import { NumberInput } from '@angular/cdk/coercion';
+import { Component, input, numberAttribute } from '@angular/core';
+import {
+  NgpProgress,
+  NgpProgressIndicator,
+  NgpProgressLabel,
+  NgpProgressTrack,
+  NgpProgressValue,
+} from 'ng-primitives/progress';
+
+@Component({
+  selector: '<% if (prefix) { %><%= prefix %>-<% } %>progress',
+  hostDirectives: [
+    {
+      directive: NgpProgress,
+      inputs: ['ngpProgressValue:value', 'ngpProgressMax:max', 'ngpProgressValueLabel:valueLabel'],
+    },
+  ],
+  imports: [NgpProgressIndicator, NgpProgressTrack, NgpProgressLabel, NgpProgressValue],
+  host: {
+    class: 'grid [grid-template-columns:1fr_1fr] [grid-row-gap:0.5rem] w-50 box-border p-2',
+  },
+  template: `
+    <label class="text-(--ngp-text-emphasis) [font-size:14px] font-semibold" ngpProgressLabel>{{ label() }}</label>
+    <span class="text-(--ngp-text-secondary) [font-size:14px] font-medium [text-align:right] [grid-column-start:2] [text-align:end]" ngpProgressValue>{{ value() }}%</span>
+
+    <div class="[grid-column:1_/_3] relative h-3 w-full max-w-80 overflow-hidden rounded-lg border border-(--ngp-border) bg-(--ngp-background)" ngpProgressTrack>
+      <div class="h-full rounded-lg bg-(--ngp-background-inverse) [transition:width_150ms_cubic-bezier(0.4,_0,_0.2,_1)] motion-reduce:[transition-duration:0s]" ngpProgressIndicator></div>
+    </div>
+  `,
+})
+export class Progress<%= componentSuffix %> {
+  /** The value of the progress. */
+  readonly value = input<number, NumberInput>(0, {
+    transform: numberAttribute,
+  });
+
+  /** The label of the progress. */
+  readonly label = input.required<string>();
+}

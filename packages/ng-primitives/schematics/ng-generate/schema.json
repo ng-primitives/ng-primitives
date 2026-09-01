@@ -81,8 +81,8 @@
     },
     "styles": {
       "type": "string",
-      "description": "How component styles should be generated. `css` includes the full example styles; `unstyled` omits them entirely so you can style the component yourself.",
-      "enum": ["css", "unstyled"]
+      "description": "How component styles should be generated. `css` includes the full example styles; `tailwind` styles the elements with Tailwind CSS classes instead, keeping a small CSS block only for what Tailwind cannot express (keyframes); `unstyled` omits styling entirely so you can style the component yourself.",
+      "enum": ["css", "tailwind", "unstyled"]
     },
     "exampleStyles": {
       "type": "boolean",

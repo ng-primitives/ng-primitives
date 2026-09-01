@@ -1,0 +1,63 @@
+import { Component } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { ControlValueAccessor } from '@angular/forms';
+import { injectSwitchState, NgpSwitch, NgpSwitchThumb } from 'ng-primitives/switch';
+import { ChangeFn, provideValueAccessor, TouchedFn } from 'ng-primitives/utils';
+
+@Component({
+  selector: '<% if (prefix) { %><%= prefix %>-<% } %>switch',
+  hostDirectives: [
+    {
+      directive: NgpSwitch,
+      inputs: ['ngpSwitchChecked:checked', 'ngpSwitchDisabled:disabled'],
+      outputs: ['ngpSwitchCheckedChange:checkedChange'],
+    },
+  ],
+  imports: [NgpSwitchThumb],
+  template: `
+    <span class="block h-5 w-5 [border-radius:999px] [background-color:white] shadow-(--ngp-button-shadow) [outline:none] [transition:transform_150ms_cubic-bezier(0.4,_0,_0.2,_1)] [transform:translateX(1px)] box-border data-checked:[transform:translateX(17px)] motion-reduce:[transition-duration:0s]" ngpSwitchThumb></span>
+  `,
+  providers: [provideValueAccessor(Switch<%= componentSuffix %>)],
+  host: {
+    class: 'inline-flex items-center relative w-10 h-6 [border-radius:999px] bg-(--ngp-background-secondary) border border-(--ngp-border) p-0 [outline:none] [transition-property:color,_background-color,_border-color,_text-decoration-color,_fill,_stroke] [transition-timing-function:cubic-bezier(0.4,_0,_0.2,_1)] [transition-duration:150ms] box-border data-focus-visible:[outline:2px_solid_var(--ngp-focus-ring)] data-checked:bg-(--ngp-background-blue) data-checked:border-(--ngp-border-blue) motion-reduce:[transition-duration:0s]',
+    '(focusout)': 'onTouched?.()',
+  },
+})
+export class Switch<%= componentSuffix %> implements ControlValueAccessor {
+  /** Access the switch state. */
+  private readonly switch = injectSwitchState();
+
+  /** The on change callback */
+  private onChange?: ChangeFn<boolean>;
+
+  /** The on touched callback */
+  protected onTouched?: TouchedFn;
+
+  constructor() {
+    // Any time the switch changes, update the form value.
+    this.switch()
+      .checkedChange.pipe(takeUntilDestroyed())
+      .subscribe(value => this.onChange?.(value));
+  }
+
+  /** Write a new value to the switch. */
+  writeValue(value: boolean): void {
+    // writing a value from the model must not re-emit through onChange
+    this.switch().setChecked(value, { emit: false });
+  }
+
+  /** Register a callback function to be called when the value changes. */
+  registerOnChange(fn: ChangeFn<boolean>): void {
+    this.onChange = fn;
+  }
+
+  /** Register a callback function to be called when the switch is touched. */
+  registerOnTouched(fn: TouchedFn): void {
+    this.onTouched = fn;
+  }
+
+  /** Set the disabled state of the switch. */
+  setDisabledState(isDisabled: boolean): void {
+    this.switch().setDisabled(isDisabled);
+  }
+}
