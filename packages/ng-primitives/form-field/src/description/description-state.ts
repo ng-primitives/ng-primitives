@@ -44,6 +44,7 @@ export const [
     dataBinding(element, 'data-dirty', () => (formField()?.dirty() ? '' : null));
     dataBinding(element, 'data-pending', () => (formField()?.pending() ? '' : null));
     dataBinding(element, 'data-disabled', () => (formField()?.disabled() ? '' : null));
+    dataBinding(element, 'data-required', () => (formField()?.required() ? '' : null));
 
     // Register with form field and cleanup on destroy
     formField()?.addDescription(id());

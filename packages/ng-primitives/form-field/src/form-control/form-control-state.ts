@@ -65,6 +65,7 @@ export function ngpFormControl({
   dataBinding(elementRef, 'data-pristine', () => status().pristine);
   dataBinding(elementRef, 'data-dirty', () => status().dirty);
   dataBinding(elementRef, 'data-pending', () => status().pending);
+  dataBinding(elementRef, 'data-required', () => status().required);
   dataBinding(elementRef, 'data-disabled', () => disabled() || status().disabled);
 
   return computed(() => ({ ...status(), disabled: status().disabled || disabled() }));
