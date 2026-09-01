@@ -1,3 +1,13 @@
+## 0.130.2 (2026-09-01)
+
+### 🩹 Fixes
+
+- **interactions:** avoid NG0600 when a binding disables a focused element ([#934](https://github.com/ng-primitives/ng-primitives/pull/934))
+
+### ❤️ Thank You
+
+- Ashley Hunter
+
 ## 0.130.1 (2026-08-13)
 
 ### 🚀 Features
