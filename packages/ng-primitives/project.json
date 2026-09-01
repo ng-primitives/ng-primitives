@@ -6,21 +6,6 @@
   "projectType": "library",
   "tags": [],
   "targets": {
-    "build": {
-      "executor": "@nx/angular:package",
-      "outputs": ["{workspaceRoot}/dist/{projectRoot}"],
-      "dependsOn": ["build:schematics"],
-      "options": {
-        "project": "packages/ng-primitives/ng-package.json",
-        "tsConfig": "packages/ng-primitives/tsconfig.lib.json"
-      },
-      "configurations": {
-        "production": {
-          "tsConfig": "packages/ng-primitives/tsconfig.lib.prod.json"
-        }
-      },
-      "defaultConfiguration": "production"
-    },
     "build:templates": {
       "command": "nx g @ng-primitives/tools:templates"
     },
@@ -136,6 +121,31 @@
       "dependsOn": ["build"],
       "options": {
         "command": "npm publish dist/packages/ng-primitives --access public --tag latest --no-git-checks --provenance"
+      }
+    },
+    "build:lib": {
+      "executor": "@nx/angular:package",
+      "outputs": ["{workspaceRoot}/dist/{projectRoot}"],
+      "dependsOn": ["build:schematics"],
+      "options": {
+        "project": "packages/ng-primitives/ng-package.json",
+        "tsConfig": "packages/ng-primitives/tsconfig.lib.json"
+      },
+      "configurations": {
+        "production": {
+          "tsConfig": "packages/ng-primitives/tsconfig.lib.prod.json"
+        }
+      },
+      "defaultConfiguration": "production"
+    },
+    "build": {
+      "executor": "nx:run-commands",
+      "outputs": ["{workspaceRoot}/dist/{projectRoot}"],
+      "dependsOn": [{ "target": "build:lib", "params": "forward" }],
+      "configurations": { "production": {} },
+      "defaultConfiguration": "production",
+      "options": {
+        "command": "node packages/ng-primitives/postbuild-schematics.mjs"
       }
     }
   }
