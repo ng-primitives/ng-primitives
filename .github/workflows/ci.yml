@@ -7,6 +7,9 @@ on:
       # The default branch, and where PRs merge to. Codecov needs a report on each
       # of its commits to have a baseline to compare pull requests against.
       - next
+      # A hotfix branch is a tree that has never existed anywhere else, so it gets
+      # its own run rather than relying on whoever prepared it locally.
+      - 'hotfix/v*'
   pull_request:
 
 permissions:
@@ -52,6 +55,10 @@ jobs:
           git diff --exit-code -- packages/ng-primitives/schematics/ng-generate/templates \
             || { echo "::error::Schematic templates are stale. Run: nx run ng-primitives:build:templates"; exit 1; }
           pnpm exec nx run ng-primitives:test-node
+
+      # scripts/ is not an nx project, so `nx affected` never covers it.
+      - name: Release script tests
+        run: pnpm test:scripts
 
       - run: pnpm exec nx affected -t lint,build,test
         env:

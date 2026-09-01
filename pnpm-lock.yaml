@@ -183,6 +183,9 @@ importers:
       '@eslint/eslintrc':
         specifier: ^2.1.4
         version: 2.1.4
+      '@inquirer/prompts':
+        specifier: ^7.10.1
+        version: 7.10.1(@types/node@22.19.1)
       '@nx/angular':
         specifier: 22.7.5
         version: 22.7.5(adb4cae420421510143c9543dad4a6bd)

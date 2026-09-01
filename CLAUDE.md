@@ -111,8 +111,12 @@ When creating a pull request, follow the template at `.github/PULL_REQUEST_TEMPL
 ## Release Process
 
 - Follows Conventional Commits for automated changelog generation
-- Release projects: `ng-primitives` and `state`
-- Use `pnpm release:version` and `pnpm release:publish` commands
+- Release projects: `ng-primitives`, `state` and `mcp`
+- Releases run from the **Release** GitHub Actions workflow, never locally - npm's trusted
+  publisher is bound to `.github/workflows/release.yml`, so a local publish has no OIDC
+  credentials and no provenance
+- To ship a subset of what is on `next`, prepare a branch with `pnpm release:hotfix` and let the
+  workflow release it. See the Releasing section in `CONTRIBUTING.md`
 
 <!-- nx configuration start-->
 <!-- Leave the start & end comments to automatically receive updates. -->
