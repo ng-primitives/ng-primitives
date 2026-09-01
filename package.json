@@ -12,9 +12,8 @@
     "test:browser": "nx run ng-primitives:test-browser",
     "test:node": "nx run ng-primitives:test-node",
     "build": "NODE_OPTIONS='--max-old-space-size=8192' nx run-many -t build",
-    "release:version": "nx release version minor",
-    "release:changelog": "nx release changelog",
-    "release:publish": "nx release publish && git push origin HEAD:main --no-verify"
+    "test:scripts": "node --test scripts/*.test.mjs",
+    "release:hotfix": "node scripts/hotfix.mjs"
   },
   "devDependencies": {
     "@analogjs/platform": "2.6.0",
@@ -31,6 +30,7 @@
     "@angular/compiler-cli": "21.2.14",
     "@angular/language-service": "21.2.14",
     "@eslint/eslintrc": "^2.1.4",
+    "@inquirer/prompts": "^7.10.1",
     "@nx/angular": "22.7.5",
     "@nx/eslint": "22.7.5",
     "@nx/eslint-plugin": "22.7.5",

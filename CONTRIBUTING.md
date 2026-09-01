@@ -113,6 +113,41 @@ This can be added as an example in the documentation site, like so:
 <docs-snippet name="button"></docs-snippet>
 ```
 
+## Releasing
+
+Releases run from the **Release** workflow in GitHub Actions - never locally. npm's trusted
+publisher is bound to that one workflow file, so a publish from anywhere else has no OIDC
+credentials and produces a package without provenance.
+
+An ordinary release ships everything merged into `next`: run the workflow from `next` and pick
+`patch`, `minor` or `major`.
+
+### Hotfixes
+
+To ship some of what is on `next` without the rest - an urgent fix while other work is still
+settling - prepare a branch first:
+
+```bash
+pnpm release:hotfix
+```
+
+It lists what is unreleased, cherry-picks the commits you tick onto the last release tag, runs
+lint, build and test against that tree, shows you the changelog it would generate, then pushes
+`hotfix/v<version>` and dispatches the Release workflow against it. Pass `--commits 934,#927` to
+name them by pull request or sha instead of picking, `--dry-run` to stop before anything is
+pushed, and `--resume` to carry on after resolving a cherry-pick conflict. A scripted run needs
+`--yes` alongside `--commits`, since there is no terminal to confirm on.
+
+A hotfix reaches `main` without passing through `next`, so the workflow merges `main` back into
+`next` afterwards and deletes the branch. If that merge conflicts it opens a pull request
+instead - **merge it before the next release**, which is blocked until `main` is an ancestor of
+`next` again.
+
+If a release fails after it has tagged - the job summary tells you which side of that line it
+fell on - do **not** rerun the workflow normally, or it will version again and bump past the
+version missing from npm. Rerun it from the same ref with **`publish_only`** ticked: that
+publishes the version the ref already carries, catches `main` up to it, and versions nothing.
+
 ## Coding standards
 
 ### Naming conventions

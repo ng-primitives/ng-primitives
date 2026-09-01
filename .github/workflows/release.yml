@@ -1,5 +1,8 @@
 name: Release
 
+# Runs from `next` for an ordinary release, or from a `hotfix/v*` branch prepared
+# by `pnpm release:hotfix` to ship a subset of what is merged. Publishing lives
+# here and nowhere else: npm's trusted publisher is bound to this exact file.
 on:
   workflow_dispatch:
     inputs:
@@ -11,15 +14,28 @@ on:
           - patch
           - minor
           - major
+      publish_only:
+        description: 'Recovery: publish the version already tagged on this ref, without versioning again'
+        type: boolean
+        default: false
 
-permissions:
-  contents: write
-  packages: write
-  id-token: write
+permissions: {}
+
+# A release and a hotfix must never interleave.
+concurrency:
+  group: release
+  cancel-in-progress: false
 
 jobs:
   release:
+    if: ${{ !inputs.publish_only }}
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      packages: write
+      id-token: write
+    outputs:
+      version: ${{ steps.version.outputs.version }}
     steps:
       - name: Checkout
         uses: actions/checkout@v7
@@ -49,35 +65,360 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
-      - name: Version
-        run: pnpm exec nx release version ${{ inputs.version }}
+      - name: Check the release ref
+        env:
+          REF: ${{ github.ref_name }}
+          BUMP: ${{ inputs.version }}
+        run: |
+          set -euo pipefail
+          # The exact shape `pnpm release:hotfix` creates - a glob cannot express
+          # "digits only", so the hotfix case is matched with an anchored regex.
+          case "$REF" in
+            next) ;;
+            hotfix/v*)
+              echo "$REF" | grep -qE '^hotfix/v(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$' ||
+                { echo "::error::${REF} is not a hotfix branch this workflow can release."; exit 1; }
 
+              [ "$BUMP" = 'patch' ] ||
+                { echo "::error::A hotfix ships one patch, not a ${BUMP} release."; exit 1; }
+              ;;
+            *)
+              echo "::error::Releases run from next or a hotfix/v* branch, not ${REF}."
+              exit 1
+              ;;
+          esac
+
+      # Both checks exist to stop a half-merged hotfix producing a broken release,
+      # and they run before anything is published so a mistake costs nothing.
+      - name: Check main is merged and the base is current
+        run: |
+          set -euo pipefail
+          git fetch -q origin main --tags
+
+          # A commit that is already tagged has been released. Versioning again here is
+          # how a failed publish turns into a skipped version: the recovery is
+          # publish_only, not another bump.
+          RELEASED=$(git describe --tags --exact-match --match 'v[0-9]*' --exclude '*-*' HEAD 2>/dev/null || true)
+          [ -z "$RELEASED" ] ||
+            { echo "::error::${RELEASED} is already tagged at this commit. To finish a release that failed after tagging, rerun this workflow with publish_only instead of versioning again."; exit 1; }
+
+          git merge-base --is-ancestor origin/main HEAD ||
+            { echo "::error::main is ahead of this branch - an earlier hotfix is unmerged. Merge main into next first."; exit 1; }
+
+          # Plain releases only: a prerelease tag would sort first and break both sides.
+          NEWEST=$(git tag --list 'v*' --sort=-v:refname | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | head -n1)
+          # --exclude, not a stricter --match: the glob `v[0-9]*.[0-9]*.[0-9]*` still
+          # admits v1.2.3-rc.1, which would reject a perfectly good release.
+          BASE=$(git describe --tags --abbrev=0 --match 'v[0-9]*' --exclude '*-*' HEAD)
+          [ "$BASE" = "$NEWEST" ] ||
+            { echo "::error::This branch is built on ${BASE} but ${NEWEST} is already released - publishing it would move npm's 'latest' backwards."; exit 1; }
+
+      - name: Version
+        env:
+          BUMP: ${{ inputs.version }}
+        run: pnpm exec nx release version "$BUMP"
+
+      # Validated before it reaches an output: package.json is repository content, and
+      # an unchecked value here could inject extra outputs or shell into later steps.
+      - name: Resolve the version
+        id: version
+        run: |
+          set -euo pipefail
+          VERSION=$(node -p "require('./packages/ng-primitives/package.json').version")
+
+          [[ "$VERSION" =~ ^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$ ]] ||
+            { echo "::error::package.json does not hold a plain version - refusing to release it."; exit 1; }
+
+          echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
+
+      # Commits the bump and the changelog, tags it, pushes, and creates the
+      # GitHub release - in that order.
+      - name: Changelog
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VERSION: ${{ steps.version.outputs.version }}
+        run: pnpm exec nx release changelog "$VERSION"
+
+      - name: Push
+        env:
+          REF: ${{ github.ref_name }}
+        run: |
+          git push origin --atomic --follow-tags --no-verify \
+            "HEAD:refs/heads/${REF}" HEAD:main
+
+      # Last, because it is the only step that cannot be undone.
       - name: Publish to npm
         run: pnpm exec nx release publish
 
-      - name: Changelog
-        run: |
-          VERSION=$(node -p "require('./packages/ng-primitives/package.json').version")
-          pnpm exec nx release changelog ${VERSION}
+      # By this point the tag, the GitHub release and main have all moved, so the
+      # recovery is to finish the publish - never to cut a new version.
+      - name: How to recover
+        if: failure()
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VERSION: ${{ steps.version.outputs.version }}
+          REF: ${{ github.ref_name }}
+        run: |
+          {
+            echo "## ❌ Release did not finish"
+            echo
+            if [ -n "${VERSION:-}" ] && git ls-remote --exit-code --tags origin "refs/tags/v${VERSION}" > /dev/null 2>&1; then
+              echo "**v${VERSION} is already tagged on the remote**, so this run got at least as far as the changelog."
+              echo
+              echo "Do **not** rerun this workflow normally: it would run \`nx release version\` again and bump past"
+              echo "the version that may be missing from npm. Check what npm has:"
+              echo
+              echo '```'
+              echo "npm view ng-primitives@${VERSION} version"
+              echo '```'
+              echo
+              echo "If it is missing, rerun **this workflow from \`${REF}\` with \`publish_only\` ticked** - that"
+              echo "publishes the version the ref already carries, catches \`main\` up to it, and skips versioning."
 
-      - name: Push to next
-        run: git push origin HEAD:next --follow-tags --no-verify
-
-      - name: Push to main
-        run: git push origin HEAD:main --follow-tags --no-verify
+              if [ "${REF}" != 'next' ]; then
+                echo
+                echo "\`next\` has **not** been back-merged, so the next ordinary release stays blocked by the"
+                echo "'main is merged' check until [main → next](https://github.com/${{ github.repository }}/compare/next...main) lands."
+              fi
+            else
+              echo "**Nothing is tagged on the remote**, so nothing was published and no ref moved."
+              echo
+              echo "Fix the cause and rerun this workflow as normal."
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
 
       - name: Release Summary
+        env:
+          REF: ${{ github.ref_name }}
+          VERSION: ${{ steps.version.outputs.version }}
+          BUMP: ${{ inputs.version }}
         run: |
+          {
+            echo "## 🚀 Release Complete"
+            echo
+            echo "**Version:** v${VERSION}"
+            echo "**Type:** ${BUMP}"
+            echo "**From:** \`${REF}\`"
+            echo
+            echo "✅ Versions bumped"
+            echo "✅ Changelog updated"
+            echo "✅ Changes committed and tagged"
+            echo "✅ Published to npm"
+            echo "✅ GitHub Release created"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+  # Recovery for a run that tagged and pushed but failed to publish. It versions
+  # nothing - it publishes whatever the ref already carries - so it can safely be
+  # run against a ref whose package.json is already at the released version.
+  republish:
+    name: Publish only
+    if: ${{ inputs.publish_only }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      packages: write
+      id-token: write
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+          fetch-tags: true
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v6
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: 'pnpm'
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: Upgrade npm
+        run: npm install -g npm@11.5.1
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      # A tag ref is allowed here and nowhere else: once next moves on from a failed
+      # release, the tag may be the only ref left pointing at that commit. What is
+      # published is guarded by the tag-at-HEAD check below, not by the ref name.
+      - name: Check the release ref
+        env:
+          REF: ${{ github.ref_name }}
+        run: |
+          set -euo pipefail
+          SEMVER='(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)'
+          echo "$REF" | grep -qE "^(next|hotfix/v${SEMVER}|v${SEMVER})$" ||
+            { echo "::error::Recovery runs from next, a hotfix/v<version> branch or a v<version> tag, not ${REF}."; exit 1; }
+
+      # The tag has to be on this commit, not merely somewhere in the repository, or
+      # a stale branch could publish contents that were never part of that release.
+      - name: Check this commit is the tagged release
+        id: version
+        run: |
+          set -euo pipefail
           VERSION=$(node -p "require('./packages/ng-primitives/package.json').version")
-          echo "## 🚀 Release Complete" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "**Version:** v${VERSION}" >> $GITHUB_STEP_SUMMARY
-          echo "**Type:** ${{ inputs.version }}" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "✅ Versions bumped" >> $GITHUB_STEP_SUMMARY
-          echo "✅ Changelog updated" >> $GITHUB_STEP_SUMMARY
-          echo "✅ Changes committed and tagged" >> $GITHUB_STEP_SUMMARY
-          echo "✅ Published to npm" >> $GITHUB_STEP_SUMMARY
-          echo "✅ GitHub Release created" >> $GITHUB_STEP_SUMMARY
+
+          [[ "$VERSION" =~ ^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$ ]] ||
+            { echo "::error::package.json does not hold a plain version - refusing to publish it."; exit 1; }
+
+          TAGGED=$(git rev-parse -q --verify "refs/tags/v${VERSION}^{commit}") ||
+            { echo "::error::v${VERSION} is not tagged - publish_only only finishes a release that got as far as tagging."; exit 1; }
+
+          [ "$TAGGED" = "$(git rev-parse HEAD)" ] ||
+            { echo "::error::v${VERSION} is tagged at ${TAGGED}, not at this commit. Dispatch publish_only from the ref that was released."; exit 1; }
+
+          NEWEST=$(git tag --list 'v*' --sort=-v:refname | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | head -n1)
+          [ "v${VERSION}" = "$NEWEST" ] ||
+            { echo "::error::v${VERSION} is not the newest release (${NEWEST}) - publishing it would move npm's 'latest' backwards."; exit 1; }
+
+          echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
+
+      # The interrupted run may have died between the changelog and the push, leaving
+      # main behind the tag. Completing it here keeps the release commit reachable
+      # once back-merge deletes the hotfix branch.
+      - name: Catch main up to the release
+        run: |
+          set -euo pipefail
+          git fetch -q origin main
+
+          if git merge-base --is-ancestor origin/main HEAD; then
+            git push origin --atomic --follow-tags --no-verify HEAD:main
+          else
+            echo "::error::main is ahead of the release commit - reconcile it before recovering."
+            exit 1
+          fi
+
+      # These targets are plain `npm publish`, which rejects a version already on the
+      # registry. A partial publish would therefore block its own recovery, so only
+      # the packages actually missing are published.
+      - name: Publish what is missing from npm
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          set -euo pipefail
+          MISSING=()
+
+          for project in ng-primitives state mcp; do
+            name=$(node -p "require('./packages/${project}/package.json').name")
+
+            if npm view "${name}@${VERSION}" version > /dev/null 2>&1; then
+              echo "${name}@${VERSION} is already published - skipping"
+            else
+              MISSING+=("$project")
+            fi
+          done
+
+          if [ ${#MISSING[@]} -eq 0 ]; then
+            echo "::notice::Every package is already published at ${VERSION} - nothing to do."
+          else
+            printf 'publishing: %s\n' "${MISSING[*]}"
+            pnpm exec nx release publish --projects="$(IFS=,; echo "${MISSING[*]}")"
+          fi
+
+      - name: Summary
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          {
+            echo "## 📦 Published v${VERSION}"
+            echo
+            echo "Recovery run - nothing was versioned or tagged; main was caught up to the release commit."
+          } >> "$GITHUB_STEP_SUMMARY"
+
+  # A hotfix release lands on main without going through next, so next has to be
+  # caught up or the following release collides on the version, duplicates the
+  # changelog entry and cannot fast-forward main. The merge is mechanical - the
+  # picked change is identical on both sides - so it is done here, and escalated
+  # to a pull request only when it isn't.
+  back-merge:
+    name: Back-merge into next
+    needs: [release, republish]
+    # Runs after whichever of the two actually published - a recovery run is exactly
+    # the case where next is still behind, because the original run never got here.
+    if: >-
+      always() && github.ref_name != 'next' &&
+      (needs.release.result == 'success' || needs.republish.result == 'success')
+    runs-on: ubuntu-latest
+    # Merges and opens a pull request - it never publishes, so no id-token here.
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - name: Checkout next
+        uses: actions/checkout@v7
+        with:
+          ref: next
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Configure Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Merge main into next
+        id: merge
+        env:
+          VERSION: ${{ needs.release.outputs.version || needs.republish.outputs.version }}
+        run: |
+          set -euo pipefail
+          git fetch -q origin main
+
+          merged=false
+          if git merge --no-edit -m "chore: back-merge v${VERSION} into next" origin/main; then
+            if git push origin HEAD:next --no-verify; then
+              merged=true
+            fi
+          else
+            git merge --abort || true
+          fi
+
+          echo "merged=${merged}" >> "$GITHUB_OUTPUT"
+
+      - name: Open a pull request instead
+        # Also on a hard failure of the merge step, or a published release would be
+        # left with no escalation at all.
+        if: ${{ !cancelled() && steps.merge.outputs.merged != 'true' }}
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VERSION: ${{ needs.release.outputs.version || needs.republish.outputs.version }}
+        run: |
+          gh pr create --base next --head main \
+            --title "chore: back-merge v${VERSION} into next" \
+            --body "The v${VERSION} hotfix could not be merged into \`next\` automatically. Resolve it here - until it lands, the next release is blocked by the 'main is merged' check." ||
+            echo "::warning::Could not open the pull request - open main → next by hand."
+
+          {
+            echo "## ⚠️ Back-merge needs a human"
+            echo
+            echo "v${VERSION} shipped, but \`main\` could not be merged into \`next\` automatically."
+            echo
+            echo "[Open main → next](https://github.com/${{ github.repository }}/compare/next...main)"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+          echo "::error::v${VERSION} released, but the back-merge into next needs resolving by hand."
+          exit 1
+
+      - name: Delete the hotfix branch
+        if: steps.merge.outputs.merged == 'true' && startsWith(github.ref_name, 'hotfix/v')
+        env:
+          REF: ${{ github.ref_name }}
+        run: |
+          # refs/heads/ is load-bearing: a bare v0.130.2 would resolve to the tag.
+          git push origin --delete "refs/heads/${REF}" || echo "::warning::Could not delete ${REF}."
+
+      - name: Back-merge summary
+        if: steps.merge.outputs.merged == 'true'
+        env:
+          VERSION: ${{ needs.release.outputs.version || needs.republish.outputs.version }}
+        run: |
+          {
+            echo "## ✅ Back-merged into next"
+            echo
+            echo "\`main\` (v${VERSION}) is merged into \`next\`. Ordinary releases can carry on."
+          } >> "$GITHUB_STEP_SUMMARY"
