@@ -1,5 +1,5 @@
 import { FocusMonitor, FocusOrigin } from '@angular/cdk/a11y';
-import { ElementRef, inject, Renderer2, Signal, signal } from '@angular/core';
+import { ElementRef, inject, Renderer2, Signal, signal, untracked } from '@angular/core';
 import { onBooleanChange, safeTakeUntilDestroyed } from 'ng-primitives/utils';
 import { isFocusVisibleEnabled } from '../config/interactions-config';
 
@@ -33,12 +33,19 @@ export function ngpFocusVisible({
   const isFocused = signal<boolean>(false);
 
   // handle focus state
+  //
+  // A browser can dispatch focus or blur synchronously while Angular renders - a binding
+  // writing the DOM `disabled` property of a focused element blurs it there - so the
+  // subscriber would inherit the render pass's reactive consumer and the `isFocused` write
+  // would throw NG0600. `listener` wraps DOM handlers the same way.
   focusMonitor
     .monitor(elementRef.nativeElement)
     .pipe(safeTakeUntilDestroyed())
     .subscribe(origin =>
-      // null indicates the element was blurred
-      origin === null ? onBlur() : onFocus(origin),
+      untracked(() =>
+        // null indicates the element was blurred
+        origin === null ? onBlur() : onFocus(origin),
+      ),
     );
 
   // if the component becomes disabled and it is focused, hide the focus
