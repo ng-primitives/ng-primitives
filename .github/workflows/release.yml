@@ -36,7 +36,49 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  # Runs before anything checks out the target: `ref` is attacker-chosen from the
+  # dispatcher's point of view, and checking it out runs its install scripts with this
+  # workflow's write permissions. Nothing here touches the target's contents.
+  preflight:
+    name: Check the dispatch and the target
+    runs-on: ubuntu-latest
+    permissions: {}
+    steps:
+      - name: Validate
+        env:
+          REF: ${{ inputs.ref }}
+          BUMP: ${{ inputs.version }}
+          PUBLISH_ONLY: ${{ inputs.publish_only }}
+          DISPATCHED_FROM: ${{ github.ref_name }}
+        run: |
+          set -euo pipefail
+
+          # This file must be the one on the default branch, or these guards are
+          # whatever the dispatched ref happened to carry.
+          [ "$DISPATCHED_FROM" = 'next' ] ||
+            { echo "::error::Dispatch this workflow from next and name the target with the ref input - running it from ${DISPATCHED_FROM} uses that branch's copy of release.yml."; exit 1; }
+
+          SEMVER='(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)'
+
+          if [ "$PUBLISH_ONLY" = 'true' ]; then
+            # A tag is allowed only here: once next moves on from a failed release, the
+            # tag may be the only ref left pointing at that commit.
+            echo "$REF" | grep -qE "^(next|hotfix/v${SEMVER}|v${SEMVER})$" ||
+              { echo "::error::Recovery runs against next, a hotfix/v<version> branch or a v<version> tag, not ${REF}."; exit 1; }
+          else
+            echo "$REF" | grep -qE "^(next|hotfix/v${SEMVER})$" ||
+              { echo "::error::Releases run against next or a hotfix/v<version> branch, not ${REF}."; exit 1; }
+
+            case "$REF" in
+              hotfix/v*)
+                [ "$BUMP" = 'patch' ] ||
+                  { echo "::error::A hotfix ships one patch, not a ${BUMP} release."; exit 1; }
+                ;;
+            esac
+          fi
+
   release:
+    needs: preflight
     if: ${{ !inputs.publish_only }}
     runs-on: ubuntu-latest
     permissions:
@@ -74,35 +116,6 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-
-      - name: Check the release ref
-        env:
-          REF: ${{ inputs.ref }}
-          BUMP: ${{ inputs.version }}
-          DISPATCHED_FROM: ${{ github.ref_name }}
-        run: |
-          set -euo pipefail
-
-          # This file must be the one on the default branch, or the guards below are
-          # whatever the dispatched ref happened to carry.
-          [ "$DISPATCHED_FROM" = 'next' ] ||
-            { echo "::error::Dispatch this workflow from next and name the target with the ref input - running it from ${DISPATCHED_FROM} uses that branch's copy of release.yml."; exit 1; }
-          # The exact shape `pnpm release:hotfix` creates - a glob cannot express
-          # "digits only", so the hotfix case is matched with an anchored regex.
-          case "$REF" in
-            next) ;;
-            hotfix/v*)
-              echo "$REF" | grep -qE '^hotfix/v(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$' ||
-                { echo "::error::${REF} is not a hotfix branch this workflow can release."; exit 1; }
-
-              [ "$BUMP" = 'patch' ] ||
-                { echo "::error::A hotfix ships one patch, not a ${BUMP} release."; exit 1; }
-              ;;
-            *)
-              echo "::error::Releases run from next or a hotfix/v* branch, not ${REF}."
-              exit 1
-              ;;
-          esac
 
       # Both checks exist to stop a half-merged hotfix producing a broken release,
       # and they run before anything is published so a mistake costs nothing.
@@ -227,6 +240,7 @@ jobs:
   # run against a ref whose package.json is already at the released version.
   republish:
     name: Publish only
+    needs: preflight
     if: ${{ inputs.publish_only }}
     runs-on: ubuntu-latest
     permissions:
@@ -259,18 +273,6 @@ jobs:
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
-
-      # A tag ref is allowed here and nowhere else: once next moves on from a failed
-      # release, the tag may be the only ref left pointing at that commit. What is
-      # published is guarded by the tag-at-HEAD check below, not by the ref name.
-      - name: Check the release ref
-        env:
-          REF: ${{ inputs.ref }}
-        run: |
-          set -euo pipefail
-          SEMVER='(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)'
-          echo "$REF" | grep -qE "^(next|hotfix/v${SEMVER}|v${SEMVER})$" ||
-            { echo "::error::Recovery runs from next, a hotfix/v<version> branch or a v<version> tag, not ${REF}."; exit 1; }
 
       # The tag has to be on this commit, not merely somewhere in the repository, or
       # a stale branch could publish contents that were never part of that release.
