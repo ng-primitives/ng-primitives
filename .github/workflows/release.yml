@@ -1,11 +1,20 @@
 name: Release
 
-# Runs from `next` for an ordinary release, or from a `hotfix/v*` branch prepared
-# by `pnpm release:hotfix` to ship a subset of what is merged. Publishing lives
-# here and nowhere else: npm's trusted publisher is bound to this exact file.
+# Always dispatch this from `next`, and name what to release with the `ref` input:
+# workflow_dispatch loads the workflow file from the ref it is dispatched against, so
+# dispatching against a hotfix branch would run whatever release.yml that branch was
+# cut from - which is the release tag, and therefore always an older file.
+#
+# `ref` is `next` for an ordinary release, or a `hotfix/v*` branch prepared by
+# `pnpm release:hotfix` to ship a subset of what is merged. Publishing lives here and
+# nowhere else: npm's trusted publisher is bound to this exact file.
 on:
   workflow_dispatch:
     inputs:
+      ref:
+        description: 'Branch or tag to release (default: next)'
+        type: string
+        default: next
       version:
         description: 'Version bump type'
         required: true
@@ -40,6 +49,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v7
         with:
+          ref: ${{ inputs.ref }}
           fetch-depth: 0
           fetch-tags: true
           token: ${{ secrets.GITHUB_TOKEN }}
@@ -67,10 +77,16 @@ jobs:
 
       - name: Check the release ref
         env:
-          REF: ${{ github.ref_name }}
+          REF: ${{ inputs.ref }}
           BUMP: ${{ inputs.version }}
+          DISPATCHED_FROM: ${{ github.ref_name }}
         run: |
           set -euo pipefail
+
+          # This file must be the one on the default branch, or the guards below are
+          # whatever the dispatched ref happened to carry.
+          [ "$DISPATCHED_FROM" = 'next' ] ||
+            { echo "::error::Dispatch this workflow from next and name the target with the ref input - running it from ${DISPATCHED_FROM} uses that branch's copy of release.yml."; exit 1; }
           # The exact shape `pnpm release:hotfix` creates - a glob cannot express
           # "digits only", so the hotfix case is matched with an anchored regex.
           case "$REF" in
@@ -141,7 +157,7 @@ jobs:
 
       - name: Push
         env:
-          REF: ${{ github.ref_name }}
+          REF: ${{ inputs.ref }}
         run: |
           git push origin --atomic --follow-tags --no-verify \
             "HEAD:refs/heads/${REF}" HEAD:main
@@ -156,7 +172,7 @@ jobs:
         if: failure()
         env:
           VERSION: ${{ steps.version.outputs.version }}
-          REF: ${{ github.ref_name }}
+          REF: ${{ inputs.ref }}
         run: |
           {
             echo "## ❌ Release did not finish"
@@ -188,7 +204,7 @@ jobs:
 
       - name: Release Summary
         env:
-          REF: ${{ github.ref_name }}
+          REF: ${{ inputs.ref }}
           VERSION: ${{ steps.version.outputs.version }}
           BUMP: ${{ inputs.version }}
         run: |
@@ -223,6 +239,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v7
         with:
+          ref: ${{ inputs.ref }}
           fetch-depth: 0
           fetch-tags: true
           token: ${{ secrets.GITHUB_TOKEN }}
@@ -248,7 +265,7 @@ jobs:
       # published is guarded by the tag-at-HEAD check below, not by the ref name.
       - name: Check the release ref
         env:
-          REF: ${{ github.ref_name }}
+          REF: ${{ inputs.ref }}
         run: |
           set -euo pipefail
           SEMVER='(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)'
@@ -341,7 +358,7 @@ jobs:
     # Runs after whichever of the two actually published - a recovery run is exactly
     # the case where next is still behind, because the original run never got here.
     if: >-
-      always() && github.ref_name != 'next' &&
+      always() && inputs.ref != 'next' &&
       (needs.release.result == 'success' || needs.republish.result == 'success')
     runs-on: ubuntu-latest
     # Merges and opens a pull request - it never publishes, so no id-token here.
@@ -405,9 +422,9 @@ jobs:
           exit 1
 
       - name: Delete the hotfix branch
-        if: steps.merge.outputs.merged == 'true' && startsWith(github.ref_name, 'hotfix/v')
+        if: steps.merge.outputs.merged == 'true' && startsWith(inputs.ref, 'hotfix/v')
         env:
-          REF: ${{ github.ref_name }}
+          REF: ${{ inputs.ref }}
         run: |
           # refs/heads/ is load-bearing: a bare v0.130.2 would resolve to the tag.
           git push origin --delete "refs/heads/${REF}" || echo "::warning::Could not delete ${REF}."

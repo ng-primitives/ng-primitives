@@ -193,14 +193,24 @@ async function main() {
   step(`pushing ${target}`);
   git('push', 'origin', `HEAD:refs/heads/${target}`, '--no-verify');
 
+  // Dispatched from next, not from the hotfix branch: workflow_dispatch loads the
+  // workflow file from the ref it runs against, and a hotfix branch carries whatever
+  // release.yml its release tag was cut from.
+  const dispatch = [
+    'workflow',
+    'run',
+    'release.yml',
+    '--ref',
+    'next',
+    '-f',
+    'version=patch',
+    '-f',
+    `ref=${target}`,
+  ];
+
   step(`dispatching Release against ${target}`);
-  if (
-    !runInherit('gh', ['workflow', 'run', 'release.yml', '--ref', target, '-f', 'version=patch'])
-  ) {
-    fail(
-      'Could not dispatch the workflow.',
-      `Run it by hand: gh workflow run release.yml --ref ${target} -f version=patch`,
-    );
+  if (!runInherit('gh', dispatch)) {
+    fail('Could not dispatch the workflow.', `Run it by hand: gh ${dispatch.join(' ')}`);
   }
 
   // Cosmetic cleanup: the release is already away, so a failure here is a warning,
