@@ -144,7 +144,8 @@ pnpm release:hotfix
 
 It lists what is unreleased, cherry-picks the commits you tick onto the last release tag, runs
 lint, build and test against that tree, shows you the changelog it would generate, then pushes
-`hotfix/v<version>` and dispatches the Release workflow against it. Pass `--commits 934,#927` to
+`hotfix/v<version>` and dispatches the Release workflow from `next`, passing that branch as the
+`ref` input - never from the hotfix branch itself, which the preflight refuses. Pass `--commits 934,#927` to
 name them by pull request or sha instead of picking, `--dry-run` to stop before anything is
 pushed, and `--resume` to carry on after resolving a cherry-pick conflict. A scripted run needs
 `--yes` alongside `--commits`, since there is no terminal to confirm on.
