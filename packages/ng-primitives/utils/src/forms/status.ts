@@ -5,12 +5,15 @@ import {
   WritableSignal,
   effect,
   inject,
+  linkedSignal,
   signal,
   untracked,
 } from '@angular/core';
-import { NgControl } from '@angular/forms';
-import { onMount } from 'ng-primitives/state';
+import { AbstractControl, NgControl } from '@angular/forms';
+import { onDestroy, onMount } from 'ng-primitives/state';
+import { Subscription } from 'rxjs';
 import { safeTakeUntilDestroyed } from '../observables/take-until-destroyed';
+import { FormFieldSource } from './types';
 
 export interface NgpControlStatus {
   valid: boolean | null;
@@ -19,7 +22,174 @@ export interface NgpControlStatus {
   dirty: boolean | null;
   touched: boolean | null;
   pending: boolean | null;
+  errors: string[] | null;
   disabled: boolean | null;
+}
+
+const initialStatus: NgpControlStatus = {
+  valid: null,
+  invalid: null,
+  pristine: null,
+  dirty: null,
+  touched: null,
+  pending: null,
+  disabled: null,
+  errors: null,
+};
+
+/**
+ * Create a reactive signal that tracks the status of an Angular form control.
+ *
+ * The control can be provided as a signal-based source (`FormFieldSource`, such as a
+ * signal `FieldTree` or interop control) or as a `NgControl`/classic `AbstractControl`.
+ *
+ * - Signal-based controls are read directly through their signal getters.
+ * - Classic controls are derived from the control and re-synced on `control.events`.
+ *
+ * If neither `source` nor `control` is provided, the nearest injected `NgControl` is used.
+ * @param options The options for the status.
+ * @param options.source A signal resolving to a `FormFieldSource` (signal-based control) or `NgControl`.
+ * @param options.control A signal resolving to a `NgControl`, used when no `source` is provided.
+ * @returns A reactive signal of the control's current status.
+ */
+export function controlStatus(options?: {
+  source?: Signal<FormFieldSource | null | undefined>;
+  control?: Signal<NgControl | null | undefined>;
+}): Signal<NgpControlStatus> {
+  const injector = inject(Injector);
+  const destroyRef = inject(DestroyRef);
+  const status = signal(initialStatus);
+
+  const optionSource = linkedSignal(() => options?.source?.() ?? options?.control?.());
+
+  setupForSignal(optionSource, status, injector);
+  setupForObservable(optionSource, status, destroyRef, injector);
+
+  return status;
+}
+
+/**
+ * Set up the status for a signal-based control by reading its signal getters.
+ * @internal
+ */
+function setupForSignal(
+  source: Signal<FormFieldSource | NgControl | null | undefined>,
+  status: WritableSignal<NgpControlStatus>,
+  injector: Injector,
+): void {
+  effect(
+    () => {
+      const s = source();
+
+      if (!s) {
+        status.set(initialStatus);
+        return;
+      }
+
+      if (typeof s !== 'function') {
+        return;
+      }
+
+      // No need to subscribe to anything since everything is signal based
+      status.set({
+        valid: s().valid(),
+        invalid: s().invalid(),
+        pristine: !s().dirty(),
+        dirty: s().dirty(),
+        touched: s().touched(),
+        pending: s().pending(),
+        errors: s()
+          .errors()
+          .map(x => x.kind),
+        disabled: s().disabled(),
+      });
+    },
+    { injector },
+  );
+}
+
+/**
+ * Set up the status for a `NgControl` or classic `AbstractControl`, re-syncing on
+ * `control.events`. Falls back to the injected `NgControl` when no source is provided.
+ * @internal
+ */
+function setupForObservable(
+  source: WritableSignal<FormFieldSource | NgControl | null | undefined>,
+  status: WritableSignal<NgpControlStatus>,
+  destroyRef: DestroyRef,
+  injector: Injector,
+) {
+  let subscription: Subscription | undefined;
+  const control = linkedSignal<AbstractControl | null>(() => {
+    const s = source();
+
+    if (!s || typeof s === 'function') {
+      return null;
+    }
+
+    if ('control' in s) {
+      return s.control;
+    }
+
+    return s;
+  });
+
+  function updateStatus(control: AbstractControl) {
+    // For interop controls, read directly from the control (which has signal getters).
+    // For classic controls, read from the underlying AbstractControl.
+    const source = isInteropControl(control) ? control : ((control as any).control ?? control);
+
+    try {
+      untracked(() =>
+        status.set({
+          valid: source.valid ?? null,
+          invalid: source.invalid ?? null,
+          pristine: source.pristine ?? null,
+          dirty: source.dirty ?? null,
+          touched: source.touched ?? null,
+          pending: source.pending ?? null,
+          disabled: source.disabled ?? null,
+          errors: source.errors ? Object.keys(source.errors!) : null,
+        }),
+      );
+    } catch {
+      // NG0950: Required input not available yet. The effect will re-run
+      // when the signal input becomes available.
+    }
+  }
+
+  function setup(control: AbstractControl) {
+    if (control.events) {
+      subscription = control.events
+        .pipe(safeTakeUntilDestroyed(destroyRef))
+        .subscribe(() => updateStatus(control));
+    }
+  }
+
+  onDestroy(() => {
+    subscription?.unsubscribe();
+  });
+
+  onMount(() => {
+    if (!source()) {
+      const ngControl = inject(NgControl, { optional: true });
+      source.set(ngControl?.control ?? null);
+    }
+  });
+
+  effect(
+    () => {
+      const c = control();
+
+      subscription?.unsubscribe();
+
+      if (c) {
+        setup(c);
+        updateStatus(c);
+      }
+    },
+    { injector },
+  );
 }
 
 /**
@@ -27,119 +197,6 @@ export interface NgpControlStatus {
  * signal-form types. Interop controls expose a `field()` method which returns the
  * underlying FieldState.
  */
-function isInteropControl(control: NgControl | null | undefined): boolean {
+function isInteropControl(control: unknown | null | undefined): boolean {
   return !!control && typeof (control as any).field === 'function';
-}
-
-/**
- * Reads status from a control and updates the status signal.
- * Wrapped in try-catch to handle signal-forms interop controls where
- * the `field` input may not be available yet (throws NG0950).
- */
-function updateStatus(control: NgControl, status: WritableSignal<NgpControlStatus>): void {
-  try {
-    // For interop controls, read directly from the control (which has signal getters).
-    // For classic controls, read from the underlying AbstractControl.
-    const source = isInteropControl(control) ? control : ((control as any).control ?? control);
-
-    const newStatus: NgpControlStatus = {
-      valid: source.valid ?? null,
-      invalid: source.invalid ?? null,
-      pristine: source.pristine ?? null,
-      dirty: source.dirty ?? null,
-      touched: source.touched ?? null,
-      pending: source.pending ?? null,
-      disabled: source.disabled ?? null,
-    };
-
-    untracked(() => status.set(newStatus));
-  } catch {
-    // NG0950: Required input not available yet. The effect will re-run
-    // when the signal input becomes available.
-  }
-}
-
-/**
- * A utility function to get the status of an Angular form control as a reactive signal.
- * This function injects the NgControl and returns a signal that reflects the control's status.
- * It supports both classic reactive forms controls and signal-forms interop controls.
- * @internal
- */
-/**
- * Sets up event subscription for a given NgControl.
- * Only sets up the subscription - does not call updateStatus.
- */
-function setupEventSubscription(
-  ngControl: NgControl,
-  status: WritableSignal<NgpControlStatus>,
-  destroyRef: DestroyRef,
-): void {
-  // For classic controls, also subscribe to the events observable.
-  const underlyingControl = (ngControl as any).control;
-  if (underlyingControl?.events) {
-    underlyingControl.events
-      .pipe(safeTakeUntilDestroyed(destroyRef))
-      .subscribe(() => updateStatus(ngControl, status));
-  }
-}
-
-export function controlStatus(): Signal<NgpControlStatus> {
-  const injector = inject(Injector);
-  const destroyRef = inject(DestroyRef);
-
-  const status = signal<NgpControlStatus>({
-    valid: null,
-    invalid: null,
-    pristine: null,
-    dirty: null,
-    touched: null,
-    pending: null,
-    disabled: null,
-  });
-
-  const control = signal<NgControl | null>(null);
-
-  onMount(() => {
-    // Try to inject NgControl immediately for initial state
-    control.set(inject(NgControl, { optional: true }));
-
-    // If we have a control immediately, update initial status
-    if (control()) {
-      updateStatus(control()!, status);
-    }
-
-    // Get the control (either from initial injection or from mount)
-    const mountControl = control() || inject(NgControl, { optional: true });
-
-    if (!mountControl) {
-      return;
-    }
-
-    // Update control signal if it wasn't set before
-    if (!control()) {
-      control.set(mountControl);
-    }
-
-    // Update status to ensure latest values
-    updateStatus(mountControl, status);
-
-    // Set up event subscription for reactive updates
-    setupEventSubscription(mountControl, status, destroyRef);
-  });
-
-  // Use an effect to reactively track status changes.
-  // For signal-forms interop controls, the status properties are signals.
-  // For classic controls, this will read the current values and establish
-  // no signal dependencies, but we also subscribe to events below.
-  effect(
-    () => {
-      const c = control();
-      if (c) {
-        updateStatus(c, status);
-      }
-    },
-    { injector },
-  );
-
-  return status;
 }
