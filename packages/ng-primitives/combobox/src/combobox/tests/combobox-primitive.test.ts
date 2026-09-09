@@ -559,6 +559,23 @@ describe('NgpCombobox', () => {
       await userEvent.keyboard('{arrowup}');
       expect(options[options.length - 1]).toHaveAttribute('data-active');
     });
+
+    it('should allow caret navigation with Home and End keys when dropdown is closed', async () => {
+      const { fixture } = await render(TestComponent);
+      const component = fixture.componentInstance;
+      component.filter = 'test';
+      fixture.detectChanges();
+
+      const input = screen.getByRole('combobox') as HTMLInputElement;
+      input.focus();
+      input.setSelectionRange(4, 4);
+
+      await userEvent.keyboard('{Home}');
+      expect(input.selectionStart).toBe(0);
+
+      await userEvent.keyboard('{End}');
+      expect(input.selectionStart).toBe(4);
+    });
   });
 
   describe('disabled', () => {
