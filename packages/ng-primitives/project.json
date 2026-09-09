@@ -9,7 +9,7 @@
     "build": {
       "executor": "@nx/angular:package",
       "outputs": ["{workspaceRoot}/dist/{projectRoot}"],
-      "dependsOn": ["build:schematics"],
+      "dependsOn": ["build:schematics:marker"],
       "options": {
         "project": "packages/ng-primitives/ng-package.json",
         "tsConfig": "packages/ng-primitives/tsconfig.lib.json"
@@ -61,6 +61,17 @@
             "output": "."
           }
         ]
+      }
+    },
+    "build:schematics:marker": {
+      "executor": "nx:run-commands",
+      "outputs": [
+        "{workspaceRoot}/dist/{projectRoot}/schematics/package.json",
+        "{workspaceRoot}/dist/{projectRoot}/schematics/.npmignore"
+      ],
+      "dependsOn": ["build:schematics"],
+      "options": {
+        "command": "node packages/ng-primitives/schematics-commonjs-marker.mjs"
       }
     },
     "build:schematics:test": {

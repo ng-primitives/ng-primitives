@@ -147,6 +147,14 @@ jobs:
           BUMP: ${{ inputs.version }}
         run: pnpm exec nx release version "$BUMP"
 
+      # A tarball without the schematics marker breaks every ng add and ng g, and nothing
+      # else on this path packs the package to check it. Runs after the bump so the publish
+      # step reuses this build, and before anything is committed, tagged or pushed.
+      - name: Packed schematics keep their CommonJS marker
+        run: |
+          pnpm exec nx build ng-primitives
+          node scripts/check-packed-schematics.mjs
+
       # Validated before it reaches an output: package.json is repository content, and
       # an unchecked value here could inject extra outputs or shell into later steps.
       - name: Resolve the version
@@ -296,6 +304,12 @@ jobs:
             { echo "::error::v${VERSION} is not the newest release (${NEWEST}) - publishing it would move npm's 'latest' backwards."; exit 1; }
 
           echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
+
+      # Same guard as the normal release, before main is moved.
+      - name: Packed schematics keep their CommonJS marker
+        run: |
+          pnpm exec nx build ng-primitives
+          node scripts/check-packed-schematics.mjs
 
       # The interrupted run may have died between the changelog and the push, leaving
       # main behind the tag. Completing it here keeps the release commit reachable

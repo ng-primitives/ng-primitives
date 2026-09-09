@@ -64,6 +64,12 @@ jobs:
         env:
           NODE_OPTIONS: '--max-old-space-size=8192' # Increase memory to 8GB
 
+      # Skipped when ng-primitives was not built. The release workflow runs the same check
+      # before it publishes.
+      - name: Packed schematics keep their CommonJS marker
+        if: hashFiles('dist/packages/ng-primitives/package.json') != ''
+        run: node scripts/check-packed-schematics.mjs
+
       # Skipped on PRs where ng-primitives isn't affected, so no report was produced.
       - name: Upload coverage to Codecov
         if: hashFiles('coverage/packages/ng-primitives/coverage-final.json') != ''
