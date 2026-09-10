@@ -1,4 +1,4 @@
-import { Directive, effect, input, OnInit, TemplateRef } from '@angular/core';
+import { Component, Directive, effect, input, OnInit, signal, TemplateRef } from '@angular/core';
 import { By } from '@angular/platform-browser';
 import { fireEvent, render, screen, waitFor } from '@testing-library/angular';
 import {
@@ -1301,6 +1301,54 @@ describe('NgpTooltipTrigger (primitive)', () => {
       await waitFor(() => {
         const container = document.querySelector('#tooltip-host');
         expect(container?.querySelector('[ngpTooltip]')).toBeInTheDocument();
+      });
+    });
+
+    it('should render tooltip into updated container when [ngpTooltipTriggerContainer] changes between opens', async () => {
+      @Component({
+        template: `
+          <div id="tooltip-container-a"></div>
+          <div id="tooltip-container-b"></div>
+
+          <button
+            [ngpTooltipTrigger]="content"
+            [ngpTooltipTriggerContainer]="container()"
+            ngpTooltipTriggerShowDelay="0"
+          >
+            Open Tooltip
+          </button>
+
+          <ng-template #content>
+            <div ngpTooltip data-testid="ngp-tooltip">Tooltip content</div>
+          </ng-template>
+        `,
+        imports: [NgpTooltipTrigger, NgpTooltip],
+      })
+      class DynamicContainerComponent {
+        readonly container = signal<string>('#tooltip-container-a');
+      }
+
+      const { fixture, getByRole } = await render(DynamicContainerComponent);
+      const trigger = getByRole('button');
+
+      fireEvent.mouseEnter(trigger);
+      await waitFor(() => {
+        const containerA = document.querySelector('#tooltip-container-a');
+        expect(containerA?.querySelector('[ngpTooltip]')).toBeInTheDocument();
+      });
+
+      fireEvent.mouseLeave(trigger);
+      await waitFor(() => {
+        expect(document.querySelector('[ngpTooltip]')).not.toBeInTheDocument();
+      });
+
+      fixture.componentInstance.container.set('#tooltip-container-b');
+      fixture.detectChanges();
+
+      fireEvent.mouseEnter(trigger);
+      await waitFor(() => {
+        const containerB = document.querySelector('#tooltip-container-b');
+        expect(containerB?.querySelector('[ngpTooltip]')).toBeInTheDocument();
       });
     });
   });

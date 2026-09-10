@@ -2517,3 +2517,56 @@ describe('NgpCombobox form control status', () => {
     expect(combobox).not.toHaveAttribute('data-invalid');
   });
 });
+
+describe('NgpCombobox container', () => {
+  @Component({
+    imports: [
+      NgpCombobox,
+      NgpComboboxButton,
+      NgpComboboxDropdown,
+      NgpComboboxOption,
+      NgpComboboxPortal,
+    ],
+    template: `
+      <div id="combobox-dynamic-a"></div>
+      <div id="combobox-dynamic-b"></div>
+
+      <div [ngpComboboxDropdownContainer]="container()" ngpCombobox data-testid="combobox">
+        <button data-testid="combobox-button" ngpComboboxButton>▼</button>
+
+        <div *ngpComboboxPortal ngpComboboxDropdown data-testid="combobox-dropdown">
+          <div ngpComboboxOption ngpComboboxOptionValue="apple">Apple</div>
+          <div ngpComboboxOption ngpComboboxOptionValue="banana">Banana</div>
+        </div>
+      </div>
+    `,
+  })
+  class DynamicContainerComboboxComponent {
+    readonly container = signal<string>('#combobox-dynamic-a');
+  }
+
+  it('should render dropdown into updated container when [ngpComboboxDropdownContainer] changes between opens', async () => {
+    const { fixture } = await render(DynamicContainerComboboxComponent);
+    const button = screen.getByTestId('combobox-button');
+
+    fireEvent.click(button);
+    await waitFor(() => {
+      const containerA = document.querySelector('#combobox-dynamic-a');
+      expect(containerA?.querySelector('[ngpComboboxDropdown]')).toBeInTheDocument();
+    });
+
+    fireEvent.click(button);
+    await waitFor(() => {
+      expect(screen.queryByTestId('combobox-dropdown')).not.toBeInTheDocument();
+    });
+
+    fixture.componentInstance.container.set('#combobox-dynamic-b');
+    fixture.detectChanges();
+
+    fireEvent.click(button);
+    await waitFor(() => {
+      const containerB = document.querySelector('#combobox-dynamic-b');
+      expect(containerB?.querySelector('[ngpComboboxDropdown]')).toBeInTheDocument();
+    });
+  });
+});

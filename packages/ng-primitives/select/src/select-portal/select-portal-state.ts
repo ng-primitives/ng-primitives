@@ -76,7 +76,7 @@ export const [
       placement: selectState().placement,
       offset: selectState().offset(),
       flip: selectState().flip(),
-      container: selectState().container(),
+      container: selectState().container,
       closeOnOutsideClick: true,
       closeOnEscape: true,
       restoreFocus: false,

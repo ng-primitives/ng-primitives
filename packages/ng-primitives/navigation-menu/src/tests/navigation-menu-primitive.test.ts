@@ -1,4 +1,4 @@
-import { Component, Directive, OnInit, TemplateRef, viewChild } from '@angular/core';
+import { Component, Directive, OnInit, signal, TemplateRef, viewChild } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { fireEvent, render, waitFor } from '@testing-library/angular';
 import {
@@ -1154,6 +1154,43 @@ class SetNavMenuContainerDirective implements OnInit {
 })
 class NavMenuContainerComponent {}
 
+@Component({
+  template: `
+    <div id="nav-container-a"></div>
+    <div id="nav-container-b"></div>
+
+    <nav ngpNavigationMenu>
+      <ul ngpNavigationMenuList>
+        <li ngpNavigationMenuItem ngpNavigationMenuItemValue="products">
+          <button
+            [ngpNavigationMenuTrigger]="productsContent"
+            [ngpNavigationMenuTriggerContainer]="container()"
+            data-testid="trigger-products"
+          >
+            Products
+          </button>
+          <ng-template #productsContent>
+            <div ngpNavigationMenuContent data-testid="content-products">
+              <a ngpNavigationMenuContentItem href="#">Product 1</a>
+            </div>
+          </ng-template>
+        </li>
+      </ul>
+    </nav>
+  `,
+  imports: [
+    NgpNavigationMenu,
+    NgpNavigationMenuList,
+    NgpNavigationMenuItem,
+    NgpNavigationMenuTrigger,
+    NgpNavigationMenuContent,
+    NgpNavigationMenuContentItem,
+  ],
+})
+class DynamicNavContainerComponent {
+  readonly container = signal<string>('#nav-container-a');
+}
+
 describe('Navigation Menu Container', () => {
   it('should expose container on the injected state so it can be set programmatically', async () => {
     const { fixture } = await render(NavMenuContainerComponent);
@@ -1167,6 +1204,39 @@ describe('Navigation Menu Container', () => {
     await waitFor(() => {
       const container = document.querySelector('#nav-menu-host');
       expect(container?.querySelector('[ngpNavigationMenuContent]')).toBeInTheDocument();
+    });
+  });
+
+  it('should render content into updated container when [ngpNavigationMenuTriggerContainer] changes between opens', async () => {
+    const { fixture } = await render(DynamicNavContainerComponent);
+    const trigger = fixture.debugElement.nativeElement.querySelector(
+      '[data-testid="trigger-products"]',
+    );
+
+    fireEvent.click(trigger);
+    fixture.detectChanges();
+
+    await waitFor(() => {
+      const containerA = document.querySelector('#nav-container-a');
+      expect(containerA?.querySelector('[ngpNavigationMenuContent]')).toBeInTheDocument();
+    });
+
+    fireEvent.click(trigger);
+    fixture.detectChanges();
+
+    await waitFor(() => {
+      expect(document.querySelector('[data-testid="content-products"]')).not.toBeInTheDocument();
+    });
+
+    fixture.componentInstance.container.set('#nav-container-b');
+    fixture.detectChanges();
+
+    fireEvent.click(trigger);
+    fixture.detectChanges();
+
+    await waitFor(() => {
+      const containerB = document.querySelector('#nav-container-b');
+      expect(containerB?.querySelector('[ngpNavigationMenuContent]')).toBeInTheDocument();
     });
   });
 });

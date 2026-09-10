@@ -350,7 +350,7 @@ export const [
         content: menu,
         triggerElement: element.nativeElement,
         injector,
-        container: container(),
+        container,
         placement,
         offset: offset(),
         flip: flip(),

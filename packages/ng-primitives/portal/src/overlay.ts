@@ -166,7 +166,7 @@ export interface NgpOverlayConfig<T = unknown> {
   context?: Signal<T | undefined>;
 
   /** Container element or selector to attach the overlay to (defaults to document.body) */
-  container?: HTMLElement | string | null;
+  container?: HTMLElement | string | null | Signal<HTMLElement | string | null | undefined>;
 
   /** Preferred placement of the overlay relative to the trigger. */
   placement?: Signal<NgpPlacement>;
@@ -1464,16 +1464,20 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
    * @internal
    */
   private resolveContainer(): HTMLElement {
-    if (!this.config.container) {
+    const rawContainer = isSignal(this.config.container)
+      ? this.config.container()
+      : this.config.container;
+
+    if (!rawContainer) {
       return this.document.body;
     }
 
-    if (typeof this.config.container === 'string') {
-      const element = this.document.querySelector(this.config.container);
+    if (typeof rawContainer === 'string') {
+      const element = this.document.querySelector(rawContainer);
       if (!element) {
         // Fallback to document.body if the container is not found
         console.warn(
-          `NgPrimitives: Container element with selector "${this.config.container}" not found. Falling back to document.body.`,
+          `NgPrimitives: Container element with selector "${rawContainer}" not found. Falling back to document.body.`,
         );
         return this.document.body;
       }
@@ -1481,7 +1485,7 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
       return element as HTMLElement;
     }
 
-    return this.config.container;
+    return rawContainer;
   }
 }
 
