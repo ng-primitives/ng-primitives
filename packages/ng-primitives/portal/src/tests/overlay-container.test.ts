@@ -9,7 +9,7 @@ import {
 } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { render, screen, waitFor } from '@testing-library/angular';
-import { afterEach, describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { NgpOverlay, NgpOverlayTemplateContext, createOverlay } from '../overlay';
 
 @Component({
@@ -153,5 +153,117 @@ describe('NgpOverlay container resolution', () => {
 
     // the same node was re-inserted, so the reattach branch (not a fresh attach) ran
     expect(containerB.querySelector('[data-testid="overlay"]')).toBe(rendered);
+  });
+
+  it('should keep an open overlay where it is when the container signal changes and use the new container on the next open', async () => {
+    const { fixture, getByTestId } = await render(OverlayContainerHostComponent);
+    fixture.autoDetectChanges(true);
+
+    const host = fixture.componentInstance;
+    const containerA = getByTestId('container-a');
+    const containerB = getByTestId('container-b');
+    const container = signal<string | HTMLElement | null>(containerA);
+
+    overlay = TestBed.runInInjectionContext(() =>
+      createOverlay({
+        content: host.content,
+        triggerElement: getByTestId('trigger'),
+        injector: host.injector,
+        viewContainerRef: host.viewContainerRef,
+        container,
+      }),
+    );
+
+    await overlay.show();
+    await waitFor(() => {
+      expect(containerA.querySelector('[data-testid="overlay"]')).toBeInTheDocument();
+    });
+
+    container.set(containerB);
+    fixture.detectChanges();
+    await new Promise(resolve => setTimeout(resolve));
+
+    expect(containerA.querySelector('[data-testid="overlay"]')).toBeInTheDocument();
+    expect(containerB.querySelector('[data-testid="overlay"]')).toBeNull();
+
+    overlay.hide({ immediate: true });
+    await waitFor(() => {
+      expect(screen.queryByTestId('overlay')).not.toBeInTheDocument();
+    });
+
+    await overlay.show();
+    await waitFor(() => {
+      expect(containerB.querySelector('[data-testid="overlay"]')).toBeInTheDocument();
+    });
+  });
+
+  it('should attach to a static container given without a signal', async () => {
+    const { fixture, getByTestId } = await render(OverlayContainerHostComponent);
+    fixture.autoDetectChanges(true);
+
+    const host = fixture.componentInstance;
+    const containerA = getByTestId('container-a');
+
+    overlay = TestBed.runInInjectionContext(() =>
+      createOverlay({
+        content: host.content,
+        triggerElement: getByTestId('trigger'),
+        injector: host.injector,
+        viewContainerRef: host.viewContainerRef,
+        container: containerA,
+      }),
+    );
+
+    await overlay.show();
+    await waitFor(() => {
+      expect(containerA.querySelector('[data-testid="overlay"]')).toBeInTheDocument();
+    });
+  });
+
+  it('should fall back to document.body when the container signal resolves to null', async () => {
+    const { fixture, getByTestId } = await render(OverlayContainerHostComponent);
+    fixture.autoDetectChanges(true);
+
+    const host = fixture.componentInstance;
+
+    overlay = TestBed.runInInjectionContext(() =>
+      createOverlay({
+        content: host.content,
+        triggerElement: getByTestId('trigger'),
+        injector: host.injector,
+        viewContainerRef: host.viewContainerRef,
+        container: signal<string | HTMLElement | null>(null),
+      }),
+    );
+
+    await overlay.show();
+    await waitFor(() => {
+      expect(screen.getByTestId('overlay').parentElement).toBe(document.body);
+    });
+  });
+
+  it('should warn and fall back to document.body when the container selector matches nothing', async () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    const { fixture, getByTestId } = await render(OverlayContainerHostComponent);
+    fixture.autoDetectChanges(true);
+
+    const host = fixture.componentInstance;
+
+    overlay = TestBed.runInInjectionContext(() =>
+      createOverlay({
+        content: host.content,
+        triggerElement: getByTestId('trigger'),
+        injector: host.injector,
+        viewContainerRef: host.viewContainerRef,
+        container: signal<string | HTMLElement | null>('#does-not-exist'),
+      }),
+    );
+
+    await overlay.show();
+    await waitFor(() => {
+      expect(screen.getByTestId('overlay').parentElement).toBe(document.body);
+    });
+    expect(warn).toHaveBeenCalledWith(expect.stringContaining('#does-not-exist'));
+    warn.mockRestore();
   });
 });
