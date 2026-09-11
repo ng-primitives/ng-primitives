@@ -87,6 +87,16 @@ describe('NgpCheckbox', () => {
   });
 
   describe('toggle interaction', () => {
+    it('should toggle when the enclosing label is clicked', async () => {
+      const { getByRole, getByText } = await render(
+        `<label><div ngpCheckbox></div>Checkbox</label>`,
+        { imports: [NgpCheckbox] },
+      );
+
+      fireEvent.click(getByText('Checkbox'));
+      expect(getByRole('checkbox')).toHaveAttribute('aria-checked', 'true');
+    });
+
     it('should emit checkedChange when clicked', async () => {
       const checkedChange = vi.fn();
       const { getByRole } = await render(
