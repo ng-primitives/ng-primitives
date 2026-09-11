@@ -65,6 +65,16 @@ export class NgpDialogManager implements OnDestroy {
       : this.openDialogsAtThisLevel;
   }
 
+  /**
+   * The `aria-hidden` bookkeeping, shared with the parent so nested managers don't overwrite each
+   * other's saved values, they act on the same list of open dialogs.
+   */
+  private get hiddenElements(): Map<Element, string | null> {
+    return this.parentDialogManager
+      ? this.parentDialogManager.hiddenElements
+      : this.ariaHiddenElements;
+  }
+
   /** Stream that emits when a dialog has been opened. */
   get afterOpened(): Subject<NgpDialogRef> {
     return this.parentDialogManager
@@ -149,16 +159,13 @@ export class NgpDialogManager implements OnDestroy {
       context,
     );
 
-    // Attach the portal to document.body
-    portal.attach(this.document.body);
+    portal.attach(this.resolveContainer(config.container));
 
     // Store the portal reference on the dialog ref for element access and cleanup
     dialogRef.portal = portal;
 
-    // If this is the first dialog that we're opening, hide all the non-overlay content
-    // and enable scroll blocking.
+    // If this is the first dialog that we're opening, enable scroll blocking.
     if (!this.openDialogs.length) {
-      this.hideNonDialogContentFromAssistiveTechnology(portal.getElements());
       this.enableScrollBlocking(config);
     }
 
@@ -192,6 +199,7 @@ export class NgpDialogManager implements OnDestroy {
     });
 
     (this.openDialogs as NgpDialogRef[]).push(dialogRef as NgpDialogRef<any, any>);
+    this.refreshAssistiveTechnologyHiding();
     this.afterOpened.next(dialogRef as NgpDialogRef<any, any>);
     this.subscribeToRouterEvents();
 
@@ -306,18 +314,13 @@ export class NgpDialogManager implements OnDestroy {
     if (index > -1) {
       (this.openDialogs as NgpDialogRef[]).splice(index, 1);
 
-      // If all the dialogs were closed, remove/restore the `aria-hidden`
-      // to a the siblings and emit to the `afterAllClosed` stream.
-      if (!this.openDialogs.length) {
-        this.ariaHiddenElements.forEach((previousValue, element) => {
-          if (previousValue) {
-            element.setAttribute('aria-hidden', previousValue);
-          } else {
-            element.removeAttribute('aria-hidden');
-          }
-        });
+      // Recompute for the dialogs that remain — this restores the `aria-hidden` of the siblings
+      // when the last one closes.
+      this.refreshAssistiveTechnologyHiding();
 
-        this.ariaHiddenElements.clear();
+      // If all the dialogs were closed, release the scroll block and emit to the
+      // `afterAllClosed` stream.
+      if (!this.openDialogs.length) {
         this.disableScrollBlocking();
 
         if (emitEvent) {
@@ -347,25 +350,118 @@ export class NgpDialogManager implements OnDestroy {
   }
 
   /**
+   * Resolve the container element the dialog should be rendered into.
+   */
+  private resolveContainer(container: NgpDialogConfig['container']): HTMLElement {
+    if (!container) {
+      return this.document.body;
+    }
+
+    if (typeof container === 'string') {
+      const element = this.document.querySelector<HTMLElement>(container);
+
+      if (!element) {
+        console.warn(
+          `NgPrimitives: Container element with selector "${container}" not found. Falling back to document.body.`,
+        );
+        return this.document.body;
+      }
+
+      return element;
+    }
+
+    return container;
+  }
+
+  /**
+   * Recompute what is hidden from assistive technology for the currently open dialogs.
+   *
+   * Runs on every open and close rather than for the first dialog only: dialogs can render into
+   * different containers, so a container hidden on behalf of one dialog may be the very container
+   * the next one opens into.
+   */
+  private refreshAssistiveTechnologyHiding(): void {
+    this.restoreAssistiveTechnologyHiding();
+
+    const portalElements = this.openDialogs.flatMap(dialog => dialog.getElements());
+
+    if (portalElements.length) {
+      this.hideNonDialogContentFromAssistiveTechnology(portalElements);
+    }
+  }
+
+  /**
+   * Restore the `aria-hidden` values this manager overwrote.
+   */
+  private restoreAssistiveTechnologyHiding(): void {
+    const hiddenElements = this.hiddenElements;
+
+    hiddenElements.forEach((previousValue, element) => {
+      if (previousValue) {
+        element.setAttribute('aria-hidden', previousValue);
+      } else {
+        element.removeAttribute('aria-hidden');
+      }
+    });
+
+    hiddenElements.clear();
+  }
+
+  /**
    * Hides all of the content that isn't a dialog portal from assistive technology.
    */
   private hideNonDialogContentFromAssistiveTechnology(portalElements: HTMLElement[]) {
     const body = this.document.body;
-    const bodyChildren = body.children;
 
-    for (let i = bodyChildren.length - 1; i > -1; i--) {
-      const sibling = bodyChildren[i];
+    // Collect every element on a path from the body down to a portal element. Hiding only the body
+    // children would hide the dialog itself when it renders into a nested container, and the paths
+    // must all be known up front — with two dialogs in different containers, one dialog's ancestors
+    // are the other's siblings.
+    const dialogPaths = new Set<Element>();
 
-      if (
-        !portalElements.includes(sibling as HTMLElement) &&
-        sibling.nodeName !== 'SCRIPT' &&
-        sibling.nodeName !== 'STYLE' &&
-        !sibling.hasAttribute('aria-live')
-      ) {
-        this.ariaHiddenElements.set(sibling, sibling.getAttribute('aria-hidden'));
-        sibling.setAttribute('aria-hidden', 'true');
+    for (const portalElement of portalElements) {
+      // A portal's root nodes can include comments (an `<ng-container>` root), so anchor the walk
+      // on the nearest element.
+      let current: Element | null =
+        portalElement instanceof Element ? portalElement : (portalElement as Node).parentElement;
+
+      while (current && current !== body) {
+        dialogPaths.add(current);
+        current = current.parentElement;
       }
     }
+
+    // Hide everything sitting beside those paths.
+    for (const element of dialogPaths) {
+      const parent = element.parentElement;
+
+      if (!parent) {
+        continue;
+      }
+
+      for (const sibling of Array.from(parent.children)) {
+        if (!dialogPaths.has(sibling)) {
+          this.hideFromAssistiveTechnology(sibling);
+        }
+      }
+    }
+  }
+
+  /**
+   * Hide a single element from assistive technology, remembering its previous value.
+   */
+  private hideFromAssistiveTechnology(element: Element): void {
+    if (
+      this.hiddenElements.has(element) ||
+      element.nodeName === 'SCRIPT' ||
+      element.nodeName === 'STYLE' ||
+      element.hasAttribute('aria-live')
+    ) {
+      return;
+    }
+
+    this.hiddenElements.set(element, element.getAttribute('aria-hidden'));
+    element.setAttribute('aria-hidden', 'true');
   }
 
   private getAfterAllClosed(): Subject<void> {

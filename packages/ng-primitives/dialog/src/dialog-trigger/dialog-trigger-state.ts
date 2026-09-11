@@ -4,6 +4,7 @@ import { NgpDismissGuard } from 'ng-primitives/portal';
 import { createPrimitive, emitter, listener, StateInjectionOptions } from 'ng-primitives/state';
 import { safeTakeUntilDestroyed } from 'ng-primitives/utils';
 import { Observable } from 'rxjs';
+import { injectDialogConfig } from '../config/dialog-config';
 import { NgpDialogContext, NgpDialogManager } from '../dialog/dialog.service';
 
 export interface NgpDialogTriggerState<T> {
@@ -19,6 +20,11 @@ export interface NgpDialogTriggerState<T> {
    * @default `true`
    */
   readonly closeOnOutsideClick?: Signal<NgpDismissGuard<Element>>;
+  /**
+   * The container element or selector the dialog should be rendered into.
+   * @default 'body'
+   */
+  readonly container?: Signal<HTMLElement | string | null>;
   /** The event that is fired when the closed state changes. */
   readonly closedChange: Observable<T>;
 }
@@ -36,6 +42,11 @@ export interface NgpDialogTriggerProps<T> {
    * @default `true`
    */
   readonly closeOnOutsideClick?: Signal<NgpDismissGuard<Element>>;
+  /**
+   * The container element or selector the dialog should be rendered into.
+   * @default 'body'
+   */
+  readonly container?: Signal<HTMLElement | string | null>;
   readonly onClosedChange?: (value: T) => void;
 }
 
@@ -50,6 +61,7 @@ export const [
     template,
     closeOnEscape = signal<NgpDismissGuard<KeyboardEvent>>(true),
     closeOnOutsideClick = signal<NgpDismissGuard<Element>>(true),
+    container = signal(injectDialogConfig().container ?? 'body'),
     onClosedChange,
   }: NgpDialogTriggerProps<T>) => {
     const elementRef = injectElementRef();
@@ -69,6 +81,7 @@ export const [
         injector,
         closeOnEscape: closeOnEscape(),
         closeOnOutsideClick: closeOnOutsideClick(),
+        container: container(),
       });
 
       dialogRef.closed.pipe(safeTakeUntilDestroyed(destroyRef)).subscribe(({ result }) => {
@@ -81,6 +94,7 @@ export const [
       template,
       closeOnEscape,
       closeOnOutsideClick,
+      container,
       closedChange: closed.asObservable(),
     } satisfies NgpDialogTriggerState<T>;
   },

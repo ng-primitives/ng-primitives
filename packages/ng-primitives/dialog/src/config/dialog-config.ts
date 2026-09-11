@@ -21,6 +21,12 @@ export interface NgpDialogConfig<T = any> {
   modal?: boolean;
 
   /**
+   * The container element or selector the dialog should be rendered into.
+   * @default 'body'
+   */
+  container?: HTMLElement | string | null;
+
+  /**
    * Whether the dialog should close when the user navigates. This includes both browser history
    * navigation (back/forward) and programmatic route changes (e.g. router.navigate()).
    */
@@ -49,6 +55,7 @@ export interface NgpDialogConfig<T = any> {
 export const defaultDialogConfig: NgpDialogConfig = {
   role: 'dialog',
   modal: true,
+  container: 'body',
   closeOnNavigation: true,
   closeOnEscape: true,
   closeOnClick: true,
