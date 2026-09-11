@@ -21,10 +21,14 @@ import { NgpOverlay, NgpOverlayTemplateContext, createOverlay } from '../overlay
     <ng-template #content>
       <div data-testid="overlay">Overlay Content</div>
     </ng-template>
+    <ng-template #other>
+      <div data-testid="other">Other Content</div>
+    </ng-template>
   `,
 })
 class OverlayContainerHostComponent {
   readonly content = viewChild.required<TemplateRef<NgpOverlayTemplateContext<unknown>>>('content');
+  readonly other = viewChild.required<TemplateRef<NgpOverlayTemplateContext<unknown>>>('other');
   readonly viewContainerRef = inject(ViewContainerRef);
   readonly injector = inject(Injector);
 }
@@ -35,7 +39,9 @@ describe('NgpOverlay container resolution', () => {
   afterEach(() => {
     overlay?.destroy();
     overlay = null;
-    document.querySelectorAll('[data-testid="overlay"]').forEach(el => el.remove());
+    document
+      .querySelectorAll('[data-testid="overlay"], [data-testid="other"]')
+      .forEach(el => el.remove());
   });
 
   it('should render overlay into updated container when container signal changes between opens (string selector)', async () => {
@@ -265,5 +271,51 @@ describe('NgpOverlay container resolution', () => {
     });
     expect(warn).toHaveBeenCalledWith(expect.stringContaining('#does-not-exist'));
     warn.mockRestore();
+  });
+
+  it('should keep a content swap in the container the overlay opened into, even after the container signal changed', async () => {
+    const { fixture, getByTestId } = await render(OverlayContainerHostComponent);
+    fixture.autoDetectChanges(true);
+
+    const host = fixture.componentInstance;
+    const containerA = getByTestId('container-a');
+    const containerB = getByTestId('container-b');
+    const container = signal<string | HTMLElement | null>(containerA);
+    const content = signal<TemplateRef<NgpOverlayTemplateContext<unknown>> | undefined>(
+      host.content(),
+    );
+
+    overlay = TestBed.runInInjectionContext(() =>
+      createOverlay({
+        content,
+        triggerElement: getByTestId('trigger'),
+        injector: host.injector,
+        viewContainerRef: host.viewContainerRef,
+        container,
+      }),
+    );
+
+    await overlay.show();
+    await waitFor(() => {
+      expect(containerA.querySelector('[data-testid="overlay"]')).toBeInTheDocument();
+    });
+
+    container.set(containerB);
+    content.set(host.other());
+
+    await waitFor(() => {
+      expect(containerA.querySelector('[data-testid="other"]')).toBeInTheDocument();
+    });
+    expect(containerB.querySelector('[data-testid="other"]')).toBeNull();
+
+    overlay.hide({ immediate: true });
+    await waitFor(() => {
+      expect(screen.queryByTestId('other')).not.toBeInTheDocument();
+    });
+
+    await overlay.show();
+    await waitFor(() => {
+      expect(containerB.querySelector('[data-testid="other"]')).toBeInTheDocument();
+    });
   });
 });
