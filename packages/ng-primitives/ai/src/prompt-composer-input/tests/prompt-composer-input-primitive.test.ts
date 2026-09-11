@@ -238,4 +238,48 @@ describe('NgpPromptComposerInput', () => {
     await userEvent.keyboard('{Enter}');
     expect(input.value).toBe('');
   });
+
+  describe('standalone (without NgpThread)', () => {
+    it('should initialize, sync prompt, and submit on Enter without NgpThread', async () => {
+      const submitSpy = vi.fn();
+
+      await render(
+        `<div ngpPromptComposer (ngpPromptComposerSubmit)="onSubmit($event)">
+          <input ngpPromptComposerInput />
+        </div>`,
+        {
+          imports: [NgpPromptComposer, NgpPromptComposerInput],
+          componentProperties: { onSubmit: submitSpy },
+        },
+      );
+
+      const input = screen.getByRole('textbox');
+      await userEvent.type(input, 'Standalone enter message');
+      await userEvent.keyboard('{Enter}');
+
+      expect(submitSpy).toHaveBeenCalledWith('Standalone enter message');
+      expect(input).toHaveValue('');
+    });
+
+    it('should cleanly unmount without throwing errors', async () => {
+      const { fixture } = await render(
+        `<div ngpPromptComposer>
+          @if (showInput) {
+            <input ngpPromptComposerInput />
+          }
+        </div>`,
+        {
+          imports: [NgpPromptComposer, NgpPromptComposerInput],
+          componentProperties: { showInput: true },
+        },
+      );
+
+      expect(screen.getByRole('textbox')).toBeInTheDocument();
+
+      fixture.componentInstance.showInput = false;
+      fixture.detectChanges();
+
+      expect(screen.queryByRole('textbox')).not.toBeInTheDocument();
+    });
+  });
 });

@@ -89,7 +89,7 @@ The `NgpThreadSuggestion` directive displays suggested text that the user can cl
 
 ### NgpPromptComposer
 
-The `NgpPromptComposer` directive creates a container for composing and submitting prompts to the AI assistant.
+The `NgpPromptComposer` directive creates a container for composing and submitting prompts to the AI assistant. It can be used standalone or within an `NgpThread`.
 
 <api-docs name="NgpPromptComposer"></api-docs>
 
