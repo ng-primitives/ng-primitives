@@ -215,4 +215,37 @@ describe('NgpPromptComposer', () => {
     expect(screen.getByTestId('current-prompt')).toHaveTextContent('Current prompt: "Hello"');
     expect(screen.getByTestId('has-prompt')).toHaveTextContent('Has prompt: Yes');
   });
+
+  describe('standalone (without NgpThread)', () => {
+    it('should set data attributes and submit without requiring an NgpThread ancestor', async () => {
+      const submitSpy = vi.fn();
+
+      const { fixture } = await render(
+        `<div ngpPromptComposer data-testid="composer" (ngpPromptComposerSubmit)="onSubmit($event)">
+          <input ngpPromptComposerInput />
+          <button ngpPromptComposerSubmit>Submit</button>
+        </div>`,
+        {
+          imports: [NgpPromptComposer, NgpPromptComposerInput, NgpPromptComposerSubmit],
+          componentProperties: { onSubmit: submitSpy },
+        },
+      );
+
+      const composer = screen.getByTestId('composer');
+      const input = screen.getByRole('textbox');
+      const submitButton = screen.getByRole('button');
+
+      expect(composer).not.toHaveAttribute('data-prompt');
+
+      await userEvent.type(input, 'Hello standalone');
+      fixture.detectChanges();
+
+      expect(composer).toHaveAttribute('data-prompt');
+
+      await userEvent.click(submitButton);
+
+      expect(submitSpy).toHaveBeenCalledWith('Hello standalone');
+      expect(input).toHaveValue('');
+    });
+  });
 });
