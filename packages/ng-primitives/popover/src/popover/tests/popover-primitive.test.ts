@@ -1576,6 +1576,50 @@ describe('NgpPopover', () => {
         expect(container?.querySelector('[ngpPopover]')).toBeInTheDocument();
       });
     });
+
+    it('should render popover into updated container when [ngpPopoverTriggerContainer] changes between opens', async () => {
+      @Component({
+        template: `
+          <div id="popover-container-a"></div>
+          <div id="popover-container-b"></div>
+
+          <button [ngpPopoverTrigger]="content" [ngpPopoverTriggerContainer]="container()">
+            Open Popover
+          </button>
+
+          <ng-template #content>
+            <div ngpPopover data-testid="ngp-popover">Popover content</div>
+          </ng-template>
+        `,
+        imports: [NgpPopoverTrigger, NgpPopover],
+      })
+      class DynamicContainerComponent {
+        readonly container = signal<string>('#popover-container-a');
+      }
+
+      const { fixture, getByRole } = await render(DynamicContainerComponent);
+      const trigger = getByRole('button');
+
+      fireEvent.click(trigger);
+      await waitFor(() => {
+        const containerA = document.querySelector('#popover-container-a');
+        expect(containerA?.querySelector('[ngpPopover]')).toBeInTheDocument();
+      });
+
+      fireEvent.click(trigger);
+      await waitFor(() => {
+        expect(document.querySelector('[ngpPopover]')).not.toBeInTheDocument();
+      });
+
+      fixture.componentInstance.container.set('#popover-container-b');
+      fixture.detectChanges();
+
+      fireEvent.click(trigger);
+      await waitFor(() => {
+        const containerB = document.querySelector('#popover-container-b');
+        expect(containerB?.querySelector('[ngpPopover]')).toBeInTheDocument();
+      });
+    });
   });
 
   describe('injected state setters', () => {

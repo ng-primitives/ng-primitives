@@ -666,7 +666,7 @@ export const [
         anchorElement: anchor,
         injector: injector,
         context,
-        container: container(),
+        container,
         placement: placement,
         offset: offset(),
         flip: flip(),

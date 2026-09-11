@@ -1904,6 +1904,34 @@ class SelectContainerComponent {
   readonly value = signal<string | undefined>(undefined);
 }
 
+@Component({
+  template: `
+    <div id="select-dynamic-a"></div>
+    <div id="select-dynamic-b"></div>
+
+    <div
+      [(ngpSelectValue)]="value"
+      [ngpSelectDropdownContainer]="container()"
+      ngpSelect
+      data-testid="select"
+    >
+      <span data-testid="placeholder">Select an option</span>
+
+      <div *ngpSelectPortal ngpSelectDropdown data-testid="dropdown">
+        @for (option of options; track option) {
+          <div [ngpSelectOptionValue]="option" ngpSelectOption>{{ option }}</div>
+        }
+      </div>
+    </div>
+  `,
+  imports: [NgpSelect, NgpSelectDropdown, NgpSelectOption, NgpSelectPortal],
+})
+class SelectDynamicContainerComponent {
+  readonly options = ['Apple', 'Banana', 'Cherry'];
+  readonly value = signal<string | undefined>(undefined);
+  readonly container = signal<string>('#select-dynamic-a');
+}
+
 describe('NgpSelect container', () => {
   it('should expose container on the injected state so it can be set programmatically', async () => {
     const user = userEvent.setup();
@@ -1914,6 +1942,34 @@ describe('NgpSelect container', () => {
     await waitFor(() => {
       const container = document.querySelector('#select-host');
       expect(container?.querySelector('[ngpSelectDropdown]')).toBeInTheDocument();
+    });
+  });
+
+  it('should render dropdown into updated container when [ngpSelectDropdownContainer] changes between opens', async () => {
+    const user = userEvent.setup();
+    const { fixture } = await render(SelectDynamicContainerComponent);
+
+    await user.click(screen.getByTestId('select'));
+
+    await waitFor(() => {
+      const containerA = document.querySelector('#select-dynamic-a');
+      expect(containerA?.querySelector('[ngpSelectDropdown]')).toBeInTheDocument();
+    });
+
+    await user.click(screen.getByTestId('select'));
+
+    await waitFor(() => {
+      expect(screen.queryByTestId('dropdown')).not.toBeInTheDocument();
+    });
+
+    fixture.componentInstance.container.set('#select-dynamic-b');
+    fixture.detectChanges();
+
+    await user.click(screen.getByTestId('select'));
+
+    await waitFor(() => {
+      const containerB = document.querySelector('#select-dynamic-b');
+      expect(containerB?.querySelector('[ngpSelectDropdown]')).toBeInTheDocument();
     });
   });
 });

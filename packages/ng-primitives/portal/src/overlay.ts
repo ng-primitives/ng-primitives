@@ -165,8 +165,11 @@ export interface NgpOverlayConfig<T = unknown> {
   /** Context data to pass to the overlay content */
   context?: Signal<T | undefined>;
 
-  /** Container element or selector to attach the overlay to (defaults to document.body) */
-  container?: HTMLElement | string | null;
+  /**
+   * Container element or selector to attach the overlay to (defaults to document.body).
+   * A signal is re-resolved each time the overlay opens; an open overlay is not moved.
+   */
+  container?: HTMLElement | string | null | Signal<HTMLElement | string | null | undefined>;
 
   /** Preferred placement of the overlay relative to the trigger. */
   placement?: Signal<NgpPlacement>;
@@ -337,6 +340,13 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
    * with the content it was built from so a later show can check it is still reusable.
    */
   private keptMounted: { portal: NgpPortal; content: NgpOverlayContent<T> } | null = null;
+
+  /**
+   * The container the current open attached into. A content swap while open re-attaches
+   * here rather than re-resolving `config.container`, so a container change never moves
+   * an open overlay - it takes effect on the next open.
+   */
+  private openContainer: HTMLElement | null = null;
 
   /**
    * Whether the overlay itself has been torn down. A hide already in flight when that happens
@@ -800,7 +810,7 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
     // replaced, and replaying the entrance would read as a close and reopen rather
     // than a content change.
     portal.detach({ immediate: true });
-    this.attachPortal(content, true);
+    this.attachPortal(content, true, this.openContainer ?? undefined);
   }
 
   /**
@@ -1051,9 +1061,15 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
    * positioning it. Shared by the initial open and by content swaps.
    * @param content The content to render
    * @param immediate If true, skip the enter animation
+   * @param container The container to attach into; resolved from the config when omitted
    */
-  private attachPortal(content: NgpOverlayContent<T>, immediate: boolean): void {
+  private attachPortal(
+    content: NgpOverlayContent<T>,
+    immediate: boolean,
+    container: HTMLElement = this.resolveContainer(),
+  ): void {
     this.renderedContent = content;
+    this.openContainer = container;
 
     let portal: NgpPortal;
     const keptMounted = this.keptMounted;
@@ -1064,7 +1080,7 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
       // content is not re-instantiated and its one-time setup does not re-run.
       this.keptMounted = null;
       portal = keptMounted.portal;
-      portal.reattach(this.resolveContainer(), { immediate });
+      portal.reattach(container, { immediate });
     } else {
       // A kept-mounted portal from a previous hide no longer matches the current
       // content (e.g. the overlay's content input changed while it was hidden) -
@@ -1093,7 +1109,7 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
       );
 
       // Attach portal to container
-      portal.attach(this.resolveContainer(), { immediate });
+      portal.attach(container, { immediate });
     }
 
     // Update portal signal
@@ -1356,6 +1372,7 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
     if (this.destroyingPortal === portal) {
       this.destroyingPortal = null;
       this.registeredOutletElement = null;
+      this.openContainer = null;
 
       if (reusableContent) {
         // The overlay was torn down while this hide was still awaiting its exit animation,
@@ -1464,16 +1481,20 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
    * @internal
    */
   private resolveContainer(): HTMLElement {
-    if (!this.config.container) {
+    const rawContainer = isSignal(this.config.container)
+      ? this.config.container()
+      : this.config.container;
+
+    if (!rawContainer) {
       return this.document.body;
     }
 
-    if (typeof this.config.container === 'string') {
-      const element = this.document.querySelector(this.config.container);
+    if (typeof rawContainer === 'string') {
+      const element = this.document.querySelector(rawContainer);
       if (!element) {
         // Fallback to document.body if the container is not found
         console.warn(
-          `NgPrimitives: Container element with selector "${this.config.container}" not found. Falling back to document.body.`,
+          `NgPrimitives: Container element with selector "${rawContainer}" not found. Falling back to document.body.`,
         );
         return this.document.body;
       }
@@ -1481,7 +1502,7 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
       return element as HTMLElement;
     }
 
-    return this.config.container;
+    return rawContainer;
   }
 }
 

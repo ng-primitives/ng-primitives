@@ -288,7 +288,7 @@ export const [
         viewContainerRef,
         injector,
         context,
-        container: container(),
+        container,
         offset: offset(),
         flip: flip(),
         shift,
