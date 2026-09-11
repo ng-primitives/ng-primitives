@@ -111,4 +111,47 @@ describe('NgpOverlay container resolution', () => {
       expect(containerB.querySelector('[data-testid="overlay"]')).toBeInTheDocument();
     });
   });
+
+  it('should reattach a kept-mounted portal into the updated container on the next open', async () => {
+    const { fixture, getByTestId } = await render(OverlayContainerHostComponent);
+    fixture.autoDetectChanges(true);
+
+    const host = fixture.componentInstance;
+    const containerA = getByTestId('container-a');
+    const containerB = getByTestId('container-b');
+    const container = signal<string | HTMLElement | null>(containerA);
+
+    overlay = TestBed.runInInjectionContext(() =>
+      createOverlay({
+        content: host.content,
+        triggerElement: getByTestId('trigger'),
+        injector: host.injector,
+        viewContainerRef: host.viewContainerRef,
+        container,
+        keepMounted: signal(true),
+      }),
+    );
+
+    await overlay.show();
+    const rendered = await waitFor(() => {
+      const el = containerA.querySelector('[data-testid="overlay"]');
+      expect(el).toBeInTheDocument();
+      return el;
+    });
+
+    overlay.hide({ immediate: true });
+    await waitFor(() => {
+      expect(screen.queryByTestId('overlay')).not.toBeInTheDocument();
+    });
+
+    container.set(containerB);
+
+    await overlay.show();
+    await waitFor(() => {
+      expect(containerB.querySelector('[data-testid="overlay"]')).toBeInTheDocument();
+    });
+
+    // the same node was re-inserted, so the reattach branch (not a fresh attach) ran
+    expect(containerB.querySelector('[data-testid="overlay"]')).toBe(rendered);
+  });
 });

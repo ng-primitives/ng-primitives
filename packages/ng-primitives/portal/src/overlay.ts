@@ -165,7 +165,10 @@ export interface NgpOverlayConfig<T = unknown> {
   /** Context data to pass to the overlay content */
   context?: Signal<T | undefined>;
 
-  /** Container element or selector to attach the overlay to (defaults to document.body) */
+  /**
+   * Container element or selector to attach the overlay to (defaults to document.body).
+   * A signal is re-resolved each time the overlay opens; an open overlay is not moved.
+   */
   container?: HTMLElement | string | null | Signal<HTMLElement | string | null | undefined>;
 
   /** Preferred placement of the overlay relative to the trigger. */
