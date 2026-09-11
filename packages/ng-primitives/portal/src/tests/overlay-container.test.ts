@@ -37,6 +37,7 @@ describe('NgpOverlay container resolution', () => {
   let overlay: NgpOverlay<unknown> | null = null;
 
   afterEach(() => {
+    vi.restoreAllMocks();
     overlay?.destroy();
     overlay = null;
     document
@@ -270,7 +271,6 @@ describe('NgpOverlay container resolution', () => {
       expect(screen.getByTestId('overlay').parentElement).toBe(document.body);
     });
     expect(warn).toHaveBeenCalledWith(expect.stringContaining('#does-not-exist'));
-    warn.mockRestore();
   });
 
   it('should keep a content swap in the container the overlay opened into, even after the container signal changed', async () => {
