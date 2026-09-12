@@ -34,6 +34,46 @@ class TestMenuWithSubmenuComponent {
 
 @Component({
   template: `
+    <button [ngpMenuTrigger]="menu" data-testid="root-trigger">Open Menu</button>
+
+    <ng-template #menu>
+      <div ngpMenu data-testid="root-menu">
+        <button [ngpSubmenuTrigger]="firstSubmenu" ngpMenuItem data-testid="first-submenu-trigger">
+          Open First Submenu
+        </button>
+        <button
+          [ngpSubmenuTrigger]="secondSubmenu"
+          ngpMenuItem
+          data-testid="second-submenu-trigger"
+        >
+          Open Second Submenu
+        </button>
+        <button ngpMenuItem data-testid="after-submenus">After Submenus</button>
+      </div>
+    </ng-template>
+
+    <ng-template #firstSubmenu>
+      <div ngpMenu data-testid="first-submenu">
+        <button ngpMenuItem data-testid="first-submenu-item">First Submenu Item</button>
+      </div>
+    </ng-template>
+
+    <ng-template #secondSubmenu>
+      <div ngpMenu data-testid="second-submenu">
+        <button ngpMenuItem data-testid="second-submenu-item">Second Submenu Item</button>
+      </div>
+    </ng-template>
+  `,
+  imports: [NgpMenuTrigger, NgpMenu, NgpMenuItem, NgpSubmenuTrigger],
+})
+class TestMenuWithSiblingSubmenusComponent {
+  menu = viewChild<TemplateRef<unknown>>('menu');
+  firstSubmenu = viewChild<TemplateRef<unknown>>('firstSubmenu');
+  secondSubmenu = viewChild<TemplateRef<unknown>>('secondSubmenu');
+}
+
+@Component({
+  template: `
     <button [ngpMenuTriggerPlacement]="placement" [ngpMenuTrigger]="menu" data-testid="trigger">
       Open Menu
     </button>
@@ -1005,6 +1045,42 @@ describe('NgpMenuItem', () => {
 
       fireEvent.keyDown(submenuTrigger, { key: 'ArrowDown' });
       expect(document.activeElement).toBe(document.querySelector('[data-testid="after-submenu"]'));
+    });
+
+    it('should keep focus on the open submenu trigger when a sibling is hovered', async () => {
+      const { fixture } = await render(TestMenuWithSiblingSubmenusComponent);
+      const rootTrigger = fixture.debugElement.nativeElement.querySelector(
+        '[data-testid="root-trigger"]',
+      ) as HTMLElement;
+
+      fireEvent.click(rootTrigger, { detail: 0 });
+      fixture.detectChanges();
+
+      await waitFor(() =>
+        expect(document.querySelector('[data-testid="first-submenu-trigger"]')).toBeInTheDocument(),
+      );
+      const firstSubmenuTrigger = document.querySelector(
+        '[data-testid="first-submenu-trigger"]',
+      ) as HTMLElement;
+      const secondSubmenuTrigger = document.querySelector(
+        '[data-testid="second-submenu-trigger"]',
+      ) as HTMLElement;
+      fireEvent.keyDown(firstSubmenuTrigger, { key: 'ArrowRight' });
+      fixture.detectChanges();
+
+      await waitFor(() =>
+        expect(document.querySelector('[data-testid="first-submenu"]')).toBeInTheDocument(),
+      );
+      (document.querySelector('[data-testid="first-submenu-item"]') as HTMLElement).focus();
+
+      fireEvent.mouseEnter(document.querySelector('[data-testid="after-submenus"]') as HTMLElement);
+      fixture.detectChanges();
+
+      await waitFor(() =>
+        expect(document.querySelector('[data-testid="first-submenu"]')).not.toBeInTheDocument(),
+      );
+      expect(document.activeElement).toBe(firstSubmenuTrigger);
+      expect(document.activeElement).not.toBe(secondSubmenuTrigger);
     });
   });
 

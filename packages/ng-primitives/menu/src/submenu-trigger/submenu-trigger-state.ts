@@ -269,7 +269,10 @@ export const [
         }
 
         hide('mouse');
-        focus('keyboard');
+
+        if (open()) {
+          focus('keyboard');
+        }
       });
 
     // Host bindings
