@@ -269,6 +269,7 @@ export const [
         }
 
         hide('mouse');
+        focus('keyboard');
       });
 
     // Host bindings

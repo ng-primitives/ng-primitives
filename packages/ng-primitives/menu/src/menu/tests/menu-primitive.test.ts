@@ -14,6 +14,7 @@ import { describe, expect, it } from 'vitest';
         <button [ngpSubmenuTrigger]="submenu" ngpMenuItem data-testid="submenu-trigger">
           Open Submenu
         </button>
+        <button ngpMenuItem data-testid="after-submenu">After Submenu</button>
       </div>
     </ng-template>
 
@@ -963,6 +964,47 @@ describe('NgpMenuItem', () => {
 
       // Focus should be on the submenu trigger
       expect(document.activeElement).toBe(submenuTrigger);
+    });
+  });
+
+  describe('submenu focus after pointer closure', () => {
+    it('should return focus to the submenu trigger when a sibling is hovered', async () => {
+      const { fixture } = await render(TestMenuWithSubmenuComponent);
+      const rootTrigger = fixture.debugElement.nativeElement.querySelector(
+        '[data-testid="root-trigger"]',
+      ) as HTMLElement;
+
+      fireEvent.click(rootTrigger, { detail: 0 });
+      fixture.detectChanges();
+
+      await waitFor(() =>
+        expect(document.querySelector('[data-testid="submenu-trigger"]')).toBeInTheDocument(),
+      );
+      const submenuTrigger = document.querySelector(
+        '[data-testid="submenu-trigger"]',
+      ) as HTMLElement;
+      const firstItem = document.querySelector('[data-testid="item-1"]') as HTMLElement;
+      fireEvent.keyDown(firstItem, { key: 'ArrowDown' });
+      fireEvent.keyDown(document.activeElement as HTMLElement, { key: 'ArrowDown' });
+      fireEvent.keyDown(submenuTrigger, { key: 'ArrowRight' });
+      fixture.detectChanges();
+
+      await waitFor(() =>
+        expect(document.querySelector('[data-testid="submenu"]')).toBeInTheDocument(),
+      );
+      const submenuItem = document.querySelector('[data-testid="submenu-item-1"]') as HTMLElement;
+      submenuItem.focus();
+
+      fireEvent.mouseEnter(document.querySelector('[data-testid="after-submenu"]') as HTMLElement);
+      fixture.detectChanges();
+
+      await waitFor(() =>
+        expect(document.querySelector('[data-testid="submenu"]')).not.toBeInTheDocument(),
+      );
+      expect(document.activeElement).toBe(submenuTrigger);
+
+      fireEvent.keyDown(submenuTrigger, { key: 'ArrowDown' });
+      expect(document.activeElement).toBe(document.querySelector('[data-testid="after-submenu"]'));
     });
   });
 
