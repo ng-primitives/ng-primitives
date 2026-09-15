@@ -402,6 +402,12 @@ jobs:
             git merge-base --is-ancestor HEAD origin/main || rc=$?
             [ "$rc" -eq 1 ] ||
               { echo "::error::v${VERSION} is already on main, or main could not be read (git exit ${rc}). A backport is neither. Recover it with dist_tag 'latest'."; exit 1; }
+
+            # The release job caps how old a backport can be; recovery builds the same tree,
+            # so it has to hold to the same floor rather than rely on that job having run.
+            OLDEST='v0.130.2'
+            [ "$(printf '%s\nv%s\n' "$OLDEST" "$VERSION" | sort -V | head -n1)" = "$OLDEST" ] ||
+              { echo "::error::v${VERSION} is older than ${OLDEST}, the oldest release this workflow is known to build."; exit 1; }
           fi
 
           echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
@@ -466,7 +472,13 @@ jobs:
             name=$(node -p "require('./packages/${project}/package.json').name")
 
             if npm view "${name}@${VERSION}" version > /dev/null 2>&1; then
-              echo "${name}@${VERSION} is already published - skipping"
+              # The already-published half has to sit under the same tag as the half about to
+              # be published, or the release ends up split across two dist-tags.
+              TAGGED_AS=$(npm view "${name}@${DIST_TAG}" version 2>/dev/null || true)
+              [ "$TAGGED_AS" = "$VERSION" ] ||
+                { echo "::error::${name}@${DIST_TAG} is ${TAGGED_AS:-unpublished}, not ${VERSION} - recover with the dist_tag the original release used."; exit 1; }
+
+              echo "${name}@${VERSION} is already published under ${DIST_TAG} - skipping"
             else
               MISSING+=("$project")
             fi
