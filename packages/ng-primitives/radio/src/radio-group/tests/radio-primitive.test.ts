@@ -845,6 +845,28 @@ describe('NgpRadioGroup', () => {
       expect(getByRole('radio', { name: 'One' })).toHaveAttribute('tabindex', '0');
     });
 
+    it('should move the tab stop off the checked item when it becomes disabled', async () => {
+      const { getByRole, rerender, fixture } = await render(
+        `<div ngpRadioGroup [ngpRadioGroupValue]="value">
+          <div ngpRadioItem ngpRadioItemValue="1">One</div>
+          <div ngpRadioItem ngpRadioItemValue="2" [ngpRadioItemDisabled]="off">Two</div>
+        </div>`,
+        {
+          imports: [NgpRadioGroup, NgpRadioItem],
+          componentProperties: { value: '2', off: false },
+        },
+      );
+
+      expect(getByRole('radio', { name: 'Two' })).toHaveAttribute('tabindex', '0');
+
+      // disabling the checked option must not take the whole group out of the tab order
+      await rerender({ componentProperties: { value: '2', off: true } });
+      await fixture.whenStable();
+
+      expect(getByRole('radio', { name: 'Two' })).toHaveAttribute('tabindex', '-1');
+      expect(getByRole('radio', { name: 'One' })).toHaveAttribute('tabindex', '0');
+    });
+
     it('should leave the tab stop on the first item when nothing is checked', async () => {
       const { getByRole } = await render(
         `<div ngpRadioGroup>

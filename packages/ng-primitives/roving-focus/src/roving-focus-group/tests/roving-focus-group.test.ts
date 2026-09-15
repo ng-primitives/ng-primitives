@@ -206,6 +206,70 @@ describe('NgpRovingFocusGroup', () => {
         expect(container.getByTestId('item-3')).toHaveAttribute('tabindex', '0');
       });
     });
+
+    it('should not leave the tab stop on an item that becomes disabled', async () => {
+      const container = await render(
+        `<div ngpRovingFocusGroup>
+          <button ngpRovingFocusItem data-testid="item-1">One</button>
+          <button
+            ngpRovingFocusItem
+            [ngpRovingFocusItemDisabled]="off"
+            data-testid="item-2">Two</button>
+        </div>`,
+        { imports, componentProperties: { off: false } },
+      );
+
+      container.getByTestId('item-2').click();
+      await waitFor(() => expect(container.getByTestId('item-2')).toHaveAttribute('tabindex', '0'));
+
+      await container.rerender({ componentProperties: { off: true } });
+
+      // a disabled item is out of the tab order, so leaving the tab stop on it would take
+      // the whole group out of the tab sequence
+      await waitFor(() => {
+        expect(container.getByTestId('item-2')).toHaveAttribute('tabindex', '-1');
+        expect(container.getByTestId('item-1')).toHaveAttribute('tabindex', '0');
+      });
+    });
+
+    it('should return the tab stop when the item is enabled again', async () => {
+      const container = await render(
+        `<div ngpRovingFocusGroup>
+          <button ngpRovingFocusItem data-testid="item-1">One</button>
+          <button
+            ngpRovingFocusItem
+            [ngpRovingFocusItemDisabled]="off"
+            data-testid="item-2">Two</button>
+        </div>`,
+        { imports, componentProperties: { off: false } },
+      );
+
+      container.getByTestId('item-2').click();
+      await waitFor(() => expect(container.getByTestId('item-2')).toHaveAttribute('tabindex', '0'));
+
+      await container.rerender({ componentProperties: { off: true } });
+      await waitFor(() => expect(container.getByTestId('item-1')).toHaveAttribute('tabindex', '0'));
+
+      await container.rerender({ componentProperties: { off: false } });
+
+      await waitFor(() => {
+        expect(container.getByTestId('item-2')).toHaveAttribute('tabindex', '0');
+        expect(container.getByTestId('item-1')).toHaveAttribute('tabindex', '-1');
+      });
+    });
+
+    it('should leave no tab stop when every item is disabled', async () => {
+      const container = await render(
+        `<div ngpRovingFocusGroup>
+          <button ngpRovingFocusItem ngpRovingFocusItemDisabled data-testid="item-1">One</button>
+          <button ngpRovingFocusItem ngpRovingFocusItemDisabled data-testid="item-2">Two</button>
+        </div>`,
+        { imports },
+      );
+
+      expect(container.getByTestId('item-1')).toHaveAttribute('tabindex', '-1');
+      expect(container.getByTestId('item-2')).toHaveAttribute('tabindex', '-1');
+    });
   });
 
   describe('click activation', () => {

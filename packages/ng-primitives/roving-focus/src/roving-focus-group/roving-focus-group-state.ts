@@ -1,6 +1,6 @@
 import { FocusOrigin } from '@angular/cdk/a11y';
 import { Directionality } from '@angular/cdk/bidi';
-import { inject, signal, Signal } from '@angular/core';
+import { computed, inject, signal, Signal } from '@angular/core';
 import { NgpOrientation } from 'ng-primitives/common';
 import { controlled, createPrimitive, injectInheritedState } from 'ng-primitives/state';
 import type { NgpRovingFocusItemState } from '../roving-focus-item/roving-focus-item-state';
@@ -135,11 +135,32 @@ export const [
     }
 
     /**
-     * Store the active item in the roving focus group. This is the single source
-     * of truth for the tab stop; items push to it via setActiveItem when they
-     * become active (e.g. the selected tab), and roving navigation updates it too.
+     * The item that has claimed the tab stop - roving navigation pushes here as focus moves,
+     * and items that declare themselves active (e.g. the checked radio) push via setTabStop.
+     * Read `activeItem` rather than this: a claim is a request, not the final answer.
      */
-    const activeItem = signal<string | null>(null);
+    const claimedItem = signal<string | null>(null);
+
+    /**
+     * The item that actually holds the tab stop. A disabled item is out of the tab order, so
+     * if the item that claimed the stop is disabled the group falls back to its first enabled
+     * item - otherwise the group as a whole drops out of the tab sequence.
+     */
+    const activeItem = computed(() => {
+      const claimed = claimedItem();
+
+      // the common case takes no sort - every roving keystroke lands here, and sorting by
+      // compareDocumentPosition on each one is measurable on a large group
+      if (items().some(item => item.id() === claimed && !item.disabled())) {
+        return claimed;
+      }
+
+      return (
+        getSortedItems()
+          .find(item => !item.disabled())
+          ?.id() ?? null
+      );
+    });
 
     /**
      * Activate an item in the roving focus group.
@@ -147,7 +168,7 @@ export const [
      * @param origin The origin of the focus change
      */
     function setActiveItem(id: string | null, origin: FocusOrigin = 'program'): void {
-      activeItem.set(id);
+      claimedItem.set(id);
       const item = items().find(i => i.id() === id) ?? null;
 
       if (item) {
@@ -157,7 +178,7 @@ export const [
 
     // set the tab stop without moving focus (see interface docs)
     function setTabStop(id: string | null): void {
-      activeItem.set(id);
+      claimedItem.set(id);
     }
 
     /**
@@ -329,8 +350,8 @@ export const [
       if (item.disabled()) {
         return;
       }
-      if (!activeItem()) {
-        activeItem.set(item.id());
+      if (!claimedItem()) {
+        claimedItem.set(item.id());
       }
     }
 
@@ -343,9 +364,9 @@ export const [
       items.update(items => items.filter(i => i !== item));
 
       // check if the unregistered item is the active item
-      if (activeItem() === item.id()) {
+      if (claimedItem() === item.id()) {
         // if the active item is unregistered, activate the first item
-        activeItem.set(items()[0]?.id() ?? null);
+        claimedItem.set(items()[0]?.id() ?? null);
       }
     }
 
