@@ -181,7 +181,9 @@ are refused; start it with a letter. And the trusted publisher's credential is g
 
 The tag is passed as `nx release publish --tag`, never read from the branch, because a branch
 cut from an old tag carries that tag's `project.json`. Everything else the workflow runs has to
-survive an old tree the same way.
+survive an old tree the same way, so backports are capped at `v0.130.2` - the oldest release the
+steps have been checked against. To go further back, walk the release job against that tree
+first and move the floor in `release.yml`.
 
 If a release fails after it has tagged - the job summary tells you which side of that line it
 fell on - do **not** rerun the workflow normally, or it will version again and bump past the

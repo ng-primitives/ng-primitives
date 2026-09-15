@@ -176,7 +176,14 @@ jobs:
             [ "$BASE" != "$NEWEST" ] ||
               { echo "::error::${BASE} is the newest release - a backport onto it would block later releases. Ship this from next, or as a hotfix/v<version> branch."; exit 1; }
 
-            echo "Backport: publishing under '${DIST_TAG}', leaving main and npm's 'latest' alone."
+            # These steps run against the checked-out tree, not this file, so every one of
+            # them has to work on the branch's vintage. v0.130.2 is the oldest audited for
+            # that; anything earlier has to be re-checked before it is allowed through.
+            OLDEST='v0.130.2'
+            [ "$(printf '%s\n%s\n' "$OLDEST" "$BASE" | sort -V | head -n1)" = "$OLDEST" ] ||
+              { echo "::error::${BASE} is older than ${OLDEST}, the oldest release this workflow is known to build. Check the steps against that tree before backporting onto it."; exit 1; }
+
+            echo "Backport: publishing under '${DIST_TAG}', from ${BASE}, leaving main and npm's 'latest' alone."
           fi
 
       - name: Version
