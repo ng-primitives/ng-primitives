@@ -272,6 +272,32 @@ describe('NgpRovingFocusGroup', () => {
     });
   });
 
+  describe('registration order', () => {
+    it('should give the tab stop to the first item in document order', async () => {
+      // the @if blocks resolve back to front, so the items register in reverse document order
+      const container = await render(
+        `<div ngpRovingFocusGroup>
+          @if (showFirst) {
+            <button ngpRovingFocusItem data-testid="item-1">One</button>
+          }
+          @if (showSecond) {
+            <button ngpRovingFocusItem data-testid="item-2">Two</button>
+          }
+          <button ngpRovingFocusItem data-testid="item-3">Three</button>
+        </div>`,
+        { imports, componentProperties: { showFirst: false, showSecond: false } },
+      );
+
+      await container.rerender({ componentProperties: { showFirst: false, showSecond: true } });
+      await container.rerender({ componentProperties: { showFirst: true, showSecond: true } });
+      await container.fixture.whenStable();
+
+      expect(container.getByTestId('item-1')).toHaveAttribute('tabindex', '0');
+      expect(container.getByTestId('item-2')).toHaveAttribute('tabindex', '-1');
+      expect(container.getByTestId('item-3')).toHaveAttribute('tabindex', '-1');
+    });
+  });
+
   describe('item removal', () => {
     // each item is behind its own @if so they register in the reverse of document order,
     // which is what projected or conditionally rendered content does in practice

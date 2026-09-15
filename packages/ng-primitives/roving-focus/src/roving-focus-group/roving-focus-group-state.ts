@@ -349,16 +349,10 @@ export const [
     }
 
     function register(item: NgpRovingFocusItemState): void {
+      // no tab stop to seed - with nothing claimed, activeItem already resolves to the first
+      // enabled item in document order, which seeding by registration order got wrong when
+      // items arrive out of order (projected or conditionally rendered content).
       items.update(items => [...items, item]);
-
-      // seed the first non-disabled item as the tab stop; an active item (e.g. the
-      // selected tab) overrides this by pushing to setActiveItem once it registers.
-      if (item.disabled()) {
-        return;
-      }
-      if (!claimedItem()) {
-        claimedItem.set(item.id());
-      }
     }
 
     /**
