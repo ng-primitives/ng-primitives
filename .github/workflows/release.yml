@@ -5,9 +5,10 @@ name: Release
 # dispatching against a hotfix branch would run whatever release.yml that branch was
 # cut from - which is the release tag, and therefore always an older file.
 #
-# `ref` is `next` for an ordinary release, or a `hotfix/v*` branch prepared by
-# `pnpm release:hotfix` to ship a subset of what is merged. Publishing lives here and
-# nowhere else: npm's trusted publisher is bound to this exact file.
+# `ref` is `next` for an ordinary release, a `hotfix/v*` branch prepared by
+# `pnpm release:hotfix` to ship a subset of what is merged, or a `release/<line>.x` branch
+# to backport onto an older line. Publishing lives here and nowhere else: npm's trusted
+# publisher is bound to this exact file.
 on:
   workflow_dispatch:
     inputs:
@@ -27,6 +28,10 @@ on:
         description: 'Recovery: publish the version already tagged on this ref, without versioning again'
         type: boolean
         default: false
+      dist_tag:
+        description: "npm dist-tag to publish under. Anything but 'latest' marks this a backport: an older base is allowed, and main is left alone"
+        type: string
+        default: latest
 
 permissions: {}
 
@@ -49,6 +54,7 @@ jobs:
           REF: ${{ inputs.ref }}
           BUMP: ${{ inputs.version }}
           PUBLISH_ONLY: ${{ inputs.publish_only }}
+          DIST_TAG: ${{ inputs.dist_tag }}
           DISPATCHED_FROM: ${{ github.ref_name }}
         run: |
           set -euo pipefail
@@ -59,22 +65,23 @@ jobs:
             { echo "::error::Dispatch this workflow from next and name the target with the ref input - running it from ${DISPATCHED_FROM} uses that branch's copy of release.yml."; exit 1; }
 
           SEMVER='(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)'
+          # A maintenance branch for an older line, kept between backports.
+          LINE='release/(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.x'
 
           if [ "$PUBLISH_ONLY" = 'true' ]; then
             # A tag is allowed only here: once next moves on from a failed release, the
             # tag may be the only ref left pointing at that commit.
-            echo "$REF" | grep -qE "^(next|hotfix/v${SEMVER}|v${SEMVER})$" ||
-              { echo "::error::Recovery runs against next, a hotfix/v<version> branch or a v<version> tag, not ${REF}."; exit 1; }
+            echo "$REF" | grep -qE "^(next|hotfix/v${SEMVER}|${LINE}|v${SEMVER})$" ||
+              { echo "::error::Recovery runs against next, a hotfix/v<version> branch, a release/<line>.x branch or a v<version> tag, not ${REF}."; exit 1; }
           else
-            echo "$REF" | grep -qE "^(next|hotfix/v${SEMVER})$" ||
-              { echo "::error::Releases run against next or a hotfix/v<version> branch, not ${REF}."; exit 1; }
+            echo "$REF" | grep -qE "^(next|hotfix/v${SEMVER}|${LINE})$" ||
+              { echo "::error::Releases run against next, a hotfix/v<version> branch or a release/<line>.x branch, not ${REF}."; exit 1; }
 
-            case "$REF" in
-              hotfix/v*)
-                [ "$BUMP" = 'patch' ] ||
-                  { echo "::error::A hotfix ships one patch, not a ${BUMP} release."; exit 1; }
-                ;;
-            esac
+            # A minor from an older line lands on a version the newer line already shipped.
+            if [ "$DIST_TAG" != 'latest' ] || case "$REF" in hotfix/v*) true ;; *) false ;; esac; then
+              [ "$BUMP" = 'patch' ] ||
+                { echo "::error::A hotfix or backport ships one patch, not a ${BUMP} release."; exit 1; }
+            fi
           fi
 
   release:
@@ -120,6 +127,8 @@ jobs:
       # Both checks exist to stop a half-merged hotfix producing a broken release,
       # and they run before anything is published so a mistake costs nothing.
       - name: Check main is merged and the base is current
+        env:
+          DIST_TAG: ${{ inputs.dist_tag }}
         run: |
           set -euo pipefail
           git fetch -q origin main --tags
@@ -131,16 +140,32 @@ jobs:
           [ -z "$RELEASED" ] ||
             { echo "::error::${RELEASED} is already tagged at this commit. To finish a release that failed after tagging, rerun this workflow with publish_only instead of versioning again."; exit 1; }
 
-          git merge-base --is-ancestor origin/main HEAD ||
-            { echo "::error::main is ahead of this branch - an earlier hotfix is unmerged. Merge main into next first."; exit 1; }
+          # Both checks below keep 'latest' moving forwards, which a backport opts out of.
+          if [ "${DIST_TAG}" = 'latest' ]; then
+            git merge-base --is-ancestor origin/main HEAD ||
+              { echo "::error::main is ahead of this branch - an earlier hotfix is unmerged. Merge main into next first."; exit 1; }
 
-          # Plain releases only: a prerelease tag would sort first and break both sides.
-          NEWEST=$(git tag --list 'v*' --sort=-v:refname | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | head -n1)
-          # --exclude, not a stricter --match: the glob `v[0-9]*.[0-9]*.[0-9]*` still
-          # admits v1.2.3-rc.1, which would reject a perfectly good release.
-          BASE=$(git describe --tags --abbrev=0 --match 'v[0-9]*' --exclude '*-*' HEAD)
-          [ "$BASE" = "$NEWEST" ] ||
-            { echo "::error::This branch is built on ${BASE} but ${NEWEST} is already released - publishing it would move npm's 'latest' backwards."; exit 1; }
+            # Plain releases only: a prerelease tag would sort first and break both sides.
+            NEWEST=$(git tag --list 'v*' --sort=-v:refname | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | head -n1)
+            # --exclude, not a stricter --match: the glob `v[0-9]*.[0-9]*.[0-9]*` still
+            # admits v1.2.3-rc.1, which would reject a perfectly good release.
+            BASE=$(git describe --tags --abbrev=0 --match 'v[0-9]*' --exclude '*-*' HEAD)
+            [ "$BASE" = "$NEWEST" ] ||
+              { echo "::error::This branch is built on ${BASE} but ${NEWEST} is already released - publishing it would move npm's 'latest' backwards. To ship an older line, name a dist_tag other than 'latest'."; exit 1; }
+          else
+            # npm rejects semver-like tags, and an empty one silently means 'latest'.
+            case "${DIST_TAG}" in
+              ''|v[0-9]*|[0-9]*)
+                echo "::error::dist_tag '${DIST_TAG}' is empty or looks like a version; npm rejects semver-like tags. Use something like release-0-130."
+                exit 1
+                ;;
+            esac
+
+            git merge-base --is-ancestor HEAD origin/main &&
+              { echo "::error::This branch is already contained in main - it is not a backport. Release it from next with dist_tag 'latest'."; exit 1; }
+
+            echo "Backport: publishing under '${DIST_TAG}', leaving main and npm's 'latest' alone."
+          fi
 
       - name: Version
         env:
@@ -179,12 +204,22 @@ jobs:
       - name: Push
         env:
           REF: ${{ inputs.ref }}
+          DIST_TAG: ${{ inputs.dist_tag }}
         run: |
-          git push origin --atomic --follow-tags --no-verify \
-            "HEAD:refs/heads/${REF}" HEAD:main
+          set -euo pipefail
+
+          # A backport is cut from an older tag, so it cannot fast-forward main.
+          if [ "${DIST_TAG}" = 'latest' ]; then
+            git push origin --atomic --follow-tags --no-verify \
+              "HEAD:refs/heads/${REF}" HEAD:main
+          else
+            git push origin --atomic --follow-tags --no-verify "HEAD:refs/heads/${REF}"
+          fi
 
       # Last, because it is the only step that cannot be undone.
       - name: Publish to npm
+        env:
+          NPM_DIST_TAG: ${{ inputs.dist_tag }}
         run: pnpm exec nx release publish
 
       # By this point the tag, the GitHub release and main have all moved, so the
@@ -315,8 +350,17 @@ jobs:
       # main behind the tag. Completing it here keeps the release commit reachable
       # once back-merge deletes the hotfix branch.
       - name: Catch main up to the release
+        env:
+          DIST_TAG: ${{ inputs.dist_tag }}
         run: |
           set -euo pipefail
+
+          # A backport never reached main, so there is nothing to catch up.
+          if [ "${DIST_TAG}" != 'latest' ]; then
+            echo "Backport recovery - leaving main where it is."
+            exit 0
+          fi
+
           git fetch -q origin main
 
           if git merge-base --is-ancestor origin/main HEAD; then
@@ -332,6 +376,8 @@ jobs:
       - name: Publish what is missing from npm
         env:
           VERSION: ${{ steps.version.outputs.version }}
+          # Without this a backport recovery would republish the older line to 'latest'.
+          NPM_DIST_TAG: ${{ inputs.dist_tag }}
         run: |
           set -euo pipefail
           MISSING=()
@@ -373,8 +419,9 @@ jobs:
     needs: [release, republish]
     # Runs after whichever of the two actually published - a recovery run is exactly
     # the case where next is still behind, because the original run never got here.
+    # A backport never lands on main, and its bump must not reach next.
     if: >-
-      always() && inputs.ref != 'next' &&
+      always() && inputs.ref != 'next' && inputs.dist_tag == 'latest' &&
       (needs.release.result == 'success' || needs.republish.result == 'success')
     runs-on: ubuntu-latest
     # Merges and opens a pull request - it never publishes, so no id-token here.

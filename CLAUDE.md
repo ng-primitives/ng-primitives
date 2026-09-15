@@ -117,6 +117,9 @@ When creating a pull request, follow the template at `.github/PULL_REQUEST_TEMPL
   credentials and no provenance
 - To ship a subset of what is on `next`, prepare a branch with `pnpm release:hotfix` and let the
   workflow release it. See the Releasing section in `CONTRIBUTING.md`
+- To patch an **older** line, cut `release/<line>.x` from its tag and dispatch the workflow with
+  a `dist_tag` other than `latest`. That leaves `main`, `next` and npm's `latest` alone. See the
+  Backports section in `CONTRIBUTING.md`
 
 <!-- nx configuration start-->
 <!-- Leave the start & end comments to automatically receive updates. -->
