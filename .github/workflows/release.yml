@@ -157,10 +157,11 @@ jobs:
             [ "$BASE" = "$NEWEST" ] ||
               { echo "::error::This branch is built on ${BASE} but ${NEWEST} is already released - publishing it would move npm's 'latest' backwards. To ship an older line, name a dist_tag other than 'latest'."; exit 1; }
           else
-            # npm rejects semver-like tags, and an empty one silently means 'latest'.
+            # Must be one word npm accepts: no semver range like ^0.130.0, and no whitespace,
+            # which would split into extra npm publish arguments.
             case "${DIST_TAG}" in
-              ''|v[0-9]*|[0-9]*)
-                echo "::error::dist_tag '${DIST_TAG}' is empty or looks like a version; npm rejects semver-like tags. Use something like release-0-130."
+              ''|[!A-Za-z]*|*[!A-Za-z0-9._-]*|v[0-9]*)
+                echo "::error::dist_tag '${DIST_TAG}' is not a usable npm tag. Start with a letter and use only letters, digits, dot, dash or underscore - for example release-0-130."
                 exit 1
                 ;;
             esac
@@ -341,6 +342,8 @@ jobs:
       # a stale branch could publish contents that were never part of that release.
       - name: Check this commit is the tagged release
         id: version
+        env:
+          DIST_TAG: ${{ inputs.dist_tag }}
         run: |
           set -euo pipefail
           VERSION=$(node -p "require('./packages/ng-primitives/package.json').version")
@@ -354,9 +357,13 @@ jobs:
           [ "$TAGGED" = "$(git rev-parse HEAD)" ] ||
             { echo "::error::v${VERSION} is tagged at ${TAGGED}, not at this commit. Dispatch publish_only from the ref that was released."; exit 1; }
 
-          NEWEST=$(git tag --list 'v*' --sort=-v:refname | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | head -n1)
-          [ "v${VERSION}" = "$NEWEST" ] ||
-            { echo "::error::v${VERSION} is not the newest release (${NEWEST}) - publishing it would move npm's 'latest' backwards."; exit 1; }
+          # A backport is an older version by construction; it is kept off 'latest' by its
+          # dist-tag instead.
+          if [ "${DIST_TAG}" = 'latest' ]; then
+            NEWEST=$(git tag --list 'v*' --sort=-v:refname | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | head -n1)
+            [ "v${VERSION}" = "$NEWEST" ] ||
+              { echo "::error::v${VERSION} is not the newest release (${NEWEST}) - publishing it would move npm's 'latest' backwards."; exit 1; }
+          fi
 
           echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
 
