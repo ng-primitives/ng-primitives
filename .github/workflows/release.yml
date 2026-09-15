@@ -74,7 +74,7 @@ jobs:
           # still publishing to 'latest'.
           case "$DIST_TAG" in
             latest) ;;
-            ''|[!A-Za-z]*|*[!A-Za-z0-9._-]*|v[0-9]*|[xX]|[xX].[xX]|[xX].[xX].[xX])
+            ''|[!A-Za-z]*|*[!A-Za-z0-9._-]*|v[0-9]*|[xX]|[xX].*)
               echo "::error::dist_tag '${DIST_TAG}' is not a usable npm tag. Start with a letter and use only letters, digits, dot, dash or underscore - for example release-0-130."
               exit 1
               ;;
