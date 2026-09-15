@@ -77,6 +77,10 @@ jobs:
             echo "$REF" | grep -qE "^(next|hotfix/v${SEMVER}|${LINE})$" ||
               { echo "::error::Releases run against next, a hotfix/v<version> branch or a release/<line>.x branch, not ${REF}."; exit 1; }
 
+            # next is the newest line by definition, so it is never a backport.
+            [ "$REF" != 'next' ] || [ "$DIST_TAG" = 'latest' ] ||
+              { echo "::error::Releasing next publishes the newest line, so dist_tag must be 'latest', not '${DIST_TAG}'."; exit 1; }
+
             # A minor from an older line lands on a version the newer line already shipped.
             if [ "$DIST_TAG" != 'latest' ] || case "$REF" in hotfix/v*) true ;; *) false ;; esac; then
               [ "$BUMP" = 'patch' ] ||
@@ -164,6 +168,13 @@ jobs:
             git merge-base --is-ancestor HEAD origin/main &&
               { echo "::error::This branch is already contained in main - it is not a backport. Release it from next with dist_tag 'latest'."; exit 1; }
 
+            # Backporting onto the newest line leaves a tag no branch describes to, which
+            # blocks every later ordinary release on the base check above.
+            NEWEST=$(git tag --list 'v*' --sort=-v:refname | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | head -n1)
+            BASE=$(git describe --tags --abbrev=0 --match 'v[0-9]*' --exclude '*-*' HEAD)
+            [ "$BASE" != "$NEWEST" ] ||
+              { echo "::error::${BASE} is the newest release - a backport onto it would block later releases. Ship this from next, or as a hotfix/v<version> branch."; exit 1; }
+
             echo "Backport: publishing under '${DIST_TAG}', leaving main and npm's 'latest' alone."
           fi
 
@@ -200,6 +211,15 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           VERSION: ${{ steps.version.outputs.version }}
         run: pnpm exec nx release changelog "$VERSION"
+
+      # nx hardcodes make_latest: 'legacy', which weighs creation date, so a backport
+      # published after a newer release can take the Latest badge on the releases page.
+      - name: Keep the Latest badge off a backport
+        if: inputs.dist_tag != 'latest'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VERSION: ${{ steps.version.outputs.version }}
+        run: gh release edit "v${VERSION}" --latest=false
 
       - name: Push
         env:
