@@ -190,7 +190,12 @@ jobs:
       - name: Packed schematics keep their CommonJS marker
         run: |
           pnpm exec nx build ng-primitives
-          node scripts/check-packed-schematics.mjs
+          # A tree older than the marker requirement has no checker; nothing to verify.
+          if [ -f scripts/check-packed-schematics.mjs ]; then
+            node scripts/check-packed-schematics.mjs
+          else
+            echo "::notice::This tree predates scripts/check-packed-schematics.mjs - skipping."
+          fi
 
       # Validated before it reaches an output: package.json is repository content, and
       # an unchecked value here could inject extra outputs or shell into later steps.
@@ -238,10 +243,14 @@ jobs:
           fi
 
       # Last, because it is the only step that cannot be undone.
+      #
+      # --tag is appended to each project's publish command, and npm honours the last one,
+      # so this overrides the `--tag latest` the checked-out tree hardcodes. A backport is
+      # cut from an old tag, so the tag cannot come from the tree.
       - name: Publish to npm
         env:
-          NPM_DIST_TAG: ${{ inputs.dist_tag }}
-        run: pnpm exec nx release publish
+          DIST_TAG: ${{ inputs.dist_tag }}
+        run: pnpm exec nx release publish --tag "$DIST_TAG"
 
       # By this point the tag, the GitHub release and main have all moved, so the
       # recovery is to finish the publish - never to cut a new version.
@@ -371,7 +380,12 @@ jobs:
       - name: Packed schematics keep their CommonJS marker
         run: |
           pnpm exec nx build ng-primitives
-          node scripts/check-packed-schematics.mjs
+          # A tree older than the marker requirement has no checker; nothing to verify.
+          if [ -f scripts/check-packed-schematics.mjs ]; then
+            node scripts/check-packed-schematics.mjs
+          else
+            echo "::notice::This tree predates scripts/check-packed-schematics.mjs - skipping."
+          fi
 
       # The interrupted run may have died between the changelog and the push, leaving
       # main behind the tag. Completing it here keeps the release commit reachable
@@ -404,7 +418,7 @@ jobs:
         env:
           VERSION: ${{ steps.version.outputs.version }}
           # Without this a backport recovery would republish the older line to 'latest'.
-          NPM_DIST_TAG: ${{ inputs.dist_tag }}
+          DIST_TAG: ${{ inputs.dist_tag }}
         run: |
           set -euo pipefail
           MISSING=()
@@ -423,7 +437,7 @@ jobs:
             echo "::notice::Every package is already published at ${VERSION} - nothing to do."
           else
             printf 'publishing: %s\n' "${MISSING[*]}"
-            pnpm exec nx release publish --projects="$(IFS=,; echo "${MISSING[*]}")"
+            pnpm exec nx release publish --tag "$DIST_TAG" --projects="$(IFS=,; echo "${MISSING[*]}")"
           fi
 
       - name: Summary

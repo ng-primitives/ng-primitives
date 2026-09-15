@@ -179,6 +179,10 @@ Two npm constraints shape the tag. It cannot parse as a semver range, so `v0.130
 are refused; start it with a letter. And the trusted publisher's credential is good only for
 `npm publish`, so whatever a backport publishes under is what it keeps.
 
+The tag is passed as `nx release publish --tag`, never read from the branch, because a branch
+cut from an old tag carries that tag's `project.json`. Everything else the workflow runs has to
+survive an old tree the same way.
+
 If a release fails after it has tagged - the job summary tells you which side of that line it
 fell on - do **not** rerun the workflow normally, or it will version again and bump past the
 version missing from npm. Rerun it from the same ref with **`publish_only`** ticked: that

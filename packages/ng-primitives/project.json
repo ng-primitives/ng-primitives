@@ -146,7 +146,7 @@
       "executor": "nx:run-commands",
       "dependsOn": ["build"],
       "options": {
-        "command": "npm publish dist/packages/ng-primitives --access public --tag \"${NPM_DIST_TAG:-latest}\" --no-git-checks --provenance"
+        "command": "npm publish dist/packages/ng-primitives --access public --tag latest --no-git-checks --provenance"
       }
     }
   }
