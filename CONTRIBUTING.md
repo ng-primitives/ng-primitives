@@ -187,8 +187,10 @@ first and move the floor in `release.yml`.
 
 If a release fails after it has tagged - the job summary tells you which side of that line it
 fell on - do **not** rerun the workflow normally, or it will version again and bump past the
-version missing from npm. Rerun it from the same ref with **`publish_only`** ticked: that
-publishes the version the ref already carries, catches `main` up to it, and versions nothing.
+version missing from npm. Rerun it from the same ref with **`publish_only`** ticked, and the same
+`dist_tag`: that publishes the version the ref already carries and versions nothing. A `latest`
+recovery also catches `main` up to it; a backport recovery leaves `main` alone, as its release
+did.
 
 ## Coding standards
 

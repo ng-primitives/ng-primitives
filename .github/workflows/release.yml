@@ -382,6 +382,13 @@ jobs:
             NEWEST=$(git tag --list 'v*' --sort=-v:refname | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | head -n1)
             [ "v${VERSION}" = "$NEWEST" ] ||
               { echo "::error::v${VERSION} is not the newest release (${NEWEST}) - publishing it would move npm's 'latest' backwards."; exit 1; }
+          else
+            # Recovering a `latest` release under a backport tag would publish it where nobody
+            # installs from, leave `latest` short of it, and skip both the main catch-up and
+            # the back-merge. A real backport never reached main.
+            git fetch -q origin main
+            git merge-base --is-ancestor HEAD origin/main &&
+              { echo "::error::v${VERSION} is already on main, so it is not a backport. Recover it with dist_tag 'latest'."; exit 1; }
           fi
 
           echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
