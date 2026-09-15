@@ -673,6 +673,116 @@ describe('NgpCombobox', () => {
       });
     });
 
+    it('should scroll the last option into view only once when ArrowUp opens the dropdown', async () => {
+      const scrollToOption = vi.fn();
+
+      @Component({
+        imports: [
+          NgpCombobox,
+          NgpComboboxDropdown,
+          NgpComboboxInput,
+          NgpComboboxOption,
+          NgpComboboxPortal,
+        ],
+        template: `
+          <div
+            [ngpComboboxScrollToOption]="scrollToOption"
+            ngpCombobox
+            data-testid="scrollable-combobox"
+          >
+            <input data-testid="combobox-input" ngpComboboxInput />
+
+            <div *ngpComboboxPortal ngpComboboxDropdown data-testid="dropdown">
+              @for (option of options; track option) {
+                <div
+                  [ngpComboboxOptionValue]="option"
+                  [attr.data-testid]="'option-' + option"
+                  ngpComboboxOption
+                >
+                  {{ option }}
+                </div>
+              }
+            </div>
+          </div>
+        `,
+      })
+      class TestSingleScrollComboboxComponent {
+        readonly options = Array.from({ length: 5 }, (_, index) => `Option${index}`);
+        readonly scrollToOption = scrollToOption;
+      }
+
+      await render(TestSingleScrollComboboxComponent);
+
+      const input = screen.getByTestId('combobox-input');
+      input.focus();
+
+      fireEvent.keyDown(input, { key: 'ArrowUp' });
+
+      await waitFor(() => {
+        const lastOption = screen.getByTestId('option-Option4');
+        expect(lastOption).toHaveAttribute('data-active', '');
+      });
+
+      expect(scrollToOption).toHaveBeenCalledTimes(1);
+      expect(scrollToOption).toHaveBeenCalledWith(4);
+    });
+
+    it('should scroll the selected option into view only once when opening the dropdown', async () => {
+      const scrollToOption = vi.fn();
+
+      @Component({
+        imports: [
+          NgpCombobox,
+          NgpComboboxDropdown,
+          NgpComboboxInput,
+          NgpComboboxOption,
+          NgpComboboxPortal,
+        ],
+        template: `
+          <div
+            [ngpComboboxScrollToOption]="scrollToOption"
+            [ngpComboboxValue]="value"
+            ngpCombobox
+            data-testid="scrollable-combobox"
+          >
+            <input data-testid="combobox-input" ngpComboboxInput />
+
+            <div *ngpComboboxPortal ngpComboboxDropdown data-testid="dropdown">
+              @for (option of options; track option) {
+                <div
+                  [ngpComboboxOptionValue]="option"
+                  [attr.data-testid]="'option-' + option"
+                  ngpComboboxOption
+                >
+                  {{ option }}
+                </div>
+              }
+            </div>
+          </div>
+        `,
+      })
+      class TestSingleScrollSelectedComboboxComponent {
+        readonly options = Array.from({ length: 5 }, (_, index) => `Option${index}`);
+        readonly scrollToOption = scrollToOption;
+        value = 'Option2';
+      }
+
+      await render(TestSingleScrollSelectedComboboxComponent);
+
+      const input = screen.getByTestId('combobox-input');
+      input.focus();
+
+      fireEvent.keyDown(input, { key: 'ArrowDown' });
+
+      await waitFor(() => {
+        const selectedOption = screen.getByTestId('option-Option2');
+        expect(selectedOption).toHaveAttribute('data-active', '');
+      });
+
+      expect(scrollToOption).toHaveBeenCalledTimes(1);
+      expect(scrollToOption).toHaveBeenCalledWith(2);
+    });
+
     it('should not scroll when ArrowUp opens a dropdown with no activatable option', async () => {
       const scrollToOption = vi.fn();
 
@@ -698,7 +808,7 @@ describe('NgpCombobox', () => {
       fireEvent.keyDown(input, { key: 'ArrowUp' });
 
       await waitFor(() => {
-        expect(input).toHaveAttribute('aria-expanded', 'true');
+        expect(screen.getByTestId('dropdown')).toBeInTheDocument();
       });
 
       expect(scrollToOption).not.toHaveBeenCalled();
@@ -750,7 +860,7 @@ describe('NgpCombobox', () => {
       fireEvent.keyDown(input, { key: 'ArrowUp' });
 
       await waitFor(() => {
-        expect(input).toHaveAttribute('aria-expanded', 'true');
+        expect(screen.getByTestId('dropdown')).toBeInTheDocument();
       });
 
       expect(scrollToOption).not.toHaveBeenCalled();

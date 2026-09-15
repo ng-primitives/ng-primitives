@@ -305,13 +305,13 @@ export class NgpCombobox {
     if (selectedOptionIdx !== -1) {
       // scroll to and activate the selected option
       this.scrollTo(selectedOptionIdx);
-      this.activeDescendantManager.activateByIndex(selectedOptionIdx);
+      this.activeDescendantManager.activateByIndex(selectedOptionIdx, { scroll: false });
       return;
     }
 
     if (options?.activate === 'last') {
       this.activeDescendantManager.reset();
-      this.activeDescendantManager.last();
+      this.activeDescendantManager.last({ scroll: false });
 
       const activeIndex = this.activeDescendantManager.index();
 
