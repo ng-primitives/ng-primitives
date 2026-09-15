@@ -110,7 +110,7 @@ Adheres to the [Radio Group WAI-ARIA design pattern](https://www.w3.org/WAI/ARIA
 
 ### Keyboard Interaction
 
-- <kbd>Tab</kbd> - Moves focus to the checked radio button, or the first radio button if none is checked.
+- <kbd>Tab</kbd> - Moves focus to the checked radio button, or the first enabled radio button when none is checked or the checked one is disabled.
 - <kbd>Arrow Down</kbd> - Moves focus to the next radio button (vertical orientation).
 - <kbd>Arrow Up</kbd> - Moves focus to the previous radio button (vertical orientation).
 - <kbd>Arrow Right</kbd> - Moves focus to the next radio button (horizontal orientation).
