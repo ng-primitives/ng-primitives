@@ -68,6 +68,18 @@ jobs:
           # A maintenance branch for an older line, kept between backports.
           LINE='release/(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.x'
 
+          # Checked on both paths, because a recovery publishes too. Must be one word npm
+          # accepts: no semver range like ^0.130.0, and no whitespace, which would split into
+          # extra npm publish arguments. An empty value would skip the backport guards while
+          # still publishing to 'latest'.
+          case "$DIST_TAG" in
+            latest) ;;
+            ''|[!A-Za-z]*|*[!A-Za-z0-9._-]*|v[0-9]*)
+              echo "::error::dist_tag '${DIST_TAG}' is not a usable npm tag. Start with a letter and use only letters, digits, dot, dash or underscore - for example release-0-130."
+              exit 1
+              ;;
+          esac
+
           if [ "$PUBLISH_ONLY" = 'true' ]; then
             # A tag is allowed only here: once next moves on from a failed release, the
             # tag may be the only ref left pointing at that commit.
@@ -157,15 +169,6 @@ jobs:
             [ "$BASE" = "$NEWEST" ] ||
               { echo "::error::This branch is built on ${BASE} but ${NEWEST} is already released - publishing it would move npm's 'latest' backwards. To ship an older line, name a dist_tag other than 'latest'."; exit 1; }
           else
-            # Must be one word npm accepts: no semver range like ^0.130.0, and no whitespace,
-            # which would split into extra npm publish arguments.
-            case "${DIST_TAG}" in
-              ''|[!A-Za-z]*|*[!A-Za-z0-9._-]*|v[0-9]*)
-                echo "::error::dist_tag '${DIST_TAG}' is not a usable npm tag. Start with a letter and use only letters, digits, dot, dash or underscore - for example release-0-130."
-                exit 1
-                ;;
-            esac
-
             git merge-base --is-ancestor HEAD origin/main &&
               { echo "::error::This branch is already contained in main - it is not a backport. Release it from next with dist_tag 'latest'."; exit 1; }
 
