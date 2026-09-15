@@ -756,11 +756,59 @@ describe('NgpRadioGroup', () => {
   });
 
   describe('roving focus', () => {
+    // the checked item is deliberately not the first one - the first item gets the tab stop
+    // from the roving focus group's own seeding, so selecting it proves nothing
     it('should set tabindex="0" on the selected item and "-1" on others', async () => {
       const { getByRole, detectChanges } = await render(
         `<div ngpRadioGroup [(ngpRadioGroupValue)]="value">
           <div ngpRadioItem ngpRadioItemValue="1">One</div>
           <div ngpRadioItem ngpRadioItemValue="2">Two</div>
+          <div ngpRadioItem ngpRadioItemValue="3">Three</div>
+        </div>`,
+        {
+          imports: [NgpRadioGroup, NgpRadioItem],
+          componentProperties: { value: '2' },
+        },
+      );
+      detectChanges();
+
+      expect(getByRole('radio', { name: 'Two' })).toHaveAttribute('tabindex', '0');
+      expect(getByRole('radio', { name: 'One' })).toHaveAttribute('tabindex', '-1');
+      expect(getByRole('radio', { name: 'Three' })).toHaveAttribute('tabindex', '-1');
+    });
+
+    it('should not change the value when tabbing into a group with a checked item', async () => {
+      const valueChange = vi.fn();
+      const { getAllByRole, detectChanges } = await render(
+        `<div ngpRadioGroup [ngpRadioGroupValue]="value" (ngpRadioGroupValueChange)="valueChange($event)">
+          <div ngpRadioItem ngpRadioItemValue="1">One</div>
+          <div ngpRadioItem ngpRadioItemValue="2">Two</div>
+          <div ngpRadioItem ngpRadioItemValue="3">Three</div>
+        </div>`,
+        {
+          imports: [NgpRadioGroup, NgpRadioItem],
+          componentProperties: { value: '2', valueChange },
+        },
+      );
+      detectChanges();
+
+      // tabbing into the group lands on whichever item holds the tab stop, and a
+      // radio group selects on focus, so the tab stop must already be the checked item
+      const tabStop = getAllByRole('radio').find(
+        item => item.getAttribute('tabindex') === '0',
+      ) as HTMLElement;
+      tabStop.focus();
+      detectChanges();
+
+      expect(valueChange).not.toHaveBeenCalled();
+    });
+
+    it('should move the tab stop when the value changes programmatically', async () => {
+      const { getByRole, detectChanges, rerender } = await render(
+        `<div ngpRadioGroup [ngpRadioGroupValue]="value">
+          <div ngpRadioItem ngpRadioItemValue="1">One</div>
+          <div ngpRadioItem ngpRadioItemValue="2">Two</div>
+          <div ngpRadioItem ngpRadioItemValue="3">Three</div>
         </div>`,
         {
           imports: [NgpRadioGroup, NgpRadioItem],
@@ -770,7 +818,151 @@ describe('NgpRadioGroup', () => {
       detectChanges();
 
       expect(getByRole('radio', { name: 'One' })).toHaveAttribute('tabindex', '0');
+
+      await rerender({ componentProperties: { value: '3' } });
+      detectChanges();
+
+      expect(getByRole('radio', { name: 'Three' })).toHaveAttribute('tabindex', '0');
+      expect(getByRole('radio', { name: 'One' })).toHaveAttribute('tabindex', '-1');
+    });
+
+    it('should keep the tab stop off a checked item that is disabled', async () => {
+      const { getByRole, detectChanges } = await render(
+        `<div ngpRadioGroup [ngpRadioGroupValue]="value">
+          <div ngpRadioItem ngpRadioItemValue="1">One</div>
+          <div ngpRadioItem ngpRadioItemValue="2" ngpRadioItemDisabled>Two</div>
+          <div ngpRadioItem ngpRadioItemValue="3">Three</div>
+        </div>`,
+        {
+          imports: [NgpRadioGroup, NgpRadioItem],
+          componentProperties: { value: '2' },
+        },
+      );
+      detectChanges();
+
+      // a disabled radio is out of the tab order, so the tab stop falls back to the first enabled item
       expect(getByRole('radio', { name: 'Two' })).toHaveAttribute('tabindex', '-1');
+      expect(getByRole('radio', { name: 'One' })).toHaveAttribute('tabindex', '0');
+    });
+
+    it('should leave the tab stop on the first item when nothing is checked', async () => {
+      const { getByRole } = await render(
+        `<div ngpRadioGroup>
+          <div ngpRadioItem ngpRadioItemValue="1">One</div>
+          <div ngpRadioItem ngpRadioItemValue="2">Two</div>
+        </div>`,
+        { imports: [NgpRadioGroup, NgpRadioItem] },
+      );
+
+      expect(getByRole('radio', { name: 'One' })).toHaveAttribute('tabindex', '0');
+      expect(getByRole('radio', { name: 'Two' })).toHaveAttribute('tabindex', '-1');
+    });
+
+    it('should keep the tab stop on the focused item while roving away from the checked item', async () => {
+      const { getByRole, detectChanges } = await render(
+        `<div ngpRadioGroup [ngpRadioGroupValue]="value">
+          <div ngpRadioItem ngpRadioItemValue="1">One</div>
+          <div ngpRadioItem ngpRadioItemValue="2">Two</div>
+          <div ngpRadioItem ngpRadioItemValue="3">Three</div>
+        </div>`,
+        {
+          imports: [NgpRadioGroup, NgpRadioItem],
+          componentProperties: { value: '2' },
+        },
+      );
+      detectChanges();
+
+      // the value input is one-way, so arrowing moves focus without the checked item changing
+      const two = getByRole('radio', { name: 'Two' });
+      two.focus();
+      fireEvent.keyDown(two, { key: 'ArrowRight' });
+      detectChanges();
+
+      expect(getByRole('radio', { name: 'Three' })).toHaveAttribute('tabindex', '0');
+      expect(two).toHaveAttribute('tabindex', '-1');
+    });
+
+    it('should give the tab stop to a checked item that renders after the group', async () => {
+      const { getByRole, rerender, fixture } = await render(
+        `<div ngpRadioGroup [ngpRadioGroupValue]="value">
+          @for (option of options; track option) {
+            <div ngpRadioItem [ngpRadioItemValue]="option">{{ option }}</div>
+          }
+        </div>`,
+        {
+          imports: [NgpRadioGroup, NgpRadioItem],
+          componentProperties: { value: '2', options: [] as string[] },
+        },
+      );
+
+      // items arriving later (async options) must still hand the tab stop to the checked one
+      await rerender({ componentProperties: { value: '2', options: ['1', '2', '3'] } });
+      await fixture.whenStable();
+
+      expect(getByRole('radio', { name: '2' })).toHaveAttribute('tabindex', '0');
+      expect(getByRole('radio', { name: '1' })).toHaveAttribute('tabindex', '-1');
+    });
+
+    it('should leave a single tab stop when the checked item is removed', async () => {
+      const { getAllByRole, rerender, fixture } = await render(
+        `<div ngpRadioGroup [ngpRadioGroupValue]="value">
+          @for (option of options; track option) {
+            <div ngpRadioItem [ngpRadioItemValue]="option">{{ option }}</div>
+          }
+        </div>`,
+        {
+          imports: [NgpRadioGroup, NgpRadioItem],
+          componentProperties: { value: '2', options: ['1', '2', '3'] },
+        },
+      );
+
+      await rerender({ componentProperties: { value: '2', options: ['1', '3'] } });
+      await fixture.whenStable();
+
+      const stops = getAllByRole('radio').filter(item => item.getAttribute('tabindex') === '0');
+      expect(stops).toHaveLength(1);
+    });
+
+    it('should keep the tab stop where it was when the value is cleared', async () => {
+      const { getByRole, rerender, fixture } = await render(
+        `<div ngpRadioGroup [ngpRadioGroupValue]="value">
+          <div ngpRadioItem ngpRadioItemValue="1">One</div>
+          <div ngpRadioItem ngpRadioItemValue="2">Two</div>
+        </div>`,
+        {
+          imports: [NgpRadioGroup, NgpRadioItem],
+          componentProperties: { value: '2' as string | null },
+        },
+      );
+
+      expect(getByRole('radio', { name: 'Two' })).toHaveAttribute('tabindex', '0');
+
+      // resetting the form leaves nothing checked; the tab stop stays put rather than
+      // jumping back to the first item, so Tab returns where the user last was
+      await rerender({ componentProperties: { value: null } });
+      await fixture.whenStable();
+
+      expect(getByRole('radio', { name: 'Two' })).toHaveAttribute('tabindex', '0');
+      expect(getByRole('radio', { name: 'One' })).toHaveAttribute('tabindex', '-1');
+    });
+
+    it('should give each sibling group its own tab stop', async () => {
+      const { getByRole } = await render(
+        `<div ngpRadioGroup ngpRadioGroupValue="a2">
+          <div ngpRadioItem ngpRadioItemValue="a1">A One</div>
+          <div ngpRadioItem ngpRadioItemValue="a2">A Two</div>
+        </div>
+        <div ngpRadioGroup ngpRadioGroupValue="b2">
+          <div ngpRadioItem ngpRadioItemValue="b1">B One</div>
+          <div ngpRadioItem ngpRadioItemValue="b2">B Two</div>
+        </div>`,
+        { imports: [NgpRadioGroup, NgpRadioItem] },
+      );
+
+      expect(getByRole('radio', { name: 'A Two' })).toHaveAttribute('tabindex', '0');
+      expect(getByRole('radio', { name: 'B Two' })).toHaveAttribute('tabindex', '0');
+      expect(getByRole('radio', { name: 'A One' })).toHaveAttribute('tabindex', '-1');
+      expect(getByRole('radio', { name: 'B One' })).toHaveAttribute('tabindex', '-1');
     });
 
     it('should update orientation and sync roving focus when setOrientation is called', async () => {
