@@ -1,8 +1,15 @@
-import { Component, Directive, OnInit, signal, viewChild } from '@angular/core';
+import { Component, computed, Directive, OnInit, signal, viewChild } from '@angular/core';
 import { fireEvent, render, screen, waitFor } from '@testing-library/angular';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi, afterEach } from 'vitest';
-import { NgpSelect, NgpSelectDropdown, NgpSelectOption, NgpSelectPortal } from '../../index';
+import {
+  NgpSelect,
+  NgpSelectDropdown,
+  NgpSelectInput,
+  NgpSelectList,
+  NgpSelectOption,
+  NgpSelectPortal,
+} from '../../index';
 import { injectSelectState } from '../select-state';
 
 @Component({
@@ -228,10 +235,7 @@ describe('NgpSelect', () => {
   afterEach(() => {
     // the dropdown should be removed from the DOM after each test
     // to avoid interference with other tests - it may linger due to waiting for animations
-    const dropdown = screen.queryByRole('listbox');
-    if (dropdown) {
-      dropdown.remove();
-    }
+    document.querySelectorAll('[ngpSelectDropdown]').forEach(dropdown => dropdown.remove());
   });
 
   describe('Basic functionality', () => {
@@ -351,6 +355,139 @@ describe('NgpSelect', () => {
 
       await waitFor(() => {
         expect(select).toHaveAttribute('aria-expanded', 'true');
+      });
+    });
+
+    it('should activate the last option when ArrowUp opens the dropdown', async () => {
+      await render(TestSelectComponent);
+
+      const select = screen.getByTestId('select');
+      select.focus();
+
+      fireEvent.keyDown(select, { key: 'ArrowUp' });
+
+      await waitFor(() => {
+        expect(screen.getByTestId('option-Cherry')).toHaveAttribute('data-active', '');
+      });
+    });
+
+    it('should scroll the last option into view when ArrowUp opens the dropdown', async () => {
+      @Component({
+        template: `
+          <div [(ngpSelectValue)]="value" ngpSelect data-testid="scrollable-select">
+            <span data-testid="placeholder">Select an option</span>
+
+            <div *ngpSelectPortal ngpSelectDropdown data-testid="dropdown">
+              <div class="scrollable" data-testid="scrollable">
+                @for (option of options; track option) {
+                  <div
+                    [ngpSelectOptionValue]="option"
+                    [attr.data-testid]="'option-' + option"
+                    ngpSelectOption
+                  >
+                    {{ option }}
+                  </div>
+                }
+              </div>
+            </div>
+          </div>
+        `,
+        imports: [NgpSelect, NgpSelectDropdown, NgpSelectOption, NgpSelectPortal],
+        styles: `
+          /* the docs examples open the dropdown with an entrance animation that starts at
+             scale(0.9). a static transform stands in for it so the assertion does not depend
+             on where the animation happens to be when the scroll runs */
+          [ngpSelectDropdown] {
+            overflow: hidden;
+            transform: scale(0.9);
+          }
+
+          .scrollable {
+            max-height: 100px;
+            overflow-y: auto;
+          }
+
+          [ngpSelectOption] {
+            height: 30px;
+          }
+        `,
+      })
+      class TestScrollableSelectComponent {
+        readonly options = Array.from({ length: 20 }, (_, index) => `Option${index}`);
+        readonly value = signal<string | undefined>(undefined);
+      }
+
+      await render(TestScrollableSelectComponent);
+
+      const select = screen.getByTestId('scrollable-select');
+      select.focus();
+
+      fireEvent.keyDown(select, { key: 'ArrowUp' });
+
+      const scrollable = await screen.findByTestId('scrollable');
+
+      await waitFor(() => {
+        const lastOption = screen.getByTestId('option-Option19');
+        expect(lastOption).toHaveAttribute('data-active', '');
+
+        // compare both rects in the same coordinate space: the option sits inside the scroll
+        // container, so the transform applies to both and cancels out
+        const optionRect = lastOption.getBoundingClientRect();
+        const scrollableRect = scrollable.getBoundingClientRect();
+
+        expect(optionRect.bottom).toBeLessThanOrEqual(scrollableRect.bottom + 0.5);
+        expect(optionRect.top).toBeGreaterThanOrEqual(scrollableRect.top - 0.5);
+      });
+    });
+
+    it('should not scroll when ArrowUp opens a dropdown with no activatable option', async () => {
+      const scrollToOption = vi.fn();
+
+      @Component({
+        template: `
+          <div
+            [(ngpSelectValue)]="value"
+            [ngpSelectScrollToOption]="scrollToOption"
+            ngpSelect
+            data-testid="empty-select"
+          >
+            <span data-testid="placeholder">Select an option</span>
+
+            <div *ngpSelectPortal ngpSelectDropdown data-testid="dropdown"></div>
+          </div>
+        `,
+        imports: [NgpSelect, NgpSelectDropdown, NgpSelectPortal],
+      })
+      class TestEmptySelectComponent {
+        readonly value = signal<string | undefined>(undefined);
+        readonly scrollToOption = scrollToOption;
+      }
+
+      await render(TestEmptySelectComponent);
+
+      const select = screen.getByTestId('empty-select');
+      select.focus();
+
+      fireEvent.keyDown(select, { key: 'ArrowUp' });
+
+      await waitFor(() => {
+        expect(select).toHaveAttribute('aria-expanded', 'true');
+      });
+
+      expect(scrollToOption).not.toHaveBeenCalled();
+    });
+
+    it('should keep the selected option active when ArrowUp opens the dropdown', async () => {
+      const { fixture } = await render(TestSelectComponent);
+      fixture.componentInstance.value.set('Banana');
+
+      const select = screen.getByTestId('select');
+      select.focus();
+
+      fireEvent.keyDown(select, { key: 'ArrowUp' });
+
+      await waitFor(() => {
+        expect(screen.getByTestId('option-Banana')).toHaveAttribute('data-active', '');
       });
     });
 
@@ -1861,6 +1998,383 @@ describe('NgpSelect', () => {
       // Destroy the component — should NOT emit openChange
       fixture.destroy();
       expect(spy).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('NgpSelectInput', () => {
+    @Component({
+      template: `
+        <div
+          [(ngpSelectValue)]="value"
+          (ngpSelectOpenChange)="onOpenChange($event)"
+          ngpSelect
+          data-testid="select-with-input"
+        >
+          @if (value(); as val) {
+            <span data-testid="selected-value">{{ val }}</span>
+          } @else {
+            <span data-testid="placeholder">Select an option</span>
+          }
+
+          <div *ngpSelectPortal ngpSelectDropdown data-testid="dropdown">
+            <input
+              [value]="search()"
+              (input)="onSearch($event)"
+              ngpSelectInput
+              placeholder="Search..."
+              data-testid="select-input"
+            />
+            <div class="options-container" ngpSelectList data-testid="options-list">
+              @for (option of filteredOptions(); track option) {
+                <div
+                  [ngpSelectOptionValue]="option"
+                  [attr.data-testid]="'option-' + option"
+                  ngpSelectOption
+                >
+                  {{ option }}
+                </div>
+              } @empty {
+                <div data-testid="empty">No options found</div>
+              }
+            </div>
+          </div>
+        </div>
+      `,
+      imports: [
+        NgpSelect,
+        NgpSelectDropdown,
+        NgpSelectInput,
+        NgpSelectList,
+        NgpSelectOption,
+        NgpSelectPortal,
+      ],
+      styles: `
+        .options-container {
+          max-height: 200px;
+          overflow-y: auto;
+        }
+      `,
+    })
+    class TestSelectInputComponent {
+      readonly options = ['Apple', 'Banana', 'Cherry', 'Dragon Fruit'];
+      readonly value = signal<string | undefined>(undefined);
+      readonly search = signal<string>('');
+
+      protected readonly filteredOptions = computed(() =>
+        this.options.filter(option => option.toLowerCase().includes(this.search().toLowerCase())),
+      );
+
+      protected onSearch(event: Event): void {
+        this.search.set((event.target as HTMLInputElement).value);
+      }
+
+      protected onOpenChange(open: boolean): void {
+        if (!open) {
+          this.search.set('');
+        }
+      }
+    }
+
+    it('should render input inside dropdown', async () => {
+      await render(TestSelectInputComponent);
+      const select = screen.getByTestId('select-with-input');
+
+      fireEvent.click(select);
+
+      await waitFor(() => {
+        expect(screen.getByTestId('select-input')).toBeInTheDocument();
+      });
+    });
+
+    it('should focus input on dropdown open', async () => {
+      await render(TestSelectInputComponent);
+      const select = screen.getByTestId('select-with-input');
+
+      fireEvent.click(select);
+
+      await waitFor(() => {
+        expect(screen.getByTestId('select-input')).toHaveFocus();
+      });
+    });
+
+    it('should click option to select', async () => {
+      const { fixture } = await render(TestSelectInputComponent);
+      const component = fixture.componentInstance;
+      const select = screen.getByTestId('select-with-input');
+      const user = userEvent.setup();
+
+      fireEvent.click(select);
+
+      const option = await screen.findByTestId('option-Banana');
+      await user.click(option);
+
+      await waitFor(() => {
+        expect(component.value()).toBe('Banana');
+      });
+    });
+
+    it('should reset search when dropdown closes', async () => {
+      const { fixture } = await render(TestSelectInputComponent);
+      const component = fixture.componentInstance;
+      const select = screen.getByTestId('select-with-input');
+      const user = userEvent.setup();
+
+      fireEvent.click(select);
+
+      const input = await screen.findByTestId('select-input');
+      fireEvent.input(input, { target: { value: 'test' } });
+
+      expect(component.search()).toBe('test');
+
+      // Click outside to close
+      await user.click(document.body);
+
+      await waitFor(() => {
+        expect(component.search()).toBe('');
+      });
+    });
+
+    it('should have combobox role on select trigger when closed', async () => {
+      await render(TestSelectInputComponent);
+      const select = screen.getByTestId('select-with-input');
+
+      expect(select).toHaveAttribute('role', 'combobox');
+      expect(select).toHaveAttribute('aria-expanded', 'false');
+    });
+
+    it('should transfer combobox role to input when opened', async () => {
+      await render(TestSelectInputComponent);
+      const select = screen.getByTestId('select-with-input');
+
+      fireEvent.click(select);
+
+      const input = await screen.findByTestId('select-input');
+
+      await waitFor(() => {
+        expect(input).toHaveAttribute('role', 'combobox');
+        expect(input).toHaveAttribute('aria-expanded', 'true');
+        expect(input).toHaveAttribute('aria-autocomplete', 'list');
+        expect(input).toHaveAttribute('aria-controls');
+      });
+    });
+
+    it('should restore combobox role to select when input closes', async () => {
+      await render(TestSelectInputComponent);
+      const select = screen.getByTestId('select-with-input');
+      const user = userEvent.setup();
+
+      fireEvent.click(select);
+
+      const input = await screen.findByTestId('select-input');
+
+      await waitFor(() => {
+        expect(input).toHaveAttribute('role', 'combobox');
+      });
+
+      await user.click(document.body);
+
+      await waitFor(() => {
+        expect(select).toHaveAttribute('role', 'combobox');
+      });
+    });
+
+    describe('ARIA roles with ngpSelectList', () => {
+      it('should give dropdown role=dialog when ngpSelectList is present', async () => {
+        await render(TestSelectInputComponent);
+        const select = screen.getByTestId('select-with-input');
+
+        fireEvent.click(select);
+
+        await waitFor(() => {
+          expect(screen.getByTestId('dropdown')).toHaveAttribute('role', 'dialog');
+        });
+      });
+
+      it('should give ngpSelectList element role=listbox', async () => {
+        await render(TestSelectInputComponent);
+        const select = screen.getByTestId('select-with-input');
+
+        fireEvent.click(select);
+
+        await waitFor(() => {
+          expect(screen.getByTestId('options-list')).toHaveAttribute('role', 'listbox');
+        });
+      });
+
+      it('should point aria-controls at the list rather than the dropdown', async () => {
+        await render(TestSelectInputComponent);
+        const select = screen.getByTestId('select-with-input');
+
+        fireEvent.click(select);
+
+        const input = await screen.findByTestId('select-input');
+        const list = screen.getByTestId('options-list');
+
+        await waitFor(() => {
+          expect(input).toHaveAttribute('aria-controls', list.getAttribute('id')!);
+        });
+      });
+
+      it('should point the trigger aria-controls at the list when there is no input', async () => {
+        @Component({
+          template: `
+            <div [(ngpSelectValue)]="value" ngpSelect data-testid="select-with-list">
+              <span data-testid="placeholder">Select an option</span>
+
+              <div *ngpSelectPortal ngpSelectDropdown data-testid="dropdown">
+                <div ngpSelectList data-testid="options-list">
+                  @for (option of options; track option) {
+                    <div [ngpSelectOptionValue]="option" ngpSelectOption>{{ option }}</div>
+                  }
+                </div>
+              </div>
+            </div>
+          `,
+          imports: [NgpSelect, NgpSelectDropdown, NgpSelectList, NgpSelectOption, NgpSelectPortal],
+        })
+        class TestSelectListOnlyComponent {
+          readonly options = ['Apple', 'Banana'];
+          readonly value = signal<string | undefined>(undefined);
+        }
+
+        await render(TestSelectListOnlyComponent);
+        const select = screen.getByTestId('select-with-list');
+
+        fireEvent.click(select);
+
+        const list = await screen.findByTestId('options-list');
+
+        await waitFor(() => {
+          expect(select).toHaveAttribute('aria-controls', list.getAttribute('id')!);
+        });
+      });
+    });
+
+    describe('Keyboard navigation from the input', () => {
+      it('should navigate through options with arrow keys', async () => {
+        await render(TestSelectInputComponent);
+        const select = screen.getByTestId('select-with-input');
+
+        fireEvent.click(select);
+
+        const input = await screen.findByTestId('select-input');
+
+        await waitFor(() => {
+          expect(screen.getByTestId('option-Apple')).toHaveAttribute('data-active', '');
+        });
+
+        fireEvent.keyDown(input, { key: 'ArrowDown' });
+        await waitFor(() => {
+          expect(screen.getByTestId('option-Banana')).toHaveAttribute('data-active', '');
+        });
+
+        fireEvent.keyDown(input, { key: 'ArrowUp' });
+        await waitFor(() => {
+          expect(screen.getByTestId('option-Apple')).toHaveAttribute('data-active', '');
+        });
+      });
+
+      it('should keep aria-activedescendant in sync with the active option', async () => {
+        await render(TestSelectInputComponent);
+        const select = screen.getByTestId('select-with-input');
+
+        fireEvent.click(select);
+
+        const input = await screen.findByTestId('select-input');
+
+        fireEvent.keyDown(input, { key: 'ArrowDown' });
+
+        await waitFor(() => {
+          const banana = screen.getByTestId('option-Banana');
+          expect(banana).toHaveAttribute('data-active', '');
+          expect(input).toHaveAttribute('aria-activedescendant', banana.getAttribute('id')!);
+        });
+      });
+
+      it('should select the active option when Enter is pressed', async () => {
+        const { fixture } = await render(TestSelectInputComponent);
+        const component = fixture.componentInstance;
+        const select = screen.getByTestId('select-with-input');
+
+        fireEvent.click(select);
+
+        const input = await screen.findByTestId('select-input');
+
+        await waitFor(() => {
+          expect(screen.getByTestId('option-Apple')).toHaveAttribute('data-active', '');
+        });
+
+        fireEvent.keyDown(input, { key: 'ArrowDown' });
+        await waitFor(() => {
+          expect(screen.getByTestId('option-Banana')).toHaveAttribute('data-active', '');
+        });
+
+        fireEvent.keyDown(input, { key: 'Enter' });
+
+        await waitFor(() => {
+          expect(component.value()).toBe('Banana');
+        });
+      });
+
+      it('should leave Home and End to the browser so the caret can move', async () => {
+        await render(TestSelectInputComponent);
+        const select = screen.getByTestId('select-with-input');
+
+        fireEvent.click(select);
+
+        const input = await screen.findByTestId('select-input');
+
+        fireEvent.keyDown(input, { key: 'ArrowDown' });
+        await waitFor(() => {
+          expect(screen.getByTestId('option-Banana')).toHaveAttribute('data-active', '');
+        });
+
+        // the input is an editable combobox, so Home and End are text editing keys and
+        // must not be consumed for option navigation
+        expect(fireEvent.keyDown(input, { key: 'Home' })).toBe(true);
+        expect(fireEvent.keyDown(input, { key: 'End' })).toBe(true);
+
+        expect(screen.getByTestId('option-Banana')).toHaveAttribute('data-active', '');
+      });
+
+      it('should close the dropdown and return focus to the trigger when Escape is pressed', async () => {
+        await render(TestSelectInputComponent);
+        const select = screen.getByTestId('select-with-input');
+
+        fireEvent.click(select);
+
+        const input = await screen.findByTestId('select-input');
+        fireEvent.keyDown(input, { key: 'Escape' });
+
+        await waitFor(() => {
+          expect(screen.queryByTestId('select-input')).not.toBeInTheDocument();
+          expect(select).toHaveFocus();
+        });
+      });
+
+      it('should move the active option onto a rendered option when filtering removes the active one', async () => {
+        await render(TestSelectInputComponent);
+        const select = screen.getByTestId('select-with-input');
+
+        fireEvent.click(select);
+
+        const input = await screen.findByTestId('select-input');
+
+        await waitFor(() => {
+          expect(screen.getByTestId('option-Apple')).toHaveAttribute('data-active', '');
+        });
+
+        // filter Apple out, the active descendant must not point at a removed option
+        fireEvent.input(input, { target: { value: 'an' } });
+
+        await waitFor(() => {
+          expect(screen.queryByTestId('option-Apple')).not.toBeInTheDocument();
+
+          const activeId = input.getAttribute('aria-activedescendant');
+          expect(activeId).toBeTruthy();
+          expect(document.getElementById(activeId!)).toBeInTheDocument();
+        });
+      });
     });
   });
 });
