@@ -127,8 +127,9 @@ Two different refs are involved, and it is worth keeping them apart:
   current guards. Every path, releases and recoveries alike, refuses to run when dispatched
   from anywhere else.
 - **What gets released** - the `ref` input. `next` for an ordinary release, a `hotfix/v<version>`
-  branch for a hotfix, and for a `publish_only` recovery a `v<version>` tag as well, since a
-  failed release can leave no branch pointing at the commit.
+  branch for a hotfix, a `release/<line>.x` branch for a backport, and for a `publish_only`
+  recovery a `v<version>` tag as well, since a failed release can leave no branch pointing at
+  the commit.
 
 An ordinary release ships everything merged into `next`: run the workflow from `next`, leave
 `ref` as `next`, and pick `patch`, `minor` or `major`.
@@ -155,10 +156,41 @@ A hotfix reaches `main` without passing through `next`, so the workflow merges `
 instead - **merge it before the next release**, which is blocked until `main` is an ancestor of
 `next` again.
 
+### Backports
+
+A hotfix ships the newest line. To patch an older one - a consumer pinned to `0.130.x` who
+cannot take `0.131.0` - give it its own dist-tag so `latest` stays on the newest version:
+
+```bash
+git switch -c release/0.130.x v0.130.2
+git cherry-pick <sha>
+git push -u origin release/0.130.x
+```
+
+Then run the workflow from `next` with `ref` `release/0.130.x`, `version` `patch`, and
+`dist_tag` `release-0-130`. Consumers install it as `npm i ng-primitives@release-0-130`, and the
+branch stays for the next backport on that line.
+
+Any `dist_tag` but `latest` marks the run a backport: an older base is allowed, `main` is left
+alone, and there is no back-merge, so the older line's bump and changelog stay off `next`.
+Backports are patch-only - a minor would land on a version the newer line already shipped.
+
+Two npm constraints shape the tag. It cannot parse as a semver range, so `v0.130` and `0.130.3`
+are refused; start it with a letter. And the trusted publisher's credential is good only for
+`npm publish`, so whatever a backport publishes under is what it keeps.
+
+The tag is passed as `nx release publish --tag`, never read from the branch, because a branch
+cut from an old tag carries that tag's `project.json`. Everything else the workflow runs has to
+survive an old tree the same way, so backports are capped at `v0.130.2` - the oldest release the
+steps have been checked against. To go further back, walk the release job against that tree
+first and move the floor in `release.yml`.
+
 If a release fails after it has tagged - the job summary tells you which side of that line it
 fell on - do **not** rerun the workflow normally, or it will version again and bump past the
-version missing from npm. Rerun it from the same ref with **`publish_only`** ticked: that
-publishes the version the ref already carries, catches `main` up to it, and versions nothing.
+version missing from npm. Rerun it from the same ref with **`publish_only`** ticked, and the same
+`dist_tag`: that publishes the version the ref already carries and versions nothing. A `latest`
+recovery also catches `main` up to it; a backport recovery leaves `main` alone, as its release
+did.
 
 ## Coding standards
 
