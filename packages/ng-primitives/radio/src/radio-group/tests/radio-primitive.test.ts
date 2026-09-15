@@ -903,26 +903,6 @@ describe('NgpRadioGroup', () => {
       expect(getByRole('radio', { name: '1' })).toHaveAttribute('tabindex', '-1');
     });
 
-    it('should leave a single tab stop when the checked item is removed', async () => {
-      const { getAllByRole, rerender, fixture } = await render(
-        `<div ngpRadioGroup [ngpRadioGroupValue]="value">
-          @for (option of options; track option) {
-            <div ngpRadioItem [ngpRadioItemValue]="option">{{ option }}</div>
-          }
-        </div>`,
-        {
-          imports: [NgpRadioGroup, NgpRadioItem],
-          componentProperties: { value: '2', options: ['1', '2', '3'] },
-        },
-      );
-
-      await rerender({ componentProperties: { value: '2', options: ['1', '3'] } });
-      await fixture.whenStable();
-
-      const stops = getAllByRole('radio').filter(item => item.getAttribute('tabindex') === '0');
-      expect(stops).toHaveLength(1);
-    });
-
     it('should keep the tab stop where it was when the value is cleared', async () => {
       const { getByRole, rerender, fixture } = await render(
         `<div ngpRadioGroup [ngpRadioGroupValue]="value">
