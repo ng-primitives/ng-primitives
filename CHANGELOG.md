@@ -1,3 +1,13 @@
+## 0.130.3 (2026-09-15)
+
+### 🩹 Fixes
+
+- **radio:** give the checked item the roving tab stop ([#943](https://github.com/ng-primitives/ng-primitives/pull/943))
+
+### ❤️ Thank You
+
+- Ashley Hunter
+
 ## 0.130.2 (2026-09-01)
 
 ### 🩹 Fixes
