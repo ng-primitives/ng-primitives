@@ -1,3 +1,30 @@
+## 0.131.0 (2026-09-15)
+
+### 🚀 Features
+
+- **ai:** allow ngpPromptComposer to be used without an ngpThread ([#879](https://github.com/ng-primitives/ng-primitives/pull/879), [#940](https://github.com/ng-primitives/ng-primitives/pull/940))
+
+### 🩹 Fixes
+
+- **combobox:** ignore synthetic keydown events with no key ([#931](https://github.com/ng-primitives/ng-primitives/pull/931), [#33359](https://github.com/ng-primitives/ng-primitives/issues/33359))
+- **combobox:** allow caret movement with Home and End in input ([#911](https://github.com/ng-primitives/ng-primitives/pull/911), [#937](https://github.com/ng-primitives/ng-primitives/pull/937))
+- **dialog:** remove unnecessary event.stopPropagation() call that blocked document click listeners ([#924](https://github.com/ng-primitives/ng-primitives/pull/924))
+- **form-field:** disable the element when its form control is disabled ([#926](https://github.com/ng-primitives/ng-primitives/pull/926))
+- **interactions:** avoid NG0600 when a binding disables a focused element ([#934](https://github.com/ng-primitives/ng-primitives/pull/934))
+- **portal:** re-resolve container dynamically on overlay open ([#928](https://github.com/ng-primitives/ng-primitives/pull/928), [#939](https://github.com/ng-primitives/ng-primitives/pull/939))
+- **release:** dispatch the workflow from next and name the ref ([#936](https://github.com/ng-primitives/ng-primitives/pull/936))
+- **schematics:** mark the compiled schematics as commonjs in the published package ([#891](https://github.com/ng-primitives/ng-primitives/pull/891))
+- **switch:** support Space and Enter activation on both button and non-button elements ([#927](https://github.com/ng-primitives/ng-primitives/pull/927), [#916](https://github.com/ng-primitives/ng-primitives/issues/916))
+
+### ❤️ Thank You
+
+- Ashley Hunter
+- Cursor @cursoragent
+- Paul Barahona
+- Peter Lazar @peterlazar1993
+- Roman Mykhailiuk @JustDo1t90
+- Thibaud Wajrock @wajrock
+
 ## 0.130.2 (2026-09-01)
 
 ### 🩹 Fixes
