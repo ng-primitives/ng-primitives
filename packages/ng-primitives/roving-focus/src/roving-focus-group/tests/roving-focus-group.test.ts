@@ -272,6 +272,71 @@ describe('NgpRovingFocusGroup', () => {
     });
   });
 
+  describe('item removal', () => {
+    // each item is behind its own @if so they register in the reverse of document order,
+    // which is what projected or conditionally rendered content does in practice
+    const outOfOrder = `<div ngpRovingFocusGroup>
+      @if (showFirst) {
+        <button ngpRovingFocusItem data-testid="item-1">One</button>
+      }
+      @if (showSecond) {
+        <button ngpRovingFocusItem data-testid="item-2">Two</button>
+      }
+      @if (showThird) {
+        <button ngpRovingFocusItem data-testid="item-3">Three</button>
+      }
+    </div>`;
+
+    async function renderOutOfOrder() {
+      const container = await render(outOfOrder, {
+        imports,
+        componentProperties: { showFirst: false, showSecond: false, showThird: true },
+      });
+
+      await container.rerender({
+        componentProperties: { showFirst: false, showSecond: true, showThird: true },
+      });
+      await container.rerender({
+        componentProperties: { showFirst: true, showSecond: true, showThird: true },
+      });
+
+      container.getByTestId('item-3').click();
+      await container.fixture.whenStable();
+
+      return container;
+    }
+
+    it('should hand the tab stop to the first item in document order', async () => {
+      const container = await renderOutOfOrder();
+
+      await container.rerender({
+        componentProperties: { showFirst: true, showSecond: true, showThird: false },
+      });
+      await container.fixture.whenStable();
+
+      expect(container.getByTestId('item-1')).toHaveAttribute('tabindex', '0');
+      expect(container.getByTestId('item-2')).toHaveAttribute('tabindex', '-1');
+    });
+
+    it('should pick the same item whether or not focus has roved first', async () => {
+      const container = await renderOutOfOrder();
+
+      // navigating sorts the items, which must not change where the tab stop lands next
+      fireEvent.keyDown(container.getByTestId('item-3'), { key: 'ArrowUp' });
+      await container.fixture.whenStable();
+      container.getByTestId('item-3').click();
+      await container.fixture.whenStable();
+
+      await container.rerender({
+        componentProperties: { showFirst: true, showSecond: true, showThird: false },
+      });
+      await container.fixture.whenStable();
+
+      expect(container.getByTestId('item-1')).toHaveAttribute('tabindex', '0');
+      expect(container.getByTestId('item-2')).toHaveAttribute('tabindex', '-1');
+    });
+  });
+
   describe('click activation', () => {
     it('should activate item on click', async () => {
       const container = await render(

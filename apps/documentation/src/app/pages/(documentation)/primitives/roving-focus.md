@@ -52,7 +52,7 @@ Adheres to the [WAI-ARIA Keyboard Interface Practices](https://www.w3.org/WAI/AR
 
 ### Keyboard Interactions
 
-- <kbd>Tab</kbd> - Move focus to the first item.
+- <kbd>Tab</kbd> - Move focus to the active item, or the first enabled item.
 - <kbd>ArrowLeft</kbd> - Move focus to the previous item (horizontal orientation).
 - <kbd>ArrowUp</kbd> - Move focus to the previous item (vertical orientation).
 - <kbd>ArrowRight</kbd> - Move focus to the next item (horizontal orientation).

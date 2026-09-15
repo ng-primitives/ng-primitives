@@ -131,7 +131,7 @@ export const [
      * Get the items in the roving focus group sorted by order.
      */
     function getSortedItems() {
-      return items().sort((a, b) => {
+      return [...items()].sort((a, b) => {
         // sort the items by their position in the document
         return a.element.nativeElement.compareDocumentPosition(b.element.nativeElement) &
           DOCUMENT_POSITION_FOLLOWING
@@ -369,10 +369,10 @@ export const [
     function unregister(item: NgpRovingFocusItemState): void {
       items.update(items => items.filter(i => i !== item));
 
-      // check if the unregistered item is the active item
+      // drop a claim on a removed item so activeItem resolves the tab stop to the first
+      // enabled item in document order rather than guessing from registration order
       if (claimedItem() === item.id()) {
-        // if the active item is unregistered, activate the first item
-        claimedItem.set(items()[0]?.id() ?? null);
+        claimedItem.set(null);
       }
     }
 
