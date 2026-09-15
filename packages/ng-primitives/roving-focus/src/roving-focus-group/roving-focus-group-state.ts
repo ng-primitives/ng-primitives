@@ -5,6 +5,12 @@ import { NgpOrientation } from 'ng-primitives/common';
 import { controlled, createPrimitive, injectInheritedState } from 'ng-primitives/state';
 import type { NgpRovingFocusItemState } from '../roving-focus-item/roving-focus-item-state';
 
+/**
+ * `Node.DOCUMENT_POSITION_FOLLOWING`, inlined because the tab stop is now resolved during
+ * render, where the `Node` global is not guaranteed - a server render has no browser globals.
+ */
+const DOCUMENT_POSITION_FOLLOWING = 4;
+
 export interface NgpRovingFocusGroupState {
   /**
    * The orientation of the roving focus group.
@@ -128,7 +134,7 @@ export const [
       return items().sort((a, b) => {
         // sort the items by their position in the document
         return a.element.nativeElement.compareDocumentPosition(b.element.nativeElement) &
-          Node.DOCUMENT_POSITION_FOLLOWING
+          DOCUMENT_POSITION_FOLLOWING
           ? -1
           : 1;
       });
