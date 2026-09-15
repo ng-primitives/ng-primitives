@@ -74,7 +74,7 @@ jobs:
           # still publishing to 'latest'.
           case "$DIST_TAG" in
             latest) ;;
-            ''|[!A-Za-z]*|*[!A-Za-z0-9._-]*|v[0-9]*)
+            ''|[!A-Za-z]*|*[!A-Za-z0-9._-]*|v[0-9]*|[xX]|[xX].[xX]|[xX].[xX].[xX])
               echo "::error::dist_tag '${DIST_TAG}' is not a usable npm tag. Start with a letter and use only letters, digits, dot, dash or underscore - for example release-0-130."
               exit 1
               ;;
@@ -159,7 +159,7 @@ jobs:
           # Both checks below keep 'latest' moving forwards, which a backport opts out of.
           if [ "${DIST_TAG}" = 'latest' ]; then
             git merge-base --is-ancestor origin/main HEAD ||
-              { echo "::error::main is ahead of this branch - an earlier hotfix is unmerged. Merge main into next first."; exit 1; }
+              { echo "::error::main is ahead of this branch. If this is a backport, name a dist_tag other than 'latest'; otherwise an earlier hotfix is unmerged, so merge main into next first."; exit 1; }
 
             # Plain releases only: a prerelease tag would sort first and break both sides.
             NEWEST=$(git tag --list 'v*' --sort=-v:refname | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | head -n1)
@@ -169,8 +169,11 @@ jobs:
             [ "$BASE" = "$NEWEST" ] ||
               { echo "::error::This branch is built on ${BASE} but ${NEWEST} is already released - publishing it would move npm's 'latest' backwards. To ship an older line, name a dist_tag other than 'latest'."; exit 1; }
           else
-            git merge-base --is-ancestor HEAD origin/main &&
-              { echo "::error::This branch is already contained in main - it is not a backport. Release it from next with dist_tag 'latest'."; exit 1; }
+            # rc 1 means "not an ancestor"; anything else is a git failure, not a pass
+            rc=0
+            git merge-base --is-ancestor HEAD origin/main || rc=$?
+            [ "$rc" -eq 1 ] ||
+              { echo "::error::This branch is already contained in main, or main could not be read (git exit ${rc}). A backport is neither. Release it from next with dist_tag 'latest'."; exit 1; }
 
             # Backporting onto the newest line leaves a tag no branch describes to, which
             # blocks every later ordinary release on the base check above.
@@ -269,6 +272,7 @@ jobs:
         env:
           VERSION: ${{ steps.version.outputs.version }}
           REF: ${{ inputs.ref }}
+          DIST_TAG: ${{ inputs.dist_tag }}
         run: |
           {
             echo "## ❌ Release did not finish"
@@ -283,13 +287,20 @@ jobs:
               echo "npm view ng-primitives@${VERSION} version"
               echo '```'
               echo
-              echo "If it is missing, rerun **this workflow from \`${REF}\` with \`publish_only\` ticked** - that"
-              echo "publishes the version the ref already carries, catches \`main\` up to it, and skips versioning."
+              echo "If it is missing, rerun **this workflow from \`${REF}\` with \`publish_only\` ticked** and"
+              echo "\`dist_tag\` set to \`${DIST_TAG}\` again - that publishes the version the ref already carries"
+              echo "and skips versioning."
 
-              if [ "${REF}" != 'next' ]; then
-                echo
-                echo "\`next\` has **not** been back-merged, so the next ordinary release stays blocked by the"
-                echo "'main is merged' check until [main → next](https://github.com/${{ github.repository }}/compare/next...main) lands."
+              if [ "${DIST_TAG}" = 'latest' ]; then
+                echo "It also catches \`main\` up to the release commit."
+
+                if [ "${REF}" != 'next' ]; then
+                  echo
+                  echo "\`next\` has **not** been back-merged, so the next ordinary release stays blocked by the"
+                  echo "'main is merged' check until [main → next](https://github.com/${{ github.repository }}/compare/next...main) lands."
+                fi
+              else
+                echo "A backport leaves \`main\` and \`next\` alone, so nothing else is blocked."
               fi
             else
               echo "**Nothing is tagged on the remote**, so nothing was published and no ref moved."
@@ -387,8 +398,10 @@ jobs:
             # installs from, leave `latest` short of it, and skip both the main catch-up and
             # the back-merge. A real backport never reached main.
             git fetch -q origin main
-            git merge-base --is-ancestor HEAD origin/main &&
-              { echo "::error::v${VERSION} is already on main, so it is not a backport. Recover it with dist_tag 'latest'."; exit 1; }
+            rc=0
+            git merge-base --is-ancestor HEAD origin/main || rc=$?
+            [ "$rc" -eq 1 ] ||
+              { echo "::error::v${VERSION} is already on main, or main could not be read (git exit ${rc}). A backport is neither. Recover it with dist_tag 'latest'."; exit 1; }
           fi
 
           echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
@@ -403,6 +416,15 @@ jobs:
           else
             echo "::notice::This tree predates scripts/check-packed-schematics.mjs - skipping."
           fi
+
+      # nx creates the GitHub release inside its changelog step, so a run that died before
+      # publishing has already left the badge on. Idempotent, so it is safe to repeat.
+      - name: Keep the Latest badge off a backport
+        if: inputs.dist_tag != 'latest'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VERSION: ${{ steps.version.outputs.version }}
+        run: gh release edit "v${VERSION}" --latest=false
 
       # The interrupted run may have died between the changelog and the push, leaving
       # main behind the tag. Completing it here keeps the release commit reachable
@@ -460,11 +482,16 @@ jobs:
       - name: Summary
         env:
           VERSION: ${{ steps.version.outputs.version }}
+          DIST_TAG: ${{ inputs.dist_tag }}
         run: |
           {
             echo "## 📦 Published v${VERSION}"
             echo
-            echo "Recovery run - nothing was versioned or tagged; main was caught up to the release commit."
+            if [ "${DIST_TAG}" = 'latest' ]; then
+              echo "Recovery run - nothing was versioned or tagged; main was caught up to the release commit."
+            else
+              echo "Backport recovery - nothing was versioned or tagged, and main was left where it is."
+            fi
           } >> "$GITHUB_STEP_SUMMARY"
 
   # A hotfix release lands on main without going through next, so next has to be
