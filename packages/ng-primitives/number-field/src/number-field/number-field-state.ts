@@ -222,9 +222,10 @@ export const [
      * Count the number of decimal places in a number.
      */
     function getDecimalPlaces(n: number): number {
-      const str = String(n);
-      const dotIndex = str.indexOf('.');
-      return dotIndex === -1 ? 0 : str.length - dotIndex - 1;
+      if (!Number.isFinite(n)) return 0;
+      const [coefficient, exponent = '0'] = String(n).toLowerCase().split('e');
+      const fractionalDigits = coefficient.split('.')[1]?.length ?? 0;
+      return Math.max(0, fractionalDigits - Number(exponent));
     }
 
     /**
@@ -232,8 +233,10 @@ export const [
      * floating point precision issues (e.g. 0.1 + 0.2 = 0.30000000000000004).
      */
     function roundToPrecision(val: number, precision: number): number {
-      if (precision === 0) return Math.round(val);
-      return parseFloat(val.toFixed(precision));
+      const safePrecision = Math.max(0, precision);
+      if (safePrecision === 0) return Math.round(val);
+      if (safePrecision > 100) return val;
+      return parseFloat(val.toFixed(safePrecision));
     }
 
     function clampAndStep(val: number): number {
@@ -301,7 +304,12 @@ export const [
 
     function getStepPrecision(): number {
       const base = Number.isFinite(min()) ? min() : 0;
-      return Math.max(getDecimalPlaces(step()), getDecimalPlaces(base));
+      return Math.max(
+        getDecimalPlaces(value() ?? base),
+        getDecimalPlaces(step()),
+        getDecimalPlaces(base),
+        Number.isFinite(max()) ? getDecimalPlaces(max()) : 0,
+      );
     }
 
     function increment(multiplier: number = 1): void {
