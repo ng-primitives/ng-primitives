@@ -1,0 +1,24 @@
+import { Component, input } from '@angular/core';
+import { NgpAvatar, NgpAvatarFallback, NgpAvatarImage } from 'ng-primitives/avatar';
+
+@Component({
+  selector: '<% if (prefix) { %><%= prefix %>-<% } %>avatar',
+  hostDirectives: [NgpAvatar],
+  imports: [NgpAvatarImage, NgpAvatarFallback],
+  host: {
+    class: 'relative inline-flex w-12 h-12 items-center justify-center rounded-full border-2 border-(--ngp-avatar-border) bg-(--ngp-avatar-background) align-middle overflow-hidden before:[content:\'\'] before:absolute before:inset-0 before:rounded-full before:[box-shadow:inset_0_0_0_1px_rgba(0,_0,_0,_0.1)]',
+  },
+  template: `
+    @if (image()) {
+      <img class="w-full h-full" [src]="image()" ngpAvatarImage alt="Profile Image" />
+    }
+    <span class="text-center font-medium text-(--ngp-text-emphasis)" ngpAvatarFallback>{{ fallback() }}</span>
+  `,
+})
+export class Avatar<%= componentSuffix %> {
+  /** Define the avatar image source */
+  readonly image = input<string>();
+
+  /** Define the avatar fallback text */
+  readonly fallback = input<string>();
+}

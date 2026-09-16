@@ -1,0 +1,12 @@
+import { Component } from '@angular/core';
+import { NgpSeparator } from 'ng-primitives/separator';
+
+@Component({
+  selector: '[<% if (prefix) { %><%= prefix %>-<% } %>separator]',
+  hostDirectives: [{ directive: NgpSeparator, inputs: ['ngpSeparatorOrientation:orientation'] }],
+  host: {
+    class: 'bg-(--ngp-border) [height:1px]',
+  },
+  template: ``,
+})
+export class Separator<%= componentSuffix %> {}

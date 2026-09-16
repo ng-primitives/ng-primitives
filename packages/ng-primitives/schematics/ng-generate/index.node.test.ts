@@ -406,5 +406,42 @@ describe('Component Schematic', () => {
 
       expect(deprecated.readContent(itemPath)).toEqual(unstyled.readContent(itemPath));
     });
+
+    it('styles the elements with Tailwind classes when tailwind', async () => {
+      const tree = await schematicRunner.runSchematic(
+        'primitive',
+        { primitive: 'accordion', path: 'projects/bar/src/app/tw-accordion', styles: 'tailwind' },
+        appTree,
+      );
+
+      const content = tree.readContent(
+        '/projects/bar/src/app/tw-accordion/accordion-item.component.ts',
+      );
+
+      // utility classes land on the elements and the host
+      expect(content).toContain('class="flex pl-4 pr-4');
+      expect(content).toMatch(/host: \{\n\s*class: 'block/);
+      // only what Tailwind cannot express stays behind as CSS
+      expect(content).toContain('@keyframes slideDown');
+      expect(content).not.toMatch(/styles:[\s\S]*display: flex/);
+      // the prefix and suffix placeholders were rendered as usual
+      expect(content).toContain('export class AccordionItemComponent');
+    });
+
+    it('applies OnPush to the tailwind variant as well', async () => {
+      const tree = await schematicRunner.runSchematic(
+        'primitive',
+        {
+          primitive: 'accordion',
+          path: 'projects/bar/src/app/tw-cd-accordion',
+          styles: 'tailwind',
+        },
+        appTree,
+      );
+
+      expect(
+        tree.readContent('/projects/bar/src/app/tw-cd-accordion/accordion-item.component.ts'),
+      ).toContain('changeDetection: ChangeDetectionStrategy.OnPush');
+    });
   });
 });
