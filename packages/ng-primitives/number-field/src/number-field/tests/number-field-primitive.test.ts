@@ -575,6 +575,53 @@ describe('NgpNumberField', () => {
       expect(valueChange).toHaveBeenCalledWith(5);
     });
 
+    it('should snap to the step grid by default', async () => {
+      const valueChange = vi.fn();
+      await renderNumberField('[ngpNumberFieldValue]="1" [ngpNumberFieldStep]="5"', valueChange);
+      fireEvent.keyDown(screen.getByTestId('input'), { key: 'ArrowUp' });
+      expect(valueChange).toHaveBeenCalledWith(5);
+    });
+
+    it('should increment an off-grid value by the exact step', async () => {
+      const valueChange = vi.fn();
+      await renderNumberField(
+        '[ngpNumberFieldValue]="1" [ngpNumberFieldStep]="5" [ngpNumberFieldSnap]="false"',
+        valueChange,
+      );
+      fireEvent.keyDown(screen.getByTestId('input'), { key: 'ArrowUp' });
+      expect(valueChange).toHaveBeenCalledWith(6);
+    });
+
+    it('should decrement an off-grid value by the exact step', async () => {
+      const valueChange = vi.fn();
+      await renderNumberField(
+        '[ngpNumberFieldValue]="9" [ngpNumberFieldStep]="5" [ngpNumberFieldSnap]="false"',
+        valueChange,
+      );
+      fireEvent.keyDown(screen.getByTestId('input'), { key: 'ArrowDown' });
+      expect(valueChange).toHaveBeenCalledWith(4);
+    });
+
+    it('should preserve the exact step from an off-grid value with a finite min', async () => {
+      const valueChange = vi.fn();
+      await renderNumberField(
+        '[ngpNumberFieldValue]="3" [ngpNumberFieldMin]="2" [ngpNumberFieldStep]="5" [ngpNumberFieldSnap]="false"',
+        valueChange,
+      );
+      fireEvent.keyDown(screen.getByTestId('input'), { key: 'ArrowUp' });
+      expect(valueChange).toHaveBeenCalledWith(8);
+    });
+
+    it('should preserve decimal precision from an off-grid value', async () => {
+      const valueChange = vi.fn();
+      await renderNumberField(
+        '[ngpNumberFieldValue]="0.1" [ngpNumberFieldStep]="0.25" [ngpNumberFieldSnap]="false"',
+        valueChange,
+      );
+      fireEvent.keyDown(screen.getByTestId('input'), { key: 'ArrowUp' });
+      expect(valueChange).toHaveBeenCalledWith(0.35);
+    });
+
     it('should handle floating point precision with step=0.1', async () => {
       const valueChange = vi.fn();
       await renderNumberField(
@@ -1071,6 +1118,19 @@ describe('NgpNumberField', () => {
 
       expect(valueChange).toHaveBeenCalledWith(10);
       expect(input.value).toBe('10');
+    });
+
+    it('should clamp without snapping on blur when snap is false', async () => {
+      const valueChange = vi.fn();
+      await renderNumberField('[ngpNumberFieldStep]="5" [ngpNumberFieldSnap]="false"', valueChange);
+
+      const input = screen.getByTestId('input') as HTMLInputElement;
+      fireEvent.focus(input);
+      input.value = '6';
+      fireEvent.blur(input);
+
+      expect(valueChange).toHaveBeenCalledWith(6);
+      expect(input.value).toBe('6');
     });
 
     it('should parse a partial decimal ".5" as 0.5', async () => {

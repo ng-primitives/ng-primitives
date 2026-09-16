@@ -37,6 +37,10 @@ export interface NgpNumberFieldState {
    */
   readonly step: Signal<number>;
   /**
+   * Whether values are aligned to the step grid when committed.
+   */
+  readonly snap: Signal<boolean>;
+  /**
    * The large step value (used with Shift key).
    */
   readonly largeStep: Signal<number>;
@@ -61,8 +65,9 @@ export interface NgpNumberFieldState {
    */
   readonly valueChange: Observable<number | null>;
   /**
-   * Set the current value (clamped and stepped). A non-finite value is rejected rather
-   * than treated as empty - this is a transition, and `null` already means empty.
+   * Set the current value (clamped and, when `snap` is enabled, stepped). A non-finite
+   * value is rejected rather than treated as empty - this is a transition, and `null`
+   * already means empty.
    */
   setValue(value: number | null): void;
   /**
@@ -120,6 +125,11 @@ export interface NgpNumberFieldProps {
    */
   readonly step?: Signal<number>;
   /**
+   * Whether values should be aligned to the step grid when committed.
+   * @default true
+   */
+  readonly snap?: Signal<boolean>;
+  /**
    * The large step value (used with Shift key). A non-finite value (`NaN`, `±Infinity`) falls back to `10`.
    */
   readonly largeStep?: Signal<number>;
@@ -156,6 +166,7 @@ export const [
     min: _min = signal(-Infinity),
     max: _max = signal(Infinity),
     step: _step = signal(1),
+    snap: _snap = signal(true),
     largeStep: _largeStep = signal(10),
     disabled: _disabled = signal(false),
     readonly: _readonly = signal(false),
@@ -183,6 +194,7 @@ export const [
     const min = computed(() => defaultIfNonFinite(_min(), -Infinity));
     const max = computed(() => defaultIfNonFinite(_max(), Infinity));
     const step = computed(() => defaultIfNonFinite(_step(), 1));
+    const snap = controlled(_snap);
     const largeStep = computed(() => defaultIfNonFinite(_largeStep(), 10));
     const disabled = controlled(_disabled);
     const readonly = controlled(_readonly);
@@ -245,7 +257,12 @@ export const [
     function setValue(newValue: number | null): void {
       if (disabled() || readonly()) return;
       if (newValue !== null && !Number.isFinite(newValue)) return;
-      const finalValue = newValue !== null ? clampAndStep(newValue) : null;
+      const finalValue =
+        newValue !== null
+          ? snap()
+            ? clampAndStep(newValue)
+            : Math.min(max(), Math.max(min(), newValue))
+          : null;
       // `clamped - base` overflows once the span exceeds Number.MAX_VALUE, so finite
       // arguments can still produce a non-finite result.
       if (finalValue !== null && !Number.isFinite(finalValue)) return;
@@ -295,7 +312,7 @@ export const [
       const current = valueAfterCommit ?? (Number.isFinite(min()) ? min() : 0);
       const precision = getStepPrecision();
       setValue(roundToPrecision(current + step() * multiplier, precision));
-      // If the silent commit changed the value but setValue was a no-op
+      // If the silent commit changed the value but the commit was a no-op
       // (stepped result clamped back to the committed value), emit the change
       // so the parent learns about the new value.
       if (valueBefore !== value() && valueAfterCommit === value()) {
@@ -312,7 +329,7 @@ export const [
       const current = valueAfterCommit ?? (Number.isFinite(max()) ? max() : 0);
       const precision = getStepPrecision();
       setValue(roundToPrecision(current - step() * multiplier, precision));
-      // If the silent commit changed the value but setValue was a no-op
+      // If the silent commit changed the value but the commit was a no-op
       // (stepped result clamped back to the committed value), emit the change
       // so the parent learns about the new value.
       if (valueBefore !== value() && valueAfterCommit === value()) {
@@ -335,6 +352,7 @@ export const [
       min,
       max,
       step,
+      snap,
       largeStep,
       disabled: deprecatedSetter(disabled, 'setDisabled', setDisabled),
       readonly: deprecatedSetter(readonly, 'setReadonly', setReadonly),
