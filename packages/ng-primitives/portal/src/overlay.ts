@@ -672,8 +672,7 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
     this.scrollStrategy.enable();
 
     // destroyOverlay() deregistered before the exit animation started. An immediate detach
-    // destroys the view synchronously, so a restore in that same turn has nothing on screen
-    // to route dismissals to - registering it would put a dead entry in the registry.
+    // leaves nothing on screen to route dismissals to.
     if (portal.getElements().length > 0) {
       this.registerWithRegistry();
     }

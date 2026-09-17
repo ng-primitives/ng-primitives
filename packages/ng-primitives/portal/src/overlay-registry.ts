@@ -172,8 +172,7 @@ export class NgpOverlayRegistry {
 
   /**
    * Breadth-first walk of `id`'s subtree, so the result is parent-before-child whatever
-   * order `entries` happens to be in - re-registering after an interrupted close can put a
-   * parent behind its own children. `include` prunes an entry and its subtree.
+   * order `entries` is in. `include` prunes an entry and its subtree.
    */
   private collectDescendants(
     id: string,

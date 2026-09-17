@@ -100,8 +100,7 @@ describe('NgpOverlayRegistry cascade closing', () => {
   });
 
   it('collects a grandchild registered before its own parent', () => {
-    // Re-registering after an interrupted close can put an entry behind its children,
-    // which a single ordered pass would walk straight past.
+    // Re-registering after an interrupted close can put an entry behind its children.
     const grandchild = entry('grandchild', 'child');
     const child = entry('child', 'parent');
     const parent = entry('parent', null);
