@@ -60,10 +60,7 @@ export class NgpOverlayCooldownManager {
    * overlay being registered. A nested overlay (its trigger rendered inside an
    * ancestor overlay's content) is stacked on top of its ancestor instead of
    * evicting it, allowing legitimate nesting to coexist while sibling overlays
-   * still replace one another.
-   *
-   * Ancestry is read from NgpOverlayRegistry, which resolves it once per open and
-   * spans every overlay type - including a dialog sitting between two overlays.
+   * still replace one another. Ancestry comes from NgpOverlayRegistry.
    *
    * @param overlayType The type identifier for the overlay group
    * @param overlay The overlay instance

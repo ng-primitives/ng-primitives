@@ -72,13 +72,8 @@ export interface NgpOverlayEntry {
   outsidePointerEvents$?: Subject<MouseEvent>;
   /**
    * Whether closing the parent overlay also closes this one. Defaults to true.
-   *
-   * This is not derivable from ancestry - it is a property of the overlay itself. An
-   * anchored overlay (popover, menu, tooltip) is positioned against an element inside its
-   * parent, so when the parent goes the anchor goes with it and staying open is
-   * meaningless. A dialog is positioned against the viewport, so it remains valid on its
-   * own and must survive a parent that closes on select. Dialogs are the only opt-out
-   * today; set it on any overlay that does not depend on its parent for position.
+   * Set it false for an overlay that does not depend on its parent for position - a
+   * dialog is positioned against the viewport, an anchored overlay loses its anchor.
    */
   cascadeClose?: boolean;
 }
@@ -169,8 +164,7 @@ export class NgpOverlayRegistry {
 
   /**
    * Descendants of `id` that close along with it. The walk stops at an entry that opted
-   * out of cascade closing, so that entry's own subtree is left open too - a popover
-   * inside a dialog must not close because the menu behind the dialog went away.
+   * out, leaving its own subtree open too.
    */
   private getCascadingDescendants(id: string): NgpOverlayEntry[] {
     const descendants: NgpOverlayEntry[] = [];

@@ -2,10 +2,7 @@ import { TestBed } from '@angular/core/testing';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { NgpOverlayEntry, NgpOverlayRegistry } from '../overlay-registry';
 
-/**
- * Minimal entry for exercising cascade closing. Only the fields `closeDescendants`
- * reads are meaningful; the rest satisfy the interface.
- */
+/** Minimal entry; only the fields `closeDescendants` reads are meaningful. */
 function entry(
   id: string,
   parentId: string | null,

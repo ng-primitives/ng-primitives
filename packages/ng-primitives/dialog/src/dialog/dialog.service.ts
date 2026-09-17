@@ -162,17 +162,13 @@ export class NgpDialogManager implements OnDestroy {
       this.enableScrollBlocking(config);
     }
 
-    // The element the dialog was opened from. An explicit trigger is authoritative; a
-    // programmatic `open()` has none and falls back to whatever held focus, which is why
-    // `NgpDialogTrigger` passes its own element.
+    // A programmatic open() has no trigger and falls back to whatever held focus.
     const originElement =
       config.triggerElement ?? (activeElement instanceof HTMLElement ? activeElement : null);
 
-    // Auto-detect parent overlay: if the origin lives inside an existing overlay (a dialog
-    // opened from a menu, popover or another dialog), register as its child so that clicks
-    // inside the dialog don't read as an outside press on that parent.
-    // `cascadeClose: false` below keeps the inverse from happening: a menu that closes on
-    // select, or a popover that dismisses, must not take the dialog it just opened with it.
+    // Register under the overlay the dialog was opened from, so clicks inside it don't read
+    // as an outside press on that parent. `cascadeClose: false` below stops the inverse: a
+    // menu that closes on select must not take the dialog with it.
     const parentId = originElement ? this.registry.findContainingOverlay(originElement) : null;
 
     // Register with the overlay registry for centralized escape-key routing.

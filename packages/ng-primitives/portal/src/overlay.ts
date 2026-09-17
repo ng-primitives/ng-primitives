@@ -285,7 +285,6 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
   private readonly registry = inject(NgpOverlayRegistry);
   /** Access any parent overlays */
   private readonly parentOverlay = inject(NgpOverlay, { optional: true });
-  /** Track child overlays for outside click detection */
   /** Signal tracking the portal instance */
   private readonly portal = signal<NgpPortal | null>(null);
   /** The dedicated outlet element registered by the overlay directive (e.g. NgpMenu) */
@@ -672,8 +671,7 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
     this.scrollStrategy = this.createScrollStrategy();
     this.scrollStrategy.enable();
 
-    // destroyOverlay() deregistered this overlay before starting the exit animation, so
-    // the registry no longer knows about an overlay that is back on screen.
+    // destroyOverlay() deregistered before the exit animation started.
     this.registerWithRegistry();
 
     // Re-register with cooldown if needed
@@ -961,10 +959,7 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
     return elements.find(el => el.hasAttribute('data-overlay')) ?? elements[0];
   }
 
-  /**
-   * Add this overlay to the registry, which owns dismiss routing and stacking order.
-   * Idempotent, so it is safe to call again when a close is interrupted.
-   */
+  /** Add this overlay to the registry. Idempotent, so an interrupted close can re-run it. */
   private registerWithRegistry(): void {
     this.registry.register({
       id: this.id(),
@@ -982,10 +977,8 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
   }
 
   /**
-   * The overlay this one was opened from. Prefers the injector chain, which is available
-   * before this overlay registers, and falls back to whichever registered overlay contains
-   * the trigger in the DOM - the only link that survives a dialog in between.
-   * @internal
+   * The overlay this one was opened from. The injector chain does not span a dialog, so
+   * fall back to whichever registered overlay contains the trigger in the DOM.
    */
   private resolveParentId(): string | null {
     if (this.parentOverlay) {

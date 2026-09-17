@@ -587,8 +587,7 @@ describe('NgpDialog', () => {
       const dialogTrigger = document.querySelector(
         '[data-testid="popover-dialog-trigger"]',
       ) as HTMLElement;
-      // Deliberately no focus() - fireEvent.click leaves the body focused, so a parent
-      // resolved from document.activeElement would come back null.
+      // No focus(): a parent resolved from document.activeElement would come back null.
       expect(document.activeElement).not.toBe(dialogTrigger);
       fireEvent.click(dialogTrigger, { detail: 1 });
       await view.fixture.whenStable();
@@ -611,8 +610,7 @@ describe('NgpDialog', () => {
       await view.fixture.whenStable();
       await new Promise(r => setTimeout(r, 0));
 
-      // closeOnSelect would remove the menu; drive the manager from an element that keeps
-      // the menu mounted so both overlays are open at once.
+      // Drive the manager directly so the menu stays mounted and both overlays are open.
       const menuElement = document.querySelector('[data-testid="menu"]') as HTMLElement;
       menuElement.focus();
       view.fixture.componentInstance.openDialog();

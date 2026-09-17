@@ -4,11 +4,7 @@ import { describe, expect, it, vi } from 'vitest';
 import { CooldownOverlay, NgpOverlayCooldownManager } from '../overlay-cooldown';
 import { NgpOverlayRegistry } from '../overlay-registry';
 
-/**
- * A lightweight CooldownOverlay used to exercise the manager without the full NgpOverlay.
- * Ancestry now lives in NgpOverlayRegistry, so each fake registers an entry there - which
- * is also what a real overlay does on open.
- */
+/** A CooldownOverlay stub. Ancestry lives in the registry, so each fake registers there. */
 class FakeOverlay implements CooldownOverlay {
   readonly instantTransition = signal(false);
   readonly hideImmediate = vi.fn();
