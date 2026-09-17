@@ -655,13 +655,6 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
       return;
     }
 
-    // An immediate detach destroys the view synchronously and only clears destroyingPortal a
-    // microtask later, so a show() in the same turn lands here with nothing left to restore.
-    // Leave the teardown to finish; show() goes on to build a fresh portal.
-    if (portal.getElements().length === 0) {
-      return;
-    }
-
     this.destroyingPortal = null;
     portal.cancelDetach();
 
@@ -678,8 +671,12 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
     this.scrollStrategy = this.createScrollStrategy();
     this.scrollStrategy.enable();
 
-    // destroyOverlay() deregistered before the exit animation started.
-    this.registerWithRegistry();
+    // destroyOverlay() deregistered before the exit animation started. An immediate detach
+    // destroys the view synchronously, so a restore in that same turn has nothing on screen
+    // to route dismissals to - registering it would put a dead entry in the registry.
+    if (portal.getElements().length > 0) {
+      this.registerWithRegistry();
+    }
 
     // Re-register with cooldown if needed
     if (this.config.overlayType) {
