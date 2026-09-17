@@ -1,12 +1,13 @@
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { describe, expect, it, vi } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { CooldownOverlay, NgpOverlayCooldownManager } from '../overlay-cooldown';
 import { NgpOverlayRegistry } from '../overlay-registry';
 
 /** A CooldownOverlay stub. Ancestry lives in the registry, so each fake registers there. */
 class FakeOverlay implements CooldownOverlay {
   readonly instantTransition = signal(false);
+  readonly hide = vi.fn();
   readonly hideImmediate = vi.fn();
 
   constructor(private readonly overlayId: string) {}
@@ -17,6 +18,7 @@ class FakeOverlay implements CooldownOverlay {
 }
 
 let nextId = 0;
+const registered: FakeOverlay[] = [];
 
 function fake(parent: FakeOverlay | null = null): FakeOverlay {
   const overlay = new FakeOverlay(`fake-${nextId++}`);
@@ -28,8 +30,18 @@ function fake(parent: FakeOverlay | null = null): FakeOverlay {
     triggerElement: document.createElement('button'),
     dismissPolicy: { outsidePress: true, escapeKey: true },
   });
+  registered.push(overlay);
   return overlay;
 }
+
+// The registry keeps document listeners alive while it holds entries, so a fake left
+// behind would be dismissed by a click in some later test file.
+afterEach(() => {
+  const registry = TestBed.inject(NgpOverlayRegistry);
+  for (const overlay of registered.splice(0)) {
+    registry.deregister(overlay.id());
+  }
+});
 
 describe('NgpOverlayCooldownManager', () => {
   it('evicts a previously active overlay of the same type (sibling switch)', () => {
