@@ -26,6 +26,7 @@ export interface AngularPrimitivesComponentSchema {
     | 'toast'
     | 'toolbar'
     | 'tooltip'
+    | 'tree'
     | 'meter'
     | 'menu'
     | 'popover'
