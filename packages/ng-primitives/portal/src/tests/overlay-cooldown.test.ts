@@ -1,38 +1,45 @@
 import { signal } from '@angular/core';
+import { TestBed } from '@angular/core/testing';
 import { describe, expect, it, vi } from 'vitest';
 import { CooldownOverlay, NgpOverlayCooldownManager } from '../overlay-cooldown';
+import { NgpOverlayRegistry } from '../overlay-registry';
 
 /**
- * A lightweight CooldownOverlay used to exercise the manager without the full
- * NgpOverlay. Ancestry is modelled with an explicit `parent` reference, mirroring
- * NgpOverlay's injected parent overlay chain.
+ * A lightweight CooldownOverlay used to exercise the manager without the full NgpOverlay.
+ * Ancestry now lives in NgpOverlayRegistry, so each fake registers an entry there - which
+ * is also what a real overlay does on open.
  */
 class FakeOverlay implements CooldownOverlay {
-  parent: FakeOverlay | null = null;
   readonly instantTransition = signal(false);
   readonly hideImmediate = vi.fn();
 
-  constructor(parent: FakeOverlay | null = null) {
-    this.parent = parent;
-  }
+  constructor(private readonly overlayId: string) {}
 
-  isDescendantOf(other: CooldownOverlay): boolean {
-    let current: FakeOverlay | null = this.parent;
-    while (current) {
-      if (current === other) {
-        return true;
-      }
-      current = current.parent;
-    }
-    return false;
+  id(): string {
+    return this.overlayId;
   }
+}
+
+let nextId = 0;
+
+function fake(parent: FakeOverlay | null = null): FakeOverlay {
+  const overlay = new FakeOverlay(`fake-${nextId++}`);
+  TestBed.inject(NgpOverlayRegistry).register({
+    id: overlay.id(),
+    parentId: parent?.id() ?? null,
+    overlay,
+    getElements: () => [],
+    triggerElement: document.createElement('button'),
+    dismissPolicy: { outsidePress: true, escapeKey: true },
+  });
+  return overlay;
 }
 
 describe('NgpOverlayCooldownManager', () => {
   it('evicts a previously active overlay of the same type (sibling switch)', () => {
-    const manager = new NgpOverlayCooldownManager();
-    const a = new FakeOverlay();
-    const b = new FakeOverlay();
+    const manager = TestBed.inject(NgpOverlayCooldownManager);
+    const a = fake();
+    const b = fake();
 
     manager.registerActive('popover', a, 0);
     manager.registerActive('popover', b, 0);
@@ -43,9 +50,9 @@ describe('NgpOverlayCooldownManager', () => {
   });
 
   it('does not evict an ancestor overlay when a nested overlay registers', () => {
-    const manager = new NgpOverlayCooldownManager();
-    const outer = new FakeOverlay();
-    const inner = new FakeOverlay(outer);
+    const manager = TestBed.inject(NgpOverlayCooldownManager);
+    const outer = fake();
+    const inner = fake(outer);
 
     manager.registerActive('popover', outer, 0);
     manager.registerActive('popover', inner, 0);
@@ -56,10 +63,10 @@ describe('NgpOverlayCooldownManager', () => {
   });
 
   it('restores the ancestor as active after the nested overlay unregisters', () => {
-    const manager = new NgpOverlayCooldownManager();
-    const outer = new FakeOverlay();
-    const inner = new FakeOverlay(outer);
-    const sibling = new FakeOverlay();
+    const manager = TestBed.inject(NgpOverlayCooldownManager);
+    const outer = fake();
+    const inner = fake(outer);
+    const sibling = fake();
 
     manager.registerActive('popover', outer, 0);
     manager.registerActive('popover', inner, 0);
@@ -74,11 +81,11 @@ describe('NgpOverlayCooldownManager', () => {
   });
 
   it('evicts every non-ancestor overlay above the nearest ancestor on the stack', () => {
-    const manager = new NgpOverlayCooldownManager();
-    const outer = new FakeOverlay();
-    const inner = new FakeOverlay(outer);
+    const manager = TestBed.inject(NgpOverlayCooldownManager);
+    const outer = fake();
+    const inner = fake(outer);
     // A second overlay nested directly in `outer` (a sibling of `inner`).
-    const innerSibling = new FakeOverlay(outer);
+    const innerSibling = fake(outer);
 
     manager.registerActive('popover', outer, 0);
     manager.registerActive('popover', inner, 0);
@@ -91,9 +98,9 @@ describe('NgpOverlayCooldownManager', () => {
   });
 
   it('keeps overlays of different types independent', () => {
-    const manager = new NgpOverlayCooldownManager();
-    const popover = new FakeOverlay();
-    const tooltip = new FakeOverlay();
+    const manager = TestBed.inject(NgpOverlayCooldownManager);
+    const popover = fake();
+    const tooltip = fake();
 
     manager.registerActive('popover', popover, 0);
     manager.registerActive('tooltip', tooltip, 0);
@@ -105,9 +112,9 @@ describe('NgpOverlayCooldownManager', () => {
   });
 
   it('marks the evicted overlay as an instant transition when cooldown is active', () => {
-    const manager = new NgpOverlayCooldownManager();
-    const a = new FakeOverlay();
-    const b = new FakeOverlay();
+    const manager = TestBed.inject(NgpOverlayCooldownManager);
+    const a = fake();
+    const b = fake();
 
     manager.registerActive('tooltip', a, 300);
     manager.registerActive('tooltip', b, 300);
@@ -117,9 +124,9 @@ describe('NgpOverlayCooldownManager', () => {
   });
 
   it('does not mark an instant transition when cooldown is disabled', () => {
-    const manager = new NgpOverlayCooldownManager();
-    const a = new FakeOverlay();
-    const b = new FakeOverlay();
+    const manager = TestBed.inject(NgpOverlayCooldownManager);
+    const a = fake();
+    const b = fake();
 
     manager.registerActive('tooltip', a, 0);
     manager.registerActive('tooltip', b, 0);
@@ -128,8 +135,8 @@ describe('NgpOverlayCooldownManager', () => {
   });
 
   it('reports no active overlay once the last overlay unregisters', () => {
-    const manager = new NgpOverlayCooldownManager();
-    const a = new FakeOverlay();
+    const manager = TestBed.inject(NgpOverlayCooldownManager);
+    const a = fake();
 
     manager.registerActive('popover', a, 0);
     expect(manager.hasActiveOverlay('popover')).toBe(true);
@@ -139,8 +146,8 @@ describe('NgpOverlayCooldownManager', () => {
   });
 
   it('treats re-registering the active overlay as a no-op', () => {
-    const manager = new NgpOverlayCooldownManager();
-    const a = new FakeOverlay();
+    const manager = TestBed.inject(NgpOverlayCooldownManager);
+    const a = fake();
 
     manager.registerActive('popover', a, 0);
     manager.registerActive('popover', a, 0);
@@ -150,10 +157,10 @@ describe('NgpOverlayCooldownManager', () => {
   });
 
   it('does not evict an active descendant when its ancestor re-registers', () => {
-    const manager = new NgpOverlayCooldownManager();
-    const outer = new FakeOverlay();
-    const inner = new FakeOverlay(outer);
-    const sibling = new FakeOverlay();
+    const manager = TestBed.inject(NgpOverlayCooldownManager);
+    const outer = fake();
+    const inner = fake(outer);
+    const sibling = fake();
 
     manager.registerActive('popover', outer, 0);
     manager.registerActive('popover', inner, 0);
@@ -179,10 +186,10 @@ describe('NgpOverlayCooldownManager', () => {
   });
 
   it('treats re-registering an ancestor with an active descendant as a no-op', () => {
-    const manager = new NgpOverlayCooldownManager();
-    const outer = new FakeOverlay();
-    const inner = new FakeOverlay(outer);
-    const sibling = new FakeOverlay();
+    const manager = TestBed.inject(NgpOverlayCooldownManager);
+    const outer = fake();
+    const inner = fake(outer);
+    const sibling = fake();
 
     manager.registerActive('popover', outer, 0);
     manager.registerActive('popover', inner, 0);
