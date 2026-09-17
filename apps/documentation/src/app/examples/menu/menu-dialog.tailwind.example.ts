@@ -35,7 +35,7 @@ import { NgpMenu, NgpMenuItem, NgpMenuTrigger } from 'ng-primitives/menu';
          last is last in the DOM and paints on top. -->
     <ng-template #menu>
       <div
-        class="animate-in fade-in-0 zoom-in-95 fixed z-[1000] flex w-max origin-(--ngp-menu-transform-origin) flex-col rounded-[0.625rem] border border-zinc-200 bg-white p-1 shadow-lg outline-none dark:border-zinc-800 dark:bg-zinc-950"
+        class="animate-menu animate-in fade-in-0 zoom-in-95 fixed z-[1000] flex w-max origin-(--ngp-menu-transform-origin) flex-col rounded-[0.625rem] border border-zinc-200 bg-white p-1 shadow-lg outline-none dark:border-zinc-800 dark:bg-zinc-950"
         ngpMenu
       >
         <button
@@ -143,6 +143,21 @@ import { NgpMenu, NgpMenuItem, NgpMenuTrigger } from 'ng-primitives/menu';
         opacity: 0;
         transform: translateY(-8px);
       }
+    }
+
+    @keyframes menuOut {
+      from {
+        opacity: 1;
+        transform: scale(1);
+      }
+      to {
+        opacity: 0;
+        transform: scale(0.95);
+      }
+    }
+
+    .animate-menu[data-exit] {
+      animation: menuOut 0.1s ease-out;
     }
 
     .animate-fade {

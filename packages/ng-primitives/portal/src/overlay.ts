@@ -655,6 +655,13 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
       return;
     }
 
+    // An immediate detach destroys the view synchronously and only clears destroyingPortal a
+    // microtask later, so a show() in the same turn lands here with nothing left to restore.
+    // Leave the teardown to finish; show() goes on to build a fresh portal.
+    if (portal.getElements().length === 0) {
+      return;
+    }
+
     this.destroyingPortal = null;
     portal.cancelDetach();
 

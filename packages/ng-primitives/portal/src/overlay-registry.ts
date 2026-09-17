@@ -167,19 +167,45 @@ export class NgpOverlayRegistry {
    * out, leaving its own subtree open too.
    */
   private getCascadingDescendants(id: string): NgpOverlayEntry[] {
-    const descendants: NgpOverlayEntry[] = [];
-    const ancestorIds = new Set<string>([id]);
+    return this.collectDescendants(id, entry => entry.cascadeClose !== false);
+  }
 
-    // Entries are ordered by open time, so a child always appears after its parent.
+  /**
+   * Breadth-first walk of `id`'s subtree, so the result is parent-before-child whatever
+   * order `entries` happens to be in - re-registering after an interrupted close can put a
+   * parent behind its own children. `include` prunes an entry and its subtree.
+   */
+  private collectDescendants(
+    id: string,
+    include: (entry: NgpOverlayEntry) => boolean = () => true,
+  ): NgpOverlayEntry[] {
+    const childrenByParent = new Map<string, NgpOverlayEntry[]>();
+
     for (const entry of this.entries) {
-      if (entry.parentId === null || !ancestorIds.has(entry.parentId)) {
+      if (entry.parentId === null) {
         continue;
       }
-      if (entry.cascadeClose === false) {
-        continue;
+      const siblings = childrenByParent.get(entry.parentId);
+      if (siblings) {
+        siblings.push(entry);
+      } else {
+        childrenByParent.set(entry.parentId, [entry]);
       }
-      descendants.push(entry);
-      ancestorIds.add(entry.id);
+    }
+
+    const descendants: NgpOverlayEntry[] = [];
+    const queue = [id];
+    const seen = new Set<string>([id]);
+
+    while (queue.length > 0) {
+      for (const child of childrenByParent.get(queue.shift()!) ?? []) {
+        if (seen.has(child.id) || !include(child)) {
+          continue;
+        }
+        seen.add(child.id);
+        descendants.push(child);
+        queue.push(child.id);
+      }
     }
 
     return descendants;
@@ -241,19 +267,7 @@ export class NgpOverlayRegistry {
    * by walking parentId chains of all entries.
    */
   getDescendants(id: string): NgpOverlayEntry[] {
-    const descendants: NgpOverlayEntry[] = [];
-    const ancestorIds = new Set<string>([id]);
-
-    // Walk the list and collect entries whose parentId is in the ancestor set.
-    // Because entries are ordered by open time, a child always appears after its parent.
-    for (const entry of this.entries) {
-      if (entry.parentId !== null && ancestorIds.has(entry.parentId)) {
-        descendants.push(entry);
-        ancestorIds.add(entry.id);
-      }
-    }
-
-    return descendants;
+    return this.collectDescendants(id);
   }
 
   /**

@@ -54,7 +54,7 @@ describe('NgpOverlayRegistry cascade closing', () => {
     expect(child.overlay.hideImmediate).toHaveBeenCalledTimes(1);
   });
 
-  it('treats an absent cascadeClose the same as true', () => {
+  it('closes a descendant that opted in explicitly', () => {
     const parent = entry('parent', null);
     const child = entry('child', 'parent', true);
     register(parent, child);
@@ -97,6 +97,20 @@ describe('NgpOverlayRegistry cascade closing', () => {
     registry.closeDescendants('dialog');
 
     expect(popover.overlay.hideImmediate).toHaveBeenCalledTimes(1);
+  });
+
+  it('collects a grandchild registered before its own parent', () => {
+    // Re-registering after an interrupted close can put an entry behind its children,
+    // which a single ordered pass would walk straight past.
+    const grandchild = entry('grandchild', 'child');
+    const child = entry('child', 'parent');
+    const parent = entry('parent', null);
+    register(grandchild, child, parent);
+
+    registry.closeDescendants('parent');
+
+    expect(child.overlay.hideImmediate).toHaveBeenCalledTimes(1);
+    expect(grandchild.overlay.hideImmediate).toHaveBeenCalledTimes(1);
   });
 
   it('closes siblings that did not opt out', () => {
