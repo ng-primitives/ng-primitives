@@ -89,7 +89,7 @@ The `NgpThreadSuggestion` directive displays suggested text that the user can cl
 
 ### NgpPromptComposer
 
-The `NgpPromptComposer` directive creates a container for composing and submitting prompts to the AI assistant.
+The `NgpPromptComposer` directive creates a container for composing and submitting prompts to the AI assistant. It can be used standalone or within an `NgpThread`.
 
 <api-docs name="NgpPromptComposer"></api-docs>
 
@@ -136,6 +136,22 @@ The `NgpPromptComposerDictation` directive enables voice input functionality for
   <api-attribute name="data-dictation-supported" description="Added when speech dictation is supported by the browser." />
   <api-attribute name="data-prompt" description="Added when there is text content in the prompt." />
 </api-reference-attributes>
+
+## Global Configuration
+
+You can configure the default options for all AI assistant primitives in your application by using the `provideAiConfig` function in a providers array.
+
+```ts
+import { provideAiConfig } from 'ng-primitives/ai';
+
+bootstrapApplication(AppComponent, {
+  providers: [provideAiConfig({ dictationLanguage: 'es-ES' })],
+});
+```
+
+### NgpAiConfig
+
+<api-reference-config name="NgpAiConfig"></api-reference-config>
 
 ## Accessibility
 

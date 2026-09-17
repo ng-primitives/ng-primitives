@@ -67,3 +67,4 @@ export {
   injectThreadMessageState,
   type NgpThreadMessageState,
 } from './thread-message/thread-message-state';
+export { NgpAiConfig, provideAiConfig } from './config/ai-config';

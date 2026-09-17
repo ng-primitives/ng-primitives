@@ -136,7 +136,9 @@ export const [NgpTabsetStateToken, ngpTabset, injectTabsetState, provideTabsetSt
         return tabList.find(tab => !tab.disabled())?.value();
       });
 
-      function select(newValue: string): void {
+      // `select` only accepts a concrete tab value, but the value signal permits undefined, so the
+      // deprecated setter routes through this instead of asserting the value is defined.
+      function setValue(newValue: string | undefined): void {
         // if the value is already selected, do nothing
         if (value() === newValue) {
           return;
@@ -144,6 +146,10 @@ export const [NgpTabsetStateToken, ngpTabset, injectTabsetState, provideTabsetSt
 
         value.set(newValue);
         onValueChange?.(newValue);
+      }
+
+      function select(newValue: string): void {
+        setValue(newValue);
       }
 
       function setOrientation(newOrientation: NgpOrientation): void {
@@ -164,9 +170,13 @@ export const [NgpTabsetStateToken, ngpTabset, injectTabsetState, provideTabsetSt
 
       return {
         id,
-        orientation: deprecatedSetter(orientation, 'setOrientation'),
-        activateOnFocus: deprecatedSetter(activateOnFocus, 'setActivateOnFocus'),
-        value: deprecatedSetter(value, 'select'),
+        orientation: deprecatedSetter(orientation, 'setOrientation', setOrientation),
+        activateOnFocus: deprecatedSetter(
+          activateOnFocus,
+          'setActivateOnFocus',
+          setActivateOnFocus,
+        ),
+        value: deprecatedSetter(value, 'select', setValue),
         selectedTab,
         select,
         setOrientation,

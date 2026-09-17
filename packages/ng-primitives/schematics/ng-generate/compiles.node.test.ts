@@ -150,6 +150,42 @@ describe('generated primitives compile', () => {
     expect(failures).toEqual([]);
   }, 60_000);
 
+  /**
+   * `--styles unstyled` removes the `styles` property from the decorator — a structural edit
+   * that must leave every primitive syntactically valid, whatever shape its decorator has.
+   */
+  it('produces files that parse when unstyled', async () => {
+    const failures: string[] = [];
+
+    for (const primitive of primitives) {
+      // a dedicated path per primitive, so this never collides with the default-styled
+      // components the beforeAll already generated into `app/<primitive>`
+      const dir = `projects/bar/src/app/unstyled-${primitive}`;
+      const tree = await schematicRunner.runSchematic(
+        'primitive',
+        { primitive, path: dir, styles: 'unstyled' },
+        appTree,
+      );
+
+      for (const file of tree.files.filter(file => file.includes(`/unstyled-${primitive}/`))) {
+        const content = tree.readContent(file);
+        expect(content, `${file.split('/').pop()} should have no styles block`).not.toContain(
+          'styles:',
+        );
+
+        const source = ts.createSourceFile(file, content, ts.ScriptTarget.Latest, true);
+        const diagnostics = (source as unknown as { parseDiagnostics?: ts.Diagnostic[] })
+          .parseDiagnostics;
+
+        if (diagnostics?.length) {
+          failures.push(...diagnostics.map(describeDiagnostic));
+        }
+      }
+    }
+
+    expect(failures).toEqual([]);
+  }, 60_000);
+
   function describeDiagnostic(diagnostic: ts.Diagnostic): string {
     const message = ts.flattenDiagnosticMessageText(diagnostic.messageText, ' ');
 

@@ -1,4 +1,4 @@
-import { Component, Directive, OnInit } from '@angular/core';
+import { Component, Directive, OnInit, signal } from '@angular/core';
 import { fireEvent, render, screen, waitFor } from '@testing-library/angular';
 import {
   NgpContextMenu,
@@ -889,6 +889,96 @@ describe('NgpContextMenuTrigger', () => {
         const container = document.querySelector('#menu-host');
         expect(container?.querySelector('[ngpContextMenu]')).toBeInTheDocument();
       });
+    });
+
+    it('should render context menu into updated container when [ngpContextMenuTriggerContainer] changes between opens', async () => {
+      @Component({
+        template: `
+          <div id="context-container-a"></div>
+          <div id="context-container-b"></div>
+
+          <div
+            [ngpContextMenuTrigger]="menu"
+            [ngpContextMenuTriggerContainer]="container()"
+            data-testid="trigger-area"
+          >
+            Right-click me
+          </div>
+
+          <ng-template #menu>
+            <div ngpContextMenu data-testid="context-menu">
+              <button ngpContextMenuItem>Cut</button>
+            </div>
+          </ng-template>
+        `,
+        imports: [NgpContextMenuTrigger, NgpContextMenu, NgpContextMenuItem],
+      })
+      class DynamicContainerComponent {
+        readonly container = signal<string>('#context-container-a');
+      }
+
+      const { fixture } = await render(DynamicContainerComponent);
+      const trigger = screen.getByTestId('trigger-area');
+
+      fireEvent.contextMenu(trigger);
+      await waitFor(() => {
+        const containerA = document.querySelector('#context-container-a');
+        expect(containerA?.querySelector('[ngpContextMenu]')).toBeInTheDocument();
+      });
+
+      fireEvent.mouseUp(document.body);
+      await waitFor(() => {
+        expect(screen.queryByTestId('context-menu')).not.toBeInTheDocument();
+      });
+
+      fixture.componentInstance.container.set('#context-container-b');
+      fixture.detectChanges();
+
+      fireEvent.contextMenu(trigger);
+      await waitFor(() => {
+        const containerB = document.querySelector('#context-container-b');
+        expect(containerB?.querySelector('[ngpContextMenu]')).toBeInTheDocument();
+      });
+    });
+  });
+});
+
+describe('NgpContextMenuTrigger dynamic content', () => {
+  const template = `
+    <div [ngpContextMenuTrigger]="useFirst ? first : second" data-testid="trigger-area">
+      Right click me
+    </div>
+
+    <ng-template #first>
+      <div ngpContextMenu data-testid="context-menu">
+        <button ngpContextMenuItem>First item</button>
+      </div>
+    </ng-template>
+    <ng-template #second>
+      <div ngpContextMenu data-testid="context-menu">
+        <button ngpContextMenuItem>Second item</button>
+      </div>
+    </ng-template>
+  `;
+
+  it('should swap the open menu when the reference changes', async () => {
+    const { fixture, getByTestId } = await render(template, {
+      imports: [NgpContextMenuTrigger, NgpContextMenu, NgpContextMenuItem],
+      componentProperties: { useFirst: true },
+    });
+
+    fireEvent.contextMenu(getByTestId('trigger-area'));
+    await waitFor(() => {
+      expect(screen.getByTestId('context-menu').textContent?.trim()).toBe('First item');
+    });
+
+    fixture.componentInstance.useFirst = false;
+    fixture.detectChanges();
+
+    await waitFor(() => {
+      const menus = screen.getAllByTestId('context-menu');
+      expect(menus).toHaveLength(1);
+      expect(menus[0].textContent?.trim()).toBe('Second item');
     });
   });
 });

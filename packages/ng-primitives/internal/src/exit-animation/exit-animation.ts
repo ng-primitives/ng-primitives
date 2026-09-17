@@ -41,6 +41,8 @@ export interface NgpExitAnimationRef {
   exit: () => Promise<void>;
   /** Cancel an in-progress exit animation and transition back to enter state. */
   cancel: () => void;
+  /** End an in-progress exit animation now, leaving the element on its way out. */
+  finish: () => void;
 }
 
 /**
@@ -110,6 +112,8 @@ export function setupExitAnimation({
     }
   }
 
+  let pendingEnterFrame: number | null = null;
+
   // Set the initial state to 'enter' - immediately if instant or if there is no
   // `requestAnimationFrame` to defer to (e.g. server-side rendering), otherwise
   // next frame so the browser registers the "from" state and plays the enter
@@ -117,13 +121,30 @@ export function setupExitAnimation({
   if (immediate || typeof requestAnimationFrame !== 'function') {
     setState('enter');
   } else {
-    requestAnimationFrame(() => setState('enter'));
+    pendingEnterFrame = requestAnimationFrame(() => {
+      // `exit()` clears the handle to supersede this callback, so a cleared handle means
+      // the element left before the frame arrived and is no longer entering.
+      if (pendingEnterFrame === null) {
+        return;
+      }
+
+      pendingEnterFrame = null;
+      setState('enter');
+    });
   }
 
   return {
     exit: () => {
       return new Promise<void>(resolve => {
         exitResolve = resolve;
+
+        // Supersede the queued enter frame. Leaving before it arrives would otherwise let
+        // the callback for an entrance that never happened land afterwards and mark an
+        // element on its way out as entering, so its exit animation never plays. The
+        // callback checks the handle, so clearing it is enough - there is nothing to gain
+        // from also cancelling a frame whose callback now returns immediately.
+        pendingEnterFrame = null;
+
         setState('exit');
 
         const settle = () => {
@@ -169,6 +190,38 @@ export function setupExitAnimation({
         // element is removed mid-animation) resolve exactly like success.
         Promise.allSettled(animations.map(anim => anim.finished)).then(settle);
       });
+    },
+    finish: () => {
+      if (state !== 'exit') {
+        return;
+      }
+
+      clearExitTimeout();
+
+      // Jump to the animation's end state rather than cancelling: the element is
+      // leaving, and cancel() would snap it back to how it looked before the
+      // exit began for however long it takes the caller to remove it. Infinite
+      // animations are skipped - `finish()` throws on them, and `exit()` never
+      // waited on them in the first place.
+      const animations = canAnimate ? element.getAnimations() : [];
+      for (const animation of animations) {
+        if (isInfinite(animation)) {
+          continue;
+        }
+        try {
+          animation.finish();
+        } catch {
+          // `finish()` also throws on a paused-at-rate-zero animation, which
+          // nothing here creates but a consumer can. Resolving the exit matters
+          // more than the frame it ends on - throwing past the resolve below
+          // would strand the detach this exists to unstick.
+        }
+      }
+
+      if (exitResolve) {
+        exitResolve();
+        exitResolve = null;
+      }
     },
     cancel: () => {
       if (state === 'exit') {

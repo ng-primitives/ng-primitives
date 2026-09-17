@@ -80,7 +80,7 @@ export const [NgpInputStateToken, ngpInput, injectInputState, provideInputState]
 
     return {
       id,
-      disabled: deprecatedSetter(disabled, 'setDisabled'),
+      disabled: deprecatedSetter(disabled, 'setDisabled', setDisabled),
       status,
       setDisabled,
     } satisfies NgpInputState;

@@ -4,10 +4,9 @@ import { booleanAttribute, Directive, input } from '@angular/core';
 import {
   NgpMenuTriggerStateToken,
   NgpSubmenuTrigger,
-  NgpSubmenuTriggerStateToken,
   ngpSubmenuTrigger,
+  NgpSubmenuTriggerStateToken,
   provideSubmenuTriggerState,
-  type NgpMenuPlacement,
 } from 'ng-primitives/menu';
 import {
   coerceFlip,
@@ -17,6 +16,7 @@ import {
   NgpOffset,
   NgpOffsetInput,
   NgpOverlayContent,
+  NgpPlacement,
 } from 'ng-primitives/portal';
 
 /**
@@ -57,7 +57,7 @@ export class NgpContextMenuSubmenuTrigger<T = unknown> {
    * Define the placement of the submenu relative to the trigger.
    * @default 'right-start'
    */
-  readonly placement = input<NgpMenuPlacement>('right-start', {
+  readonly placement = input<NgpPlacement>('right-start', {
     alias: 'ngpContextMenuSubmenuTriggerPlacement',
   });
 

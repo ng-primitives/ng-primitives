@@ -1,5 +1,6 @@
 import { BooleanInput, coerceStringArray } from '@angular/cdk/coercion';
 import { booleanAttribute, Directive, input, output } from '@angular/core';
+import { injectFileUploadConfig } from '../config/file-upload-config';
 import { ngpFileUpload, provideFileUploadState } from './file-upload-state';
 
 /**
@@ -12,10 +13,15 @@ import { ngpFileUpload, provideFileUploadState } from './file-upload-state';
 })
 export class NgpFileUpload {
   /**
+   * Access the global file upload configuration.
+   */
+  private readonly config = injectFileUploadConfig();
+
+  /**
    * The accepted file types. This can be an array of strings or a comma-separated string.
    * Accepted types can either be file extensions (e.g. `.jpg`) or MIME types (e.g. `image/jpeg`).
    */
-  readonly fileTypes = input<string[], string | string[]>(undefined, {
+  readonly fileTypes = input<string[] | undefined, string | string[]>(this.config.fileTypes, {
     alias: 'ngpFileUploadFileTypes',
     transform: types => coerceStringArray(types, ','),
   });
@@ -23,7 +29,7 @@ export class NgpFileUpload {
   /**
    * Whether to allow multiple files to be selected.
    */
-  readonly multiple = input<boolean, BooleanInput>(false, {
+  readonly multiple = input<boolean, BooleanInput>(this.config.multiple, {
     alias: 'ngpFileUploadMultiple',
     transform: booleanAttribute,
   });
@@ -31,7 +37,7 @@ export class NgpFileUpload {
   /**
    * Whether to allow the user to select directories.
    */
-  readonly directory = input<boolean, BooleanInput>(false, {
+  readonly directory = input<boolean, BooleanInput>(this.config.directory, {
     alias: 'ngpFileUploadDirectory',
     transform: booleanAttribute,
   });
@@ -39,7 +45,7 @@ export class NgpFileUpload {
   /**
    * Whether drag-and-drop is enabled.
    */
-  readonly dragAndDrop = input<boolean, BooleanInput>(true, {
+  readonly dragAndDrop = input<boolean, BooleanInput>(this.config.dragAndDrop, {
     alias: 'ngpFileUploadDragDrop',
     transform: booleanAttribute,
   });
@@ -47,7 +53,7 @@ export class NgpFileUpload {
   /**
    * Whether the file upload is disabled.
    */
-  readonly disabled = input<boolean, BooleanInput>(false, {
+  readonly disabled = input<boolean, BooleanInput>(this.config.disabled, {
     alias: 'ngpFileUploadDisabled',
     transform: booleanAttribute,
   });

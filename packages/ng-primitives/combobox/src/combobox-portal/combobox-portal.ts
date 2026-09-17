@@ -21,7 +21,8 @@ export class NgpComboboxPortal implements OnDestroy {
   private readonly viewContainerRef = inject(ViewContainerRef);
 
   /** Access the template reference. */
-  private readonly templateRef = inject(TemplateRef);
+  // the portal renders its own template, which never changes
+  private readonly templateRef = signal(inject(TemplateRef));
 
   /** Access the injector. */
   private readonly injector = inject(Injector);
@@ -80,7 +81,7 @@ export class NgpComboboxPortal implements OnDestroy {
       closeOnEscape: true,
       restoreFocus: false,
       scrollBehaviour: 'reposition',
-      container: this.state().container(),
+      container: this.state().container,
       onClose: () => this.state().onOverlayClosed(),
     };
 

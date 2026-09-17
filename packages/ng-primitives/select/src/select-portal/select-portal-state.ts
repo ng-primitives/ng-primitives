@@ -43,7 +43,8 @@ export const [
   _injectSelectPortalState,
   provideSelectPortalState,
 ] = createPrimitive('NgpSelectPortal', ({}: NgpSelectPortalProps): NgpSelectPortalState => {
-  const templateRef = inject(TemplateRef);
+  // the portal renders its own template, which never changes
+  const templateRef = signal(inject(TemplateRef));
   const viewContainerRef = inject(ViewContainerRef);
   const injector = inject(Injector);
   const selectState = injectSelectState();
@@ -75,7 +76,7 @@ export const [
       placement: selectState().placement,
       offset: selectState().offset(),
       flip: selectState().flip(),
-      container: selectState().container(),
+      container: selectState().container,
       closeOnOutsideClick: true,
       closeOnEscape: true,
       restoreFocus: false,

@@ -61,7 +61,8 @@ ng g ng-primitives:primitive radio
 - `prefix`: The prefix to apply to the generated component selector.
 - `component-suffix`: The suffix to apply to the generated component class name.
 - `file-suffix`: The suffix to apply to the generated component file name. Defaults to `component`.
-- `example-styles`: Whether to include example styles in the generated component file. Defaults to `true`.
+- `styles`: How component styles should be generated. `css` (default) includes the full example styles; `unstyled` omits them entirely so you can style the component yourself.
+- `example-styles` (deprecated): still supported for compatibility - `true` maps to `styles: css`, `false` maps to `styles: unstyled`.
 
 ## API Reference
 
@@ -86,7 +87,7 @@ The following directives are available to import from the `ng-primitives/radio` 
 
 <api-reference-attributes>
   <api-attribute name="data-checked" description="Applied when the radio item is checked." />
-  <api-attribute name="data-disabled" description="Applied when the radio item is disabled." />
+  <api-attribute name="data-disabled" description="Applied when the radio item is disabled, or the radio group is disabled." />
   <api-attribute name="data-hover" description="Applied when the radio item is hovered." />
   <api-attribute name="data-focus-visible" description="Applied when the radio item is focused." />
   <api-attribute name="data-press" description="Applied when the radio item is pressed." />
@@ -100,7 +101,7 @@ The following directives are available to import from the `ng-primitives/radio` 
 
 <api-reference-attributes>
   <api-attribute name="data-checked" description="Applied when the radio item is checked." />
-  <api-attribute name="data-disabled" description="Applied when the radio item is disabled." />
+  <api-attribute name="data-disabled" description="Applied when the radio item is disabled, or the radio group is disabled." />
 </api-reference-attributes>
 
 ## Accessibility
@@ -109,7 +110,7 @@ Adheres to the [Radio Group WAI-ARIA design pattern](https://www.w3.org/WAI/ARIA
 
 ### Keyboard Interaction
 
-- <kbd>Tab</kbd> - Moves focus to the first radio button.
+- <kbd>Tab</kbd> - Moves focus to the checked radio button, or the first enabled radio button when none is checked. Clearing the value leaves the tab stop where it was, so focus returns to the radio button that held it.
 - <kbd>Arrow Down</kbd> - Moves focus to the next radio button (vertical orientation).
 - <kbd>Arrow Up</kbd> - Moves focus to the previous radio button (vertical orientation).
 - <kbd>Arrow Right</kbd> - Moves focus to the next radio button (horizontal orientation).

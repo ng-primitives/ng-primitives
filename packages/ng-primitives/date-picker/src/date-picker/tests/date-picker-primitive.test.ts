@@ -445,6 +445,32 @@ describe('NgpDatePicker', () => {
       dayButton(12)!.click();
       expect(dateChange).not.toHaveBeenCalled();
     });
+
+    it('should stop searching at max instead of looping forever when every remaining day is disabled', async () => {
+      const { tabbable, fixture } = await setup({
+        focusedDate: new Date(2025, 7, 18),
+        max: new Date(2025, 7, 20),
+        dateDisabled: (date: Date) => date.getDate() >= 19,
+      });
+      tabbable()!.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true }));
+      await fixture.whenStable();
+      // every day from 19 through max (20) is disabled, so the search must give up at the
+      // bound rather than overshoot it forever; focus stays clamped, not out of range.
+      expect(tabbable()?.textContent?.trim()).toBe('19');
+    });
+
+    it('should stop searching at min instead of looping forever when every remaining day is disabled', async () => {
+      const { tabbable, fixture } = await setup({
+        focusedDate: new Date(2025, 7, 15),
+        min: new Date(2025, 7, 12),
+        dateDisabled: (date: Date) => date.getDate() <= 14,
+      });
+      tabbable()!.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowLeft', bubbles: true }));
+      await fixture.whenStable();
+      // every day from 14 down through min (12) is disabled, so the search must give up at the
+      // bound rather than undershoot it forever; focus stays clamped, not out of range.
+      expect(tabbable()?.textContent?.trim()).toBe('14');
+    });
   });
 
   describe('preserve time on select', () => {

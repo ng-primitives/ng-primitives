@@ -1,4 +1,4 @@
-import { Component, Directive, OnInit } from '@angular/core';
+import { Component, Directive, OnInit, signal } from '@angular/core';
 import { fireEvent, render, waitFor } from '@testing-library/angular';
 import {
   NgpMenu,
@@ -160,6 +160,38 @@ class SetSubmenuContainerDirective implements OnInit {
   imports: [NgpMenuTrigger, NgpMenu, NgpMenuItem, NgpSubmenuTrigger, SetSubmenuContainerDirective],
 })
 class TestSubmenuSetContainerComponent {}
+
+@Component({
+  template: `
+    <div id="submenu-dynamic-a"></div>
+    <div id="submenu-dynamic-b"></div>
+
+    <button [ngpMenuTrigger]="menu" data-testid="root-trigger">Open Menu</button>
+
+    <ng-template #menu>
+      <div ngpMenu data-testid="root-menu">
+        <button
+          [ngpSubmenuTrigger]="submenu"
+          [ngpSubmenuTriggerContainer]="container()"
+          ngpMenuItem
+          data-testid="submenu-trigger"
+        >
+          Open Submenu
+        </button>
+      </div>
+    </ng-template>
+
+    <ng-template #submenu>
+      <div ngpMenu data-testid="submenu">
+        <button ngpMenuItem data-testid="submenu-item-1">Submenu Item 1</button>
+      </div>
+    </ng-template>
+  `,
+  imports: [NgpMenuTrigger, NgpMenu, NgpMenuItem, NgpSubmenuTrigger],
+})
+class TestSubmenuDynamicContainerComponent {
+  readonly container = signal<string>('#submenu-dynamic-a');
+}
 
 /**
  * Helper to open the root menu and submenu.
@@ -541,6 +573,84 @@ describe('NgpSubmenuTrigger viewport awareness', () => {
         const container = document.querySelector('#submenu-host');
         expect(container?.querySelector('[ngpMenu]')).toBeInTheDocument();
       });
+    });
+
+    it('should render submenu into updated container when [ngpSubmenuTriggerContainer] changes between opens', async () => {
+      const { fixture } = await render(TestSubmenuDynamicContainerComponent);
+      await openMenuAndSubmenu(fixture);
+
+      await waitFor(() => {
+        const hostA = document.querySelector('#submenu-dynamic-a');
+        expect(hostA?.querySelector('[data-testid="submenu"]')).toBeInTheDocument();
+      });
+
+      const submenuTrigger = document.querySelector('[data-testid="submenu-trigger"]')!;
+      fireEvent.click(submenuTrigger);
+
+      await waitFor(() => {
+        expect(document.querySelector('[data-testid="submenu"]')).not.toBeInTheDocument();
+      });
+
+      fixture.componentInstance.container.set('#submenu-dynamic-b');
+      fixture.detectChanges();
+
+      fireEvent.click(submenuTrigger);
+
+      await waitFor(() => {
+        const hostB = document.querySelector('#submenu-dynamic-b');
+        expect(hostB?.querySelector('[data-testid="submenu"]')).toBeInTheDocument();
+      });
+    });
+  });
+});
+
+describe('NgpSubmenuTrigger dynamic content', () => {
+  const template = `
+    <button [ngpMenuTrigger]="menu" data-testid="root-trigger">Open Menu</button>
+
+    <ng-template #menu>
+      <div ngpMenu>
+        <button [ngpSubmenuTrigger]="useFirst ? first : second" ngpMenuItem data-testid="submenu-trigger">
+          Open Submenu
+        </button>
+      </div>
+    </ng-template>
+
+    <ng-template #first>
+      <div ngpMenu data-testid="submenu">
+        <button ngpMenuItem>First item</button>
+      </div>
+    </ng-template>
+    <ng-template #second>
+      <div ngpMenu data-testid="submenu">
+        <button ngpMenuItem>Second item</button>
+      </div>
+    </ng-template>
+  `;
+
+  it('should swap the open submenu when the reference changes', async () => {
+    const { fixture, getByTestId } = await render(template, {
+      imports: [NgpMenuTrigger, NgpMenu, NgpMenuItem, NgpSubmenuTrigger],
+      componentProperties: { useFirst: true },
+    });
+
+    fireEvent.click(getByTestId('root-trigger'));
+    await waitFor(() => expect(document.querySelector('[ngpMenu]')).toBeInTheDocument());
+
+    fireEvent.click(document.querySelector('[data-testid="submenu-trigger"]') as HTMLElement);
+    await waitFor(() => {
+      expect(document.querySelector('[data-testid="submenu"]')?.textContent?.trim()).toBe(
+        'First item',
+      );
+    });
+
+    fixture.componentInstance.useFirst = false;
+    fixture.detectChanges();
+
+    await waitFor(() => {
+      const submenus = document.querySelectorAll('[data-testid="submenu"]');
+      expect(submenus).toHaveLength(1);
+      expect(submenus[0].textContent?.trim()).toBe('Second item');
     });
   });
 });

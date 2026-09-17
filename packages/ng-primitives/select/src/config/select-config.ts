@@ -1,13 +1,12 @@
 import { InjectionToken, Provider, inject } from '@angular/core';
-import type { Placement } from '@floating-ui/dom';
-import { NgpFlip, NgpOffset } from 'ng-primitives/portal';
+import { NgpFlip, NgpOffset, NgpPlacement } from 'ng-primitives/portal';
 
 export interface NgpSelectConfig {
   /**
    * The default placement for the select dropdown.
    * @default 'bottom'
    */
-  placement: Placement;
+  placement: NgpPlacement;
 
   /**
    * The container element or selector for the select dropdown.

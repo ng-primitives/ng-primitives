@@ -1,8 +1,10 @@
 import { FocusMonitor } from '@angular/cdk/a11y';
+import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { fireEvent, render } from '@testing-library/angular';
 import { NgpFocusVisible, provideInteractionsConfig } from 'ng-primitives/interactions';
 import { describe, expect, it, vi } from 'vitest';
+import { collectUncaughtErrors } from '../../tests/uncaught-errors';
 
 describe('NgpFocusVisible', () => {
   it('should not set data-focus-visible to true when mouse focused', async () => {
@@ -229,6 +231,46 @@ describe('NgpFocusVisible', () => {
     expect(trigger).toHaveAttribute('data-focus-visible');
 
     await container.rerender({ componentProperties: { focusChange, disabled: true } });
+    expect(trigger).not.toHaveAttribute('data-focus-visible');
+  });
+
+  it('should report the blur when a binding disables the focused element', async () => {
+    // A binding that disables a focused element blurs it synchronously, mid-render.
+    @Component({
+      selector: 'ngp-test',
+      imports: [NgpFocusVisible],
+      template: `
+        <input
+          [disabled]="disabled()"
+          (ngpFocusVisible)="focusChange($event)"
+          data-testid="trigger"
+          ngpFocusVisible
+        />
+      `,
+    })
+    class NgpTest {
+      readonly disabled = signal(false);
+      readonly focusChange = vi.fn();
+    }
+
+    const container = await render(NgpTest);
+    const trigger = container.getByTestId('trigger') as HTMLInputElement;
+    const { disabled, focusChange } = container.fixture.componentInstance;
+
+    TestBed.inject(FocusMonitor).focusVia(trigger, 'keyboard');
+    container.detectChanges();
+    expect(focusChange).toHaveBeenLastCalledWith(true);
+    expect(trigger).toHaveAttribute('data-focus-visible');
+
+    const uncaught = await collectUncaughtErrors(() => {
+      disabled.set(true);
+      container.detectChanges();
+    });
+
+    expect(uncaught).toBe('');
+    expect(trigger.disabled).toBe(true);
+    expect(document.activeElement).not.toBe(trigger);
+    expect(focusChange).toHaveBeenLastCalledWith(false);
     expect(trigger).not.toHaveAttribute('data-focus-visible');
   });
 

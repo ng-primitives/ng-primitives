@@ -3,7 +3,6 @@ import { injectElementRef } from 'ng-primitives/internal';
 import {
   attrBinding,
   createPrimitive,
-  listener,
   onDestroy,
   StateInjectionOptions,
 } from 'ng-primitives/state';
@@ -60,18 +59,11 @@ export const [NgpDialogStateToken, ngpDialog, _injectDialogState, provideDialogS
       attrBinding(elementRef, 'aria-labelledby', () => labelledBy().join(' ') || null);
       attrBinding(elementRef, 'aria-describedby', () => describedBy().join(' ') || null);
 
-      // Listener
-      listener(elementRef, 'click', handleOnClick);
-
       // Close the dialog when the directive is destroyed.
       onDestroy(() => close());
 
       function close(result?: R): void {
         dialogRef.close(result);
-      }
-
-      function handleOnClick(event: Event): void {
-        event.stopPropagation();
       }
 
       function setLabelledBy(id: string): void {

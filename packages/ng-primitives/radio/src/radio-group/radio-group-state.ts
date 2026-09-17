@@ -171,7 +171,7 @@ export const [
     return {
       id,
       value: deprecatedSetter(value, 'setValue', newValue => setValue(newValue)),
-      disabled: deprecatedSetter(disabled, 'setDisabled'),
+      disabled: deprecatedSetter(disabled, 'setDisabled', setDisabled),
       orientation: deprecatedSetter(orientation, 'setOrientation', setOrientation),
       compareWith,
       valueChange,

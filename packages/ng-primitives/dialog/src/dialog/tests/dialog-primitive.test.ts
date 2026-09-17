@@ -55,6 +55,32 @@ class BareDialogHost {
   template: `
     <ng-template #dialogTemplate let-close="close">
       <div ngpDialogOverlay data-testid="overlay">
+        <div ngpDialog data-testid="dialog">
+          <button [ngpMenuTrigger]="menu" data-testid="menu-trigger">Open menu</button>
+
+          <ng-template #menu>
+            <div ngpMenu data-testid="menu">
+              <button ngpMenuItem data-testid="menu-item">Item</button>
+            </div>
+          </ng-template>
+
+          <p data-testid="description">Dialog Description</p>
+          <button (click)="close()" data-testid="close-btn">Close</button>
+        </div>
+      </div>
+    </ng-template>
+  `,
+  imports: [NgpDialog, NgpDialogOverlay, NgpMenuTrigger, NgpMenu, NgpMenuItem],
+})
+class MenuInDialogHost {
+  readonly dialogTemplate = viewChild.required<TemplateRef<NgpDialogContext>>('dialogTemplate');
+  readonly viewContainerRef = inject(ViewContainerRef);
+}
+
+@Component({
+  template: `
+    <ng-template #dialogTemplate let-close="close">
+      <div ngpDialogOverlay data-testid="overlay">
         <div ngpDialog ngpDialogRole="alertdialog" data-testid="dialog">
           <button (click)="close()" data-testid="close-btn">Close</button>
         </div>
@@ -85,6 +111,18 @@ describe('NgpDialog', () => {
 
   async function openBareDialog(config?: Partial<NgpDialogConfig>) {
     const view = await render(BareDialogHost);
+    dialogManager = TestBed.inject(NgpDialogManager);
+    const component = view.fixture.componentInstance;
+    const ref = dialogManager.open(component.dialogTemplate(), {
+      viewContainerRef: component.viewContainerRef,
+      ...config,
+    });
+    await view.fixture.whenStable();
+    return { view, ref };
+  }
+
+  async function openMenuDialog(config?: Partial<NgpDialogConfig>) {
+    const view = await render(MenuInDialogHost);
     dialogManager = TestBed.inject(NgpDialogManager);
     const component = view.fixture.componentInstance;
     const ref = dialogManager.open(component.dialogTemplate(), {
@@ -319,6 +357,46 @@ describe('NgpDialog', () => {
       dispatchOverlayClick(overlay);
       await new Promise(r => setTimeout(r, 0));
 
+      expect(closedSpy).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('document click propagation', () => {
+    it('should not prevent a click inside the dialog panel from reaching a document click listener', async () => {
+      await openDialog();
+
+      const documentClickSpy = vi.fn();
+      document.addEventListener('click', documentClickSpy);
+
+      try {
+        const description = document.querySelector('[data-testid="description"]') as HTMLElement;
+        description.click();
+
+        expect(documentClickSpy).toHaveBeenCalledTimes(1);
+      } finally {
+        document.removeEventListener('click', documentClickSpy);
+      }
+    });
+
+    it('should close a menu opened inside the dialog panel on an outside click, without closing the dialog', async () => {
+      const { view, ref } = await openMenuDialog();
+      const closedSpy = vi.fn();
+      ref.closed.subscribe(closedSpy);
+
+      const trigger = document.querySelector('[data-testid="menu-trigger"]') as HTMLElement;
+      fireEvent.click(trigger, { detail: 1 });
+      await view.fixture.whenStable();
+      await new Promise(r => setTimeout(r, 0));
+
+      expect(document.querySelector('[data-testid="menu"]')).toBeTruthy();
+
+      const description = document.querySelector('[data-testid="description"]') as HTMLElement;
+      fireEvent.mouseUp(description);
+      fireEvent.click(description);
+      await view.fixture.whenStable();
+      await new Promise(r => setTimeout(r, 0));
+
+      expect(document.querySelector('[data-testid="menu"]')).toBeFalsy();
       expect(closedSpy).not.toHaveBeenCalled();
     });
   });

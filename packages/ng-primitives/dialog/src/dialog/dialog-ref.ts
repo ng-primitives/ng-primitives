@@ -1,7 +1,7 @@
 import { FocusOrigin } from '@angular/cdk/a11y';
 import { inject, InjectOptions, Injector } from '@angular/core';
 import { NgpExitAnimationManager } from 'ng-primitives/internal';
-import { NgpDismissGuard, NgpOverlayRef } from 'ng-primitives/portal';
+import { NgpDismissGuard, NgpOverlayRef, NgpPortalDetachOptions } from 'ng-primitives/portal';
 import { defer, EMPTY, fromEvent, Observable, Subject } from 'rxjs';
 import { filter, map, takeUntil } from 'rxjs/operators';
 import { NgpDialogConfig } from '../config/dialog-config';
@@ -9,7 +9,7 @@ import { NgpDialogConfig } from '../config/dialog-config';
 /** Minimal portal interface needed by the dialog ref. */
 export interface NgpDialogPortalRef {
   getElements(): HTMLElement[];
-  detach(immediate?: boolean): Promise<void>;
+  detach(options?: NgpPortalDetachOptions): Promise<void>;
 }
 
 /**
@@ -119,7 +119,7 @@ export class NgpDialogRef<T = unknown, R = unknown> implements NgpOverlayRef {
 
     // Detach the portal immediately — no exit animation
     if (this.portal) {
-      await this.portal.detach(true);
+      await this.portal.detach({ immediate: true });
       this.portal = null;
     }
 
@@ -153,7 +153,7 @@ export class NgpDialogRef<T = unknown, R = unknown> implements NgpOverlayRef {
 
     // Detach the portal (immediate since exit animation already ran)
     if (this.portal) {
-      await this.portal.detach(true);
+      await this.portal.detach({ immediate: true });
       this.portal = null;
     }
 

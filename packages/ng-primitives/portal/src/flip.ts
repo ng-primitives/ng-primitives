@@ -1,6 +1,6 @@
 import { coerceNumberProperty } from '@angular/cdk/coercion';
-import { type Placement } from '@floating-ui/dom';
 import { isNil, isObject } from 'ng-primitives/utils';
+import { NgpBoundary, NgpPlacement, NgpRootBoundary } from './positioning';
 
 /**
  * Options for configuring flip behavior to keep the floating element in view.
@@ -19,7 +19,37 @@ export interface NgpFlipOptions {
    * Placements to try sequentially if the preferred placement does not fit.
    * @default [oppositePlacement] (computed)
    */
-  fallbackPlacements?: Placement[];
+  fallbackPlacements?: NgpPlacement[];
+
+  /**
+   * The clipping area the floating element is kept within. Pass an element (or elements)
+   * to constrain the overlay to a container rather than its clipping ancestors.
+   * @default 'clippingAncestors'
+   */
+  boundary?: NgpBoundary;
+
+  /**
+   * The root clipping area the floating element is kept within.
+   * @default 'viewport'
+   */
+  rootBoundary?: NgpRootBoundary;
+
+  /**
+   * Whether to measure overflow against the trigger's clipping ancestors rather than the
+   * panel's. The panel is portalled to the body, so its own clipping ancestors are
+   * effectively the viewport - set this when the trigger sits in a scroll container.
+   *
+   * Applies only while `boundary` is left at its default; an explicit boundary always wins.
+   * @default false
+   */
+  altBoundary?: boolean;
+
+  /**
+   * Whether overflow along the alignment axis is checked when deciding to flip.
+   * `'alignment'` checks it for alignment flipping only.
+   * @default true
+   */
+  crossAxis?: boolean | 'alignment';
 }
 
 /**

@@ -1,6 +1,5 @@
 import { BooleanInput, NumberInput } from '@angular/cdk/coercion';
 import { booleanAttribute, Directive, input, numberAttribute } from '@angular/core';
-import { Placement } from '@floating-ui/dom';
 import {
   coerceFlip,
   coerceOffset,
@@ -10,6 +9,7 @@ import {
   NgpOffset,
   NgpOffsetInput,
   NgpOverlayContent,
+  NgpPlacement,
   NgpShift,
   NgpShiftInput,
 } from 'ng-primitives/portal';
@@ -58,7 +58,7 @@ export class NgpNavigationMenuTrigger {
    * The placement of the content relative to the trigger.
    * @default 'bottom-start'
    */
-  readonly placement = input<Placement>(this.config.placement, {
+  readonly placement = input<NgpPlacement>(this.config.placement, {
     alias: 'ngpNavigationMenuTriggerPlacement',
   });
 

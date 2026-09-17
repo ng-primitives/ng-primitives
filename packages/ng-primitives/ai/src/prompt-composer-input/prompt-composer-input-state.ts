@@ -18,7 +18,7 @@ export const [
   providePromptComposerInputState,
 ] = createPrimitive('NgpPromptComposerInput', (): NgpPromptComposerInputState => {
   const element = injectElementRef<HTMLInputElement | HTMLTextAreaElement>();
-  const thread = injectThreadState();
+  const thread = injectThreadState({ optional: true });
   const composer = injectPromptComposerState();
 
   // set the initial state
@@ -32,7 +32,7 @@ export const [
    * This primitive automatically handles that behavior.
    */
   listener(element, 'keydown', (event: KeyboardEvent) => {
-    if (event.key !== 'Enter' || event.shiftKey) {
+    if (event.key !== 'Enter' || event.shiftKey || event.ctrlKey || event.altKey || event.metaKey) {
       return;
     }
 
@@ -62,8 +62,8 @@ export const [
   const state = { setPrompt } satisfies NgpPromptComposerInputState;
 
   // the thread routes suggestions to the input that is currently registered
-  thread().setPromptInput(state);
-  onDestroy(() => thread().removePromptInput(state));
+  thread()?.setPromptInput(state);
+  onDestroy(() => thread()?.removePromptInput(state));
 
   return state;
 });

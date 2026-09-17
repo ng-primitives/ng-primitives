@@ -88,16 +88,19 @@ contain.
 See `.claude/rules/` for detailed coding standards:
 
 - `angular-patterns.md` - Signal-based APIs, readonly signals, computed/effects
+- `comments.md` - Let the code explain itself; comment the why, concisely
 - `naming-conventions.md` - Selector prefixes, class names, file names
 - `state-management.md` - The `createPrimitive` state pattern: one `-state.ts` per part, host bindings inside the factory, thin directives, controlled state, state composition
 - `docs-example-styling.md` - Styling the documentation examples: brand red reserved for state, blue for focus, typography/radii scale, CSS + Tailwind parity
+- `documentation-pages.md` - The canonical `##` section order for docs pages, where page-specific sections go, one heading per section
 
 For code review, use the `ngp-code-review` skill — it consolidates these rules with the custom workspace lint rules, test conventions, and PR checklist.
 
 ## Package Management
 
 - Uses pnpm with workspace configuration
-- Volta specifies Node 22.15.0
+- Node 24.18.0, pinned in `.nvmrc` (read by CI and Netlify) and `volta.node`
+- `engines.node` sets the supported floor and `engine-strict` makes it a hard gate
 - Build targets are configured in individual `project.json` files
 - Dependencies are managed at the root level
 
@@ -108,8 +111,15 @@ When creating a pull request, follow the template at `.github/PULL_REQUEST_TEMPL
 ## Release Process
 
 - Follows Conventional Commits for automated changelog generation
-- Release projects: `ng-primitives` and `state`
-- Use `pnpm release:version` and `pnpm release:publish` commands
+- Release projects: `ng-primitives`, `state` and `mcp`
+- Releases run from the **Release** GitHub Actions workflow, never locally - npm's trusted
+  publisher is bound to `.github/workflows/release.yml`, so a local publish has no OIDC
+  credentials and no provenance
+- To ship a subset of what is on `next`, prepare a branch with `pnpm release:hotfix` and let the
+  workflow release it. See the Releasing section in `CONTRIBUTING.md`
+- To patch an **older** line, cut `release/<line>.x` from its tag and dispatch the workflow with
+  a `dist_tag` other than `latest`. That leaves `main`, `next` and npm's `latest` alone. See the
+  Backports section in `CONTRIBUTING.md`
 
 <!-- nx configuration start-->
 <!-- Leave the start & end comments to automatically receive updates. -->

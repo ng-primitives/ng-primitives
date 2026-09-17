@@ -431,6 +431,42 @@
       "contributions": [
         "code"
       ]
+    },
+    {
+      "login": "rikeshchhunju-sketch",
+      "name": "Rikesh Chhunju",
+      "avatar_url": "https://avatars.githubusercontent.com/u/246430216?v=4",
+      "profile": "https://github.com/rikeshchhunju-sketch",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "wajrock",
+      "name": "Thibaud Wajrock",
+      "avatar_url": "https://avatars.githubusercontent.com/u/157038485?v=4",
+      "profile": "https://www.wajrock.me/",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "peterlazar1993",
+      "name": "Peter Lazar",
+      "avatar_url": "https://avatars.githubusercontent.com/u/4848554?v=4",
+      "profile": "https://github.com/peterlazar1993",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "JustDo1t90",
+      "name": "Roman Mykhailiuk",
+      "avatar_url": "https://avatars.githubusercontent.com/u/36469908?v=4",
+      "profile": "https://github.com/JustDo1t90",
+      "contributions": [
+        "code"
+      ]
     }
   ],
   "contributorsPerLine": 7,

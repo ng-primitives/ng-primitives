@@ -29,7 +29,7 @@ class OverlayHost {
 
   create(showDelay: number): NgpOverlay<unknown> {
     return createOverlay<unknown>({
-      content: this.content(),
+      content: this.content,
       triggerElement: this.trigger().nativeElement,
       injector: this.injector,
       viewContainerRef: this.viewContainerRef,

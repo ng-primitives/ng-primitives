@@ -9,8 +9,8 @@ import {
   NgpOffset,
   NgpOffsetInput,
   NgpOverlayContent,
+  NgpPlacement,
 } from 'ng-primitives/portal';
-import { NgpMenuPlacement } from '../menu-trigger/menu-trigger';
 import { NgpMenuTriggerStateToken } from '../menu-trigger/menu-trigger-state';
 import {
   NgpSubmenuTriggerStateToken,
@@ -53,7 +53,7 @@ export class NgpSubmenuTrigger<T = unknown> {
    * Define the placement of the menu relative to the trigger.
    * @default 'right-start'
    */
-  readonly placement = input<NgpMenuPlacement>('right-start', {
+  readonly placement = input<NgpPlacement>('right-start', {
     alias: 'ngpSubmenuTriggerPlacement',
   });
 

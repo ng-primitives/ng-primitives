@@ -1,6 +1,8 @@
+import { Component, signal } from '@angular/core';
 import { fireEvent, render } from '@testing-library/angular';
 import { NgpFocus, provideInteractionsConfig } from 'ng-primitives/interactions';
 import { describe, expect, it, vi } from 'vitest';
+import { collectUncaughtErrors } from '../../tests/uncaught-errors';
 
 describe('NgpFocus', () => {
   it('should apply the data-focus attribute', async () => {
@@ -51,6 +53,46 @@ describe('NgpFocus', () => {
 
     fireEvent.focus(trigger);
     expect(stateChange).not.toHaveBeenCalled();
+  });
+
+  // A binding that disables a focused element blurs it synchronously, mid-render.
+  it('should report the blur when a binding disables the focused element', async () => {
+    @Component({
+      selector: 'ngp-test',
+      imports: [NgpFocus],
+      template: `
+        <input
+          [disabled]="disabled()"
+          (ngpFocus)="stateChange($event)"
+          data-testid="trigger"
+          ngpFocus
+        />
+      `,
+    })
+    class NgpTest {
+      readonly disabled = signal(false);
+      readonly stateChange = vi.fn();
+    }
+
+    const container = await render(NgpTest);
+    const trigger = container.getByTestId('trigger') as HTMLInputElement;
+    const { disabled, stateChange } = container.fixture.componentInstance;
+
+    trigger.focus();
+    expect(document.activeElement).toBe(trigger);
+    expect(stateChange).toHaveBeenLastCalledWith(true);
+    expect(trigger).toHaveAttribute('data-focus');
+
+    const uncaught = await collectUncaughtErrors(() => {
+      disabled.set(true);
+      container.detectChanges();
+    });
+
+    expect(uncaught).toBe('');
+    expect(trigger.disabled).toBe(true);
+    expect(document.activeElement).not.toBe(trigger);
+    expect(stateChange).toHaveBeenLastCalledWith(false);
+    expect(trigger).not.toHaveAttribute('data-focus');
   });
 
   describe('global configuration', () => {

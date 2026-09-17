@@ -198,7 +198,7 @@ export const [
     }
 
     return {
-      disabled: deprecatedSetter(disabled, 'setDisabled'),
+      disabled: deprecatedSetter(disabled, 'setDisabled', setDisabled),
       fileTypes,
       multiple,
       directory,

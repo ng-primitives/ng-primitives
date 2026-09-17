@@ -346,7 +346,7 @@ export const [
           return;
         }
 
-        createOverlayInstance(previewCard()!);
+        createOverlayInstance();
       }
 
       // Only announce an open that actually happened, and only once. show() is reached
@@ -375,14 +375,14 @@ export const [
       previewCard.set(content);
     }
 
-    function createOverlayInstance(content: NgpOverlayContent<T>): void {
+    function createOverlayInstance(): void {
       const config: NgpOverlayConfig<T> = {
-        content,
+        content: previewCard,
         triggerElement: elementRef.nativeElement,
-        anchorElement: anchor(),
+        anchorElement: anchor,
         injector,
         context,
-        container: container(),
+        container,
         placement,
         offset: offset(),
         flip: flip(),

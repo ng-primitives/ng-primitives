@@ -1,8 +1,21 @@
 name: Release
 
+# Always dispatch this from `next`, and name what to release with the `ref` input:
+# workflow_dispatch loads the workflow file from the ref it is dispatched against, so
+# dispatching against a hotfix branch would run whatever release.yml that branch was
+# cut from - which is the release tag, and therefore always an older file.
+#
+# `ref` is `next` for an ordinary release, a `hotfix/v*` branch prepared by
+# `pnpm release:hotfix` to ship a subset of what is merged, or a `release/<line>.x` branch
+# to backport onto an older line. Publishing lives here and nowhere else: npm's trusted
+# publisher is bound to this exact file.
 on:
   workflow_dispatch:
     inputs:
+      ref:
+        description: 'Branch or tag to release (default: next)'
+        type: string
+        default: next
       version:
         description: 'Version bump type'
         required: true
@@ -11,32 +24,108 @@ on:
           - patch
           - minor
           - major
+      publish_only:
+        description: 'Recovery: publish the version already tagged on this ref, without versioning again'
+        type: boolean
+        default: false
+      dist_tag:
+        description: "npm dist-tag to publish under. Anything but 'latest' marks this a backport: an older base is allowed, and main is left alone"
+        type: string
+        default: latest
 
-permissions:
-  contents: write
-  packages: write
-  id-token: write
+permissions: {}
+
+# A release and a hotfix must never interleave.
+concurrency:
+  group: release
+  cancel-in-progress: false
 
 jobs:
-  release:
+  # Runs before anything checks out the target: `ref` is attacker-chosen from the
+  # dispatcher's point of view, and checking it out runs its install scripts with this
+  # workflow's write permissions. Nothing here touches the target's contents.
+  preflight:
+    name: Check the dispatch and the target
     runs-on: ubuntu-latest
+    permissions: {}
+    steps:
+      - name: Validate
+        env:
+          REF: ${{ inputs.ref }}
+          BUMP: ${{ inputs.version }}
+          PUBLISH_ONLY: ${{ inputs.publish_only }}
+          DIST_TAG: ${{ inputs.dist_tag }}
+          DISPATCHED_FROM: ${{ github.ref_name }}
+        run: |
+          set -euo pipefail
+
+          # This file must be the one on the default branch, or these guards are
+          # whatever the dispatched ref happened to carry.
+          [ "$DISPATCHED_FROM" = 'next' ] ||
+            { echo "::error::Dispatch this workflow from next and name the target with the ref input - running it from ${DISPATCHED_FROM} uses that branch's copy of release.yml."; exit 1; }
+
+          SEMVER='(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)'
+          # A maintenance branch for an older line, kept between backports.
+          LINE='release/(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.x'
+
+          # Checked on both paths, because a recovery publishes too. Must be one word npm
+          # accepts: no semver range like ^0.130.0, and no whitespace, which would split into
+          # extra npm publish arguments. An empty value would skip the backport guards while
+          # still publishing to 'latest'.
+          case "$DIST_TAG" in
+            latest) ;;
+            ''|[!A-Za-z]*|*[!A-Za-z0-9._-]*|v[0-9]*|[xX]|[xX].*)
+              echo "::error::dist_tag '${DIST_TAG}' is not a usable npm tag. Start with a letter and use only letters, digits, dot, dash or underscore - for example release-0-130."
+              exit 1
+              ;;
+          esac
+
+          if [ "$PUBLISH_ONLY" = 'true' ]; then
+            # A tag is allowed only here: once next moves on from a failed release, the
+            # tag may be the only ref left pointing at that commit.
+            echo "$REF" | grep -qE "^(next|hotfix/v${SEMVER}|${LINE}|v${SEMVER})$" ||
+              { echo "::error::Recovery runs against next, a hotfix/v<version> branch, a release/<line>.x branch or a v<version> tag, not ${REF}."; exit 1; }
+          else
+            echo "$REF" | grep -qE "^(next|hotfix/v${SEMVER}|${LINE})$" ||
+              { echo "::error::Releases run against next, a hotfix/v<version> branch or a release/<line>.x branch, not ${REF}."; exit 1; }
+
+            # next is the newest line by definition, so it is never a backport.
+            [ "$REF" != 'next' ] || [ "$DIST_TAG" = 'latest' ] ||
+              { echo "::error::Releasing next publishes the newest line, so dist_tag must be 'latest', not '${DIST_TAG}'."; exit 1; }
+
+            # A minor from an older line lands on a version the newer line already shipped.
+            if [ "$DIST_TAG" != 'latest' ] || case "$REF" in hotfix/v*) true ;; *) false ;; esac; then
+              [ "$BUMP" = 'patch' ] ||
+                { echo "::error::A hotfix or backport ships one patch, not a ${BUMP} release."; exit 1; }
+            fi
+          fi
+
+  release:
+    needs: preflight
+    if: ${{ !inputs.publish_only }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      packages: write
+      id-token: write
+    outputs:
+      version: ${{ steps.version.outputs.version }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
+          ref: ${{ inputs.ref }}
           fetch-depth: 0
           fetch-tags: true
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Setup pnpm
-        uses: pnpm/action-setup@v2
-        with:
-          version: 10
+        uses: pnpm/action-setup@v6
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7
         with:
-          node-version: 22
+          node-version-file: .nvmrc
           cache: 'pnpm'
           registry-url: 'https://registry.npmjs.org'
 
@@ -51,35 +140,462 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
-      - name: Version
-        run: pnpm exec nx release version ${{ inputs.version }}
-
-      - name: Publish to npm
-        run: pnpm exec nx release publish
-
-      - name: Changelog
+      # Both checks exist to stop a half-merged hotfix producing a broken release,
+      # and they run before anything is published so a mistake costs nothing.
+      - name: Check main is merged and the base is current
+        env:
+          DIST_TAG: ${{ inputs.dist_tag }}
         run: |
+          set -euo pipefail
+          git fetch -q origin main --tags
+
+          # A commit that is already tagged has been released. Versioning again here is
+          # how a failed publish turns into a skipped version: the recovery is
+          # publish_only, not another bump.
+          RELEASED=$(git describe --tags --exact-match --match 'v[0-9]*' --exclude '*-*' HEAD 2>/dev/null || true)
+          [ -z "$RELEASED" ] ||
+            { echo "::error::${RELEASED} is already tagged at this commit. To finish a release that failed after tagging, rerun this workflow with publish_only instead of versioning again."; exit 1; }
+
+          # Both checks below keep 'latest' moving forwards, which a backport opts out of.
+          if [ "${DIST_TAG}" = 'latest' ]; then
+            git merge-base --is-ancestor origin/main HEAD ||
+              { echo "::error::main is ahead of this branch. If this is a backport, name a dist_tag other than 'latest'; otherwise an earlier hotfix is unmerged, so merge main into next first."; exit 1; }
+
+            # Plain releases only: a prerelease tag would sort first and break both sides.
+            NEWEST=$(git tag --list 'v*' --sort=-v:refname | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | head -n1)
+            # --exclude, not a stricter --match: the glob `v[0-9]*.[0-9]*.[0-9]*` still
+            # admits v1.2.3-rc.1, which would reject a perfectly good release.
+            BASE=$(git describe --tags --abbrev=0 --match 'v[0-9]*' --exclude '*-*' HEAD)
+            [ "$BASE" = "$NEWEST" ] ||
+              { echo "::error::This branch is built on ${BASE} but ${NEWEST} is already released - publishing it would move npm's 'latest' backwards. To ship an older line, name a dist_tag other than 'latest'."; exit 1; }
+          else
+            # rc 1 means "not an ancestor"; anything else is a git failure, not a pass
+            rc=0
+            git merge-base --is-ancestor HEAD origin/main || rc=$?
+            [ "$rc" -eq 1 ] ||
+              { echo "::error::This branch is already contained in main, or main could not be read (git exit ${rc}). A backport is neither. Release it from next with dist_tag 'latest'."; exit 1; }
+
+            # Backporting onto the newest line leaves a tag no branch describes to, which
+            # blocks every later ordinary release on the base check above.
+            NEWEST=$(git tag --list 'v*' --sort=-v:refname | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | head -n1)
+            BASE=$(git describe --tags --abbrev=0 --match 'v[0-9]*' --exclude '*-*' HEAD)
+            [ "$BASE" != "$NEWEST" ] ||
+              { echo "::error::${BASE} is the newest release - a backport onto it would block later releases. Ship this from next, or as a hotfix/v<version> branch."; exit 1; }
+
+            # These steps run against the checked-out tree, not this file, so every one of
+            # them has to work on the branch's vintage. v0.130.2 is the oldest audited for
+            # that; anything earlier has to be re-checked before it is allowed through.
+            OLDEST='v0.130.2'
+            [ "$(printf '%s\n%s\n' "$OLDEST" "$BASE" | sort -V | head -n1)" = "$OLDEST" ] ||
+              { echo "::error::${BASE} is older than ${OLDEST}, the oldest release this workflow is known to build. Check the steps against that tree before backporting onto it."; exit 1; }
+
+            echo "Backport: publishing under '${DIST_TAG}', from ${BASE}, leaving main and npm's 'latest' alone."
+          fi
+
+      - name: Version
+        env:
+          BUMP: ${{ inputs.version }}
+        run: pnpm exec nx release version "$BUMP"
+
+      # A tarball without the schematics marker breaks every ng add and ng g, and nothing
+      # else on this path packs the package to check it. Runs after the bump so the publish
+      # step reuses this build, and before anything is committed, tagged or pushed.
+      - name: Packed schematics keep their CommonJS marker
+        run: |
+          pnpm exec nx build ng-primitives
+          # A tree older than the marker requirement has no checker; nothing to verify.
+          if [ -f scripts/check-packed-schematics.mjs ]; then
+            node scripts/check-packed-schematics.mjs
+          else
+            echo "::notice::This tree predates scripts/check-packed-schematics.mjs - skipping."
+          fi
+
+      # Validated before it reaches an output: package.json is repository content, and
+      # an unchecked value here could inject extra outputs or shell into later steps.
+      - name: Resolve the version
+        id: version
+        run: |
+          set -euo pipefail
           VERSION=$(node -p "require('./packages/ng-primitives/package.json').version")
-          pnpm exec nx release changelog ${VERSION}
+
+          [[ "$VERSION" =~ ^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$ ]] ||
+            { echo "::error::package.json does not hold a plain version - refusing to release it."; exit 1; }
+
+          echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
+
+      # Commits the bump and the changelog, tags it, pushes, and creates the
+      # GitHub release - in that order.
+      - name: Changelog
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VERSION: ${{ steps.version.outputs.version }}
+        run: pnpm exec nx release changelog "$VERSION"
 
-      - name: Push to next
-        run: git push origin HEAD:next --follow-tags --no-verify
+      # nx hardcodes make_latest: 'legacy', which weighs creation date, so a backport
+      # published after a newer release can take the Latest badge on the releases page.
+      - name: Keep the Latest badge off a backport
+        if: inputs.dist_tag != 'latest'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VERSION: ${{ steps.version.outputs.version }}
+        run: gh release edit "v${VERSION}" --latest=false
 
-      - name: Push to main
-        run: git push origin HEAD:main --follow-tags --no-verify
+      - name: Push
+        env:
+          REF: ${{ inputs.ref }}
+          DIST_TAG: ${{ inputs.dist_tag }}
+        run: |
+          set -euo pipefail
+
+          # A backport is cut from an older tag, so it cannot fast-forward main.
+          if [ "${DIST_TAG}" = 'latest' ]; then
+            git push origin --atomic --follow-tags --no-verify \
+              "HEAD:refs/heads/${REF}" HEAD:main
+          else
+            git push origin --atomic --follow-tags --no-verify "HEAD:refs/heads/${REF}"
+          fi
+
+      # Last, because it is the only step that cannot be undone.
+      #
+      # --tag is appended to each project's publish command, and npm honours the last one,
+      # so this overrides the `--tag latest` the checked-out tree hardcodes. A backport is
+      # cut from an old tag, so the tag cannot come from the tree.
+      - name: Publish to npm
+        env:
+          DIST_TAG: ${{ inputs.dist_tag }}
+        run: pnpm exec nx release publish --tag "$DIST_TAG"
+
+      # By this point the tag, the GitHub release and main have all moved, so the
+      # recovery is to finish the publish - never to cut a new version.
+      - name: How to recover
+        if: failure()
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+          REF: ${{ inputs.ref }}
+          DIST_TAG: ${{ inputs.dist_tag }}
+        run: |
+          {
+            echo "## ❌ Release did not finish"
+            echo
+            if [ -n "${VERSION:-}" ] && git ls-remote --exit-code --tags origin "refs/tags/v${VERSION}" > /dev/null 2>&1; then
+              echo "**v${VERSION} is already tagged on the remote**, so this run got at least as far as the changelog."
+              echo
+              echo "Do **not** rerun this workflow normally: it would run \`nx release version\` again and bump past"
+              echo "the version that may be missing from npm. Check what npm has:"
+              echo
+              echo '```'
+              echo "npm view ng-primitives@${VERSION} version"
+              echo '```'
+              echo
+              echo "If it is missing, rerun **this workflow from \`${REF}\` with \`publish_only\` ticked** and"
+              echo "\`dist_tag\` set to \`${DIST_TAG}\` again - that publishes the version the ref already carries"
+              echo "and skips versioning."
+
+              if [ "${DIST_TAG}" = 'latest' ]; then
+                echo "It also catches \`main\` up to the release commit."
+
+                if [ "${REF}" != 'next' ]; then
+                  echo
+                  echo "\`next\` has **not** been back-merged, so the next ordinary release stays blocked by the"
+                  echo "'main is merged' check until [main → next](https://github.com/${{ github.repository }}/compare/next...main) lands."
+                fi
+              else
+                echo "A backport leaves \`main\` and \`next\` alone, so nothing else is blocked."
+              fi
+            else
+              echo "**Nothing is tagged on the remote**, so nothing was published and no ref moved."
+              echo
+              echo "Fix the cause and rerun this workflow as normal."
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
 
       - name: Release Summary
+        env:
+          REF: ${{ inputs.ref }}
+          VERSION: ${{ steps.version.outputs.version }}
+          BUMP: ${{ inputs.version }}
         run: |
+          {
+            echo "## 🚀 Release Complete"
+            echo
+            echo "**Version:** v${VERSION}"
+            echo "**Type:** ${BUMP}"
+            echo "**From:** \`${REF}\`"
+            echo
+            echo "✅ Versions bumped"
+            echo "✅ Changelog updated"
+            echo "✅ Changes committed and tagged"
+            echo "✅ Published to npm"
+            echo "✅ GitHub Release created"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+  # Recovery for a run that tagged and pushed but failed to publish. It versions
+  # nothing - it publishes whatever the ref already carries - so it can safely be
+  # run against a ref whose package.json is already at the released version.
+  republish:
+    name: Publish only
+    needs: preflight
+    if: ${{ inputs.publish_only }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      packages: write
+      id-token: write
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ inputs.ref }}
+          fetch-depth: 0
+          fetch-tags: true
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v6
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: 'pnpm'
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: Upgrade npm
+        run: npm install -g npm@11.5.1
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      # The tag has to be on this commit, not merely somewhere in the repository, or
+      # a stale branch could publish contents that were never part of that release.
+      - name: Check this commit is the tagged release
+        id: version
+        env:
+          DIST_TAG: ${{ inputs.dist_tag }}
+        run: |
+          set -euo pipefail
           VERSION=$(node -p "require('./packages/ng-primitives/package.json').version")
-          echo "## 🚀 Release Complete" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "**Version:** v${VERSION}" >> $GITHUB_STEP_SUMMARY
-          echo "**Type:** ${{ inputs.version }}" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "✅ Versions bumped" >> $GITHUB_STEP_SUMMARY
-          echo "✅ Changelog updated" >> $GITHUB_STEP_SUMMARY
-          echo "✅ Changes committed and tagged" >> $GITHUB_STEP_SUMMARY
-          echo "✅ Published to npm" >> $GITHUB_STEP_SUMMARY
-          echo "✅ GitHub Release created" >> $GITHUB_STEP_SUMMARY
+
+          [[ "$VERSION" =~ ^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$ ]] ||
+            { echo "::error::package.json does not hold a plain version - refusing to publish it."; exit 1; }
+
+          TAGGED=$(git rev-parse -q --verify "refs/tags/v${VERSION}^{commit}") ||
+            { echo "::error::v${VERSION} is not tagged - publish_only only finishes a release that got as far as tagging."; exit 1; }
+
+          [ "$TAGGED" = "$(git rev-parse HEAD)" ] ||
+            { echo "::error::v${VERSION} is tagged at ${TAGGED}, not at this commit. Dispatch publish_only from the ref that was released."; exit 1; }
+
+          # A backport is an older version by construction; it is kept off 'latest' by its
+          # dist-tag instead.
+          if [ "${DIST_TAG}" = 'latest' ]; then
+            NEWEST=$(git tag --list 'v*' --sort=-v:refname | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | head -n1)
+            [ "v${VERSION}" = "$NEWEST" ] ||
+              { echo "::error::v${VERSION} is not the newest release (${NEWEST}) - publishing it would move npm's 'latest' backwards."; exit 1; }
+          else
+            # Recovering a `latest` release under a backport tag would publish it where nobody
+            # installs from, leave `latest` short of it, and skip both the main catch-up and
+            # the back-merge. A real backport never reached main.
+            git fetch -q origin main
+            rc=0
+            git merge-base --is-ancestor HEAD origin/main || rc=$?
+            [ "$rc" -eq 1 ] ||
+              { echo "::error::v${VERSION} is already on main, or main could not be read (git exit ${rc}). A backport is neither. Recover it with dist_tag 'latest'."; exit 1; }
+
+            # The release job caps how old a backport can be; recovery builds the same tree,
+            # so it has to hold to the same floor rather than rely on that job having run.
+            OLDEST='v0.130.2'
+            [ "$(printf '%s\nv%s\n' "$OLDEST" "$VERSION" | sort -V | head -n1)" = "$OLDEST" ] ||
+              { echo "::error::v${VERSION} is older than ${OLDEST}, the oldest release this workflow is known to build."; exit 1; }
+          fi
+
+          echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
+
+      # Same guard as the normal release, before main is moved.
+      - name: Packed schematics keep their CommonJS marker
+        run: |
+          pnpm exec nx build ng-primitives
+          # A tree older than the marker requirement has no checker; nothing to verify.
+          if [ -f scripts/check-packed-schematics.mjs ]; then
+            node scripts/check-packed-schematics.mjs
+          else
+            echo "::notice::This tree predates scripts/check-packed-schematics.mjs - skipping."
+          fi
+
+      # nx creates the GitHub release inside its changelog step, so a run that died before
+      # publishing has already left the badge on. Idempotent, so it is safe to repeat.
+      - name: Keep the Latest badge off a backport
+        if: inputs.dist_tag != 'latest'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VERSION: ${{ steps.version.outputs.version }}
+        run: gh release edit "v${VERSION}" --latest=false
+
+      # The interrupted run may have died between the changelog and the push, leaving
+      # main behind the tag. Completing it here keeps the release commit reachable
+      # once back-merge deletes the hotfix branch.
+      - name: Catch main up to the release
+        env:
+          DIST_TAG: ${{ inputs.dist_tag }}
+        run: |
+          set -euo pipefail
+
+          # A backport never reached main, so there is nothing to catch up.
+          if [ "${DIST_TAG}" != 'latest' ]; then
+            echo "Backport recovery - leaving main where it is."
+            exit 0
+          fi
+
+          git fetch -q origin main
+
+          if git merge-base --is-ancestor origin/main HEAD; then
+            git push origin --atomic --follow-tags --no-verify HEAD:main
+          else
+            echo "::error::main is ahead of the release commit - reconcile it before recovering."
+            exit 1
+          fi
+
+      # These targets are plain `npm publish`, which rejects a version already on the
+      # registry. A partial publish would therefore block its own recovery, so only
+      # the packages actually missing are published.
+      - name: Publish what is missing from npm
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+          # Without this a backport recovery would republish the older line to 'latest'.
+          DIST_TAG: ${{ inputs.dist_tag }}
+        run: |
+          set -euo pipefail
+          MISSING=()
+
+          for project in ng-primitives state mcp; do
+            name=$(node -p "require('./packages/${project}/package.json').name")
+
+            if npm view "${name}@${VERSION}" version > /dev/null 2>&1; then
+              # The already-published half has to sit under the same tag as the half about to
+              # be published, or the release ends up split across two dist-tags.
+              TAGGED_AS=$(npm view "${name}@${DIST_TAG}" version 2>/dev/null || true)
+              [ "$TAGGED_AS" = "$VERSION" ] ||
+                { echo "::error::${name}@${DIST_TAG} is ${TAGGED_AS:-unpublished}, not ${VERSION} - recover with the dist_tag the original release used."; exit 1; }
+
+              echo "${name}@${VERSION} is already published under ${DIST_TAG} - skipping"
+            else
+              MISSING+=("$project")
+            fi
+          done
+
+          if [ ${#MISSING[@]} -eq 0 ]; then
+            echo "::notice::Every package is already published at ${VERSION} - nothing to do."
+          else
+            printf 'publishing: %s\n' "${MISSING[*]}"
+            pnpm exec nx release publish --tag "$DIST_TAG" --projects="$(IFS=,; echo "${MISSING[*]}")"
+          fi
+
+      - name: Summary
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+          DIST_TAG: ${{ inputs.dist_tag }}
+        run: |
+          {
+            echo "## 📦 Published v${VERSION}"
+            echo
+            if [ "${DIST_TAG}" = 'latest' ]; then
+              echo "Recovery run - nothing was versioned or tagged; main was caught up to the release commit."
+            else
+              echo "Backport recovery - nothing was versioned or tagged, and main was left where it is."
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
+
+  # A hotfix release lands on main without going through next, so next has to be
+  # caught up or the following release collides on the version, duplicates the
+  # changelog entry and cannot fast-forward main. The merge is mechanical - the
+  # picked change is identical on both sides - so it is done here, and escalated
+  # to a pull request only when it isn't.
+  back-merge:
+    name: Back-merge into next
+    needs: [release, republish]
+    # Runs after whichever of the two actually published - a recovery run is exactly
+    # the case where next is still behind, because the original run never got here.
+    # A backport never lands on main, and its bump must not reach next.
+    if: >-
+      always() && inputs.ref != 'next' && inputs.dist_tag == 'latest' &&
+      (needs.release.result == 'success' || needs.republish.result == 'success')
+    runs-on: ubuntu-latest
+    # Merges and opens a pull request - it never publishes, so no id-token here.
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - name: Checkout next
+        uses: actions/checkout@v7
+        with:
+          ref: next
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Configure Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Merge main into next
+        id: merge
+        env:
+          VERSION: ${{ needs.release.outputs.version || needs.republish.outputs.version }}
+        run: |
+          set -euo pipefail
+          git fetch -q origin main
+
+          merged=false
+          if git merge --no-edit -m "chore: back-merge v${VERSION} into next" origin/main; then
+            if git push origin HEAD:next --no-verify; then
+              merged=true
+            fi
+          else
+            git merge --abort || true
+          fi
+
+          echo "merged=${merged}" >> "$GITHUB_OUTPUT"
+
+      - name: Open a pull request instead
+        # Also on a hard failure of the merge step, or a published release would be
+        # left with no escalation at all.
+        if: ${{ !cancelled() && steps.merge.outputs.merged != 'true' }}
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VERSION: ${{ needs.release.outputs.version || needs.republish.outputs.version }}
+        run: |
+          gh pr create --base next --head main \
+            --title "chore: back-merge v${VERSION} into next" \
+            --body "The v${VERSION} hotfix could not be merged into \`next\` automatically. Resolve it here - until it lands, the next release is blocked by the 'main is merged' check." ||
+            echo "::warning::Could not open the pull request - open main → next by hand."
+
+          {
+            echo "## ⚠️ Back-merge needs a human"
+            echo
+            echo "v${VERSION} shipped, but \`main\` could not be merged into \`next\` automatically."
+            echo
+            echo "[Open main → next](https://github.com/${{ github.repository }}/compare/next...main)"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+          echo "::error::v${VERSION} released, but the back-merge into next needs resolving by hand."
+          exit 1
+
+      - name: Delete the hotfix branch
+        if: steps.merge.outputs.merged == 'true' && startsWith(inputs.ref, 'hotfix/v')
+        env:
+          REF: ${{ inputs.ref }}
+        run: |
+          # refs/heads/ is load-bearing: a bare v0.130.2 would resolve to the tag.
+          git push origin --delete "refs/heads/${REF}" || echo "::warning::Could not delete ${REF}."
+
+      - name: Back-merge summary
+        if: steps.merge.outputs.merged == 'true'
+        env:
+          VERSION: ${{ needs.release.outputs.version || needs.republish.outputs.version }}
+        run: |
+          {
+            echo "## ✅ Back-merged into next"
+            echo
+            echo "\`main\` (v${VERSION}) is merged into \`next\`. Ordinary releases can carry on."
+          } >> "$GITHUB_STEP_SUMMARY"

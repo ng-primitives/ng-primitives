@@ -30,7 +30,10 @@ export class NgpThreadViewport {
   });
 
   /** The state of the thread viewport. */
-  protected readonly state = ngpThreadViewport({ autoScroll: this.autoScroll });
+  protected readonly state = ngpThreadViewport({
+    autoScroll: this.autoScroll,
+    threshold: this.threshold,
+  });
 
   /**
    * Scroll the container to the bottom.

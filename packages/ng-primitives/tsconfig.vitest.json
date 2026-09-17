@@ -6,5 +6,5 @@
     "types": ["vitest/globals", "node", "@testing-library/jest-dom"]
   },
   "files": ["src/test-setup.vitest.ts"],
-  "include": ["vite.config.ts", "**/*.test.ts", "**/*.d.ts"]
+  "include": ["vite.config.ts", "**/*.test.ts", "**/*.test-d.ts", "**/*.d.ts"]
 }

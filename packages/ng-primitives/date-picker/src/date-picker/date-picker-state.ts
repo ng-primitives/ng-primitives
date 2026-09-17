@@ -255,15 +255,25 @@ export const [
       if (dateDisabled()(date)) {
         let nextDate = dateAdapter.add(date, { days: direction === 'forward' ? 1 : -1 });
 
+        // advance in the travel direction over disabled dates, but stop at the bounds
+        // so we never overshoot min/max (which would loop forever).
         while (
-          dateDisabled()(nextDate) ||
-          (minValue && dateAdapter.isBefore(nextDate, minValue)) ||
-          (maxValue && dateAdapter.isAfter(nextDate, maxValue))
+          dateDisabled()(nextDate) &&
+          (!minValue || !dateAdapter.isBefore(nextDate, minValue)) &&
+          (!maxValue || !dateAdapter.isAfter(nextDate, maxValue))
         ) {
           nextDate = dateAdapter.add(nextDate, { days: direction === 'forward' ? 1 : -1 });
         }
 
-        date = nextDate;
+        // only move focus if we landed on an enabled, in-bounds date; otherwise keep
+        // the clamped date rather than focusing something out of range.
+        const outOfBounds =
+          (!!minValue && dateAdapter.isBefore(nextDate, minValue)) ||
+          (!!maxValue && dateAdapter.isAfter(nextDate, maxValue));
+
+        if (!dateDisabled()(nextDate) && !outOfBounds) {
+          date = nextDate;
+        }
       }
 
       setFocused(date);

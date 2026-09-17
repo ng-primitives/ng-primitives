@@ -1,14 +1,18 @@
 import { FocusOrigin } from '@angular/cdk/a11y';
 import { Directionality } from '@angular/cdk/bidi';
-import { computed, inject } from '@angular/core';
+import { computed, ElementRef, inject } from '@angular/core';
 import { ngpFocusTrap } from 'ng-primitives/focus-trap';
-import { injectElementRef } from 'ng-primitives/internal';
+import {
+  createHoverTransitTracker,
+  HoverTransitTracker,
+  injectElementRef,
+} from 'ng-primitives/internal';
 import { injectOverlay } from 'ng-primitives/portal';
 import { attrBinding, createPrimitive, listener, styleBinding } from 'ng-primitives/state';
 import { Subject } from 'rxjs';
 import { injectMenuTriggerState } from '../menu-trigger/menu-trigger-state';
 
-export interface NgpMenuState {
+export interface NgpMenuState extends HoverTransitTracker {
   /**
    * Close the menu and any parent menus.
    * @param origin - The focus origin
@@ -19,6 +23,12 @@ export interface NgpMenuState {
    * @internal
    */
   readonly closeSubmenus: Subject<HTMLElement>;
+  /**
+   * The panel's host element - the shared container a submenu trigger
+   * suppresses pointer-events on while a sibling's hover-bridge is active.
+   * @internal
+   */
+  readonly element: ElementRef<HTMLElement>;
 }
 
 export interface NgpMenuProps {}
@@ -26,7 +36,8 @@ export interface NgpMenuProps {}
 export const [NgpMenuStateToken, ngpMenu, injectMenuState, provideMenuState] = createPrimitive(
   'NgpMenu',
   ({}: NgpMenuProps) => {
-    const element = injectElementRef();
+    const element = injectElementRef<HTMLElement>();
+    const transit = createHoverTransitTracker();
     const overlay = injectOverlay();
     const directionality = inject(Directionality, { optional: true });
     const menuTrigger = injectMenuTriggerState();
@@ -123,6 +134,8 @@ export const [NgpMenuStateToken, ngpMenu, injectMenuState, provideMenuState] = c
     return {
       closeAllMenus,
       closeSubmenus,
+      element,
+      ...transit,
     } satisfies NgpMenuState;
   },
 );

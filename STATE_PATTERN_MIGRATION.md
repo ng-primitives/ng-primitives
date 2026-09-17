@@ -239,7 +239,7 @@ function toggle(): void {
 ### Utilities
 
 - `onDestroy(callback)` - Register cleanup callbacks
-- `deprecatedSetter(signal, methodName)` - Mark setters as deprecated. This is for cases where we want to discourage direct mutation of signals that used to be possible, but now have a set method on the state.
+- `deprecatedSetter(signal, methodName, setter)` - Mark setters as deprecated. This is for cases where we want to discourage direct mutation of signals that used to be possible, but now have a set method on the state. Always pass the state's own setter as the third argument so a direct `set`/`update` warns and then routes through that setter, keeping any side effects (emits, clamping, latching) intact.
 
 ## File Structure Changes
 

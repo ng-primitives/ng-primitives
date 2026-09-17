@@ -1,6 +1,6 @@
 import { FocusOrigin } from '@angular/cdk/a11y';
 import { DOCUMENT } from '@angular/common';
-import { inject, Injectable, NgZone } from '@angular/core';
+import { inject, Injectable, isSignal, NgZone, Signal } from '@angular/core';
 import { Subject } from 'rxjs';
 
 /**
@@ -59,8 +59,11 @@ export interface NgpOverlayEntry {
   getElements: () => HTMLElement[];
   /** The trigger element */
   triggerElement: HTMLElement;
-  /** Optional anchor element */
-  anchorElement?: HTMLElement | null;
+  /**
+   * Optional anchor element. Pass a signal when the anchor can change while the overlay
+   * is open - an entry is registered once per open and is not re-registered on a change.
+   */
+  anchorElement?: HTMLElement | null | Signal<HTMLElement | null | undefined>;
   /** Per-instance dismiss configuration */
   dismissPolicy: NgpDismissPolicy;
   /** If true, clicks on the trigger element are treated as outside clicks */
@@ -389,7 +392,10 @@ export class NgpOverlayRegistry {
     const isInsideElements = entry.getElements().some(el => path.includes(el));
     const isInsideTrigger =
       !entry.treatTriggerClickAsOutside && path.includes(entry.triggerElement);
-    const isInsideAnchor = entry.anchorElement ? path.includes(entry.anchorElement) : false;
+    const anchorElement = isSignal(entry.anchorElement)
+      ? entry.anchorElement()
+      : entry.anchorElement;
+    const isInsideAnchor = anchorElement ? path.includes(anchorElement) : false;
     return !(isInsideElements || isInsideTrigger || isInsideAnchor);
   }
 

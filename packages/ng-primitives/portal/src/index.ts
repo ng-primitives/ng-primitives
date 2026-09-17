@@ -8,6 +8,7 @@ export {
   NgpOverlayConfig,
   NgpOverlayContent,
   NgpOverlayTemplateContext,
+  OverlayHideImmediateOptions,
 } from './overlay';
 export { NgpOverlayCooldownManager } from './overlay-cooldown';
 export {
@@ -28,8 +29,23 @@ export {
   provideOverlayArrowState,
 } from './overlay-arrow-state';
 export { injectOverlayContext, provideOverlayContext } from './overlay-token';
-export { createPortal, NgpComponentPortal, NgpPortal, NgpTemplatePortal } from './portal';
+export {
+  createPortal,
+  NgpComponentPortal,
+  NgpPortal,
+  NgpPortalAttachOptions,
+  NgpPortalDetachOptions,
+  NgpTemplatePortal,
+} from './portal';
 export { NgpPosition } from './position';
+export {
+  NgpBoundary,
+  NgpMiddleware,
+  NgpPlacement,
+  NgpPositioningStrategy,
+  NgpRect,
+  NgpRootBoundary,
+} from './positioning';
 export {
   BlockScrollStrategy,
   CloseScrollStrategy,

@@ -340,7 +340,7 @@ describe('NgpFormControl', () => {
       fixture.componentInstance.control.disable();
       fixture.detectChanges();
       expect(input).toHaveAttribute('data-disabled');
-      expect(input).not.toHaveAttribute('disabled');
+      expect(input).toHaveAttribute('disabled');
     });
   });
 

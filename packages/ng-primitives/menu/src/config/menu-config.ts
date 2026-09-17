@@ -1,6 +1,5 @@
 import { InjectionToken, Provider, inject } from '@angular/core';
-import { NgpFlip, NgpOffset, NgpShift } from 'ng-primitives/portal';
-import type { NgpMenuPlacement } from '../menu-trigger/menu-trigger';
+import { NgpFlip, NgpOffset, NgpPlacement, NgpShift } from 'ng-primitives/portal';
 
 export type NgpMenuTriggerType = 'click' | 'hover' | 'focus' | 'enter' | 'arrowkey';
 
@@ -16,7 +15,7 @@ export interface NgpMenuConfig {
    * Define the placement of the menu relative to the trigger.
    * @default 'bottom-start'
    */
-  placement: NgpMenuPlacement;
+  placement: NgpPlacement;
 
   /**
    * Define whether the menu should flip when there is not enough space for the menu.

@@ -2,6 +2,7 @@ import {
   createHoverBridgePolygon,
   getHoverBridgeDirection,
   HOVER_BRIDGE_DIRECTION_TOLERANCE_PX,
+  HOVER_BRIDGE_SIBLING_TIMEOUT_MS,
   HOVER_BRIDGE_TIMEOUT_MS,
   isPointInHoverBridgePolygon,
 } from 'ng-primitives/internal';
@@ -129,6 +130,11 @@ describe('hover-bridge', () => {
 
     it('pins the direction jitter tolerance', () => {
       expect(HOVER_BRIDGE_DIRECTION_TOLERANCE_PX).toBe(2);
+    });
+
+    it('pins the sibling idle timeout below the gap timeout', () => {
+      expect(HOVER_BRIDGE_SIBLING_TIMEOUT_MS).toBe(80);
+      expect(HOVER_BRIDGE_SIBLING_TIMEOUT_MS).toBeLessThan(HOVER_BRIDGE_TIMEOUT_MS);
     });
   });
 });

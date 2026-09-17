@@ -1,7 +1,6 @@
 import { InjectionToken, Provider, inject } from '@angular/core';
-import { type Placement } from '@floating-ui/dom';
 import { NgpOrientation } from 'ng-primitives/common';
-import { NgpFlip, NgpOffset, NgpShift } from 'ng-primitives/portal';
+import { NgpFlip, NgpOffset, NgpPlacement, NgpShift } from 'ng-primitives/portal';
 
 export interface NgpNavigationMenuConfig {
   /**
@@ -26,7 +25,7 @@ export interface NgpNavigationMenuConfig {
    * Define the placement of the content relative to the trigger.
    * @default 'bottom-start'
    */
-  placement: Placement;
+  placement: NgpPlacement;
 
   /**
    * Define the offset of the content relative to the trigger.

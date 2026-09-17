@@ -126,7 +126,9 @@ function processChangeDetection(
   return Buffer.from(contentStr);
 }
 function processStyles(content: Buffer, options: AngularPrimitivesComponentSchema): Buffer {
-  if (options.exampleStyles) {
+  // `css` keeps the example styles verbatim; `unstyled` drops the `styles` property entirely
+  // so the consumer can bring their own, matching the docs' "Unstyled" example variant.
+  if (resolveStylesOption(options) !== 'unstyled') {
     return content;
   }
 
@@ -141,16 +143,29 @@ function processStyles(content: Buffer, options: AngularPrimitivesComponentSchem
     return content;
   }
 
-  const stylesNode = styles[0];
-  const stylesText = stylesNode.getText();
-  const stylesValue = stylesText.slice(1, stylesText.length - 1);
+  // Remove each `styles: `...`` property — its leading whitespace and any trailing comma
+  // included — from last to first so the earlier node offsets stay valid.
+  let result = contentStr;
+  for (const literal of [...styles].sort((a, b) => b.getStart() - a.getStart())) {
+    const property = literal.parent;
+    const start = property.getFullStart();
+    let end = property.getEnd();
+    if (result[end] === ',') {
+      end++;
+    }
+    result = result.slice(0, start) + result.slice(end);
+  }
 
-  // we want to preserve all the selectors, we just want to remove all the rules inside the selectors
-  const stylesWithoutRules = stylesValue.replace(/(?<=\{)[^}]+(?=\})/g, '');
+  return Buffer.from(result);
+}
 
-  // replace the styles value with the new value
-  const contentStrWithoutRules = contentStr.replace(stylesValue, stylesWithoutRules);
-
-  // convert back to a buffer
-  return Buffer.from(contentStrWithoutRules);
+/**
+ * Resolve the effective styles option, honouring the deprecated `exampleStyles` boolean:
+ * `styles` wins when set, otherwise `exampleStyles: false` maps to `unstyled`.
+ */
+function resolveStylesOption(options: AngularPrimitivesComponentSchema): 'css' | 'unstyled' {
+  if (options.styles === 'css' || options.styles === 'unstyled') {
+    return options.styles;
+  }
+  return options.exampleStyles === false ? 'unstyled' : 'css';
 }

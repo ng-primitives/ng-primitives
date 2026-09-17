@@ -178,9 +178,11 @@ export class Pagination<%= componentSuffix %> implements ControlValueAccessor {
   }
 
   /** Write a new value to the control */
-  writeValue(value: number): void {
+  writeValue(value: number | null): void {
+    // Angular writes null on reset and before the initial value lands; page is always
+    // a number, so fall back to the first page rather than passing null through.
     // writing a value from the model must not re-emit through onChange
-    this.state().setPage(value, { emit: false });
+    this.state().setPage(value ?? 1, { emit: false });
   }
 
   /** Register a callback to be called when the value changes */

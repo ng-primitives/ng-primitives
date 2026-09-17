@@ -243,7 +243,7 @@ export const [
     // Host bindings
     attrBinding(element, 'id', id);
     dataBinding(element, 'data-orientation', orientation);
-    dataBinding(element, 'data-disabled', status().disabled);
+    dataBinding(element, 'data-disabled', () => status().disabled);
 
     function setLowValue(value: number, options?: SetterOptions): void {
       const clampedValue = Math.max(min(), Math.min(value, high()));
@@ -299,8 +299,8 @@ export const [
       min,
       max,
       step,
-      orientation: deprecatedSetter(orientation, 'setOrientation'),
-      disabled: deprecatedSetter(disabled, 'setDisabled'),
+      orientation: deprecatedSetter(orientation, 'setOrientation', setOrientation),
+      disabled: deprecatedSetter(disabled, 'setDisabled', setDisabled),
       lowPercentage,
       highPercentage,
       rangePercentage,

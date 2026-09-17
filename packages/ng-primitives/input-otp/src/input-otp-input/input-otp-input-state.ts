@@ -7,7 +7,6 @@ import { injectInputOtpState } from '../input-otp/input-otp-state';
 export interface NgpInputOtpInputState {
   /**
    * Focus the input.
-   * @internal
    */
   focus(): void;
 
