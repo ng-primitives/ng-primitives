@@ -1,13 +1,13 @@
 import { InjectionToken, Provider, inject } from '@angular/core';
-import { type Placement } from '@floating-ui/dom';
 import { NgpFlip, NgpOffset, NgpShift } from 'ng-primitives/portal';
+import type { NgpPreviewCardPlacement } from '../preview-card-trigger/preview-card-trigger-state';
 
 export interface NgpPreviewCardConfig {
   /**
    * Define the placement of the preview card relative to the trigger.
    * @default 'bottom'
    */
-  placement: Placement;
+  placement: NgpPreviewCardPlacement;
 
   /**
    * Define the offset of the preview card relative to the trigger.

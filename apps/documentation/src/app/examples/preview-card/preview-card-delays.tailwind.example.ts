@@ -29,7 +29,7 @@ import { NgpPreviewCard, NgpPreviewCardTrigger } from 'ng-primitives/preview-car
 
     <ng-template #slow>
       <div
-        class="absolute w-60 max-w-[var(--ngp-preview-card-available-width)] origin-[var(--ngp-preview-card-transform-origin)] rounded-xl border border-zinc-200 bg-white p-3 text-sm tracking-[-0.006em] text-zinc-600 shadow-lg outline-none data-[enter]:animate-[preview-card-delays-show_150ms_ease-out] motion-reduce:data-[enter]:animate-none dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-400"
+        class="absolute w-60 max-w-[var(--ngp-preview-card-available-width)] origin-[var(--ngp-preview-card-transform-origin)] rounded-xl border border-zinc-200 bg-white p-3 text-sm tracking-[-0.006em] text-zinc-600 shadow-lg outline-none dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-400"
         ngpPreviewCard
       >
         Opened after the default 600ms dwell.
@@ -38,12 +38,36 @@ import { NgpPreviewCard, NgpPreviewCardTrigger } from 'ng-primitives/preview-car
 
     <ng-template #fast>
       <div
-        class="absolute w-60 max-w-[var(--ngp-preview-card-available-width)] origin-[var(--ngp-preview-card-transform-origin)] rounded-xl border border-zinc-200 bg-white p-3 text-sm tracking-[-0.006em] text-zinc-600 shadow-lg outline-none data-[enter]:animate-[preview-card-delays-show_150ms_ease-out] motion-reduce:data-[enter]:animate-none dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-400"
+        class="absolute w-60 max-w-[var(--ngp-preview-card-available-width)] origin-[var(--ngp-preview-card-transform-origin)] rounded-xl border border-zinc-200 bg-white p-3 text-sm tracking-[-0.006em] text-zinc-600 shadow-lg outline-none dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-400"
         ngpPreviewCard
       >
         Opened after 150ms.
       </div>
     </ng-template>
+  `,
+  // Angular scopes @keyframes names in component styles, so the enter animation must
+  // live here alongside its keyframes rather than in an arbitrary animate-[...] utility.
+  styles: `
+    [ngpPreviewCard][data-enter] {
+      animation: preview-card-delays-show 150ms ease-out;
+    }
+
+    @keyframes preview-card-delays-show {
+      0% {
+        opacity: 0;
+        transform: translateY(-2px);
+      }
+      100% {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      [ngpPreviewCard][data-enter] {
+        animation-duration: 0s;
+      }
+    }
   `,
 })
 export default class PreviewCardDelaysExample {}

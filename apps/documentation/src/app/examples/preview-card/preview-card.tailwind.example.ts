@@ -19,7 +19,7 @@ import { NgpPreviewCard, NgpPreviewCardTrigger } from 'ng-primitives/preview-car
 
     <ng-template #profile>
       <div
-        class="absolute flex w-68 max-w-[var(--ngp-preview-card-available-width)] origin-[var(--ngp-preview-card-transform-origin)] flex-col gap-2 rounded-xl border border-zinc-200 bg-white p-3 shadow-lg outline-none data-[enter]:animate-[preview-card-show_150ms_ease-out] data-[exit]:animate-[preview-card-hide_120ms_ease-out] motion-reduce:data-[enter]:animate-none motion-reduce:data-[exit]:animate-none dark:border-zinc-800 dark:bg-zinc-950"
+        class="absolute flex w-68 max-w-[var(--ngp-preview-card-available-width)] origin-[var(--ngp-preview-card-transform-origin)] flex-col gap-2 rounded-xl border border-zinc-200 bg-white p-3 shadow-lg outline-none dark:border-zinc-800 dark:bg-zinc-950"
         ngpPreviewCard
       >
         <span
@@ -52,6 +52,44 @@ import { NgpPreviewCard, NgpPreviewCardTrigger } from 'ng-primitives/preview-car
         </p>
       </div>
     </ng-template>
+  `,
+  // Angular scopes @keyframes names in component styles, so the enter/exit animations
+  // must live here alongside their keyframes rather than in arbitrary animate-[...] utilities.
+  styles: `
+    [ngpPreviewCard][data-enter] {
+      animation: preview-card-show 150ms ease-out;
+    }
+
+    [ngpPreviewCard][data-exit] {
+      animation: preview-card-hide 120ms ease-out;
+    }
+
+    @keyframes preview-card-show {
+      0% {
+        opacity: 0;
+        transform: translateY(-2px);
+      }
+      100% {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes preview-card-hide {
+      0% {
+        opacity: 1;
+      }
+      100% {
+        opacity: 0;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      [ngpPreviewCard][data-enter],
+      [ngpPreviewCard][data-exit] {
+        animation-duration: 0s;
+      }
+    }
   `,
 })
 export default class PreviewCardExample {}

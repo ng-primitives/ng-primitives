@@ -1,8 +1,13 @@
+import { Directive } from '@angular/core';
 import { ComponentFixture } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { fireEvent, render, waitFor } from '@testing-library/angular';
 import userEvent from '@testing-library/user-event';
-import { NgpPreviewCard, NgpPreviewCardTrigger } from 'ng-primitives/preview-card';
+import {
+  injectPreviewCardTriggerState,
+  NgpPreviewCard,
+  NgpPreviewCardTrigger,
+} from 'ng-primitives/preview-card';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
 /**
@@ -96,6 +101,20 @@ describe('NgpPreviewCardTrigger (primitive)', () => {
       await waitFor(() => {
         expect(card('close-on-leave')).toBeNull();
       });
+    });
+
+    it('should not error when the pointer leaves before a card has ever opened', async () => {
+      const { getByRole } = await render(template('leave-before-open'), {
+        imports: [NgpPreviewCardTrigger, NgpPreviewCard],
+      });
+
+      expect(() =>
+        fireEvent.pointerLeave(getByRole('link'), { pointerType: 'mouse' }),
+      ).not.toThrow();
+
+      await settle();
+
+      expect(card('leave-before-open')).toBeNull();
     });
   });
 
@@ -273,6 +292,32 @@ describe('NgpPreviewCardTrigger (primitive)', () => {
         expect(card('corridor-idle')).toBeNull();
       });
     });
+
+    it('should close immediately when a corridor cannot be built', async () => {
+      const { getByRole } = await render(noDelayTemplate('corridor-unbuildable'), {
+        imports: [NgpPreviewCardTrigger, NgpPreviewCard],
+      });
+
+      const trigger = getByRole('link', { name: 'Angular Primitives' });
+      fireEvent.pointerEnter(trigger, { pointerType: 'mouse' });
+
+      await waitFor(() => {
+        expect(card('corridor-unbuildable')).toBeInTheDocument();
+      });
+
+      // A rect-less card (e.g. one torn out of the layout mid-transition) leaves
+      // the polygon builder nothing to work with, so the fallback must close
+      // rather than strand the card open.
+      vi.spyOn(card('corridor-unbuildable')!, 'getBoundingClientRect').mockReturnValue(
+        null as unknown as DOMRect,
+      );
+
+      fireEvent.pointerLeave(trigger, { pointerType: 'mouse' });
+
+      await waitFor(() => {
+        expect(card('corridor-unbuildable')).toBeNull();
+      });
+    });
   });
 
   describe('focus', () => {
@@ -359,6 +404,55 @@ describe('NgpPreviewCardTrigger (primitive)', () => {
       await waitFor(() => {
         expect(card('focus-blur')).toBeNull();
       });
+    });
+
+    it('should not error when focus leaves before a card has ever opened', async () => {
+      const { getByRole } = await render(focusTemplate('focus-before-open'), {
+        imports: [NgpPreviewCardTrigger, NgpPreviewCard],
+      });
+
+      expect(() =>
+        fireEvent.focusOut(getByRole('link'), { relatedTarget: document.body }),
+      ).not.toThrow();
+
+      await settle();
+
+      expect(card('focus-before-open')).toBeNull();
+    });
+
+    it('should stay open when focus moves to a node inside the trigger itself', async () => {
+      const { getByTestId, getByRole } = await render(
+        wrap(`
+          <button type="button" data-testid="before">before</button>
+
+          <a
+            href="https://angularprimitives.com"
+            [ngpPreviewCardTrigger]="card"
+            ngpPreviewCardTriggerShowDelay="0"
+            ngpPreviewCardTriggerHideDelay="0"
+            >Angular Primitives <span data-testid="trigger-child">icon</span></a
+          >
+
+          <ng-template #card>
+            <div ngpPreviewCard>focus-inside-trigger</div>
+          </ng-template>
+        `),
+        { imports: [NgpPreviewCardTrigger, NgpPreviewCard] },
+      );
+
+      getByTestId('before').focus();
+      await userEvent.keyboard('{Tab}');
+
+      await waitFor(() => {
+        expect(card('focus-inside-trigger')).toBeInTheDocument();
+      });
+
+      // Focus moving to a nested node inside the trigger itself (e.g. an icon)
+      // is not focus leaving the trigger - the card must stay open.
+      fireEvent.focusOut(getByRole('link'), { relatedTarget: getByTestId('trigger-child') });
+      await settle();
+
+      expect(card('focus-inside-trigger')).toBeInTheDocument();
     });
 
     it('should stay open when focus moves from the trigger into the card', async () => {
@@ -465,6 +559,126 @@ describe('NgpPreviewCardTrigger (primitive)', () => {
       );
 
       expect(getByRole('link').getAttribute('data-disabled')).toBe('');
+    });
+  });
+
+  describe('missing content', () => {
+    it('should log an error and stay closed when no preview card content is provided', async () => {
+      const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+      const { getByRole } = await render(
+        wrap(
+          `<a href="https://angularprimitives.com" ngpPreviewCardTrigger ngpPreviewCardTriggerShowDelay="0">Angular Primitives</a>`,
+        ),
+        { imports: [NgpPreviewCardTrigger, NgpPreviewCard] },
+      );
+
+      fireEvent.pointerEnter(getByRole('link'), { pointerType: 'mouse' });
+      await settle();
+
+      expect(consoleSpy).toHaveBeenCalledWith(
+        '[ngpPreviewCardTrigger]: Preview card must be a TemplateRef or a ComponentType.',
+      );
+      expect(document.querySelector('[ngpPreviewCard]')).toBeNull();
+
+      consoleSpy.mockRestore();
+    });
+  });
+
+  describe('container', () => {
+    @Directive({ selector: '[capturePreviewCardTriggerState]' })
+    class CapturePreviewCardTriggerState {
+      readonly state = injectPreviewCardTriggerState();
+    }
+
+    it('should attach the preview card to the element passed to setContainer', async () => {
+      const host = document.createElement('div');
+      host.id = 'preview-card-host';
+      document.body.appendChild(host);
+
+      const { fixture, getByRole } = await render(
+        wrap(`
+          <a
+            href="https://angularprimitives.com"
+            [ngpPreviewCardTrigger]="card"
+            ngpPreviewCardTriggerShowDelay="0"
+            ngpPreviewCardTriggerHideDelay="0"
+            capturePreviewCardTriggerState
+            >Angular Primitives</a
+          >
+
+          <ng-template #card>
+            <div ngpPreviewCard>container-setter</div>
+          </ng-template>
+        `),
+        {
+          imports: [NgpPreviewCardTrigger, NgpPreviewCard, CapturePreviewCardTriggerState],
+        },
+      );
+
+      const captured = fixture.debugElement
+        .query(By.directive(CapturePreviewCardTriggerState))
+        .injector.get(CapturePreviewCardTriggerState);
+
+      captured.state().setContainer(host);
+
+      fireEvent.pointerEnter(getByRole('link'), { pointerType: 'mouse' });
+
+      await waitFor(() => {
+        expect(host.querySelector('[ngpPreviewCard]')).toBeInTheDocument();
+      });
+
+      host.remove();
+    });
+  });
+
+  describe('card pointer handling', () => {
+    @Directive({ selector: '[capturePreviewCardTriggerState2]' })
+    class CapturePreviewCardTriggerState2 {
+      readonly state = injectPreviewCardTriggerState();
+    }
+
+    it('should ignore touch pointers entering and leaving the card', async () => {
+      const { fixture, getByRole } = await render(
+        wrap(`
+          <a
+            href="https://angularprimitives.com"
+            [ngpPreviewCardTrigger]="card"
+            ngpPreviewCardTriggerShowDelay="0"
+            ngpPreviewCardTriggerHideDelay="0"
+            capturePreviewCardTriggerState2
+            >Angular Primitives</a
+          >
+
+          <ng-template #card>
+            <div ngpPreviewCard>touch-on-card</div>
+          </ng-template>
+        `),
+        {
+          imports: [NgpPreviewCardTrigger, NgpPreviewCard, CapturePreviewCardTriggerState2],
+        },
+      );
+
+      fireEvent.pointerEnter(getByRole('link'), { pointerType: 'mouse' });
+
+      await waitFor(() => {
+        expect(card('touch-on-card')).toBeInTheDocument();
+      });
+
+      const captured = fixture.debugElement
+        .query(By.directive(CapturePreviewCardTriggerState2))
+        .injector.get(CapturePreviewCardTriggerState2);
+      const setPointerOverCard = vi.spyOn(captured.state(), 'setPointerOverCard');
+
+      const cardElement = card('touch-on-card')!;
+      fireEvent.pointerEnter(cardElement, { pointerType: 'touch' });
+      fireEvent.pointerLeave(cardElement, { pointerType: 'touch' });
+
+      expect(setPointerOverCard).not.toHaveBeenCalled();
+
+      fireEvent.pointerEnter(cardElement, { pointerType: 'mouse' });
+
+      expect(setPointerOverCard).toHaveBeenCalledWith(true);
     });
   });
 

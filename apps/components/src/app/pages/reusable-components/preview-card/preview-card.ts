@@ -21,8 +21,6 @@ export interface PreviewCardContent {
     }
   `,
   styles: `
-    /* These styles rely on CSS variables that can be imported from ng-primitives/example-theme/index.css in your global styles */
-
     :host {
       position: absolute;
       display: flex;

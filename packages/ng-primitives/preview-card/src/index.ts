@@ -7,6 +7,7 @@ export {
   providePreviewCardTriggerState,
   type NgpPreviewCardTriggerState,
   type NgpPreviewCardTriggerProps,
+  type NgpPreviewCardPlacement,
 } from './preview-card-trigger/preview-card-trigger-state';
 export { NgpPreviewCardConfig, providePreviewCardConfig } from './config/preview-card-config';
 export { NgpPreviewCard } from './preview-card/preview-card';

@@ -1,5 +1,8 @@
+import { Directive } from '@angular/core';
+import { By } from '@angular/platform-browser';
 import { fireEvent, render, waitFor } from '@testing-library/angular';
 import {
+  injectPreviewCardArrowState,
   NgpPreviewCard,
   NgpPreviewCardArrow,
   NgpPreviewCardTrigger,
@@ -60,5 +63,50 @@ describe('NgpPreviewCardArrow', () => {
       const { insetInlineStart, insetBlockStart } = arrow.style;
       expect(insetInlineStart !== '' || insetBlockStart !== '').toBe(true);
     });
+  });
+
+  it('should update the padding imperatively via setPadding()', async () => {
+    @Directive({ selector: '[captureArrowState]' })
+    class CaptureArrowState {
+      readonly state = injectPreviewCardArrowState();
+    }
+
+    const { fixture, getByRole } = await render(
+      `
+        <div style="padding: 200px">
+          <a
+            href="https://angularprimitives.com"
+            [ngpPreviewCardTrigger]="card"
+            ngpPreviewCardTriggerShowDelay="0"
+            ngpPreviewCardTriggerHideDelay="0"
+            >Angular Primitives</a
+          >
+
+          <ng-template #card>
+            <div ngpPreviewCard>
+              Preview content
+              <div ngpPreviewCardArrow captureArrowState></div>
+            </div>
+          </ng-template>
+        </div>
+      `,
+      {
+        imports: [NgpPreviewCardTrigger, NgpPreviewCard, NgpPreviewCardArrow, CaptureArrowState],
+      },
+    );
+
+    fireEvent.pointerEnter(getByRole('link'), { pointerType: 'mouse' });
+
+    await waitFor(() => {
+      expect(document.querySelector('[ngpPreviewCardArrow]')).toBeInTheDocument();
+    });
+
+    const arrowDebugElement = fixture.debugElement.query(By.directive(NgpPreviewCardArrow));
+    const arrowInstance = arrowDebugElement.injector.get(NgpPreviewCardArrow);
+    const captured = arrowDebugElement.injector.get(CaptureArrowState);
+
+    arrowInstance.setPadding(24);
+
+    expect(captured.state().padding()).toBe(24);
   });
 });
