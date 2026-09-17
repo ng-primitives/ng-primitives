@@ -67,6 +67,7 @@ export const [
     function handleClick(): void {
       const dialogRef = dialogManager.open(template(), {
         injector,
+        triggerElement: elementRef.nativeElement,
         closeOnEscape: closeOnEscape(),
         closeOnOutsideClick: closeOnOutsideClick(),
       });

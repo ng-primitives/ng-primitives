@@ -11,6 +11,13 @@ export interface NgpDialogConfig<T = any> {
   /** The injector to use for the dialog. Defaults to the view container's injector.*/
   injector?: Injector;
 
+  /**
+   * The element the dialog is opened from. Used to resolve the parent overlay and to
+   * restore focus on close. Defaults to whatever holds focus when `open()` is called,
+   * which is only the trigger when the dialog was opened by a user interaction.
+   */
+  triggerElement?: HTMLElement;
+
   /** ID for the dialog. If omitted, a unique one will be generated. */
   id?: string;
 

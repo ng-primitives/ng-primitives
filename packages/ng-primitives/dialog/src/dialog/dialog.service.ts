@@ -162,28 +162,28 @@ export class NgpDialogManager implements OnDestroy {
       this.enableScrollBlocking(config);
     }
 
-    // Auto-detect parent overlay: if the trigger element lives inside an existing overlay
-    // (e.g. a dialog opened from a popover), register as its child so that clicks inside
-    // the dialog don't dismiss the parent overlay.
-    // Only inherit parentId from other dialogs — non-dialog overlays (menus, popovers)
-    // may close after triggering the dialog open, which would cascade-close the dialog.
-    let parentId =
-      activeElement instanceof HTMLElement
-        ? this.registry.findContainingOverlay(activeElement)
-        : null;
+    // The element the dialog was opened from. An explicit trigger is authoritative; a
+    // programmatic `open()` has none and falls back to whatever held focus, which is why
+    // `NgpDialogTrigger` passes its own element.
+    const originElement =
+      config.triggerElement ?? (activeElement instanceof HTMLElement ? activeElement : null);
 
-    if (parentId !== null && !this.openDialogs.some(d => d.id === parentId)) {
-      parentId = null;
-    }
+    // Auto-detect parent overlay: if the origin lives inside an existing overlay (a dialog
+    // opened from a menu, popover or another dialog), register as its child so that clicks
+    // inside the dialog don't read as an outside press on that parent.
+    // `cascadeClose: false` below keeps the inverse from happening: a menu that closes on
+    // select, or a popover that dismisses, must not take the dialog it just opened with it.
+    const parentId = originElement ? this.registry.findContainingOverlay(originElement) : null;
 
     // Register with the overlay registry for centralized escape-key routing.
     // outsidePress is false because the NgpDialogOverlay directive handles its own backdrop clicks.
     this.registry.register({
       id: dialogRef.id,
       parentId,
+      cascadeClose: false,
       overlay: dialogRef,
       getElements: () => dialogRef.getElements(),
-      triggerElement: (activeElement as HTMLElement) ?? this.document.body,
+      triggerElement: originElement ?? this.document.body,
       dismissPolicy: {
         outsidePress: false,
         escapeKey: config.closeOnEscape ?? true,
@@ -203,11 +203,11 @@ export class NgpDialogManager implements OnDestroy {
 
     dialogRef.afterClosed$.subscribe(({ focusOrigin }) => {
       // Focus the trigger element after exit animations complete.
-      if (activeElement instanceof HTMLElement && this.document.body.contains(activeElement)) {
+      if (originElement && this.document.body.contains(originElement)) {
         // Its not great that we are relying on an internal API here, but we need to in order to
         // try and best determine the focus origin when it is programmatically closed by the user.
         this.focusMonitor.focusVia(
-          activeElement,
+          originElement,
           focusOrigin ?? (this.focusMonitor as any)._lastFocusOrigin,
         );
       }
