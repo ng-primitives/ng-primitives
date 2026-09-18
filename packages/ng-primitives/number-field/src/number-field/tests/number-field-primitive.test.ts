@@ -582,6 +582,16 @@ describe('NgpNumberField', () => {
       expect(valueChange).toHaveBeenCalledWith(5);
     });
 
+    it('should step exponent-form steps on the grid by default', async () => {
+      const valueChange = vi.fn();
+      await renderNumberField(
+        '[ngpNumberFieldDefaultValue]="0" [ngpNumberFieldStep]="1e-7"',
+        valueChange,
+      );
+      fireEvent.keyDown(screen.getByTestId('input'), { key: 'ArrowUp' });
+      expect(valueChange).toHaveBeenCalledWith(1e-7);
+    });
+
     it('should increment an off-grid value by the exact step', async () => {
       const valueChange = vi.fn();
       await renderNumberField(
