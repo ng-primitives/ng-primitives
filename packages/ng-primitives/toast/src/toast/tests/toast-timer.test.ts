@@ -114,6 +114,26 @@ describe('toastTimer', () => {
     expect(callback).toHaveBeenCalledTimes(1);
   });
 
+  it('should report the time remaining, frozen while paused', () => {
+    const timer = toastTimer(3000, vi.fn());
+    expect(timer.remaining()).toBe(3000);
+
+    timer.start();
+    vi.advanceTimersByTime(1000);
+    expect(timer.remaining()).toBe(2000);
+
+    timer.pause();
+    vi.advanceTimersByTime(5000);
+    expect(timer.remaining()).toBe(2000);
+
+    timer.start();
+    vi.advanceTimersByTime(2000);
+    expect(timer.remaining()).toBe(0);
+
+    timer.stop();
+    expect(timer.remaining()).toBe(3000);
+  });
+
   it('should not call callback when persistent', () => {
     const callback = vi.fn();
     const timer = toastTimer(3000, callback, { persistent: true });
