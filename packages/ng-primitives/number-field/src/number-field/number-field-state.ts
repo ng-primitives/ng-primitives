@@ -166,7 +166,7 @@ export const [
     min: _min = signal(-Infinity),
     max: _max = signal(Infinity),
     step: _step = signal(1),
-    snap: _snap = signal(true),
+    snap = signal(true),
     largeStep: _largeStep = signal(10),
     disabled: _disabled = signal(false),
     readonly: _readonly = signal(false),
@@ -194,7 +194,6 @@ export const [
     const min = computed(() => defaultIfNonFinite(_min(), -Infinity));
     const max = computed(() => defaultIfNonFinite(_max(), Infinity));
     const step = computed(() => defaultIfNonFinite(_step(), 1));
-    const snap = controlled(_snap);
     const largeStep = computed(() => defaultIfNonFinite(_largeStep(), 10));
     const disabled = controlled(_disabled);
     const readonly = controlled(_readonly);
