@@ -62,6 +62,7 @@ export const [NgpErrorStateToken, ngpError, injectErrorState, provideErrorState]
     dataBinding(element, 'data-dirty', () => (formField()?.dirty() ? '' : null));
     dataBinding(element, 'data-pending', () => (formField()?.pending() ? '' : null));
     dataBinding(element, 'data-disabled', () => (formField()?.disabled() ? '' : null));
+    dataBinding(element, 'data-required', () => (formField()?.required() ? '' : null));
     dataBinding(element, 'data-validator', state);
 
     let currentId = id();

@@ -56,6 +56,7 @@ export const [NgpLabelStateToken, ngpLabel, injectLabelState, provideLabelState]
     dataBinding(element, 'data-dirty', () => (formField()?.dirty() ? '' : null));
     dataBinding(element, 'data-pending', () => (formField()?.pending() ? '' : null));
     dataBinding(element, 'data-disabled', () => (formField()?.disabled() ? '' : null));
+    dataBinding(element, 'data-required', () => (formField()?.required() ? '' : null));
 
     function onClick(event: MouseEvent): void {
       // by default a label will perform a click on the associated form control, however
