@@ -32,7 +32,7 @@ class NgpToastTimer {
     clearTimeout(this.timeoutId!);
 
     const elapsed = Date.now() - this.startTime;
-    this.remainingMs -= elapsed;
+    this.remainingMs = Math.max(0, this.remainingMs - elapsed);
     this.startTime = null;
     this.timeoutId = null;
   }

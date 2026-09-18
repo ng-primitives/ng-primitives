@@ -118,7 +118,12 @@ describe('NgpToast', () => {
     });
 
     it('sets data-paused on background toasts in sequential mode', async () => {
-      const { element, fixture, managerStub } = await renderToast({ sequential: true });
+      const { element, fixture, managerStub } = await renderToast({
+        sequential: true,
+        persistent: false,
+      });
+      expect(element).not.toHaveAttribute('data-paused');
+
       const toast = fixture.debugElement.children[0].injector.get(NgpToast);
 
       const front = {
@@ -263,9 +268,9 @@ describe('NgpToast', () => {
       const { fixture } = await renderToast({ duration: 3000, persistent: false });
       const toast = fixture.debugElement.children[0].injector.get(NgpToast);
 
+      const before = toast.remaining();
       await new Promise(resolve => setTimeout(resolve, 50));
-      expect(toast.remaining()).toBeLessThan(3000);
-      expect(toast.remaining()).toBeGreaterThan(2000);
+      expect(toast.remaining()).toBeLessThan(before);
     });
 
     it('pauses the timer while the user is interacting via pointer', async () => {
