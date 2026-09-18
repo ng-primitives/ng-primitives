@@ -221,10 +221,10 @@ bootstrapApplication(AppComponent, {
 ```
 
 By default dialogs render into `document.body`. The `container` option accepts an element or a
-selector, which is useful when the dialog must live inside a specific subtree — for example a
-shadow-DOM host, a micro-frontend root, or an element carrying your theme class. It can be
-overridden per dialog through `NgpDialogTrigger`'s `ngpDialogTriggerContainer` input, or through the
-`container` option passed to `NgpDialogManager.open()`.
+selector, which is useful when the dialog must live inside a specific subtree - for example a
+micro-frontend root or an element carrying your theme class. It can be overridden per dialog
+through `NgpDialogTrigger`'s `ngpDialogTriggerContainer` input, or through the `container` option
+passed to `NgpDialogManager.open()`.
 
 ### NgpDialogConfig
 

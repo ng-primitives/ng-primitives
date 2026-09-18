@@ -21,10 +21,10 @@ export interface NgpDialogTriggerState<T> {
    */
   readonly closeOnOutsideClick?: Signal<NgpDismissGuard<Element>>;
   /**
-   * The container element or selector the dialog should be rendered into.
-   * @default 'body'
+   * The container element or selector the dialog should be rendered into. `undefined` uses the
+   * dialog configuration, `null` renders into the body.
    */
-  readonly container?: Signal<HTMLElement | string | null>;
+  readonly container?: Signal<HTMLElement | string | null | undefined>;
   /** The event that is fired when the closed state changes. */
   readonly closedChange: Observable<T>;
 }
@@ -43,10 +43,10 @@ export interface NgpDialogTriggerProps<T> {
    */
   readonly closeOnOutsideClick?: Signal<NgpDismissGuard<Element>>;
   /**
-   * The container element or selector the dialog should be rendered into.
-   * @default 'body'
+   * The container element or selector the dialog should be rendered into. `undefined` uses the
+   * dialog configuration, `null` renders into the body.
    */
-  readonly container?: Signal<HTMLElement | string | null>;
+  readonly container?: Signal<HTMLElement | string | null | undefined>;
   readonly onClosedChange?: (value: T) => void;
 }
 
@@ -61,9 +61,10 @@ export const [
     template,
     closeOnEscape = signal<NgpDismissGuard<KeyboardEvent>>(true),
     closeOnOutsideClick = signal<NgpDismissGuard<Element>>(true),
-    container = signal(injectDialogConfig().container ?? 'body'),
+    container = signal<HTMLElement | string | null | undefined>(undefined),
     onClosedChange,
   }: NgpDialogTriggerProps<T>) => {
+    const config = injectDialogConfig();
     const elementRef = injectElementRef();
     const dialogManager = inject(NgpDialogManager);
     const destroyRef = inject(DestroyRef);
@@ -81,7 +82,8 @@ export const [
         injector,
         closeOnEscape: closeOnEscape(),
         closeOnOutsideClick: closeOnOutsideClick(),
-        container: container(),
+        // resolve `undefined` here, the manager only sees the root configuration
+        container: container() === undefined ? config.container : container(),
       });
 
       dialogRef.closed.pipe(safeTakeUntilDestroyed(destroyRef)).subscribe(({ result }) => {

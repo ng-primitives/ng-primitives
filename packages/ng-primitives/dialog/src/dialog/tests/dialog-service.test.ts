@@ -2,17 +2,27 @@
 import { Component, TemplateRef, Type, ViewContainerRef, inject, viewChild } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { Router, provideRouter } from '@angular/router';
-import { render } from '@testing-library/angular';
+import { render, waitFor } from '@testing-library/angular';
 import {
   NgpDialogContext,
   NgpDialogManager,
   NgpDialogRef,
   provideDialogConfig,
 } from 'ng-primitives/dialog';
+import { NgpExitAnimation, NgpExitAnimationManager } from 'ng-primitives/internal';
+import { NgpToast, NgpToastManager } from 'ng-primitives/toast';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 @Component({ selector: 'ngp-test-dialog', template: '<p>Test</p>' })
 class TestDialog {}
+
+@Component({ template: 'Saved', hostDirectives: [NgpToast] })
+class TestToast {}
+
+@Component({ template: '', providers: [NgpDialogManager] })
+class NestedManagerHost {
+  readonly dialog = inject(NgpDialogManager);
+}
 
 @Component({
   template: `
@@ -233,7 +243,11 @@ describe('NgpDialogManager container', () => {
     document.body.appendChild(liveRegion);
   });
 
-  afterEach(() => {
+  afterEach(async () => {
+    TestBed.inject(NgpDialogManager).closeAll();
+    // portals attach outside the fixture, so wait for them to leave the DOM
+    await waitFor(() => expect(document.querySelector('ngp-test-dialog')).toBeNull());
+
     vi.restoreAllMocks();
     container.remove();
     siblingContainer.remove();
@@ -301,6 +315,30 @@ describe('NgpDialogManager container', () => {
     ref.close();
   });
 
+  it('should use the global container when the container option is undefined', () => {
+    TestBed.configureTestingModule({
+      providers: [provideDialogConfig({ container: '#ngp-dialog-container' })],
+    });
+
+    const dialog = TestBed.inject(NgpDialogManager);
+    const ref = dialog.open(TestDialog, { container: undefined });
+
+    expect(container.textContent).toContain('Test');
+    ref.close();
+  });
+
+  it('should render into the body when the container option is null, despite a global container', () => {
+    TestBed.configureTestingModule({
+      providers: [provideDialogConfig({ container: '#ngp-dialog-container' })],
+    });
+
+    const dialog = TestBed.inject(NgpDialogManager);
+    const ref = dialog.open(TestDialog, { container: null });
+
+    expect(hostOf(ref)).toBe(document.body);
+    ref.close();
+  });
+
   it('should not hide the container from assistive technology', () => {
     const dialog = TestBed.inject(NgpDialogManager);
     const ref = dialog.open(TestDialog, { container });
@@ -321,7 +359,25 @@ describe('NgpDialogManager container', () => {
     ref.close();
   });
 
-  it('should keep both dialogs accessible when they open into sibling containers', () => {
+  it('should not hide a toast shown while a dialog is open', async () => {
+    const dialog = TestBed.inject(NgpDialogManager);
+    const first = dialog.open(TestDialog, { container });
+
+    // the toast container is created lazily, after the dialog has already hidden the page
+    TestBed.inject(NgpToastManager).show(TestToast, { persistent: true });
+    const toastContainer = document.querySelector('[data-ngp-toast-container]')!;
+
+    const second = dialog.open(TestDialog);
+    expect(toastContainer.hasAttribute('aria-hidden')).toBe(false);
+
+    await second.close();
+    expect(toastContainer.hasAttribute('aria-hidden')).toBe(false);
+
+    first.close();
+    toastContainer.remove();
+  });
+
+  it('should keep both dialogs accessible when they open into sibling containers', async () => {
     const dialog = TestBed.inject(NgpDialogManager);
 
     const first = dialog.open(TestDialog, { container });
@@ -335,7 +391,7 @@ describe('NgpDialogManager container', () => {
     expect(siblingContainer.hasAttribute('aria-hidden')).toBe(false);
     expect(sibling.getAttribute('aria-hidden')).toBe('true');
 
-    second.close();
+    await second.close();
 
     expect(siblingContainer.getAttribute('aria-hidden')).toBe('true');
     expect(container.hasAttribute('aria-hidden')).toBe(false);
@@ -344,5 +400,136 @@ describe('NgpDialogManager container', () => {
 
     expect(sibling.hasAttribute('aria-hidden')).toBe(false);
     expect(siblingContainer.hasAttribute('aria-hidden')).toBe(false);
+  });
+
+  it('should keep stacked dialogs in the body accessible', () => {
+    const dialog = TestBed.inject(NgpDialogManager);
+    const first = dialog.open(TestDialog);
+    const second = dialog.open(TestDialog);
+
+    expect(first.getElements()[0].hasAttribute('aria-hidden')).toBe(false);
+    expect(second.getElements()[0].hasAttribute('aria-hidden')).toBe(false);
+    expect(sibling.getAttribute('aria-hidden')).toBe('true');
+
+    second.close();
+
+    expect(first.getElements()[0].hasAttribute('aria-hidden')).toBe(false);
+    expect(sibling.getAttribute('aria-hidden')).toBe('true');
+
+    first.close();
+
+    expect(sibling.hasAttribute('aria-hidden')).toBe(false);
+  });
+
+  it('should restore existing aria-hidden values after several dialogs close', () => {
+    sibling.setAttribute('aria-hidden', 'false');
+    siblingContainer.setAttribute('aria-hidden', 'true');
+
+    const dialog = TestBed.inject(NgpDialogManager);
+    const first = dialog.open(TestDialog, { container });
+    const second = dialog.open(TestDialog);
+
+    expect(sibling.getAttribute('aria-hidden')).toBe('true');
+
+    second.close();
+    first.close();
+
+    expect(sibling.getAttribute('aria-hidden')).toBe('false');
+    expect(siblingContainer.getAttribute('aria-hidden')).toBe('true');
+    expect(container.hasAttribute('aria-hidden')).toBe(false);
+  });
+
+  it('should share aria-hidden bookkeeping with a nested dialog manager', async () => {
+    const view = await render(NestedManagerHost);
+    const root = TestBed.inject(NgpDialogManager);
+    const nested = view.fixture.componentInstance.dialog;
+    expect(nested).not.toBe(root);
+
+    const first = root.open(TestDialog, { container });
+    const second = nested.open(TestDialog, { container: siblingContainer });
+
+    expect(container.hasAttribute('aria-hidden')).toBe(false);
+    expect(siblingContainer.hasAttribute('aria-hidden')).toBe(false);
+
+    await second.close();
+
+    expect(siblingContainer.getAttribute('aria-hidden')).toBe('true');
+
+    first.close();
+
+    expect(siblingContainer.hasAttribute('aria-hidden')).toBe(false);
+    expect(sibling.hasAttribute('aria-hidden')).toBe(false);
+  });
+
+  it('should not hide a nested dialog while it is closing', async () => {
+    const dialog = TestBed.inject(NgpDialogManager);
+    const first = dialog.open(TestDialog);
+    const second = dialog.open(TestDialog);
+    const secondElement = second.getElements()[0];
+
+    // closing emits before the portal detaches, while focus is still inside it
+    const closing = second.close();
+
+    expect(secondElement.isConnected).toBe(true);
+    expect(secondElement.hasAttribute('aria-hidden')).toBe(false);
+
+    await closing;
+    first.close();
+  });
+
+  it('should not hide a closing dialog when another closing dialog finishes first', async () => {
+    const dialog = TestBed.inject(NgpDialogManager);
+    const first = dialog.open(TestDialog);
+    const second = dialog.open(TestDialog);
+    const third = dialog.open(TestDialog);
+    const secondElement = second.getElements()[0];
+
+    // hold the second dialog in its exit animation until the test releases it
+    let finishSecondExit!: () => void;
+    second.injector!.get(NgpExitAnimationManager).add({
+      exit: () => new Promise<void>(resolve => (finishSecondExit = resolve)),
+    } as NgpExitAnimation);
+
+    const closingSecond = second.close();
+    await third.close();
+
+    expect(secondElement.isConnected).toBe(true);
+    expect(secondElement.hasAttribute('aria-hidden')).toBe(false);
+
+    finishSecondExit();
+    await closingSecond;
+    first.close();
+  });
+
+  it('should release a closing dialog once it has detached', async () => {
+    const dialog = TestBed.inject(NgpDialogManager);
+    const first = dialog.open(TestDialog);
+    const second = dialog.open(TestDialog);
+
+    await second.close();
+
+    // a leak is not observable through the DOM, the detached dialog has no elements left
+    expect((dialog as unknown as { closingDialogs: Set<NgpDialogRef> }).closingDialogs.size).toBe(
+      0,
+    );
+    first.close();
+  });
+
+  it('should hide content added to the body when another dialog opens', () => {
+    const dialog = TestBed.inject(NgpDialogManager);
+    const first = dialog.open(TestDialog, { container });
+
+    const late = document.createElement('div');
+    document.body.appendChild(late);
+
+    const second = dialog.open(TestDialog);
+
+    expect(late.getAttribute('aria-hidden')).toBe('true');
+
+    second.close();
+    first.close();
+
+    expect(late.hasAttribute('aria-hidden')).toBe(false);
+    late.remove();
   });
 });

@@ -42,12 +42,16 @@ export class NgpDialogTrigger<T = unknown> {
   );
 
   /**
-   * The container element or selector the dialog should be rendered into.
+   * The container element or selector the dialog should be rendered into. `undefined` falls back
+   * to the global configuration, `null` renders into the body.
    * @default 'body'
    */
-  readonly container = input<HTMLElement | string | null>(this.config.container ?? 'body', {
-    alias: 'ngpDialogTriggerContainer',
-  });
+  readonly container = input<HTMLElement | string | null | undefined>(
+    this.config.container ?? 'body',
+    {
+      alias: 'ngpDialogTriggerContainer',
+    },
+  );
 
   /** Emits whenever the dialog is closed with the given result. */
   readonly closed = output<T>({ alias: 'ngpDialogTriggerClosed' });
