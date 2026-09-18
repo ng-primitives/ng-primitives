@@ -73,6 +73,15 @@ export class NgpNumberField {
   });
 
   /**
+   * Whether values should be aligned to the step grid when committed.
+   * @default true
+   */
+  readonly snap = input<boolean, BooleanInput>(true, {
+    alias: 'ngpNumberFieldSnap',
+    transform: booleanAttribute,
+  });
+
+  /**
    * The large step value (used with Shift key). A non-finite value (`NaN`, `±Infinity`) falls back to `10`.
    */
   readonly largeStep = input<number, NumberInput>(10, {
@@ -106,6 +115,7 @@ export class NgpNumberField {
     min: this.min,
     max: this.max,
     step: this.step,
+    snap: this.snap,
     largeStep: this.largeStep,
     disabled: this.disabled,
     readonly: this.readonly,

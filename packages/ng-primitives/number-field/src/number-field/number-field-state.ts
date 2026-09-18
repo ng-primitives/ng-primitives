@@ -37,6 +37,10 @@ export interface NgpNumberFieldState {
    */
   readonly step: Signal<number>;
   /**
+   * Whether values are aligned to the step grid when committed.
+   */
+  readonly snap: Signal<boolean>;
+  /**
    * The large step value (used with Shift key).
    */
   readonly largeStep: Signal<number>;
@@ -61,8 +65,9 @@ export interface NgpNumberFieldState {
    */
   readonly valueChange: Observable<number | null>;
   /**
-   * Set the current value (clamped and stepped). A non-finite value is rejected rather
-   * than treated as empty - this is a transition, and `null` already means empty.
+   * Set the current value (clamped and, when `snap` is enabled, stepped). A non-finite
+   * value is rejected rather than treated as empty - this is a transition, and `null`
+   * already means empty.
    */
   setValue(value: number | null): void;
   /**
@@ -120,6 +125,11 @@ export interface NgpNumberFieldProps {
    */
   readonly step?: Signal<number>;
   /**
+   * Whether values should be aligned to the step grid when committed.
+   * @default true
+   */
+  readonly snap?: Signal<boolean>;
+  /**
    * The large step value (used with Shift key). A non-finite value (`NaN`, `±Infinity`) falls back to `10`.
    */
   readonly largeStep?: Signal<number>;
@@ -156,6 +166,7 @@ export const [
     min: _min = signal(-Infinity),
     max: _max = signal(Infinity),
     step: _step = signal(1),
+    snap = signal(true),
     largeStep: _largeStep = signal(10),
     disabled: _disabled = signal(false),
     readonly: _readonly = signal(false),
@@ -210,9 +221,10 @@ export const [
      * Count the number of decimal places in a number.
      */
     function getDecimalPlaces(n: number): number {
-      const str = String(n);
-      const dotIndex = str.indexOf('.');
-      return dotIndex === -1 ? 0 : str.length - dotIndex - 1;
+      if (!Number.isFinite(n)) return 0;
+      const [coefficient, exponent = '0'] = String(n).toLowerCase().split('e');
+      const fractionalDigits = coefficient.split('.')[1]?.length ?? 0;
+      return Math.max(0, fractionalDigits - Number(exponent));
     }
 
     /**
@@ -220,8 +232,10 @@ export const [
      * floating point precision issues (e.g. 0.1 + 0.2 = 0.30000000000000004).
      */
     function roundToPrecision(val: number, precision: number): number {
-      if (precision === 0) return Math.round(val);
-      return parseFloat(val.toFixed(precision));
+      const safePrecision = Math.max(0, precision);
+      if (safePrecision === 0) return Math.round(val);
+      if (safePrecision > 100) return val;
+      return parseFloat(val.toFixed(safePrecision));
     }
 
     function clampAndStep(val: number): number {
@@ -245,7 +259,12 @@ export const [
     function setValue(newValue: number | null): void {
       if (disabled() || readonly()) return;
       if (newValue !== null && !Number.isFinite(newValue)) return;
-      const finalValue = newValue !== null ? clampAndStep(newValue) : null;
+      const finalValue =
+        newValue !== null
+          ? snap()
+            ? clampAndStep(newValue)
+            : Math.min(max(), Math.max(min(), newValue))
+          : null;
       // `clamped - base` overflows once the span exceeds Number.MAX_VALUE, so finite
       // arguments can still produce a non-finite result.
       if (finalValue !== null && !Number.isFinite(finalValue)) return;
@@ -284,7 +303,12 @@ export const [
 
     function getStepPrecision(): number {
       const base = Number.isFinite(min()) ? min() : 0;
-      return Math.max(getDecimalPlaces(step()), getDecimalPlaces(base));
+      return Math.max(
+        getDecimalPlaces(value() ?? base),
+        getDecimalPlaces(step()),
+        getDecimalPlaces(base),
+        Number.isFinite(max()) ? getDecimalPlaces(max()) : 0,
+      );
     }
 
     function increment(multiplier: number = 1): void {
@@ -295,7 +319,7 @@ export const [
       const current = valueAfterCommit ?? (Number.isFinite(min()) ? min() : 0);
       const precision = getStepPrecision();
       setValue(roundToPrecision(current + step() * multiplier, precision));
-      // If the silent commit changed the value but setValue was a no-op
+      // If the silent commit changed the value but the commit was a no-op
       // (stepped result clamped back to the committed value), emit the change
       // so the parent learns about the new value.
       if (valueBefore !== value() && valueAfterCommit === value()) {
@@ -312,7 +336,7 @@ export const [
       const current = valueAfterCommit ?? (Number.isFinite(max()) ? max() : 0);
       const precision = getStepPrecision();
       setValue(roundToPrecision(current - step() * multiplier, precision));
-      // If the silent commit changed the value but setValue was a no-op
+      // If the silent commit changed the value but the commit was a no-op
       // (stepped result clamped back to the committed value), emit the change
       // so the parent learns about the new value.
       if (valueBefore !== value() && valueAfterCommit === value()) {
@@ -335,6 +359,7 @@ export const [
       min,
       max,
       step,
+      snap,
       largeStep,
       disabled: deprecatedSetter(disabled, 'setDisabled', setDisabled),
       readonly: deprecatedSetter(readonly, 'setReadonly', setReadonly),

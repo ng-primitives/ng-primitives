@@ -575,6 +575,111 @@ describe('NgpNumberField', () => {
       expect(valueChange).toHaveBeenCalledWith(5);
     });
 
+    it('should snap to the step grid by default', async () => {
+      const valueChange = vi.fn();
+      await renderNumberField('[ngpNumberFieldValue]="1" [ngpNumberFieldStep]="5"', valueChange);
+      fireEvent.keyDown(screen.getByTestId('input'), { key: 'ArrowUp' });
+      expect(valueChange).toHaveBeenCalledWith(5);
+    });
+
+    it('should step exponent-form steps on the grid by default', async () => {
+      const valueChange = vi.fn();
+      await renderNumberField(
+        '[ngpNumberFieldDefaultValue]="0" [ngpNumberFieldStep]="1e-7"',
+        valueChange,
+      );
+      fireEvent.keyDown(screen.getByTestId('input'), { key: 'ArrowUp' });
+      expect(valueChange).toHaveBeenCalledWith(1e-7);
+    });
+
+    it('should increment an off-grid value by the exact step', async () => {
+      const valueChange = vi.fn();
+      await renderNumberField(
+        '[ngpNumberFieldValue]="1" [ngpNumberFieldStep]="5" [ngpNumberFieldSnap]="false"',
+        valueChange,
+      );
+      fireEvent.keyDown(screen.getByTestId('input'), { key: 'ArrowUp' });
+      expect(valueChange).toHaveBeenCalledWith(6);
+    });
+
+    it('should decrement an off-grid value by the exact step', async () => {
+      const valueChange = vi.fn();
+      await renderNumberField(
+        '[ngpNumberFieldValue]="9" [ngpNumberFieldStep]="5" [ngpNumberFieldSnap]="false"',
+        valueChange,
+      );
+      fireEvent.keyDown(screen.getByTestId('input'), { key: 'ArrowDown' });
+      expect(valueChange).toHaveBeenCalledWith(4);
+    });
+
+    it('should preserve the exact step from an off-grid value with a finite min', async () => {
+      const valueChange = vi.fn();
+      await renderNumberField(
+        '[ngpNumberFieldValue]="3" [ngpNumberFieldMin]="2" [ngpNumberFieldStep]="5" [ngpNumberFieldSnap]="false"',
+        valueChange,
+      );
+      fireEvent.keyDown(screen.getByTestId('input'), { key: 'ArrowUp' });
+      expect(valueChange).toHaveBeenCalledWith(8);
+    });
+
+    it('should preserve decimal precision from an off-grid value', async () => {
+      const valueChange = vi.fn();
+      await renderNumberField(
+        '[ngpNumberFieldValue]="0.1" [ngpNumberFieldStep]="0.25" [ngpNumberFieldSnap]="false"',
+        valueChange,
+      );
+      fireEvent.keyDown(screen.getByTestId('input'), { key: 'ArrowUp' });
+      expect(valueChange).toHaveBeenCalledWith(0.35);
+    });
+
+    it('should preserve decimal precision from an off-grid value with finite bounds when stepping', async () => {
+      const valueChange = vi.fn();
+      await renderNumberField(
+        '[ngpNumberFieldValue]="1.25" [ngpNumberFieldMin]="0" [ngpNumberFieldMax]="2" [ngpNumberFieldStep]="0.1" [ngpNumberFieldSnap]="false"',
+        valueChange,
+      );
+      const input = screen.getByTestId('input');
+
+      fireEvent.keyDown(input, { key: 'ArrowUp' });
+      expect(valueChange).toHaveBeenCalledWith(1.35);
+
+      fireEvent.keyDown(input, { key: 'ArrowDown' });
+      expect(valueChange).toHaveBeenLastCalledWith(1.15);
+    });
+
+    it('should preserve precision for exponent-form values when stepping', async () => {
+      const valueChange = vi.fn();
+      const { fixture } = await renderNumberField(
+        '[ngpNumberFieldDefaultValue]="0" [ngpNumberFieldStep]="0.1" [ngpNumberFieldSnap]="false"',
+        valueChange,
+      );
+      const numberField = fixture.debugElement.children[0].injector.get(NgpNumberField);
+
+      numberField.setValue(1e-7);
+      await fixture.whenStable();
+
+      const input = screen.getByTestId('input');
+      fireEvent.keyDown(input, { key: 'ArrowUp' });
+
+      expect(valueChange).toHaveBeenLastCalledWith(0.1000001);
+    });
+
+    it('should preserve precision and not throw when stepping values with more than 100 decimal places', async () => {
+      const valueChange = vi.fn();
+      const { fixture } = await renderNumberField(
+        '[ngpNumberFieldDefaultValue]="0" [ngpNumberFieldStep]="1e-101" [ngpNumberFieldSnap]="false"',
+        valueChange,
+      );
+      const numberField = fixture.debugElement.children[0].injector.get(NgpNumberField);
+
+      numberField.setValue(1e-101);
+      await fixture.whenStable();
+
+      const input = screen.getByTestId('input');
+      expect(() => fireEvent.keyDown(input, { key: 'ArrowUp' })).not.toThrow();
+      expect(valueChange).toHaveBeenLastCalledWith(2e-101);
+    });
+
     it('should handle floating point precision with step=0.1', async () => {
       const valueChange = vi.fn();
       await renderNumberField(
@@ -625,6 +730,21 @@ describe('NgpNumberField', () => {
       expect(valueChange).not.toHaveBeenCalled();
       await fixture.whenStable();
       expect((screen.getByTestId('input') as HTMLInputElement).value).toBe('5');
+    });
+
+    it('should clamp direct setValue calls without snapping when snap is false', async () => {
+      const valueChange = vi.fn();
+      const { fixture } = await renderNumberField(
+        '[ngpNumberFieldDefaultValue]="0" [ngpNumberFieldMin]="0" [ngpNumberFieldMax]="7" [ngpNumberFieldStep]="5" [ngpNumberFieldSnap]="false"',
+        valueChange,
+      );
+      const numberField = fixture.debugElement.children[0].injector.get(NgpNumberField);
+
+      numberField.setValue(8);
+      await fixture.whenStable();
+
+      expect(valueChange).toHaveBeenCalledWith(7);
+      expect((screen.getByTestId('input') as HTMLInputElement).value).toBe('7');
     });
 
     it('should not move the value when the step is zero', async () => {
@@ -1071,6 +1191,22 @@ describe('NgpNumberField', () => {
 
       expect(valueChange).toHaveBeenCalledWith(10);
       expect(input.value).toBe('10');
+    });
+
+    it('should clamp without snapping on blur when snap is false', async () => {
+      const valueChange = vi.fn();
+      await renderNumberField(
+        '[ngpNumberFieldMin]="0" [ngpNumberFieldMax]="7" [ngpNumberFieldStep]="5" [ngpNumberFieldSnap]="false"',
+        valueChange,
+      );
+
+      const input = screen.getByTestId('input') as HTMLInputElement;
+      fireEvent.focus(input);
+      input.value = '8';
+      fireEvent.blur(input);
+
+      expect(valueChange).toHaveBeenCalledWith(7);
+      expect(input.value).toBe('7');
     });
 
     it('should parse a partial decimal ".5" as 0.5', async () => {
