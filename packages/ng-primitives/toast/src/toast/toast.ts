@@ -26,6 +26,8 @@ import { toastTimer } from './toast-timer';
     '[attr.data-swiping]': 'swiping()',
     '[attr.data-swipe-direction]': 'swipeOutDirection()',
     '[attr.data-expanded]': 'options.expanded()',
+    '[attr.data-paused]': 'paused() ? "" : null',
+    '[style.--ngp-toast-duration.ms]': 'options.duration',
     '[style.--ngp-toast-gap.px]': 'config.gap',
     '[style.--ngp-toast-z-index]': 'zIndex()',
     '[style.--ngp-toasts-before]': 'index()',
@@ -124,6 +126,17 @@ export class NgpToast {
   protected readonly zIndex = computed(() => this.toasts().length - this.index());
 
   /**
+   * Whether the auto-dismiss timer is paused.
+   */
+  protected readonly paused = computed(
+    () =>
+      this.options.persistent ||
+      this.options.expanded() ||
+      this.isInteracting() ||
+      (this.options.sequential && this.index() > 0),
+  );
+
+  /**
    * The height of the toast in pixels.
    */
   protected readonly dimensions = injectDimensions();
@@ -162,20 +175,20 @@ export class NgpToast {
     // Start the timer when the toast is created
     this.timer.start();
 
-    // Pause the timer when the toast is expanded or when the user is interacting with it
-    // Also pause when in sequential mode and this toast is not at the front
-    explicitEffect(
-      [this.options.expanded, this.isInteracting, this.index, () => this.options.sequential],
-      ([expanded, interacting, index, sequential]) => {
-        // If the toast is expanded, or if the user is interacting with it, pause the timer
-        // In sequential mode, also pause if this toast is not at the front
-        if (expanded || interacting || (sequential && index > 0)) {
-          this.timer.pause();
-        } else {
-          this.timer.start();
-        }
-      },
-    );
+    explicitEffect([this.paused], ([paused]) => {
+      if (paused) {
+        this.timer.pause();
+      } else {
+        this.timer.start();
+      }
+    });
+  }
+
+  /**
+   * The milliseconds left before the toast auto-dismisses. Not reactive.
+   */
+  remaining(): number {
+    return this.timer.remaining();
   }
 
   private onPointerDown(event: PointerEvent): void {

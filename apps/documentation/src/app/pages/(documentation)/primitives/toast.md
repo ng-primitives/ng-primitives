@@ -90,6 +90,12 @@ Pass `persistent: true` when calling `show`, or set it globally via `provideToas
 
 <docs-example name="toast-persistent"></docs-example>
 
+### Progress Indicator
+
+Animate a progress bar over `--ngp-toast-duration` and pause it on `data-paused` to keep it in step with the timer. To read the time left in code, call `remaining()` on the `NgpToast` instance.
+
+<docs-example name="toast-progress"></docs-example>
+
 ## API Reference
 
 The following directives are available to import from the `ng-primitives/toast` package:
@@ -108,9 +114,11 @@ The following directives are available to import from the `ng-primitives/toast` 
   <api-attribute name="data-swiping" description="Whether the toast is currently being swiped." value="true, false" />
   <api-attribute name="data-swipe-direction" description="The direction of the swipe gesture." value="left, right, up, down" />
   <api-attribute name="data-expanded" description="Whether the toast is currently expanded. This can be used to collapse or expand stacked toasts." value="true, false" />
+  <api-attribute name="data-paused" description="Applied while the auto-dismiss timer is paused." />
 </api-reference-attributes>
 
 <api-reference-css-vars>
+  <api-css-var name="--ngp-toast-duration" description="The auto-dismiss duration of the toast." />
   <api-css-var name="--ngp-toast-gap" description="The gap between each toast." />
   <api-css-var name="--ngp-toast-z-index" description="The z-index of the toast." />
   <api-css-var name="--ngp-toasts-before" description="The number of toasts before this one." />

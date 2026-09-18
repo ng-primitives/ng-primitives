@@ -114,6 +114,37 @@ describe('toastTimer', () => {
     expect(callback).toHaveBeenCalledTimes(1);
   });
 
+  it('should report the time remaining, frozen while paused', () => {
+    const timer = toastTimer(3000, vi.fn());
+    expect(timer.remaining()).toBe(3000);
+
+    timer.start();
+    vi.advanceTimersByTime(1000);
+    expect(timer.remaining()).toBe(2000);
+
+    timer.pause();
+    vi.advanceTimersByTime(5000);
+    expect(timer.remaining()).toBe(2000);
+
+    timer.start();
+    vi.advanceTimersByTime(2000);
+    expect(timer.remaining()).toBe(0);
+
+    timer.stop();
+    expect(timer.remaining()).toBe(3000);
+  });
+
+  it('should not report negative time when paused after the deadline', () => {
+    const timer = toastTimer(3000, vi.fn());
+
+    timer.start();
+    // move the clock past the deadline without firing the timeout, as a main-thread stall would
+    vi.setSystemTime(Date.now() + 5000);
+    timer.pause();
+
+    expect(timer.remaining()).toBe(0);
+  });
+
   it('should not call callback when persistent', () => {
     const callback = vi.fn();
     const timer = toastTimer(3000, callback, { persistent: true });
