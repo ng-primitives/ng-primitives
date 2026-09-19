@@ -112,6 +112,12 @@ Options without a value do not perform any selection by default. You can use thi
 
 <docs-example name="select-custom-option"></docs-example>
 
+### Searchable Select
+
+Add `ngpSelectInput` inside the dropdown to provide a search field. Filtering is left to the consumer. Wrap the options in `ngpSelectList` to keep the accessibility tree valid.
+
+<docs-example name="select-input"></docs-example>
+
 ## API Reference
 
 The following directives are available to import from the `ng-primitives/select` package:
@@ -145,6 +151,18 @@ The following directives are available to import from the `ng-primitives/select`
 <api-docs name="NgpSelectOption"></api-docs>
 
 <api-reference-props name="NgpSelectOption"></api-reference-props>
+
+### NgpSelectInput
+
+<api-docs name="NgpSelectInput"></api-docs>
+
+<api-reference-props name="NgpSelectInput"></api-reference-props>
+
+### NgpSelectList
+
+<api-docs name="NgpSelectList"></api-docs>
+
+<api-reference-props name="NgpSelectList"></api-reference-props>
 
 ### NgpNativeSelect
 
@@ -185,6 +203,8 @@ bootstrapApplication(AppComponent, {
 
 The select primitive follows the [WAI-ARIA Combobox pattern](https://www.w3.org/WAI/ARIA/apg/patterns/combobox/). The trigger uses `role="combobox"` with `aria-expanded` and `aria-controls`. The dropdown uses `role="listbox"` and options use `role="option"` with `aria-selected`. Focus is managed using `aria-activedescendant`.
 
+When a search input (`ngpSelectInput`) is used, the combobox semantics move to the input, which receives focus when the dropdown opens. The dropdown becomes a `dialog` wrapping the input and an `ngpSelectList` (`role="listbox"`), and the input drives the options via `aria-activedescendant` and `aria-controls`. Naming is left to the consumer, so add an `aria-label` (or `aria-labelledby`) to both the dropdown dialog and the list.
+
 ### Keyboard Interactions
 
 - <kbd>Enter</kbd>: Open the dropdown or select the active option.
@@ -193,3 +213,5 @@ The select primitive follows the [WAI-ARIA Combobox pattern](https://www.w3.org/
 - <kbd>ArrowUp</kbd>: Open the dropdown or move to the previous option.
 - <kbd>Home</kbd>: Move to the first option.
 - <kbd>End</kbd>: Move to the last option.
+
+When a search input (`ngpSelectInput`) has focus, <kbd>Home</kbd> and <kbd>End</kbd> keep their text editing behaviour and move the caret within the search term. <kbd>Space</kbd> types a space rather than toggling the dropdown.

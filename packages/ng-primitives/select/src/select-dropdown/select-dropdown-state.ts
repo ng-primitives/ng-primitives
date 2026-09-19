@@ -37,7 +37,9 @@ export const [
 
     const selectDimensions = observeResize(() => selectState().elementRef.nativeElement);
     // Host bindings
-    attrBinding(elementRef, 'role', 'listbox');
+    // When a dedicated ngpSelectList owns the options, the dropdown becomes a dialog
+    // wrapping the input + listbox; otherwise the dropdown is itself the listbox.
+    attrBinding(elementRef, 'role', () => (selectState().list() ? 'dialog' : 'listbox'));
     attrBinding(elementRef, 'id', _id);
     styleBinding(elementRef, 'left.px', () => selectState().overlay()?.position()?.x ?? null);
     styleBinding(elementRef, 'top.px', () => selectState().overlay()?.position()?.y ?? null);
