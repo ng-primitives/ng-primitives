@@ -42,8 +42,8 @@ export class NgpDialogTrigger<T = unknown> {
   );
 
   /**
-   * The container element or selector the dialog should be rendered into. `undefined` falls back
-   * to the global configuration, `null` renders into the body.
+   * The container element or selector the dialog should be rendered into. `undefined` uses the
+   * dialog configuration, `null` renders into the body.
    * @default 'body'
    */
   readonly container = input<HTMLElement | string | null | undefined>(

@@ -112,8 +112,6 @@ describe('NgpDialogManager overlays opened from a dialog', () => {
       expect(document.querySelector('[ngpDialogOverlay], ngp-nested-dialog')).toBeNull(),
     );
 
-    // overlays attach to the body, not the fixture
-    document.querySelectorAll('[ngpPopover], [ngpMenu]').forEach(el => el.remove());
     sibling.remove();
   });
 

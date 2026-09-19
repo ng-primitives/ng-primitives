@@ -491,14 +491,18 @@ describe('NgpDialogManager container', () => {
     } as NgpExitAnimation);
 
     const closingSecond = second.close();
-    await third.close();
 
-    expect(secondElement.isConnected).toBe(true);
-    expect(secondElement.hasAttribute('aria-hidden')).toBe(false);
+    try {
+      await third.close();
 
-    finishSecondExit();
-    await closingSecond;
-    first.close();
+      expect(secondElement.isConnected).toBe(true);
+      expect(secondElement.hasAttribute('aria-hidden')).toBe(false);
+    } finally {
+      // always settle the held exit, or a failed assertion hangs the test and its teardown
+      finishSecondExit();
+      await closingSecond;
+      first.close();
+    }
   });
 
   it('should release a closing dialog once it has detached', async () => {

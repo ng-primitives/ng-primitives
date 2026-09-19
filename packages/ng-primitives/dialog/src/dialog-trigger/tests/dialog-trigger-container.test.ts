@@ -115,19 +115,22 @@ describe('NgpDialogTrigger container', () => {
     globalContainer.id = 'ngp-global-container';
     document.body.appendChild(globalContainer);
 
-    const view = await render(TriggerContainerHost, {
-      providers: [provideDialogConfig({ container: '#ngp-global-container' })],
-    });
-    view.fixture.componentInstance.container = container;
-    view.fixture.detectChanges();
-    dialogManager = TestBed.inject(NgpDialogManager);
+    try {
+      const view = await render(TriggerContainerHost, {
+        providers: [provideDialogConfig({ container: '#ngp-global-container' })],
+      });
+      view.fixture.componentInstance.container = container;
+      view.fixture.detectChanges();
+      dialogManager = TestBed.inject(NgpDialogManager);
 
-    view.getByTestId('trigger').click();
-    await Promise.resolve();
+      view.getByTestId('trigger').click();
+      await Promise.resolve();
 
-    expect(container.querySelector('[data-testid="dialog"]')).not.toBeNull();
-    expect(globalContainer.querySelector('[data-testid="dialog"]')).toBeNull();
-    globalContainer.remove();
+      expect(container.querySelector('[data-testid="dialog"]')).not.toBeNull();
+      expect(globalContainer.querySelector('[data-testid="dialog"]')).toBeNull();
+    } finally {
+      globalContainer.remove();
+    }
   });
 
   it('should fall back to the global configuration when the input is undefined', async () => {
