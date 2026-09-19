@@ -4,6 +4,7 @@ import { NgpDismissGuard } from 'ng-primitives/portal';
 import { createPrimitive, emitter, listener, StateInjectionOptions } from 'ng-primitives/state';
 import { safeTakeUntilDestroyed } from 'ng-primitives/utils';
 import { Observable } from 'rxjs';
+import { injectDialogConfig } from '../config/dialog-config';
 import { NgpDialogContext, NgpDialogManager } from '../dialog/dialog.service';
 
 export interface NgpDialogTriggerState<T> {
@@ -19,6 +20,11 @@ export interface NgpDialogTriggerState<T> {
    * @default `true`
    */
   readonly closeOnOutsideClick?: Signal<NgpDismissGuard<Element>>;
+  /**
+   * The container element or selector the dialog should be rendered into. `undefined` uses the
+   * dialog configuration, `null` renders into the body.
+   */
+  readonly container?: Signal<HTMLElement | string | null | undefined>;
   /** The event that is fired when the closed state changes. */
   readonly closedChange: Observable<T>;
 }
@@ -36,6 +42,11 @@ export interface NgpDialogTriggerProps<T> {
    * @default `true`
    */
   readonly closeOnOutsideClick?: Signal<NgpDismissGuard<Element>>;
+  /**
+   * The container element or selector the dialog should be rendered into. `undefined` uses the
+   * dialog configuration, `null` renders into the body.
+   */
+  readonly container?: Signal<HTMLElement | string | null | undefined>;
   readonly onClosedChange?: (value: T) => void;
 }
 
@@ -50,8 +61,10 @@ export const [
     template,
     closeOnEscape = signal<NgpDismissGuard<KeyboardEvent>>(true),
     closeOnOutsideClick = signal<NgpDismissGuard<Element>>(true),
+    container = signal<HTMLElement | string | null | undefined>(undefined),
     onClosedChange,
   }: NgpDialogTriggerProps<T>) => {
+    const config = injectDialogConfig();
     const elementRef = injectElementRef();
     const dialogManager = inject(NgpDialogManager);
     const destroyRef = inject(DestroyRef);
@@ -69,6 +82,8 @@ export const [
         injector,
         closeOnEscape: closeOnEscape(),
         closeOnOutsideClick: closeOnOutsideClick(),
+        // resolve `undefined` here, the manager only sees the root configuration
+        container: container() === undefined ? config.container : container(),
       });
 
       dialogRef.closed.pipe(safeTakeUntilDestroyed(destroyRef)).subscribe(({ result }) => {
@@ -81,6 +96,7 @@ export const [
       template,
       closeOnEscape,
       closeOnOutsideClick,
+      container,
       closedChange: closed.asObservable(),
     } satisfies NgpDialogTriggerState<T>;
   },
