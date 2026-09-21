@@ -5,11 +5,13 @@ import {
   WritableSignal,
   effect,
   inject,
+  linkedSignal,
   signal,
   untracked,
 } from '@angular/core';
-import { NgControl } from '@angular/forms';
-import { onMount } from 'ng-primitives/state';
+import { NgControl, Validators } from '@angular/forms';
+import { onDestroy, onMount } from 'ng-primitives/state';
+import { Subscription } from 'rxjs';
 import { safeTakeUntilDestroyed } from '../observables/take-until-destroyed';
 
 export interface NgpControlStatus {
@@ -20,6 +22,8 @@ export interface NgpControlStatus {
   touched: boolean | null;
   pending: boolean | null;
   disabled: boolean | null;
+  errors: string[] | null;
+  required: boolean | null;
 }
 
 /**
@@ -41,6 +45,7 @@ function updateStatus(control: NgControl, status: WritableSignal<NgpControlStatu
     // For interop controls, read directly from the control (which has signal getters).
     // For classic controls, read from the underlying AbstractControl.
     const source = isInteropControl(control) ? control : ((control as any).control ?? control);
+    const hasValidatorExists = typeof source.hasValidator === 'function';
 
     const newStatus: NgpControlStatus = {
       valid: source.valid ?? null,
@@ -50,6 +55,18 @@ function updateStatus(control: NgControl, status: WritableSignal<NgpControlStatu
       touched: source.touched ?? null,
       pending: source.pending ?? null,
       disabled: source.disabled ?? null,
+      errors: source.errors ? Object.keys(source.errors) : null,
+      required: hasValidatorExists
+        ? // In signal forms, the hasValidators checks for field().required() which is a signal
+          // Otherwise, it'll trigger the base hasValidator method, returning a boolean
+          //
+          // As hasValidator only check references on a array of validator, that means
+          // using Validators.compose(Validators.required) will not be flagged as required
+          // That's the only limitation of this API
+          source.hasValidator(Validators.required) ||
+          source.hasValidator(Validators.requiredTrue) ||
+          null
+        : null,
     };
 
     untracked(() => status.set(newStatus));
@@ -73,21 +90,25 @@ function setupEventSubscription(
   ngControl: NgControl,
   status: WritableSignal<NgpControlStatus>,
   destroyRef: DestroyRef,
-): void {
+): Subscription | undefined {
   // For classic controls, also subscribe to the events observable.
   const underlyingControl = (ngControl as any).control;
   if (underlyingControl?.events) {
-    underlyingControl.events
+    return underlyingControl.events
       .pipe(safeTakeUntilDestroyed(destroyRef))
       .subscribe(() => updateStatus(ngControl, status));
   }
+
+  return undefined;
 }
 
-export function controlStatus(): Signal<NgpControlStatus> {
+export function controlStatus(
+  ngControl?: Signal<NgControl | null | undefined>,
+): Signal<NgpControlStatus> {
   const injector = inject(Injector);
   const destroyRef = inject(DestroyRef);
 
-  const status = signal<NgpControlStatus>({
+  const initialStatus: NgpControlStatus = {
     valid: null,
     invalid: null,
     pristine: null,
@@ -95,36 +116,33 @@ export function controlStatus(): Signal<NgpControlStatus> {
     touched: null,
     pending: null,
     disabled: null,
-  });
+    errors: null,
+    required: null,
+  };
 
-  const control = signal<NgControl | null>(null);
+  const status = signal<NgpControlStatus>(initialStatus);
+  let eventSubscription: Subscription | undefined = undefined;
+
+  const control = linkedSignal<NgControl | null>(() => ngControl?.() ?? null);
+
+  function cleanup(): void {
+    eventSubscription?.unsubscribe();
+  }
+
+  function setup(ngControl: NgControl): void {
+    // Set up event subscription for reactive updates
+    eventSubscription = setupEventSubscription(ngControl, status, destroyRef);
+  }
 
   onMount(() => {
-    // Try to inject NgControl immediately for initial state
-    control.set(inject(NgControl, { optional: true }));
-
-    // If we have a control immediately, update initial status
-    if (control()) {
-      updateStatus(control()!, status);
-    }
-
-    // Get the control (either from initial injection or from mount)
-    const mountControl = control() || inject(NgControl, { optional: true });
-
-    if (!mountControl) {
-      return;
-    }
-
-    // Update control signal if it wasn't set before
     if (!control()) {
-      control.set(mountControl);
+      // Try to inject NgControl immediately for initial state
+      control.set(inject(NgControl, { optional: true }));
     }
+  });
 
-    // Update status to ensure latest values
-    updateStatus(mountControl, status);
-
-    // Set up event subscription for reactive updates
-    setupEventSubscription(mountControl, status, destroyRef);
+  onDestroy(() => {
+    cleanup();
   });
 
   // Use an effect to reactively track status changes.
@@ -134,8 +152,14 @@ export function controlStatus(): Signal<NgpControlStatus> {
   effect(
     () => {
       const c = control();
+
+      cleanup();
+
       if (c) {
+        setup(c);
         updateStatus(c, status);
+      } else {
+        untracked(() => status.set(initialStatus));
       }
     },
     { injector },
