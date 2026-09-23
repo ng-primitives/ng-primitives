@@ -13,6 +13,8 @@ import { ChangeFn, provideValueAccessor, TouchedFn } from 'ng-primitives/utils';
       directive: NgpCheckbox,
       inputs: [
         'ngpCheckboxChecked:checked',
+        'ngpCheckboxValue:value',
+        'ngpCheckboxParent:parent',
         'ngpCheckboxIndeterminate:indeterminate',
         'ngpCheckboxDisabled:disabled',
       ],
