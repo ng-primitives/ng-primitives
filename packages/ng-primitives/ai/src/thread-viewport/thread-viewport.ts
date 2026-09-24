@@ -29,11 +29,22 @@ export class NgpThreadViewport {
     transform: booleanAttribute,
   });
 
+  /** The position at which the thread viewport initially opens. */
+  readonly initialScrollPosition = input<'start' | 'end'>('end', {
+    alias: 'ngpThreadViewportInitialScrollPosition',
+  });
+
   /** The state of the thread viewport. */
   protected readonly state = ngpThreadViewport({
     autoScroll: this.autoScroll,
+    initialScrollPosition: this.initialScrollPosition,
     threshold: this.threshold,
   });
+
+  /**
+   * Whether the thread viewport is currently scrolled to the bottom (within threshold).
+   */
+  readonly isAtBottom = this.state.isAtBottom;
 
   /**
    * Scroll the container to the bottom.
