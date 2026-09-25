@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import {
   coercePasteTarget,
   isFileTypeAccepted,
@@ -152,5 +152,14 @@ describe('coercePasteTarget', () => {
     expect(coercePasteTarget('false')).toBe(false);
     expect(coercePasteTarget(null)).toBe(false);
     expect(coercePasteTarget(undefined)).toBe(false);
+  });
+
+  it('warns about an unknown target and falls back to false', () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+
+    expect(coercePasteTarget('documnet' as never)).toBe(false);
+    expect(warn).toHaveBeenCalledWith(expect.stringContaining('documnet'));
+
+    warn.mockRestore();
   });
 });
