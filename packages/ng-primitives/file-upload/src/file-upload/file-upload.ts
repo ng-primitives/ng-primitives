@@ -67,10 +67,13 @@ export class NgpFileUpload {
    * Where pasted files are captured: `'host'` (or the bare attribute) while the element is focused,
    * `'document'` anywhere on the page, or `false` to ignore pastes.
    */
-  readonly paste = input<NgpFilePasteTarget, BooleanInput | NgpFilePasteTarget>(this.config.paste, {
-    alias: 'ngpFileUploadPaste',
-    transform: coercePasteTarget,
-  });
+  readonly paste = input<NgpFilePasteTarget, BooleanInput | NgpFilePasteTarget>(
+    this.config.paste ?? false,
+    {
+      alias: 'ngpFileUploadPaste',
+      transform: coercePasteTarget,
+    },
+  );
 
   /**
    * Whether the file upload is disabled.

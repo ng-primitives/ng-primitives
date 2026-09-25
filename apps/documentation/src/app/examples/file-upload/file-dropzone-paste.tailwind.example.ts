@@ -9,7 +9,18 @@ import {
   NgpDialogTitle,
   NgpDialogTrigger,
 } from 'ng-primitives/dialog';
-import { NgpFileDropzone, NgpFileRejection } from 'ng-primitives/file-upload';
+import {
+  NgpFileDropzone,
+  NgpFileRejection,
+  NgpFileRejectionReason,
+  NgpFileUpload,
+} from 'ng-primitives/file-upload';
+
+const problems: Record<NgpFileRejectionReason, string> = {
+  type: 'is not an image',
+  size: 'is larger than 5 MB',
+  count: 'is one file too many',
+};
 
 @Component({
   selector: 'app-file-dropzone-paste',
@@ -21,6 +32,7 @@ import { NgpFileDropzone, NgpFileRejection } from 'ng-primitives/file-upload';
     NgpDialogDescription,
     NgpDialogTrigger,
     NgpFileDropzone,
+    NgpFileUpload,
     NgIcon,
   ],
   providers: [provideIcons({ heroCloudArrowUp, heroExclamationCircle, heroXMark })],
@@ -40,7 +52,7 @@ import { NgpFileDropzone, NgpFileRejection } from 'ng-primitives/file-upload';
         ngpDialogOverlay
       >
         <div
-          class="w-full max-w-md rounded-[0.875rem] border border-zinc-200 bg-white p-6 shadow-xl dark:border-zinc-800 dark:bg-zinc-950"
+          class="max-h-[calc(100dvh-2rem)] w-full max-w-md overflow-y-auto rounded-[0.875rem] border border-zinc-200 bg-white p-6 shadow-xl dark:border-zinc-800 dark:bg-zinc-950"
           ngpDialog
         >
           <h1
@@ -70,10 +82,23 @@ import { NgpFileDropzone, NgpFileRejection } from 'ng-primitives/file-upload';
               aria-hidden="true"
             />
             <p class="m-0 text-sm font-[510] tracking-[-0.006em] text-zinc-900 dark:text-zinc-100">
-              Drag and drop or paste images
+              Drag and drop, paste, or
+              <!-- the dropzone handles drops, so the picker only opens the dialog -->
+              <button
+                class="cursor-pointer rounded border-none bg-transparent p-0 font-[inherit] text-zinc-900 underline underline-offset-2 outline-none data-focus-visible:outline-2 data-focus-visible:outline-offset-2 data-focus-visible:outline-blue-500 data-hover:decoration-2 dark:text-zinc-100 dark:data-focus-visible:outline-blue-400"
+                [ngpFileUploadDragDrop]="false"
+                (ngpFileUploadSelected)="onSelected($event)"
+                (ngpFileUploadRejectedFiles)="onRejected($event)"
+                ngpFileUpload
+                ngpFileUploadMultiple
+                ngpFileUploadFileTypes="image/*"
+                ngpFileUploadMaxFileSize="5242880"
+              >
+                browse
+              </button>
             </p>
             <p class="m-0 text-xs tracking-[-0.011em] text-zinc-500 dark:text-zinc-400">
-              PNG, JPG or GIF up to 5 MB
+              Images up to 5 MB
             </p>
           </div>
 
@@ -106,7 +131,7 @@ import { NgpFileDropzone, NgpFileRejection } from 'ng-primitives/file-upload';
             class="m-0 flex list-none flex-col p-0 text-[0.8125rem] tracking-[-0.006em]"
             aria-live="polite"
           >
-            @for (error of errors(); track error) {
+            @for (error of errors(); track $index) {
               <li class="mt-2 flex items-center gap-1.5 text-zinc-600 dark:text-zinc-400">
                 <ng-icon
                   class="shrink-0 text-zinc-500 dark:text-zinc-400"
@@ -176,10 +201,8 @@ export default class FileDropzonePasteExample {
 
   onRejected(rejections: NgpFileRejection[]): void {
     this.errors.set(
-      rejections.map(({ file, reasons }) =>
-        reasons.includes('type')
-          ? `${file.name} is not an image.`
-          : `${file.name} is larger than 5 MB.`,
+      rejections.map(
+        ({ file, reasons }) => `${file.name} ${reasons.map(r => problems[r]).join(' and ')}.`,
       ),
     );
   }
@@ -194,8 +217,11 @@ export default class FileDropzonePasteExample {
   }
 
   formatSize(bytes: number): string {
+    if (bytes < 1024) {
+      return `${bytes} B`;
+    }
     return bytes < 1024 * 1024
-      ? `${Math.max(1, Math.round(bytes / 1024))} KB`
+      ? `${Math.round(bytes / 1024)} KB`
       : `${(bytes / 1024 / 1024).toFixed(1)} MB`;
   }
 }

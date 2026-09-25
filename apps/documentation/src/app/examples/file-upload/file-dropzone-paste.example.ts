@@ -9,7 +9,18 @@ import {
   NgpDialogTitle,
   NgpDialogTrigger,
 } from 'ng-primitives/dialog';
-import { NgpFileDropzone, NgpFileRejection } from 'ng-primitives/file-upload';
+import {
+  NgpFileDropzone,
+  NgpFileRejection,
+  NgpFileRejectionReason,
+  NgpFileUpload,
+} from 'ng-primitives/file-upload';
+
+const problems: Record<NgpFileRejectionReason, string> = {
+  type: 'is not an image',
+  size: 'is larger than 5 MB',
+  count: 'is one file too many',
+};
 
 @Component({
   selector: 'app-file-dropzone-paste',
@@ -21,6 +32,7 @@ import { NgpFileDropzone, NgpFileRejection } from 'ng-primitives/file-upload';
     NgpDialogDescription,
     NgpDialogTrigger,
     NgpFileDropzone,
+    NgpFileUpload,
     NgIcon,
   ],
   providers: [provideIcons({ heroCloudArrowUp, heroExclamationCircle, heroXMark })],
@@ -44,8 +56,23 @@ import { NgpFileDropzone, NgpFileRejection } from 'ng-primitives/file-upload';
             ngpFileDropzonePaste="document"
           >
             <ng-icon class="dropzone-icon" name="heroCloudArrowUp" aria-hidden="true" />
-            <p class="dropzone-title">Drag and drop or paste images</p>
-            <p class="dropzone-hint">PNG, JPG or GIF up to 5 MB</p>
+            <p class="dropzone-title">
+              Drag and drop, paste, or
+              <!-- the dropzone handles drops, so the picker only opens the dialog -->
+              <button
+                class="browse-button"
+                [ngpFileUploadDragDrop]="false"
+                (ngpFileUploadSelected)="onSelected($event)"
+                (ngpFileUploadRejectedFiles)="onRejected($event)"
+                ngpFileUpload
+                ngpFileUploadMultiple
+                ngpFileUploadFileTypes="image/*"
+                ngpFileUploadMaxFileSize="5242880"
+              >
+                browse
+              </button>
+            </p>
+            <p class="dropzone-hint">Images up to 5 MB</p>
           </div>
 
           @if (files().length) {
@@ -68,7 +95,7 @@ import { NgpFileDropzone, NgpFileRejection } from 'ng-primitives/file-upload';
           }
 
           <ul class="error-list" aria-live="polite">
-            @for (error of errors(); track error) {
+            @for (error of errors(); track $index) {
               <li>
                 <ng-icon name="heroExclamationCircle" aria-hidden="true" />
                 {{ error }}
@@ -139,6 +166,8 @@ import { NgpFileDropzone, NgpFileRejection } from 'ng-primitives/file-upload';
     [ngpDialog] {
       width: 100%;
       max-width: 28rem;
+      max-height: calc(100dvh - 32px);
+      overflow-y: auto;
       background-color: var(--ngp-background);
       padding: 24px;
       border-radius: 0.875rem;
@@ -194,6 +223,27 @@ import { NgpFileDropzone, NgpFileRejection } from 'ng-primitives/file-upload';
       letter-spacing: -0.006em;
       color: var(--ngp-text-primary);
       margin: 0;
+    }
+
+    .browse-button {
+      padding: 0;
+      border: none;
+      border-radius: 0.25rem;
+      background: none;
+      font: inherit;
+      color: var(--ngp-text-primary);
+      text-decoration: underline;
+      text-underline-offset: 2px;
+      cursor: pointer;
+    }
+
+    .browse-button[data-hover] {
+      text-decoration-thickness: 2px;
+    }
+
+    .browse-button[data-focus-visible] {
+      outline: 2px solid var(--ngp-focus-ring);
+      outline-offset: 2px;
     }
 
     .dropzone-hint {
@@ -324,10 +374,8 @@ export default class FileDropzonePasteExample {
 
   onRejected(rejections: NgpFileRejection[]): void {
     this.errors.set(
-      rejections.map(({ file, reasons }) =>
-        reasons.includes('type')
-          ? `${file.name} is not an image.`
-          : `${file.name} is larger than 5 MB.`,
+      rejections.map(
+        ({ file, reasons }) => `${file.name} ${reasons.map(r => problems[r]).join(' and ')}.`,
       ),
     );
   }
@@ -342,8 +390,11 @@ export default class FileDropzonePasteExample {
   }
 
   formatSize(bytes: number): string {
+    if (bytes < 1024) {
+      return `${bytes} B`;
+    }
     return bytes < 1024 * 1024
-      ? `${Math.max(1, Math.round(bytes / 1024))} KB`
+      ? `${Math.round(bytes / 1024)} KB`
       : `${(bytes / 1024 / 1024).toFixed(1)} MB`;
   }
 }

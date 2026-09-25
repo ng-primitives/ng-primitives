@@ -377,6 +377,68 @@ describe('NgpFileUpload', () => {
       getByTestId('upload').click();
       expect(input.accept).toBe('');
     });
+
+    it('should keep every file from a folder pick when multiple is off', async () => {
+      const clickSpy = vi
+        .spyOn(HTMLInputElement.prototype, 'click')
+        .mockImplementation(() => undefined);
+      const selected = vi.fn();
+
+      const { getByTestId } = await render(
+        `<div
+          ngpFileUpload
+          ngpFileUploadDirectory
+          ngpFileUploadFileTypes="image/*"
+          (ngpFileUploadSelected)="selected($event)"
+          data-testid="upload"
+        >Upload</div>`,
+        { imports: [NgpFileUpload], componentProperties: { selected } },
+      );
+
+      getByTestId('upload').click();
+
+      const input = clickSpy.mock.instances[0] as unknown as HTMLInputElement;
+      const files = createFileList([
+        createFile('a.png', 'image/png'),
+        createFile('b.png', 'image/png'),
+      ]);
+      Object.defineProperty(input, 'files', { configurable: true, value: files });
+      fireEvent.change(input);
+
+      expect(selected).toHaveBeenCalledWith(files);
+    });
+
+    it('should not emit hidden files skipped from a folder pick', async () => {
+      const clickSpy = vi
+        .spyOn(HTMLInputElement.prototype, 'click')
+        .mockImplementation(() => undefined);
+      const selected = vi.fn();
+
+      const { getByTestId } = await render(
+        `<div
+          ngpFileUpload
+          ngpFileUploadDirectory
+          ngpFileUploadFileTypes="image/*"
+          (ngpFileUploadSelected)="selected($event)"
+          data-testid="upload"
+        >Upload</div>`,
+        { imports: [NgpFileUpload], componentProperties: { selected } },
+      );
+
+      getByTestId('upload').click();
+
+      const input = clickSpy.mock.instances[0] as unknown as HTMLInputElement;
+      const photo = createFile('a.png', 'image/png');
+      const dsStore = createFile('.DS_Store', '');
+      Object.defineProperty(dsStore, 'webkitRelativePath', { value: 'photos/.DS_Store' });
+      Object.defineProperty(input, 'files', {
+        configurable: true,
+        value: createFileList([photo, dsStore]),
+      });
+      fireEvent.change(input);
+
+      expect(Array.from(selected.mock.calls[0][0] as FileList)).toEqual([photo]);
+    });
   });
 
   describe('paste', () => {
@@ -606,6 +668,21 @@ describe('NgpFileDropzone', () => {
       );
 
       expect(getByTestId('dropzone')).toHaveAttribute('tabindex', '-1');
+    });
+
+    it('should never remove a tabindex the consumer binds', async () => {
+      const { getByTestId, rerender, fixture } = await render(
+        `<div ngpFileDropzone [ngpFileDropzonePaste]="paste" [attr.tabindex]="0" data-testid="dropzone">Drop</div>`,
+        {
+          imports: [NgpFileDropzone],
+          componentProperties: { paste: 'host' as NgpFilePasteTarget },
+        },
+      );
+
+      await rerender({ componentProperties: { paste: false }, partialUpdate: true });
+      await fixture.whenStable();
+
+      expect(getByTestId('dropzone')).toHaveAttribute('tabindex', '0');
     });
 
     it('should only hold a document paste listener while in document mode', async () => {

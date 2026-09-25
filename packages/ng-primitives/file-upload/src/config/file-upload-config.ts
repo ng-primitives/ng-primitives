@@ -21,13 +21,13 @@ export interface NgpFileUploadConfig {
    * The maximum size of each file in bytes.
    * @default undefined
    */
-  maxFileSize: number | undefined;
+  maxFileSize?: number;
   /**
    * Where pasted files are captured: `'host'` while the element is focused, `'document'` anywhere
    * on the page, or `false` to ignore pastes.
    * @default false
    */
-  paste: NgpFilePasteTarget;
+  paste?: NgpFilePasteTarget;
   /**
    * Whether drag-and-drop is enabled.
    * @default true

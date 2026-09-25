@@ -55,10 +55,13 @@ export class NgpFileDropzone {
    * Where pasted files are captured: `'host'` (or the bare attribute) while the element is focused,
    * `'document'` anywhere on the page, or `false` to ignore pastes.
    */
-  readonly paste = input<NgpFilePasteTarget, BooleanInput | NgpFilePasteTarget>(this.config.paste, {
-    alias: 'ngpFileDropzonePaste',
-    transform: coercePasteTarget,
-  });
+  readonly paste = input<NgpFilePasteTarget, BooleanInput | NgpFilePasteTarget>(
+    this.config.paste ?? false,
+    {
+      alias: 'ngpFileDropzonePaste',
+      transform: coercePasteTarget,
+    },
+  );
 
   /**
    * Whether the file dropzone is disabled.

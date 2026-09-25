@@ -153,10 +153,11 @@ export const [
     input.addEventListener('change', () => {
       const files = input.files;
 
-      // `accept` is only a hint the dialog lets users bypass, so validate what came back
-      const result = files ? validate(files) : undefined;
+      // `accept` is only a hint the dialog lets users bypass, so validate what came back.
+      // A folder pick returns every file in it, so it counts as multiple.
+      const result = files && validate(files, input.multiple || input.webkitdirectory);
 
-      if (result?.rejections.length) {
+      if (files && result && result.accepted.length < files.length) {
         emitResult(result);
       } else {
         selected.emit(files);
@@ -238,11 +239,11 @@ export const [
       }
     }
 
-    function validate(fileList: FileList) {
+    function validate(fileList: FileList, allowMultiple = multiple?.() ?? false) {
       return validateFiles(fileList, {
         fileTypes: fileTypes?.(),
         maxFileSize: maxFileSize?.(),
-        multiple: multiple?.() ?? false,
+        multiple: allowMultiple,
       });
     }
 
