@@ -1,0 +1,63 @@
+import { Component } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { ControlValueAccessor } from '@angular/forms';
+import { NgpButton } from 'ng-primitives/button';
+import { injectToggleState, NgpToggle } from 'ng-primitives/toggle';
+import { ChangeFn, provideValueAccessor, TouchedFn } from 'ng-primitives/utils';
+
+@Component({
+  selector: 'button[<% if (prefix) { %><%= prefix %>-<% } %>toggle]',
+  hostDirectives: [
+    {
+      directive: NgpToggle,
+      inputs: ['ngpToggleSelected:selected', 'ngpToggleDisabled:disabled'],
+      outputs: ['ngpToggleSelectedChange:selectedChange'],
+    },
+    { directive: NgpButton, inputs: ['disabled'] },
+  ],
+  template: `
+    <ng-content />
+  `,
+  providers: [provideValueAccessor(Toggle<%= componentSuffix %>)],
+  host: {
+    class: 'pl-4 pr-4 rounded-lg text-(--ngp-text-primary) border-none [outline:none] h-10 font-medium bg-(--ngp-background) [transition:background-color_300ms_cubic-bezier(0.4,_0,_0.2,_1)] shadow-(--ngp-button-shadow) data-hover:bg-(--ngp-background-hover) data-focus-visible:[outline:2px_solid_var(--ngp-focus-ring)] data-focus-visible:[outline-offset:2px] data-press:bg-(--ngp-background-active) data-selected:bg-(--ngp-background-inverse) data-selected:text-(--ngp-text-inverse) motion-reduce:[transition-duration:0s]',
+    '(focusout)': 'onTouched?.()',
+  },
+})
+export class Toggle<%= componentSuffix %> implements ControlValueAccessor {
+  /** Access the toggle state. */
+  private readonly toggle = injectToggleState();
+
+  /** The on change callback */
+  private onChange?: ChangeFn<boolean>;
+
+  /** The on touched callback */
+  protected onTouched?: TouchedFn;
+
+  constructor() {
+    // Any time the toggle changes, update the form value.
+    this.toggle()
+      .selectedChange.pipe(takeUntilDestroyed())
+      .subscribe(value => this.onChange?.(value));
+  }
+
+  /** Write a new value to the toggle. */
+  writeValue(value: boolean): void {
+    this.toggle().setSelected(value, { emit: false });
+  }
+
+  /** Register a callback function to be called when the value changes. */
+  registerOnChange(fn: ChangeFn<boolean>): void {
+    this.onChange = fn;
+  }
+
+  /** Register a callback function to be called when the toggle is touched. */
+  registerOnTouched(fn: TouchedFn): void {
+    this.onTouched = fn;
+  }
+
+  /** Set the disabled state of the toggle. */
+  setDisabledState(isDisabled: boolean): void {
+    this.toggle().setDisabled(isDisabled);
+  }
+}

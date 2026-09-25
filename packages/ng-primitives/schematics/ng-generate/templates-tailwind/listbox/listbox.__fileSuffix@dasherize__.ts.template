@@ -1,0 +1,100 @@
+import { BooleanInput } from '@angular/cdk/coercion';
+import { booleanAttribute, Component, input } from '@angular/core';
+import { ControlValueAccessor } from '@angular/forms';
+import { provideIcons } from '@ng-icons/core';
+import { heroChevronDownSolid } from '@ng-icons/heroicons/solid';
+import { NgpSelectionMode } from 'ng-primitives/common';
+import { injectListboxState, NgpListbox, provideListboxState } from 'ng-primitives/listbox';
+import { ChangeFn, provideValueAccessor, TouchedFn } from 'ng-primitives/utils';
+
+@Component({
+  selector: '<% if (prefix) { %><%= prefix %>-<% } %>listbox',
+  providers: [
+    provideIcons({ heroChevronDownSolid }),
+    provideListboxState(),
+    provideValueAccessor(Listbox<%= componentSuffix %>),
+  ],
+  imports: [NgpListbox],
+  template: `
+    <div class="bg-(--ngp-background) border border-(--ngp-border) p-1 rounded-xl [outline:none] [width:var(--ngp-popover-trigger-width)] box-border"
+      [ngpListboxMode]="mode()"
+      [ngpListboxDisabled]="disabled()"
+      [ngpListboxCompareWith]="compareWith()"
+      [attr.aria-label]="ariaLabel()"
+      (ngpListboxValueChange)="onListboxValueChange($event)"
+      ngpListbox
+    >
+      <ng-content />
+    </div>
+  `,
+  host: {
+    '[attr.aria-label]': 'null',
+    '(focusout)': 'onTouch?.()',
+  },
+})
+export class Listbox<%= componentSuffix %> implements ControlValueAccessor {
+  /**
+   * Access the listbox state
+   */
+  protected readonly state = injectListboxState<string>();
+
+  /**
+   * The listbox mode.
+   */
+  readonly mode = input<NgpSelectionMode>('single');
+
+  /**
+   * The listbox disabled state.
+   */
+  readonly disabled = input<boolean, BooleanInput>(false, {
+    transform: booleanAttribute,
+  });
+
+  /**
+   * The comparator function to use when comparing values.
+   */
+  readonly compareWith = input<(a: string, b: string) => boolean>((a, b) => a === b);
+
+  /**
+   * The placeholder text.
+   */
+  readonly placeholder = input<string>('Select an option');
+
+  /**
+   * The aria-label attribute for the listbox.
+   */
+  readonly ariaLabel = input<string>('Listbox', {
+    alias: 'aria-label',
+  });
+
+  /**
+   * The onChange callback.
+   */
+  protected onChange?: ChangeFn<string[]>;
+
+  /**
+   * The onTouch callback.
+   */
+  protected onTouch?: TouchedFn;
+
+  writeValue(value: string[]): void {
+    // writing a value from the model must not re-emit through onChange
+    this.state()?.setValue(value, { emit: false });
+  }
+
+  registerOnChange(fn: ChangeFn<string[]>): void {
+    this.onChange = fn;
+  }
+
+  registerOnTouched(fn: TouchedFn): void {
+    this.onTouch = fn;
+  }
+
+  setDisabledState(isDisabled: boolean): void {
+    this.state()?.setDisabled(isDisabled);
+  }
+
+  onListboxValueChange(value: string[]): void {
+    this.onChange?.(value);
+  }
+}

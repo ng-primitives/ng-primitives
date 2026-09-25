@@ -1,0 +1,66 @@
+import { Component } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { ControlValueAccessor } from '@angular/forms';
+import { injectToggleGroupState, NgpToggleGroup } from 'ng-primitives/toggle-group';
+import { ChangeFn, provideValueAccessor, TouchedFn } from 'ng-primitives/utils';
+
+@Component({
+  selector: '<% if (prefix) { %><%= prefix %>-<% } %>toggle-group',
+  hostDirectives: [
+    {
+      directive: NgpToggleGroup,
+      inputs: [
+        'ngpToggleGroupOrientation:orientation',
+        'ngpToggleGroupType:type',
+        'ngpToggleGroupValue:value',
+        'ngpToggleGroupDisabled:disabled',
+      ],
+      outputs: ['ngpToggleGroupValueChange:valueChange'],
+    },
+  ],
+  template: `
+    <ng-content />
+  `,
+  providers: [provideValueAccessor(ToggleGroup<%= componentSuffix %>)],
+  host: {
+    class: 'inline-flex gap-x-1 items-center rounded-md bg-(--ngp-background) shadow-(--ngp-button-shadow) p-1',
+    '(focusout)': 'onTouched?.()',
+  },
+})
+export class ToggleGroup<%= componentSuffix %> implements ControlValueAccessor {
+  /** Access the toggle state. */
+  private readonly toggleGroup = injectToggleGroupState();
+
+  /** The on change callback */
+  private onChange?: ChangeFn<string[]>;
+
+  /** The on touched callback */
+  protected onTouched?: TouchedFn;
+
+  constructor() {
+    // Any time the toggle group changes, update the form value.
+    this.toggleGroup()
+      .valueChange.pipe(takeUntilDestroyed())
+      .subscribe(value => this.onChange?.(value));
+  }
+
+  /** Write a new value to the toggle group. */
+  writeValue(value: string[] | null): void {
+    this.toggleGroup().setValue(value ?? [], { emit: false });
+  }
+
+  /** Register a callback function to be called when the value changes. */
+  registerOnChange(fn: ChangeFn<string[]>): void {
+    this.onChange = fn;
+  }
+
+  /** Register a callback function to be called when the toggle group is touched. */
+  registerOnTouched(fn: TouchedFn): void {
+    this.onTouched = fn;
+  }
+
+  /** Set the disabled state of the toggle group. */
+  setDisabledState(isDisabled: boolean): void {
+    this.toggleGroup().setDisabled(isDisabled);
+  }
+}

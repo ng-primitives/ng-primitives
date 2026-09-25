@@ -1,0 +1,37 @@
+import { NumberInput } from '@angular/cdk/coercion';
+import { Component, input, numberAttribute } from '@angular/core';
+import {
+  NgpMeter,
+  NgpMeterIndicator,
+  NgpMeterLabel,
+  NgpMeterTrack,
+  NgpMeterValue,
+} from 'ng-primitives/meter';
+
+@Component({
+  selector: '<% if (prefix) { %><%= prefix %>-<% } %>meter',
+  hostDirectives: [
+    { directive: NgpMeter, inputs: ['ngpMeterValue:value', 'ngpMeterMin:min', 'ngpMeterMax:max'] },
+  ],
+  imports: [NgpMeterIndicator, NgpMeterLabel, NgpMeterValue, NgpMeterTrack],
+  host: {
+    class: 'grid [grid-template-columns:1fr_1fr] [grid-row-gap:0.5rem] w-50 box-border p-2',
+  },
+  template: `
+    <span class="text-(--ngp-text-emphasis) [font-size:14px] font-semibold" ngpMeterLabel>{{ label() }}</span>
+    <span class="text-(--ngp-text-secondary) [font-size:14px] font-medium [text-align:right] [grid-column-start:2] [text-align:end]" ngpMeterValue>{{ value() }}%</span>
+
+    <div class="[grid-column:1_/_3] overflow-hidden bg-(--ngp-background) shadow-(--ngp-shadow-border) rounded h-2" ngpMeterTrack>
+      <div class="bg-(--ngp-background-success) h-full [transition:width_0.2s_ease-in-out] [inset-inline-start:0px] rounded motion-reduce:[transition-duration:0s]" ngpMeterIndicator></div>
+    </div>
+  `,
+})
+export class Meter<%= componentSuffix %> {
+  /** The value of the meter. */
+  readonly value = input<number, NumberInput>(0, {
+    transform: numberAttribute,
+  });
+
+  /** The label of the meter. */
+  readonly label = input.required<string>();
+}
