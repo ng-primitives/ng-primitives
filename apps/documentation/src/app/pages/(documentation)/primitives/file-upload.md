@@ -61,6 +61,34 @@ The file dropzone primitive allows you to create a dropzone for files. This func
 
 <docs-example name="file-dropzone"></docs-example>
 
+### Validating Files
+
+Limit what can be selected with `fileTypes`, `maxFileSize` (in bytes) and `multiple`. Every source is validated the same way, including files chosen in the dialog, where `accept` is only a hint the user can bypass.
+
+Valid files are emitted through `selected`. Every file that fails is emitted through `rejectedFiles` along with the reasons it failed (`'type'`, `'size'` or `'count'` for files beyond the first when `multiple` is off), even when other files were accepted. `rejected` only fires when no file was accepted.
+
+```html
+<button
+  ngpFileUpload
+  ngpFileUploadFileTypes="image/*,.pdf"
+  ngpFileUploadMaxFileSize="5242880"
+  (ngpFileUploadSelected)="upload($event)"
+  (ngpFileUploadRejectedFiles)="showErrors($event)"
+>
+  Upload
+</button>
+```
+
+### Pasting Files
+
+Pasting is opt-in. Set `paste` to `'host'` (or add the bare attribute) to accept files pasted while the element is focused, or to `'document'` to accept files pasted anywhere on the page. Pasted files go through the same validation as dropped files, and pastes that contain no files, or that land in a text field, are left alone.
+
+Document mode pairs well with a dialog: the dropzone, and its paste listener, only exist while the dialog is open, so users can paste without focusing anything first.
+
+<docs-example name="file-dropzone-paste"></docs-example>
+
+In host mode an element that is not already focusable gets `tabindex="0"`, as a paste only reaches the focused element. When a focused host-mode instance handles a paste, document-mode instances ignore it. Use at most one document-mode instance per page, as the order they receive a paste in is not guaranteed.
+
 ## API Reference
 
 The following directives are available to import from the `ng-primitives/file-upload` package:
@@ -130,3 +158,4 @@ The file upload primitive should be applied to a `<button>` element or another i
 ### Keyboard Interactions
 
 - <kbd>Enter</kbd> / <kbd>Space</kbd>: Open the file selection dialog (when applied to a button).
+- <kbd>Ctrl</kbd> / <kbd>Cmd</kbd> + <kbd>V</kbd>: Select files from the clipboard (when `paste` is enabled).

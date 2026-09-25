@@ -1,5 +1,9 @@
 import { describe, expect, it } from 'vitest';
-import { isFileTypeAccepted } from '../../file-dropzone/file-drop-filter';
+import {
+  coercePasteTarget,
+  isFileTypeAccepted,
+  validateFiles,
+} from '../../file-dropzone/file-drop-filter';
 
 describe('isFileTypeAccepted', () => {
   const createFile = (name: string, type: string): File =>
@@ -63,5 +67,90 @@ describe('isFileTypeAccepted', () => {
     expect(isFileTypeAccepted(file, ['image/png'])).toBe(true);
     expect(isFileTypeAccepted(file, ['image/*'])).toBe(true);
     expect(isFileTypeAccepted(file, ['.png'])).toBe(false);
+  });
+});
+
+describe('validateFiles', () => {
+  const createFile = (name: string, type: string, size = 10): File =>
+    new File(['x'.repeat(size)], name, { type });
+  const toFileList = (files: File[]) => files as unknown as FileList;
+  const options = { fileTypes: undefined, maxFileSize: undefined, multiple: true };
+
+  it('accepts everything when there are no rules', () => {
+    const files = [createFile('a.png', 'image/png'), createFile('b.exe', '')];
+    expect(validateFiles(toFileList(files), options)).toEqual({ accepted: files, rejections: [] });
+  });
+
+  it('splits accepted and rejected files, keeping every reason per file', () => {
+    const ok = createFile('a.png', 'image/png', 5);
+    const big = createFile('b.png', 'image/png', 50);
+    const wrong = createFile('c.exe', '', 50);
+
+    const result = validateFiles(toFileList([ok, big, wrong]), {
+      ...options,
+      fileTypes: ['image/*'],
+      maxFileSize: 10,
+    });
+
+    expect(result.accepted).toEqual([ok]);
+    expect(result.rejections).toEqual([
+      { file: big, reasons: ['size'] },
+      { file: wrong, reasons: ['type', 'size'] },
+    ]);
+  });
+
+  it('keeps the first valid file and rejects the rest with count when multiple is false', () => {
+    const invalid = createFile('a.exe', '');
+    const first = createFile('b.png', 'image/png');
+    const second = createFile('c.png', 'image/png');
+
+    const result = validateFiles(toFileList([invalid, first, second]), {
+      ...options,
+      fileTypes: ['.png'],
+      multiple: false,
+    });
+
+    expect(result.accepted).toEqual([first]);
+    expect(result.rejections).toEqual([
+      { file: invalid, reasons: ['type'] },
+      { file: second, reasons: ['count'] },
+    ]);
+  });
+
+  it('treats a NaN size limit as no limit', () => {
+    const file = createFile('a.png', 'image/png', 50);
+    expect(validateFiles(toFileList([file]), { ...options, maxFileSize: NaN }).accepted).toEqual([
+      file,
+    ]);
+  });
+
+  it('silently drops hidden files from folder uploads that fail the type check', () => {
+    const dsStore = createFile('.DS_Store', '');
+    Object.defineProperty(dsStore, 'webkitRelativePath', { value: 'photos/.DS_Store' });
+
+    expect(validateFiles(toFileList([dsStore]), { ...options, fileTypes: ['image/*'] })).toEqual({
+      accepted: [],
+      rejections: [],
+    });
+  });
+});
+
+describe('coercePasteTarget', () => {
+  it('maps the bare attribute and true to host', () => {
+    expect(coercePasteTarget('')).toBe('host');
+    expect(coercePasteTarget(true)).toBe('host');
+    expect(coercePasteTarget('true')).toBe('host');
+  });
+
+  it('keeps explicit targets', () => {
+    expect(coercePasteTarget('host')).toBe('host');
+    expect(coercePasteTarget('document')).toBe('document');
+  });
+
+  it('maps falsy values to false', () => {
+    expect(coercePasteTarget(false)).toBe(false);
+    expect(coercePasteTarget('false')).toBe(false);
+    expect(coercePasteTarget(null)).toBe(false);
+    expect(coercePasteTarget(undefined)).toBe(false);
   });
 });

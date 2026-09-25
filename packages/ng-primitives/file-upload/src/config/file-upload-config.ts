@@ -1,4 +1,5 @@
 import { InjectionToken, Provider, inject } from '@angular/core';
+import type { NgpFilePasteTarget } from '../file-dropzone/file-drop-filter';
 
 export interface NgpFileUploadConfig {
   /**
@@ -17,6 +18,17 @@ export interface NgpFileUploadConfig {
    */
   directory: boolean;
   /**
+   * The maximum size of each file in bytes.
+   * @default undefined
+   */
+  maxFileSize: number | undefined;
+  /**
+   * Where pasted files are captured: `'host'` while the element is focused, `'document'` anywhere
+   * on the page, or `false` to ignore pastes.
+   * @default false
+   */
+  paste: NgpFilePasteTarget;
+  /**
    * Whether drag-and-drop is enabled.
    * @default true
    */
@@ -32,6 +44,8 @@ export const defaultFileUploadConfig: NgpFileUploadConfig = {
   fileTypes: undefined,
   multiple: false,
   directory: false,
+  maxFileSize: undefined,
+  paste: false,
   dragAndDrop: true,
   disabled: false,
 };

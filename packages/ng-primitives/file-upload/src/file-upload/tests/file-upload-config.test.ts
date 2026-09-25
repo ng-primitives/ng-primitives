@@ -22,6 +22,8 @@ describe('file-upload-config', () => {
       fileTypes: undefined,
       multiple: false,
       directory: false,
+      maxFileSize: undefined,
+      paste: false,
       dragAndDrop: true,
       disabled: false,
     });

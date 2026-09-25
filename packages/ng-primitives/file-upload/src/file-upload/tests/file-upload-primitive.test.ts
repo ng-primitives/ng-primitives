@@ -1,6 +1,7 @@
 import { fireEvent, render } from '@testing-library/angular';
 import { userEvent } from '@testing-library/user-event';
 import { afterEach, describe, expect, it, vi } from 'vitest';
+import { NgpFilePasteTarget } from '../../file-dropzone/file-drop-filter';
 import { NgpFileDropzone } from '../../file-dropzone/file-dropzone';
 import { NgpFileUpload } from '../file-upload';
 
@@ -288,6 +289,158 @@ describe('NgpFileUpload', () => {
     });
   });
 
+  describe('size limiting', () => {
+    it('should reject dropped files over the max file size and report why', async () => {
+      const selected = vi.fn();
+      const rejected = vi.fn();
+      const rejectedFiles = vi.fn();
+      const { getByTestId } = await render(
+        `<div
+          ngpFileUpload
+          ngpFileUploadMultiple
+          ngpFileUploadMaxFileSize="10"
+          (ngpFileUploadSelected)="selected($event)"
+          (ngpFileUploadRejected)="rejected()"
+          (ngpFileUploadRejectedFiles)="rejectedFiles($event)"
+          data-testid="upload"
+        >Upload</div>`,
+        { imports: [NgpFileUpload], componentProperties: { selected, rejected, rejectedFiles } },
+      );
+      const small = createFile('a.png', 'image/png', 5);
+      const big = createFile('b.png', 'image/png', 50);
+
+      dispatchDragEvent(getByTestId('upload'), 'drop', {
+        dataTransfer: createDataTransfer(createFileList([small, big])),
+      });
+
+      expect(Array.from(selected.mock.calls[0][0] as FileList)).toEqual([small]);
+      expect(rejectedFiles).toHaveBeenCalledWith([{ file: big, reasons: ['size'] }]);
+      // `rejected` keeps its original meaning: nothing at all was accepted
+      expect(rejected).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('file dialog validation', () => {
+    it('should reject dialog files that bypassed the accept hint', async () => {
+      const clickSpy = vi
+        .spyOn(HTMLInputElement.prototype, 'click')
+        .mockImplementation(() => undefined);
+      const selected = vi.fn();
+      const rejected = vi.fn();
+      const rejectedFiles = vi.fn();
+
+      const { getByTestId } = await render(
+        `<div
+          ngpFileUpload
+          ngpFileUploadFileTypes=".png"
+          (ngpFileUploadSelected)="selected($event)"
+          (ngpFileUploadRejected)="rejected()"
+          (ngpFileUploadRejectedFiles)="rejectedFiles($event)"
+          data-testid="upload"
+        >Upload</div>`,
+        { imports: [NgpFileUpload], componentProperties: { selected, rejected, rejectedFiles } },
+      );
+
+      getByTestId('upload').click();
+
+      const input = clickSpy.mock.instances[0] as unknown as HTMLInputElement;
+      const file = createFile('a.exe', '');
+      Object.defineProperty(input, 'files', {
+        configurable: true,
+        value: createFileList([file]),
+      });
+      fireEvent.change(input);
+
+      expect(selected).not.toHaveBeenCalled();
+      expect(rejected).toHaveBeenCalledTimes(1);
+      expect(rejectedFiles).toHaveBeenCalledWith([{ file, reasons: ['type'] }]);
+    });
+
+    it('should clear the accept hint when the file types are removed', async () => {
+      const clickSpy = vi
+        .spyOn(HTMLInputElement.prototype, 'click')
+        .mockImplementation(() => undefined);
+
+      const { getByTestId, rerender } = await render(
+        `<div ngpFileUpload [ngpFileUploadFileTypes]="types" data-testid="upload">Upload</div>`,
+        {
+          imports: [NgpFileUpload],
+          componentProperties: { types: ['.png'] as string[] | undefined },
+        },
+      );
+
+      getByTestId('upload').click();
+      const input = clickSpy.mock.instances[0] as unknown as HTMLInputElement;
+      expect(input.accept).toBe('.png');
+
+      await rerender({ componentProperties: { types: undefined }, partialUpdate: true });
+      getByTestId('upload').click();
+      expect(input.accept).toBe('');
+    });
+  });
+
+  describe('paste', () => {
+    it('should ignore pasted files by default', async () => {
+      const selected = vi.fn();
+      const { getByRole } = await render(
+        `<button ngpFileUpload (ngpFileUploadSelected)="selected($event)">Upload</button>`,
+        { imports: [NgpFileUpload], componentProperties: { selected } },
+      );
+
+      const event = dispatchPasteEvent(getByRole('button'), [createFile('a.png', 'image/png')]);
+
+      expect(selected).not.toHaveBeenCalled();
+      expect(event.defaultPrevented).toBe(false);
+    });
+
+    it('should select files pasted on the host', async () => {
+      const selected = vi.fn();
+      const { getByRole } = await render(
+        `<button ngpFileUpload ngpFileUploadPaste (ngpFileUploadSelected)="selected($event)">Upload</button>`,
+        { imports: [NgpFileUpload], componentProperties: { selected } },
+      );
+
+      const event = dispatchPasteEvent(getByRole('button'), [createFile('a.png', 'image/png')]);
+
+      expect(selected).toHaveBeenCalledTimes(1);
+      expect(event.defaultPrevented).toBe(true);
+    });
+
+    it('should not claim a paste without files', async () => {
+      const selected = vi.fn();
+      const { getByRole } = await render(
+        `<button ngpFileUpload ngpFileUploadPaste (ngpFileUploadSelected)="selected($event)">Upload</button>`,
+        { imports: [NgpFileUpload], componentProperties: { selected } },
+      );
+
+      const event = dispatchPasteEvent(getByRole('button'), []);
+
+      expect(selected).not.toHaveBeenCalled();
+      expect(event.defaultPrevented).toBe(false);
+    });
+
+    it('should not select pasted files when disabled', async () => {
+      const selected = vi.fn();
+      const { getByRole } = await render(
+        `<button ngpFileUpload ngpFileUploadPaste ngpFileUploadDisabled (ngpFileUploadSelected)="selected($event)">Upload</button>`,
+        { imports: [NgpFileUpload], componentProperties: { selected } },
+      );
+
+      dispatchPasteEvent(getByRole('button'), [createFile('a.png', 'image/png')]);
+
+      expect(selected).not.toHaveBeenCalled();
+    });
+
+    it('should not add a tabindex to an element that is already focusable', async () => {
+      const { getByRole } = await render(
+        `<button ngpFileUpload ngpFileUploadPaste>Upload</button>`,
+        { imports: [NgpFileUpload] },
+      );
+
+      expect(getByRole('button')).not.toHaveAttribute('tabindex');
+    });
+  });
+
   describe('disabled', () => {
     it('should not react to drag events when disabled', async () => {
       const { getByTestId } = await render(
@@ -410,6 +563,126 @@ describe('NgpFileDropzone', () => {
       expect(rejected).toHaveBeenCalledTimes(1);
       expect(selected).not.toHaveBeenCalled();
     });
+
+    it('should report every extra dropped file when multiple is false', async () => {
+      const rejectedFiles = vi.fn();
+      const { getByTestId } = await render(
+        `<div ngpFileDropzone (ngpFileDropzoneRejectedFiles)="rejectedFiles($event)" data-testid="dropzone">Drop</div>`,
+        { imports: [NgpFileDropzone], componentProperties: { rejectedFiles } },
+      );
+      const second = createFile('b.png', 'image/png');
+
+      dispatchDragEvent(getByTestId('dropzone'), 'drop', {
+        dataTransfer: createDataTransfer(
+          createFileList([createFile('a.png', 'image/png'), second]),
+        ),
+      });
+
+      expect(rejectedFiles).toHaveBeenCalledWith([{ file: second, reasons: ['count'] }]);
+    });
+  });
+
+  describe('paste', () => {
+    it('should make a plain element focusable only while host paste is enabled', async () => {
+      const { getByTestId, rerender, fixture } = await render(
+        `<div ngpFileDropzone [ngpFileDropzonePaste]="paste" data-testid="dropzone">Drop</div>`,
+        {
+          imports: [NgpFileDropzone],
+          componentProperties: { paste: 'host' as NgpFilePasteTarget },
+        },
+      );
+      const dropzone = getByTestId('dropzone');
+      expect(dropzone).toHaveAttribute('tabindex', '0');
+
+      await rerender({ componentProperties: { paste: false }, partialUpdate: true });
+      await fixture.whenStable();
+      expect(dropzone).not.toHaveAttribute('tabindex');
+    });
+
+    it('should keep a tabindex the consumer set', async () => {
+      const { getByTestId } = await render(
+        `<div ngpFileDropzone ngpFileDropzonePaste tabindex="-1" data-testid="dropzone">Drop</div>`,
+        { imports: [NgpFileDropzone] },
+      );
+
+      expect(getByTestId('dropzone')).toHaveAttribute('tabindex', '-1');
+    });
+
+    it('should only hold a document paste listener while in document mode', async () => {
+      const addSpy = vi.spyOn(document, 'addEventListener');
+      const removeSpy = vi.spyOn(document, 'removeEventListener');
+      const pasteCalls = (spy: typeof addSpy) =>
+        spy.mock.calls.filter(([type]) => type === 'paste').length;
+
+      const { rerender, fixture } = await render(
+        `@for (i of items; track i) {
+          <div ngpFileDropzone [ngpFileDropzonePaste]="paste">Drop</div>
+        }`,
+        {
+          imports: [NgpFileDropzone],
+          componentProperties: { items: [1, 2, 3], paste: false as NgpFilePasteTarget },
+        },
+      );
+      expect(pasteCalls(addSpy)).toBe(0);
+
+      await rerender({ componentProperties: { paste: 'document' }, partialUpdate: true });
+      await fixture.whenStable();
+      expect(pasteCalls(addSpy)).toBe(3);
+
+      await rerender({ componentProperties: { paste: false }, partialUpdate: true });
+      await fixture.whenStable();
+      expect(pasteCalls(removeSpy)).toBe(3);
+
+      addSpy.mockRestore();
+      removeSpy.mockRestore();
+    });
+
+    it('should capture files pasted anywhere in document mode', async () => {
+      const selected = vi.fn();
+      await render(
+        `<div ngpFileDropzone ngpFileDropzonePaste="document" (ngpFileDropzoneSelected)="selected($event)">Drop</div>
+         <p data-testid="elsewhere">Elsewhere</p>`,
+        { imports: [NgpFileDropzone], componentProperties: { selected } },
+      );
+
+      dispatchPasteEvent(document.querySelector('[data-testid="elsewhere"]')!, [
+        createFile('a.png', 'image/png'),
+      ]);
+
+      expect(selected).toHaveBeenCalledTimes(1);
+    });
+
+    it('should leave pastes into text fields alone in document mode', async () => {
+      const selected = vi.fn();
+      const { getByRole } = await render(
+        `<div ngpFileDropzone ngpFileDropzonePaste="document" (ngpFileDropzoneSelected)="selected($event)">Drop</div>
+         <textarea></textarea>`,
+        { imports: [NgpFileDropzone], componentProperties: { selected } },
+      );
+
+      const event = dispatchPasteEvent(getByRole('textbox'), [createFile('a.png', 'image/png')]);
+
+      expect(selected).not.toHaveBeenCalled();
+      expect(event.defaultPrevented).toBe(false);
+    });
+
+    it('should let a focused host-mode instance win over a document-mode one', async () => {
+      const hostSelected = vi.fn();
+      const documentSelected = vi.fn();
+      const { getByTestId } = await render(
+        `<div ngpFileDropzone ngpFileDropzonePaste="document" (ngpFileDropzoneSelected)="documentSelected()">Drop</div>
+         <div ngpFileDropzone ngpFileDropzonePaste (ngpFileDropzoneSelected)="hostSelected()" data-testid="host">Drop</div>`,
+        {
+          imports: [NgpFileDropzone],
+          componentProperties: { hostSelected, documentSelected },
+        },
+      );
+
+      dispatchPasteEvent(getByTestId('host'), [createFile('a.png', 'image/png')]);
+
+      expect(hostSelected).toHaveBeenCalledTimes(1);
+      expect(documentSelected).not.toHaveBeenCalled();
+    });
   });
 
   describe('disabled', () => {
@@ -449,8 +722,18 @@ describe('NgpFileDropzone', () => {
   });
 });
 
-function createFile(name: string, type: string): File {
-  return new File(['dummy content'], name, { type });
+function createFile(name: string, type: string, size?: number): File {
+  return new File([size === undefined ? 'dummy content' : 'x'.repeat(size)], name, { type });
+}
+
+function dispatchPasteEvent(element: Element, files: File[]): ClipboardEvent {
+  const event = new ClipboardEvent('paste', { bubbles: true, cancelable: true });
+  Object.defineProperty(event, 'clipboardData', {
+    configurable: true,
+    value: createDataTransfer(createFileList(files)),
+  });
+  fireEvent(element, event);
+  return event;
 }
 
 function dispatchDragEvent(

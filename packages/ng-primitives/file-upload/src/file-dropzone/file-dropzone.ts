@@ -1,6 +1,7 @@
-import { BooleanInput, coerceStringArray } from '@angular/cdk/coercion';
-import { booleanAttribute, Directive, input, output } from '@angular/core';
+import { BooleanInput, coerceStringArray, NumberInput } from '@angular/cdk/coercion';
+import { booleanAttribute, Directive, input, numberAttribute, output } from '@angular/core';
 import { injectFileDropzoneConfig } from '../config/file-dropzone-config';
+import { coercePasteTarget, NgpFilePasteTarget, NgpFileRejection } from './file-drop-filter';
 import { ngpFileDropzone, provideFileDropzoneState } from './file-dropzone-state';
 
 /**
@@ -43,6 +44,23 @@ export class NgpFileDropzone {
   });
 
   /**
+   * The maximum size of each file in bytes. Larger files are rejected.
+   */
+  readonly maxFileSize = input<number | undefined, NumberInput>(this.config.maxFileSize, {
+    alias: 'ngpFileDropzoneMaxFileSize',
+    transform: numberAttribute,
+  });
+
+  /**
+   * Where pasted files are captured: `'host'` (or the bare attribute) while the element is focused,
+   * `'document'` anywhere on the page, or `false` to ignore pastes.
+   */
+  readonly paste = input<NgpFilePasteTarget, BooleanInput | NgpFilePasteTarget>(this.config.paste, {
+    alias: 'ngpFileDropzonePaste',
+    transform: coercePasteTarget,
+  });
+
+  /**
    * Whether the file dropzone is disabled.
    */
   readonly disabled = input<boolean, BooleanInput>(this.config.disabled, {
@@ -58,10 +76,17 @@ export class NgpFileDropzone {
   });
 
   /**
-   * Emits when uploaded files are rejected because they do not match the allowed {@link fileTypes}.
+   * Emits when no files are selected because every file failed validation.
    */
   readonly rejected = output<void>({
     alias: 'ngpFileDropzoneRejected',
+  });
+
+  /**
+   * Emits every file that failed validation and why, including when other files were accepted.
+   */
+  readonly rejectedFiles = output<NgpFileRejection[]>({
+    alias: 'ngpFileDropzoneRejectedFiles',
   });
 
   /**
@@ -75,9 +100,12 @@ export class NgpFileDropzone {
     fileTypes: this.fileTypes,
     multiple: this.multiple,
     directory: this.directory,
+    maxFileSize: this.maxFileSize,
+    paste: this.paste,
     disabled: this.disabled,
     onSelected: files => this.selected.emit(files),
     onRejected: () => this.rejected.emit(),
+    onRejectedFiles: rejections => this.rejectedFiles.emit(rejections),
     onDragOver: isDragOver => this.dragOver.emit(isDragOver),
   });
 

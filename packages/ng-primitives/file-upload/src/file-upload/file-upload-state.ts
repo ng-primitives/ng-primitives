@@ -4,7 +4,13 @@ import { ngpInteractions } from 'ng-primitives/interactions';
 import { injectElementRef } from 'ng-primitives/internal';
 import { createPrimitive, dataBinding, emitter, listener } from 'ng-primitives/state';
 import { Observable } from 'rxjs';
-import { fileDropFilter } from '../file-dropzone/file-drop-filter';
+import {
+  filesToFileList,
+  NgpFilePasteTarget,
+  NgpFileRejection,
+  validateFiles,
+} from '../file-dropzone/file-drop-filter';
+import { filePaste } from '../file-dropzone/file-paste';
 
 /**
  * The state for the NgpFileUpload directive.
@@ -26,6 +32,10 @@ export interface NgpFileUploadState {
    * Observable that emits when files are rejected.
    */
   readonly rejected: Observable<void>;
+  /**
+   * Observable that emits every file that failed validation, and why.
+   */
+  readonly rejectedFiles: Observable<NgpFileRejection[]>;
   /**
    * Observable that emits when drag over state changes.
    */
@@ -53,6 +63,14 @@ export interface NgpFileUploadProps {
    */
   readonly directory?: Signal<boolean>;
   /**
+   * The maximum size of each file in bytes.
+   */
+  readonly maxFileSize?: Signal<number | undefined>;
+  /**
+   * Where pasted files are captured.
+   */
+  readonly paste?: Signal<NgpFilePasteTarget>;
+  /**
    * Whether drag and drop is enabled.
    */
   readonly dragAndDrop?: Signal<boolean>;
@@ -73,6 +91,10 @@ export interface NgpFileUploadProps {
    */
   readonly onRejected?: () => void;
   /**
+   * Callback with every file that failed validation, and why.
+   */
+  readonly onRejectedFiles?: (rejections: NgpFileRejection[]) => void;
+  /**
    * Callback when drag over state changes.
    */
   readonly onDragOver?: (isDragOver: boolean) => void;
@@ -89,11 +111,14 @@ export const [
     fileTypes,
     multiple,
     directory,
+    maxFileSize,
+    paste = signal<NgpFilePasteTarget>(false),
     dragAndDrop,
     disabled,
     onSelected,
     onCanceled,
     onRejected,
+    onRejectedFiles,
     onDragOver,
   }: NgpFileUploadProps) => {
     const element = injectElementRef();
@@ -105,6 +130,7 @@ export const [
     const selected = emitter<FileList | null>();
     const canceled = emitter<void>();
     const rejected = emitter<void>();
+    const rejectedFiles = emitter<NgpFileRejection[]>();
     const dragOver = emitter<boolean>();
 
     // Host bindings
@@ -126,8 +152,17 @@ export const [
 
     input.addEventListener('change', () => {
       const files = input.files;
-      selected.emit(files);
-      onSelected?.(files);
+
+      // `accept` is only a hint the dialog lets users bypass, so validate what came back
+      const result = files ? validate(files) : undefined;
+
+      if (result?.rejections.length) {
+        emitResult(result);
+      } else {
+        selected.emit(files);
+        onSelected?.(files);
+      }
+
       input.value = '';
     });
 
@@ -141,10 +176,7 @@ export const [
         return;
       }
 
-      const fileTypesValue = fileTypes?.()?.join(',');
-      if (fileTypesValue) {
-        input.accept = fileTypesValue;
-      }
+      input.accept = fileTypes?.()?.join(',') ?? '';
 
       input.multiple = multiple?.() ?? false;
       input.webkitdirectory = directory?.() ?? false;
@@ -202,15 +234,35 @@ export const [
 
       const fileList = event.dataTransfer?.files;
       if (fileList) {
-        const filteredFiles = fileDropFilter(fileList, fileTypes?.(), multiple?.() ?? false);
+        selectFiles(fileList);
+      }
+    }
 
-        if (filteredFiles) {
-          selected.emit(filteredFiles);
-          onSelected?.(filteredFiles);
-        } else {
-          rejected.emit();
-          onRejected?.();
-        }
+    function validate(fileList: FileList) {
+      return validateFiles(fileList, {
+        fileTypes: fileTypes?.(),
+        maxFileSize: maxFileSize?.(),
+        multiple: multiple?.() ?? false,
+      });
+    }
+
+    function selectFiles(fileList: FileList): void {
+      emitResult(validate(fileList));
+    }
+
+    function emitResult({ accepted, rejections }: ReturnType<typeof validateFiles>): void {
+      if (accepted.length) {
+        const files = filesToFileList(accepted);
+        selected.emit(files);
+        onSelected?.(files);
+      } else {
+        rejected.emit();
+        onRejected?.();
+      }
+
+      if (rejections.length) {
+        rejectedFiles.emit(rejections);
+        onRejectedFiles?.(rejections);
       }
     }
 
@@ -221,11 +273,14 @@ export const [
     listener(element, 'dragleave', onDragLeave);
     listener(element, 'drop', onDrop);
 
+    filePaste(element, paste, () => !!disabled?.(), selectFiles);
+
     return {
       isDragOver,
       selected: selected.asObservable(),
       canceled: canceled.asObservable(),
       rejected: rejected.asObservable(),
+      rejectedFiles: rejectedFiles.asObservable(),
       dragOver: dragOver.asObservable(),
       showFileDialog,
     } satisfies NgpFileUploadState;
