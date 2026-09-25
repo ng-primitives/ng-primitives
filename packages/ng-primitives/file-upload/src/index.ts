@@ -14,5 +14,10 @@ export {
   NgpFileUploadState,
   provideFileUploadState,
 } from './file-upload/file-upload-state';
+export {
+  NgpFilePasteTarget,
+  NgpFileRejection,
+  NgpFileRejectionReason,
+} from './file-dropzone/file-drop-filter';
 export { NgpFileDropzoneConfig, provideFileDropzoneConfig } from './config/file-dropzone-config';
 export { NgpFileUploadConfig, provideFileUploadConfig } from './config/file-upload-config';

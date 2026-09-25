@@ -1,13 +1,64 @@
-export function fileDropFilter(
+import { BooleanInput } from '@angular/cdk/coercion';
+
+/**
+ * Why a file was rejected.
+ */
+export type NgpFileRejectionReason = 'type' | 'size' | 'count';
+
+/**
+ * A file that failed validation, with every rule it broke.
+ */
+export interface NgpFileRejection {
+  readonly file: File;
+  readonly reasons: NgpFileRejectionReason[];
+}
+
+/**
+ * Where pasted files are captured: on the focused host element, anywhere in the document, or not at all.
+ */
+export type NgpFilePasteTarget = false | 'host' | 'document';
+
+export interface NgpFileValidationOptions {
+  fileTypes: string[] | undefined;
+  maxFileSize: number | undefined;
+  multiple: boolean;
+}
+
+export function validateFiles(
   fileList: FileList,
-  acceptedTypes: string[] | undefined,
-  multiple: boolean,
-) {
-  const validFiles = Array.from(fileList).filter(file => isFileTypeAccepted(file, acceptedTypes));
+  { fileTypes, maxFileSize, multiple }: NgpFileValidationOptions,
+): { accepted: File[]; rejections: NgpFileRejection[] } {
+  const accepted: File[] = [];
+  const rejections: NgpFileRejection[] = [];
 
-  const limitedFiles = multiple ? validFiles : validFiles.slice(0, 1);
+  for (const file of Array.from(fileList)) {
+    const reasons: NgpFileRejectionReason[] = [];
 
-  return limitedFiles.length > 0 ? filesToFileList(limitedFiles) : null;
+    if (!isFileTypeAccepted(file, fileTypes)) {
+      // folder uploads carry OS files like .DS_Store - drop them quietly rather than report them
+      if (file.webkitRelativePath && file.name.startsWith('.')) {
+        continue;
+      }
+      reasons.push('type');
+    }
+
+    // a NaN limit (e.g. an empty attribute) compares false, so it means no limit
+    if (file.size > (maxFileSize ?? Infinity)) {
+      reasons.push('size');
+    }
+
+    if (!multiple && accepted.length > 0) {
+      reasons.push('count');
+    }
+
+    if (reasons.length) {
+      rejections.push({ file, reasons });
+    } else {
+      accepted.push(file);
+    }
+  }
+
+  return { accepted, rejections };
 }
 
 export function isFileTypeAccepted(file: File, acceptedTypes: string[] | undefined) {
@@ -33,8 +84,26 @@ export function isFileTypeAccepted(file: File, acceptedTypes: string[] | undefin
   });
 }
 
-function filesToFileList(files: File[]): FileList {
+export function filesToFileList(files: File[]): FileList {
   const dataTransfer = new DataTransfer();
   files.forEach(file => dataTransfer.items.add(file));
   return dataTransfer.files;
+}
+
+export function coercePasteTarget(value: BooleanInput | NgpFilePasteTarget): NgpFilePasteTarget {
+  if (value === 'document' || value === 'host') {
+    return value;
+  }
+
+  if (value === '' || value === true || value === 'true') {
+    return 'host';
+  }
+
+  if (ngDevMode && value != null && value !== false && value !== 'false') {
+    console.warn(
+      `[ng-primitives] Unknown paste target "${value}". Expected 'host', 'document' or a boolean.`,
+    );
+  }
+
+  return false;
 }

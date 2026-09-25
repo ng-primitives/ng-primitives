@@ -1,6 +1,11 @@
-import { BooleanInput, coerceStringArray } from '@angular/cdk/coercion';
-import { booleanAttribute, Directive, input, output } from '@angular/core';
+import { BooleanInput, coerceStringArray, NumberInput } from '@angular/cdk/coercion';
+import { booleanAttribute, Directive, input, numberAttribute, output } from '@angular/core';
 import { injectFileUploadConfig } from '../config/file-upload-config';
+import {
+  coercePasteTarget,
+  NgpFilePasteTarget,
+  NgpFileRejection,
+} from '../file-dropzone/file-drop-filter';
 import { ngpFileUpload, provideFileUploadState } from './file-upload-state';
 
 /**
@@ -51,6 +56,26 @@ export class NgpFileUpload {
   });
 
   /**
+   * The maximum size of each file in bytes. Larger files are rejected.
+   */
+  readonly maxFileSize = input<number | undefined, NumberInput>(this.config.maxFileSize, {
+    alias: 'ngpFileUploadMaxFileSize',
+    transform: numberAttribute,
+  });
+
+  /**
+   * Where pasted files are captured: `'host'` (or the bare attribute) while the element is focused,
+   * `'document'` anywhere on the page, or `false` to ignore pastes.
+   */
+  readonly paste = input<NgpFilePasteTarget, BooleanInput | NgpFilePasteTarget>(
+    this.config.paste ?? false,
+    {
+      alias: 'ngpFileUploadPaste',
+      transform: coercePasteTarget,
+    },
+  );
+
+  /**
    * Whether the file upload is disabled.
    */
   readonly disabled = input<boolean, BooleanInput>(this.config.disabled, {
@@ -73,10 +98,17 @@ export class NgpFileUpload {
   });
 
   /**
-   * Emits when uploaded files are rejected because they do not match the allowed {@link fileTypes}.
+   * Emits when no files are selected because every file failed validation.
    */
   readonly rejected = output<void>({
     alias: 'ngpFileUploadRejected',
+  });
+
+  /**
+   * Emits every file that failed validation and why, including when other files were accepted.
+   */
+  readonly rejectedFiles = output<NgpFileRejection[]>({
+    alias: 'ngpFileUploadRejectedFiles',
   });
 
   /**
@@ -90,11 +122,14 @@ export class NgpFileUpload {
     fileTypes: this.fileTypes,
     multiple: this.multiple,
     directory: this.directory,
+    maxFileSize: this.maxFileSize,
+    paste: this.paste,
     dragAndDrop: this.dragAndDrop,
     disabled: this.disabled,
     onSelected: files => this.selected.emit(files),
     onCanceled: () => this.canceled.emit(),
     onRejected: () => this.rejected.emit(),
+    onRejectedFiles: rejections => this.rejectedFiles.emit(rejections),
     onDragOver: isDragOver => this.dragOver.emit(isDragOver),
   });
 
