@@ -1,3 +1,13 @@
+## 0.130.4 (2026-09-25)
+
+### 🚀 Features
+
+- **file-upload:** add paste, max file size and per-file rejections ([#951](https://github.com/ng-primitives/ng-primitives/pull/951))
+
+### ❤️ Thank You
+
+- Ashley Hunter
+
 ## 0.130.3 (2026-09-15)
 
 ### 🩹 Fixes
