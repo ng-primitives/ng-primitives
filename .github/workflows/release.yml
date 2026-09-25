@@ -233,12 +233,16 @@ jobs:
 
       # nx hardcodes make_latest: 'legacy', which weighs creation date, so a backport
       # published after a newer release can take the Latest badge on the releases page.
+      # `--latest=false` on the backport does not hand it back - legacy mode has no explicit
+      # latest to fall back to (v0.130.4 kept it) - so mark the newest version instead.
       - name: Keep the Latest badge off a backport
         if: inputs.dist_tag != 'latest'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          VERSION: ${{ steps.version.outputs.version }}
-        run: gh release edit "v${VERSION}" --latest=false
+          GH_REPO: ${{ github.repository }}
+        run: |
+          NEWEST=$(gh release list --exclude-drafts --exclude-pre-releases --limit 100 --json tagName --jq '.[].tagName' | sort -V | tail -1)
+          gh release edit "$NEWEST" --latest
 
       - name: Push
         env:
@@ -429,8 +433,10 @@ jobs:
         if: inputs.dist_tag != 'latest'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          VERSION: ${{ steps.version.outputs.version }}
-        run: gh release edit "v${VERSION}" --latest=false
+          GH_REPO: ${{ github.repository }}
+        run: |
+          NEWEST=$(gh release list --exclude-drafts --exclude-pre-releases --limit 100 --json tagName --jq '.[].tagName' | sort -V | tail -1)
+          gh release edit "$NEWEST" --latest
 
       # The interrupted run may have died between the changelog and the push, leaving
       # main behind the tag. Completing it here keeps the release commit reachable
