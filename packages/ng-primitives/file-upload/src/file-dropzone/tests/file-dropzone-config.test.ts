@@ -18,6 +18,8 @@ describe('file-dropzone-config', () => {
       fileTypes: undefined,
       multiple: false,
       directory: false,
+      maxFileSize: undefined,
+      paste: false,
       disabled: false,
     });
   });

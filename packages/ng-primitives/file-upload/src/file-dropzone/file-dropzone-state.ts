@@ -10,7 +10,13 @@ import {
   listener,
 } from 'ng-primitives/state';
 import { Observable } from 'rxjs';
-import { fileDropFilter } from './file-drop-filter';
+import {
+  filesToFileList,
+  NgpFilePasteTarget,
+  NgpFileRejection,
+  validateFiles,
+} from './file-drop-filter';
+import { filePaste } from './file-paste';
 
 /**
  * The state for the NgpFileDropzone directive.
@@ -32,6 +38,10 @@ export interface NgpFileDropzoneState {
    * Observable that emits when files are rejected.
    */
   readonly rejected: Observable<void>;
+  /**
+   * Observable that emits every file that failed validation, and why.
+   */
+  readonly rejectedFiles: Observable<NgpFileRejection[]>;
   /**
    * Observable that emits when drag over state changes.
    */
@@ -73,6 +83,14 @@ export interface NgpFileDropzoneProps {
    */
   readonly directory?: Signal<boolean>;
   /**
+   * The maximum size of each file in bytes.
+   */
+  readonly maxFileSize?: Signal<number | undefined>;
+  /**
+   * Where pasted files are captured.
+   */
+  readonly paste?: Signal<NgpFilePasteTarget>;
+  /**
    * Whether the file dropzone is disabled.
    */
   readonly disabled?: Signal<boolean>;
@@ -84,6 +102,10 @@ export interface NgpFileDropzoneProps {
    * Callback when files are rejected.
    */
   readonly onRejected?: () => void;
+  /**
+   * Callback with every file that failed validation, and why.
+   */
+  readonly onRejectedFiles?: (rejections: NgpFileRejection[]) => void;
   /**
    * Callback when drag over state changes.
    */
@@ -101,9 +123,12 @@ export const [
     fileTypes = signal<string[] | undefined>(undefined),
     multiple = signal<boolean>(false),
     directory = signal<boolean>(false),
+    maxFileSize = signal<number | undefined>(undefined),
+    paste = signal<NgpFilePasteTarget>(false),
     disabled: _disabled = signal<boolean>(false),
     onSelected,
     onRejected,
+    onRejectedFiles,
     onDragOver,
   }: NgpFileDropzoneProps) => {
     const element = injectElementRef();
@@ -115,6 +140,7 @@ export const [
     // Create observables
     const selected = emitter<FileList | null>();
     const rejected = emitter<void>();
+    const rejectedFiles = emitter<NgpFileRejection[]>();
     const dragOver = emitter<boolean>();
 
     // Host bindings
@@ -175,15 +201,29 @@ export const [
 
       const fileList = event.dataTransfer?.files;
       if (fileList) {
-        const filteredFiles = fileDropFilter(fileList, fileTypes?.(), multiple?.() ?? false);
+        selectFiles(fileList);
+      }
+    }
 
-        if (filteredFiles) {
-          selected.emit(filteredFiles);
-          onSelected?.(filteredFiles);
-        } else {
-          rejected.emit();
-          onRejected?.();
-        }
+    function selectFiles(fileList: FileList): void {
+      const { accepted, rejections } = validateFiles(fileList, {
+        fileTypes: fileTypes(),
+        maxFileSize: maxFileSize(),
+        multiple: multiple(),
+      });
+
+      if (accepted.length) {
+        const files = filesToFileList(accepted);
+        selected.emit(files);
+        onSelected?.(files);
+      } else {
+        rejected.emit();
+        onRejected?.();
+      }
+
+      if (rejections.length) {
+        rejectedFiles.emit(rejections);
+        onRejectedFiles?.(rejections);
       }
     }
 
@@ -192,6 +232,8 @@ export const [
     listener(element, 'dragover', onDragOverHandler);
     listener(element, 'dragleave', onDragLeave);
     listener(element, 'drop', onDrop);
+
+    filePaste(element, paste, disabled, selectFiles);
 
     function setDisabled(value: boolean): void {
       disabled?.set(value);
@@ -205,6 +247,7 @@ export const [
       isDragOver: isDragOverState,
       selected: selected.asObservable(),
       rejected: rejected.asObservable(),
+      rejectedFiles: rejectedFiles.asObservable(),
       dragOver: dragOver.asObservable(),
       setDisabled,
     } satisfies NgpFileDropzoneState;
