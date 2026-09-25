@@ -241,7 +241,7 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GH_REPO: ${{ github.repository }}
         run: |
-          NEWEST=$(gh release list --exclude-drafts --exclude-pre-releases --limit 100 --json tagName --jq '.[].tagName' | sort -V | tail -1)
+          NEWEST=$(gh api 'repos/{owner}/{repo}/releases' --paginate --jq '.[] | select(.draft or .prerelease | not) | .tag_name' | sort -V | tail -1)
           gh release edit "$NEWEST" --latest
 
       - name: Push
@@ -435,7 +435,7 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GH_REPO: ${{ github.repository }}
         run: |
-          NEWEST=$(gh release list --exclude-drafts --exclude-pre-releases --limit 100 --json tagName --jq '.[].tagName' | sort -V | tail -1)
+          NEWEST=$(gh api 'repos/{owner}/{repo}/releases' --paginate --jq '.[] | select(.draft or .prerelease | not) | .tag_name' | sort -V | tail -1)
           gh release edit "$NEWEST" --latest
 
       # The interrupted run may have died between the changelog and the push, leaving
