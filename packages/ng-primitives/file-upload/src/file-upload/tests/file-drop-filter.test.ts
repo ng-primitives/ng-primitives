@@ -117,6 +117,19 @@ describe('validateFiles', () => {
     ]);
   });
 
+  it('reports count alongside other reasons for extra files when multiple is false', () => {
+    const first = createFile('a.png', 'image/png');
+    const extra = createFile('b.exe', '', 50);
+
+    const result = validateFiles(toFileList([first, extra]), {
+      fileTypes: ['.png'],
+      maxFileSize: 10,
+      multiple: false,
+    });
+
+    expect(result.rejections).toEqual([{ file: extra, reasons: ['type', 'size', 'count'] }]);
+  });
+
   it('treats a NaN size limit as no limit', () => {
     const file = createFile('a.png', 'image/png', 50);
     expect(validateFiles(toFileList([file]), { ...options, maxFileSize: NaN }).accepted).toEqual([

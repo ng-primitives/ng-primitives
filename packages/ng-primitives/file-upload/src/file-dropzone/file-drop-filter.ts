@@ -47,7 +47,7 @@ export function validateFiles(
       reasons.push('size');
     }
 
-    if (reasons.length === 0 && !multiple && accepted.length > 0) {
+    if (!multiple && accepted.length > 0) {
       reasons.push('count');
     }
 
