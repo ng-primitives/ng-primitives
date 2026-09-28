@@ -87,7 +87,7 @@ Document mode pairs well with a dialog: the dropzone, and its paste listener, on
 
 <docs-example name="file-dropzone-paste"></docs-example>
 
-In host mode an element that is not already focusable gets `tabindex="0"`, as a paste only reaches the focused element. Document-mode instances ignore a paste aimed at another focused file upload or dropzone, whatever that one's `paste` setting, so a focused instance always takes precedence. With several document-mode instances and none focused, the order they receive a paste in is not guaranteed, so keep to one per page.
+In host mode an element that is not already focusable gets `tabindex="0"`, as a paste only reaches the focused element. Document-mode instances ignore a paste aimed at another focused file upload or dropzone, whatever that one's `paste` setting, unless it sits inside them (such as a browse button in the dropzone), in which case the document-mode instance still handles it. With several document-mode instances and none focused, the order they receive a paste in is not guaranteed, so keep to one per page.
 
 ## API Reference
 
