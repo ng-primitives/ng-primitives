@@ -760,6 +760,57 @@ describe('NgpFileDropzone', () => {
       expect(hostSelected).toHaveBeenCalledTimes(1);
       expect(documentSelected).not.toHaveBeenCalled();
     });
+
+    it('should not take a paste aimed at another focused upload that ignores pastes', async () => {
+      const uploadSelected = vi.fn();
+      const documentSelected = vi.fn();
+      const { getByRole } = await render(
+        `<div ngpFileDropzone ngpFileDropzonePaste="document" (ngpFileDropzoneSelected)="documentSelected()">Drop</div>
+         <button ngpFileUpload (ngpFileUploadSelected)="uploadSelected()">Upload</button>`,
+        {
+          imports: [NgpFileDropzone, NgpFileUpload],
+          componentProperties: { uploadSelected, documentSelected },
+        },
+      );
+
+      const event = dispatchPasteEvent(getByRole('button'), [createFile('a.png', 'image/png')]);
+
+      expect(documentSelected).not.toHaveBeenCalled();
+      expect(uploadSelected).not.toHaveBeenCalled();
+      expect(event.defaultPrevented).toBe(false);
+    });
+
+    it('should still take a paste aimed at an upload nested inside it', async () => {
+      const selected = vi.fn();
+      const { getByRole } = await render(
+        `<div ngpFileDropzone ngpFileDropzonePaste="document" (ngpFileDropzoneSelected)="selected()">
+           <button ngpFileUpload>Browse</button>
+         </div>`,
+        { imports: [NgpFileDropzone, NgpFileUpload], componentProperties: { selected } },
+      );
+
+      dispatchPasteEvent(getByRole('button'), [createFile('a.png', 'image/png')]);
+
+      expect(selected).toHaveBeenCalledTimes(1);
+    });
+
+    it('should let the focused document-mode instance win over another document-mode one', async () => {
+      const focusedSelected = vi.fn();
+      const otherSelected = vi.fn();
+      const { getByTestId } = await render(
+        `<div ngpFileDropzone ngpFileDropzonePaste="document" (ngpFileDropzoneSelected)="otherSelected()">Drop</div>
+         <div ngpFileDropzone ngpFileDropzonePaste="document" (ngpFileDropzoneSelected)="focusedSelected()" data-testid="focused">Drop</div>`,
+        {
+          imports: [NgpFileDropzone],
+          componentProperties: { focusedSelected, otherSelected },
+        },
+      );
+
+      dispatchPasteEvent(getByTestId('focused'), [createFile('a.png', 'image/png')]);
+
+      expect(focusedSelected).toHaveBeenCalledTimes(1);
+      expect(otherSelected).not.toHaveBeenCalled();
+    });
   });
 
   describe('disabled', () => {
