@@ -1,3 +1,13 @@
+## 0.130.5 (2026-09-28)
+
+### 🩹 Fixes
+
+- **file-upload:** let a focused upload take precedence over document-mode paste ([#955](https://github.com/ng-primitives/ng-primitives/pull/955))
+
+### ❤️ Thank You
+
+- Ashley Hunter
+
 ## 0.130.4 (2026-09-25)
 
 ### 🚀 Features
