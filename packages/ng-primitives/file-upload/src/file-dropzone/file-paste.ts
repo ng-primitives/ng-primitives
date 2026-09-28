@@ -4,6 +4,9 @@ import { listener } from 'ng-primitives/state';
 import { onBooleanChange } from 'ng-primitives/utils';
 import { NgpFilePasteTarget } from './file-drop-filter';
 
+// every upload and dropzone host, so a document-mode listener can tell a paste aimed at another one
+const uploadHosts = new WeakSet<Element>();
+
 /**
  * Capture files pasted on the host (while focused) or anywhere in the document.
  */
@@ -15,6 +18,9 @@ export function filePaste(
 ): void {
   const document = inject(DOCUMENT);
   const injector = inject(Injector);
+  const host = element.nativeElement;
+
+  uploadHosts.add(host);
 
   function onPaste(event: ClipboardEvent, target: 'host' | 'document'): void {
     // a host-mode instance that handled the paste first wins over document-mode ones
@@ -24,6 +30,13 @@ export function filePaste(
 
     // pastes into a text field or rich-text editor belong to that field
     if (isEditable(event.target)) {
+      return;
+    }
+
+    // a focused upload elsewhere owns the paste, even one that ignores pastes;
+    // one nested inside this host (a browse button in a dropzone) does not
+    const owner = closestUploadHost(event.target);
+    if (target === 'document' && owner && !host.contains(owner)) {
       return;
     }
 
@@ -58,7 +71,6 @@ export function filePaste(
   // A paste only fires on the focused element, so a plain div needs to become focusable.
   // Not `attrBinding`: its `null` would strip a tabindex the consumer binds. Wait for the first
   // render so their bindings are applied, only add one when none is present, and only remove ours.
-  const host = element.nativeElement;
   let ownsTabIndex = false;
 
   afterNextRender(
@@ -81,6 +93,15 @@ export function filePaste(
       ),
     { injector },
   );
+}
+
+function closestUploadHost(target: EventTarget | null): Element | null {
+  for (let node = target instanceof Element ? target : null; node; node = node.parentElement) {
+    if (uploadHosts.has(node)) {
+      return node;
+    }
+  }
+  return null;
 }
 
 function isEditable(target: EventTarget | null): boolean {
