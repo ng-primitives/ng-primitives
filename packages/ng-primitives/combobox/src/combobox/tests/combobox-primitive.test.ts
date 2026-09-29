@@ -560,6 +560,35 @@ describe('NgpCombobox', () => {
       expect(options[options.length - 1]).toHaveAttribute('data-active');
     });
 
+    it('should activate the last option when ArrowUp opens the dropdown', async () => {
+      await render(TestComponent);
+
+      const input = screen.getByRole('combobox');
+      input.focus();
+
+      await userEvent.keyboard('{arrowup}');
+
+      await waitFor(() => {
+        expect(screen.getByText('Elderberry')).toHaveAttribute('data-active');
+      });
+    });
+
+    it('should keep the selected option active when ArrowUp opens the dropdown', async () => {
+      const { fixture } = await render(TestComponent);
+      const component = fixture.componentInstance;
+      component.value = 'Banana';
+      fixture.detectChanges();
+
+      const input = screen.getByRole('combobox');
+      input.focus();
+
+      await userEvent.keyboard('{arrowup}');
+
+      await waitFor(() => {
+        expect(screen.getByText('Banana')).toHaveAttribute('data-active');
+      });
+    });
+
     it('should allow caret navigation with Home and End keys when dropdown is closed', async () => {
       const { fixture } = await render(TestComponent);
       const component = fixture.componentInstance;
@@ -1557,6 +1586,22 @@ describe('NgpCombobox Virtual Scrolling', () => {
       await userEvent.keyboard('{Home}');
       expect(component.scrollToOptionCalled).toBeTruthy();
     });
+
+    it('should call custom scroll function when ArrowUp opens the dropdown', async () => {
+      const { fixture } = await render(VirtualScrollingTestComponent);
+      const component = fixture.componentInstance;
+
+      const input = screen.getByRole('combobox');
+      input.focus();
+
+      component.scrollToOptionCalled = false;
+      await userEvent.keyboard('{arrowup}');
+
+      await waitFor(() => {
+        expect(component.scrollToOptionCalled).toBeTruthy();
+        expect(component.lastScrollIndex).toBe(component.allOptions.length - 1);
+      });
+    });
   });
 
   describe('Edge Cases and Error Handling', () => {
@@ -1866,6 +1911,27 @@ describe('NgpCombobox without input', () => {
 
     const options = screen.getAllByRole('option');
     expect(options[options.length - 1]).toHaveAttribute('data-active');
+  });
+
+  it('should keep the selected option active when arrow up opens dropdown without input', async () => {
+    const { fixture } = await render(NoInputTestComponent);
+    const component = fixture.componentInstance;
+    component.value = 'Banana';
+    fixture.detectChanges();
+
+    const combobox = screen.getByTestId('combobox-without-input');
+    const button = screen.getByTestId('combobox-button');
+
+    combobox.focus();
+
+    await userEvent.keyboard('{arrowup}');
+
+    await waitFor(() => {
+      expect(button).toHaveAttribute('aria-expanded', 'true');
+    });
+
+    const options = screen.getAllByRole('option');
+    expect(options[1]).toHaveAttribute('data-active');
   });
 
   it('should navigate to first item with Home key', async () => {

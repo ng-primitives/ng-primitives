@@ -48,6 +48,14 @@ import { comboboxState, provideComboboxState } from './combobox-state';
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type T = any;
 
+export interface NgpComboboxOpenOptions {
+  /**
+   * Which option to activate once the dropdown has opened and its options have registered.
+   * A selected option always wins over this preference. Defaults to `'first'`.
+   */
+  readonly activate?: 'first' | 'last';
+}
+
 @Directive({
   selector: '[ngpCombobox]',
   exportAs: 'ngpCombobox',
@@ -276,7 +284,7 @@ export class NgpCombobox {
    * Open the dropdown.
    * @internal
    */
-  async openDropdown(): Promise<void> {
+  async openDropdown(options?: NgpComboboxOpenOptions): Promise<void> {
     if (this.state.disabled() || this.open()) {
       return;
     }
@@ -306,6 +314,18 @@ export class NgpCombobox {
       // scroll to and activate the selected option
       this.scrollTo(selectedOptionIdx);
       this.activeDescendantManager.activateByIndex(selectedOptionIdx);
+      return;
+    }
+
+    // nothing is selected, so honour the caller's preference. this must happen here rather
+    // than at the call site: openDropdown suspends on the portal, so an activation queued
+    // by the caller would run before any option has registered, and would then be
+    // overwritten when this function resumes.
+    if (options?.activate === 'last') {
+      this.activeDescendantManager.last();
+      // the manager scrolls through a callback that bails out until the overlay has been
+      // positioned, which has not happened yet, so scroll here like the selected branch does
+      this.scrollTo(this.activeDescendantManager.index());
       return;
     }
 
@@ -711,9 +731,7 @@ export class NgpCombobox {
         if (this.open()) {
           this.activatePreviousOption();
         } else {
-          this.openDropdown();
-          // Use setTimeout to ensure dropdown is rendered before selecting last item
-          setTimeout(() => this.activeDescendantManager.last());
+          void this.openDropdown({ activate: 'last' });
         }
         event.preventDefault();
         break;
