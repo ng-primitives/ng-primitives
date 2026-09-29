@@ -1636,6 +1636,136 @@ describe('NgpCombobox Virtual Scrolling', () => {
       expect(screen.getByTestId('no-options')).toBeInTheDocument();
     });
 
+    it('should open dropdown without invoking scrollTo when ArrowUp is pressed on an empty combobox', async () => {
+      const scrollToOption = vi.fn();
+
+      @Component({
+        imports: [
+          NgpCombobox,
+          NgpComboboxButton,
+          NgpComboboxDropdown,
+          NgpComboboxInput,
+          NgpComboboxOption,
+          NgpComboboxPortal,
+        ],
+        template: `
+          <div [ngpComboboxScrollToOption]="scrollToOption" ngpCombobox>
+            <input ngpComboboxInput />
+            <button data-testid="empty-combobox-button" ngpComboboxButton>▼</button>
+            <div *ngpComboboxPortal ngpComboboxDropdown>
+              <div data-testid="empty-message">No options available</div>
+            </div>
+          </div>
+        `,
+      })
+      class EmptyComboboxComponent {
+        scrollToOption = scrollToOption;
+      }
+
+      await render(EmptyComboboxComponent);
+
+      const input = screen.getByRole('combobox');
+      const button = screen.getByTestId('empty-combobox-button');
+      input.focus();
+
+      await userEvent.keyboard('{arrowup}');
+
+      await waitFor(() => {
+        expect(button).toHaveAttribute('aria-expanded', 'true');
+      });
+
+      expect(screen.getByTestId('empty-message')).toBeInTheDocument();
+      expect(scrollToOption).not.toHaveBeenCalled();
+    });
+
+    it('should open dropdown without invoking scrollTo when ArrowUp is pressed on an empty virtual combobox', async () => {
+      const scrollToOption = vi.fn();
+
+      @Component({
+        imports: [
+          NgpCombobox,
+          NgpComboboxButton,
+          NgpComboboxDropdown,
+          NgpComboboxInput,
+          NgpComboboxOption,
+          NgpComboboxPortal,
+        ],
+        template: `
+          <div [ngpComboboxOptions]="[]" [ngpComboboxScrollToOption]="scrollToOption" ngpCombobox>
+            <input ngpComboboxInput />
+            <button data-testid="empty-virtual-button" ngpComboboxButton>▼</button>
+            <div *ngpComboboxPortal ngpComboboxDropdown>
+              <div data-testid="empty-virtual-message">No options available</div>
+            </div>
+          </div>
+        `,
+      })
+      class EmptyVirtualComboboxComponent {
+        scrollToOption = scrollToOption;
+      }
+
+      await render(EmptyVirtualComboboxComponent);
+
+      const input = screen.getByRole('combobox');
+      const button = screen.getByTestId('empty-virtual-button');
+      input.focus();
+
+      await userEvent.keyboard('{arrowup}');
+
+      await waitFor(() => {
+        expect(button).toHaveAttribute('aria-expanded', 'true');
+      });
+
+      expect(screen.getByTestId('empty-virtual-message')).toBeInTheDocument();
+      expect(scrollToOption).not.toHaveBeenCalled();
+    });
+
+    it('should open dropdown without invoking scrollTo when ArrowUp is pressed and all options are disabled', async () => {
+      const scrollToOption = vi.fn();
+
+      @Component({
+        imports: [
+          NgpCombobox,
+          NgpComboboxButton,
+          NgpComboboxDropdown,
+          NgpComboboxInput,
+          NgpComboboxOption,
+          NgpComboboxPortal,
+        ],
+        template: `
+          <div [ngpComboboxScrollToOption]="scrollToOption" ngpCombobox>
+            <input ngpComboboxInput />
+            <button data-testid="disabled-options-button" ngpComboboxButton>▼</button>
+            <div *ngpComboboxPortal ngpComboboxDropdown>
+              <div [ngpComboboxOptionDisabled]="true" ngpComboboxOptionValue="1" ngpComboboxOption>
+                Disabled 1
+              </div>
+              <div [ngpComboboxOptionDisabled]="true" ngpComboboxOptionValue="2" ngpComboboxOption>
+                Disabled 2
+              </div>
+            </div>
+          </div>
+        `,
+      })
+      class AllDisabledOptionsComponent {
+        scrollToOption = scrollToOption;
+      }
+
+      await render(AllDisabledOptionsComponent);
+
+      const input = screen.getByRole('combobox');
+      const button = screen.getByTestId('disabled-options-button');
+      input.focus();
+
+      await userEvent.keyboard('{arrowup}');
+
+      await waitFor(() => {
+        expect(button).toHaveAttribute('aria-expanded', 'true');
+      });
+
+      expect(scrollToOption).not.toHaveBeenCalled();
+    });
+
     it('should fall back to DOM options when allOptions is not provided', async () => {
       @Component({
         imports: [

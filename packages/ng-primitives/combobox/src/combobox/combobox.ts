@@ -325,7 +325,12 @@ export class NgpCombobox {
       this.activeDescendantManager.last();
       // the manager scrolls through a callback that bails out until the overlay has been
       // positioned, which has not happened yet, so scroll here like the selected branch does
-      this.scrollTo(this.activeDescendantManager.index());
+      const index = this.activeDescendantManager.index();
+      const optionCount = this.state.allOptions()?.length ?? this.options().length;
+      const option = this.getOptionAtIndex(index);
+      if (index >= 0 && index < optionCount && !(option?.disabled() ?? false)) {
+        this.scrollTo(index);
+      }
       return;
     }
 
