@@ -985,16 +985,14 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
   }
 
   /**
-   * The overlay this one was opened from. The injector chain does not span a dialog, so
-   * fall back to whichever registered overlay contains the trigger in the DOM.
+   * The overlay this one was opened from: the nearest registered overlay containing the
+   * trigger in the DOM, else the injected one. The injector chain alone would skip a dialog,
+   * whose injector descends from its trigger's.
    */
   private resolveParentId(): string | null {
-    if (this.parentOverlay) {
-      return this.parentOverlay.id();
-    }
-
     const trigger = this.config.triggerElement;
-    return trigger ? this.registry.findContainingOverlay(trigger) : null;
+    const containing = trigger ? this.registry.findContainingOverlay(trigger) : null;
+    return containing ?? this.parentOverlay?.id() ?? null;
   }
 
   /**
