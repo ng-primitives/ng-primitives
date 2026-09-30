@@ -183,7 +183,7 @@ bootstrapApplication(AppComponent, {
 
 ## Accessibility
 
-The select primitive follows the [WAI-ARIA Combobox pattern](https://www.w3.org/WAI/ARIA/apg/patterns/combobox/). The trigger uses `role="combobox"` with `aria-expanded` and `aria-controls`. The dropdown uses `role="listbox"` and options use `role="option"` with `aria-selected`. Focus is managed using `aria-activedescendant`.
+The select primitive follows the [WAI-ARIA Combobox pattern](https://www.w3.org/WAI/ARIA/apg/patterns/combobox/). The trigger uses `role="combobox"` with `aria-expanded` and `aria-controls`. The dropdown uses `role="listbox"` (with `aria-multiselectable` reflecting `ngpSelectMultiple`) and options use `role="option"` with `aria-selected`. Focus is managed using `aria-activedescendant`.
 
 ### Keyboard Interactions
 

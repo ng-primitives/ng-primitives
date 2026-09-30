@@ -39,6 +39,7 @@ export const [
     // Host bindings
     attrBinding(elementRef, 'role', 'listbox');
     attrBinding(elementRef, 'id', _id);
+    attrBinding(elementRef, 'aria-multiselectable', () => selectState().multiple());
     styleBinding(elementRef, 'left.px', () => selectState().overlay()?.position()?.x ?? null);
     styleBinding(elementRef, 'top.px', () => selectState().overlay()?.position()?.y ?? null);
     styleBinding(
