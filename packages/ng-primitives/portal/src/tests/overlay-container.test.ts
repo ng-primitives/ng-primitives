@@ -162,6 +162,38 @@ describe('NgpOverlay container resolution', () => {
     expect(containerB.querySelector('[data-testid="overlay"]')).toBe(rendered);
   });
 
+  it('should put a kept-mounted portal back on screen when shown in the same turn as hideImmediate()', async () => {
+    const { fixture, getByTestId } = await render(OverlayContainerHostComponent);
+    fixture.autoDetectChanges(true);
+
+    const host = fixture.componentInstance;
+    const containerA = getByTestId('container-a');
+
+    overlay = TestBed.runInInjectionContext(() =>
+      createOverlay({
+        content: host.content,
+        triggerElement: getByTestId('trigger'),
+        injector: host.injector,
+        viewContainerRef: host.viewContainerRef,
+        container: containerA,
+        keepMounted: signal(true),
+      }),
+    );
+
+    await overlay.show();
+    const rendered = await waitFor(() => {
+      const el = containerA.querySelector('[data-testid="overlay"]');
+      expect(el).toBeInTheDocument();
+      return el;
+    });
+
+    overlay.hideImmediate();
+    await overlay.show();
+
+    expect(overlay.isOpen()).toBe(true);
+    expect(containerA.querySelector('[data-testid="overlay"]')).toBe(rendered);
+  });
+
   it('should keep an open overlay where it is when the container signal changes and use the new container on the next open', async () => {
     const { fixture, getByTestId } = await render(OverlayContainerHostComponent);
     fixture.autoDetectChanges(true);

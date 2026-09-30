@@ -658,6 +658,11 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
     this.destroyingPortal = null;
     portal.cancelDetach();
 
+    // An immediate keepMounted detach has already pulled the live view out of the DOM.
+    if (portal.getElements().length > 0 && !portal.getAttached() && this.openContainer) {
+      portal.reattach(this.openContainer, { immediate: true });
+    }
+
     // Restore the portal
     this.portal.set(portal);
 
