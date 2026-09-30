@@ -115,22 +115,36 @@ export class NgpOverlayRegistry {
   /** Tracks the pointerdown target for CDK-compatible outside pointer event dispatch */
   private pointerDownTarget: EventTarget | null = null;
 
+  /** Open order of each entry, parallel to `entries`, which stays sorted by it. */
+  private readonly orders = new Map<string, number>();
+
+  /** The order the next freshly opened entry receives. */
+  private nextOrder = 0;
+
   /**
-   * Register an overlay as visible. The entry is appended to the end of the list
-   * (making it the topmost overlay). Attaches document listeners if this is the
-   * first entry.
+   * Register an overlay as visible. Attaches document listeners if this is the first entry.
+   * @param order The value a previous `register()` returned, to put the entry back where it
+   * was in the stack. Omit it to register the entry as the topmost overlay.
+   * @returns The entry's open order.
    */
-  register(entry: NgpOverlayEntry): void {
+  register(entry: NgpOverlayEntry, order?: number): number {
     // Avoid double-registration
-    if (this.entries.some(e => e.id === entry.id)) {
-      return;
+    const existing = this.orders.get(entry.id);
+    if (existing !== undefined) {
+      return existing;
     }
-    this.entries.push(entry);
+
+    const entryOrder = order ?? this.nextOrder++;
+    const index = this.entries.findIndex(e => this.orders.get(e.id)! > entryOrder);
+    this.entries.splice(index === -1 ? this.entries.length : index, 0, entry);
+    this.orders.set(entry.id, entryOrder);
 
     // Attach listeners when the first overlay registers
     if (this.entries.length === 1) {
       this.attachListeners();
     }
+
+    return entryOrder;
   }
 
   /**
@@ -141,6 +155,7 @@ export class NgpOverlayRegistry {
     const index = this.entries.findIndex(e => e.id === id);
     if (index !== -1) {
       this.entries.splice(index, 1);
+      this.orders.delete(id);
       this.pendingGuardIds.delete(id);
     }
 

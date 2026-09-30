@@ -346,6 +346,9 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
    */
   private openContainer: HTMLElement | null = null;
 
+  /** This overlay's place in the registry stack, restored when a close is interrupted. */
+  private registryOrder?: number;
+
   /**
    * Whether the overlay itself has been torn down. A hide already in flight when that happens
    * finishes on its own clock, so it checks this before keeping its view mounted for reuse.
@@ -659,8 +662,10 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
     portal.cancelDetach();
 
     // An immediate keepMounted detach has already pulled the live view out of the DOM.
-    if (portal.getElements().length > 0 && !portal.getAttached() && this.openContainer) {
-      portal.reattach(this.openContainer, { immediate: true });
+    const reattachTo =
+      portal.getElements().length > 0 && !portal.getAttached() ? this.openContainer : null;
+    if (reattachTo) {
+      portal.reattach(reattachTo, { immediate: true });
     }
 
     // Restore the portal
@@ -677,9 +682,10 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
     this.scrollStrategy.enable();
 
     // destroyOverlay() deregistered before the exit animation started. An immediate detach
-    // leaves nothing on screen to route dismissals to.
+    // leaves nothing on screen to route dismissals to. The stack mirrors the DOM: a view that
+    // never left keeps its place, a reattached one is now last in its container.
     if (portal.getElements().length > 0) {
-      this.registerWithRegistry();
+      this.registerWithRegistry(reattachTo ? undefined : this.registryOrder);
     }
 
     // Re-register with cooldown if needed
@@ -968,20 +974,23 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
   }
 
   /** Add this overlay to the registry. Idempotent, so an interrupted close can re-run it. */
-  private registerWithRegistry(): void {
-    this.registry.register({
-      id: this.id(),
-      parentId: this.resolveParentId(),
-      overlay: this,
-      getElements: () => this.getElements(),
-      triggerElement: this.config.triggerElement,
-      anchorElement: this.anchorElement,
-      dismissPolicy: {
-        outsidePress: this.config.closeOnOutsideClick ?? false,
-        escapeKey: this.config.closeOnEscape ?? false,
+  private registerWithRegistry(order?: number): void {
+    this.registryOrder = this.registry.register(
+      {
+        id: this.id(),
+        parentId: this.resolveParentId(),
+        overlay: this,
+        getElements: () => this.getElements(),
+        triggerElement: this.config.triggerElement,
+        anchorElement: this.anchorElement,
+        dismissPolicy: {
+          outsidePress: this.config.closeOnOutsideClick ?? false,
+          escapeKey: this.config.closeOnEscape ?? false,
+        },
+        treatTriggerClickAsOutside: this.config.treatTriggerClickAsOutside,
       },
-      treatTriggerClickAsOutside: this.config.treatTriggerClickAsOutside,
-    });
+      order,
+    );
   }
 
   /**
