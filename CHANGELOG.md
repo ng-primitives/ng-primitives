@@ -1,3 +1,28 @@
+## 0.131.1 (2026-09-30)
+
+### 🚀 Features
+
+- **dialog:** allow configuring the container the dialog renders into ([#908](https://github.com/ng-primitives/ng-primitives/pull/908))
+- **file-upload:** add paste, max file size and per-file rejections ([#951](https://github.com/ng-primitives/ng-primitives/pull/951))
+- **number-field:** add snap option for off-grid values ([#946](https://github.com/ng-primitives/ng-primitives/pull/946), [#896](https://github.com/ng-primitives/ng-primitives/issues/896))
+- **preview-card:** add preview card primitive ([#855](https://github.com/ng-primitives/ng-primitives/pull/855), [#856](https://github.com/ng-primitives/ng-primitives/issues/856))
+- **toast:** expose remaining time and paused state for progress indicators ([#949](https://github.com/ng-primitives/ng-primitives/pull/949), [#947](https://github.com/ng-primitives/ng-primitives/issues/947))
+
+### 🩹 Fixes
+
+- **file-upload:** let a focused upload take precedence over document-mode paste ([#955](https://github.com/ng-primitives/ng-primitives/pull/955))
+- **portal:** make the overlay registry the single source of ancestry ([#948](https://github.com/ng-primitives/ng-primitives/pull/948))
+- **radio:** give the checked item the roving tab stop ([#943](https://github.com/ng-primitives/ng-primitives/pull/943))
+
+### ❤️ Thank You
+
+- Antoine Delahaye
+- Ashley Hunter
+- Claude Opus 5 (1M context)
+- Claude Opus 5.5
+- Clément Loridan
+- Roman Mykhailiuk @JustDo1t90
+
 ## 0.131.0 (2026-09-15)
 
 ### 🚀 Features
