@@ -285,8 +285,6 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
   private readonly registry = inject(NgpOverlayRegistry);
   /** Access any parent overlays */
   private readonly parentOverlay = inject(NgpOverlay, { optional: true });
-  /** Track child overlays for outside click detection */
-  private readonly childOverlays = new Set<NgpOverlay>();
   /** Signal tracking the portal instance */
   private readonly portal = signal<NgpPortal | null>(null);
   /** The dedicated outlet element registered by the overlay directive (e.g. NgpMenu) */
@@ -355,6 +353,9 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
    * an open overlay - it takes effect on the next open.
    */
   private openContainer: HTMLElement | null = null;
+
+  /** This overlay's place in the registry stack, restored when a close is interrupted. */
+  private registryOrder?: number;
 
   /**
    * Whether the overlay itself has been torn down. A hide already in flight when that happens
@@ -699,6 +700,13 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
     this.destroyingPortal = null;
     portal.cancelDetach();
 
+    // An immediate keepMounted detach has already pulled the live view out of the DOM.
+    const reattachTo =
+      portal.getElements().length > 0 && !portal.getAttached() ? this.openContainer : null;
+    if (reattachTo) {
+      portal.reattach(reattachTo, { immediate: true });
+    }
+
     // Restore the portal
     this.portal.set(portal);
 
@@ -711,6 +719,13 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
     // Re-enable scroll strategy
     this.scrollStrategy = this.createScrollStrategy();
     this.scrollStrategy.enable();
+
+    // destroyOverlay() deregistered before the exit animation started. An immediate detach
+    // leaves nothing on screen to route dismissals to. The stack mirrors the DOM: a view that
+    // never left keeps its place, a reattached one is now last in its container.
+    if (portal.getElements().length > 0) {
+      this.registerWithRegistry(reattachTo ? undefined : this.registryOrder);
+    }
 
     // Re-register with cooldown if needed
     if (this.config.overlayType) {
@@ -999,59 +1014,35 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
     return elements.find(el => el.hasAttribute('data-overlay')) ?? elements[0];
   }
 
-  /**
-   * Register a child overlay for outside click detection.
-   * @internal
-   */
-  registerChildOverlay(child: NgpOverlay): void {
-    this.childOverlays.add(child);
+  /** Add this overlay to the registry. Idempotent, so an interrupted close can re-run it. */
+  private registerWithRegistry(order?: number): void {
+    this.registryOrder = this.registry.register(
+      {
+        id: this.id(),
+        parentId: this.resolveParentId(),
+        overlay: this,
+        getElements: () => this.getElements(),
+        triggerElement: this.config.triggerElement,
+        anchorElement: this.anchorElement,
+        dismissPolicy: {
+          outsidePress: this.config.closeOnOutsideClick ?? false,
+          escapeKey: this.config.closeOnEscape ?? false,
+        },
+        treatTriggerClickAsOutside: this.config.treatTriggerClickAsOutside,
+      },
+      order,
+    );
   }
 
   /**
-   * Unregister a child overlay.
-   * @internal
+   * The overlay this one was opened from: the nearest registered overlay containing the
+   * trigger in the DOM, else the injected one. The injector chain alone would skip a dialog,
+   * whose injector descends from its trigger's.
    */
-  unregisterChildOverlay(child: NgpOverlay): void {
-    this.childOverlays.delete(child);
-  }
-
-  /**
-   * Determine whether this overlay is a descendant of the given overlay - i.e.
-   * its trigger is rendered within the other overlay's content. Walks the parent
-   * overlay chain established through dependency injection.
-   *
-   * Used by the cooldown manager to avoid evicting an ancestor overlay when a
-   * nested overlay of the same type is activated.
-   * @internal
-   */
-  isDescendantOf(other: CooldownOverlay): boolean {
-    let current: NgpOverlay | null = this.parentOverlay;
-
-    while (current) {
-      if (current === other) {
-        return true;
-      }
-      current = current.parentOverlay;
-    }
-
-    return false;
-  }
-
-  /**
-   * Check if the event path includes any child overlay elements (recursively).
-   * @internal
-   */
-  isInsideChildOverlay(path: EventTarget[]): boolean {
-    for (const child of this.childOverlays) {
-      const childElements = child.getElements();
-      if (childElements.some(el => path.includes(el))) {
-        return true;
-      }
-      if (child.isInsideChildOverlay(path)) {
-        return true;
-      }
-    }
-    return false;
+  private resolveParentId(): string | null {
+    const trigger = this.config.triggerElement;
+    const containing = trigger ? this.registry.findContainingOverlay(trigger) : null;
+    return containing ?? this.parentOverlay?.id() ?? null;
   }
 
   /**
@@ -1074,19 +1065,7 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
     this.isOpen.set(true);
 
     // Register with the overlay registry for centralized dismiss routing
-    this.registry.register({
-      id: this.id(),
-      parentId: this.parentOverlay?.id() ?? null,
-      overlay: this,
-      getElements: () => this.getElements(),
-      triggerElement: this.config.triggerElement,
-      anchorElement: this.anchorElement,
-      dismissPolicy: {
-        outsidePress: this.config.closeOnOutsideClick ?? false,
-        escapeKey: this.config.closeOnEscape ?? false,
-      },
-      treatTriggerClickAsOutside: this.config.treatTriggerClickAsOutside,
-    });
+    this.registerWithRegistry();
 
     // Register as active overlay for this type (skip when cooldown is bypassed)
     if (this.config.overlayType && !skipCooldown) {

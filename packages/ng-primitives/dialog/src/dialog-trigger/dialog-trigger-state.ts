@@ -80,6 +80,7 @@ export const [
     function handleClick(): void {
       const dialogRef = dialogManager.open(template(), {
         injector,
+        triggerElement: elementRef.nativeElement,
         closeOnEscape: closeOnEscape(),
         closeOnOutsideClick: closeOnOutsideClick(),
         // resolve `undefined` here, the manager only sees the root configuration

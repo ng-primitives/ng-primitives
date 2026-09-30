@@ -70,6 +70,12 @@ export interface NgpOverlayEntry {
   treatTriggerClickAsOutside?: boolean;
   /** Optional subject that receives pointer events that occur outside the overlay */
   outsidePointerEvents$?: Subject<MouseEvent>;
+  /**
+   * Whether closing the parent overlay also closes this one. Defaults to true.
+   * Set it false for an overlay that does not depend on its parent for position - a
+   * dialog is positioned against the viewport, an anchored overlay loses its anchor.
+   */
+  cascadeClose?: boolean;
 }
 
 /**
@@ -109,22 +115,36 @@ export class NgpOverlayRegistry {
   /** Tracks the pointerdown target for CDK-compatible outside pointer event dispatch */
   private pointerDownTarget: EventTarget | null = null;
 
+  /** Open order of each entry, parallel to `entries`, which stays sorted by it. */
+  private readonly orders = new Map<string, number>();
+
+  /** The order the next freshly opened entry receives. */
+  private nextOrder = 0;
+
   /**
-   * Register an overlay as visible. The entry is appended to the end of the list
-   * (making it the topmost overlay). Attaches document listeners if this is the
-   * first entry.
+   * Register an overlay as visible. Attaches document listeners if this is the first entry.
+   * @param order The value a previous `register()` returned, to put the entry back where it
+   * was in the stack. Omit it to register the entry as the topmost overlay.
+   * @returns The entry's open order.
    */
-  register(entry: NgpOverlayEntry): void {
+  register(entry: NgpOverlayEntry, order?: number): number {
     // Avoid double-registration
-    if (this.entries.some(e => e.id === entry.id)) {
-      return;
+    const existing = this.orders.get(entry.id);
+    if (existing !== undefined) {
+      return existing;
     }
-    this.entries.push(entry);
+
+    const entryOrder = order ?? this.nextOrder++;
+    const index = this.entries.findIndex(e => this.orders.get(e.id)! > entryOrder);
+    this.entries.splice(index === -1 ? this.entries.length : index, 0, entry);
+    this.orders.set(entry.id, entryOrder);
 
     // Attach listeners when the first overlay registers
     if (this.entries.length === 1) {
       this.attachListeners();
     }
+
+    return entryOrder;
   }
 
   /**
@@ -135,6 +155,7 @@ export class NgpOverlayRegistry {
     const index = this.entries.findIndex(e => e.id === id);
     if (index !== -1) {
       this.entries.splice(index, 1);
+      this.orders.delete(id);
       this.pendingGuardIds.delete(id);
     }
 
@@ -149,11 +170,59 @@ export class NgpOverlayRegistry {
    * Called by NgpOverlay when it hides to cascade the close to children.
    */
   closeDescendants(id: string): void {
-    const descendants = this.getDescendants(id);
+    const descendants = this.getCascadingDescendants(id);
     // Close deepest first to avoid re-entrant issues
     for (let i = descendants.length - 1; i >= 0; i--) {
       descendants[i].overlay.hideImmediate();
     }
+  }
+
+  /**
+   * Descendants of `id` that close along with it. The walk stops at an entry that opted
+   * out, leaving its own subtree open too.
+   */
+  private getCascadingDescendants(id: string): NgpOverlayEntry[] {
+    return this.collectDescendants(id, entry => entry.cascadeClose !== false);
+  }
+
+  /**
+   * Breadth-first walk of `id`'s subtree, so the result is parent-before-child whatever
+   * order `entries` is in. `include` prunes an entry and its subtree.
+   */
+  private collectDescendants(
+    id: string,
+    include: (entry: NgpOverlayEntry) => boolean = () => true,
+  ): NgpOverlayEntry[] {
+    const childrenByParent = new Map<string, NgpOverlayEntry[]>();
+
+    for (const entry of this.entries) {
+      if (entry.parentId === null) {
+        continue;
+      }
+      const siblings = childrenByParent.get(entry.parentId);
+      if (siblings) {
+        siblings.push(entry);
+      } else {
+        childrenByParent.set(entry.parentId, [entry]);
+      }
+    }
+
+    const descendants: NgpOverlayEntry[] = [];
+    const queue = [id];
+    const seen = new Set<string>([id]);
+
+    while (queue.length > 0) {
+      for (const child of childrenByParent.get(queue.shift()!) ?? []) {
+        if (seen.has(child.id) || !include(child)) {
+          continue;
+        }
+        seen.add(child.id);
+        descendants.push(child);
+        queue.push(child.id);
+      }
+    }
+
+    return descendants;
   }
 
   /**
@@ -212,19 +281,7 @@ export class NgpOverlayRegistry {
    * by walking parentId chains of all entries.
    */
   getDescendants(id: string): NgpOverlayEntry[] {
-    const descendants: NgpOverlayEntry[] = [];
-    const ancestorIds = new Set<string>([id]);
-
-    // Walk the list and collect entries whose parentId is in the ancestor set.
-    // Because entries are ordered by open time, a child always appears after its parent.
-    for (const entry of this.entries) {
-      if (entry.parentId !== null && ancestorIds.has(entry.parentId)) {
-        descendants.push(entry);
-        ancestorIds.add(entry.id);
-      }
-    }
-
-    return descendants;
+    return this.collectDescendants(id);
   }
 
   /**

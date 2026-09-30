@@ -9,6 +9,7 @@ import {
   NgpDialogManager,
   NgpDialogOverlay,
   NgpDialogTitle,
+  NgpDialogTrigger,
 } from 'ng-primitives/dialog';
 import { NgpMenu, NgpMenuItem, NgpMenuTrigger } from 'ng-primitives/menu';
 import { NgpPopover, NgpPopoverTrigger } from 'ng-primitives/popover';
@@ -544,9 +545,10 @@ describe('NgpDialog', () => {
       await new Promise(r => setTimeout(r, 0));
     });
 
-    it('should NOT register a dialog opened from a popover as a descendant of the popover', async () => {
+    it('should register a dialog opened from a popover as its child, opted out of cascade close', async () => {
       const view = await render(PopoverDialogHost);
       dialogManager = TestBed.inject(NgpDialogManager);
+      const registry = TestBed.inject(NgpOverlayRegistry);
 
       const trigger = document.querySelector('[data-testid="popover-trigger"]') as HTMLElement;
       fireEvent.click(trigger, { detail: 1 });
@@ -555,16 +557,114 @@ describe('NgpDialog', () => {
 
       const dialogBtn = document.querySelector('[data-testid="popover-dialog-btn"]') as HTMLElement;
       expect(dialogBtn).toBeTruthy();
+      // The button must hold focus: the parent overlay is resolved from the active element.
+      dialogBtn.focus();
       fireEvent.click(dialogBtn, { detail: 1 });
       await view.fixture.whenStable();
       await new Promise(r => setTimeout(r, 0));
 
-      const registry = TestBed.inject(NgpOverlayRegistry);
       expect(document.querySelector('[data-testid="dialog-from-popover"]')).toBeTruthy();
-      const dialogId = dialogManager.openDialogs[0].id;
-      const dialogEntry = registry.getEntries().find(e => e.id === dialogId);
+      const popoverElement = document.querySelector('[data-testid="popover"]') as HTMLElement;
+      const popoverId = registry.findContainingOverlay(popoverElement);
+      const dialogEntry = registry.getEntries().find(e => e.id === dialogManager.openDialogs[0].id);
+
       expect(dialogEntry).toBeTruthy();
-      expect(dialogEntry!.parentId).toBeNull();
+      expect(dialogEntry!.parentId).toBe(popoverId);
+      // Without this the popover closing on select would take the dialog with it.
+      expect(dialogEntry!.cascadeClose).toBe(false);
+    });
+
+    it('should resolve the parent overlay from the trigger element, not the focused element', async () => {
+      const view = await render(PopoverDialogTriggerHost);
+      dialogManager = TestBed.inject(NgpDialogManager);
+      const registry = TestBed.inject(NgpOverlayRegistry);
+
+      const trigger = document.querySelector('[data-testid="popover-trigger"]') as HTMLElement;
+      fireEvent.click(trigger, { detail: 1 });
+      await view.fixture.whenStable();
+      await new Promise(r => setTimeout(r, 0));
+
+      const dialogTrigger = document.querySelector(
+        '[data-testid="popover-dialog-trigger"]',
+      ) as HTMLElement;
+      // No focus(): a parent resolved from document.activeElement would come back null.
+      expect(document.activeElement).not.toBe(dialogTrigger);
+      fireEvent.click(dialogTrigger, { detail: 1 });
+      await view.fixture.whenStable();
+      await new Promise(r => setTimeout(r, 0));
+
+      expect(document.querySelector('[data-testid="dialog-from-trigger"]')).toBeTruthy();
+      const popoverElement = document.querySelector('[data-testid="popover"]') as HTMLElement;
+      const popoverId = registry.findContainingOverlay(popoverElement);
+      const dialogEntry = registry.getEntries().find(e => e.id === dialogManager.openDialogs[0].id);
+
+      expect(dialogEntry!.parentId).toBe(popoverId);
+    });
+
+    it('should keep a menu open when a dialog opened from it is clicked', async () => {
+      const view = await render(MenuDialogHost);
+      dialogManager = TestBed.inject(NgpDialogManager);
+
+      const trigger = document.querySelector('[data-testid="menu-trigger"]') as HTMLElement;
+      fireEvent.click(trigger, { detail: 1 });
+      await view.fixture.whenStable();
+      await new Promise(r => setTimeout(r, 0));
+
+      // Drive the manager directly so the menu stays mounted and both overlays are open.
+      const menuElement = document.querySelector('[data-testid="menu"]') as HTMLElement;
+      menuElement.focus();
+      view.fixture.componentInstance.openDialog();
+      await view.fixture.whenStable();
+      await new Promise(r => setTimeout(r, 0));
+
+      expect(document.querySelector('[data-testid="dialog-from-menu"]')).toBeTruthy();
+      expect(document.querySelector('[data-testid="menu"]')).toBeTruthy();
+
+      // A click inside the dialog must not read as an outside press on the menu.
+      const dialogElement = document.querySelector(
+        '[data-testid="dialog-from-menu"]',
+      ) as HTMLElement;
+      fireEvent.mouseUp(dialogElement, { detail: 1 });
+      await view.fixture.whenStable();
+      await new Promise(r => setTimeout(r, 0));
+
+      expect(document.querySelector('[data-testid="menu"]')).toBeTruthy();
+    });
+
+    it('should parent a popover opened inside a dialog to the dialog, not the menu it came from', async () => {
+      const view = await render(MenuDialogPopoverHost);
+      dialogManager = TestBed.inject(NgpDialogManager);
+      const registry = TestBed.inject(NgpOverlayRegistry);
+
+      const settle = async () => {
+        await view.fixture.whenStable();
+        await new Promise(r => setTimeout(r, 0));
+      };
+
+      fireEvent.click(document.querySelector('[data-testid="menu-trigger"]')!, { detail: 1 });
+      await settle();
+      fireEvent.click(document.querySelector('[data-testid="dialog-item"]')!, { detail: 1 });
+      await settle();
+      fireEvent.click(document.querySelector('[data-testid="popover-trigger"]')!, { detail: 1 });
+      await settle();
+
+      const menuId = registry.findContainingOverlay(
+        document.querySelector('[data-testid="menu"]') as HTMLElement,
+      );
+      const popoverId = registry.findContainingOverlay(
+        document.querySelector('[data-testid="popover"]') as HTMLElement,
+      );
+      const popoverEntry = registry.getEntries().find(e => e.id === popoverId);
+
+      // The injector chain reaches the menu through the dialog trigger's injector.
+      expect(popoverEntry!.parentId).toBe(dialogManager.openDialogs[0].id);
+
+      // Closing the menu leaves the dialog, and the popover it holds, open.
+      registry.closeDescendants(menuId!);
+      await settle();
+
+      expect(document.querySelector('[data-testid="dialog-from-menu"]')).toBeTruthy();
+      expect(document.querySelector('[data-testid="popover"]')).toBeTruthy();
     });
   });
 });
@@ -600,6 +700,83 @@ class MenuDialogHost {
       viewContainerRef: this.viewContainerRef,
     });
   }
+}
+
+@Component({
+  template: `
+    <button [ngpMenuTrigger]="menu" data-testid="menu-trigger">Open Menu</button>
+
+    <ng-template #menu>
+      <div ngpMenu data-testid="menu">
+        <button
+          [ngpDialogTrigger]="dialogTemplate"
+          [ngpMenuItemCloseOnSelect]="false"
+          ngpMenuItem
+          data-testid="dialog-item"
+        >
+          Open Dialog
+        </button>
+      </div>
+    </ng-template>
+
+    <ng-template #dialogTemplate>
+      <div ngpDialogOverlay data-testid="dialog-overlay">
+        <div ngpDialog data-testid="dialog-from-menu">
+          <h2 ngpDialogTitle>Dialog</h2>
+          <button [ngpPopoverTrigger]="popover" data-testid="popover-trigger">Open Popover</button>
+        </div>
+      </div>
+    </ng-template>
+
+    <ng-template #popover>
+      <div ngpPopover data-testid="popover">Popover</div>
+    </ng-template>
+  `,
+  imports: [
+    NgpMenuTrigger,
+    NgpMenu,
+    NgpMenuItem,
+    NgpDialog,
+    NgpDialogOverlay,
+    NgpDialogTitle,
+    NgpDialogTrigger,
+    NgpPopoverTrigger,
+    NgpPopover,
+  ],
+})
+class MenuDialogPopoverHost {}
+
+@Component({
+  template: `
+    <button [ngpPopoverTrigger]="popover" data-testid="popover-trigger">Open Popover</button>
+
+    <ng-template #popover>
+      <div ngpPopover data-testid="popover">
+        <button [ngpDialogTrigger]="dialogTemplate" data-testid="popover-dialog-trigger">
+          Open Dialog
+        </button>
+      </div>
+    </ng-template>
+
+    <ng-template #dialogTemplate let-close="close">
+      <div ngpDialogOverlay data-testid="dialog-overlay">
+        <div ngpDialog data-testid="dialog-from-trigger">
+          <h2 ngpDialogTitle>Dialog</h2>
+        </div>
+      </div>
+    </ng-template>
+  `,
+  imports: [
+    NgpPopoverTrigger,
+    NgpPopover,
+    NgpDialog,
+    NgpDialogOverlay,
+    NgpDialogTitle,
+    NgpDialogTrigger,
+  ],
+})
+class PopoverDialogTriggerHost {
+  readonly dialogTemplate = viewChild.required<TemplateRef<NgpDialogContext>>('dialogTemplate');
 }
 
 @Component({

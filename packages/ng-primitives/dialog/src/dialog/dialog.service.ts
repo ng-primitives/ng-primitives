@@ -182,28 +182,24 @@ export class NgpDialogManager implements OnDestroy {
       this.enableScrollBlocking(config);
     }
 
-    // Auto-detect parent overlay: if the trigger element lives inside an existing overlay
-    // (e.g. a dialog opened from a popover), register as its child so that clicks inside
-    // the dialog don't dismiss the parent overlay.
-    // Only inherit parentId from other dialogs — non-dialog overlays (menus, popovers)
-    // may close after triggering the dialog open, which would cascade-close the dialog.
-    let parentId =
-      activeElement instanceof HTMLElement
-        ? this.registry.findContainingOverlay(activeElement)
-        : null;
+    // A programmatic open() has no trigger and falls back to whatever held focus.
+    const originElement =
+      config.triggerElement ?? (activeElement instanceof HTMLElement ? activeElement : null);
 
-    if (parentId !== null && !this.openDialogs.some(d => d.id === parentId)) {
-      parentId = null;
-    }
+    // Register under the overlay the dialog was opened from, so clicks inside it don't read
+    // as an outside press on that parent. `cascadeClose: false` below stops the inverse: a
+    // menu that closes on select must not take the dialog with it.
+    const parentId = originElement ? this.registry.findContainingOverlay(originElement) : null;
 
     // Register with the overlay registry for centralized escape-key routing.
     // outsidePress is false because the NgpDialogOverlay directive handles its own backdrop clicks.
     this.registry.register({
       id: dialogRef.id,
       parentId,
+      cascadeClose: false,
       overlay: dialogRef,
       getElements: () => dialogRef.getElements(),
-      triggerElement: (activeElement as HTMLElement) ?? this.document.body,
+      triggerElement: originElement ?? this.document.body,
       dismissPolicy: {
         outsidePress: false,
         escapeKey: config.closeOnEscape ?? true,
@@ -230,11 +226,11 @@ export class NgpDialogManager implements OnDestroy {
       this.refreshAssistiveTechnologyHiding();
 
       // Focus the trigger element after exit animations complete.
-      if (activeElement instanceof HTMLElement && this.document.body.contains(activeElement)) {
+      if (originElement && this.document.body.contains(originElement)) {
         // Its not great that we are relying on an internal API here, but we need to in order to
         // try and best determine the focus origin when it is programmatically closed by the user.
         this.focusMonitor.focusVia(
-          activeElement,
+          originElement,
           focusOrigin ?? (this.focusMonitor as any)._lastFocusOrigin,
         );
       }
