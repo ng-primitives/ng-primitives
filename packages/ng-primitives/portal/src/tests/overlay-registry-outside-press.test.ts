@@ -60,4 +60,23 @@ describe('NgpOverlayRegistry outside press', () => {
 
     expect(entry.overlay.hide).toHaveBeenCalledTimes(1);
   });
+
+  it('does not keep a cancelled press origin', () => {
+    panel.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true, composed: true }));
+    panel.dispatchEvent(new PointerEvent('pointercancel', { bubbles: true, composed: true }));
+    outside.dispatchEvent(new MouseEvent('mouseup', { bubbles: true, composed: true }));
+
+    expect(entry.overlay.hide).toHaveBeenCalledTimes(1);
+  });
+
+  it('keeps the press origin until every chorded button is released', () => {
+    panel.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true, composed: true }));
+    // the middle button is released first while the primary button is still held
+    outside.dispatchEvent(
+      new MouseEvent('mouseup', { bubbles: true, composed: true, button: 1, buttons: 1 }),
+    );
+    outside.dispatchEvent(new MouseEvent('mouseup', { bubbles: true, composed: true }));
+
+    expect(entry.overlay.hide).not.toHaveBeenCalled();
+  });
 });

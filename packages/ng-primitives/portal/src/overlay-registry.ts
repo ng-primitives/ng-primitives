@@ -313,15 +313,20 @@ export class NgpOverlayRegistry {
         this.pressPath = event.composedPath();
       };
 
+      // A cancelled press (e.g. a touch that turns into a scroll) gets no mouseup to consume it
+      const onPointerCancel = () => (this.pressPath = null);
+
       const onPointerEvent = (event: MouseEvent) => this.handleOutsidePointerEvent(event);
 
       this.document.addEventListener('pointerdown', onPointerDown, true);
+      this.document.addEventListener('pointercancel', onPointerCancel, true);
       this.document.addEventListener('click', onPointerEvent, true);
       this.document.addEventListener('auxclick', onPointerEvent, true);
       this.document.addEventListener('contextmenu', onPointerEvent, true);
 
       this.removeOutsidePointerListeners = () => {
         this.document.removeEventListener('pointerdown', onPointerDown, true);
+        this.document.removeEventListener('pointercancel', onPointerCancel, true);
         this.document.removeEventListener('click', onPointerEvent, true);
         this.document.removeEventListener('auxclick', onPointerEvent, true);
         this.document.removeEventListener('contextmenu', onPointerEvent, true);
@@ -352,7 +357,10 @@ export class NgpOverlayRegistry {
    */
   private handleOutsideClick(event: MouseEvent): void {
     const pressPath = this.pressPath;
-    this.pressPath = null;
+    // While other buttons are still held (chording), the press that set the path is not over yet
+    if (event.buttons === 0) {
+      this.pressPath = null;
+    }
 
     if (this.entries.length === 0) {
       return;
