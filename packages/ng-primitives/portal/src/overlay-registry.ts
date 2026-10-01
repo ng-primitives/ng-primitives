@@ -115,6 +115,9 @@ export class NgpOverlayRegistry {
   /** Tracks the pointerdown target for CDK-compatible outside pointer event dispatch */
   private pointerDownTarget: EventTarget | null = null;
 
+  /** Composed path of the last pointerdown, so a press that starts inside an overlay keeps it open */
+  private pressPath: EventTarget[] | null = null;
+
   /** Open order of each entry, parallel to `entries`, which stays sorted by it. */
   private readonly orders = new Map<string, number>();
 
@@ -307,6 +310,7 @@ export class NgpOverlayRegistry {
       // to entries that have an outsidePointerEvents$ subject.
       const onPointerDown = (event: PointerEvent) => {
         this.pointerDownTarget = this.getComposedTarget(event);
+        this.pressPath = event.composedPath();
       };
 
       const onPointerEvent = (event: MouseEvent) => this.handleOutsidePointerEvent(event);
@@ -336,6 +340,7 @@ export class NgpOverlayRegistry {
     this.removeOutsidePointerListeners?.();
     this.removeOutsidePointerListeners = undefined;
     this.pointerDownTarget = null;
+    this.pressPath = null;
   }
 
   /**
@@ -346,6 +351,9 @@ export class NgpOverlayRegistry {
    * topmost but other overlays (e.g. a popover) should still be dismissed.
    */
   private handleOutsideClick(event: MouseEvent): void {
+    const pressPath = this.pressPath;
+    this.pressPath = null;
+
     if (this.entries.length === 0) {
       return;
     }
@@ -370,10 +378,14 @@ export class NgpOverlayRegistry {
 
     const path = event.composedPath();
 
-    // Step 1: Build a set of overlay IDs where the click is "inside"
+    // Step 1: Build a set of overlay IDs where the press started or ended "inside",
+    // so dragging out of an overlay (e.g. selecting text) does not dismiss it
     const insideIds = new Set<string>();
     for (const entry of this.entries) {
-      if (!this.isClickOutsideEntry(entry, path)) {
+      if (
+        !this.isClickOutsideEntry(entry, path) ||
+        (pressPath && !this.isClickOutsideEntry(entry, pressPath))
+      ) {
         insideIds.add(entry.id);
       }
     }
