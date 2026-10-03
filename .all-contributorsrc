@@ -467,6 +467,15 @@
       "contributions": [
         "code"
       ]
+    },
+    {
+      "login": "SynTronic",
+      "name": "Surkov Sergei",
+      "avatar_url": "https://avatars.githubusercontent.com/u/9981077?v=4",
+      "profile": "http://syntronic.narod.ru",
+      "contributions": [
+        "code"
+      ]
     }
   ],
   "contributorsPerLine": 7,
