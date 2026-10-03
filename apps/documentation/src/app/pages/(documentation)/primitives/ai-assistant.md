@@ -71,6 +71,10 @@ The `NgpThreadViewport` directive creates a scrollable container for displaying 
 
 <api-reference-props name="NgpThreadViewport"></api-reference-props>
 
+<api-reference-attributes>
+  <api-attribute name="data-at-bottom" description="Added when the thread viewport is scrolled to the bottom." />
+</api-reference-attributes>
+
 ### NgpThreadMessage
 
 The `NgpThreadMessage` directive represents an individual message within a thread in the AI assistant chat.
