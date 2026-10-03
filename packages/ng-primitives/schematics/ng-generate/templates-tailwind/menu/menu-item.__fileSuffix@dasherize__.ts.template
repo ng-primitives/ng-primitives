@@ -1,0 +1,14 @@
+import { Component } from '@angular/core';
+import { NgpMenuItem } from 'ng-primitives/menu';
+
+@Component({
+  selector: 'button[<% if (prefix) { %><%= prefix %>-<% } %>menu-item]',
+  hostDirectives: [NgpMenuItem],
+  host: {
+    class: 'flex items-center justify-between [padding:6px_8px_6px_14px] border-none [background:none] cursor-pointer [transition:background-color_0.2s] rounded min-w-30 [text-align:start] [outline:none] [font-size:14px] [font-weight:400] data-hover:bg-(--ngp-background-active) data-focus-visible:[outline:2px_solid_var(--ngp-focus-ring)] data-focus-visible:z-1 motion-reduce:[transition-duration:0s]',
+  },
+  template: `
+    <ng-content />
+  `,
+})
+export class MenuItem<%= componentSuffix %> {}

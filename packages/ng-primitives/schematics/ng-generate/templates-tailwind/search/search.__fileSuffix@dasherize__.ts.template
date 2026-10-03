@@ -1,0 +1,61 @@
+import { Component, input, model } from '@angular/core';
+import { ControlValueAccessor } from '@angular/forms';
+import { NgIcon, provideIcons } from '@ng-icons/core';
+import { heroMagnifyingGlass } from '@ng-icons/heroicons/outline';
+import { NgpButton } from 'ng-primitives/button';
+import { NgpInput } from 'ng-primitives/input';
+import { NgpSearch, NgpSearchClear } from 'ng-primitives/search';
+import { ChangeFn, provideValueAccessor, TouchedFn } from 'ng-primitives/utils';
+
+@Component({
+  selector: '<% if (prefix) { %><%= prefix %>-<% } %>search',
+  hostDirectives: [NgpSearch],
+  imports: [NgIcon, NgpSearchClear, NgpInput, NgpButton],
+  providers: [provideValueAccessor(Search<%= componentSuffix %>), provideIcons({ heroMagnifyingGlass })],
+  template: `
+    <ng-icon class="absolute [font-size:1.25rem] [top:18px] left-3 [transform:translateY(-50%)] text-(--ngp-text-tertiary)" name="heroMagnifyingGlass" />
+    <input class="h-9 w-full rounded-lg [padding:0_16px_0_40px] border-none [background:var(--ngp-background)] shadow-(--ngp-input-shadow) [outline:none] [&::-webkit-search-decoration]:hidden [&::-webkit-search-cancel-button]:hidden [&::-webkit-search-results-button]:hidden [&::-webkit-search-results-decoration]:hidden data-focus:[outline:2px_solid_var(--ngp-focus-ring)] data-focus:[outline-offset:0px] placeholder:text-(--ngp-text-placeholder)"
+      [value]="query()"
+      [placeholder]="placeholder()"
+      (input)="onQueryChange($event)"
+      ngpInput
+      type="search"
+    />
+    <button class="absolute top-0 right-0 h-9 py-0 px-4 border-none [border-radius:0_8px_8px_0] bg-transparent text-(--ngp-text-blue) text-sm cursor-pointer [outline:none] hidden [&:not([data-empty])]:block" ngpSearchClear ngpButton aria-label="Clear search">Clear</button>
+  `,
+  host: {
+    class: 'block relative',
+    '(focusout)': 'onTouched?.()',
+  },
+})
+export class Search<%= componentSuffix %> implements ControlValueAccessor {
+  /** The search query */
+  readonly query = model<string>('');
+
+  /** The placeholder text */
+  readonly placeholder = input<string>('');
+
+  /** The function to call when the value changes */
+  private onChange?: ChangeFn<string>;
+
+  /** The function to call when the control is touched */
+  protected onTouched?: TouchedFn;
+
+  writeValue(value: string): void {
+    this.query.set(value);
+  }
+
+  registerOnChange(fn: ChangeFn<string>): void {
+    this.onChange = fn;
+  }
+
+  registerOnTouched(fn: TouchedFn): void {
+    this.onTouched = fn;
+  }
+
+  protected onQueryChange(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    this.query.set(input.value);
+    this.onChange?.(input.value);
+  }
+}
