@@ -247,6 +247,12 @@ describe('NgpCombobox', () => {
       expect(screen.getByRole('listbox')).toBeInTheDocument();
     });
 
+    it('should set aria-multiselectable="false" on the dropdown in single selection mode', async () => {
+      await render(TestComponent);
+      await userEvent.click(screen.getByTestId('combobox-button'));
+      expect(screen.getByRole('listbox')).toHaveAttribute('aria-multiselectable', 'false');
+    });
+
     it('should render options with role="option"', async () => {
       await render(TestComponent);
       const button = screen.getByTestId('combobox-button');
@@ -600,6 +606,12 @@ describe('NgpCombobox', () => {
 
 describe('NgpCombobox Multi-select', () => {
   afterEach(removeLingeringDropdown);
+
+  it('should set aria-multiselectable="true" on the dropdown', async () => {
+    await render(MultiSelectTestComponent);
+    await userEvent.click(screen.getByTestId('multi-combobox-button'));
+    expect(screen.getByRole('listbox')).toHaveAttribute('aria-multiselectable', 'true');
+  });
 
   it('should allow multiple selections', async () => {
     const { fixture } = await render(MultiSelectTestComponent);

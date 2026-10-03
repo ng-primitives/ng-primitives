@@ -841,6 +841,26 @@ describe('NgpSelect', () => {
       });
     });
 
+    it('should set aria-multiselectable="false" on the dropdown in single selection mode', async () => {
+      const user = userEvent.setup();
+      await render(TestSelectComponent);
+
+      await user.click(screen.getByTestId('select'));
+      await waitFor(() => {
+        expect(screen.getByTestId('dropdown')).toHaveAttribute('aria-multiselectable', 'false');
+      });
+    });
+
+    it('should set aria-multiselectable="true" on the dropdown in multiple selection mode', async () => {
+      const user = userEvent.setup();
+      await render(TestMultiSelectComponent);
+
+      await user.click(screen.getByTestId('multi-select'));
+      await waitFor(() => {
+        expect(screen.getByTestId('dropdown')).toHaveAttribute('aria-multiselectable', 'true');
+      });
+    });
+
     it('should have option role on options', async () => {
       const user = userEvent.setup();
       await render(TestSelectComponent);
