@@ -110,6 +110,7 @@ We welcome contributions from the community. Please refer to our [contributing g
     </tr>
     <tr>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/JustDo1t90"><img src="https://avatars.githubusercontent.com/u/36469908?v=4?s=100" width="100px;" alt="Roman Mykhailiuk"/><br /><sub><b>Roman Mykhailiuk</b></sub></a><br /><a href="https://github.com/ng-primitives/ng-primitives/commits?author=JustDo1t90" title="Code">💻</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="http://syntronic.narod.ru"><img src="https://avatars.githubusercontent.com/u/9981077?v=4?s=100" width="100px;" alt="Surkov Sergei"/><br /><sub><b>Surkov Sergei</b></sub></a><br /><a href="https://github.com/ng-primitives/ng-primitives/commits?author=SynTronic" title="Code">💻</a></td>
     </tr>
   </tbody>
 </table>
