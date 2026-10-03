@@ -1,3 +1,17 @@
+## 0.131.2 (2026-10-03)
+
+### 🩹 Fixes
+
+- **combobox, select:** set aria-multiselectable on dropdown ([#959](https://github.com/ng-primitives/ng-primitives/pull/959), [#958](https://github.com/ng-primitives/ng-primitives/issues/958))
+- **portal:** keep an overlay open when a press starts inside it and ends outside ([#961](https://github.com/ng-primitives/ng-primitives/pull/961), [#960](https://github.com/ng-primitives/ng-primitives/issues/960))
+
+### ❤️ Thank You
+
+- Claude
+- Claude Opus 5.5
+- Clément Loridan
+- Surkov Sergei @SynTronic
+
 ## 0.131.1 (2026-09-30)
 
 ### 🚀 Features
