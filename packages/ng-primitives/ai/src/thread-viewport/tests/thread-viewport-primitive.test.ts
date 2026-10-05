@@ -1,4 +1,12 @@
-import { Component, viewChild } from '@angular/core';
+import {
+  Component,
+  Directive,
+  inject,
+  OnInit,
+  PLATFORM_ID,
+  signal,
+  viewChild,
+} from '@angular/core';
 import { render, screen, waitFor } from '@testing-library/angular';
 import { userEvent } from '@testing-library/user-event';
 import {
@@ -7,10 +15,347 @@ import {
   NgpThread,
   NgpThreadMessage,
   NgpThreadViewport,
+  ngpThreadViewport,
+  provideThreadViewportState,
 } from 'ng-primitives/ai';
 import { describe, expect, it, vi } from 'vitest';
 
 describe('NgpThreadViewport', () => {
+  it('should receive one viewport mutation delivery for a single append', async () => {
+    const NativeMutationObserver = globalThis.MutationObserver;
+    const deliveries: MutationRecord[][] = [];
+    let viewport: HTMLElement | undefined;
+
+    class ObservedMutationObserver extends NativeMutationObserver {
+      constructor(callback: MutationCallback) {
+        super((records, observer) => {
+          if (records.some(record => record.target === viewport)) {
+            deliveries.push(records);
+          }
+          callback(records, observer);
+        });
+      }
+    }
+
+    vi.stubGlobal('MutationObserver', ObservedMutationObserver);
+
+    try {
+      await render(
+        `<div ngpThread>
+          <div ngpThreadViewport data-testid="viewport" style="height: 100px; overflow-y: auto;">
+            <div style="height: 500px;">History</div>
+          </div>
+        </div>`,
+        { imports: [NgpThread, NgpThreadViewport] },
+      );
+
+      viewport = screen.getByTestId('viewport');
+      await waitFor(() => expect(viewport?.scrollTop).toBe(400));
+
+      const message = document.createElement('div');
+      message.style.height = '300px';
+      viewport.appendChild(message);
+      await waitFor(() => expect(deliveries.length).toBeGreaterThan(0));
+
+      expect(deliveries).toHaveLength(1);
+    } finally {
+      vi.stubGlobal('MutationObserver', NativeMutationObserver);
+    }
+  });
+
+  it('should keep delayed history at the start until the reader scrolls to the bottom', async () => {
+    @Component({
+      imports: [NgpThread, NgpThreadViewport],
+      template: `
+        <div ngpThread>
+          <div
+            #viewport="ngpThreadViewport"
+            [ngpThreadViewportInitialScrollPosition]="'start'"
+            ngpThreadViewport
+            data-testid="viewport"
+            style="height: 100px; overflow-y: auto;"
+          >
+            @for (message of messages(); track message) {
+              <div style="height: 300px;">{{ message }}</div>
+            }
+          </div>
+        </div>
+      `,
+    })
+    class TestComponent {
+      readonly messages = signal<number[]>([]);
+      readonly viewport = viewChild.required<NgpThreadViewport>('viewport');
+    }
+
+    const { fixture } = await render(TestComponent);
+    const viewport = screen.getByTestId('viewport');
+    await new Promise(resolve => requestAnimationFrame(() => resolve(undefined)));
+
+    fixture.componentInstance.messages.set([1, 2]);
+    await fixture.whenStable();
+    await new Promise(resolve => requestAnimationFrame(() => resolve(undefined)));
+
+    expect(viewport.scrollHeight).toBe(600);
+    expect(viewport.scrollTop).toBe(0);
+    expect(fixture.componentInstance.viewport().isAtBottom()).toBe(false);
+
+    viewport.scrollTop = 500;
+    viewport.dispatchEvent(new Event('scroll'));
+    await waitFor(() => expect(fixture.componentInstance.viewport().isAtBottom()).toBe(true));
+
+    fixture.componentInstance.messages.set([1, 2, 3]);
+    await fixture.whenStable();
+    await waitFor(() => expect(viewport.scrollTop).toBe(800));
+  });
+
+  it('should expose the bound start state before render callbacks run', async () => {
+    @Directive({ selector: '[captureInitialViewportState]' })
+    class CaptureInitialViewportState implements OnInit {
+      readonly viewport = inject(NgpThreadViewport);
+      initialIsAtBottom: boolean | undefined;
+
+      ngOnInit(): void {
+        this.initialIsAtBottom = this.viewport.isAtBottom();
+      }
+    }
+
+    @Component({
+      imports: [NgpThread, NgpThreadViewport, CaptureInitialViewportState],
+      template: `
+        <div ngpThread>
+          <div
+            #viewport="ngpThreadViewport"
+            [ngpThreadViewportInitialScrollPosition]="position()"
+            [attr.data-initial-bottom]="viewport.isAtBottom()"
+            ngpThreadViewport
+            captureInitialViewportState
+            data-testid="viewport"
+            style="height: 100px; overflow-y: auto;"
+          >
+            <div style="height: 500px;">History</div>
+          </div>
+        </div>
+      `,
+    })
+    class TestComponent {
+      readonly position = signal<'start' | 'end'>('start');
+      readonly initialState = viewChild.required(CaptureInitialViewportState);
+    }
+
+    const { fixture } = await render(TestComponent);
+
+    expect(fixture.componentInstance.initialState().initialIsAtBottom).toBe(false);
+    expect(screen.getByTestId('viewport').getAttribute('data-initial-bottom')).toBe('false');
+  });
+
+  describe('initial state', () => {
+    @Directive({
+      selector: '[initialStateProbe]',
+      providers: [provideThreadViewportState()],
+    })
+    class InitialStateProbe {
+      readonly position = signal<'start' | 'end'>('end');
+      readonly state = ngpThreadViewport({ initialScrollPosition: this.position });
+      readonly beforeBinding: boolean;
+      readonly afterBinding: boolean;
+
+      constructor() {
+        this.beforeBinding = this.state.isAtBottom();
+        this.position.set('start');
+        this.afterBinding = this.state.isAtBottom();
+      }
+    }
+
+    @Component({
+      imports: [NgpThread, InitialStateProbe],
+      template: `
+        <div ngpThread>
+          <div initialStateProbe data-testid="viewport" style="height: 100px; overflow-y: auto;">
+            <div style="height: 500px;">History</div>
+          </div>
+        </div>
+      `,
+    })
+    class TestComponent {
+      readonly probe = viewChild.required(InitialStateProbe);
+    }
+
+    it('should track a start input after an early read before render callbacks', async () => {
+      const { fixture } = await render(TestComponent);
+      expect(fixture.componentInstance.probe().beforeBinding).toBe(true);
+      expect(fixture.componentInstance.probe().afterBinding).toBe(false);
+    });
+
+    it('should expose start state and its binding on the server without scrolling', async () => {
+      const scrollTo = vi.spyOn(HTMLElement.prototype, 'scrollTo');
+      vi.stubGlobal('ngServerMode', true);
+      vi.stubGlobal('MutationObserver', undefined);
+      try {
+        const { fixture } = await render(TestComponent, {
+          providers: [{ provide: PLATFORM_ID, useValue: 'server' }],
+        });
+        await fixture.whenStable();
+        expect(fixture.componentInstance.probe().state.isAtBottom()).toBe(false);
+        expect(screen.getByTestId('viewport').hasAttribute('data-at-bottom')).toBe(false);
+        expect(scrollTo).not.toHaveBeenCalled();
+      } finally {
+        scrollTo.mockRestore();
+        vi.unstubAllGlobals();
+      }
+    });
+
+    it('should retain the default end state on the server without scrolling', async () => {
+      const scrollTo = vi.spyOn(HTMLElement.prototype, 'scrollTo');
+      vi.stubGlobal('ngServerMode', true);
+      vi.stubGlobal('MutationObserver', undefined);
+      try {
+        await render(
+          `<div ngpThread>
+            <div ngpThreadViewport data-testid="viewport" style="height: 100px; overflow-y: auto;">
+              <div style="height: 500px;">History</div>
+            </div>
+          </div>`,
+          {
+            imports: [NgpThread, NgpThreadViewport],
+            providers: [{ provide: PLATFORM_ID, useValue: 'server' }],
+          },
+        );
+        expect(screen.getByTestId('viewport').hasAttribute('data-at-bottom')).toBe(true);
+        expect(scrollTo).not.toHaveBeenCalled();
+      } finally {
+        scrollTo.mockRestore();
+        vi.unstubAllGlobals();
+      }
+    });
+  });
+
+  describe('start following', () => {
+    @Component({
+      imports: [
+        NgpThread,
+        NgpThreadViewport,
+        NgpThreadMessage,
+        NgpPromptComposer,
+        NgpPromptComposerInput,
+      ],
+      template: `
+        <div ngpThread>
+          <div
+            #viewport="ngpThreadViewport"
+            [ngpThreadViewportThreshold]="threshold()"
+            [style.height.px]="viewportHeight()"
+            ngpThreadViewport
+            ngpThreadViewportInitialScrollPosition="start"
+            data-testid="viewport"
+            style="overflow-y: auto;"
+          >
+            @for (message of messages(); track message.id) {
+              <div [style.height.px]="message.height" ngpThreadMessage>{{ message.content }}</div>
+            }
+          </div>
+          <div ngpPromptComposer>
+            <input ngpPromptComposerInput />
+          </div>
+        </div>
+      `,
+    })
+    class StartThread {
+      readonly threshold = signal(70);
+      readonly viewportHeight = signal(100);
+      readonly messages = signal<{ id: number; height: number; content: string }[]>([]);
+      readonly viewport = viewChild.required<NgpThreadViewport>('viewport');
+    }
+
+    it('should not enable following from short history, threshold, resize or streaming measurements', async () => {
+      const { fixture } = await render(StartThread);
+      const { messages, threshold, viewportHeight } = fixture.componentInstance;
+      const viewport = screen.getByTestId('viewport');
+      const state = fixture.componentInstance.viewport();
+      const scrollTo = vi.spyOn(viewport, 'scrollTo');
+
+      messages.set([{ id: 1, height: 30, content: 'Short history' }]);
+      await fixture.whenStable();
+      await new Promise(resolve => setTimeout(resolve, 50));
+      expect(state.isAtBottom()).toBe(false);
+
+      threshold.set(1000);
+      await fixture.whenStable();
+      expect(state.isAtBottom()).toBe(false);
+
+      viewportHeight.set(200);
+      await fixture.whenStable();
+      await new Promise(resolve => setTimeout(resolve, 50));
+      expect(viewport.clientHeight).toBe(200);
+      expect(state.isAtBottom()).toBe(false);
+
+      messages.set([{ id: 1, height: 500, content: 'Now streaming much more content' }]);
+      await fixture.whenStable();
+      await new Promise(resolve => setTimeout(resolve, 50));
+      expect(viewport.scrollHeight).toBe(500);
+      expect(state.isAtBottom()).toBe(false);
+
+      messages.update(current => [...current, { id: 2, height: 300, content: 'Appended' }]);
+      await fixture.whenStable();
+      await new Promise(resolve => setTimeout(resolve, 50));
+      expect(viewport.scrollTop).toBe(0);
+      expect(scrollTo).not.toHaveBeenCalled();
+      expect(state.isAtBottom()).toBe(false);
+
+      threshold.set(70);
+      await fixture.whenStable();
+      viewport.scrollTop = 600;
+      viewport.dispatchEvent(new Event('scroll'));
+      await waitFor(() => expect(state.isAtBottom()).toBe(true));
+
+      messages.update(current => [...current, { id: 3, height: 300, content: 'Following' }]);
+      await fixture.whenStable();
+      await waitFor(() => expect(viewport.scrollTop).toBe(900));
+      await new Promise(resolve => setTimeout(resolve, 50));
+
+      viewport.scrollTop = 100;
+      viewport.dispatchEvent(new Event('scroll'));
+      await waitFor(() => expect(state.isAtBottom()).toBe(false));
+      threshold.set(1000);
+      await fixture.whenStable();
+      await waitFor(() => expect(state.isAtBottom()).toBe(true));
+      threshold.set(70);
+      await fixture.whenStable();
+      await waitFor(() => expect(state.isAtBottom()).toBe(false));
+
+      messages.update(current => [...current, { id: 4, height: 300, content: 'Reading above' }]);
+      await fixture.whenStable();
+      await new Promise(resolve => setTimeout(resolve, 50));
+      expect(viewport.scrollTop).toBe(100);
+
+      viewport.scrollTop = 1200;
+      viewport.dispatchEvent(new Event('scroll'));
+      messages.update(current => [...current, { id: 5, height: 300, content: 'Following again' }]);
+      await fixture.whenStable();
+      await waitFor(() => expect(viewport.scrollTop).toBe(1500));
+    });
+
+    it('should honor composer submission from start and then follow appended content', async () => {
+      const { fixture } = await render(StartThread);
+      fixture.componentInstance.messages.set([{ id: 1, height: 500, content: 'History' }]);
+      await fixture.whenStable();
+      await new Promise(resolve => setTimeout(resolve, 50));
+      const viewport = screen.getByTestId('viewport');
+      expect(viewport.scrollTop).toBe(0);
+
+      await userEvent.type(screen.getByRole('textbox'), 'Hello');
+      await userEvent.keyboard('{Enter}');
+      await waitFor(() => expect(viewport.scrollTop).toBe(400));
+      await waitFor(() => expect(fixture.componentInstance.viewport().isAtBottom()).toBe(true));
+
+      fixture.componentInstance.messages.update(current => [
+        ...current,
+        { id: 2, height: 300, content: 'Reply' },
+      ]);
+      await fixture.whenStable();
+      await waitFor(() => expect(viewport.scrollTop).toBe(700));
+    });
+  });
+
   it('should initially scroll populated content to the bottom by default', async () => {
     await render(
       `<div ngpThread>
@@ -214,6 +559,97 @@ describe('NgpThreadViewport', () => {
     await new Promise(resolve => setTimeout(resolve, 150));
 
     expect(viewport.scrollTop).toBe(0);
+  });
+
+  describe('reused message elements', () => {
+    async function renderViewport(anchoring = 'auto'): Promise<HTMLElement> {
+      await render(
+        `<div ngpThread>
+          <div ngpThreadViewport data-testid="viewport" style="height: 100px; overflow-y: auto; overflow-anchor: ${anchoring};">
+            <div style="height: 300px;">First</div>
+            <div style="height: 300px;">Second</div>
+            <div style="height: 300px;">Third</div>
+          </div>
+        </div>`,
+        { imports: [NgpThread, NgpThreadViewport] },
+      );
+      const viewport = screen.getByTestId('viewport');
+      await waitFor(() => expect(viewport.scrollTop).toBe(800));
+      return viewport;
+    }
+
+    it('should follow the same element when appended in a later delivery', async () => {
+      const viewport = await renderViewport();
+      const message = document.createElement('div');
+      message.style.height = '150px';
+      viewport.appendChild(message);
+      await waitFor(() => expect(viewport.scrollTop).toBe(950));
+
+      message.remove();
+      await new Promise(resolve => setTimeout(resolve, 50));
+      expect(viewport.scrollTop).toBe(800);
+
+      const scrollTo = vi.spyOn(viewport, 'scrollTo');
+      viewport.appendChild(message);
+      await waitFor(() => expect(viewport.scrollTop).toBe(950));
+      expect(scrollTo).toHaveBeenCalledOnce();
+    });
+
+    it.each(['auto', 'none'])(
+      'should compensate a reused prepend once with native anchoring %s',
+      async anchoring => {
+        const viewport = await renderViewport(anchoring);
+        viewport.scrollTop = 400;
+        viewport.dispatchEvent(new Event('scroll'));
+        await new Promise(resolve => setTimeout(resolve, 50));
+        const existing = viewport.children[1];
+        const relativeTop = () =>
+          existing.getBoundingClientRect().top - viewport.getBoundingClientRect().top;
+
+        const reused = document.createElement('div');
+        reused.style.height = '150px';
+        viewport.appendChild(reused);
+        await new Promise(resolve => setTimeout(resolve, 50));
+        reused.remove();
+        await new Promise(resolve => setTimeout(resolve, 50));
+
+        const beforeFirstPrepend = relativeTop();
+        viewport.prepend(reused);
+        await waitFor(() => expect(viewport.scrollTop).toBe(550));
+        expect(relativeTop()).toBe(beforeFirstPrepend);
+
+        reused.remove();
+        await new Promise(resolve => setTimeout(resolve, 50));
+        const beforeSecondPrepend = relativeTop();
+        viewport.prepend(reused);
+        await waitFor(() => expect(relativeTop()).toBe(beforeSecondPrepend));
+      },
+    );
+
+    it('should handle moved, repeatedly added and detached elements in one delivery', async () => {
+      const viewport = await renderViewport('none');
+      viewport.scrollTop = 400;
+      viewport.dispatchEvent(new Event('scroll'));
+      await new Promise(resolve => setTimeout(resolve, 50));
+      const existing = viewport.children[1];
+      const relativeTop =
+        existing.getBoundingClientRect().top - viewport.getBoundingClientRect().top;
+      const moved = document.createElement('div');
+      moved.style.height = '150px';
+      viewport.appendChild(moved);
+      moved.remove();
+      viewport.prepend(moved);
+      const detached = document.createElement('div');
+      detached.style.height = '200px';
+      viewport.appendChild(detached);
+      detached.remove();
+
+      await waitFor(() => expect(viewport.scrollTop).toBe(550));
+      expect(existing.getBoundingClientRect().top - viewport.getBoundingClientRect().top).toBe(
+        relativeTop,
+      );
+      expect(viewport.scrollHeight).toBe(1050);
+    });
   });
 
   describe('threshold', () => {

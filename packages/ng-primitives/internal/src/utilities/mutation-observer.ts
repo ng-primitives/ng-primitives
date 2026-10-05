@@ -53,6 +53,10 @@ export function fromMutationObserver(
     let observer: MutationObserver | null = null;
 
     function setupOrTeardownObserver() {
+      if (typeof MutationObserver === 'undefined') {
+        return;
+      }
+
       if (disabled()) {
         if (observer) {
           observer.disconnect();
@@ -61,15 +65,23 @@ export function fromMutationObserver(
         return;
       }
 
-      observer = new MutationObserver(mutations => observable.next(mutations));
-      observer.observe(element, { childList, subtree, attributes, characterData });
+      if (!observer) {
+        observer = new MutationObserver(mutations => observable.next(mutations));
+        observer.observe(element, { childList, subtree, attributes, characterData });
+      }
     }
 
     setupOrTeardownObserver();
 
     // any time the disabled state changes, we need to re-evaluate the observer
-    explicitEffect([disabled], () => setupOrTeardownObserver(), { injector });
+    const disabledEffect = explicitEffect([disabled], () => setupOrTeardownObserver(), {
+      injector,
+    });
 
-    return () => observer?.disconnect();
+    return () => {
+      disabledEffect.destroy();
+      observer?.disconnect();
+      observer = null;
+    };
   });
 }

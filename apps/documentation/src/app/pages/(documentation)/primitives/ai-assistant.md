@@ -67,6 +67,10 @@ The `NgpThread` directive is wrapper around the thread viewport, messages and co
 
 The `NgpThreadViewport` directive creates a scrollable container for displaying the messages in the AI assistant chat thread.
 
+Messages must be direct children of the viewport for automatic following when messages are appended and scroll compensation when messages are prepended. Avoid wrapping the messages in another container.
+
+The viewport opens at the end by default. To retain the previous behavior of opening at the start, set `ngpThreadViewportInitialScrollPosition="start"`. In start mode, delayed history stays at the top and the viewport initially reports `isAtBottom` as false, even when the content fits. Following begins after a scroll reaches the bottom within the configured threshold. Scrolling away pauses following until the reader returns to the bottom. Submitting a prompt intentionally scrolls to the bottom when automatic scrolling is enabled.
+
 <api-docs name="NgpThreadViewport"></api-docs>
 
 <api-reference-props name="NgpThreadViewport"></api-reference-props>

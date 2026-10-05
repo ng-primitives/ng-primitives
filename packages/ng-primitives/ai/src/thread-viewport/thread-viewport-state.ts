@@ -1,4 +1,4 @@
-import { afterNextRender, signal, Signal } from '@angular/core';
+import { afterNextRender, linkedSignal, signal, Signal } from '@angular/core';
 import {
   explicitEffect,
   fromMutationObserver,
@@ -18,6 +18,7 @@ import {
 export interface NgpThreadViewportState {
   /**
    * Whether the viewport is currently scrolled to the bottom (within threshold).
+   * Initially false for start until a scroll reaches the bottom.
    */
   readonly isAtBottom: Signal<boolean>;
   /**
@@ -62,9 +63,10 @@ export const [
     const thread = injectThreadState();
 
     let lastScrollTop = 0;
-    const isAtBottom = signal<boolean>(initialScrollPosition() === 'end');
+    const isAtBottom = linkedSignal(() => initialScrollPosition() === 'end');
 
     let hasRendered = false;
+    let hasScrolledToBottom = false;
 
     function scrollToBottom(behavior: ScrollBehavior): void {
       if (!autoScroll()) {
@@ -85,25 +87,23 @@ export const [
       scrollToBottom(behavior);
     }
 
-    function onScroll(): void {
+    function onScroll(fromScrollEvent = false): void {
       const { scrollHeight, scrollTop, clientHeight } = element.nativeElement;
-      isAtBottom.set(scrollHeight - scrollTop - clientHeight <= threshold());
+      const atBottom = scrollHeight - scrollTop - clientHeight <= threshold();
+
+      if (fromScrollEvent && atBottom) {
+        hasScrolledToBottom = true;
+      }
+
+      isAtBottom.set(atBottom && (initialScrollPosition() === 'end' || hasScrolledToBottom));
       lastScrollTop = scrollTop;
     }
 
-    const processedElements = new WeakSet<HTMLElement>();
-
     function handleMutations(mutations: MutationRecord[]): void {
-      const addedElements = extractAddedElements(mutations).filter(
-        element => !processedElements.has(element),
-      );
+      const addedElements = extractAddedElements(mutations);
 
       if (addedElements.length === 0) {
         return;
-      }
-
-      for (const element of addedElements) {
-        processedElements.add(element);
       }
 
       const { hasPrepended, hasAppended, firstPrepended, firstExisting } = classifyAddedElements(
@@ -131,7 +131,7 @@ export const [
     dataBinding(element, 'data-at-bottom', isAtBottom);
 
     // Listener
-    listener(element, 'scroll', onScroll);
+    listener(element, 'scroll', () => onScroll(true));
 
     // no scroll event fires when the threshold itself changes, so recompute against the new value
     explicitEffect([threshold], () => {

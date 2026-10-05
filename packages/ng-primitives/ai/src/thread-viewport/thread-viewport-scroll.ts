@@ -28,9 +28,15 @@ export function classifyAddedElements(
   addedElements: readonly HTMLElement[],
 ): ClassifiedMutations {
   const addedSet = new Set(addedElements);
-  const firstExisting = Array.from(container.children).find(
-    (child): child is HTMLElement => child instanceof HTMLElement && !addedSet.has(child),
-  );
+  let firstExisting: HTMLElement | undefined;
+
+  for (let i = 0; i < container.children.length; i++) {
+    const child = container.children[i];
+    if (child instanceof HTMLElement && !addedSet.has(child)) {
+      firstExisting = child;
+      break;
+    }
+  }
 
   if (firstExisting === undefined) {
     return { hasPrepended: false, hasAppended: true };
@@ -43,11 +49,16 @@ export function classifyAddedElements(
     el => (el.compareDocumentPosition(firstExisting) & DOCUMENT_POSITION_PRECEDING) !== 0,
   );
 
-  const firstPrepended = hasPrepended
-    ? Array.from(container.children).find(
-        (child): child is HTMLElement => child instanceof HTMLElement && addedSet.has(child),
-      )
-    : undefined;
+  let firstPrepended: HTMLElement | undefined;
+  if (hasPrepended) {
+    for (let i = 0; i < container.children.length; i++) {
+      const child = container.children[i];
+      if (child instanceof HTMLElement && addedSet.has(child)) {
+        firstPrepended = child;
+        break;
+      }
+    }
+  }
 
   return {
     hasPrepended,
