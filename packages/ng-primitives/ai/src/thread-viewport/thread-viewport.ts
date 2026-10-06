@@ -29,11 +29,26 @@ export class NgpThreadViewport {
     transform: booleanAttribute,
   });
 
+  /**
+   * The initial scroll position. Start waits for a scroll to the bottom before following content.
+   * @default 'end'
+   */
+  readonly initialScrollPosition = input<'start' | 'end'>('end', {
+    alias: 'ngpThreadViewportInitialScrollPosition',
+  });
+
   /** The state of the thread viewport. */
   protected readonly state = ngpThreadViewport({
     autoScroll: this.autoScroll,
+    initialScrollPosition: this.initialScrollPosition,
     threshold: this.threshold,
   });
+
+  /**
+   * Whether the thread viewport is currently scrolled to the bottom (within threshold).
+   * Initially false for start until a scroll reaches the bottom, even when the content fits.
+   */
+  readonly isAtBottom = this.state.isAtBottom;
 
   /**
    * Scroll the container to the bottom.

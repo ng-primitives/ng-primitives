@@ -35,7 +35,12 @@ describe('NgpThread', () => {
   it('should scroll the registered viewport to the bottom', async () => {
     await render(
       `<div ngpThread #thread="ngpThread">
-        <div ngpThreadViewport data-testid="viewport" style="height: 100px; overflow-y: auto;">
+        <div
+          ngpThreadViewport
+          ngpThreadViewportInitialScrollPosition="start"
+          data-testid="viewport"
+          style="height: 100px; overflow-y: auto;"
+        >
           <div style="height: 500px;">Tall content</div>
         </div>
         <button (click)="thread.scrollToBottom('instant')">Scroll</button>
