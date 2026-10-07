@@ -1,9 +1,8 @@
-import { Injector, Signal, effect, inject, signal, untracked } from '@angular/core';
+import { Signal, computed, signal } from '@angular/core';
 import { NgControl } from '@angular/forms';
 import { injectElementRef } from 'ng-primitives/internal';
-import { createPrimitive, dataBinding, onDestroy } from 'ng-primitives/state';
-import { onChange } from 'ng-primitives/utils';
-import { Subscription } from 'rxjs';
+import { createPrimitive, dataBinding } from 'ng-primitives/state';
+import { controlStatus, FormFieldSource } from 'ng-primitives/utils';
 
 /**
  * The state interface for the FormField primitive.
@@ -87,12 +86,29 @@ export interface NgpFormFieldProps {
    * Find any NgControl within the form field.
    */
   readonly ngControl: Signal<NgControl | undefined>;
+  /**
+   * The form control associated with the form field, used when the control is not
+   * located within the form field's own DOM.
+   *
+   * Accepts either a Reactive Forms `AbstractControl`, typically bound with
+   * `[formControl]`, or a Signal Forms `FieldTree`, typically bound with `[formField]`.
+   *
+   * When omitted, the form field automatically looks up the `NgControl` contained
+   * within its own DOM. This input is only necessary when the control lives outside
+   * the form field.
+   */
+  readonly formFieldSource: Signal<FormFieldSource | undefined>;
 }
 
 export const [NgpFormFieldStateToken, ngpFormField, injectFormFieldState, provideFormFieldState] =
-  createPrimitive('NgpFormField', ({ ngControl }: NgpFormFieldProps) => {
+  createPrimitive('NgpFormField', ({ ngControl, formFieldSource }: NgpFormFieldProps) => {
     const element = injectElementRef();
-    const injector = inject(Injector);
+
+    // Access the form control status.
+    const status = controlStatus({
+      source: formFieldSource,
+      control: ngControl,
+    });
 
     // Store the form labels
     const labels = signal<string[]>([]);
@@ -104,19 +120,16 @@ export const [NgpFormFieldStateToken, ngpFormField, injectFormFieldState, provid
     const formControl = signal<string | null>(null);
 
     // Store the validation error messages
-    const errors = signal<string[]>([]);
+    const errors = computed<string[]>(() => status().errors ?? []);
 
     // Form control state signals
-    const pristine = signal<boolean | null>(null);
-    const touched = signal<boolean | null>(null);
-    const dirty = signal<boolean | null>(null);
-    const valid = signal<boolean | null>(null);
-    const invalid = signal<boolean | null>(null);
-    const pending = signal<boolean | null>(null);
-    const disabled = signal<boolean | null>(null);
-
-    // Store the current status subscription
-    let subscription: Subscription | undefined;
+    const pristine = computed<boolean | null>(() => status().pristine);
+    const touched = computed<boolean | null>(() => status().touched);
+    const dirty = computed<boolean | null>(() => status().dirty);
+    const valid = computed<boolean | null>(() => status().valid);
+    const invalid = computed<boolean | null>(() => status().invalid);
+    const pending = computed<boolean | null>(() => status().pending);
+    const disabled = computed<boolean | null>(() => status().disabled);
 
     // Host bindings
     dataBinding(element, 'data-invalid', invalid);
@@ -126,73 +139,6 @@ export const [NgpFormFieldStateToken, ngpFormField, injectFormFieldState, provid
     dataBinding(element, 'data-dirty', dirty);
     dataBinding(element, 'data-pending', pending);
     dataBinding(element, 'data-disabled', disabled);
-
-    function updateStatus(): void {
-      const control = ngControl();
-
-      if (!control) {
-        return;
-      }
-
-      // Wrap in try-catch to handle signal-forms interop controls where
-      // the `field` input may not be available yet (throws NG0950).
-      // Reading the signal still establishes a dependency, so the effect
-      // will re-run when the input becomes available.
-      try {
-        const controlPristine = control.pristine;
-        const controlTouched = control.touched;
-        const controlDirty = control.dirty;
-        const controlValid = control.valid;
-        const controlInvalid = control.invalid;
-        const controlPending = control.pending;
-        const controlDisabled = control.disabled;
-        const controlErrors = control.errors;
-
-        untracked(() => {
-          pristine.set(controlPristine);
-          touched.set(controlTouched);
-          dirty.set(controlDirty);
-          valid.set(controlValid);
-          invalid.set(controlInvalid);
-          pending.set(controlPending);
-          disabled.set(controlDisabled);
-          errors.set(controlErrors ? Object.keys(controlErrors) : []);
-        });
-      } catch {
-        // NG0950: Required input not available yet. The effect will re-run
-        // when the signal input becomes available.
-      }
-    }
-
-    function setupSubscriptions(control: NgControl | null | undefined): void {
-      // Unsubscribe from the previous subscriptions.
-      subscription?.unsubscribe();
-
-      if (!control) {
-        return;
-      }
-
-      // For signal-forms interop controls, use an effect to reactively track status.
-      // For classic controls, also use an effect but additionally subscribe to events.
-      effect(
-        () => {
-          updateStatus();
-        },
-        { injector },
-      );
-
-      // Classic controls also have an events observable we can subscribe to.
-      const underlyingControl = control?.control;
-      if (underlyingControl?.events) {
-        subscription = underlyingControl.events.subscribe(() => updateStatus());
-      }
-    }
-
-    // Setup subscriptions when ngControl changes
-    onChange(ngControl, setupSubscriptions);
-
-    // Cleanup subscription on destroy
-    onDestroy(() => subscription?.unsubscribe());
 
     // Methods
     function setFormControl(id: string): void {
