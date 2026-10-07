@@ -476,6 +476,15 @@
       "contributions": [
         "code"
       ]
+    },
+    {
+      "login": "adridavid",
+      "name": "Adrien David",
+      "avatar_url": "https://avatars.githubusercontent.com/u/16332780?v=4",
+      "profile": "https://github.com/adridavid",
+      "contributions": [
+        "code"
+      ]
     }
   ],
   "contributorsPerLine": 7,
