@@ -294,6 +294,12 @@ export const [
       // determine the origin of the event, 0 is keyboard, 1 is mouse
       const origin: FocusOrigin = event.detail === 0 ? 'keyboard' : 'mouse';
 
+      // a pointer click on the trigger of an open submenu keeps it open: hovering the
+      // trigger already opened it, so the click that follows must not close it again
+      if (open() && origin === 'mouse') {
+        return;
+      }
+
       // if the menu is open then hide it
       if (open()) {
         hide(origin);
