@@ -1,12 +1,14 @@
 import { formatFiles, Tree } from '@nx/devkit';
 import { query } from '@phenomnomnominal/tsquery';
 import * as ts from 'typescript';
+import { generateTailwindComponentVariant } from '../../tailwind-variant';
 
 export async function templatesGenerator(tree: Tree) {
   const templatesPath = 'apps/components/src/app/pages/reusable-components';
 
   // delete the existing templates
   tree.delete('packages/ng-primitives/schematics/ng-generate/templates');
+  tree.delete('packages/ng-primitives/schematics/ng-generate/templates-tailwind');
 
   // each folder in this directory is a primitive that can be used as a template
   for (const primitive of tree.children(templatesPath)) {
@@ -56,9 +58,24 @@ export async function templatesGenerator(tree: Tree) {
       assertPrefixReplaced(content, filePath);
 
       // write the new file to packages/ng-primitives/schematics/ng-generate/templates
+      const templateFileName = `${file.replace('.ts', '.__fileSuffix@dasherize__.ts')}.template`;
       tree.write(
-        `packages/ng-primitives/schematics/ng-generate/templates/${primitive}/${file.replace('.ts', '.__fileSuffix@dasherize__.ts')}.template`,
+        `packages/ng-primitives/schematics/ng-generate/templates/${primitive}/${templateFileName}`,
         content,
+      );
+
+      // the tailwind variant: utility classes on the elements, raw CSS only for
+      // what Tailwind cannot express (keyframes, combinators, ordered cascades)
+      const tailwindContent = processTemplate(
+        generateTailwindComponentVariant(source).source,
+        componentClasses,
+      );
+
+      assertPrefixReplaced(tailwindContent, filePath);
+
+      tree.write(
+        `packages/ng-primitives/schematics/ng-generate/templates-tailwind/${primitive}/${templateFileName}`,
+        tailwindContent,
       );
     }
   }

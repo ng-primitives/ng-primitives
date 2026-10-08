@@ -1,0 +1,170 @@
+import { Component, computed } from '@angular/core';
+import { ControlValueAccessor } from '@angular/forms';
+import { NgIcon, provideIcons } from '@ng-icons/core';
+import { heroChevronLeftMini, heroChevronRightMini } from '@ng-icons/heroicons/mini';
+import {
+  injectDatePickerState,
+  NgpDatePicker,
+  NgpDatePickerCell,
+  NgpDatePickerCellRender,
+  NgpDatePickerDateButton,
+  NgpDatePickerGrid,
+  NgpDatePickerLabel,
+  NgpDatePickerNextMonth,
+  NgpDatePickerPreviousMonth,
+  NgpDatePickerRowRender,
+} from 'ng-primitives/date-picker';
+import { ChangeFn, provideValueAccessor, TouchedFn } from 'ng-primitives/utils';
+
+@Component({
+  selector: '<% if (prefix) { %><%= prefix %>-<% } %>date-picker',
+  hostDirectives: [
+    {
+      directive: NgpDatePicker,
+      inputs: [
+        'ngpDatePickerDate: date',
+        'ngpDatePickerMin: min',
+        'ngpDatePickerMax: max',
+        'ngpDatePickerDisabled: disabled',
+      ],
+      outputs: ['ngpDatePickerDateChange: dateChange'],
+    },
+  ],
+  imports: [
+    NgIcon,
+    NgpDatePickerLabel,
+    NgpDatePickerNextMonth,
+    NgpDatePickerPreviousMonth,
+    NgpDatePickerGrid,
+    NgpDatePickerCell,
+    NgpDatePickerRowRender,
+    NgpDatePickerCellRender,
+    NgpDatePickerDateButton,
+  ],
+  providers: [
+    provideIcons({ heroChevronRightMini, heroChevronLeftMini }),
+    provideValueAccessor(DatePicker<%= componentSuffix %>),
+  ],
+  template: `
+    <div class="date-picker-header flex items-center justify-between h-9 mb-4">
+      <button class="data-hover:bg-(--ngp-background-hover) data-focus-visible:[outline:2px_solid_var(--ngp-focus-ring)] data-press:bg-(--ngp-background-active) data-disabled:cursor-not-allowed data-disabled:text-(--ngp-text-disabled)" ngpDatePickerPreviousMonth aria-label="previous month">
+        <ng-icon name="heroChevronLeftMini" />
+      </button>
+      <h2 class="[font-size:14px] font-medium text-(--ngp-text-primary)" ngpDatePickerLabel>{{ label() }}</h2>
+      <button class="data-hover:bg-(--ngp-background-hover) data-focus-visible:[outline:2px_solid_var(--ngp-focus-ring)] data-press:bg-(--ngp-background-active) data-disabled:cursor-not-allowed data-disabled:text-(--ngp-text-disabled)" ngpDatePickerNextMonth aria-label="next month">
+        <ng-icon name="heroChevronRightMini" />
+      </button>
+    </div>
+    <table ngpDatePickerGrid>
+      <thead>
+        <tr>
+          <th class="[font-size:14px] font-medium w-10 h-10 text-center text-(--ngp-text-secondary)" scope="col" abbr="Sunday">S</th>
+          <th class="[font-size:14px] font-medium w-10 h-10 text-center text-(--ngp-text-secondary)" scope="col" abbr="Monday">M</th>
+          <th class="[font-size:14px] font-medium w-10 h-10 text-center text-(--ngp-text-secondary)" scope="col" abbr="Tuesday">T</th>
+          <th class="[font-size:14px] font-medium w-10 h-10 text-center text-(--ngp-text-secondary)" scope="col" abbr="Wednesday">W</th>
+          <th class="[font-size:14px] font-medium w-10 h-10 text-center text-(--ngp-text-secondary)" scope="col" abbr="Thursday">T</th>
+          <th class="[font-size:14px] font-medium w-10 h-10 text-center text-(--ngp-text-secondary)" scope="col" abbr="Friday">F</th>
+          <th class="[font-size:14px] font-medium w-10 h-10 text-center text-(--ngp-text-secondary)" scope="col" abbr="Saturday">S</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngpDatePickerRowRender>
+          <td *ngpDatePickerCellRender="let date" ngpDatePickerCell>
+            <button class="data-today:text-(--ngp-text-blue) data-hover:bg-(--ngp-background-hover) data-focus-visible:[outline:2px_solid_var(--ngp-focus-ring)] data-focus-visible:[outline-offset:2px] data-press:bg-(--ngp-background-active) data-outside-month:text-(--ngp-text-disabled) data-selected:bg-(--ngp-background-inverse) data-selected:text-(--ngp-text-inverse) data-selected:data-outside-month:bg-(--ngp-background-disabled) data-selected:data-outside-month:text-(--ngp-text-disabled) data-disabled:cursor-not-allowed data-disabled:text-(--ngp-text-disabled)" ngpDatePickerDateButton>
+              {{ date.getDate() }}
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  `,
+  styles: `
+/* These styles rely on CSS variables that can be imported from ng-primitives/example-theme/index.css in your global styles */
+
+    [ngpDatePickerPreviousMonth] {
+      all: unset;
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 8px;
+      font-size: 20px;
+      border: 1px solid var(--ngp-border);
+      cursor: pointer;
+    }
+
+    [ngpDatePickerNextMonth] {
+      all: unset;
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 8px;
+      font-size: 20px;
+      border: 1px solid var(--ngp-border);
+      cursor: pointer;
+    }
+
+    [ngpDatePickerDateButton] {
+      all: unset;
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+  `,
+  host: {
+    class: 'inline-block bg-(--ngp-background) rounded-xl p-4 shadow-(--ngp-shadow) border border-(--ngp-border)',
+    '(focusout)': 'onTouched?.()',
+  },
+})
+export class DatePicker<%= componentSuffix %> implements ControlValueAccessor {
+  /** Access the date picker host directive */
+  private readonly state = injectDatePickerState<Date>();
+
+  /**
+   * Get the current focused date in string format.
+   * @returns The focused date in "February 2024" format.
+   */
+  readonly label = computed(
+    () =>
+      `${this.state().focusedDate().toLocaleString('default', { month: 'long' })} ${this.state().focusedDate().getFullYear()}`,
+  );
+
+  /**
+   * The onChange callback function for the date picker.
+   */
+  protected onChange?: ChangeFn<Date | undefined>;
+
+  /**
+   * The onTouched callback function for the date picker.
+   */
+  protected onTouched?: TouchedFn;
+
+  constructor() {
+    // Whenever the user interacts with the date picker, call the onChange function with the new value.
+    this.state().dateChange.subscribe(date => this.onChange?.(date));
+  }
+
+  writeValue(date: Date): void {
+    // writing a value from the model must not re-emit through onChange
+    this.state().select(date, false, { emit: false });
+  }
+
+  registerOnChange(fn: ChangeFn<Date | undefined>): void {
+    this.onChange = fn;
+  }
+
+  registerOnTouched(fn: TouchedFn): void {
+    this.onTouched = fn;
+  }
+
+  setDisabledState(isDisabled: boolean): void {
+    this.state().setDisabled(isDisabled);
+  }
+}

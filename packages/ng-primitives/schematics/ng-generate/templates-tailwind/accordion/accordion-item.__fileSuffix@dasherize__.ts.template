@@ -1,0 +1,87 @@
+import { Component, input } from '@angular/core';
+import { NgIcon, provideIcons } from '@ng-icons/core';
+import { heroChevronDownMini } from '@ng-icons/heroicons/mini';
+import {
+  NgpAccordionContent,
+  NgpAccordionItem,
+  NgpAccordionTrigger,
+} from 'ng-primitives/accordion';
+import { NgpButton } from 'ng-primitives/button';
+
+@Component({
+  selector: '<% if (prefix) { %><%= prefix %>-<% } %>accordion-item',
+  hostDirectives: [
+    {
+      directive: NgpAccordionItem,
+      inputs: ['ngpAccordionItemValue:value', 'ngpAccordionItemDisabled:disabled'],
+    },
+  ],
+  imports: [NgpAccordionContent, NgpAccordionTrigger, NgpButton, NgIcon],
+  providers: [provideIcons({ heroChevronDownMini })],
+  host: {
+    class: 'block',
+  },
+  template: `
+    <button class="flex pl-4 pr-4 text-sm font-medium justify-between items-center w-full h-11 rounded-xl [outline:none] text-(--ngp-text-primary) bg-(--ngp-background) border-none data-focus-visible:[outline:2px_solid_var(--ngp-focus-ring)]" ngpAccordionTrigger ngpButton>
+      {{ heading() }}
+
+      <ng-icon class="[font-size:1.25rem] text-(--ngp-text-secondary)" name="heroChevronDownMini" />
+    </button>
+    <div class="[font-size:0.875rem] text-(--ngp-text-secondary) overflow-hidden py-0 px-4 box-border" ngpAccordionContent>
+      <ng-content />
+    </div>
+  `,
+  styles: `
+/* These styles rely on CSS variables that can be imported from ng-primitives/example-theme/index.css in your global styles */
+
+    :host:has(+ :host) {
+      border-bottom: 1px solid var(--ngp-border);
+    }
+
+    [ngpAccordionContent][data-open] {
+      animation: slideDown 0.2s ease-in-out forwards;
+    }
+
+    [ngpAccordionContent][data-closed] {
+      animation: slideUp 0.2s ease-in-out forwards;
+    }
+
+    [ngpAccordionTrigger][data-open] ng-icon {
+      transform: rotate(180deg);
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      [ngpAccordionContent][data-open] {
+        animation-duration: 0s;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      [ngpAccordionContent][data-closed] {
+        animation-duration: 0s;
+      }
+    }
+
+    @keyframes slideDown {
+        from {
+          height: 0;
+        }
+        to {
+          height: var(--ngp-accordion-content-height);
+        }
+      }
+
+    @keyframes slideUp {
+        from {
+          height: var(--ngp-accordion-content-height);
+        }
+        to {
+          height: 0;
+        }
+      }
+  `,
+})
+export class AccordionItem<%= componentSuffix %> {
+  /** The accordion item heading */
+  readonly heading = input.required<string>();
+}

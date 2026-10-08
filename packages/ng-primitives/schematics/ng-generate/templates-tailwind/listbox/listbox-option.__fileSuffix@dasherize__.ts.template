@@ -1,0 +1,35 @@
+import { Component } from '@angular/core';
+import { NgIcon, provideIcons } from '@ng-icons/core';
+import { heroCheckSolid } from '@ng-icons/heroicons/solid';
+import { NgpListboxOption } from 'ng-primitives/listbox';
+
+@Component({
+  selector: '<% if (prefix) { %><%= prefix %>-<% } %>listbox-option',
+  hostDirectives: [
+    {
+      directive: NgpListboxOption,
+      inputs: ['id', 'ngpListboxOptionValue:value', 'ngpListboxOptionDisabled:disabled'],
+    },
+  ],
+  imports: [NgIcon],
+  providers: [provideIcons({ heroCheckSolid })],
+  host: {
+    class: 'flex items-center gap-2 [padding:0.375rem_0.75rem] cursor-pointer rounded-lg w-full h-9 box-border data-hover:bg-(--ngp-background-hover) data-press:bg-(--ngp-background-active) data-active:bg-(--ngp-background-active)',
+  },
+  template: `
+    <ng-icon name="heroCheckSolid" size="16px" />
+    <ng-content />
+  `,
+  styles: `
+/* These styles rely on CSS variables that can be imported from ng-primitives/example-theme/index.css in your global styles */
+
+    :host ng-icon {
+      visibility: hidden;
+    }
+
+    :host[data-selected] ng-icon {
+      visibility: visible;
+    }
+  `,
+})
+export class ListboxOption<%= componentSuffix %> {}

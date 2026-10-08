@@ -1,0 +1,35 @@
+import { NgTemplateOutlet } from '@angular/common';
+import { Component, contentChildren, model } from '@angular/core';
+import { NgpTabButton, NgpTabList, NgpTabPanel, NgpTabset } from 'ng-primitives/tabs';
+import { Tab<%= componentSuffix %> } from './tab<% if (fileSuffix) { %>.<%= dasherize(fileSuffix) %><% } %>';
+
+@Component({
+  selector: '<% if (prefix) { %><%= prefix %>-<% } %>tabs',
+  imports: [NgpTabset, NgpTabButton, NgpTabList, NgpTabPanel, NgTemplateOutlet],
+  template: `
+    <div class="w-full max-w-128 rounded-xl bg-(--ngp-background) py-1 px-4 shadow-(--ngp-button-shadow)" [(ngpTabsetValue)]="value" ngpTabset>
+      <div class="flex gap-6 border-b border-(--ngp-border)" ngpTabList>
+        @for (tab of tabs(); track tab.label()) {
+          <button class="border-none bg-transparent [margin-bottom:-1px] [border-bottom:2px_solid_transparent] py-2 px-0 [outline:none] [transition:background-color_150ms_cubic-bezier(0.4,_0,_0.2,_1)] data-focus-visible:[outline:2px_solid_var(--ngp-focus-ring)] data-focus-visible:[outline-offset:2px] data-active:border-(--ngp-background-inverse) data-active:text-(--ngp-text-primary) motion-reduce:[transition-duration:0s]" [ngpTabButtonValue]="tab.value()" ngpTabButton>{{ tab.label() }}</button>
+        }
+      </div>
+
+      @for (tab of tabs(); track tab.label()) {
+        <div class="py-2 px-0 [outline:none] [&:not([data-active])]:hidden" [ngpTabPanelValue]="tab.value()" ngpTabPanel>
+          <ng-container [ngTemplateOutlet]="tab.content()" />
+        </div>
+      }
+    </div>
+  `,
+})
+export class Tabs<%= componentSuffix %> {
+  /**
+   * The value of the selected tab.
+   */
+  readonly value = model<string>();
+
+  /**
+   * The tabs in the group.
+   */
+  readonly tabs = contentChildren(Tab<%= componentSuffix %>);
+}

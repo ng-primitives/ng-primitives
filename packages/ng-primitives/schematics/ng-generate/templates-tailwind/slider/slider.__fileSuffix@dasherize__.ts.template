@@ -1,0 +1,82 @@
+import { Component, input } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { ControlValueAccessor } from '@angular/forms';
+import {
+  injectSliderState,
+  NgpSlider,
+  NgpSliderRange,
+  NgpSliderThumb,
+  NgpSliderTrack,
+} from 'ng-primitives/slider';
+import { ChangeFn, provideValueAccessor, TouchedFn } from 'ng-primitives/utils';
+
+@Component({
+  selector: '<% if (prefix) { %><%= prefix %>-<% } %>slider',
+  hostDirectives: [
+    {
+      directive: NgpSlider,
+      inputs: [
+        'ngpSliderValue:value',
+        'ngpSliderMin:min',
+        'ngpSliderMax:max',
+        'ngpSliderDisabled:disabled',
+      ],
+      outputs: ['ngpSliderValueChange:valueChange'],
+    },
+  ],
+  imports: [NgpSliderTrack, NgpSliderRange, NgpSliderThumb],
+  providers: [provideValueAccessor(Slider<%= componentSuffix %>)],
+  template: `
+    <div class="relative [height:5px] w-full [border-radius:999px] bg-(--ngp-background-secondary)" ngpSliderTrack>
+      <div class="absolute h-full [border-radius:999px] bg-(--ngp-background-inverse)" ngpSliderRange></div>
+    </div>
+    <div class="absolute block h-5 w-5 [border-radius:10px] [background-color:white] shadow-(--ngp-button-shadow) [outline:none] [transform:translateX(-50%)] data-focus-visible:[outline:2px_solid_var(--ngp-focus-ring)] data-focus-visible:[outline-offset:0]" [ariaLabel]="ariaLabel()" ngpSliderThumb></div>
+  `,
+  host: {
+    class: 'flex relative w-50 h-5 [touch-action:none] select-none items-center',
+    '(focusout)': 'onTouched?.()',
+  },
+})
+export class Slider<%= componentSuffix %> implements ControlValueAccessor {
+  /** Access the slider state */
+  private readonly state = injectSliderState();
+
+  /** Forward the aria-label to the thumb */
+  readonly ariaLabel = input<string | null>(null, {
+    alias: 'aria-label',
+  });
+
+  /**
+   * The onChange callback function.
+   */
+  private onChange?: ChangeFn<number>;
+
+  /**
+   * The onTouched callback function.
+   */
+  protected onTouched?: TouchedFn;
+
+  constructor() {
+    // Whenever the user interacts with the slider, call the onChange function with the new value.
+    this.state()
+      .valueChange.pipe(takeUntilDestroyed())
+      .subscribe(value => this.onChange?.(value));
+  }
+
+  writeValue(value: number): void {
+    // writing a value from the model must not re-emit through onChange
+    this.state().setValue(value, { emit: false });
+  }
+
+  registerOnChange(fn: ChangeFn<number>): void {
+    this.onChange = fn;
+  }
+
+  registerOnTouched(fn: TouchedFn): void {
+    this.onTouched = fn;
+  }
+
+  setDisabledState(isDisabled: boolean): void {
+    this.state().setDisabled(isDisabled);
+  }
+}
