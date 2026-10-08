@@ -654,3 +654,70 @@ describe('NgpSubmenuTrigger dynamic content', () => {
     });
   });
 });
+
+describe('NgpSubmenuTrigger click activation', () => {
+  async function openRootMenu() {
+    const { fixture, getByTestId } = await render(TestSubmenuComponent);
+    fixture.autoDetectChanges(true);
+
+    fireEvent.click(getByTestId('root-trigger'));
+
+    await waitFor(() => {
+      expect(document.querySelector('[data-testid="submenu-trigger"]')).toBeInTheDocument();
+    });
+
+    return document.querySelector('[data-testid="submenu-trigger"]') as HTMLElement;
+  }
+
+  async function expectSubmenuOpenAfterSettling(): Promise<void> {
+    await new Promise(resolve => setTimeout(resolve, 50));
+    expect(document.querySelector('[data-testid="submenu"]')).toBeInTheDocument();
+  }
+
+  it('should keep a hover-opened submenu open when its trigger is clicked with a mouse', async () => {
+    const submenuTrigger = await openRootMenu();
+
+    fireEvent.pointerEnter(submenuTrigger, { pointerType: 'mouse' });
+
+    await waitFor(() => {
+      expect(document.querySelector('[data-testid="submenu"]')).toBeInTheDocument();
+    });
+
+    fireEvent.click(submenuTrigger, { detail: 1 });
+    await expectSubmenuOpenAfterSettling();
+
+    fireEvent.click(submenuTrigger, { detail: 1 });
+    await expectSubmenuOpenAfterSettling();
+    expect(submenuTrigger).toHaveAttribute('aria-expanded', 'true');
+  });
+
+  it('should open the submenu on a mouse click and keep it open on a second click', async () => {
+    const submenuTrigger = await openRootMenu();
+
+    fireEvent.click(submenuTrigger, { detail: 1 });
+
+    await waitFor(() => {
+      expect(document.querySelector('[data-testid="submenu"]')).toBeInTheDocument();
+    });
+
+    fireEvent.click(submenuTrigger, { detail: 1 });
+    await expectSubmenuOpenAfterSettling();
+  });
+
+  it('should still toggle the submenu on keyboard activation', async () => {
+    const submenuTrigger = await openRootMenu();
+
+    // Enter and Space on a button dispatch a click with detail 0.
+    fireEvent.click(submenuTrigger, { detail: 0 });
+
+    await waitFor(() => {
+      expect(document.querySelector('[data-testid="submenu"]')).toBeInTheDocument();
+    });
+
+    fireEvent.click(submenuTrigger, { detail: 0 });
+
+    await waitFor(() => {
+      expect(document.querySelector('[data-testid="submenu"]')).not.toBeInTheDocument();
+    });
+  });
+});
