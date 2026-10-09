@@ -344,8 +344,14 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
   /**
    * Portal kept alive (detached from the DOM but not destroyed) after a keepMounted hide,
    * with the content it was built from so a later show can check it is still reusable.
+   * The registered outlet is kept too: the reused view does not construct its directive
+   * again, so nothing would re-register it.
    */
-  private keptMounted: { portal: NgpPortal; content: NgpOverlayContent<T> } | null = null;
+  private keptMounted: {
+    portal: NgpPortal;
+    content: NgpOverlayContent<T>;
+    outletElement: HTMLElement | null;
+  } | null = null;
 
   /**
    * The container the current open attached into. A content swap while open re-attaches
@@ -1099,6 +1105,7 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
       // existing DOM nodes rather than creating a new view/component instance, so the
       // content is not re-instantiated and its one-time setup does not re-run.
       this.keptMounted = null;
+      this.registeredOutletElement = keptMounted.outletElement;
       portal = keptMounted.portal;
       portal.reattach(container, { immediate });
     } else {
@@ -1390,6 +1397,7 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
     // finalPlacement and instantTransition are intentionally cleared here
     // (not before the await) so they remain valid if destruction is cancelled.
     if (this.destroyingPortal === portal) {
+      const outletElement = this.registeredOutletElement;
       this.destroyingPortal = null;
       this.registeredOutletElement = null;
       this.openContainer = null;
@@ -1401,7 +1409,7 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
         if (this.forceDestroyed) {
           portal.destroyView();
         } else {
-          this.keptMounted = { portal, content: reusableContent };
+          this.keptMounted = { portal, content: reusableContent, outletElement };
         }
       }
 

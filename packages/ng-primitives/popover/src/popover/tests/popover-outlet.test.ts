@@ -51,9 +51,12 @@ async function expectCentredUnderTrigger(
     .injector.get(NgpPopoverTrigger);
   await trigger.show();
 
-  await vi.waitFor(() => expect(document.querySelector('[data-overlay]')).not.toBeNull());
+  // Wait for `data-placement` rather than `left`: a reattached kept-mounted popover still
+  // carries its previous `left`, but its placement is only set again once positioning ran.
+  await vi.waitFor(() =>
+    expect(document.querySelector('[data-overlay][data-placement]')).not.toBeNull(),
+  );
   const popover = document.querySelector<HTMLElement>('[data-overlay]')!;
-  await vi.waitFor(() => expect(popover.style.left).not.toBe(''));
 
   const triggerRect = fixture.nativeElement.querySelector('button').getBoundingClientRect();
   const popoverRect = popover.getBoundingClientRect();
@@ -107,6 +110,38 @@ describe('NgpPopover outlet element positioning', () => {
   it('should position a popover when a component class is passed to the trigger', async () => {
     const { fixture } = await render(ComponentClassTrigger);
 
+    await expectCentredUnderTrigger(fixture);
+  });
+
+  it('should keep positioning a kept-mounted popover after it is reopened', async () => {
+    const { fixture } = await render(
+      `
+        <div style="padding: 200px">
+          <button
+            [ngpPopoverTrigger]="popover"
+            ngpPopoverTriggerKeepMounted
+            style="width: 40px"
+          >
+            Trigger
+          </button>
+
+          <ng-template #popover>
+            <app-wrapped-popover />
+          </ng-template>
+        </div>
+      `,
+      { imports: [NgpPopoverTrigger, WrappedPopover] },
+    );
+
+    await expectCentredUnderTrigger(fixture);
+
+    const trigger = fixture.debugElement
+      .query(By.directive(NgpPopoverTrigger))
+      .injector.get(NgpPopoverTrigger);
+    await trigger.hide();
+    await vi.waitFor(() => expect(document.querySelector('[data-overlay]')).toBeNull());
+
+    // The view is reused, so the popover directive is not constructed again.
     await expectCentredUnderTrigger(fixture);
   });
 });
