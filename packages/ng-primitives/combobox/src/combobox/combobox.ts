@@ -1,5 +1,6 @@
 import { BooleanInput } from '@angular/cdk/coercion';
 import {
+  afterNextRender,
   booleanAttribute,
   computed,
   Directive,
@@ -276,13 +277,17 @@ export class NgpCombobox {
    * Open the dropdown.
    * @internal
    */
-  async openDropdown(): Promise<void> {
+  async openDropdown(options?: NgpComboboxOpenOptions): Promise<void> {
     if (this.state.disabled() || this.open()) {
       return;
     }
 
     this.openChange.emit(true);
     await this.portal()?.show();
+
+    if (!this.open()) {
+      return;
+    }
 
     let selectedOptionIdx = -1;
 
@@ -304,8 +309,18 @@ export class NgpCombobox {
     // if after checking there is a selected option, set the active descendant to the first option
     if (selectedOptionIdx !== -1) {
       // scroll to and activate the selected option
-      this.scrollTo(selectedOptionIdx);
-      this.activeDescendantManager.activateByIndex(selectedOptionIdx);
+      this.activeDescendantManager.activateByIndex(selectedOptionIdx, { scroll: false });
+      this.deferScrollTo(selectedOptionIdx);
+      return;
+    }
+
+    if (options?.activate === 'last') {
+      this.activeDescendantManager.reset();
+      this.activeDescendantManager.last({ scroll: false });
+
+      const activeIndex = this.activeDescendantManager.index();
+
+      this.deferScrollTo(activeIndex);
       return;
     }
 
@@ -711,9 +726,7 @@ export class NgpCombobox {
         if (this.open()) {
           this.activatePreviousOption();
         } else {
-          this.openDropdown();
-          // Use setTimeout to ensure dropdown is rendered before selecting last item
-          setTimeout(() => this.activeDescendantManager.last());
+          this.openDropdown({ activate: 'last' });
         }
         event.preventDefault();
         break;
@@ -787,6 +800,23 @@ export class NgpCombobox {
     this.closeDropdown();
   }
 
+  private deferScrollTo(index: number): void {
+    if (index === -1) {
+      return;
+    }
+
+    afterNextRender(
+      {
+        write: () => {
+          if (this.open()) {
+            this.scrollTo(index);
+          }
+        },
+      },
+      { injector: this.injector },
+    );
+  }
+
   private scrollTo(index: number): void {
     const scrollToOption = this.state.scrollToOption();
 
@@ -811,6 +841,14 @@ export class NgpCombobox {
 
     return this.sortedOptions()[index];
   }
+}
+
+export interface NgpComboboxOpenOptions {
+  /**
+   * Which option to activate once the dropdown has opened and its options have registered.
+   * A selected option always wins over this preference. Defaults to `'first'`.
+   */
+  readonly activate?: 'first' | 'last';
 }
 
 /**

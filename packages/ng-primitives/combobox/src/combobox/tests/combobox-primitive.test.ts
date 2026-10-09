@@ -1,6 +1,7 @@
 import {
   Component,
   Directive,
+  ElementRef,
   TemplateRef,
   ViewContainerRef,
   forwardRef,
@@ -16,6 +17,7 @@ import {
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
+import { injectVirtualizer } from '@tanstack/angular-virtual';
 import { fireEvent, render, screen, waitFor } from '@testing-library/angular';
 import { userEvent } from '@testing-library/user-event';
 import { NgpDialog, NgpDialogContext, NgpDialogManager } from 'ng-primitives/dialog';
@@ -582,6 +584,301 @@ describe('NgpCombobox', () => {
       await userEvent.keyboard('{End}');
       expect(input.selectionStart).toBe(4);
     });
+
+    it('should activate the last option when ArrowUp opens the dropdown', async () => {
+      await render(TestComponent);
+
+      const input = screen.getByRole('combobox');
+      input.focus();
+
+      fireEvent.keyDown(input, { key: 'ArrowUp' });
+
+      await waitFor(() => {
+        const options = screen.getAllByRole('option');
+        expect(options[options.length - 1]).toHaveAttribute('data-active');
+      });
+    });
+
+    it('should keep the selected option active when ArrowUp opens the dropdown', async () => {
+      const { fixture } = await render(TestComponent);
+      fixture.componentInstance.value = 'Banana';
+      fixture.detectChanges();
+
+      const input = screen.getByRole('combobox');
+      input.focus();
+
+      fireEvent.keyDown(input, { key: 'ArrowUp' });
+
+      await waitFor(() => {
+        const bananaOption = screen.getByText('Banana');
+        expect(bananaOption).toHaveAttribute('data-active');
+      });
+    });
+
+    it('should scroll the last option into view when ArrowUp opens the dropdown', async () => {
+      @Component({
+        imports: [
+          NgpCombobox,
+          NgpComboboxDropdown,
+          NgpComboboxInput,
+          NgpComboboxOption,
+          NgpComboboxPortal,
+        ],
+        template: `
+          <div [(ngpComboboxValue)]="value" ngpCombobox data-testid="scrollable-combobox">
+            <input data-testid="combobox-input" ngpComboboxInput />
+
+            <div
+              *ngpComboboxPortal
+              ngpComboboxDropdown
+              data-testid="dropdown"
+              style="overflow: hidden;"
+            >
+              <div
+                class="scrollable"
+                data-testid="scrollable"
+                style="max-height: 100px; overflow-y: auto;"
+              >
+                @for (option of options; track option) {
+                  <div
+                    [ngpComboboxOptionValue]="option"
+                    [attr.data-testid]="'option-' + option"
+                    style="height: 30px;"
+                    ngpComboboxOption
+                  >
+                    {{ option }}
+                  </div>
+                }
+              </div>
+            </div>
+          </div>
+        `,
+      })
+      class TestScrollableComboboxComponent {
+        readonly options = Array.from({ length: 20 }, (_, index) => `Option${index}`);
+        value: string | undefined = undefined;
+      }
+
+      await render(TestScrollableComboboxComponent);
+
+      const input = screen.getByTestId('combobox-input');
+      input.focus();
+
+      fireEvent.keyDown(input, { key: 'ArrowUp' });
+
+      const scrollable = await screen.findByTestId('scrollable');
+
+      await waitFor(() => {
+        const lastOption = screen.getByTestId('option-Option19');
+        expect(lastOption).toHaveAttribute('data-active', '');
+
+        const optionRect = lastOption.getBoundingClientRect();
+        const scrollableRect = scrollable.getBoundingClientRect();
+
+        expect(optionRect.bottom).toBeLessThanOrEqual(scrollableRect.bottom + 0.5);
+        expect(optionRect.top).toBeGreaterThanOrEqual(scrollableRect.top - 0.5);
+        expect(scrollable.scrollTop).toBe(scrollable.scrollHeight - scrollable.clientHeight);
+      });
+    });
+
+    it('should scroll the last option into view only once when ArrowUp opens the dropdown', async () => {
+      const scrollToOption = vi.fn();
+
+      @Component({
+        imports: [
+          NgpCombobox,
+          NgpComboboxDropdown,
+          NgpComboboxInput,
+          NgpComboboxOption,
+          NgpComboboxPortal,
+        ],
+        template: `
+          <div
+            [ngpComboboxScrollToOption]="scrollToOption"
+            ngpCombobox
+            data-testid="scrollable-combobox"
+          >
+            <input data-testid="combobox-input" ngpComboboxInput />
+
+            <div *ngpComboboxPortal ngpComboboxDropdown data-testid="dropdown">
+              @for (option of options; track option) {
+                <div
+                  [ngpComboboxOptionValue]="option"
+                  [attr.data-testid]="'option-' + option"
+                  ngpComboboxOption
+                >
+                  {{ option }}
+                </div>
+              }
+            </div>
+          </div>
+        `,
+      })
+      class TestSingleScrollComboboxComponent {
+        readonly options = Array.from({ length: 5 }, (_, index) => `Option${index}`);
+        readonly scrollToOption = scrollToOption;
+      }
+
+      await render(TestSingleScrollComboboxComponent);
+
+      const input = screen.getByTestId('combobox-input');
+      input.focus();
+
+      fireEvent.keyDown(input, { key: 'ArrowUp' });
+
+      await waitFor(() => {
+        const lastOption = screen.getByTestId('option-Option4');
+        expect(lastOption).toHaveAttribute('data-active', '');
+      });
+
+      expect(scrollToOption).toHaveBeenCalledTimes(1);
+      expect(scrollToOption).toHaveBeenCalledWith(4);
+    });
+
+    it('should scroll the selected option into view only once when opening the dropdown', async () => {
+      const scrollToOption = vi.fn();
+
+      @Component({
+        imports: [
+          NgpCombobox,
+          NgpComboboxDropdown,
+          NgpComboboxInput,
+          NgpComboboxOption,
+          NgpComboboxPortal,
+        ],
+        template: `
+          <div
+            [ngpComboboxScrollToOption]="scrollToOption"
+            [ngpComboboxValue]="value"
+            ngpCombobox
+            data-testid="scrollable-combobox"
+          >
+            <input data-testid="combobox-input" ngpComboboxInput />
+
+            <div *ngpComboboxPortal ngpComboboxDropdown data-testid="dropdown">
+              @for (option of options; track option) {
+                <div
+                  [ngpComboboxOptionValue]="option"
+                  [attr.data-testid]="'option-' + option"
+                  ngpComboboxOption
+                >
+                  {{ option }}
+                </div>
+              }
+            </div>
+          </div>
+        `,
+      })
+      class TestSingleScrollSelectedComboboxComponent {
+        readonly options = Array.from({ length: 5 }, (_, index) => `Option${index}`);
+        readonly scrollToOption = scrollToOption;
+        value = 'Option2';
+      }
+
+      await render(TestSingleScrollSelectedComboboxComponent);
+
+      const input = screen.getByTestId('combobox-input');
+      input.focus();
+
+      fireEvent.keyDown(input, { key: 'ArrowDown' });
+
+      await waitFor(() => {
+        const selectedOption = screen.getByTestId('option-Option2');
+        expect(selectedOption).toHaveAttribute('data-active', '');
+      });
+
+      expect(scrollToOption).toHaveBeenCalledTimes(1);
+      expect(scrollToOption).toHaveBeenCalledWith(2);
+    });
+
+    it('should not scroll when ArrowUp opens a dropdown with no activatable option', async () => {
+      const scrollToOption = vi.fn();
+
+      @Component({
+        template: `
+          <div [ngpComboboxScrollToOption]="scrollToOption" ngpCombobox>
+            <input ngpComboboxInput data-testid="empty-combobox-input" />
+
+            <div *ngpComboboxPortal ngpComboboxDropdown data-testid="dropdown"></div>
+          </div>
+        `,
+        imports: [NgpCombobox, NgpComboboxInput, NgpComboboxDropdown, NgpComboboxPortal],
+      })
+      class TestEmptyComboboxComponent {
+        readonly scrollToOption = scrollToOption;
+      }
+
+      await render(TestEmptyComboboxComponent);
+
+      const input = screen.getByTestId('empty-combobox-input');
+      input.focus();
+
+      fireEvent.keyDown(input, { key: 'ArrowUp' });
+
+      await waitFor(() => {
+        expect(screen.getByTestId('dropdown')).toBeInTheDocument();
+      });
+
+      expect(scrollToOption).not.toHaveBeenCalled();
+    });
+
+    it('should not scroll or activate an option when ArrowUp opens a dropdown with all options disabled', async () => {
+      const scrollToOption = vi.fn();
+
+      @Component({
+        imports: [
+          NgpCombobox,
+          NgpComboboxDropdown,
+          NgpComboboxInput,
+          NgpComboboxOption,
+          NgpComboboxPortal,
+        ],
+        template: `
+          <div [ngpComboboxScrollToOption]="scrollToOption" ngpCombobox>
+            <input data-testid="disabled-options-input" ngpComboboxInput />
+
+            <div *ngpComboboxPortal ngpComboboxDropdown data-testid="dropdown">
+              <div
+                [ngpComboboxOptionValue]="'1'"
+                [ngpComboboxOptionDisabled]="true"
+                ngpComboboxOption
+              >
+                Option 1
+              </div>
+              <div
+                [ngpComboboxOptionValue]="'2'"
+                [ngpComboboxOptionDisabled]="true"
+                ngpComboboxOption
+              >
+                Option 2
+              </div>
+            </div>
+          </div>
+        `,
+      })
+      class TestDisabledOptionsComboboxComponent {
+        readonly scrollToOption = scrollToOption;
+      }
+
+      await render(TestDisabledOptionsComboboxComponent);
+
+      const input = screen.getByTestId('disabled-options-input');
+      input.focus();
+
+      fireEvent.keyDown(input, { key: 'ArrowUp' });
+
+      await waitFor(() => {
+        expect(screen.getByTestId('dropdown')).toBeInTheDocument();
+      });
+
+      expect(scrollToOption).not.toHaveBeenCalled();
+
+      const options = screen.getAllByRole('option');
+      for (const option of options) {
+        expect(option).not.toHaveAttribute('data-active');
+      }
+      expect(input).not.toHaveAttribute('aria-activedescendant');
+    });
   });
 
   describe('disabled', () => {
@@ -1134,14 +1431,30 @@ describe('NgpCombobox Virtual Scrolling', () => {
     ];
 
     // Simulated virtual scrolling - only render visible items
-    startIndex = 0;
-    endIndex = 5; // Only show 6 items at a time
+    private readonly _startIndex = signal(0);
+    private readonly _endIndex = signal(5);
+
+    get startIndex(): number {
+      return this._startIndex();
+    }
+    set startIndex(value: number) {
+      this._startIndex.set(value);
+    }
+
+    get endIndex(): number {
+      return this._endIndex();
+    }
+    set endIndex(value: number) {
+      this._endIndex.set(value);
+    }
 
     get renderedItems() {
       const filtered = this.filteredOptions;
-      return filtered.slice(this.startIndex, this.endIndex + 1).map((value, displayIndex) => ({
+      const start = this.startIndex;
+      const end = this.endIndex;
+      return filtered.slice(start, end + 1).map((value, displayIndex) => ({
         value,
-        index: this.startIndex + displayIndex,
+        index: start + displayIndex,
       }));
     }
 
@@ -1169,8 +1482,9 @@ describe('NgpCombobox Virtual Scrolling', () => {
 
       // Simulate virtual scrolling by updating the rendered range
       const itemsToShow = 6;
-      this.startIndex = Math.max(0, index - Math.floor(itemsToShow / 2));
-      this.endIndex = Math.min(this.filteredOptions.length - 1, this.startIndex + itemsToShow - 1);
+      const start = Math.max(0, index - Math.floor(itemsToShow / 2));
+      this.startIndex = start;
+      this.endIndex = Math.min(this.filteredOptions.length - 1, start + itemsToShow - 1);
     };
   }
 
@@ -1264,8 +1578,10 @@ describe('NgpCombobox Virtual Scrolling', () => {
       await userEvent.click(button);
 
       // Custom scroll function should be called with the index of the selected option
-      expect(component.scrollToOptionCalled).toBeTruthy();
-      expect(component.lastScrollIndex).toBe(10);
+      await waitFor(() => {
+        expect(component.scrollToOptionCalled).toBeTruthy();
+        expect(component.lastScrollIndex).toBe(10);
+      });
     });
 
     it('should handle keyboard navigation with virtual indices', async () => {
@@ -2597,5 +2913,129 @@ describe('NgpCombobox container', () => {
       const containerB = document.querySelector('#combobox-dynamic-b');
       expect(containerB?.querySelector('[ngpComboboxDropdown]')).toBeInTheDocument();
     });
+  });
+});
+
+describe('NgpCombobox virtual scrolling (TanStack Virtualizer)', () => {
+  afterEach(removeLingeringDropdown);
+
+  @Component({
+    imports: [
+      NgpCombobox,
+      NgpComboboxDropdown,
+      NgpComboboxInput,
+      NgpComboboxOption,
+      NgpComboboxPortal,
+    ],
+    template: `
+      <div
+        [(ngpComboboxValue)]="value"
+        [ngpComboboxOptions]="options"
+        [ngpComboboxScrollToOption]="scrollToOption"
+        ngpCombobox
+        data-testid="combobox"
+      >
+        <input data-testid="combobox-input" ngpComboboxInput />
+
+        <div *ngpComboboxPortal ngpComboboxDropdown data-testid="dropdown">
+          <div class="virtual-container" #scrollContainer style="height: 100px; overflow: auto;">
+            <div [style.height.px]="virtualizer.getTotalSize()" style="position: relative;">
+              @for (virtualRow of virtualizer.getVirtualItems(); track virtualRow.index) {
+                <div
+                  [ngpComboboxOptionValue]="options[virtualRow.index]"
+                  [ngpComboboxOptionIndex]="virtualRow.index"
+                  [attr.data-testid]="'option-' + virtualRow.index"
+                  [style.position]="'absolute'"
+                  [style.top.px]="virtualRow.start"
+                  [style.height.px]="virtualRow.size"
+                  ngpComboboxOption
+                >
+                  {{ options[virtualRow.index] }}
+                </div>
+              }
+            </div>
+          </div>
+        </div>
+      </div>
+    `,
+  })
+  class VirtualComboboxTestComponent {
+    readonly value = signal<string | null>(null);
+    readonly options = Array.from({ length: 100 }, (_, index) => `Option ${index}`);
+    readonly scrollContainer = viewChild<ElementRef<HTMLDivElement>>('scrollContainer');
+
+    readonly virtualizer = injectVirtualizer(() => ({
+      count: this.options.length,
+      scrollElement: this.scrollContainer(),
+      estimateSize: () => 20,
+      overscan: 2,
+    }));
+
+    readonly scrollToOption = (index: number) => {
+      this.virtualizer.scrollToIndex(index, { behavior: 'auto', align: 'auto' });
+    };
+  }
+
+  it('should scroll to and activate the last option when ArrowUp opens the dropdown, and select it on Enter', async () => {
+    const { fixture } = await render(VirtualComboboxTestComponent);
+    const input = screen.getByTestId('combobox-input');
+    input.focus();
+
+    fireEvent.keyDown(input, { key: 'ArrowUp' });
+
+    await waitFor(() => {
+      const lastOption = screen.getByTestId('option-99');
+      expect(lastOption).toHaveAttribute('data-active', '');
+      expect(input).toHaveAttribute('aria-activedescendant', lastOption.id);
+    });
+
+    fireEvent.keyDown(input, { key: 'Enter' });
+
+    await waitFor(() => {
+      expect(fixture.componentInstance.value()).toBe('Option 99');
+      expect(screen.queryByTestId('dropdown')).not.toBeInTheDocument();
+    });
+  });
+
+  it('should scroll to and activate a preselected option outside the initial render window when opened', async () => {
+    const { fixture } = await render(VirtualComboboxTestComponent);
+    fixture.componentInstance.value.set('Option 85');
+    fixture.detectChanges();
+
+    const input = screen.getByTestId('combobox-input');
+    input.focus();
+
+    fireEvent.keyDown(input, { key: 'ArrowDown' });
+
+    await waitFor(() => {
+      const targetOption = screen.getByTestId('option-85');
+      expect(targetOption).toHaveAttribute('data-active', '');
+      expect(input).toHaveAttribute('aria-activedescendant', targetOption.id);
+    });
+  });
+
+  it('should abort openDropdown cleanly when closed while portal show is in flight', async () => {
+    const { fixture } = await render(VirtualComboboxTestComponent);
+    const combobox = fixture.debugElement
+      .query(sel => sel.injector.get(NgpCombobox, null) !== null)
+      .injector.get(NgpCombobox);
+
+    const portal = combobox['portal']();
+    expect(portal).toBeDefined();
+
+    let showCalled = false;
+    portal!.show = async () => {
+      showCalled = true;
+      // Simulate that the portal was closed or destroyed when show finishes
+      return;
+    };
+
+    const deferScrollSpy = vi.spyOn(combobox as any, 'deferScrollTo');
+
+    await combobox.openDropdown({ activate: 'last' });
+
+    expect(showCalled).toBe(true);
+    expect(combobox.open()).toBe(false);
+    expect(deferScrollSpy).not.toHaveBeenCalled();
   });
 });

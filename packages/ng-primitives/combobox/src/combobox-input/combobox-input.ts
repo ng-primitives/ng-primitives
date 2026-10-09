@@ -81,8 +81,7 @@ export class NgpComboboxInput {
         if (this.state().open()) {
           this.state().activatePreviousOption();
         } else {
-          this.state().openDropdown();
-          this.state().activeDescendantManager.last();
+          this.state().openDropdown({ activate: 'last' });
         }
         event.preventDefault();
         break;
