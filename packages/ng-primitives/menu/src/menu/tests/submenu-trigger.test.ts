@@ -683,9 +683,11 @@ describe('NgpSubmenuTrigger click activation', () => {
       expect(document.querySelector('[data-testid="submenu"]')).toBeInTheDocument();
     });
 
+    fireEvent.pointerDown(submenuTrigger, { pointerType: 'mouse' });
     fireEvent.click(submenuTrigger, { detail: 1 });
     await expectSubmenuOpenAfterSettling();
 
+    fireEvent.pointerDown(submenuTrigger, { pointerType: 'mouse' });
     fireEvent.click(submenuTrigger, { detail: 1 });
     await expectSubmenuOpenAfterSettling();
     expect(submenuTrigger).toHaveAttribute('aria-expanded', 'true');
@@ -694,14 +696,34 @@ describe('NgpSubmenuTrigger click activation', () => {
   it('should open the submenu on a mouse click and keep it open on a second click', async () => {
     const submenuTrigger = await openRootMenu();
 
+    fireEvent.pointerDown(submenuTrigger, { pointerType: 'mouse' });
     fireEvent.click(submenuTrigger, { detail: 1 });
 
     await waitFor(() => {
       expect(document.querySelector('[data-testid="submenu"]')).toBeInTheDocument();
     });
 
+    fireEvent.pointerDown(submenuTrigger, { pointerType: 'mouse' });
     fireEvent.click(submenuTrigger, { detail: 1 });
     await expectSubmenuOpenAfterSettling();
+  });
+
+  it('should open the submenu on a touch tap and close it on a second tap', async () => {
+    const submenuTrigger = await openRootMenu();
+
+    fireEvent.pointerDown(submenuTrigger, { pointerType: 'touch' });
+    fireEvent.click(submenuTrigger, { detail: 1 });
+
+    await waitFor(() => {
+      expect(document.querySelector('[data-testid="submenu"]')).toBeInTheDocument();
+    });
+
+    fireEvent.pointerDown(submenuTrigger, { pointerType: 'touch' });
+    fireEvent.click(submenuTrigger, { detail: 1 });
+
+    await waitFor(() => {
+      expect(document.querySelector('[data-testid="submenu"]')).not.toBeInTheDocument();
+    });
   });
 
   it('should still toggle the submenu on keyboard activation', async () => {

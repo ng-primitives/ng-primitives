@@ -214,6 +214,10 @@ export const [
     const pointerOverContent = signal(false);
     const isPointerOverSubmenu = computed(() => pointerOverTrigger() || pointerOverContent());
 
+    // The pointer type of the last pointerdown on the trigger, cleared once its click is handled.
+    // Clicks without a preceding pointerdown (keyboard, screen readers) leave it null.
+    let lastPointerType: string | null = null;
+
     // Safe-polygon hover intent: while the pointer travels inside a corridor from
     // the submenu trigger toward the open submenu, sibling hover events are
     // ignored so the submenu doesn't collapse mid-traversal.
@@ -277,28 +281,38 @@ export const [
     dataBinding(element, 'data-open', open);
 
     // Event listeners
+    listener(element, 'pointerdown', onPointerDown);
     listener(element, 'click', onClick);
     listener(element, 'keydown', handleArrowKey);
     listener(element, 'pointerenter', showSubmenuOnHover);
     listener(element, 'pointerleave', onPointerLeave);
 
     // Methods
+    function onPointerDown(event: PointerEvent): void {
+      lastPointerType = event.pointerType;
+    }
+
     function onClick(event: MouseEvent): void {
+      const pointerType = lastPointerType;
+      lastPointerType = null;
+
       if (disabled?.()) {
         return;
       }
+
+      // a mouse or pen click on the trigger of an open submenu keeps it open: hovering the
+      // trigger already opened it, so the click that follows must not close it again.
+      // Touch taps, keyboard and screen reader activation still toggle the submenu.
+      if (open() && event.detail !== 0 && pointerType !== null && pointerType !== 'touch') {
+        return;
+      }
+
       toggle(event);
     }
 
     function toggle(event: MouseEvent): void {
       // determine the origin of the event, 0 is keyboard, 1 is mouse
       const origin: FocusOrigin = event.detail === 0 ? 'keyboard' : 'mouse';
-
-      // a pointer click on the trigger of an open submenu keeps it open: hovering the
-      // trigger already opened it, so the click that follows must not close it again
-      if (open() && origin === 'mouse') {
-        return;
-      }
 
       // if the menu is open then hide it
       if (open()) {
