@@ -30,7 +30,7 @@ describe('NgpPagination', () => {
       expect(pagination).toHaveAttribute('data-page', '1');
       expect(pagination).toHaveAttribute('data-page-count', '0');
       expect(pagination).toHaveAttribute('data-first-page');
-      expect(pagination).not.toHaveAttribute('data-last-page');
+      expect(pagination).toHaveAttribute('data-last-page');
       expect(pagination).not.toHaveAttribute('data-disabled');
     });
 
@@ -595,6 +595,43 @@ describe('NgpPagination', () => {
       const pagination = getByRole('navigation');
       expect(pagination).toHaveAttribute('data-page', '0');
       expect(pagination).toHaveAttribute('data-first-page', '');
+    });
+
+    it('should treat every page as both first and last when there are no pages', async () => {
+      const onPageChange = vi.fn();
+      const { getByRole, getByTestId, fixture } = await render(
+        `<div ngpPagination [(ngpPaginationPage)]="page" [ngpPaginationPageCount]="0" (ngpPaginationPageChange)="onPageChange($event)">
+          <button data-testid="first-page-button" ngpPaginationFirst>First</button>
+          <button data-testid="previous-page-button" ngpPaginationPrevious>Previous</button>
+          <button data-testid="next-page-button" ngpPaginationNext>Next</button>
+          <button data-testid="last-page-button" ngpPaginationLast>Last</button>
+        </div>`,
+        {
+          imports: allImports,
+          componentProperties: { page: 1, onPageChange },
+        },
+      );
+      await fixture.whenStable();
+
+      const pagination = getByRole('navigation');
+      expect(pagination).toHaveAttribute('data-first-page', '');
+      expect(pagination).toHaveAttribute('data-last-page', '');
+
+      for (const id of [
+        'first-page-button',
+        'previous-page-button',
+        'next-page-button',
+        'last-page-button',
+      ]) {
+        expect(getByTestId(id)).toHaveAttribute('disabled');
+        expect(getByTestId(id)).toHaveAttribute('data-disabled');
+      }
+
+      fireEvent.click(getByTestId('next-page-button'));
+      fireEvent.click(getByTestId('last-page-button'));
+      await fixture.whenStable();
+
+      expect(onPageChange).not.toHaveBeenCalled();
     });
   });
 
