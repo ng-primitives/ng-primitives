@@ -163,6 +163,35 @@ describe('NgpFormField with a control registered from a child component', () => 
     expect(getByTestId('field')).toHaveAttribute('data-invalid');
   });
 
+  it('clears the status when the last registered control leaves', async () => {
+    @Component({
+      template: `
+        <div ngpFormField data-testid="field">
+          @if (show) {
+            <test-child-input [control]="control" inputId="name" />
+          }
+          <div ngpError ngpErrorValidator="required" data-testid="error">Required</div>
+        </div>
+      `,
+      imports: [NgpFormField, NgpError, ChildInput],
+    })
+    class TestComponent {
+      show = true;
+      control = new FormControl('', [Validators.required]);
+    }
+
+    const { fixture, getByTestId } = await render(TestComponent);
+    await fixture.whenStable();
+    expect(getByTestId('field')).toHaveAttribute('data-invalid');
+
+    fixture.componentInstance.show = false;
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    expect(getByTestId('field')).not.toHaveAttribute('data-invalid');
+    expect(getByTestId('error')).toHaveAttribute('data-validator', 'pass');
+  });
+
   it('prefers the control in its own template over a control registered from inside it', async () => {
     /**
      * A custom control that renders an inner input bound to its own proxy control without

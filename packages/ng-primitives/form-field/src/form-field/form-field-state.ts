@@ -1,4 +1,13 @@
-import { Injector, Signal, computed, effect, inject, signal, untracked } from '@angular/core';
+import {
+  EffectRef,
+  Injector,
+  Signal,
+  computed,
+  effect,
+  inject,
+  signal,
+  untracked,
+} from '@angular/core';
 import { NgControl } from '@angular/forms';
 import { injectElementRef } from 'ng-primitives/internal';
 import { createPrimitive, dataBinding, onDestroy } from 'ng-primitives/state';
@@ -129,6 +138,7 @@ export const [NgpFormFieldStateToken, ngpFormField, injectFormFieldState, provid
 
     // Store the current status subscription
     let subscription: Subscription | undefined;
+    let statusEffect: EffectRef | undefined;
 
     // Host bindings
     dataBinding(element, 'data-invalid', invalid);
@@ -176,17 +186,32 @@ export const [NgpFormFieldStateToken, ngpFormField, injectFormFieldState, provid
       }
     }
 
+    // Without a control, the status of a control that left must not linger.
+    function clearStatus(): void {
+      pristine.set(null);
+      touched.set(null);
+      dirty.set(null);
+      valid.set(null);
+      invalid.set(null);
+      pending.set(null);
+      disabled.set(null);
+      errors.set([]);
+    }
+
     function setupSubscriptions(control: NgControl | null): void {
       // Unsubscribe from the previous subscriptions.
       subscription?.unsubscribe();
+      statusEffect?.destroy();
+      statusEffect = undefined;
 
       if (!control) {
+        clearStatus();
         return;
       }
 
       // For signal-forms interop controls, use an effect to reactively track status.
       // For classic controls, also use an effect but additionally subscribe to events.
-      effect(
+      statusEffect = effect(
         () => {
           updateStatus();
         },
