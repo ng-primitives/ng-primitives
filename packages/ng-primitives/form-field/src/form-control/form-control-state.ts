@@ -1,6 +1,7 @@
-import { Signal, computed, signal } from '@angular/core';
+import { Signal, computed, inject, signal } from '@angular/core';
+import { NgControl } from '@angular/forms';
 import { explicitEffect, injectElementRef } from 'ng-primitives/internal';
-import { attrBinding, dataBinding } from 'ng-primitives/state';
+import { attrBinding, dataBinding, onMount } from 'ng-primitives/state';
 import { NgpControlStatus, controlStatus } from 'ng-primitives/utils';
 import { injectFormFieldState } from '../form-field/form-field-state';
 
@@ -25,6 +26,10 @@ export function ngpFormControl({
   const formField = injectFormFieldState({ optional: true });
   // Access the form control status.
   const status = controlStatus();
+  // Passed to the form field, whose content query cannot see a control inside a child component.
+  // Resolved on mount: a custom control's NgControl is still being constructed before that.
+  const ngControl = signal<NgControl | null>(null);
+  onMount(() => ngControl.set(inject(NgControl, { optional: true })));
   // Determine the aria-labelledby attribute value.
   const ariaLabelledBy = computed(() => {
     const labels = formField()?.labels() ?? [];
@@ -46,9 +51,9 @@ export function ngpFormControl({
     supportsDisabledAttribute && (disabled() || status().disabled) ? '' : null,
   );
 
-  explicitEffect([id], ([id], onCleanup) => {
-    formField()?.setFormControl(id);
-    onCleanup(() => formField()?.removeFormControl());
+  explicitEffect([id, ngControl], ([id, ngControl], onCleanup) => {
+    formField()?.setFormControl(id, ngControl);
+    onCleanup(() => formField()?.removeFormControl(id));
   });
 
   attrBinding(elementRef, 'id', id);
