@@ -284,5 +284,24 @@ describe('NgpRovingFocusGroup', () => {
         expect(container.getByTestId('item-2')).toHaveAttribute('tabindex', '-1');
       });
     });
+
+    it('should not move the tab stop when an item is focused while the group is disabled', async () => {
+      const container = await render(
+        `<div ngpRovingFocusGroup [ngpRovingFocusGroupDisabled]="disabled">
+          <button ngpRovingFocusItem data-testid="item-1">One</button>
+          <button ngpRovingFocusItem data-testid="item-2">Two</button>
+        </div>`,
+        { imports, componentProperties: { disabled: true } },
+      );
+
+      container.getByTestId('item-2').focus();
+      container.fixture.componentInstance.disabled = false;
+      container.fixture.detectChanges();
+
+      await waitFor(() => {
+        expect(container.getByTestId('item-1')).toHaveAttribute('tabindex', '0');
+        expect(container.getByTestId('item-2')).toHaveAttribute('tabindex', '-1');
+      });
+    });
   });
 });

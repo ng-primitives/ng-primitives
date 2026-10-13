@@ -87,7 +87,7 @@ export const [
     // assistive technology), so claim the tab stop whenever the item receives focus. setTabStop
     // does not move focus, so this cannot re-enter the listener.
     listener(element, 'focus', () => {
-      if (disabled()) {
+      if (disabled() || group()?.disabled()) {
         return;
       }
       group()?.setTabStop(id);
