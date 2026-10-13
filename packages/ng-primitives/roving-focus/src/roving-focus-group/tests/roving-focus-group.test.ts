@@ -227,4 +227,62 @@ describe('NgpRovingFocusGroup', () => {
       });
     });
   });
+
+  describe('programmatic focus', () => {
+    it('should make an item the tab stop when it receives focus programmatically', async () => {
+      const container = await render(
+        `<div ngpRovingFocusGroup>
+          <button ngpRovingFocusItem data-testid="item-1">One</button>
+          <button ngpRovingFocusItem data-testid="item-2">Two</button>
+          <button ngpRovingFocusItem data-testid="item-3">Three</button>
+        </div>`,
+        { imports },
+      );
+
+      const item2 = container.getByTestId('item-2');
+      item2.focus();
+
+      await waitFor(() => {
+        expect(item2).toHaveAttribute('tabindex', '0');
+        expect(container.getByTestId('item-1')).toHaveAttribute('tabindex', '-1');
+      });
+    });
+
+    it('should navigate from a programmatically focused item', async () => {
+      const container = await render(
+        `<div ngpRovingFocusGroup>
+          <button ngpRovingFocusItem data-testid="item-1">One</button>
+          <button ngpRovingFocusItem data-testid="item-2">Two</button>
+          <button ngpRovingFocusItem data-testid="item-3">Three</button>
+        </div>`,
+        { imports },
+      );
+
+      const item2 = container.getByTestId('item-2');
+      item2.focus();
+      fireEvent.keyDown(item2, { key: 'ArrowDown' });
+
+      await waitFor(() => {
+        expect(container.getByTestId('item-3')).toHaveFocus();
+        expect(container.getByTestId('item-3')).toHaveAttribute('tabindex', '0');
+      });
+    });
+
+    it('should not make a disabled item the tab stop when it receives focus', async () => {
+      const container = await render(
+        `<div ngpRovingFocusGroup>
+          <button ngpRovingFocusItem data-testid="item-1">One</button>
+          <button ngpRovingFocusItem ngpRovingFocusItemDisabled data-testid="item-2">Two</button>
+        </div>`,
+        { imports },
+      );
+
+      container.getByTestId('item-2').focus();
+
+      await waitFor(() => {
+        expect(container.getByTestId('item-1')).toHaveAttribute('tabindex', '0');
+        expect(container.getByTestId('item-2')).toHaveAttribute('tabindex', '-1');
+      });
+    });
+  });
 });
