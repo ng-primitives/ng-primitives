@@ -59,6 +59,22 @@ ng g ng-primitives:primitive form-field
 - `styles`: How component styles should be generated. `css` (default) includes the full example styles; `unstyled` omits them entirely so you can style the component yourself.
 - `example-styles` (deprecated): still supported for compatibility - `true` maps to `styles: css`, `false` maps to `styles: unstyled`.
 
+### Outer FormField
+
+By default, a form field discovers the form control contained within its own DOM. Sometimes
+the control lives elsewhere—for example, inside a popover, dialog, or another component. In
+that case, associate it with the form field using the `ngpFormFieldSource` input.
+Both Reactive Forms and Signal Forms are supported:
+
+- **Reactive Forms**: pass an `AbstractControl`, typically bound with `[formControl]`.
+- **Signal Forms**: pass a `FieldTree`, typically bound with `[formField]`.
+
+The form field then tracks the source's status (valid, touched, dirty, and so on) and exposes it
+through the `data-*` attributes on the form field and its `ngpError`, `ngpLabel`, and `ngpDescription`
+elements, exactly as it would for a control inside its own DOM.
+
+<docs-example name="outer-form-field"></docs-example>
+
 ## API Reference
 
 The following directives are available to import from the `ng-primitives/form-field` package:
