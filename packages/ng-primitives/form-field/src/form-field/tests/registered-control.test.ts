@@ -1,4 +1,4 @@
-import { Component, Directive, forwardRef, input } from '@angular/core';
+import { Component, forwardRef, input } from '@angular/core';
 import {
   ControlValueAccessor,
   FormControl,
@@ -7,13 +7,7 @@ import {
   Validators,
 } from '@angular/forms';
 import { render } from '@testing-library/angular';
-import {
-  NgpError,
-  NgpFormControl,
-  NgpFormField,
-  NgpLabel,
-  injectFormFieldState,
-} from 'ng-primitives/form-field';
+import { NgpError, NgpFormControl, NgpFormField, NgpLabel } from 'ng-primitives/form-field';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
 /**
@@ -29,14 +23,6 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 class ChildInput {
   readonly control = input.required<FormControl>();
   readonly inputId = input.required<string>();
-}
-
-/**
- * Exposes the control the form field resolved, for assertions.
- */
-@Directive({ selector: '[testFormFieldProbe]', exportAs: 'probe' })
-class FormFieldProbe {
-  readonly state = injectFormFieldState();
 }
 
 describe('NgpFormField with a control registered from a child component', () => {
@@ -69,26 +55,6 @@ describe('NgpFormField with a control registered from a child component', () => 
     await fixture.whenStable();
 
     expect(field).toHaveAttribute('data-dirty');
-  });
-
-  it('exposes the registered control in the form field state', async () => {
-    @Component({
-      template: `
-        <div #probe="probe" ngpFormField testFormFieldProbe>
-          <test-child-input [control]="control" inputId="name" />
-        </div>
-      `,
-      imports: [NgpFormField, FormFieldProbe, ChildInput],
-    })
-    class TestComponent {
-      control = new FormControl('', [Validators.required]);
-    }
-
-    const { fixture } = await render(TestComponent);
-    await fixture.whenStable();
-    const probe = fixture.debugElement.children[0].injector.get(FormFieldProbe);
-
-    expect(probe.state().ngControl()?.control).toBe(fixture.componentInstance.control);
   });
 
   it('follows the visible control when @if swaps the child component', async () => {
@@ -259,6 +225,51 @@ describe('NgpFormField with a control registered from a child component', () => 
     await fixture.whenStable();
 
     expect(warn).toHaveBeenCalledWith(expect.stringContaining('[ngpFormField]'));
+  });
+
+  it('does not warn when two elements resolve the same control', async () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+
+    // Both inner inputs have no NgControl of their own, so each resolves the host's.
+    @Component({
+      selector: 'test-range-input',
+      template: `
+        <input id="from" ngpFormControl />
+        <input id="to" ngpFormControl />
+      `,
+      imports: [NgpFormControl],
+      providers: [
+        { provide: NG_VALUE_ACCESSOR, useExisting: forwardRef(() => RangeInput), multi: true },
+      ],
+    })
+    class RangeInput implements ControlValueAccessor {
+      writeValue(): void {
+        // Value is not under test.
+      }
+      registerOnChange(): void {
+        // Value is not under test.
+      }
+      registerOnTouched(): void {
+        // Touch state is not under test.
+      }
+    }
+
+    @Component({
+      template: `
+        <div ngpFormField>
+          <test-range-input [formControl]="control" />
+        </div>
+      `,
+      imports: [NgpFormField, RangeInput, ReactiveFormsModule],
+    })
+    class TestComponent {
+      control = new FormControl('');
+    }
+
+    const { fixture } = await render(TestComponent);
+    await fixture.whenStable();
+
+    expect(warn).not.toHaveBeenCalledWith(expect.stringContaining('[ngpFormField]'));
   });
 
   it('does not warn for a single control', async () => {

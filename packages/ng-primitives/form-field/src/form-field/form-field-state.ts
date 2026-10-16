@@ -31,11 +31,6 @@ export interface NgpFormFieldState {
    */
   readonly formControl: Signal<string | null>;
   /**
-   * The control the form field reads its status from: the `NgControl` in its own template,
-   * otherwise the one registered by `ngpFormControl`.
-   */
-  readonly ngControl: Signal<NgControl | null>;
-  /**
    * The validation error messages.
    */
   readonly errors: Signal<string[]>;
@@ -235,7 +230,7 @@ export const [NgpFormFieldStateToken, ngpFormField, injectFormFieldState, provid
     function setFormControl(id: string, control: NgControl | null = null): void {
       const others = registrations().filter(registration => registration.id !== id);
 
-      if (ngDevMode && others.length > 0) {
+      if (ngDevMode && others.some(registration => registration.ngControl !== control)) {
         console.warn(
           `[ngpFormField]: A second form control ("${id}") registered with this form field. A form field holds one control; the most recent one is used.`,
         );
@@ -280,7 +275,6 @@ export const [NgpFormFieldStateToken, ngpFormField, injectFormFieldState, provid
       labels,
       descriptions,
       formControl,
-      ngControl: resolvedControl,
       errors,
       pristine,
       touched,
