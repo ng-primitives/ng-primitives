@@ -113,7 +113,7 @@ export const [
     // use <= / >= so the boundary flags stay correct even if the bound page is
     // out of range (otherwise a Next/Previous button can stay enabled past the end)
     const firstPage = computed(() => page() <= 1);
-    const lastPage = computed(() => _pageCount() > 0 && page() >= _pageCount());
+    const lastPage = computed(() => page() >= _pageCount());
 
     // Host bindings
     attrBinding(elementRef, 'role', 'navigation');
