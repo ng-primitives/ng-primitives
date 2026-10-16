@@ -1,0 +1,36 @@
+import { Component } from '@angular/core';
+import { NgpRadioItem } from 'ng-primitives/radio';
+
+@Component({
+  selector: '<% if (prefix) { %><%= prefix %>-<% } %>radio-item',
+  hostDirectives: [
+    {
+      directive: NgpRadioItem,
+      inputs: ['ngpRadioItemValue:value', 'ngpRadioItemDisabled:disabled'],
+    },
+  ],
+  host: {
+    class: 'grid cursor-pointer [grid-template-columns:auto_1fr] [grid-template-rows:repeat(2,_auto)] [column-gap:0.625rem] [row-gap:0.125rem] rounded-lg bg-(--ngp-background) py-3 px-4 shadow-(--ngp-button-shadow) [outline:none] data-hover:bg-(--ngp-background-hover) data-focus-visible:[outline:2px_solid_var(--ngp-focus-ring)] data-focus-visible:[outline-offset:2px] data-press:bg-(--ngp-background-active) data-checked:bg-(--ngp-background-inverse)',
+  },
+  template: `
+    <div class="inline-flex [grid-column-start:1] [grid-row-start:1] justify-center items-center [align-self:center] rounded-full w-4 h-4 border border-(--ngp-border)" ngpRadioIndicator>
+      <span class="indicator-dot w-2 h-2 rounded-full bg-transparent"></span>
+    </div>
+
+    <p class="title [grid-column-start:2] [grid-row-start:1] font-medium text-(--ngp-text-primary) m-0">
+      <ng-content />
+    </p>
+  `,
+  styles: `
+/* These styles rely on CSS variables that can be imported from ng-primitives/example-theme/index.css in your global styles */
+
+    :host[data-checked] .indicator-dot {
+      background-color: var(--ngp-background);
+    }
+
+    :host[data-checked] .title {
+      color: var(--ngp-text-inverse);
+    }
+  `,
+})
+export class RadioItem<%= componentSuffix %> {}

@@ -186,6 +186,37 @@ describe('generated primitives compile', () => {
     expect(failures).toEqual([]);
   }, 60_000);
 
+  /**
+   * `--styles tailwind` swaps in the pre-generated template set with utility classes on the
+   * elements — every primitive must still come out syntactically valid.
+   */
+  it('produces files that parse when tailwind', async () => {
+    const failures: string[] = [];
+
+    for (const primitive of primitives) {
+      const dir = `projects/bar/src/app/tailwind-${primitive}`;
+      const tree = await schematicRunner.runSchematic(
+        'primitive',
+        { primitive, path: dir, styles: 'tailwind' },
+        appTree,
+      );
+
+      for (const file of tree.files.filter(file => file.includes(`/tailwind-${primitive}/`))) {
+        const content = tree.readContent(file);
+
+        const source = ts.createSourceFile(file, content, ts.ScriptTarget.Latest, true);
+        const diagnostics = (source as unknown as { parseDiagnostics?: ts.Diagnostic[] })
+          .parseDiagnostics;
+
+        if (diagnostics?.length) {
+          failures.push(...diagnostics.map(describeDiagnostic));
+        }
+      }
+    }
+
+    expect(failures).toEqual([]);
+  }, 60_000);
+
   function describeDiagnostic(diagnostic: ts.Diagnostic): string {
     const message = ts.flattenDiagnosticMessageText(diagnostic.messageText, ' ');
 

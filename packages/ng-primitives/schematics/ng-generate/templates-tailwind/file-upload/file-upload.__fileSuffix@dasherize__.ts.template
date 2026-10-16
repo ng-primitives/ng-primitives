@@ -1,0 +1,26 @@
+import { Component } from '@angular/core';
+import { NgpFileUpload } from 'ng-primitives/file-upload';
+
+@Component({
+  selector: '<% if (prefix) { %><%= prefix %>-<% } %>file-upload',
+  hostDirectives: [
+    {
+      directive: NgpFileUpload,
+      inputs: [
+        'ngpFileUploadFileTypes:types',
+        'ngpFileUploadMultiple:multiple',
+        'ngpFileUploadDirectory:directory',
+        'ngpFileUploadDragDrop:dragDrop',
+        'ngpFileUploadDisabled:disabled',
+      ],
+      outputs: ['ngpFileUploadSelected:selected', 'ngpFileUploadCanceled:canceled'],
+    },
+  ],
+  host: {
+    class: 'flex cursor-pointer flex-col items-center justify-center gap-y-1 rounded-lg [border:1px_dashed_var(--ngp-border-secondary)] bg-(--ngp-background) py-8 px-12 data-dragover:border-(--ngp-border) data-dragover:bg-(--ngp-background-hover)',
+  },
+  template: `
+    Drop files here or click to upload
+  `,
+})
+export class FileUpload<%= componentSuffix %> {}

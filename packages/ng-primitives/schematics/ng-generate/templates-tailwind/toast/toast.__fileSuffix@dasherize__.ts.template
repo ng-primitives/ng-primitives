@@ -1,0 +1,152 @@
+import { Component, inject } from '@angular/core';
+import { NgpButton } from 'ng-primitives/button';
+import { injectToastContext, NgpToast, NgpToastManager } from 'ng-primitives/toast';
+
+@Component({
+  selector: '<% if (prefix) { %><%= prefix %>-<% } %>toast',
+  imports: [NgpButton],
+  hostDirectives: [NgpToast],
+  host: {
+    class: 'absolute [touch-action:none] box-border items-center [gap:6px] [display:inline-grid] [background:var(--ngp-background)] shadow-(--ngp-shadow) border border-(--ngp-border) py-3 px-4 opacity-0 rounded-lg [z-index:var(--ngp-toast-z-index)] [grid-template-columns:1fr_auto] [grid-template-rows:min-content_min-content] gap-x-3 items-center [width:350px] h-fit [transform:var(--y)] [transition:all_0.4s_cubic-bezier(0.215,_0.61,_0.355,_1)] data-[position-x=end]:right-0 data-[position-x=start]:left-0 data-[visible=false]:opacity-0 data-[visible=false]:pointer-events-none data-[expanded=true]:after:[content:\'\'] data-[expanded=true]:after:absolute data-[expanded=true]:after:left-0 data-[expanded=true]:after:[height:calc(var(--ngp-toast-gap)_+_1px)] data-[expanded=true]:after:[bottom:100%] data-[expanded=true]:after:w-full data-[swiping=true]:[transform:var(--y)_translateY(var(--ngp-toast-swipe-amount-y,_0))_translateX(var(--ngp-toast-swipe-amount-x,_0))] data-[swiping=true]:[transition:none] data-[swiping=true]:data-[swipe-direction=left]:[opacity:calc(1_-_clamp(0,_((-1_*_var(--ngp-toast-swipe-x,_0px))_-_45)_/_55,_1))] data-[swiping=true]:data-[swipe-direction=right]:[opacity:calc(1_-_clamp(0,_(var(--ngp-toast-swipe-x,_0px)_-_45)_/_55,_1))] data-[swiping=true]:data-[swipe-direction=top]:[opacity:calc(1_-_clamp(0,_((-1_*_var(--ngp-toast-swipe-y,_0px))_-_45)_/_55,_1))] data-[swiping=true]:data-[swipe-direction=bottom]:[opacity:calc(1_-_clamp(0,_(var(--ngp-toast-swipe-y,_0px)_-_45)_/_55,_1))] motion-reduce:[transition-duration:0s]',
+    'animate.enter': 'toast-enter',
+    'animate.leave': 'toast-leave',
+  },
+  template: `
+    <p class="toast-title text-(--ngp-text-primary) [font-size:0.75rem] font-semibold m-0 [grid-column:1_/_2] [grid-row:1] [line-height:16px] select-none">{{ context.header }}</p>
+    <p class="toast-description [font-size:0.75rem] m-0 text-(--ngp-text-secondary) [grid-column:1_/_2] [grid-row:2] [line-height:16px] select-none">{{ context.description }}</p>
+    <button class="toast-dismiss [background:var(--ngp-background-inverse)] text-(--ngp-text-inverse) border-none rounded-lg py-1 px-2 font-semibold [font-size:12px] cursor-pointer [grid-column:2_/_3] [grid-row:1_/_3] [max-height:27px]" (click)="dismiss()" ngpButton>Dismiss</button>
+  `,
+  styles: `
+/* These styles rely on CSS variables that can be imported from ng-primitives/example-theme/index.css in your global styles */
+
+    :host[data-position-y='top'] {
+      top: 0;
+      --lift: 1;
+      --lift-amount: calc(var(--lift) * var(--ngp-toast-gap));
+      --y: translateY(-100%);
+    }
+
+    :host[data-position-y='bottom'] {
+      bottom: 0;
+      --lift: -1;
+      --lift-amount: calc(var(--lift) * var(--ngp-toast-gap));
+      --y: translateY(100%);
+    }
+
+    :host[data-enter] {
+      opacity: 1;
+      --y: translateY(0);
+    }
+
+    :host[data-exit] {
+      opacity: 0;
+      --y: translateY(calc(calc(var(--lift) * var(--ngp-toast-gap)) * -1));
+    }
+
+    :host[data-expanded='false'][data-front='false'] {
+      --scale: var(--ngp-toasts-before) * 0.05 + 1;
+      --y: translateY(calc(var(--lift-amount) * var(--ngp-toasts-before)))
+            scale(calc(-1 * var(--scale)));
+      height: var(--ngp-toast-front-height);
+    }
+
+    :host[data-expanded='true'] {
+      --y: translateY(calc(var(--lift) * var(--ngp-toast-offset)));
+      height: auto;
+    }
+
+    :host[data-front='false'][data-expanded='false'] .toast-title {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    :host[data-front='false'][data-expanded='false'] .toast-description {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    :host[data-position-y='bottom'].toast-enter {
+      animation: toast-slide-in-bottom 400ms cubic-bezier(0.215, 0.61, 0.355, 1);
+    }
+
+    :host[data-position-y='bottom'].toast-leave {
+      opacity: 0;
+      transform: translateY(100%);
+      transition: opacity 400ms cubic-bezier(0.215, 0.61, 0.355, 1),
+            transform 400ms cubic-bezier(0.215, 0.61, 0.355, 1);
+    }
+
+    :host[data-position-y='top'].toast-enter {
+      animation: toast-slide-in-top 400ms cubic-bezier(0.215, 0.61, 0.355, 1);
+    }
+
+    :host[data-position-y='top'].toast-leave {
+      opacity: 0;
+      transform: translateY(-100%);
+      transition: opacity 400ms cubic-bezier(0.215, 0.61, 0.355, 1),
+            transform 400ms cubic-bezier(0.215, 0.61, 0.355, 1);
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      :host[data-position-y='bottom'].toast-enter {
+        animation-duration: 0s;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      :host[data-position-y='top'].toast-enter {
+        animation-duration: 0s;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      :host[data-position-y='bottom'].toast-leave {
+        transition-duration: 0s;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      :host[data-position-y='top'].toast-leave {
+        transition-duration: 0s;
+      }
+    }
+
+    @keyframes toast-slide-in-bottom {
+        from {
+          opacity: 0;
+          transform: translateY(100%);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+    @keyframes toast-slide-in-top {
+        from {
+          opacity: 0;
+          transform: translateY(-100%);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+  `,
+})
+export class Toast<%= componentSuffix %> {
+  private readonly toastManager = inject(NgpToastManager);
+  private readonly toast = inject(NgpToast);
+  protected readonly context = injectToastContext<ToastContext>();
+
+  dismiss(): void {
+    this.toastManager.dismiss(this.toast);
+  }
+}
+
+interface ToastContext {
+  header: string;
+  description: string;
+}

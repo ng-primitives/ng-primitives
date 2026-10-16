@@ -21,7 +21,12 @@ export default function generatePrimitive(options: AngularPrimitivesComponentSch
       options.changeDetection = getWorkspaceChangeDetection(tree) ?? 'OnPush';
     }
 
-    const templateSource = apply(url(`./templates/${options.primitive}`), [
+    // the tailwind variant is pre-generated at build time (the Tailwind compiler
+    // never runs in the consumer's workspace), so it is simply a second template set
+    const templatesDir =
+      resolveStylesOption(options) === 'tailwind' ? 'templates-tailwind' : 'templates';
+
+    const templateSource = apply(url(`./${templatesDir}/${options.primitive}`), [
       template({
         ...options,
         ...strings,
@@ -163,8 +168,10 @@ function processStyles(content: Buffer, options: AngularPrimitivesComponentSchem
  * Resolve the effective styles option, honouring the deprecated `exampleStyles` boolean:
  * `styles` wins when set, otherwise `exampleStyles: false` maps to `unstyled`.
  */
-function resolveStylesOption(options: AngularPrimitivesComponentSchema): 'css' | 'unstyled' {
-  if (options.styles === 'css' || options.styles === 'unstyled') {
+function resolveStylesOption(
+  options: AngularPrimitivesComponentSchema,
+): 'css' | 'tailwind' | 'unstyled' {
+  if (options.styles === 'css' || options.styles === 'tailwind' || options.styles === 'unstyled') {
     return options.styles;
   }
   return options.exampleStyles === false ? 'unstyled' : 'css';
