@@ -128,4 +128,44 @@ describe('FormField (reusable component) — standalone', () => {
     expect(container.querySelector('input')).toHaveAttribute('data-disabled');
     expect(container.querySelector('[ngpDescription]')).toHaveAttribute('data-disabled');
   });
+
+  it('reflects the required state onto the wrapper and projected parts', async () => {
+    const formControl = new FormControl('');
+    const { container, fixture } = await render(
+      `<app-form-field>
+          <label ngpLabel>Username</label>
+          <input [formControl]="formControl" ngpFormControl />
+          <div ngpDescription>Hint</div>
+          <div ngpError ngpErrorValidator="required">Required</div>
+        </app-form-field>`,
+      {
+        imports: [
+          FormField,
+          NgpLabel,
+          NgpError,
+          NgpFormControl,
+          NgpDescription,
+          ReactiveFormsModule,
+        ],
+        componentProperties: { formControl },
+      },
+    );
+
+    expect(container.querySelector('app-form-field')).not.toHaveAttribute('data-required');
+    expect(container.querySelector('label')).not.toHaveAttribute('data-required');
+    expect(container.querySelector('input')).not.toHaveAttribute('data-required');
+    expect(container.querySelector('[ngpDescription]')).not.toHaveAttribute('data-required');
+    expect(container.querySelector('[ngpError]')).not.toHaveAttribute('data-required');
+
+    formControl.addValidators(Validators.required);
+    formControl.updateValueAndValidity();
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    expect(container.querySelector('app-form-field')).toHaveAttribute('data-required');
+    expect(container.querySelector('label')).toHaveAttribute('data-required');
+    expect(container.querySelector('input')).toHaveAttribute('data-required');
+    expect(container.querySelector('[ngpDescription]')).toHaveAttribute('data-required');
+    expect(container.querySelector('[ngpError]')).toHaveAttribute('data-required');
+  });
 });
