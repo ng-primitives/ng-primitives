@@ -59,6 +59,24 @@ ng g ng-primitives:primitive form-field
 - `styles`: How component styles should be generated. `css` (default) includes the full example styles; `unstyled` omits them entirely so you can style the component yourself.
 - `example-styles` (deprecated): still supported for compatibility - `true` maps to `styles: css`, `false` maps to `styles: unstyled`.
 
+## Examples
+
+### Control inside a child component
+
+The form field reads the status and errors of the `NgControl` in its own template. When the control lives inside a child component, for example one chosen with `@if` or created with `NgComponentOutlet`, `ngpFormControl` registers its `NgControl` with the nearest form field, and the form field uses it as a fallback. A control in the form field's own template always takes precedence. A form field holds one control; in dev mode, a second registration logs a warning.
+
+```html
+<!-- parent template -->
+<div ngpFormField>
+  <label ngpLabel>Name</label>
+  <app-name-input [control]="name" />
+  <p ngpError ngpErrorValidator="required">Name is required.</p>
+</div>
+
+<!-- app-name-input template -->
+<input ngpFormControl [formControl]="control()" />
+```
+
 ## API Reference
 
 The following directives are available to import from the `ng-primitives/form-field` package:

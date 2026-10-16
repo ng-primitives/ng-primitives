@@ -1,4 +1,13 @@
-import { Injector, Signal, effect, inject, signal, untracked } from '@angular/core';
+import {
+  EffectRef,
+  Injector,
+  Signal,
+  computed,
+  effect,
+  inject,
+  signal,
+  untracked,
+} from '@angular/core';
 import { NgControl } from '@angular/forms';
 import { injectElementRef } from 'ng-primitives/internal';
 import { createPrimitive, dataBinding, onDestroy } from 'ng-primitives/state';
@@ -54,9 +63,9 @@ export interface NgpFormFieldState {
    */
   readonly disabled: Signal<boolean | null>;
   /**
-   * Register the id of the associated form control.
+   * Register the id of the associated form control, and the `NgControl` bound to it if any.
    */
-  setFormControl(id: string): void;
+  setFormControl(id: string, ngControl?: NgControl | null): void;
   /**
    * Register a label with the form field.
    */
@@ -66,9 +75,9 @@ export interface NgpFormFieldState {
    */
   addDescription(description: string): void;
   /**
-   * Remove the associated form control.
+   * Remove the associated form control. With an id, only that registration is removed.
    */
-  removeFormControl(): void;
+  removeFormControl(id?: string): void;
   /**
    * Remove a label from the form field.
    */
@@ -100,8 +109,15 @@ export const [NgpFormFieldStateToken, ngpFormField, injectFormFieldState, provid
     // Store the form descriptions
     const descriptions = signal<string[]>([]);
 
-    // Store the id of the associated form control
-    const formControl = signal<string | null>(null);
+    // Store the registered form controls; the most recent one is the active one
+    const registrations = signal<{ id: string; ngControl: NgControl | null }[]>([]);
+    const formControl = computed(() => registrations().at(-1)?.id ?? null);
+
+    // A control in the form field's own template wins over a registered one: a custom control
+    // may render an inner input bound to a proxy control that carries none of the validators.
+    const resolvedControl = computed(
+      () => ngControl() ?? registrations().at(-1)?.ngControl ?? null,
+    );
 
     // Store the validation error messages
     const errors = signal<string[]>([]);
@@ -117,6 +133,7 @@ export const [NgpFormFieldStateToken, ngpFormField, injectFormFieldState, provid
 
     // Store the current status subscription
     let subscription: Subscription | undefined;
+    let statusEffect: EffectRef | undefined;
 
     // Host bindings
     dataBinding(element, 'data-invalid', invalid);
@@ -128,7 +145,7 @@ export const [NgpFormFieldStateToken, ngpFormField, injectFormFieldState, provid
     dataBinding(element, 'data-disabled', disabled);
 
     function updateStatus(): void {
-      const control = ngControl();
+      const control = resolvedControl();
 
       if (!control) {
         return;
@@ -164,17 +181,32 @@ export const [NgpFormFieldStateToken, ngpFormField, injectFormFieldState, provid
       }
     }
 
-    function setupSubscriptions(control: NgControl | null | undefined): void {
+    // Without a control, the status of a control that left must not linger.
+    function clearStatus(): void {
+      pristine.set(null);
+      touched.set(null);
+      dirty.set(null);
+      valid.set(null);
+      invalid.set(null);
+      pending.set(null);
+      disabled.set(null);
+      errors.set([]);
+    }
+
+    function setupSubscriptions(control: NgControl | null): void {
       // Unsubscribe from the previous subscriptions.
       subscription?.unsubscribe();
+      statusEffect?.destroy();
+      statusEffect = undefined;
 
       if (!control) {
+        clearStatus();
         return;
       }
 
       // For signal-forms interop controls, use an effect to reactively track status.
       // For classic controls, also use an effect but additionally subscribe to events.
-      effect(
+      statusEffect = effect(
         () => {
           updateStatus();
         },
@@ -189,14 +221,22 @@ export const [NgpFormFieldStateToken, ngpFormField, injectFormFieldState, provid
     }
 
     // Setup subscriptions when ngControl changes
-    onChange(ngControl, setupSubscriptions);
+    onChange(resolvedControl, setupSubscriptions);
 
     // Cleanup subscription on destroy
     onDestroy(() => subscription?.unsubscribe());
 
     // Methods
-    function setFormControl(id: string): void {
-      formControl.set(id);
+    function setFormControl(id: string, control: NgControl | null = null): void {
+      const others = registrations().filter(registration => registration.id !== id);
+
+      if (ngDevMode && others.some(registration => registration.ngControl !== control)) {
+        console.warn(
+          `[ngpFormField]: A second form control ("${id}") registered with this form field. A form field holds one control; the most recent one is used.`,
+        );
+      }
+
+      registrations.set([...others, { id, ngControl: control }]);
     }
 
     function addLabel(label: string): void {
@@ -215,8 +255,10 @@ export const [NgpFormFieldStateToken, ngpFormField, injectFormFieldState, provid
       descriptions.update(currentDescriptions => [...currentDescriptions, description]);
     }
 
-    function removeFormControl(): void {
-      formControl.set(null);
+    function removeFormControl(id?: string): void {
+      registrations.update(current =>
+        id === undefined ? [] : current.filter(registration => registration.id !== id),
+      );
     }
 
     function removeLabel(label: string): void {

@@ -1,4 +1,5 @@
-import { Signal, computed, signal } from '@angular/core';
+import { Injector, Signal, computed, inject, signal } from '@angular/core';
+import { NgControl } from '@angular/forms';
 import { explicitEffect, injectElementRef } from 'ng-primitives/internal';
 import { attrBinding, dataBinding } from 'ng-primitives/state';
 import { NgpControlStatus, controlStatus } from 'ng-primitives/utils';
@@ -25,6 +26,7 @@ export function ngpFormControl({
   const formField = injectFormFieldState({ optional: true });
   // Access the form control status.
   const status = controlStatus();
+  const injector = inject(Injector);
   // Determine the aria-labelledby attribute value.
   const ariaLabelledBy = computed(() => {
     const labels = formField()?.labels() ?? [];
@@ -47,8 +49,11 @@ export function ngpFormControl({
   );
 
   explicitEffect([id], ([id], onCleanup) => {
-    formField()?.setFormControl(id);
-    onCleanup(() => formField()?.removeFormControl());
+    // The NgControl goes to the form field, whose content query cannot see a control inside a
+    // child component. It is read here, not at construction, where a custom control's NgControl
+    // is still being built; effects also run during server rendering, unlike onMount.
+    formField()?.setFormControl(id, injector.get(NgControl, null));
+    onCleanup(() => formField()?.removeFormControl(id));
   });
 
   attrBinding(elementRef, 'id', id);
