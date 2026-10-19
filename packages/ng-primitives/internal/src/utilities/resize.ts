@@ -25,6 +25,12 @@ interface NgpResizeObserverOptions {
    * The injector to use when called from outside of the injector context.
    */
   injector?: Injector;
+
+  /**
+   * Whether to measure the element as soon as it is observed, rather than waiting for the
+   * observer's first callback. Defaults to `true`.
+   */
+  initial?: boolean;
 }
 
 /**
@@ -34,7 +40,7 @@ interface NgpResizeObserverOptions {
  */
 export function fromResizeEvent(
   element: HTMLElement,
-  { disabled = signal(false), injector }: NgpResizeObserverOptions = {},
+  { disabled = signal(false), injector, initial = true }: NgpResizeObserverOptions = {},
 ): Observable<Dimensions> {
   const platformId = injector?.get(PLATFORM_ID) ?? inject(PLATFORM_ID);
 
@@ -109,13 +115,15 @@ export function fromResizeEvent(
         // yet after every microtask — so anything reading the measurement in the
         // current task still sees the pre-observation value. A tooltip hovered in the
         // same task it rendered would decide it has no overflow and never open.
-        queueMicrotask(() => {
-          // `observer` is nulled on teardown, so an unsubscribed observable performs no
-          // measurement — the layout read is the cost this whole change exists to avoid.
-          if (observer) {
-            emit(getElementDimensions(element));
-          }
-        });
+        if (initial) {
+          queueMicrotask(() => {
+            // `observer` is nulled on teardown, so an unsubscribed observable performs no
+            // measurement — the layout read is the cost this whole change exists to avoid.
+            if (observer) {
+              emit(getElementDimensions(element));
+            }
+          });
+        }
       }
     }
 

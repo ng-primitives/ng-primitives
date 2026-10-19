@@ -130,6 +130,23 @@ describe('fromResizeEvent', () => {
     expect(emissions).toEqual([{ width: 120, height: 40 }]);
   });
 
+  it('should leave the first measurement to the observer when initial is false', async () => {
+    const emissions: { width: number; height: number }[] = [];
+
+    fromResizeEvent(element, { injector, initial: false }).subscribe(dimensions =>
+      emissions.push(dimensions),
+    );
+    await Promise.resolve();
+
+    expect(emissions).toHaveLength(0);
+
+    MockResizeObserver.instances[0].trigger([
+      { borderBoxSize: [{ inlineSize: 120, blockSize: 40 }] },
+    ]);
+
+    expect(emissions).toEqual([{ width: 120, height: 40 }]);
+  });
+
   it('should emit measurements from the observer callback', () => {
     const emissions: { width: number; height: number }[] = [];
 

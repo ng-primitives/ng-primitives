@@ -18,7 +18,9 @@ export function onDomRemoval(element: HTMLElement, callback: () => void): void {
 
   // This is a bit of a hack, but it works. If the element dimensions become zero,
   // it's likely that the element has been removed from the DOM.
-  fromResizeEvent(element)
+  // The observer reports the removal itself, so an initial measurement would only add a
+  // style read to the creation of every element this watches.
+  fromResizeEvent(element, { initial: false })
     .pipe(safeTakeUntilDestroyed())
     .subscribe(dimensions => {
       // we check the dimensions first to short-circuit the check as it's faster
