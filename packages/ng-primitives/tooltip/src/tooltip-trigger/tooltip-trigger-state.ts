@@ -30,7 +30,7 @@ import {
   onDestroy,
   StateInjectionOptions,
 } from 'ng-primitives/state';
-import { isString } from 'ng-primitives/utils';
+import { isString, onChange } from 'ng-primitives/utils';
 import { NgpTooltipTextContentComponent } from '../tooltip-text-content/tooltip-text-content';
 
 export interface NgpTooltipTriggerState<T> {
@@ -394,6 +394,20 @@ export const [
     listener(elementRef, 'focus', showFromInteraction);
     listener(elementRef, 'mouseleave', hideFromInteraction);
     listener(elementRef, 'blur', () => hideFromInteraction());
+
+    // Re-enabling fires neither `mouseenter` nor `focus` for a pointer or focus that is
+    // already on the trigger, so check for them instead. Focus counts only when it is
+    // keyboard focus: focus left behind by a click is not the user arriving.
+    onChange(disabled, (isDisabled, wasDisabled) => {
+      const element = trigger.nativeElement;
+      if (
+        wasDisabled &&
+        !isDisabled &&
+        (element.matches(':hover') || element.matches(':focus-visible'))
+      ) {
+        showFromInteraction();
+      }
+    });
 
     onDestroy(() => {
       hoverBridge.clear();
