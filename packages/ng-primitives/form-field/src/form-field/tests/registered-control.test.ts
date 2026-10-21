@@ -1,4 +1,4 @@
-import { Component, forwardRef, input } from '@angular/core';
+import { Component, effect, forwardRef, input } from '@angular/core';
 import {
   ControlValueAccessor,
   FormControl,
@@ -7,7 +7,13 @@ import {
   Validators,
 } from '@angular/forms';
 import { render } from '@testing-library/angular';
-import { NgpError, NgpFormControl, NgpFormField, NgpLabel } from 'ng-primitives/form-field';
+import {
+  injectFormFieldState,
+  NgpError,
+  NgpFormControl,
+  NgpFormField,
+  NgpLabel,
+} from 'ng-primitives/form-field';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
 /**
@@ -291,5 +297,34 @@ describe('NgpFormField with a control registered from a child component', () => 
     await fixture.whenStable();
 
     expect(warn).not.toHaveBeenCalledWith(expect.stringContaining('[ngpFormField]'));
+  });
+
+  it('lets a consumer register a control from an effect without looping', async () => {
+    @Component({
+      selector: 'test-effect-control',
+      template: '',
+    })
+    class EffectControl {
+      private readonly formField = injectFormFieldState();
+
+      constructor() {
+        effect(onCleanup => {
+          const formField = this.formField();
+          formField.setFormControl('effect-control');
+          onCleanup(() => formField.removeFormControl('effect-control'));
+        });
+      }
+    }
+
+    const { fixture, getByTestId } = await render(
+      `<div ngpFormField>
+        <label data-testid="label" ngpLabel>Name</label>
+        <test-effect-control />
+      </div>`,
+      { imports: [NgpFormField, NgpLabel, EffectControl] },
+    );
+    await fixture.whenStable();
+
+    expect(getByTestId('label')).toHaveAttribute('for', 'effect-control');
   });
 });

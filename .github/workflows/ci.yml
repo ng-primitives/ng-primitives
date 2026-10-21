@@ -19,6 +19,8 @@ permissions:
 jobs:
   main:
     runs-on: ubuntu-latest
+    # Normal runs take ~5 minutes; a hung browser test otherwise burns the 6h default.
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v7
         with:
