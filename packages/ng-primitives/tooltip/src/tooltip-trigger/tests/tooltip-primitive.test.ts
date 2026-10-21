@@ -9,6 +9,7 @@ import {
   provideTooltipConfig,
 } from 'ng-primitives/tooltip';
 import { afterEach, describe, expect, it, vi } from 'vitest';
+import { userEvent } from 'vitest/browser';
 
 describe('NgpTooltipTrigger (primitive)', () => {
   afterEach(() => {
@@ -578,6 +579,100 @@ describe('NgpTooltipTrigger (primitive)', () => {
       await new Promise(resolve => setTimeout(resolve, 100));
 
       expect(document.querySelector('[ngpTooltip]')).toBeInTheDocument();
+    });
+
+    describe('when re-enabled', () => {
+      // These use the real browser pointer: `mouseenter` does not fire again for a
+      // pointer that is already inside the trigger, so only `:hover` can tell.
+      async function renderDisabled() {
+        const disabled = signal(true);
+        const view = await render(
+          `
+            <span data-testid="elsewhere">Elsewhere</span>
+            <button
+              [ngpTooltipTrigger]="content"
+              [ngpTooltipTriggerDisabled]="disabled()"
+              ngpTooltipTriggerShowDelay="0"
+              ngpTooltipTriggerHideDelay="0"
+            >
+              Trigger
+            </button>
+
+            <ng-template #content>
+              <div ngpTooltip>Tooltip content</div>
+            </ng-template>
+          `,
+          { imports: [NgpTooltipTrigger, NgpTooltip], componentProperties: { disabled } },
+        );
+        // The real pointer keeps its position between tests, so park it off the trigger.
+        await userEvent.hover(view.getByTestId('elsewhere'));
+        const enable = async () => {
+          disabled.set(false);
+          view.fixture.detectChanges();
+          // Give the overlay a chance to appear so a negative assertion is not trivially true.
+          await new Promise(resolve => setTimeout(resolve, 100));
+        };
+        return { ...view, trigger: view.getByRole('button'), enable };
+      }
+
+      it('should show when the pointer already rests on the trigger', async () => {
+        const { trigger, enable } = await renderDisabled();
+        await userEvent.hover(trigger);
+        await new Promise(resolve => setTimeout(resolve, 100));
+        expect(document.querySelector('[ngpTooltip]')).not.toBeInTheDocument();
+
+        await enable();
+
+        await waitFor(() => {
+          expect(document.querySelector('[ngpTooltip]')).toBeInTheDocument();
+        });
+      });
+
+      it('should show when the trigger already has keyboard focus', async () => {
+        const { trigger, enable } = await renderDisabled();
+        await userEvent.keyboard('{Tab}');
+        expect(trigger).toHaveFocus();
+
+        await enable();
+
+        await waitFor(() => {
+          expect(document.querySelector('[ngpTooltip]')).toBeInTheDocument();
+        });
+      });
+
+      it('should not show when the trigger has focus from a click and the pointer has left', async () => {
+        const { trigger, enable, getByTestId } = await renderDisabled();
+        await userEvent.click(trigger);
+        await userEvent.hover(getByTestId('elsewhere'));
+        expect(trigger).toHaveFocus();
+
+        await enable();
+
+        expect(document.querySelector('[ngpTooltip]')).not.toBeInTheDocument();
+      });
+
+      it('should not show when neither the pointer nor focus is on the trigger', async () => {
+        const { enable } = await renderDisabled();
+
+        await enable();
+
+        expect(document.querySelector('[ngpTooltip]')).not.toBeInTheDocument();
+      });
+
+      it('should hide when the pointer leaves after the tooltip showed', async () => {
+        const { trigger, enable, getByTestId } = await renderDisabled();
+        await userEvent.hover(trigger);
+        await enable();
+        await waitFor(() => {
+          expect(document.querySelector('[ngpTooltip]')).toBeInTheDocument();
+        });
+
+        await userEvent.hover(getByTestId('elsewhere'));
+
+        await waitFor(() => {
+          expect(document.querySelector('[ngpTooltip]')).not.toBeInTheDocument();
+        });
+      });
     });
   });
 
