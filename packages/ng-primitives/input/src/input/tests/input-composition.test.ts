@@ -1,4 +1,4 @@
-import { Component, input } from '@angular/core';
+import { Component } from '@angular/core';
 import { render } from '@testing-library/angular';
 import { NgpFormField, NgpLabel } from 'ng-primitives/form-field';
 import { NgpInput } from 'ng-primitives/input';

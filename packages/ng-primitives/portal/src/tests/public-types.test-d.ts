@@ -26,7 +26,7 @@ describe('public overlay and utility types', () => {
 
   it('accepts a component class as overlay content', () => {
     class Content {}
-    expectTypeOf<typeof Content>().toExtend<NgpOverlayContent<unknown>>();
+    expectTypeOf(Content).toExtend<NgpOverlayContent<unknown>>();
   });
 
   it('describes a position as viewport x and y', () => {
