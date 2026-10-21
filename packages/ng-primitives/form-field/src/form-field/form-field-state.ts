@@ -228,7 +228,8 @@ export const [NgpFormFieldStateToken, ngpFormField, injectFormFieldState, provid
 
     // Methods
     function setFormControl(id: string, control: NgControl | null = null): void {
-      const others = registrations().filter(registration => registration.id !== id);
+      // Untracked so a consumer calling this from an effect doesn't re-trigger it on our own write.
+      const others = untracked(registrations).filter(registration => registration.id !== id);
 
       if (ngDevMode && others.some(registration => registration.ngControl !== control)) {
         console.warn(
