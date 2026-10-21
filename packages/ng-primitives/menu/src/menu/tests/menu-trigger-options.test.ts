@@ -126,7 +126,7 @@ describe('NgpMenuTrigger options', () => {
       await waitFor(() => expect(query('menu')).not.toBeInTheDocument());
     });
 
-    it('stays open when the menu content itself scrolls', async () => {
+    it('stays open when a scroll event fires inside the menu content', async () => {
       const { getByTestId } = await render(MenuConfigComponent);
       fireEvent.click(getByTestId('trigger'));
       await waitFor(() => expect(query('menu')).toBeInTheDocument());

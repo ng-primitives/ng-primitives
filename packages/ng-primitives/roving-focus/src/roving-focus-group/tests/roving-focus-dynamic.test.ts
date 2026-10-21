@@ -6,7 +6,7 @@ import { describe, expect, it } from 'vitest';
 @Component({
   imports: [NgpRovingFocusGroup, NgpRovingFocusItem],
   template: `
-    <div ngpRovingFocusGroup>
+    <div [ngpRovingFocusGroupWrap]="false" ngpRovingFocusGroup>
       @for (item of items(); track item) {
         <button ngpRovingFocusItem>{{ item }}</button>
       }

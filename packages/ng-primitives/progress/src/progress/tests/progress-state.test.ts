@@ -39,13 +39,13 @@ describe('NgpProgress state', () => {
 
     expect(progress).toHaveAttribute('aria-valuenow', '25');
     expect(getByTestId('indicator').style.width).toBe('25%');
-    expect(getByTestId('value')).toHaveTextContent('25');
+    expect(getByTestId('value').textContent?.trim()).toBe('25');
 
     await rerender({ componentProperties: { percentage: 62.5 } });
     await fixture.whenStable();
 
     expect(progress).toHaveAttribute('aria-valuenow', '62.5');
     expect(getByTestId('indicator').style.width).toBe('62.5%');
-    expect(getByTestId('value')).toHaveTextContent('62.5');
+    expect(getByTestId('value').textContent?.trim()).toBe('62.5');
   });
 });

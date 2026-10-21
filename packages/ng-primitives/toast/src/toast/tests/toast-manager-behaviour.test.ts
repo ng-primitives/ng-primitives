@@ -225,13 +225,15 @@ describe('NgpToastManager behaviour', () => {
       let resolved = false;
       const dismissed = ref.dismiss().then(() => (resolved = true));
 
-      await waitFor(() => expect(toast).toHaveAttribute('data-exit'));
-      expect(toast).not.toHaveAttribute('data-enter');
-      await wait(20);
-      expect(toast.isConnected).toBe(true);
-      expect(resolved).toBe(false);
-
-      finishAnimation();
+      try {
+        await waitFor(() => expect(toast).toHaveAttribute('data-exit'));
+        expect(toast).not.toHaveAttribute('data-enter');
+        await wait(20);
+        expect(toast.isConnected).toBe(true);
+        expect(resolved).toBe(false);
+      } finally {
+        finishAnimation();
+      }
       await dismissed;
       expect(toast.isConnected).toBe(false);
     });

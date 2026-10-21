@@ -160,7 +160,7 @@ describe('NgpPopoverTrigger behaviours relied on by wrappers', () => {
     const style = document.createElement('style');
     style.textContent = `
       @keyframes test-popover-exit { from { opacity: 1; } to { opacity: 0; } }
-      [ngpPopover][data-exit] { animation: test-popover-exit 300ms; }
+      [ngpPopover][data-exit] { animation: test-popover-exit 300ms !important; }
     `;
     document.head.appendChild(style);
 

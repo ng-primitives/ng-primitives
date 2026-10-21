@@ -43,7 +43,8 @@ describe('NgpFocusTrap composed with NgpRovingFocusGroup', () => {
     fireEvent.keyDown(button('One'), { key: 'ArrowDown' });
     expect(button('Two')).toHaveFocus();
 
-    fireEvent.keyDown(button('Two'), { key: 'Tab' });
-    expect(screen.getByTestId('list')).toContainElement(document.activeElement as HTMLElement);
+    // Two is the only tabbable item, so the trap must cancel Tab and keep focus on it.
+    expect(fireEvent.keyDown(button('Two'), { key: 'Tab' })).toBe(false);
+    expect(button('Two')).toHaveFocus();
   });
 });

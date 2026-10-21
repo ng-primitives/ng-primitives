@@ -62,7 +62,7 @@ describe('NgpSubmenuTrigger with custom content', () => {
     await waitFor(() => expect(query('submenu')).toBeInTheDocument());
     const submenu = query('submenu')!;
 
-    // Without a corridor the trigger falls back to its idle close, which the content must veto.
+    // The corridor's idle timer would close the submenu once the pointer stops; the content's pointerenter vetoes it.
     vi.spyOn(submenuTrigger, 'getBoundingClientRect').mockReturnValue(new DOMRect(0, 0, 120, 30));
     vi.spyOn(submenu, 'getBoundingClientRect').mockReturnValue(new DOMRect(200, 0, 120, 90));
     fireEvent.pointerLeave(submenuTrigger, { pointerType: 'mouse', clientX: 120, clientY: 15 });

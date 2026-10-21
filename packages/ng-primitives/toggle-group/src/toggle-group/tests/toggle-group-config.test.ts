@@ -21,6 +21,14 @@ import { describe, expect, it, vi } from 'vitest';
 })
 class Segmented {}
 
+@Component({
+  selector: 'app-multi-toggle',
+  hostDirectives: [NgpToggleGroup],
+  providers: [provideToggleGroupConfig({ type: 'multiple' })],
+  template: '<ng-content />',
+})
+class MultiToggle {}
+
 describe('NgpToggleGroup config', () => {
   it('should keep exactly one item selected when configured as single without deselection', async () => {
     const onValueChange = vi.fn();
@@ -46,6 +54,22 @@ describe('NgpToggleGroup config', () => {
     expect(b).toHaveAttribute('data-selected');
     expect(a).not.toHaveAttribute('data-selected');
     expect(onValueChange).toHaveBeenLastCalledWith(['b']);
+  });
+
+  it('should allow several selected items when configured as multiple', async () => {
+    const { getByTestId } = await render(
+      `<app-multi-toggle>
+        <button data-testid="a" ngpToggleGroupItem ngpToggleGroupItemValue="a">A</button>
+        <button data-testid="b" ngpToggleGroupItem ngpToggleGroupItemValue="b">B</button>
+      </app-multi-toggle>`,
+      { imports: [MultiToggle, NgpToggleGroupItem] },
+    );
+
+    fireEvent.click(getByTestId('a'));
+    fireEvent.click(getByTestId('b'));
+
+    expect(getByTestId('a')).toHaveAttribute('data-selected');
+    expect(getByTestId('b')).toHaveAttribute('data-selected');
   });
 
   it('should not select an individually disabled item', async () => {
