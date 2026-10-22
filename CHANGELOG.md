@@ -1,3 +1,34 @@
+## 0.131.3 (2026-10-22)
+
+### 🚀 Features
+
+- ⚠️  **ai:** improve thread viewport scrolling behavior ([#950](https://github.com/ng-primitives/ng-primitives/pull/950), [#882](https://github.com/ng-primitives/ng-primitives/issues/882))
+
+### 🩹 Fixes
+
+- **form-field:** read the control registered by ngpFormControl when the content query finds none ([#977](https://github.com/ng-primitives/ng-primitives/pull/977), [#964](https://github.com/ng-primitives/ng-primitives/issues/964))
+- **form-field:** stop setFormControl looping when called from an effect ([#984](https://github.com/ng-primitives/ng-primitives/pull/984))
+- **pagination:** treat zero pages as both first and last ([#971](https://github.com/ng-primitives/ng-primitives/pull/971), [#970](https://github.com/ng-primitives/ng-primitives/issues/970))
+- **popover:** position the popover element when rendered by a child component ([#969](https://github.com/ng-primitives/ng-primitives/pull/969), [#968](https://github.com/ng-primitives/ng-primitives/issues/968))
+- **toggle-group:** disable a toggle group item when its group is disabled ([#963](https://github.com/ng-primitives/ng-primitives/pull/963))
+- **tooltip:** show when re-enabled under a resting pointer or keyboard focus ([#982](https://github.com/ng-primitives/ng-primitives/pull/982))
+
+### ⚠️  Breaking Changes
+
+- **ai:** improve thread viewport scrolling behavior  ([#950](https://github.com/ng-primitives/ng-primitives/pull/950), [#882](https://github.com/ng-primitives/ng-primitives/issues/882))
+
+### ❤️ Thank You
+
+- Adrien David @adridavid
+- Anton Pieper @AntonPieper
+- apieper
+- Ashley Hunter
+- Claude Opus 5.5
+- Claude Sonnet 5.5
+- Robin Ferrari @zecka
+- Roman Mykhailiuk @JustDo1t90
+- Yazan Bouadakji
+
 ## 0.131.2 (2026-10-03)
 
 ### 🩹 Fixes
