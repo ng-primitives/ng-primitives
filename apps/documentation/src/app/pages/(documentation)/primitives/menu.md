@@ -75,6 +75,8 @@ Here are some additional examples of how to use the Menu primitives.
 
 The menu can contain submenus, which are nested menus that can be opened by hovering on a menu item.
 
+Clicking or tapping a submenu trigger opens its submenu. Clicking it again with a mouse while the submenu is open keeps it open, so a click after hovering the trigger does not close the submenu. A second tap on a touch screen, pressing <kbd>Enter</kbd> or <kbd>Space</kbd>, or activating the trigger with a screen reader toggles the submenu.
+
 <docs-example name="submenu"></docs-example>
 
 ### Checkbox Items
