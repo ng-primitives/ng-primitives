@@ -20,7 +20,7 @@ import {
 import { fireEvent, render, screen, waitFor } from '@testing-library/angular';
 import { userEvent } from '@testing-library/user-event';
 import { NgpDialog, NgpDialogContext, NgpDialogManager } from 'ng-primitives/dialog';
-import { describe, expect, it, vi, afterEach } from 'vitest';
+import { describe, expect, it, vi, afterEach, beforeEach } from 'vitest';
 import { NgpComboboxButton } from '../../combobox-button/combobox-button';
 import { NgpComboboxDropdown } from '../../combobox-dropdown/combobox-dropdown';
 import { NgpComboboxInput } from '../../combobox-input/combobox-input';
@@ -341,6 +341,73 @@ describe('NgpCombobox', () => {
       // Dropdown should be closed
       await waitFor(() => {
         expect(screen.queryByText('Apple')).not.toBeInTheDocument();
+      });
+    });
+
+    describe('reopening while the dropdown is closing', () => {
+      // Keep the dropdown in its exit state until the test ends the animation, so input
+      // arrives while the overlay is still on screen.
+      let finishExit: (() => void) | null = null;
+      const originalGetAnimations = Element.prototype.getAnimations;
+
+      beforeEach(() => {
+        finishExit = null;
+        Element.prototype.getAnimations = function (this: Element) {
+          if (this.hasAttribute('data-exit')) {
+            const finished = new Promise<void>(resolve => (finishExit = resolve));
+            return [{ finished, cancel: () => undefined }] as unknown as Animation[];
+          }
+          return [];
+        };
+      });
+
+      afterEach(() => {
+        Element.prototype.getAnimations = originalGetAnimations;
+      });
+
+      it('should reopen the dropdown when a character is typed during the exit animation', async () => {
+        const { fixture } = await render(TestComponent);
+        const input = screen.getByRole('combobox');
+
+        await userEvent.click(input);
+        await userEvent.keyboard('{ArrowDown}');
+        const dropdown = await screen.findByRole('listbox');
+
+        await userEvent.keyboard('{Escape}');
+        await waitFor(() => expect(dropdown).toHaveAttribute('data-exit'));
+        expect(fixture.componentInstance.open).toBe(false);
+
+        await userEvent.keyboard('a');
+        finishExit?.();
+
+        await waitFor(() => {
+          expect(screen.getByRole('listbox')).toBe(dropdown);
+          expect(dropdown).not.toHaveAttribute('data-exit');
+          expect(input).toHaveAttribute('aria-expanded', 'true');
+          expect(fixture.componentInstance.open).toBe(true);
+        });
+        expect(input).toHaveValue('a');
+      });
+
+      it('should reopen the dropdown when ArrowDown is pressed during the exit animation', async () => {
+        const { fixture } = await render(TestComponent);
+        const input = screen.getByRole('combobox');
+
+        await userEvent.click(input);
+        await userEvent.keyboard('{ArrowDown}');
+        const dropdown = await screen.findByRole('listbox');
+
+        await userEvent.keyboard('{Escape}');
+        await waitFor(() => expect(dropdown).toHaveAttribute('data-exit'));
+
+        await userEvent.keyboard('{ArrowDown}');
+        finishExit?.();
+
+        await waitFor(() => {
+          expect(screen.getByRole('listbox')).toBe(dropdown);
+          expect(input).toHaveAttribute('aria-expanded', 'true');
+          expect(fixture.componentInstance.open).toBe(true);
+        });
       });
     });
   });

@@ -194,10 +194,17 @@ export class NgpCombobox {
   readonly overlay = computed(() => this.portal()?.overlay());
 
   /**
-   * The open state of the combobox.
+   * Whether the dropdown has been dismissed and is only playing its exit animation.
+   * The overlay keeps reporting itself open until that animation ends.
+   */
+  private readonly closing = signal(false);
+
+  /**
+   * The open state of the combobox. A dropdown that is closing counts as closed, so
+   * input that arrives during its exit animation opens it again.
    * @internal
    */
-  readonly open = computed(() => this.overlay()?.isOpen() ?? false);
+  readonly open = computed(() => !this.closing() && (this.overlay()?.isOpen() ?? false));
 
   /**
    * The options sorted by their index or DOM position.
@@ -282,6 +289,8 @@ export class NgpCombobox {
       return;
     }
 
+    // A closing dropdown is brought back by show(), which cancels its exit animation.
+    this.closing.set(false);
     this.openChange.emit(true);
     await this.portal()?.show();
 
@@ -343,6 +352,7 @@ export class NgpCombobox {
    * @internal
    */
   onOverlayClosed(): void {
+    this.closing.set(true);
     this.openChange.emit(false);
     // clear the active descendant
     this.activeDescendantManager.reset();
