@@ -77,6 +77,7 @@ The following directives are available to import from the `ng-primitives/search`
 
 <api-reference-attributes>
   <api-attribute name="data-empty" description="Applied when the search field is empty." />
+  <api-attribute name="data-disabled" description="Applied when the input is disabled or read-only." />
 </api-reference-attributes>
 
 ## Accessibility
@@ -85,4 +86,4 @@ Adheres to the [Search WAI-ARIA design pattern](https://www.w3.org/TR/wai-aria-1
 
 ### Keyboard Interaction
 
-- <kbd>Esc</kbd> - Clears the search field.
+- <kbd>Esc</kbd> - Clears the search field, unless it is disabled or read-only.
