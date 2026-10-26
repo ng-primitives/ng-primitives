@@ -259,6 +259,33 @@ describe('NgpSearch', () => {
         expect(getByTestId('clear')).not.toHaveAttribute('data-disabled');
       });
 
+      it('should keep a natively disabled button disabled once the input unlocks', async () => {
+        @Component({
+          imports: [NgpSearch, NgpInput, NgpSearchClear],
+          template: `
+            <div ngpSearch>
+              <input [readOnly]="readOnly()" ngpInput type="search" value="hello" />
+              <button [disabled]="buttonDisabled()" data-testid="clear" ngpSearchClear>
+                Clear
+              </button>
+            </div>
+          `,
+        })
+        class NativeHost {
+          readonly readOnly = signal(false);
+          readonly buttonDisabled = signal(true);
+        }
+        const { getByTestId, fixture } = await render(NativeHost);
+        await fixture.whenStable();
+
+        fixture.componentInstance.readOnly.set(true);
+        await fixture.whenStable();
+        fixture.componentInstance.readOnly.set(false);
+        await fixture.whenStable();
+
+        expect(getByTestId('clear')).toBeDisabled();
+      });
+
       describe('with ngpButton', () => {
         @Component({
           imports: [NgpSearch, NgpInput, NgpSearchClear, NgpButton],
