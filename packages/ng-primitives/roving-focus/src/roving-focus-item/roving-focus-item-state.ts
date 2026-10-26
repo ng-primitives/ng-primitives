@@ -77,7 +77,7 @@ export const [
 
     // Setup click event listener
     listener(element, 'click', () => {
-      if (disabled()) {
+      if (disabled() || group()?.disabled()) {
         return;
       }
       group()?.setActiveItem(id, 'mouse');
