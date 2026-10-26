@@ -482,12 +482,21 @@ export class NgpOverlayRegistry {
    * Escape-key dismiss: only the topmost overlay responds.
    */
   private handleEscapeKey(event: KeyboardEvent): void {
-    if (event.key !== 'Escape' || event.isComposing || this.escapeKeyClaims.isClaimed(event)) {
+    if (event.key !== 'Escape' || event.isComposing) {
       return;
     }
 
     const topmost = this.getTopmost();
     if (!topmost || this.pendingGuardIds.has(topmost.id)) {
+      return;
+    }
+
+    // a control inside the overlay will handle this Escape itself
+    const path = event.composedPath();
+    if (
+      topmost.getElements().some(el => path.includes(el)) &&
+      this.escapeKeyClaims.isClaimed(event)
+    ) {
       return;
     }
 

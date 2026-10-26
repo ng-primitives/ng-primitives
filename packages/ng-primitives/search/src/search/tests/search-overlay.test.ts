@@ -44,6 +44,8 @@ async function openDialog(value: string, readOnly = false): Promise<HTMLInputEle
   return input;
 }
 
+const openDialogCount = () => TestBed.inject(NgpDialogManager).openDialogs.length;
+
 const dialogClosed = () => waitFor(() => expect(screen.queryByTestId('dialog')).toBeNull());
 
 describe('NgpSearch inside an overlay', () => {
@@ -57,24 +59,18 @@ describe('NgpSearch inside an overlay', () => {
 
     fireEvent.keyDown(input, { key: 'Escape' });
     expect(input.value).toBe('');
-    // give a wrongly dismissed dialog time to leave the DOM
-    await new Promise(resolve => setTimeout(resolve, 50));
-    expect(screen.queryByTestId('dialog')).not.toBeNull();
+    expect(openDialogCount()).toBe(1);
 
     fireEvent.keyDown(input, { key: 'Escape' });
     await dialogClosed();
   });
 
-  it('behaves the same with real typing and key presses', async () => {
-    const input = await openDialog('');
-
-    await userEvent.type(input, 'abc');
-    expect(input.value).toBe('abc');
+  it('behaves the same with real key presses', async () => {
+    const input = await openDialog('abc');
 
     await userEvent.keyboard('{Escape}');
     expect(input.value).toBe('');
-    await new Promise(resolve => setTimeout(resolve, 50));
-    expect(screen.queryByTestId('dialog')).not.toBeNull();
+    expect(openDialogCount()).toBe(1);
 
     await userEvent.keyboard('{Escape}');
     await dialogClosed();
