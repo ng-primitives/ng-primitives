@@ -223,43 +223,53 @@ describe('NgpSearch', () => {
         readonly readOnly = signal(false);
       }
 
+      // without ngpButton the lock is shown with aria-disabled, leaving the native
+      // disabled attribute to the consumer
+      function expectLocked(button: HTMLElement, locked: boolean): void {
+        if (locked) {
+          expect(button).toHaveAttribute('aria-disabled', 'true');
+          expect(button).toHaveAttribute('data-disabled', '');
+        } else {
+          expect(button).not.toHaveAttribute('aria-disabled');
+          expect(button).not.toHaveAttribute('data-disabled');
+        }
+      }
+
       it('should be enabled while the input is editable', async () => {
         const { getByTestId, fixture } = await render(Host);
         await fixture.whenStable();
 
         expect(getByTestId('clear')).not.toBeDisabled();
-        expect(getByTestId('clear')).not.toHaveAttribute('data-disabled');
+        expectLocked(getByTestId('clear'), false);
       });
 
-      it('should be disabled while the input is disabled', async () => {
+      it('should be marked disabled while the input is disabled', async () => {
         const { getByTestId, fixture } = await render(Host);
 
         fixture.componentInstance.disabled.set(true);
         await fixture.whenStable();
-        expect(getByTestId('clear')).toBeDisabled();
-        expect(getByTestId('clear')).toHaveAttribute('data-disabled', '');
+        expectLocked(getByTestId('clear'), true);
+        expect(getByTestId('clear')).not.toHaveAttribute('disabled');
 
         fixture.componentInstance.disabled.set(false);
         await fixture.whenStable();
-        expect(getByTestId('clear')).not.toBeDisabled();
-        expect(getByTestId('clear')).not.toHaveAttribute('data-disabled');
+        expectLocked(getByTestId('clear'), false);
       });
 
-      it('should be disabled while the input is read-only', async () => {
+      it('should be marked disabled while the input is read-only', async () => {
         const { getByTestId, fixture } = await render(Host);
 
         fixture.componentInstance.readOnly.set(true);
         await fixture.whenStable();
-        expect(getByTestId('clear')).toBeDisabled();
-        expect(getByTestId('clear')).toHaveAttribute('data-disabled', '');
+        expectLocked(getByTestId('clear'), true);
+        expect(getByTestId('clear')).not.toHaveAttribute('disabled');
 
         fixture.componentInstance.readOnly.set(false);
         await fixture.whenStable();
-        expect(getByTestId('clear')).not.toBeDisabled();
-        expect(getByTestId('clear')).not.toHaveAttribute('data-disabled');
+        expectLocked(getByTestId('clear'), false);
       });
 
-      it('should keep a natively disabled button disabled once the input unlocks', async () => {
+      describe('with a native [disabled] binding', () => {
         @Component({
           imports: [NgpSearch, NgpInput, NgpSearchClear],
           template: `
@@ -275,15 +285,48 @@ describe('NgpSearch', () => {
           readonly readOnly = signal(false);
           readonly buttonDisabled = signal(true);
         }
-        const { getByTestId, fixture } = await render(NativeHost);
-        await fixture.whenStable();
 
-        fixture.componentInstance.readOnly.set(true);
-        await fixture.whenStable();
-        fixture.componentInstance.readOnly.set(false);
-        await fixture.whenStable();
+        it('should keep the button disabled once the input unlocks', async () => {
+          const { getByTestId, fixture } = await render(NativeHost);
+          await fixture.whenStable();
 
-        expect(getByTestId('clear')).toBeDisabled();
+          fixture.componentInstance.readOnly.set(true);
+          await fixture.whenStable();
+          fixture.componentInstance.readOnly.set(false);
+          await fixture.whenStable();
+
+          expect(getByTestId('clear')).toBeDisabled();
+        });
+
+        it('should stay marked disabled when the consumer enables it during a lock', async () => {
+          const { getByTestId, getByRole, fixture } = await render(NativeHost);
+          fixture.componentInstance.readOnly.set(true);
+          await fixture.whenStable();
+
+          fixture.componentInstance.buttonDisabled.set(false);
+          await fixture.whenStable();
+
+          expect(getByTestId('clear')).not.toBeDisabled();
+          expectLocked(getByTestId('clear'), true);
+          fireEvent.click(getByTestId('clear'));
+          expect(getByRole('searchbox')).toHaveValue('hello');
+        });
+
+        it('should keep a button the consumer disables during a lock disabled after it', async () => {
+          const { getByTestId, fixture } = await render(NativeHost);
+          fixture.componentInstance.buttonDisabled.set(false);
+          await fixture.whenStable();
+          fixture.componentInstance.readOnly.set(true);
+          await fixture.whenStable();
+
+          fixture.componentInstance.buttonDisabled.set(true);
+          await fixture.whenStable();
+          fixture.componentInstance.readOnly.set(false);
+          await fixture.whenStable();
+
+          expect(getByTestId('clear')).toBeDisabled();
+          expectLocked(getByTestId('clear'), false);
+        });
       });
 
       describe('with ngpButton', () => {
@@ -353,8 +396,6 @@ describe('NgpSearch', () => {
         fixture.componentInstance.readOnly.set(true);
         await fixture.whenStable();
 
-        // the native disabled attribute blocks real clicks, so bypass it
-        getByTestId('clear').removeAttribute('disabled');
         fireEvent.click(getByTestId('clear'));
 
         expect(getByRole('searchbox')).toHaveValue('hello');
