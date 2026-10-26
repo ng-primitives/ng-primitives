@@ -297,6 +297,7 @@ describe('NgpRovingFocusGroup', () => {
       );
 
       container.getByTestId('item-2').focus();
+      container.fixture.detectChanges();
 
       await waitFor(() => {
         expect(container.getByTestId('item-1')).toHaveAttribute('tabindex', '0');
