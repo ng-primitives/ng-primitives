@@ -7,6 +7,7 @@ import {
   NgpComboboxInput,
   NgpComboboxPortal,
 } from 'ng-primitives/combobox';
+import { NgpMenu, NgpMenuTrigger } from 'ng-primitives/menu';
 import { NgpPopover, NgpPopoverTrigger } from 'ng-primitives/popover';
 import { NgpSelect, NgpSelectDropdown, NgpSelectPortal } from 'ng-primitives/select';
 import { afterEach, describe, expect, it } from 'vitest';
@@ -15,6 +16,29 @@ import { page } from 'vitest/browser';
 const VIEWPORT_HEIGHT = 400;
 const TRIGGER_TOP = 300;
 const TRIGGER_HEIGHT = 20;
+
+/** A trigger 300px from the top with 80px below, and a 500px overlay capped to its room. */
+function cappedStyles(overlay: string, property: string): string {
+  return `
+    .trigger {
+      position: fixed;
+      top: ${TRIGGER_TOP}px;
+      left: 0;
+      height: ${TRIGGER_HEIGHT}px;
+    }
+
+    ${overlay} {
+      position: fixed;
+      width: 120px;
+      max-height: var(${property});
+      overflow: auto;
+    }
+
+    .content {
+      height: 500px;
+    }
+  `;
+}
 
 @Component({
   template: `
@@ -33,26 +57,7 @@ const TRIGGER_HEIGHT = 20;
       </div>
     </ng-template>
   `,
-  styles: `
-    .trigger {
-      position: fixed;
-      top: ${TRIGGER_TOP}px;
-      left: 0;
-      height: ${TRIGGER_HEIGHT}px;
-    }
-
-    /* The usual recipe: the popover shrinks to the room on its side and scrolls inside. */
-    [ngpPopover] {
-      position: fixed;
-      width: 120px;
-      max-height: var(--ngp-popover-available-height);
-      overflow: auto;
-    }
-
-    .content {
-      height: 500px;
-    }
-  `,
+  styles: cappedStyles('[ngpPopover]', '--ngp-popover-available-height'),
   imports: [NgpPopoverTrigger, NgpPopover],
 })
 class TallPopoverTestComponent {}
@@ -82,25 +87,7 @@ class TallPopoverTestComponent {}
       </div>
     </ng-template>
   `,
-  styles: `
-    .trigger {
-      position: fixed;
-      top: ${TRIGGER_TOP}px;
-      left: 0;
-      height: ${TRIGGER_HEIGHT}px;
-    }
-
-    [ngpPopover] {
-      position: fixed;
-      width: 120px;
-      max-height: var(--ngp-popover-available-height);
-      overflow: auto;
-    }
-
-    .content {
-      height: 500px;
-    }
-  `,
+  styles: cappedStyles('[ngpPopover]', '--ngp-popover-available-height'),
   imports: [
     NgpPopoverTrigger,
     NgpPopover,
@@ -112,6 +99,28 @@ class TallPopoverTestComponent {}
   ],
 })
 class PopoverWithInlineDropdownsTestComponent {}
+
+@Component({
+  template: `
+    <button
+      class="trigger"
+      [ngpMenuTrigger]="menu"
+      [ngpMenuTriggerOffset]="0"
+      ngpMenuTriggerPlacement="top"
+    >
+      Open Menu
+    </button>
+
+    <ng-template #menu>
+      <div ngpMenu>
+        <div class="content"></div>
+      </div>
+    </ng-template>
+  `,
+  styles: cappedStyles('[ngpMenu]', '--ngp-menu-available-height'),
+  imports: [NgpMenuTrigger, NgpMenu],
+})
+class TallMenuTestComponent {}
 
 @Component({
   template: `
@@ -129,25 +138,7 @@ class PopoverWithInlineDropdownsTestComponent {}
       </div>
     </div>
   `,
-  styles: `
-    .trigger {
-      position: fixed;
-      top: ${TRIGGER_TOP}px;
-      left: 0;
-      height: ${TRIGGER_HEIGHT}px;
-    }
-
-    [ngpComboboxDropdown] {
-      position: fixed;
-      width: 120px;
-      max-height: var(--ngp-combobox-available-height);
-      overflow: auto;
-    }
-
-    .content {
-      height: 500px;
-    }
-  `,
+  styles: cappedStyles('[ngpComboboxDropdown]', '--ngp-combobox-available-height'),
   imports: [
     NgpCombobox,
     NgpComboboxInput,
@@ -167,25 +158,7 @@ class TallComboboxTestComponent {}
       </div>
     </div>
   `,
-  styles: `
-    .trigger {
-      position: fixed;
-      top: ${TRIGGER_TOP}px;
-      left: 0;
-      height: ${TRIGGER_HEIGHT}px;
-    }
-
-    [ngpSelectDropdown] {
-      position: fixed;
-      width: 120px;
-      max-height: var(--ngp-select-available-height);
-      overflow: auto;
-    }
-
-    .content {
-      height: 500px;
-    }
-  `,
+  styles: cappedStyles('[ngpSelectDropdown]', '--ngp-select-available-height'),
   imports: [NgpSelect, NgpSelectPortal, NgpSelectDropdown],
 })
 class TallSelectTestComponent {}
@@ -204,72 +177,63 @@ function recordFrames(selector: string, count: number): Promise<DOMRect[]> {
   });
 }
 
+/** Open the overlay and expect it capped to the room above its trigger in its first three frames. */
+async function expectCappedFromFirstFrame(selector: string, open: () => void): Promise<void> {
+  const recording = recordFrames(selector, 3);
+  open();
+  const frames = await recording;
+
+  expect(frames.map(frame => [Math.round(frame.top), Math.round(frame.bottom)])).toEqual([
+    [0, TRIGGER_TOP],
+    [0, TRIGGER_TOP],
+    [0, TRIGGER_TOP],
+  ]);
+}
+
 describe('overlay size', () => {
   afterEach(async () => {
     document
-      .querySelectorAll('[ngpPopover], [ngpComboboxDropdown], [ngpSelectDropdown]')
+      .querySelectorAll('[ngpPopover], [ngpMenu], [ngpComboboxDropdown], [ngpSelectDropdown]')
       .forEach(el => el.remove());
     await page.viewport(414, 896);
   });
 
   it('should position an overlay for the size it is capped to from its first frame', async () => {
-    // 300px above the trigger, 80px below: the 500px popover opens above and shrinks to 300px.
     await page.viewport(400, VIEWPORT_HEIGHT);
     const { getByRole } = await render(TallPopoverTestComponent);
 
-    const recording = recordFrames('[ngpPopover]', 3);
-    fireEvent.click(getByRole('button'));
-    const frames = await recording;
+    await expectCappedFromFirstFrame('[ngpPopover]', () => fireEvent.click(getByRole('button')));
+  });
 
-    expect(frames.map(frame => [Math.round(frame.top), Math.round(frame.bottom)])).toEqual([
-      [0, TRIGGER_TOP],
-      [0, TRIGGER_TOP],
-      [0, TRIGGER_TOP],
-    ]);
+  it('should position a menu for the size it is capped to from its first frame', async () => {
+    await page.viewport(400, VIEWPORT_HEIGHT);
+    const { getByRole } = await render(TallMenuTestComponent);
+
+    await expectCappedFromFirstFrame('[ngpMenu]', () => fireEvent.click(getByRole('button')));
   });
 
   it('should position a combobox dropdown for the size it is capped to from its first frame', async () => {
     await page.viewport(400, VIEWPORT_HEIGHT);
     const { getByRole } = await render(TallComboboxTestComponent);
 
-    const recording = recordFrames('[ngpComboboxDropdown]', 3);
-    fireEvent.click(getByRole('button'));
-    const frames = await recording;
-
-    expect(frames.map(frame => [Math.round(frame.top), Math.round(frame.bottom)])).toEqual([
-      [0, TRIGGER_TOP],
-      [0, TRIGGER_TOP],
-      [0, TRIGGER_TOP],
-    ]);
+    await expectCappedFromFirstFrame('[ngpComboboxDropdown]', () =>
+      fireEvent.click(getByRole('button')),
+    );
   });
 
   it('should position a select dropdown for the size it is capped to from its first frame', async () => {
     await page.viewport(400, VIEWPORT_HEIGHT);
     const { getByRole } = await render(TallSelectTestComponent);
 
-    const recording = recordFrames('[ngpSelectDropdown]', 3);
-    fireEvent.click(getByRole('combobox'));
-    const frames = await recording;
-
-    expect(frames.map(frame => [Math.round(frame.top), Math.round(frame.bottom)])).toEqual([
-      [0, TRIGGER_TOP],
-      [0, TRIGGER_TOP],
-      [0, TRIGGER_TOP],
-    ]);
+    await expectCappedFromFirstFrame('[ngpSelectDropdown]', () =>
+      fireEvent.click(getByRole('combobox')),
+    );
   });
 
   it('should keep the cap of an overlay that renders dropdowns in place', async () => {
     await page.viewport(400, VIEWPORT_HEIGHT);
     const { getByRole } = await render(PopoverWithInlineDropdownsTestComponent);
 
-    const recording = recordFrames('[ngpPopover]', 3);
-    fireEvent.click(getByRole('button'));
-    const frames = await recording;
-
-    expect(frames.map(frame => [Math.round(frame.top), Math.round(frame.bottom)])).toEqual([
-      [0, TRIGGER_TOP],
-      [0, TRIGGER_TOP],
-      [0, TRIGGER_TOP],
-    ]);
+    await expectCappedFromFirstFrame('[ngpPopover]', () => fireEvent.click(getByRole('button')));
   });
 });

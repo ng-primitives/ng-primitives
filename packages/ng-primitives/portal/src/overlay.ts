@@ -318,12 +318,7 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
   /** Signal tracking the available height before the overlay overflows the viewport */
   readonly availableHeight = signal<number | null>(null);
 
-  /**
-   * The custom properties the overlay element exposes the available size under, if its
-   * directive registered them. Written by the `size` middleware itself - see
-   * `registerAvailableSizeProperties()`.
-   */
-  private availableSizeProperties: { width: string; height: string } | null = null;
+  private availableSizePrefix: string | null = null;
 
   /** Signal tracking the final placement of the overlay */
   readonly finalPlacement = signal<NgpPlacement | undefined>(undefined);
@@ -1008,17 +1003,12 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
   }
 
   /**
-   * Register the custom properties the overlay element exposes the available size under,
-   * e.g. `--ngp-popover-available-width` and `--ngp-popover-available-height`.
-   *
-   * A style binding writes them only on the next render, after the position has been
-   * computed, so an element they cap is positioned for its uncapped size until the next
-   * pass. Registered, they are written while the position is computed, and the `size`
-   * middleware re-measures the capped element before the position is final.
+   * Register the custom property prefix (e.g. `--ngp-popover`) the `size` middleware writes
+   * `<prefix>-available-width` and `<prefix>-available-height` under.
    * @internal
    */
-  registerAvailableSizeProperties(width: string, height: string): void {
-    this.availableSizeProperties = { width, height };
+  registerAvailableSizePrefix(prefix: string): void {
+    this.availableSizePrefix = prefix;
   }
 
   /**
@@ -1286,10 +1276,13 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
           // Written now rather than by the element's bindings on the next render: `size`
           // re-measures the element after `apply` and starts over when its size changed, so
           // the position is computed for the size the element is capped to.
-          const properties = this.availableSizeProperties;
-          if (properties) {
-            elements.floating.style.setProperty(properties.width, `${availableWidth}px`);
-            elements.floating.style.setProperty(properties.height, `${availableHeight}px`);
+          const prefix = this.availableSizePrefix;
+          if (prefix) {
+            elements.floating.style.setProperty(`${prefix}-available-width`, `${availableWidth}px`);
+            elements.floating.style.setProperty(
+              `${prefix}-available-height`,
+              `${availableHeight}px`,
+            );
           }
         },
       }),

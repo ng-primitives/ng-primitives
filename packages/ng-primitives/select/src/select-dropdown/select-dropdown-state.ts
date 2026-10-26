@@ -38,12 +38,7 @@ export const [
     const selectDimensions = observeResize(() => selectState().elementRef.nativeElement);
     // The select's own overlay, not one injected: a dropdown rendered in place would find an
     // enclosing overlay and replace that overlay's properties.
-    selectState()
-      .overlay()
-      ?.registerAvailableSizeProperties(
-        '--ngp-select-available-width',
-        '--ngp-select-available-height',
-      );
+    selectState().overlay()?.registerAvailableSizePrefix('--ngp-select');
     // Host bindings
     attrBinding(elementRef, 'role', 'listbox');
     attrBinding(elementRef, 'id', _id);

@@ -54,11 +54,6 @@ export class NgpComboboxDropdown {
     this.state().registerDropdown(this);
     // The combobox's own overlay, not one injected: a dropdown rendered in place would find an
     // enclosing overlay and replace that overlay's properties.
-    this.state()
-      .overlay()
-      ?.registerAvailableSizeProperties(
-        '--ngp-combobox-available-width',
-        '--ngp-combobox-available-height',
-      );
+    this.state().overlay()?.registerAvailableSizePrefix('--ngp-combobox');
   }
 }

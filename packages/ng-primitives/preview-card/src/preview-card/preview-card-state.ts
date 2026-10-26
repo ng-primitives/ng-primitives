@@ -29,10 +29,7 @@ export const [
 ] = createPrimitive('NgpPreviewCard', ({ id: _id = signal<string>('') }: NgpPreviewCardProps) => {
   const elementRef = injectElementRef<HTMLElement>();
   const overlay = injectOverlay();
-  overlay.registerAvailableSizeProperties(
-    '--ngp-preview-card-available-width',
-    '--ngp-preview-card-available-height',
-  );
+  overlay.registerAvailableSizePrefix('--ngp-preview-card');
   const triggerState = injectPreviewCardTriggerState();
 
   const id = controlled(_id);

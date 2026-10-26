@@ -53,10 +53,7 @@ export const [NgpMenuStateToken, ngpMenu, injectMenuState, provideMenuState] = c
     // Register this element as the overlay outlet so floating-ui positions it correctly,
     // even when this directive is on a nested child component rather than the portal root.
     overlay.registerOutletElement(element.nativeElement);
-    overlay.registerAvailableSizeProperties(
-      '--ngp-menu-available-width',
-      '--ngp-menu-available-height',
-    );
+    overlay.registerAvailableSizePrefix('--ngp-menu');
 
     // Host bindings
     attrBinding(element, 'role', 'menu');

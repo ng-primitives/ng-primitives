@@ -28,10 +28,7 @@ export const [NgpTooltipStateToken, ngpTooltip, injectTooltipState, provideToolt
     const elementRef = injectElementRef();
     const tooltipTriggerState = injectTooltipTriggerState();
     const overlay = injectOverlay();
-    overlay.registerAvailableSizeProperties(
-      '--ngp-tooltip-available-width',
-      '--ngp-tooltip-available-height',
-    );
+    overlay.registerAvailableSizePrefix('--ngp-tooltip');
 
     const id = controlled(_id);
 
