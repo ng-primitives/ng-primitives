@@ -8,6 +8,7 @@ import {
   listener,
   onDestroy,
 } from 'ng-primitives/state';
+import { onChange } from 'ng-primitives/utils';
 import { injectSearchState } from '../search/search-state';
 
 export interface NgpSearchClearState {
@@ -39,7 +40,19 @@ export const [
     button.registerDisabledSource(locked);
     onDestroy(() => button.unregisterDisabledSource(locked));
   } else {
-    attrBinding(element, 'disabled', () => (locked() ? '' : null));
+    // only remove a disabled attribute this part added, so a consumer's own
+    // [disabled] binding survives the input unlocking
+    let addedDisabled = false;
+    onChange(locked, isLocked => {
+      const el = element.nativeElement;
+      if (isLocked && !el.hasAttribute('disabled')) {
+        el.setAttribute('disabled', '');
+        addedDisabled = true;
+      } else if (!isLocked && addedDisabled) {
+        el.removeAttribute('disabled');
+        addedDisabled = false;
+      }
+    });
     dataBinding(element, 'data-disabled', locked);
   }
 
