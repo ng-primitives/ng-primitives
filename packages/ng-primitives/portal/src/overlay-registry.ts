@@ -1,6 +1,7 @@
 import { FocusOrigin } from '@angular/cdk/a11y';
 import { DOCUMENT } from '@angular/common';
 import { inject, Injectable, isSignal, NgZone, Signal } from '@angular/core';
+import { NgpEscapeKeyClaims } from 'ng-primitives/internal';
 import { Subject } from 'rxjs';
 
 /**
@@ -100,6 +101,7 @@ export interface NgpOverlayRef {
 export class NgpOverlayRegistry {
   private readonly document = inject(DOCUMENT);
   private readonly ngZone = inject(NgZone);
+  private readonly escapeKeyClaims = inject(NgpEscapeKeyClaims);
 
   /** Ordered list of visible overlay entries (oldest first, newest/topmost last) */
   private readonly entries: NgpOverlayEntry[] = [];
@@ -486,6 +488,15 @@ export class NgpOverlayRegistry {
 
     const topmost = this.getTopmost();
     if (!topmost || this.pendingGuardIds.has(topmost.id)) {
+      return;
+    }
+
+    // a control inside the overlay will handle this Escape itself
+    const path = event.composedPath();
+    if (
+      topmost.getElements().some(el => path.includes(el)) &&
+      this.escapeKeyClaims.isClaimed(event)
+    ) {
       return;
     }
 
