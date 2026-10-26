@@ -1,5 +1,5 @@
 import { afterEveryRender, computed, inject, Injector, signal, Signal } from '@angular/core';
-import { injectElementRef } from 'ng-primitives/internal';
+import { claimEscapeKey, injectElementRef } from 'ng-primitives/internal';
 import { createPrimitive, dataBinding, listener } from 'ng-primitives/state';
 
 export interface NgpSearchState {
@@ -53,6 +53,11 @@ export const [NgpSearchStateToken, ngpSearch, injectSearchState, provideSearchSt
       }
     });
 
+    // An Escape that clears text should not also close a surrounding overlay
+    claimEscapeKey(
+      event => element.nativeElement.contains(event.target as Node | null) && canClear(),
+    );
+
     // Bindings, forms and signal forms write the input's properties without an
     // event, so re-read them after each render.
     afterEveryRender({
@@ -69,12 +74,17 @@ export const [NgpSearchStateToken, ngpSearch, injectSearchState, provideSearchSt
       return el.disabled || el.readOnly;
     }
 
+    // only clear what the user could clear by hand, and skip the input event
+    // when there is nothing to clear (it would mark a pristine form dirty)
+    function canClear(): boolean {
+      const el = input();
+      return !!el && !isLocked(el) && el.value !== '';
+    }
+
     function clear(): void {
       const el = input();
 
-      // only clear what the user could clear by hand, and skip the input event
-      // when there is nothing to clear (it would mark a pristine form dirty)
-      if (!el || isLocked(el) || el.value === '') {
+      if (!el || !canClear()) {
         return;
       }
 

@@ -1,6 +1,7 @@
 import { FocusOrigin } from '@angular/cdk/a11y';
 import { DOCUMENT } from '@angular/common';
 import { inject, Injectable, isSignal, NgZone, Signal } from '@angular/core';
+import { NgpEscapeKeyClaims } from 'ng-primitives/internal';
 import { Subject } from 'rxjs';
 
 /**
@@ -100,6 +101,7 @@ export interface NgpOverlayRef {
 export class NgpOverlayRegistry {
   private readonly document = inject(DOCUMENT);
   private readonly ngZone = inject(NgZone);
+  private readonly escapeKeyClaims = inject(NgpEscapeKeyClaims);
 
   /** Ordered list of visible overlay entries (oldest first, newest/topmost last) */
   private readonly entries: NgpOverlayEntry[] = [];
@@ -480,7 +482,7 @@ export class NgpOverlayRegistry {
    * Escape-key dismiss: only the topmost overlay responds.
    */
   private handleEscapeKey(event: KeyboardEvent): void {
-    if (event.key !== 'Escape' || event.isComposing) {
+    if (event.key !== 'Escape' || event.isComposing || this.escapeKeyClaims.isClaimed(event)) {
       return;
     }
 
