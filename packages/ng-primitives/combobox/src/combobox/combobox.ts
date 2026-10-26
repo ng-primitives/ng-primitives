@@ -289,7 +289,16 @@ export class NgpCombobox {
     }
 
     // A closing dropdown is brought back by show(), which cancels its exit animation.
+    const wasClosing = this.closing();
     this.closing.set(false);
+
+    // Reopened from an openChange(false) handler, the overlay has not started its exit yet,
+    // so show() would find it open and do nothing. The exit starts once that notification
+    // returns, so show it again after that.
+    if (wasClosing) {
+      await Promise.resolve();
+    }
+
     this.openChange.emit(true);
     await this.portal()?.show();
 

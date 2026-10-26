@@ -205,6 +205,30 @@ function removeLingeringDropdown() {
   }
 }
 
+/** Reopens the dropdown from its own close notification, once. */
+@Component({
+  imports: [NgpCombobox, NgpComboboxDropdown, NgpComboboxInput, NgpComboboxPortal],
+  template: `
+    <div (ngpComboboxOpenChange)="onOpenChange($event)" ngpCombobox>
+      <input ngpComboboxInput />
+      <div *ngpComboboxPortal ngpComboboxDropdown>Options</div>
+    </div>
+  `,
+})
+class ReopenOnCloseComboboxComponent {
+  readonly combobox = viewChild.required(NgpCombobox);
+  readonly changes: boolean[] = [];
+  private reopened = false;
+
+  onOpenChange(open: boolean) {
+    this.changes.push(open);
+    if (!open && !this.reopened) {
+      this.reopened = true;
+      this.combobox().openDropdown();
+    }
+  }
+}
+
 describe('NgpCombobox', () => {
   afterEach(removeLingeringDropdown);
 
@@ -345,23 +369,43 @@ describe('NgpCombobox', () => {
 
     describe('reopening while the dropdown is closing', () => {
       // Keep the dropdown in its exit state until the test ends the animation, so input
-      // arrives while the overlay is still on screen.
-      let finishExit: (() => void) | null = null;
+      // arrives while the overlay is still on screen. Every call returns the same held
+      // animation, so finishExit() settles the exit that started, and afterEach settles an
+      // exit a test leaves held.
+      let finishExit: () => void;
       const originalGetAnimations = Element.prototype.getAnimations;
 
       beforeEach(() => {
-        finishExit = null;
+        const finished = new Promise<void>(resolve => (finishExit = resolve));
+        const animation = { finished, cancel: () => finishExit() } as unknown as Animation;
         Element.prototype.getAnimations = function (this: Element) {
-          if (this.hasAttribute('data-exit')) {
-            const finished = new Promise<void>(resolve => (finishExit = resolve));
-            return [{ finished, cancel: () => undefined }] as unknown as Animation[];
-          }
-          return [];
+          return this.hasAttribute('data-exit') ? [animation] : [];
         };
       });
 
       afterEach(() => {
+        finishExit();
         Element.prototype.getAnimations = originalGetAnimations;
+      });
+
+      it('should stay open when an openChange(false) handler reopens it', async () => {
+        const { fixture } = await render(ReopenOnCloseComboboxComponent);
+        const input = screen.getByRole('combobox');
+
+        await userEvent.click(input);
+        await userEvent.keyboard('{ArrowDown}');
+        const dropdown = await screen.findByRole('listbox');
+
+        await userEvent.keyboard('{Escape}');
+
+        // The reopen cancels the exit rather than letting it run to the end.
+        await waitFor(() => expect(dropdown).not.toHaveAttribute('data-exit'));
+        finishExit();
+        await fixture.whenStable();
+
+        expect(screen.getByRole('listbox')).toBe(dropdown);
+        expect(input).toHaveAttribute('aria-expanded', 'true');
+        expect(fixture.componentInstance.changes).toEqual([true, false, true]);
       });
 
       it('should reopen the dropdown when a character is typed during the exit animation', async () => {
@@ -377,7 +421,7 @@ describe('NgpCombobox', () => {
         expect(fixture.componentInstance.open).toBe(false);
 
         await userEvent.keyboard('a');
-        finishExit?.();
+        finishExit();
 
         await waitFor(() => {
           expect(screen.getByRole('listbox')).toBe(dropdown);
@@ -400,7 +444,7 @@ describe('NgpCombobox', () => {
         await waitFor(() => expect(dropdown).toHaveAttribute('data-exit'));
 
         await userEvent.keyboard('{ArrowDown}');
-        finishExit?.();
+        finishExit();
 
         await waitFor(() => {
           expect(screen.getByRole('listbox')).toBe(dropdown);
