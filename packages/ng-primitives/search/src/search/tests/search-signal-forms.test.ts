@@ -74,6 +74,21 @@ describe('Search (reusable component) — signal forms', () => {
     expect(getByRole('searchbox')).toHaveValue('');
   });
 
+  it('reflects model changes in data-empty', async () => {
+    const { container, fixture } = await renderHost('hello');
+    await fixture.whenStable();
+    const host = container.querySelector('app-search');
+    expect(host).not.toHaveAttribute('data-empty');
+
+    fixture.componentInstance.model.set({ query: '' });
+    await fixture.whenStable();
+    expect(host).toHaveAttribute('data-empty', '');
+
+    fixture.componentInstance.model.set({ query: 'world' });
+    await fixture.whenStable();
+    expect(host).not.toHaveAttribute('data-empty');
+  });
+
   it('marks the field as touched on focusout', async () => {
     const { getByRole, fixture } = await renderHost();
 
@@ -95,6 +110,22 @@ describe('Search (reusable component) — signal forms', () => {
     await fixture.whenStable();
 
     expect(input.disabled).toBe(true);
+  });
+
+  it('disables the clear button while the field is disabled', async () => {
+    const { getByRole, fixture } = await renderHost('hello');
+    await fixture.whenStable();
+    const button = getByRole('button', { name: 'Clear search' });
+    expect(button).not.toBeDisabled();
+
+    fixture.componentInstance.isDisabled.set(true);
+    await fixture.whenStable();
+    expect(button).toBeDisabled();
+    expect(button).toHaveAttribute('data-disabled', '');
+
+    fixture.componentInstance.isDisabled.set(false);
+    await fixture.whenStable();
+    expect(button).not.toBeDisabled();
   });
 
   it('does not clear the field via the clear button while the field is disabled', async () => {

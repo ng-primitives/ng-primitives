@@ -1,5 +1,7 @@
 import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { fireEvent, render } from '@testing-library/angular';
+import { NgpInput } from 'ng-primitives/input';
+import { NgpSearch } from 'ng-primitives/search';
 import { describe, expect, it, vi } from 'vitest';
 import { SearchFixture } from './search-forms.fixture';
 
@@ -148,6 +150,73 @@ describe('Search (reusable component) — reactive forms', () => {
     expect(spy).toHaveBeenCalledWith('world');
   });
 
+  describe('data-empty', () => {
+    it('is absent when the control starts with a value', async () => {
+      const formControl = new FormControl('hello');
+      const { container, fixture } = await render(
+        `<app-search [formControl]="formControl"></app-search>`,
+        { imports: [SearchFixture, ReactiveFormsModule], componentProperties: { formControl } },
+      );
+      await fixture.whenStable();
+
+      expect(container.querySelector('app-search')).not.toHaveAttribute('data-empty');
+    });
+
+    it('follows setValue and reset', async () => {
+      const formControl = new FormControl('');
+      const { container, fixture } = await render(
+        `<app-search [formControl]="formControl"></app-search>`,
+        { imports: [SearchFixture, ReactiveFormsModule], componentProperties: { formControl } },
+      );
+      const host = container.querySelector('app-search');
+
+      formControl.setValue('world');
+      fixture.detectChanges();
+      await fixture.whenStable();
+      expect(host).not.toHaveAttribute('data-empty');
+
+      formControl.reset();
+      fixture.detectChanges();
+      await fixture.whenStable();
+      expect(host).toHaveAttribute('data-empty', '');
+    });
+
+    it('follows a form control bound directly to the input', async () => {
+      const formControl = new FormControl('hello');
+      const { getByTestId, fixture } = await render(
+        `<div data-testid="search" ngpSearch>
+          <input [formControl]="formControl" ngpInput type="search" />
+        </div>`,
+        {
+          imports: [NgpSearch, NgpInput, ReactiveFormsModule],
+          componentProperties: { formControl },
+        },
+      );
+      await fixture.whenStable();
+      expect(getByTestId('search')).not.toHaveAttribute('data-empty');
+
+      formControl.setValue('');
+      fixture.detectChanges();
+      await fixture.whenStable();
+      expect(getByTestId('search')).toHaveAttribute('data-empty', '');
+    });
+  });
+
+  it('keeps a pristine control pristine when Escape is pressed on an empty field', async () => {
+    const formControl = new FormControl('');
+    const { getByRole } = await render(
+      `<div ngpSearch><input [formControl]="formControl" ngpInput type="search" /></div>`,
+      {
+        imports: [NgpSearch, NgpInput, ReactiveFormsModule],
+        componentProperties: { formControl },
+      },
+    );
+
+    fireEvent.keyDown(getByRole('searchbox'), { key: 'Escape' });
+
+    expect(formControl.pristine).toBe(true);
+  });
+
   describe('disabled state', () => {
     it('disables the input when the control is disabled', async () => {
       const formControl = new FormControl('hello');
@@ -183,6 +252,32 @@ describe('Search (reusable component) — reactive forms', () => {
       // a disabled search must ignore clear requests
       fireEvent.click(getByRole('button', { name: 'Clear search' }));
       expect(input.value).toBe('hello');
+    });
+
+    it('disables the clear button while the control is disabled', async () => {
+      const formControl = new FormControl({ value: 'hello', disabled: true });
+      const { getByRole, fixture } = await render(
+        `<app-search [formControl]="formControl"></app-search>`,
+        { imports: [SearchFixture, ReactiveFormsModule], componentProperties: { formControl } },
+      );
+      await fixture.whenStable();
+      const button = getByRole('button', { name: 'Clear search' });
+
+      // the fixture also applies ngpButton, which binds the same attributes
+      expect(button).toBeDisabled();
+      expect(button).toHaveAttribute('data-disabled', '');
+
+      formControl.enable();
+      fixture.detectChanges();
+      await fixture.whenStable();
+      expect(button).not.toBeDisabled();
+      expect(button).not.toHaveAttribute('data-disabled');
+
+      formControl.disable();
+      fixture.detectChanges();
+      await fixture.whenStable();
+      expect(button).toBeDisabled();
+      expect(button).toHaveAttribute('data-disabled', '');
     });
   });
 });

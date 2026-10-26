@@ -1,8 +1,9 @@
+import { Component, signal } from '@angular/core';
 import { By } from '@angular/platform-browser';
 import { fireEvent, render } from '@testing-library/angular';
 import { NgpInput } from 'ng-primitives/input';
 import { NgpSearch, NgpSearchClear } from 'ng-primitives/search';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 
 /**
  * Convenience helper that types a value into the search input and dispatches a
@@ -107,6 +108,42 @@ describe('NgpSearch', () => {
     });
   });
 
+  describe('programmatic values', () => {
+    @Component({
+      imports: [NgpSearch, NgpInput, NgpSearchClear],
+      template: `
+        <div data-testid="search" ngpSearch>
+          <input [value]="value()" ngpInput type="search" />
+          <button data-testid="clear" ngpSearchClear>Clear</button>
+        </div>
+      `,
+    })
+    class BoundValue {
+      readonly value = signal('hello');
+    }
+
+    it('should not have data-empty when the initial value comes from a binding', async () => {
+      const { getByTestId, fixture } = await render(BoundValue);
+      await fixture.whenStable();
+
+      expect(getByTestId('search')).not.toHaveAttribute('data-empty');
+      expect(getByTestId('clear')).not.toHaveAttribute('data-empty');
+    });
+
+    it('should track a bound value that changes without an input event', async () => {
+      const { getByTestId, fixture } = await render(BoundValue);
+      await fixture.whenStable();
+
+      fixture.componentInstance.value.set('');
+      await fixture.whenStable();
+      expect(getByTestId('search')).toHaveAttribute('data-empty', '');
+
+      fixture.componentInstance.value.set('world');
+      await fixture.whenStable();
+      expect(getByTestId('search')).not.toHaveAttribute('data-empty');
+    });
+  });
+
   describe('clear button (NgpSearchClear)', () => {
     it('should be removed from the tab order', async () => {
       const { getByTestId } = await render(
@@ -163,6 +200,76 @@ describe('NgpSearch', () => {
       expect(input.value).toBe('');
       expect(search).toHaveAttribute('data-empty', '');
     });
+
+    describe('disabled and read-only inputs', () => {
+      @Component({
+        imports: [NgpSearch, NgpInput, NgpSearchClear],
+        template: `
+          <div ngpSearch>
+            <input
+              [disabled]="disabled()"
+              [readOnly]="readOnly()"
+              ngpInput
+              type="search"
+              value="hello"
+            />
+            <button data-testid="clear" ngpSearchClear>Clear</button>
+          </div>
+        `,
+      })
+      class Host {
+        readonly disabled = signal(false);
+        readonly readOnly = signal(false);
+      }
+
+      it('should be enabled while the input is editable', async () => {
+        const { getByTestId, fixture } = await render(Host);
+        await fixture.whenStable();
+
+        expect(getByTestId('clear')).not.toBeDisabled();
+        expect(getByTestId('clear')).not.toHaveAttribute('data-disabled');
+      });
+
+      it('should be disabled while the input is disabled', async () => {
+        const { getByTestId, fixture } = await render(Host);
+
+        fixture.componentInstance.disabled.set(true);
+        await fixture.whenStable();
+        expect(getByTestId('clear')).toBeDisabled();
+        expect(getByTestId('clear')).toHaveAttribute('data-disabled', '');
+
+        fixture.componentInstance.disabled.set(false);
+        await fixture.whenStable();
+        expect(getByTestId('clear')).not.toBeDisabled();
+        expect(getByTestId('clear')).not.toHaveAttribute('data-disabled');
+      });
+
+      it('should be disabled while the input is read-only', async () => {
+        const { getByTestId, fixture } = await render(Host);
+
+        fixture.componentInstance.readOnly.set(true);
+        await fixture.whenStable();
+        expect(getByTestId('clear')).toBeDisabled();
+        expect(getByTestId('clear')).toHaveAttribute('data-disabled', '');
+
+        fixture.componentInstance.readOnly.set(false);
+        await fixture.whenStable();
+        expect(getByTestId('clear')).not.toBeDisabled();
+        expect(getByTestId('clear')).not.toHaveAttribute('data-disabled');
+      });
+
+      it('should not clear a read-only input when clicked', async () => {
+        const { getByTestId, getByRole, fixture } = await render(Host);
+        fixture.componentInstance.readOnly.set(true);
+        await fixture.whenStable();
+
+        // the native disabled attribute blocks real clicks, so bypass it
+        getByTestId('clear').removeAttribute('disabled');
+        fireEvent.click(getByTestId('clear'));
+
+        expect(getByRole('searchbox')).toHaveValue('hello');
+      });
+    });
   });
 
   describe('escape key', () => {
@@ -187,6 +294,54 @@ describe('NgpSearch', () => {
 
       expect(input.value).toBe('');
       expect(search).toHaveAttribute('data-empty', '');
+    });
+
+    it('should not clear a read-only input on Escape', async () => {
+      const { getByTestId, getByRole } = await render(
+        `
+        <div data-testid="search" ngpSearch>
+          <input ngpInput type="search" value="hello" readonly />
+        </div>
+        `,
+        { imports: [NgpSearch, NgpInput] },
+      );
+
+      fireEvent.keyDown(getByRole('searchbox'), { key: 'Escape' });
+
+      expect(getByRole('searchbox')).toHaveValue('hello');
+      expect(getByTestId('search')).not.toHaveAttribute('data-empty');
+    });
+
+    it('should not dispatch an input event when the field is already empty', async () => {
+      const onInput = vi.fn();
+      const { getByRole } = await render(
+        `
+        <div ngpSearch>
+          <input ngpInput type="search" (input)="onInput()" />
+        </div>
+        `,
+        { imports: [NgpSearch, NgpInput], componentProperties: { onInput } },
+      );
+
+      fireEvent.keyDown(getByRole('searchbox'), { key: 'Escape' });
+
+      expect(onInput).not.toHaveBeenCalled();
+    });
+
+    it('should dispatch exactly one input event when it clears the field', async () => {
+      const onInput = vi.fn();
+      const { getByRole } = await render(
+        `
+        <div ngpSearch>
+          <input ngpInput type="search" value="hello" (input)="onInput()" />
+        </div>
+        `,
+        { imports: [NgpSearch, NgpInput], componentProperties: { onInput } },
+      );
+
+      fireEvent.keyDown(getByRole('searchbox'), { key: 'Escape' });
+
+      expect(onInput).toHaveBeenCalledTimes(1);
     });
   });
 
@@ -231,6 +386,37 @@ describe('NgpSearch', () => {
 
       expect(input.value).toBe('');
       expect(getByTestId('search')).toHaveAttribute('data-empty', '');
+    });
+
+    it('should not clear a read-only input via the clear() method', async () => {
+      const { fixture, getByRole } = await render(
+        `
+        <div ngpSearch>
+          <input ngpInput type="search" value="hello" readonly />
+        </div>
+        `,
+        { imports: [NgpSearch, NgpInput] },
+      );
+
+      fixture.debugElement.query(By.directive(NgpSearch)).injector.get(NgpSearch).clear();
+
+      expect(getByRole('searchbox')).toHaveValue('hello');
+    });
+
+    it('should not dispatch an input event when clear() is called on an empty field', async () => {
+      const onInput = vi.fn();
+      const { fixture } = await render(
+        `
+        <div ngpSearch>
+          <input ngpInput type="search" (input)="onInput()" />
+        </div>
+        `,
+        { imports: [NgpSearch, NgpInput], componentProperties: { onInput } },
+      );
+
+      fixture.debugElement.query(By.directive(NgpSearch)).injector.get(NgpSearch).clear();
+
+      expect(onInput).not.toHaveBeenCalled();
     });
   });
 });

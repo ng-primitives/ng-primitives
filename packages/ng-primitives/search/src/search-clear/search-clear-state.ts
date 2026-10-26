@@ -21,6 +21,8 @@ export const [
   // Host bindings
   attrBinding(element, 'tabindex', '-1');
   dataBinding(element, 'data-empty', search().empty);
+  attrBinding(element, 'disabled', () => (search().disabled() ? '' : null));
+  dataBinding(element, 'data-disabled', search().disabled);
 
   function clear(): void {
     search().clear();
