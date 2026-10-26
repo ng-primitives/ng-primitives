@@ -265,7 +265,9 @@ describe('NgpSearch', () => {
           template: `
             <div ngpSearch>
               <input [readOnly]="readOnly()" ngpInput type="search" value="hello" />
-              <button [disabled]="buttonDisabled()" data-testid="clear" ngpSearchClear>Clear</button>
+              <button [disabled]="buttonDisabled()" data-testid="clear" ngpSearchClear>
+                Clear
+              </button>
             </div>
           `,
         })
