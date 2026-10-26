@@ -29,6 +29,10 @@ export const [NgpPopoverStateToken, ngpPopover, injectPopoverState, providePopov
     // Register this element as the overlay outlet so floating-ui positions it correctly,
     // even when this directive is on a nested child component rather than the portal root.
     overlay.registerOutletElement(elementRef.nativeElement);
+    overlay.registerAvailableSizeProperties(
+      '--ngp-popover-available-width',
+      '--ngp-popover-available-height',
+    );
 
     id.set(overlay.id());
 

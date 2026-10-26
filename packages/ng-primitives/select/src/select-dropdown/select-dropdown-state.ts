@@ -1,5 +1,6 @@
-import { ElementRef, Signal, signal } from '@angular/core';
+import { ElementRef, inject, Signal, signal } from '@angular/core';
 import { injectElementRef, observeResize } from 'ng-primitives/internal';
+import { NgpOverlay } from 'ng-primitives/portal';
 import {
   attrBinding,
   createPrimitive,
@@ -36,6 +37,10 @@ export const [
     const selectState = injectSelectState();
 
     const selectDimensions = observeResize(() => selectState().elementRef.nativeElement);
+    inject(NgpOverlay, { optional: true })?.registerAvailableSizeProperties(
+      '--ngp-select-available-width',
+      '--ngp-select-available-height',
+    );
     // Host bindings
     attrBinding(elementRef, 'role', 'listbox');
     attrBinding(elementRef, 'id', _id);

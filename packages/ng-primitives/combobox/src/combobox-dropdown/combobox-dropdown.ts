@@ -1,6 +1,6 @@
-import { Directive, input } from '@angular/core';
+import { Directive, inject, input } from '@angular/core';
 import { injectElementRef, observeResize } from 'ng-primitives/internal';
-import { provideControlContainerIsolation } from 'ng-primitives/portal';
+import { NgpOverlay, provideControlContainerIsolation } from 'ng-primitives/portal';
 import { uniqueId } from 'ng-primitives/utils';
 import { injectComboboxState } from '../combobox/combobox-state';
 
@@ -52,5 +52,9 @@ export class NgpComboboxDropdown {
 
   constructor() {
     this.state().registerDropdown(this);
+    inject(NgpOverlay, { optional: true })?.registerAvailableSizeProperties(
+      '--ngp-combobox-available-width',
+      '--ngp-combobox-available-height',
+    );
   }
 }
