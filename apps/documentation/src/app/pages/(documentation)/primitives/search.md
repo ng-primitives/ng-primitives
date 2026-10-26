@@ -86,4 +86,4 @@ Adheres to the [Search WAI-ARIA design pattern](https://www.w3.org/TR/wai-aria-1
 
 ### Keyboard Interaction
 
-- <kbd>Esc</kbd> - Clears the search field, unless it is disabled or read-only. Inside a dialog or popover, an Escape that clears text leaves the overlay open, and the next Escape closes it.
+- <kbd>Esc</kbd> - Clears the search field, unless it is disabled or read-only. Inside a dialog or popover, an Escape that clears text does not dismiss the overlay. The next Escape follows the overlay's own `closeOnEscape` setting.

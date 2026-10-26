@@ -12,8 +12,10 @@ export class NgpEscapeKeyClaims {
   private readonly claims = new Set<NgpEscapeKeyClaim>();
 
   add(claim: NgpEscapeKeyClaim): () => void {
-    this.claims.add(claim);
-    return () => this.claims.delete(claim);
+    // wrap so each registration is released on its own, even for a shared claim
+    const entry: NgpEscapeKeyClaim = event => claim(event);
+    this.claims.add(entry);
+    return () => this.claims.delete(entry);
   }
 
   isClaimed(event: KeyboardEvent): boolean {

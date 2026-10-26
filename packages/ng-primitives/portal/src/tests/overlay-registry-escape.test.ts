@@ -56,6 +56,19 @@ describe('NgpOverlayRegistry escape key claims', () => {
     expect(hide).toHaveBeenCalledTimes(1);
   });
 
+  it('keeps a shared claim while another registration of it is alive', () => {
+    const claim = () => true;
+    const { hide, inside, injector } = setup(claim);
+    const other = Injector.create({ providers: [], parent: TestBed.inject(Injector) });
+    runInInjectionContext(other, () => claimEscapeKey(claim));
+
+    injector.destroy();
+    fireEvent.keyDown(inside, { key: 'Escape' });
+
+    expect(hide).not.toHaveBeenCalled();
+    other.destroy();
+  });
+
   it('drops the claim when its injector is destroyed', () => {
     const { hide, inside, injector } = setup(() => true);
     injector.destroy();
