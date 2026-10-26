@@ -9,6 +9,18 @@ export interface NgpButtonState {
 
   /** Set the disabled state. `'soft'` keeps the button focusable. */
   setDisabled(value: boolean | 'soft'): void;
+
+  /**
+   * Fully disable the button while `source` is true, on top of its own disabled state.
+   * @internal
+   */
+  registerDisabledSource(source: Signal<boolean>): void;
+
+  /**
+   * Stop following a source added with `registerDisabledSource`.
+   * @internal
+   */
+  unregisterDisabledSource(source: Signal<boolean>): void;
 }
 
 export interface NgpButtonProps {
@@ -24,9 +36,14 @@ export const [NgpButtonStateToken, ngpButton, injectButtonState, provideButtonSt
       const isButton = inject(HOST_TAG_NAME) === 'button';
       const disabled = controlled(_disabled);
 
-      const anyDisabled = computed(() => !!disabled());
-      const softDisabled = computed(() => disabled() === 'soft');
-      const hardDisabled = computed(() => disabled() === true);
+      // Another part on the same element (e.g. a search clear button) can disable
+      // the button without overriding the consumer's own disabled binding.
+      const disabledSources = signal<readonly Signal<boolean>[]>([]);
+      const disabledBySource = computed(() => disabledSources().some(source => source()));
+
+      const hardDisabled = computed(() => disabled() === true || disabledBySource());
+      const softDisabled = computed(() => disabled() === 'soft' && !hardDisabled());
+      const anyDisabled = computed(() => hardDisabled() || softDisabled());
 
       ngpInteractions({ hover: true, press: true, disabled: anyDisabled });
 
@@ -46,9 +63,22 @@ export const [NgpButtonStateToken, ngpButton, injectButtonState, provideButtonSt
         disabled.set(value);
       }
 
+      function registerDisabledSource(source: Signal<boolean>): void {
+        disabledSources.update(sources => [...sources, source]);
+      }
+
+      function unregisterDisabledSource(source: Signal<boolean>): void {
+        disabledSources.update(sources => {
+          const index = sources.indexOf(source);
+          return index === -1 ? sources : [...sources.slice(0, index), ...sources.slice(index + 1)];
+        });
+      }
+
       return {
         disabled: disabled.asReadonly(),
         setDisabled,
+        registerDisabledSource,
+        unregisterDisabledSource,
       } satisfies NgpButtonState;
     },
   );

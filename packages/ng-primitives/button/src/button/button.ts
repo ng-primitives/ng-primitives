@@ -1,5 +1,5 @@
 import { BooleanInput } from '@angular/cdk/coercion';
-import { booleanAttribute, Directive, input } from '@angular/core';
+import { booleanAttribute, Directive, input, Signal } from '@angular/core';
 import { ngpButton, provideButtonState } from './button-state';
 
 @Directive({
@@ -27,5 +27,15 @@ export class NgpButton {
    */
   setDisabled(value: boolean | 'soft'): void {
     this.state.setDisabled(value);
+  }
+
+  /** @internal */
+  registerDisabledSource(source: Signal<boolean>): void {
+    this.state.registerDisabledSource(source);
+  }
+
+  /** @internal */
+  unregisterDisabledSource(source: Signal<boolean>): void {
+    this.state.unregisterDisabledSource(source);
   }
 }

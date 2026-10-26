@@ -1,5 +1,6 @@
 import { FocusMonitor } from '@angular/cdk/a11y';
-import { Component, input } from '@angular/core';
+import { Component, input, signal } from '@angular/core';
+import { By } from '@angular/platform-browser';
 import { fireEvent, render } from '@testing-library/angular';
 import { NgpButton } from 'ng-primitives/button';
 import { describe, expect, it } from 'vitest';
@@ -270,5 +271,87 @@ describe('NgpButton', () => {
     focusMonitor.focusVia(button, 'keyboard');
     container.detectChanges();
     expect(button).toHaveAttribute('data-focus-visible');
+  });
+});
+
+describe('NgpButton disabled sources', () => {
+  @Component({
+    imports: [NgpButton],
+    template: `
+      <button [disabled]="disabled()" ngpButton>Test</button>
+    `,
+  })
+  class Host {
+    readonly disabled = signal<boolean | 'soft'>(false);
+  }
+
+  async function setup() {
+    const view = await render(Host);
+    const button = view.fixture.debugElement.query(By.directive(NgpButton)).injector.get(NgpButton);
+    const source = signal(false);
+    button.registerDisabledSource(source);
+    await view.fixture.whenStable();
+    return { view, button, source, element: view.getByRole('button') };
+  }
+
+  it('disables the button while a registered source is true', async () => {
+    const { view, source, element } = await setup();
+    expect(element).not.toBeDisabled();
+
+    source.set(true);
+    await view.fixture.whenStable();
+    expect(element).toBeDisabled();
+    expect(element).toHaveAttribute('data-disabled', '');
+
+    source.set(false);
+    await view.fixture.whenStable();
+    expect(element).not.toBeDisabled();
+    expect(element).not.toHaveAttribute('data-disabled');
+  });
+
+  it('keeps the button disabled by its own input when every source is false', async () => {
+    const { view, element } = await setup();
+
+    view.fixture.componentInstance.disabled.set(true);
+    await view.fixture.whenStable();
+
+    expect(element).toBeDisabled();
+  });
+
+  it('stays disabled while a source is true, whatever the input does', async () => {
+    const { view, source, element } = await setup();
+    source.set(true);
+    view.fixture.componentInstance.disabled.set(true);
+    await view.fixture.whenStable();
+
+    view.fixture.componentInstance.disabled.set(false);
+    await view.fixture.whenStable();
+    expect(element).toBeDisabled();
+
+    source.set(false);
+    await view.fixture.whenStable();
+    expect(element).not.toBeDisabled();
+  });
+
+  it('upgrades a soft-disabled button to fully disabled while a source is true', async () => {
+    const { view, source, element } = await setup();
+    view.fixture.componentInstance.disabled.set('soft');
+    source.set(true);
+    await view.fixture.whenStable();
+
+    expect(element).toBeDisabled();
+    expect(element).toHaveAttribute('data-disabled', '');
+    expect(element).not.toHaveAttribute('aria-disabled');
+  });
+
+  it('stops following a source once it is unregistered', async () => {
+    const { view, button, source, element } = await setup();
+    source.set(true);
+    await view.fixture.whenStable();
+
+    button.unregisterDisabledSource(source);
+    await view.fixture.whenStable();
+
+    expect(element).not.toBeDisabled();
   });
 });

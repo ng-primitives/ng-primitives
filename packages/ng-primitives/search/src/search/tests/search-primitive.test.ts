@@ -1,6 +1,7 @@
 import { Component, signal } from '@angular/core';
 import { By } from '@angular/platform-browser';
 import { fireEvent, render } from '@testing-library/angular';
+import { NgpButton } from 'ng-primitives/button';
 import { NgpInput } from 'ng-primitives/input';
 import { NgpSearch, NgpSearchClear } from 'ng-primitives/search';
 import { describe, expect, it, vi } from 'vitest';
@@ -256,6 +257,68 @@ describe('NgpSearch', () => {
         await fixture.whenStable();
         expect(getByTestId('clear')).not.toBeDisabled();
         expect(getByTestId('clear')).not.toHaveAttribute('data-disabled');
+      });
+
+      describe('with ngpButton', () => {
+        @Component({
+          imports: [NgpSearch, NgpInput, NgpSearchClear, NgpButton],
+          template: `
+            <div ngpSearch>
+              <input [readOnly]="readOnly()" ngpInput type="search" value="hello" />
+              <button [disabled]="buttonDisabled()" data-testid="clear" ngpSearchClear ngpButton>
+                Clear
+              </button>
+            </div>
+          `,
+        })
+        class ButtonHost {
+          readonly readOnly = signal(false);
+          readonly buttonDisabled = signal<boolean | 'soft'>(false);
+        }
+
+        it('should keep a button the consumer disabled disabled while the input is editable', async () => {
+          const { getByTestId, getByRole, fixture } = await render(ButtonHost);
+          fixture.componentInstance.buttonDisabled.set(true);
+          await fixture.whenStable();
+
+          // lock and unlock the input, which must not re-enable the button
+          fixture.componentInstance.readOnly.set(true);
+          await fixture.whenStable();
+          fixture.componentInstance.readOnly.set(false);
+          await fixture.whenStable();
+
+          expect(getByTestId('clear')).toBeDisabled();
+          expect(getByTestId('clear')).toHaveAttribute('data-disabled', '');
+          fireEvent.click(getByTestId('clear'));
+          expect(getByRole('searchbox')).toHaveValue('hello');
+        });
+
+        it('should not clear the field when the consumer soft-disables the button', async () => {
+          const { getByTestId, getByRole, fixture } = await render(ButtonHost);
+          fixture.componentInstance.buttonDisabled.set('soft');
+          await fixture.whenStable();
+
+          // soft-disabled buttons stay clickable
+          fireEvent.click(getByTestId('clear'));
+
+          expect(getByRole('searchbox')).toHaveValue('hello');
+        });
+
+        it('should stay disabled while the input is locked, even if the consumer enables it', async () => {
+          const { getByTestId, fixture } = await render(ButtonHost);
+          fixture.componentInstance.buttonDisabled.set(true);
+          fixture.componentInstance.readOnly.set(true);
+          await fixture.whenStable();
+
+          fixture.componentInstance.buttonDisabled.set(false);
+          await fixture.whenStable();
+          expect(getByTestId('clear')).toBeDisabled();
+
+          fixture.componentInstance.readOnly.set(false);
+          await fixture.whenStable();
+          expect(getByTestId('clear')).not.toBeDisabled();
+          expect(getByTestId('clear')).not.toHaveAttribute('data-disabled');
+        });
       });
 
       it('should not clear a read-only input when clicked', async () => {

@@ -126,6 +126,7 @@ describe('Search (reusable component) — signal forms', () => {
     fixture.componentInstance.isDisabled.set(false);
     await fixture.whenStable();
     expect(button).not.toBeDisabled();
+    expect(button).not.toHaveAttribute('data-disabled');
   });
 
   it('does not clear the field via the clear button while the field is disabled', async () => {
