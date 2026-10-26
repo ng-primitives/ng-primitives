@@ -93,6 +93,7 @@ export const [
 
     // Try to get overlay - may not exist if content isn't in a portal
     const overlay = inject(NgpOverlay, { optional: true });
+    overlay?.registerAvailableSizePrefix('--ngp-navigation-menu');
 
     const id = uniqueId('navigation-menu-content');
     const open = computed(() => navigationMenuItemState?.()?.active() ?? false);

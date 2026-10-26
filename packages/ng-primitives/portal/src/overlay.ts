@@ -318,6 +318,8 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
   /** Signal tracking the available height before the overlay overflows the viewport */
   readonly availableHeight = signal<number | null>(null);
 
+  private availableSizePrefix: string | null = null;
+
   /** Signal tracking the final placement of the overlay */
   readonly finalPlacement = signal<NgpPlacement | undefined>(undefined);
 
@@ -1001,6 +1003,15 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
   }
 
   /**
+   * Register the custom property prefix (e.g. `--ngp-popover`) the `size` middleware writes
+   * `<prefix>-available-width` and `<prefix>-available-height` under.
+   * @internal
+   */
+  registerAvailableSizePrefix(prefix: string): void {
+    this.availableSizePrefix = prefix;
+  }
+
+  /**
    * Find the dedicated outlet element within the portal.
    * Uses the registered outlet element if available, otherwise looks for an element
    * with `data-overlay` attribute on the portal root elements.
@@ -1258,9 +1269,21 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
         boundary: overflowOptions?.boundary,
         rootBoundary: overflowOptions?.rootBoundary,
         altBoundary: overflowOptions?.altBoundary,
-        apply: ({ availableWidth, availableHeight }) => {
+        apply: ({ availableWidth, availableHeight, elements }) => {
           this.availableWidth.set(availableWidth);
           this.availableHeight.set(availableHeight);
+
+          // Written now rather than by the element's bindings on the next render: `size`
+          // re-measures the element after `apply` and starts over when its size changed, so
+          // the position is computed for the size the element is capped to.
+          const prefix = this.availableSizePrefix;
+          if (prefix) {
+            elements.floating.style.setProperty(`${prefix}-available-width`, `${availableWidth}px`);
+            elements.floating.style.setProperty(
+              `${prefix}-available-height`,
+              `${availableHeight}px`,
+            );
+          }
         },
       }),
     );
