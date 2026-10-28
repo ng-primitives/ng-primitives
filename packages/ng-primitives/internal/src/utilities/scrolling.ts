@@ -17,10 +17,8 @@ export function scrollIntoViewIfNeeded(element: HTMLElement): void {
   const parentRect = scrollableAncestor.getBoundingClientRect();
   const elementRect = element.getBoundingClientRect();
 
-  // getBoundingClientRect reports visual pixels, so a transform scaling the container shrinks
-  // the distances it returns, while scrollTop and scrollLeft are layout pixels. Dividing by the
-  // container's current scale converts one into the other. Without this, an overlay that opens
-  // with a scaled entrance animation scrolls short and leaves the target option clipped.
+  // rects are in visual pixels but scroll offsets are layout pixels, so undo any transform
+  // scale (e.g. a scaled entrance animation) or the scroll falls short
   const scaleY = scrollableAncestor.offsetHeight
     ? parentRect.height / scrollableAncestor.offsetHeight
     : 1;

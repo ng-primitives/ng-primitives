@@ -81,14 +81,21 @@ export const [
     listener(elementRef, 'keydown', handleKeydown);
     listener(elementRef, 'blur', onBlur);
 
-    /**
-     * Handle keydown events for accessibility.
-     *
-     * The input lives inside the dropdown, so it only exists while the dropdown is open and
-     * only ever receives a key while it is. Nothing here needs to open the dropdown, and any
-     * closed-state branch would be unreachable: the overlay reports itself open for the whole
-     * exit animation and the view is gone by the time it reports otherwise.
-     */
+    // options are focusable, so a click in the list would pull focus out of the search field
+    const dropdown = selectState().dropdown();
+    if (dropdown) {
+      listener(dropdown.elementRef, 'mousedown', event => {
+        if (
+          selectState()
+            .list()
+            ?.elementRef.nativeElement.contains(event.target as Node)
+        ) {
+          event.preventDefault();
+        }
+      });
+    }
+
+    /** The input only exists while the dropdown is open, so no key here needs to open it. */
     function handleKeydown(event: KeyboardEvent): void {
       switch (event.key) {
         case 'ArrowDown':

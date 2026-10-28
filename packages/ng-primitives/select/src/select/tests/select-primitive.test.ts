@@ -2165,6 +2165,49 @@ describe('NgpSelect', () => {
       });
     });
 
+    it('should keep focus in the input when clicking an option in a multiple select', async () => {
+      @Component({
+        template: `
+          <div [(ngpSelectValue)]="value" ngpSelect ngpSelectMultiple data-testid="select">
+            <div *ngpSelectPortal ngpSelectDropdown>
+              <input ngpSelectInput data-testid="select-input" />
+              <div ngpSelectList>
+                <div ngpSelectOption ngpSelectOptionValue="Apple" data-testid="option-Apple">
+                  Apple
+                </div>
+              </div>
+            </div>
+          </div>
+        `,
+        imports: [
+          NgpSelect,
+          NgpSelectDropdown,
+          NgpSelectInput,
+          NgpSelectList,
+          NgpSelectOption,
+          NgpSelectPortal,
+        ],
+      })
+      class TestMultipleSelectInputComponent {
+        readonly value = signal<string[]>([]);
+      }
+
+      const { fixture } = await render(TestMultipleSelectInputComponent);
+      const user = userEvent.setup();
+
+      fireEvent.click(screen.getByTestId('select'));
+
+      const input = await screen.findByTestId('select-input');
+      await waitFor(() => expect(input).toHaveFocus());
+
+      await user.click(screen.getByTestId('option-Apple'));
+
+      await waitFor(() => {
+        expect(fixture.componentInstance.value()).toEqual(['Apple']);
+        expect(input).toHaveFocus();
+      });
+    });
+
     it('should reset search when dropdown closes', async () => {
       const { fixture } = await render(TestSelectInputComponent);
       const component = fixture.componentInstance;

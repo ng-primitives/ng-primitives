@@ -104,17 +104,11 @@ export interface NgpSelectState<T> {
   readonly dropdown: WritableSignal<NgpSelectDropdownState | undefined>;
 
   /**
-   * Store the select input, when one is used to filter the options.
-   * @internal
-   */
-  readonly input: WritableSignal<NgpSelectInputState | undefined>;
-
-  /**
    * Store the select list, when a dedicated listbox wraps the options
    * (e.g. when the popup also contains a filter input).
    * @internal
    */
-  readonly list: WritableSignal<NgpSelectListState | undefined>;
+  readonly list: Signal<NgpSelectListState | undefined>;
 
   /**
    * Store the select options.
@@ -518,20 +512,15 @@ export const [NgpSelectStateToken, ngpSelect, _injectSelectState, provideSelectS
           return;
         }
 
-        // nothing is selected, so honour the caller's preference. this must happen here rather
-        // than at the call site: openDropdown suspends on the portal, so an activation queued
-        // by the caller would run before any option has registered, and would then be
-        // overwritten when this function resumes.
+        // handled here, not by the caller, because options only register after the portal resolves
         if (options?.activate === 'last') {
-          // reset first so the index stays at -1 when there is nothing to activate, rather than
-          // keeping the 0 it starts on
+          // reset so the index stays -1, not 0, when there is nothing to activate
           activeDescendantManagerInstance.reset();
           activeDescendantManagerInstance.last();
 
           const activeIndex = activeDescendantManagerInstance.index();
 
-          // the manager scrolls through a callback that bails out until the overlay has been
-          // positioned, which has not happened yet, so scroll here like the selected branch does
+          // the manager's own scroll is skipped until the overlay is positioned
           if (activeIndex !== -1) {
             scrollTo(activeIndex);
           }
@@ -970,8 +959,7 @@ export const [NgpSelectStateToken, ngpSelect, _injectSelectState, provideSelectS
         allOptions,
         portal,
         dropdown,
-        input,
-        list,
+        list: list.asReadonly(),
         options,
         overlay,
         open,
