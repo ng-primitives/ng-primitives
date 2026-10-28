@@ -587,7 +587,10 @@ describe('NgpDialog', () => {
       const dialogTrigger = document.querySelector(
         '[data-testid="popover-dialog-trigger"]',
       ) as HTMLElement;
-      // No focus(): a parent resolved from document.activeElement would come back null.
+      // the popover's focus trap focuses the trigger after render; flush that, then blur it, so a
+      // parent resolved from document.activeElement would come back null
+      TestBed.tick();
+      dialogTrigger.blur();
       expect(document.activeElement).not.toBe(dialogTrigger);
       fireEvent.click(dialogTrigger, { detail: 1 });
       await view.fixture.whenStable();
