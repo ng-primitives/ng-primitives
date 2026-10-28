@@ -2,6 +2,7 @@ import { Component, computed, Directive, OnInit, signal, viewChild } from '@angu
 import { fireEvent, render, screen, waitFor } from '@testing-library/angular';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi, afterEach } from 'vitest';
+import { userEvent as browserUserEvent } from 'vitest/browser';
 import {
   NgpSelect,
   NgpSelectDropdown,
@@ -2095,6 +2096,37 @@ describe('NgpSelect', () => {
       }
     }
 
+    @Component({
+      template: `
+        <button data-testid="before">Before</button>
+        <div ngpSelect data-testid="select-with-input">
+          <span>Select an option</span>
+
+          <div *ngpSelectPortal ngpSelectDropdown data-testid="dropdown">
+            <input ngpSelectInput data-testid="select-input" />
+            <div ngpSelectList>
+              <div (ngpSelectOptionActivated)="created = true" ngpSelectOption data-testid="create">
+                Create
+              </div>
+              <div ngpSelectOptionValue="Apple" ngpSelectOption>Apple</div>
+            </div>
+          </div>
+        </div>
+        <button data-testid="after">After</button>
+      `,
+      imports: [
+        NgpSelect,
+        NgpSelectDropdown,
+        NgpSelectInput,
+        NgpSelectList,
+        NgpSelectOption,
+        NgpSelectPortal,
+      ],
+    })
+    class TestSelectInputSurroundedComponent {
+      created = false;
+    }
+
     it('should render input inside dropdown', async () => {
       await render(TestSelectInputComponent);
       const select = screen.getByTestId('select-with-input');
@@ -2386,6 +2418,58 @@ describe('NgpSelect', () => {
         expect(screen.getByTestId('dropdown')).toBeInTheDocument();
         expect(input).toHaveAttribute('role', 'combobox');
         expect(input).toHaveAttribute('aria-expanded', 'true');
+      });
+
+      it('should keep focus in the input when Enter activates an option without a value', async () => {
+        const { fixture } = await render(TestSelectInputSurroundedComponent);
+        const select = screen.getByTestId('select-with-input');
+
+        fireEvent.click(select);
+
+        const input = await screen.findByTestId('select-input');
+        await waitFor(() => {
+          expect(input).toHaveFocus();
+          expect(screen.getByTestId('create')).toHaveAttribute('data-active', '');
+        });
+
+        fireEvent.keyDown(input, { key: 'Enter' });
+
+        expect(fixture.componentInstance.created).toBe(true);
+        expect(input).toHaveFocus();
+        expect(screen.getByTestId('dropdown')).toBeInTheDocument();
+        expect(input).toHaveAttribute('aria-expanded', 'true');
+      });
+
+      it('should move focus to the element after the select when Tab is pressed', async () => {
+        await render(TestSelectInputSurroundedComponent);
+
+        fireEvent.click(screen.getByTestId('select-with-input'));
+
+        const input = await screen.findByTestId('select-input');
+        await waitFor(() => expect(input).toHaveFocus());
+
+        await browserUserEvent.keyboard('{Tab}');
+
+        await waitFor(() => {
+          expect(screen.getByTestId('after')).toHaveFocus();
+          expect(screen.queryByTestId('select-input')).not.toBeInTheDocument();
+        });
+      });
+
+      it('should move focus to the element before the select when Shift+Tab is pressed', async () => {
+        await render(TestSelectInputSurroundedComponent);
+
+        fireEvent.click(screen.getByTestId('select-with-input'));
+
+        const input = await screen.findByTestId('select-input');
+        await waitFor(() => expect(input).toHaveFocus());
+
+        await browserUserEvent.keyboard('{Shift>}{Tab}{/Shift}');
+
+        await waitFor(() => {
+          expect(screen.getByTestId('before')).toHaveFocus();
+          expect(screen.queryByTestId('select-input')).not.toBeInTheDocument();
+        });
       });
 
       it('should leave Home and End to the browser so the caret can move', async () => {
