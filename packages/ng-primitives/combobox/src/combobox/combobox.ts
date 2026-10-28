@@ -270,6 +270,14 @@ export class NgpCombobox {
       }
     });
 
+    // The exit animation has ended once the overlay stops reporting itself open, so the
+    // next open starts from a fully closed dropdown.
+    effect(() => {
+      if (!this.overlay()?.isOpen()) {
+        untracked(() => this.closing.set(false));
+      }
+    });
+
     ngpInteractions({
       focus: true,
       focusWithin: true,

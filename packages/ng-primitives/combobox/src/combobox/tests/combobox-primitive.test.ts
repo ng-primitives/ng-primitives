@@ -16,6 +16,7 @@ import {
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
+import { By } from '@angular/platform-browser';
 import { fireEvent, render, screen, waitFor } from '@testing-library/angular';
 import { userEvent } from '@testing-library/user-event';
 import { NgpDialog, NgpDialogContext, NgpDialogManager } from 'ng-primitives/dialog';
@@ -406,6 +407,29 @@ describe('NgpCombobox', () => {
         expect(screen.getByRole('listbox')).toBe(dropdown);
         expect(input).toHaveAttribute('aria-expanded', 'true');
         expect(fixture.componentInstance.changes).toEqual([true, false, true]);
+      });
+
+      it('should open without waiting a microtask once the exit animation has ended', async () => {
+        const { fixture } = await render(TestComponent);
+        const combobox = fixture.debugElement
+          .query(By.directive(NgpCombobox))
+          .injector.get(NgpCombobox);
+        const input = screen.getByRole('combobox');
+
+        await userEvent.click(input);
+        await userEvent.keyboard('{ArrowDown}');
+        await screen.findByRole('listbox');
+
+        await userEvent.keyboard('{Escape}');
+        finishExit();
+        await waitFor(() => expect(screen.queryByRole('listbox')).not.toBeInTheDocument());
+        await fixture.whenStable();
+
+        const opening = combobox.openDropdown();
+
+        // openChange(true) is emitted synchronously, not after the reopen microtask.
+        expect(fixture.componentInstance.open).toBe(true);
+        await opening;
       });
 
       it('should reopen the dropdown when a character is typed during the exit animation', async () => {
