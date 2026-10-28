@@ -17,15 +17,24 @@ export function scrollIntoViewIfNeeded(element: HTMLElement): void {
   const parentRect = scrollableAncestor.getBoundingClientRect();
   const elementRect = element.getBoundingClientRect();
 
+  // rects are in visual pixels but scroll offsets are layout pixels, so undo any transform
+  // scale (e.g. a scaled entrance animation) to convert between them
+  const scaleY = scrollableAncestor.offsetHeight
+    ? parentRect.height / scrollableAncestor.offsetHeight
+    : 1;
+  const scaleX = scrollableAncestor.offsetWidth
+    ? parentRect.width / scrollableAncestor.offsetWidth
+    : 1;
+
   if (elementRect.top < parentRect.top) {
-    scrollableAncestor.scrollTop -= parentRect.top - elementRect.top;
+    scrollableAncestor.scrollTop -= (parentRect.top - elementRect.top) / scaleY;
   } else if (elementRect.bottom > parentRect.bottom) {
-    scrollableAncestor.scrollTop += elementRect.bottom - parentRect.bottom;
+    scrollableAncestor.scrollTop += (elementRect.bottom - parentRect.bottom) / scaleY;
   }
 
   if (elementRect.left < parentRect.left) {
-    scrollableAncestor.scrollLeft -= parentRect.left - elementRect.left;
+    scrollableAncestor.scrollLeft -= (parentRect.left - elementRect.left) / scaleX;
   } else if (elementRect.right > parentRect.right) {
-    scrollableAncestor.scrollLeft += elementRect.right - parentRect.right;
+    scrollableAncestor.scrollLeft += (elementRect.right - parentRect.right) / scaleX;
   }
 }
