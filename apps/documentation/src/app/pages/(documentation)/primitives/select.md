@@ -20,6 +20,8 @@ import {
   NgpSelectDropdown,
   NgpSelectPortal,
   NgpSelectOption,
+  NgpSelectInput,
+  NgpSelectList,
 } from 'ng-primitives/select';
 ```
 

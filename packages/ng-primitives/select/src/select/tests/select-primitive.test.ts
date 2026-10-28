@@ -233,12 +233,6 @@ class ClosedOptionsSelectComponent {
 }
 
 describe('NgpSelect', () => {
-  afterEach(() => {
-    // the dropdown should be removed from the DOM after each test
-    // to avoid interference with other tests - it may linger due to waiting for animations
-    document.querySelectorAll('[ngpSelectDropdown]').forEach(dropdown => dropdown.remove());
-  });
-
   describe('Basic functionality', () => {
     it('should render with placeholder when no value is selected', async () => {
       await render(TestSelectComponent);

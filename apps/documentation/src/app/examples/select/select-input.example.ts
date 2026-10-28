@@ -52,8 +52,12 @@ import {
               <div [ngpSelectOptionValue]="option" ngpSelectOption>
                 {{ option }}
               </div>
-            } @empty {
-              <div class="empty-message">No options found</div>
+            }
+          </div>
+          <!-- outside the listbox, and always rendered so the status is announced -->
+          <div class="empty-message" role="status">
+            @if (filteredOptions().length === 0) {
+              No options found
             }
           </div>
         </div>
@@ -199,6 +203,10 @@ import {
     [ngpSelectOption][data-selected] {
       color: var(--ngp-primary);
       font-weight: 510;
+    }
+
+    .empty-message:empty {
+      display: none;
     }
 
     .empty-message {
