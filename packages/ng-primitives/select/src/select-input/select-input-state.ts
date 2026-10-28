@@ -107,15 +107,17 @@ export const [
           break;
         case 'Enter': {
           const activeId = selectState().activeDescendantManager.id();
+          const option = activeId
+            ? selectState()
+                .sortedOptions()
+                .find(opt => opt.id() === activeId)
+            : undefined;
 
-          if (activeId) {
-            const option = selectState()
-              .sortedOptions()
-              .find(opt => opt.id() === activeId);
-            option?.select();
-          }
+          option?.select();
 
-          if (!selectState().multiple()) {
+          // only a selection closes the dropdown; moving focus to the trigger without one would
+          // leave it open with the trigger stripped of its combobox role
+          if (option && !option.disabled() && !selectState().multiple()) {
             selectState().focus();
           }
 

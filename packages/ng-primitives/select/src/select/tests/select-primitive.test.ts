@@ -2235,6 +2235,38 @@ describe('NgpSelect', () => {
         });
       });
 
+      it('should put aria-multiselectable on the list rather than the dialog', async () => {
+        @Component({
+          template: `
+            <div [(ngpSelectValue)]="value" ngpSelect ngpSelectMultiple data-testid="select">
+              <div *ngpSelectPortal ngpSelectDropdown data-testid="dropdown">
+                <div ngpSelectList data-testid="options-list">
+                  @for (option of options; track option) {
+                    <div [ngpSelectOptionValue]="option" ngpSelectOption>{{ option }}</div>
+                  }
+                </div>
+              </div>
+            </div>
+          `,
+          imports: [NgpSelect, NgpSelectDropdown, NgpSelectList, NgpSelectOption, NgpSelectPortal],
+        })
+        class TestMultipleSelectListComponent {
+          readonly options = ['Apple', 'Banana'];
+          readonly value = signal<string[]>([]);
+        }
+
+        await render(TestMultipleSelectListComponent);
+
+        fireEvent.click(screen.getByTestId('select'));
+
+        const list = await screen.findByTestId('options-list');
+
+        await waitFor(() => {
+          expect(list).toHaveAttribute('aria-multiselectable', 'true');
+          expect(screen.getByTestId('dropdown')).not.toHaveAttribute('aria-multiselectable');
+        });
+      });
+
       it('should point the trigger aria-controls at the list when there is no input', async () => {
         @Component({
           template: `
@@ -2334,6 +2366,26 @@ describe('NgpSelect', () => {
         await waitFor(() => {
           expect(component.value()).toBe('Banana');
         });
+      });
+
+      it('should keep focus in the input when Enter is pressed with no option to select', async () => {
+        await render(TestSelectInputComponent);
+        const select = screen.getByTestId('select-with-input');
+
+        fireEvent.click(select);
+
+        const input = await screen.findByTestId('select-input');
+        await waitFor(() => expect(input).toHaveFocus());
+
+        fireEvent.input(input, { target: { value: 'zzz' } });
+        await screen.findByTestId('empty');
+
+        fireEvent.keyDown(input, { key: 'Enter' });
+
+        expect(input).toHaveFocus();
+        expect(screen.getByTestId('dropdown')).toBeInTheDocument();
+        expect(input).toHaveAttribute('role', 'combobox');
+        expect(input).toHaveAttribute('aria-expanded', 'true');
       });
 
       it('should leave Home and End to the browser so the caret can move', async () => {

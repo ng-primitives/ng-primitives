@@ -38,6 +38,7 @@ export const [
     // Host bindings
     attrBinding(elementRef, 'role', 'listbox');
     attrBinding(elementRef, 'id', _id);
+    attrBinding(elementRef, 'aria-multiselectable', () => selectState().multiple());
 
     const state = {
       elementRef,
