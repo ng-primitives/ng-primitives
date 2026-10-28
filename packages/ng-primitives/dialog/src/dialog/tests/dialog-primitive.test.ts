@@ -590,6 +590,7 @@ describe('NgpDialog', () => {
       // the popover's focus trap focuses the trigger after render; flush that, then blur it, so a
       // parent resolved from document.activeElement would come back null
       TestBed.tick();
+      expect(document.activeElement).toBe(dialogTrigger);
       dialogTrigger.blur();
       expect(document.activeElement).not.toBe(dialogTrigger);
       fireEvent.click(dialogTrigger, { detail: 1 });
