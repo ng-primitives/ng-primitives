@@ -2159,6 +2159,24 @@ describe('NgpSelect', () => {
       });
     });
 
+    it('should return focus to the trigger when clicking an option in a single select', async () => {
+      await render(TestSelectInputComponent);
+      const select = screen.getByTestId('select-with-input');
+      const user = userEvent.setup();
+
+      fireEvent.click(select);
+
+      const input = await screen.findByTestId('select-input');
+      await waitFor(() => expect(input).toHaveFocus());
+
+      await user.click(screen.getByTestId('option-Banana'));
+
+      await waitFor(() => {
+        expect(screen.queryByTestId('select-input')).not.toBeInTheDocument();
+        expect(select).toHaveFocus();
+      });
+    });
+
     it('should keep focus in the input when clicking an option in a multiple select', async () => {
       @Component({
         template: `

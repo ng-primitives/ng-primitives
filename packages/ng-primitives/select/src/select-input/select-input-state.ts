@@ -120,35 +120,20 @@ export const [
                 .find(opt => opt.id() === activeId)
             : undefined;
 
+          // a single selection closes the dropdown, which hands focus back to the trigger
           option?.select();
-
-          // only a selection closes the dropdown; moving focus to the trigger without one would
-          // leave it open with the trigger stripped of its combobox role. a valueless option
-          // (the `ngpSelectOptionActivated` pattern) runs its handler but selects nothing.
-          if (
-            option &&
-            !option.disabled() &&
-            option.value() !== undefined &&
-            !selectState().multiple()
-          ) {
-            selectState().focus();
-          }
-
           event.preventDefault();
           break;
         }
         case 'Tab':
-          // the dropdown is portaled to the end of the body, so the browser would tab on from
-          // there. hand focus to the trigger without preventing the default, so the browser
-          // continues from the select's place in the page instead.
+          // the dropdown is portaled to the end of the body, so close it (focusing the trigger)
+          // and let the browser tab on from the select's place in the page
           if (!selectState().elementRef.nativeElement.contains(elementRef.nativeElement)) {
             selectState().closeDropdown();
-            selectState().focus();
           }
           break;
         case 'Escape':
           selectState().closeDropdown();
-          selectState().focus();
           event.preventDefault();
           break;
       }

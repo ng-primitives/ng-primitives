@@ -18,7 +18,7 @@ export function scrollIntoViewIfNeeded(element: HTMLElement): void {
   const elementRect = element.getBoundingClientRect();
 
   // rects are in visual pixels but scroll offsets are layout pixels, so undo any transform
-  // scale (e.g. a scaled entrance animation) or the scroll falls short
+  // scale (e.g. a scaled entrance animation) to convert between them
   const scaleY = scrollableAncestor.offsetHeight
     ? parentRect.height / scrollableAncestor.offsetHeight
     : 1;

@@ -540,6 +540,11 @@ export const [NgpSelectStateToken, ngpSelect, _injectSelectState, provideSelectS
           return;
         }
 
+        // the search input is about to be removed, so don't let focus fall back to the body
+        if (document.activeElement === input()?.elementRef.nativeElement) {
+          focus();
+        }
+
         portal()?.hide();
       }
 
