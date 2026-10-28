@@ -17,10 +17,11 @@ import {
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
+import { By } from '@angular/platform-browser';
 import { fireEvent, render, screen, waitFor } from '@testing-library/angular';
 import { userEvent } from '@testing-library/user-event';
 import { NgpDialog, NgpDialogContext, NgpDialogManager } from 'ng-primitives/dialog';
-import { describe, expect, it, vi, afterEach } from 'vitest';
+import { describe, expect, it, vi, afterEach, beforeEach } from 'vitest';
 import { NgpComboboxButton } from '../../combobox-button/combobox-button';
 import { NgpComboboxDropdown } from '../../combobox-dropdown/combobox-dropdown';
 import { NgpComboboxInput } from '../../combobox-input/combobox-input';
@@ -206,6 +207,30 @@ function removeLingeringDropdown() {
   }
 }
 
+/** Reopens the dropdown from its own close notification, once. */
+@Component({
+  imports: [NgpCombobox, NgpComboboxDropdown, NgpComboboxInput, NgpComboboxPortal],
+  template: `
+    <div (ngpComboboxOpenChange)="onOpenChange($event)" ngpCombobox>
+      <input ngpComboboxInput />
+      <div *ngpComboboxPortal ngpComboboxDropdown>Options</div>
+    </div>
+  `,
+})
+class ReopenOnCloseComboboxComponent {
+  readonly combobox = viewChild.required(NgpCombobox);
+  readonly changes: boolean[] = [];
+  private reopened = false;
+
+  onOpenChange(open: boolean) {
+    this.changes.push(open);
+    if (!open && !this.reopened) {
+      this.reopened = true;
+      this.combobox().openDropdown();
+    }
+  }
+}
+
 describe('NgpCombobox', () => {
   afterEach(removeLingeringDropdown);
 
@@ -341,6 +366,116 @@ describe('NgpCombobox', () => {
       // Dropdown should be closed
       await waitFor(() => {
         expect(screen.queryByText('Apple')).not.toBeInTheDocument();
+      });
+    });
+
+    describe('reopening while the dropdown is closing', () => {
+      // Keep the dropdown in its exit state until the test ends the animation, so input
+      // arrives while the overlay is still on screen. Every call returns the same held
+      // animation, so finishExit() settles the exit that started, and afterEach settles an
+      // exit a test leaves held.
+      let finishExit: () => void;
+      const originalGetAnimations = Element.prototype.getAnimations;
+
+      beforeEach(() => {
+        const finished = new Promise<void>(resolve => (finishExit = resolve));
+        const animation = { finished, cancel: () => finishExit() } as unknown as Animation;
+        Element.prototype.getAnimations = function (this: Element) {
+          return this.hasAttribute('data-exit') ? [animation] : [];
+        };
+      });
+
+      afterEach(() => {
+        finishExit();
+        Element.prototype.getAnimations = originalGetAnimations;
+      });
+
+      it('should stay open when an openChange(false) handler reopens it', async () => {
+        const { fixture } = await render(ReopenOnCloseComboboxComponent);
+        const input = screen.getByRole('combobox');
+
+        await userEvent.click(input);
+        await userEvent.keyboard('{ArrowDown}');
+        const dropdown = await screen.findByRole('listbox');
+
+        await userEvent.keyboard('{Escape}');
+
+        // The reopen cancels the exit rather than letting it run to the end.
+        await waitFor(() => expect(dropdown).not.toHaveAttribute('data-exit'));
+        finishExit();
+        await fixture.whenStable();
+
+        expect(screen.getByRole('listbox')).toBe(dropdown);
+        expect(input).toHaveAttribute('aria-expanded', 'true');
+        expect(fixture.componentInstance.changes).toEqual([true, false, true]);
+      });
+
+      it('should open without waiting a microtask once the exit animation has ended', async () => {
+        const { fixture } = await render(TestComponent);
+        const combobox = fixture.debugElement
+          .query(By.directive(NgpCombobox))
+          .injector.get(NgpCombobox);
+        const input = screen.getByRole('combobox');
+
+        await userEvent.click(input);
+        await userEvent.keyboard('{ArrowDown}');
+        await screen.findByRole('listbox');
+
+        await userEvent.keyboard('{Escape}');
+        finishExit();
+        await waitFor(() => expect(screen.queryByRole('listbox')).not.toBeInTheDocument());
+        await fixture.whenStable();
+
+        const opening = combobox.openDropdown();
+
+        // openChange(true) is emitted synchronously, not after the reopen microtask.
+        expect(fixture.componentInstance.open).toBe(true);
+        await opening;
+      });
+
+      it('should reopen the dropdown when a character is typed during the exit animation', async () => {
+        const { fixture } = await render(TestComponent);
+        const input = screen.getByRole('combobox');
+
+        await userEvent.click(input);
+        await userEvent.keyboard('{ArrowDown}');
+        const dropdown = await screen.findByRole('listbox');
+
+        await userEvent.keyboard('{Escape}');
+        await waitFor(() => expect(dropdown).toHaveAttribute('data-exit'));
+        expect(fixture.componentInstance.open).toBe(false);
+
+        await userEvent.keyboard('a');
+        finishExit();
+
+        await waitFor(() => {
+          expect(screen.getByRole('listbox')).toBe(dropdown);
+          expect(dropdown).not.toHaveAttribute('data-exit');
+          expect(input).toHaveAttribute('aria-expanded', 'true');
+          expect(fixture.componentInstance.open).toBe(true);
+        });
+        expect(input).toHaveValue('a');
+      });
+
+      it('should reopen the dropdown when ArrowDown is pressed during the exit animation', async () => {
+        const { fixture } = await render(TestComponent);
+        const input = screen.getByRole('combobox');
+
+        await userEvent.click(input);
+        await userEvent.keyboard('{ArrowDown}');
+        const dropdown = await screen.findByRole('listbox');
+
+        await userEvent.keyboard('{Escape}');
+        await waitFor(() => expect(dropdown).toHaveAttribute('data-exit'));
+
+        await userEvent.keyboard('{ArrowDown}');
+        finishExit();
+
+        await waitFor(() => {
+          expect(screen.getByRole('listbox')).toBe(dropdown);
+          expect(input).toHaveAttribute('aria-expanded', 'true');
+          expect(fixture.componentInstance.open).toBe(true);
+        });
       });
     });
   });

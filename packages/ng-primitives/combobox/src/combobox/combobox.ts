@@ -194,10 +194,17 @@ export class NgpCombobox {
   readonly overlay = computed(() => this.portal()?.overlay());
 
   /**
-   * The open state of the combobox.
+   * Whether the dropdown has been dismissed and is only playing its exit animation.
+   * The overlay keeps reporting itself open until that animation ends.
+   */
+  private readonly closing = signal(false);
+
+  /**
+   * The open state of the combobox. A dropdown that is closing counts as closed, so
+   * input that arrives during its exit animation opens it again.
    * @internal
    */
-  readonly open = computed(() => this.overlay()?.isOpen() ?? false);
+  readonly open = computed(() => !this.closing() && (this.overlay()?.isOpen() ?? false));
 
   /**
    * The options sorted by their index or DOM position.
@@ -264,6 +271,14 @@ export class NgpCombobox {
       }
     });
 
+    // The exit animation has ended once the overlay stops reporting itself open, so the
+    // next open starts from a fully closed dropdown.
+    effect(() => {
+      if (!this.overlay()?.isOpen()) {
+        untracked(() => this.closing.set(false));
+      }
+    });
+
     ngpInteractions({
       focus: true,
       focusWithin: true,
@@ -280,6 +295,17 @@ export class NgpCombobox {
   async openDropdown(options?: NgpComboboxOpenOptions): Promise<void> {
     if (this.state.disabled() || this.open()) {
       return;
+    }
+
+    // A closing dropdown is brought back by show(), which cancels its exit animation.
+    const wasClosing = this.closing();
+    this.closing.set(false);
+
+    // Reopened from an openChange(false) handler, the overlay has not started its exit yet,
+    // so show() would find it open and do nothing. The exit starts once that notification
+    // returns, so show it again after that.
+    if (wasClosing) {
+      await Promise.resolve();
     }
 
     this.openChange.emit(true);
@@ -343,6 +369,7 @@ export class NgpCombobox {
    * @internal
    */
   onOverlayClosed(): void {
+    this.closing.set(true);
     this.openChange.emit(false);
     // clear the active descendant
     this.activeDescendantManager.reset();
