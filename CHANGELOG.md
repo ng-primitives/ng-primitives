@@ -1,3 +1,26 @@
+## 0.131.4 (2026-10-28)
+
+### 🚀 Features
+
+- **select:** add ngpSelectInput for option filtering ([#694](https://github.com/ng-primitives/ng-primitives/pull/694), [#772](https://github.com/ng-primitives/ng-primitives/pull/772))
+
+### 🩹 Fixes
+
+- **combobox:** activate last option when ArrowUp opens closed dropdown ([#912](https://github.com/ng-primitives/ng-primitives/pull/912), [#944](https://github.com/ng-primitives/ng-primitives/pull/944))
+- **combobox:** reopen a dropdown that is still playing its exit animation ([#975](https://github.com/ng-primitives/ng-primitives/pull/975), [#974](https://github.com/ng-primitives/ng-primitives/issues/974))
+- **portal:** position a capped overlay for its capped size from the first frame ([#987](https://github.com/ng-primitives/ng-primitives/pull/987))
+- **search:** honour disabled, read-only and programmatic values ([#988](https://github.com/ng-primitives/ng-primitives/pull/988), [#985](https://github.com/ng-primitives/ng-primitives/issues/985))
+- **search:** keep a surrounding overlay open when Escape clears the field ([#989](https://github.com/ng-primitives/ng-primitives/pull/989), [#985](https://github.com/ng-primitives/ng-primitives/issues/985))
+
+### ❤️ Thank You
+
+- Anton Pieper @AntonPieper
+- apieper
+- Ashley Hunter
+- Claude Opus 5 (1M context)
+- Robin Ferrari @zecka
+- Roman Mykhailiuk @JustDo1t90
+
 ## 0.131.3 (2026-10-22)
 
 ### 🚀 Features
