@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, signal } from '@angular/core';
 import { render, screen, waitFor } from '@testing-library/angular';
 import { NgpDialog, NgpDialogOverlay, NgpDialogTrigger } from 'ng-primitives/dialog';
 import { NgpPopover, NgpPopoverTrigger } from 'ng-primitives/popover';
@@ -55,6 +55,34 @@ import { userEvent } from 'vitest/browser';
   ],
 })
 class TooltipFocusComponent {}
+
+@Component({
+  template: `
+    <button
+      [ngpPopoverTrigger]="popover"
+      [ngpTooltipTrigger]="tooltip"
+      [ngpTooltipTriggerDisabled]="disabled()"
+      ngpTooltipTriggerShowDelay="0"
+      data-testid="popover-trigger"
+    >
+      Launch popover
+    </button>
+
+    <ng-template #tooltip>
+      <div ngpTooltip>Tooltip</div>
+    </ng-template>
+
+    <ng-template #popover>
+      <div ngpPopover>
+        <button data-testid="popover-content">Popover content</button>
+      </div>
+    </ng-template>
+  `,
+  imports: [NgpPopoverTrigger, NgpPopover, NgpTooltipTrigger, NgpTooltip],
+})
+class DisabledTooltipFocusComponent {
+  readonly disabled = signal(true);
+}
 
 const tooltip = () => document.querySelector('[ngpTooltip]');
 
@@ -134,5 +162,35 @@ describe('NgpTooltipTrigger focus', () => {
     expect(trigger).toHaveFocus();
     await settle();
     expect(tooltip()).not.toBeInTheDocument();
+  });
+
+  it('stays closed when re-enabled on focus a popover handed back while it was disabled', async () => {
+    const { fixture, getByTestId } = await render(DisabledTooltipFocusComponent);
+    const trigger = getByTestId('popover-trigger');
+
+    await userEvent.keyboard('{Tab}');
+    expect(trigger).toHaveFocus();
+    await userEvent.keyboard('{Enter}');
+    await waitFor(() => expect(document.querySelector('[ngpPopover]')).toBeInTheDocument());
+    await userEvent.keyboard('{Escape}');
+    await waitFor(() => expect(trigger).toHaveFocus());
+
+    fixture.componentInstance.disabled.set(false);
+    fixture.detectChanges();
+
+    await settle();
+    expect(tooltip()).not.toBeInTheDocument();
+  });
+
+  it('opens when re-enabled on focus the user tabbed to while it was disabled', async () => {
+    const { fixture, getByTestId } = await render(DisabledTooltipFocusComponent);
+
+    await userEvent.keyboard('{Tab}');
+    expect(getByTestId('popover-trigger')).toHaveFocus();
+
+    fixture.componentInstance.disabled.set(false);
+    fixture.detectChanges();
+
+    await waitFor(() => expect(tooltip()).toBeInTheDocument());
   });
 });

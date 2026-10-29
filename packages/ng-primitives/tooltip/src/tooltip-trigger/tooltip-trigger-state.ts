@@ -395,26 +395,34 @@ export const [
     attrBinding(elementRef, 'aria-describedby', () => overlay()?.ariaDescribedBy());
     dataBinding(elementRef, 'data-open', () => (open() ? '' : null));
 
+    // Remembered for the re-enable check below, which runs after the focus event is over.
+    let focusWasRestored = false;
+
     // Listeners
     listener(elementRef, 'mouseenter', showFromInteraction);
     listener(elementRef, 'focus', () => {
+      focusWasRestored = focusRestoration.isRestoring(trigger.nativeElement);
+
       // Only the user arriving by keyboard opens the tooltip - not focus left by a click,
       // moved there by code, or handed back by an overlay that is closing.
-      if (hasKeyboardFocus() && !focusRestoration.isRestoring(trigger.nativeElement)) {
+      if (hasKeyboardFocus() && !focusWasRestored) {
         showFromInteraction();
       }
     });
     listener(elementRef, 'mouseleave', hideFromInteraction);
-    listener(elementRef, 'blur', () => hideFromInteraction());
+    listener(elementRef, 'blur', () => {
+      focusWasRestored = false;
+      hideFromInteraction();
+    });
 
     // Re-enabling fires neither `mouseenter` nor `focus` for a pointer or focus that is
     // already on the trigger, so check for them instead. Focus counts only when it is
-    // keyboard focus: focus left behind by a click is not the user arriving.
+    // keyboard focus the user moved there: not focus left by a click or handed back by an overlay.
     onChange(disabled, (isDisabled, wasDisabled) => {
       if (
         wasDisabled &&
         !isDisabled &&
-        (trigger.nativeElement.matches(':hover') || hasKeyboardFocus())
+        (trigger.nativeElement.matches(':hover') || (hasKeyboardFocus() && !focusWasRestored))
       ) {
         showFromInteraction();
       }
