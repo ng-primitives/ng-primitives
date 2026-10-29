@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { render, screen, waitFor } from '@testing-library/angular';
+import { fireEvent, render, screen, waitFor } from '@testing-library/angular';
 import { NgpPopover, NgpPopoverTrigger } from 'ng-primitives/popover';
 import { describe, expect, it } from 'vitest';
 import { userEvent } from 'vitest/browser';
@@ -56,6 +56,21 @@ describe('NgpPopover focus on close', () => {
 
   it('returns focus to the trigger on an outside click on empty space', async () => {
     const trigger = await open();
+
+    await userEvent.click(screen.getByTestId('empty'));
+    await closed();
+
+    expect(trigger).toHaveFocus();
+  });
+
+  it('returns focus to a clicked trigger the browser did not focus, as Safari does', async () => {
+    await render(PopoverFocusComponent);
+    const trigger = screen.getByTestId('trigger');
+    (document.activeElement as HTMLElement | null)?.blur();
+
+    // a synthetic click moves no focus, like a button click in Safari
+    fireEvent.click(trigger, { detail: 1 });
+    await waitFor(() => expect(screen.getByTestId('close')).toHaveFocus());
 
     await userEvent.click(screen.getByTestId('empty'));
     await closed();

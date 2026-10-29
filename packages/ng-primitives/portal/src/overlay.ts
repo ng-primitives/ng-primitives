@@ -594,8 +594,10 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
   /**
    * Show the overlay with the specified delay
    * @param options Optional options for showing the overlay
+   * @param options.fromTriggerPress Whether a press on the trigger opened it, which makes the
+   * trigger the place to return focus to even when the browser did not focus it.
    */
-  show(options?: { skipCooldown?: boolean }): Promise<void> {
+  show(options?: { skipCooldown?: boolean; fromTriggerPress?: boolean }): Promise<void> {
     return new Promise<void>(resolve => {
       // If closing is in progress, cancel it
       if (this.closeTimeout) {
@@ -655,7 +657,7 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
         this.openTimeout = undefined;
 
         try {
-          this.createOverlay(options?.skipCooldown);
+          this.createOverlay(options?.skipCooldown, options?.fromTriggerPress);
         } finally {
           // Settle even if creating the overlay threw, so callers are never left hanging.
           this.settlePendingShows();
@@ -1140,7 +1142,7 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
    * Internal method to create the overlay
    * @param skipCooldown If true, skip registering with the cooldown manager
    */
-  private createOverlay(skipCooldown?: boolean): void {
+  private createOverlay(skipCooldown?: boolean, fromTriggerPress?: boolean): void {
     const content = this.config.content();
 
     // Nothing to render: either the trigger never had content, or it was cleared while
@@ -1149,8 +1151,14 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
       return;
     }
 
+    // Safari does not focus a clicked button, so a press on the trigger names it directly.
     const activeElement = this.document.activeElement;
-    this.focusBeforeOpen = activeElement instanceof HTMLElement ? activeElement : null;
+    const hadFocus = activeElement instanceof HTMLElement && activeElement !== this.document.body;
+    this.focusBeforeOpen = hadFocus
+      ? activeElement
+      : fromTriggerPress
+        ? this.config.triggerElement
+        : null;
 
     // Skip the enter animation delay if this is an instant transition
     this.attachPortal(content, this.instantTransition());

@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { render, screen, waitFor } from '@testing-library/angular';
+import { fireEvent, render, screen, waitFor } from '@testing-library/angular';
 import { NgpMenu, NgpMenuItem, NgpMenuTrigger } from 'ng-primitives/menu';
 import { describe, expect, it } from 'vitest';
 import { userEvent } from 'vitest/browser';
@@ -56,6 +56,21 @@ describe('NgpMenu focus on close', () => {
     const trigger = await open();
 
     await userEvent.click(screen.getByTestId('empty'));
+    await closed();
+
+    expect(trigger).toHaveFocus();
+  });
+
+  it('returns focus to a clicked trigger the browser did not focus, as Safari does', async () => {
+    await render(MenuFocusComponent);
+    const trigger = screen.getByTestId('trigger');
+    (document.activeElement as HTMLElement | null)?.blur();
+
+    // a synthetic click moves no focus, like a button click in Safari
+    fireEvent.click(trigger, { detail: 1 });
+    await waitFor(() => expect(screen.getByTestId('menu')).toBeInTheDocument());
+
+    await userEvent.click(screen.getByTestId('item-2'));
     await closed();
 
     expect(trigger).toHaveFocus();
