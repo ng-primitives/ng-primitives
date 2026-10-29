@@ -22,6 +22,7 @@ import {
   autoUpdate,
   computePosition,
   flip,
+  hide,
   offset,
   shift,
   size,
@@ -322,6 +323,9 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
 
   /** Signal tracking the final placement of the overlay */
   readonly finalPlacement = signal<NgpPlacement | undefined>(undefined);
+
+  /** Whether the reference element is clipped out of view, e.g. scrolled out of its container */
+  readonly referenceHidden = signal(false);
 
   /** Function to dispose the positioning auto-update */
   private disposePositioning?: () => void;
@@ -1298,6 +1302,9 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
       middleware.push(arrow({ element: this.arrowElement, padding: this.arrowPadding?.() }));
     }
 
+    // Last, so it reads the final position; it only reports, it never moves the overlay
+    middleware.push(hide());
+
     // Compute the position
     const placement = this.config.placement?.() ?? 'top';
 
@@ -1315,6 +1322,7 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
 
     // Update final placement signal
     this.finalPlacement.set(position.placement);
+    this.referenceHidden.set(position.middlewareData.hide?.referenceHidden ?? false);
     this.transformOrigin.set(this.getTransformOrigin(position.placement));
 
     // Update arrow position if available
@@ -1447,6 +1455,7 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
       this.renderedContent = null;
       this.isOpen.set(false);
       this.finalPlacement.set(undefined);
+      this.referenceHidden.set(false);
       this.instantTransition.set(false);
     }
   }

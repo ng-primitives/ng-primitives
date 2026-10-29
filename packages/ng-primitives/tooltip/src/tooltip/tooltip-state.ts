@@ -49,6 +49,7 @@ export const [NgpTooltipStateToken, ngpTooltip, injectTooltipState, provideToolt
     attrBinding(elementRef, 'id', () => id());
     dataBinding(elementRef, 'data-overlay', '');
     dataBinding(elementRef, 'data-placement', () => overlay.finalPlacement()?.toString() ?? null);
+    dataBinding(elementRef, 'data-reference-hidden', overlay.referenceHidden);
     styleBinding(elementRef, 'left.px', () => overlay.position().x ?? null);
     styleBinding(elementRef, 'top.px', () => overlay.position().y ?? null);
     styleBinding(elementRef, '--ngp-tooltip-trigger-width.px', () => overlay.triggerWidth());

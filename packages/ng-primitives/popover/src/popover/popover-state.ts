@@ -43,6 +43,7 @@ export const [NgpPopoverStateToken, ngpPopover, injectPopoverState, providePopov
     styleBinding(elementRef, '--ngp-popover-available-width.px', () => overlay.availableWidth());
     styleBinding(elementRef, '--ngp-popover-available-height.px', () => overlay.availableHeight());
     dataBinding(elementRef, 'data-placement', () => overlay.finalPlacement() ?? null);
+    dataBinding(elementRef, 'data-reference-hidden', overlay.referenceHidden);
     dataBinding(elementRef, 'data-overlay', '');
 
     // Effect handle

@@ -136,6 +136,10 @@ The following directives are available to import from the `ng-primitives/select`
 
 <api-reference-props name="NgpSelectDropdown"></api-reference-props>
 
+<api-reference-attributes>
+  <api-attribute name="data-reference-hidden" description="Applied while the element the dropdown is positioned against is scrolled or clipped out of view." />
+</api-reference-attributes>
+
 <api-reference-css-vars>
   <api-css-var name="--ngp-select-transform-origin" description="The transform origin of the select dropdown for animations." />
   <api-css-var name="--ngp-select-available-width" description="The available width of the dropdown before it overflows the viewport." />

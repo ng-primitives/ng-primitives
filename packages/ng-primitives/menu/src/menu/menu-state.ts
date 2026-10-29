@@ -8,7 +8,13 @@ import {
   injectElementRef,
 } from 'ng-primitives/internal';
 import { injectOverlay } from 'ng-primitives/portal';
-import { attrBinding, createPrimitive, listener, styleBinding } from 'ng-primitives/state';
+import {
+  attrBinding,
+  createPrimitive,
+  dataBinding,
+  listener,
+  styleBinding,
+} from 'ng-primitives/state';
 import { Subject } from 'rxjs';
 import { injectMenuTriggerState } from '../menu-trigger/menu-trigger-state';
 
@@ -58,6 +64,7 @@ export const [NgpMenuStateToken, ngpMenu, injectMenuState, provideMenuState] = c
     // Host bindings
     attrBinding(element, 'role', 'menu');
     attrBinding(element, 'data-placement', overlay.finalPlacement);
+    dataBinding(element, 'data-reference-hidden', overlay.referenceHidden);
     attrBinding(element, 'data-overlay', '');
     styleBinding(element, 'left.px', () => overlay.position().x ?? null);
     styleBinding(element, 'top.px', () => overlay.position().y ?? null);

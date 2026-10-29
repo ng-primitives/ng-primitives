@@ -173,6 +173,7 @@ The following directives are available to import from the `ng-primitives/popover
   <api-attribute name="data-enter" description="Applied when the popover is being added to the DOM. This can be used to trigger animations." />
   <api-attribute name="data-exit" description="Applied when the popover is being removed from the DOM. This can be used to trigger animations." />
   <api-attribute name="data-placement" description="The final rendered placement of the popover." />
+  <api-attribute name="data-reference-hidden" description="Applied while the element the popover is positioned against is scrolled or clipped out of view." />
 </api-reference-attributes>
 
 <api-reference-css-vars>
@@ -224,6 +225,14 @@ For the popover to be positioned correctly relative to the trigger element, it m
 ```css
 [ngpPopover] {
   position: absolute;
+}
+```
+
+With the default `reposition` scroll behavior, the popover follows its trigger even once the trigger is scrolled out of view. `data-reference-hidden` is applied while that is the case, so you can hide the popover:
+
+```css
+[ngpPopover][data-reference-hidden] {
+  visibility: hidden;
 }
 ```
 
