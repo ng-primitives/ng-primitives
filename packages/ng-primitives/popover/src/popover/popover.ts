@@ -1,6 +1,6 @@
 import { Directive, input } from '@angular/core';
 import { NgpFocusTrap } from 'ng-primitives/focus-trap';
-import { provideControlContainerIsolation } from 'ng-primitives/portal';
+import { NgpOverlayFinalFocus, provideControlContainerIsolation } from 'ng-primitives/portal';
 import { ngpPopover, providePopoverState } from './popover-state';
 
 /**
@@ -18,7 +18,17 @@ export class NgpPopover {
    */
   readonly id = input('');
 
+  /**
+   * Where focus goes when the popover closes: an element, a function of the close origin
+   * returning one, `false` to leave focus where it is, or `null` for the trigger.
+   * @default null
+   */
+  readonly finalFocus = input<NgpOverlayFinalFocus | null>(null, {
+    alias: 'ngpPopoverFinalFocus',
+  });
+
   protected readonly state = ngpPopover({
     id: this.id,
+    finalFocus: this.finalFocus,
   });
 }
