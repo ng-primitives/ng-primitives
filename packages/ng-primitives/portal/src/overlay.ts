@@ -330,6 +330,12 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
   /** Function to dispose the positioning auto-update */
   private disposePositioning?: () => void;
 
+  /**
+   * Bumped by every positioning pass and every teardown. Passes run concurrently, so one
+   * that resolves after a newer pass or a close drops its result instead of overwriting.
+   */
+  private positionPass = 0;
+
   /** Timeout handle for showing the overlay */
   private openTimeout?: () => void;
 
@@ -871,6 +877,7 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
     this.portal.set(null);
     this.disposePositioning?.();
     this.disposePositioning = undefined;
+    this.positionPass++;
     this.registeredOutletElement = null;
 
     // Immediate on both sides: the exit animation belongs to the content being
@@ -979,6 +986,7 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
   destroy(): void {
     this.hideImmediate({ forceDestroy: true });
     this.disposePositioning?.();
+    this.positionPass++;
     this.scrollStrategy.disable();
   }
 
@@ -1231,6 +1239,7 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
    * Compute the overlay position using floating-ui
    */
   private async computePosition(overlayElement: HTMLElement): Promise<void> {
+    const pass = ++this.positionPass;
     const strategy = this.resolveStrategy(overlayElement);
 
     // Create middleware array
@@ -1274,6 +1283,10 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
         rootBoundary: overflowOptions?.rootBoundary,
         altBoundary: overflowOptions?.altBoundary,
         apply: ({ availableWidth, availableHeight, elements }) => {
+          if (pass !== this.positionPass) {
+            return;
+          }
+
           this.availableWidth.set(availableWidth);
           this.availableHeight.set(availableHeight);
 
@@ -1316,6 +1329,10 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
       middleware,
       strategy,
     });
+
+    if (pass !== this.positionPass) {
+      return;
+    }
 
     // Update position signal
     this.position.set({ x: position.x, y: position.y });
@@ -1392,6 +1409,7 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
     // Clean up positioning
     this.disposePositioning?.();
     this.disposePositioning = undefined;
+    this.positionPass++;
 
     // Track the destroying portal so cancelDestruction() can restore it
     // if show() is called during the exit animation.

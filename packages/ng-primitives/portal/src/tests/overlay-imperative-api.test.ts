@@ -12,6 +12,7 @@ import {
 import { TestBed } from '@angular/core/testing';
 import { render, screen, waitFor } from '@testing-library/angular';
 import {
+  NgpMiddleware,
   NgpOffset,
   NgpOverlay,
   NgpOverlayConfig,
@@ -373,5 +374,38 @@ describe('createOverlay imperative usage', () => {
 
     await waitFor(() => expect(overlay.isOpen()).toBe(false));
     expect(document.querySelector('[data-testid="overlay"]')).not.toBeInTheDocument();
+  });
+
+  it('keeps the newest position when an older positioning pass resolves last', async () => {
+    const placement = signal<NgpPlacement>('bottom');
+    let holdNextPass = false;
+    let held: { release: () => void } | null = null;
+
+    // Holds one pass inside the middleware chain until released, so a newer pass can finish first.
+    const holdOnce: NgpMiddleware = {
+      name: 'holdOnce',
+      async fn() {
+        if (holdNextPass) {
+          holdNextPass = false;
+          await new Promise<void>(resolve => (held = { release: resolve }));
+        }
+        return {};
+      },
+    };
+
+    const { overlay } = await setup(() => ({ placement, additionalMiddleware: [holdOnce] }));
+    await overlay.show();
+    await waitFor(() => expect(overlay.finalPlacement()).toBe('bottom'));
+
+    holdNextPass = true;
+    placement.set('top');
+    await waitFor(() => expect(held).not.toBeNull());
+
+    placement.set('bottom-end');
+    await waitFor(() => expect(overlay.finalPlacement()).toBe('bottom-end'));
+
+    held!.release();
+    await new Promise(resolve => setTimeout(resolve, 50));
+    expect(overlay.finalPlacement()).toBe('bottom-end');
   });
 });
