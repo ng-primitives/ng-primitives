@@ -37,6 +37,12 @@ export interface NgpMenuConfig {
   scrollBehavior: 'reposition' | 'block' | 'close';
 
   /**
+   * Whether the menu should close when the Angular router starts a navigation.
+   * @default true
+   */
+  closeOnNavigation: boolean;
+
+  /**
    * Configure shift behavior to keep the menu in view.
    * Can be a boolean to enable/disable, or an object with padding and limiter options.
    * @default undefined (enabled by default in overlay)
@@ -82,6 +88,7 @@ export const defaultMenuConfig: NgpMenuConfig = {
   flip: true,
   container: 'body',
   scrollBehavior: 'block',
+  closeOnNavigation: true,
   shift: undefined,
   wrap: true,
   cooldown: 0,

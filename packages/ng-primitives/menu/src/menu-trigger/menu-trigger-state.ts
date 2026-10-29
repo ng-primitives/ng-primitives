@@ -205,6 +205,10 @@ export interface NgpMenuTriggerProps<T = unknown> {
    */
   readonly scrollBehavior?: Signal<'reposition' | 'block' | 'close'>;
   /**
+   * Whether the menu should close when the Angular router starts a navigation.
+   */
+  readonly closeOnNavigation?: Signal<boolean>;
+  /**
    * Context to provide to the menu.
    */
   readonly context?: Signal<T>;
@@ -252,6 +256,7 @@ export const [
     anchor: _anchor,
     container: _container,
     scrollBehavior,
+    closeOnNavigation = signal(true),
     cooldown,
     triggers = signal(['click'] as NgpMenuTriggerType[]),
     showDelay = signal(0),
@@ -583,6 +588,7 @@ export const [
         restoreFocus: shouldRestoreFocus,
         onClose: (origin: FocusOrigin) => closeOrigin.set(origin),
         scrollBehaviour: scrollBehavior?.() ?? 'block',
+        closeOnNavigation,
         overlayType: 'menu',
         cooldown: cooldown?.(),
         showDelay: showDelay(),

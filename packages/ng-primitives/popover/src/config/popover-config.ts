@@ -59,6 +59,12 @@ export interface NgpPopoverConfig {
   scrollBehavior: 'reposition' | 'block' | 'close';
 
   /**
+   * Whether the popover should close when the Angular router starts a navigation.
+   * @default true
+   */
+  closeOnNavigation: boolean;
+
+  /**
    * Configure shift behavior to keep the popover in view.
    * Can be a boolean to enable/disable, or an object with padding and limiter options.
    * @default undefined (enabled by default in overlay)
@@ -101,6 +107,7 @@ export const defaultPopoverConfig: NgpPopoverConfig = {
   closeOnOutsideClick: true,
   closeOnEscape: true,
   scrollBehavior: 'reposition',
+  closeOnNavigation: true,
   shift: undefined,
   trackPosition: false,
   cooldown: 0,

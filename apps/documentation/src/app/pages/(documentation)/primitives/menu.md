@@ -423,6 +423,7 @@ bootstrapApplication(AppComponent, {
       flip: true,
       container: document.body,
       scrollBehavior: 'reposition',
+      closeOnNavigation: true,
       cooldown: 0,
     }),
   ],

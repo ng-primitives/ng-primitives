@@ -147,6 +147,15 @@ export class NgpPopoverTrigger<T = null> {
   });
 
   /**
+   * Define whether the popover should close when the Angular router starts a navigation.
+   * @default true
+   */
+  readonly closeOnNavigation = input<boolean, BooleanInput>(this.config.closeOnNavigation, {
+    alias: 'ngpPopoverTriggerCloseOnNavigation',
+    transform: booleanAttribute,
+  });
+
+  /**
    * Provide context to the popover. This can be used to pass data to the popover content.
    */
   readonly context = input<T>(undefined, {
@@ -223,6 +232,7 @@ export class NgpPopoverTrigger<T = null> {
     closeOnOutsideClick: this.closeOnOutsideClick,
     closeOnEscape: this.closeOnEscape,
     scrollBehavior: this.scrollBehavior,
+    closeOnNavigation: this.closeOnNavigation,
     context: this.context,
     anchor: this.anchor,
     trackPosition: this.trackPosition,

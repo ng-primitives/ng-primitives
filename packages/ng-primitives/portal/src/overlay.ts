@@ -16,6 +16,7 @@ import {
   signal,
 } from '@angular/core';
 import { ControlContainer } from '@angular/forms';
+import { NavigationStart, Router } from '@angular/router';
 import {
   VirtualElement,
   arrow,
@@ -203,6 +204,12 @@ export interface NgpOverlayConfig<T = unknown> {
    * Can be a boolean or a signal that returns a boolean.
    */
   restoreFocus?: boolean | Signal<boolean>;
+  /**
+   * Whether to close the overlay when the Angular router starts a navigation.
+   * Read when the navigation starts. Has no effect when no router is provided.
+   * @default false
+   */
+  closeOnNavigation?: boolean | Signal<boolean>;
 
   /**
    * Optional callback to update an external close origin signal.
@@ -283,6 +290,7 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
   private readonly focusMonitor = inject(FocusMonitor);
   private readonly cooldownManager = inject(NgpOverlayCooldownManager);
   private readonly registry = inject(NgpOverlayRegistry);
+  private readonly router = inject(Router, { optional: true });
   /** Access any parent overlays */
   private readonly parentOverlay = inject(NgpOverlay, { optional: true });
   /** Signal tracking the portal instance */
@@ -483,9 +491,29 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
     this.boundReference = this.referenceElement;
     explicitEffect([this.anchorElement], () => this.handleAnchorChange());
 
+    this.closeOnNavigation();
+
     // Ensure cleanup on destroy
     this.destroyRef.onDestroy(() => {
       this.destroy();
+    });
+  }
+
+  /** Hide the overlay when the router starts a navigation, if the config asks for it. */
+  private closeOnNavigation(): void {
+    const { closeOnNavigation } = this.config;
+
+    if (!this.router || !closeOnNavigation) {
+      return;
+    }
+
+    this.router.events.pipe(safeTakeUntilDestroyed(this.destroyRef)).subscribe(event => {
+      const enabled =
+        typeof closeOnNavigation === 'function' ? closeOnNavigation() : closeOnNavigation;
+
+      if (event instanceof NavigationStart && enabled && this.isOpen()) {
+        this.hide();
+      }
     });
   }
 

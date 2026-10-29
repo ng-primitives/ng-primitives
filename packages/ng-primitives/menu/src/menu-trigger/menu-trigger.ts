@@ -102,6 +102,15 @@ export class NgpMenuTrigger<T = unknown> {
   });
 
   /**
+   * Define whether the menu should close when the Angular router starts a navigation.
+   * @default true
+   */
+  readonly closeOnNavigation = input<boolean, BooleanInput>(this.config.closeOnNavigation, {
+    alias: 'ngpMenuTriggerCloseOnNavigation',
+    transform: booleanAttribute,
+  });
+
+  /**
    * Define the cooldown duration in milliseconds.
    * When moving from one menu to another within this duration,
    * the showDelay is skipped for the new menu.
@@ -170,6 +179,7 @@ export class NgpMenuTrigger<T = unknown> {
     shift: this.shift,
     container: this.container,
     scrollBehavior: this.scrollBehavior,
+    closeOnNavigation: this.closeOnNavigation,
     cooldown: this.cooldown,
     context: this.context as Signal<T>,
     anchor: this.anchor,

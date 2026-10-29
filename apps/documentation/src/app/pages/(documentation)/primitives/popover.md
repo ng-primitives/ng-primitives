@@ -261,6 +261,7 @@ bootstrapApplication(AppComponent, {
       container: document.body,
       closeOnOutsideClick: true,
       scrollBehavior: 'reposition',
+      closeOnNavigation: true,
       cooldown: 0,
       keepMounted: false,
     }),

@@ -192,6 +192,7 @@ bootstrapApplication(AppComponent, {
       container: document.body,
       flip: true,
       offset: 4,
+      closeOnNavigation: true,
     }),
   ],
 });

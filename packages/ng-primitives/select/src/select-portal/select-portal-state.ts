@@ -81,6 +81,7 @@ export const [
       closeOnEscape: true,
       restoreFocus: false,
       scrollBehaviour: 'reposition',
+      closeOnNavigation: selectState().closeOnNavigation,
       onClose: () => selectState().onOverlayClose(),
     };
 

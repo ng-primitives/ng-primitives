@@ -98,6 +98,15 @@ export class NgpSelect {
   });
 
   /**
+   * Define whether the select dropdown should close when the Angular router starts a navigation.
+   * @default true
+   */
+  readonly closeOnNavigation = input<boolean, BooleanInput>(this.config.closeOnNavigation, {
+    alias: 'ngpSelectDropdownCloseOnNavigation',
+    transform: booleanAttribute,
+  });
+
+  /**
    * A function that will scroll the active option into view. This can be overridden
    * for cases such as virtual scrolling where we cannot scroll the option directly because
    * it may not be rendered.
@@ -125,6 +134,7 @@ export class NgpSelect {
     container: this.container,
     flip: this.flip,
     offset: this.offset,
+    closeOnNavigation: this.closeOnNavigation,
     scrollToOption: this.scrollToOption,
     allOptions: this.allOptions,
     onValueChange: value => this.valueChange.emit(value),
