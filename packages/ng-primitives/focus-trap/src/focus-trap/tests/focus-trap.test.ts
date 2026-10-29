@@ -992,11 +992,12 @@ describe('Focus trap inside a shadow root', () => {
     middle.focus();
     expect(shadowRoot.activeElement).toBe(middle);
 
+    const injector = Injector.create({
+      providers: [{ provide: ElementRef, useValue: new ElementRef(container) }],
+      parent: TestBed.inject(EnvironmentInjector),
+    });
+
     try {
-      const injector = Injector.create({
-        providers: [{ provide: ElementRef, useValue: new ElementRef(container) }],
-        parent: TestBed.inject(EnvironmentInjector),
-      });
       runInInjectionContext(injector, () => ngpFocusTrap({}));
 
       TestBed.inject(ApplicationRef).tick();
@@ -1004,6 +1005,8 @@ describe('Focus trap inside a shadow root', () => {
 
       expect(shadowRoot.activeElement).toBe(middle);
     } finally {
+      // removing the host does not run the injector's DestroyRef, so tear the trap down here
+      injector.destroy();
       host.remove();
     }
   });
@@ -1027,8 +1030,10 @@ describe('Focus trap containing shadow roots', () => {
     )!;
     innerFirst.focus();
 
-    expect(fireEvent.keyDown(innerFirst, { key: 'Tab' })).toBe(true);
-    expect(fireEvent.keyDown(innerFirst, { key: 'Tab', shiftKey: true })).toBe(true);
+    expect(fireEvent.keyDown(innerFirst, { key: 'Tab', composed: true })).toBe(true);
+    expect(fireEvent.keyDown(innerFirst, { key: 'Tab', shiftKey: true, composed: true })).toBe(
+      true,
+    );
     expect(nested.shadowRoot!.activeElement).toBe(innerFirst);
   });
 
@@ -1040,6 +1045,6 @@ describe('Focus trap containing shadow roots', () => {
     )!;
     innerFirst.focus();
 
-    expect(fireEvent.keyDown(innerFirst, { key: 'Tab' })).toBe(true);
+    expect(fireEvent.keyDown(innerFirst, { key: 'Tab', composed: true })).toBe(true);
   });
 });
