@@ -150,39 +150,14 @@ describe('NgpTooltipTrigger focus', () => {
     expect(tooltip()).not.toBeInTheDocument();
   });
 
-  it('stays closed when app code moves focus after a pointer interaction', async () => {
+  it('opens on programmatic focus, as when a screen reader moves focus with no keydown', async () => {
     const { getByTestId } = await render(TooltipFocusComponent);
     const trigger = getByTestId('dialog-trigger');
 
-    // the pointer focuses another control, then the app moves focus to the trigger
-    await userEvent.click(getByTestId('elsewhere'));
-    expect(getByTestId('elsewhere')).toHaveFocus();
     trigger.focus();
 
     expect(trigger).toHaveFocus();
-    await settle();
-    expect(tooltip()).not.toBeInTheDocument();
-  });
-
-  it('stays closed when app code moves focus away from a keyboard-focused control', async () => {
-    const { getByTestId } = await render(TooltipFocusComponent);
-    const trigger = getByTestId('dialog-trigger');
-    const elsewhere = getByTestId('elsewhere');
-
-    // :focus-visible carries over to script focus from a keyboard-focused element; the
-    // focus origin does not
-    for (let i = 0; i < 3; i++) {
-      await userEvent.keyboard('{Tab}');
-      await settle();
-    }
-    expect(elsewhere).toHaveFocus();
-    expect(elsewhere.matches(':focus-visible')).toBe(true);
-    expect(tooltip()).not.toBeInTheDocument();
-    trigger.focus();
-
-    expect(trigger).toHaveFocus();
-    await settle();
-    expect(tooltip()).not.toBeInTheDocument();
+    await waitFor(() => expect(tooltip()).toBeInTheDocument());
   });
 
   it('stays closed when re-enabled on focus a popover handed back while it was disabled', async () => {

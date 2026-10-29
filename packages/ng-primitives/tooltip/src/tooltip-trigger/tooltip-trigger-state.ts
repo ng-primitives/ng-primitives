@@ -398,27 +398,31 @@ export const [
     attrBinding(elementRef, 'aria-describedby', () => overlay()?.ariaDescribedBy());
     dataBinding(elementRef, 'data-open', () => (open() ? '' : null));
 
-    // Whether the trigger holds focus the user moved there with the keyboard. Kept for the
-    // re-enable check below, which runs after the focus event is over.
-    let hasUserKeyboardFocus = false;
+    // Whether the current focus opens the tooltip. Kept for the re-enable check below, which
+    // runs after the focus event is over.
+    let focusShowsTooltip = false;
 
     // Listeners
     listener(elementRef, 'mouseenter', showFromInteraction);
     listener(elementRef, 'mouseleave', hideFromInteraction);
     listener(elementRef, 'blur', () => hideFromInteraction());
 
-    // Only the user arriving by keyboard opens the tooltip - not focus from a pointer, moved
-    // there by code, or handed back by an overlay that is closing (which reports a keyboard
-    // origin after an Escape). FocusMonitor reports null on blur.
+    // Pointer focus is left to hover, and focus an overlay hands back on close (which reports a
+    // keyboard origin after an Escape) is not the user arriving. 'program' still opens it: a
+    // screen reader moving focus sends no keydown, and `aria-describedby` only exists while the
+    // tooltip is open. FocusMonitor reports null on blur.
     focusMonitor
       .monitor(trigger.nativeElement)
       .pipe(safeTakeUntilDestroyed())
       .subscribe(origin =>
         untracked(() => {
-          hasUserKeyboardFocus =
-            origin === 'keyboard' && !focusRestoration.isRestoring(trigger.nativeElement);
+          focusShowsTooltip =
+            origin !== null &&
+            origin !== 'mouse' &&
+            origin !== 'touch' &&
+            !focusRestoration.isRestoring(trigger.nativeElement);
 
-          if (hasUserKeyboardFocus) {
+          if (focusShowsTooltip) {
             showFromInteraction();
           }
         }),
@@ -430,7 +434,7 @@ export const [
       if (
         wasDisabled &&
         !isDisabled &&
-        (trigger.nativeElement.matches(':hover') || hasUserKeyboardFocus)
+        (trigger.nativeElement.matches(':hover') || focusShowsTooltip)
       ) {
         showFromInteraction();
       }
