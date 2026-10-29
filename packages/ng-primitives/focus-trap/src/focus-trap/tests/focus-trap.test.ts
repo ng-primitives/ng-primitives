@@ -1,5 +1,5 @@
 import { FocusMonitor, InteractivityChecker } from '@angular/cdk/a11y';
-import { Component, signal } from '@angular/core';
+import { Component, signal, ViewEncapsulation } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { fireEvent, render, waitFor } from '@testing-library/angular';
 import { NgpFocusTrap } from 'ng-primitives/focus-trap';
@@ -217,6 +217,49 @@ class TestFocusTrapLeadingHeadingAutofocusComponent {}
   `,
 })
 class TestFocusTrapOnlyHeadingAutofocusComponent {}
+
+@Component({
+  selector: 'test-shadow-focus-trap-autofocus',
+  imports: [NgpFocusTrap],
+  encapsulation: ViewEncapsulation.ShadowDom,
+  template: `
+    <div ngpFocusTrap data-testid="focus-trap">
+      <button data-testid="first">First</button>
+      <!-- eslint-disable-next-line @angular-eslint/template/no-autofocus -->
+      <button data-testid="autofocus" autofocus>Autofocus</button>
+      <button data-testid="last">Last</button>
+    </div>
+  `,
+})
+class TestShadowFocusTrapAutofocusComponent {}
+
+@Component({
+  selector: 'test-shadow-focus-trap-trailing-heading',
+  imports: [NgpFocusTrap],
+  encapsulation: ViewEncapsulation.ShadowDom,
+  template: `
+    <div ngpFocusTrap data-testid="focus-trap">
+      <button data-testid="first">First</button>
+      <button data-testid="last">Last</button>
+      <!-- eslint-disable-next-line @angular-eslint/template/no-autofocus -->
+      <h2 data-testid="heading" tabindex="-1" autofocus>Heading</h2>
+    </div>
+  `,
+})
+class TestShadowFocusTrapTrailingHeadingComponent {}
+
+@Component({
+  selector: 'test-shadow-focus-trap-only-heading',
+  imports: [NgpFocusTrap],
+  encapsulation: ViewEncapsulation.ShadowDom,
+  template: `
+    <div ngpFocusTrap data-testid="focus-trap">
+      <!-- eslint-disable-next-line @angular-eslint/template/no-autofocus -->
+      <h2 data-testid="heading" tabindex="-1" autofocus>Heading</h2>
+    </div>
+  `,
+})
+class TestShadowFocusTrapOnlyHeadingComponent {}
 
 describe('NgpFocusTrap', () => {
   describe('Host Bindings', () => {
@@ -813,5 +856,47 @@ describe('Initial focus', () => {
     expect(tabNotPrevented).toBe(false);
     expect(shiftTabNotPrevented).toBe(false);
     expect(heading).toHaveFocus();
+  });
+});
+
+describe('Focus trap inside a shadow root', () => {
+  async function renderInShadowRoot(component: new () => unknown) {
+    const { fixture } = await render(component);
+    const shadowRoot = (fixture.nativeElement as HTMLElement).shadowRoot!;
+    const getByTestId = (id: string) =>
+      shadowRoot.querySelector<HTMLElement>(`[data-testid="${id}"]`)!;
+    return { shadowRoot, getByTestId };
+  }
+
+  it('should focus the element with the autofocus attribute', async () => {
+    const { shadowRoot, getByTestId } = await renderInShadowRoot(
+      TestShadowFocusTrapAutofocusComponent,
+    );
+
+    await waitFor(() => expect(shadowRoot.activeElement).toBe(getByTestId('autofocus')));
+  });
+
+  it('should wrap Tab to the first tabbable element from a non-tabbable target after the last one', async () => {
+    const { shadowRoot, getByTestId } = await renderInShadowRoot(
+      TestShadowFocusTrapTrailingHeadingComponent,
+    );
+    const heading = getByTestId('heading');
+    await waitFor(() => expect(shadowRoot.activeElement).toBe(heading));
+
+    fireEvent.keyDown(heading, { key: 'Tab' });
+
+    expect(shadowRoot.activeElement).toBe(getByTestId('first'));
+  });
+
+  it('should block Tab and Shift+Tab when nothing inside is tabbable', async () => {
+    const { shadowRoot, getByTestId } = await renderInShadowRoot(
+      TestShadowFocusTrapOnlyHeadingComponent,
+    );
+    const heading = getByTestId('heading');
+    await waitFor(() => expect(shadowRoot.activeElement).toBe(heading));
+
+    expect(fireEvent.keyDown(heading, { key: 'Tab' })).toBe(false);
+    expect(fireEvent.keyDown(heading, { key: 'Tab', shiftKey: true })).toBe(false);
+    expect(shadowRoot.activeElement).toBe(heading);
   });
 });

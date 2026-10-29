@@ -291,7 +291,7 @@ export const [NgpFocusTrapStateToken, ngpFocusTrap, injectFocusTrapState, provid
         }
 
         const isTabKey = event.key === 'Tab' && !event.altKey && !event.ctrlKey && !event.metaKey;
-        const focusedElement = document.activeElement as HTMLElement | null;
+        const focusedElement = getFocusedElement();
 
         if (!isTabKey || !focusedElement) {
           return;
@@ -322,6 +322,20 @@ export const [NgpFocusTrapStateToken, ngpFocusTrap, injectFocusTrapState, provid
           event.preventDefault();
           focus(tabbables[tabbables.length - 1]);
         }
+      }
+
+      /**
+       * Returns the focused element, looking through shadow roots: inside one,
+       * `document.activeElement` is the shadow host rather than the element itself.
+       */
+      function getFocusedElement(): HTMLElement | null {
+        let focusedElement = document.activeElement as HTMLElement | null;
+
+        while (focusedElement?.shadowRoot?.activeElement) {
+          focusedElement = focusedElement.shadowRoot.activeElement as HTMLElement;
+        }
+
+        return focusedElement;
       }
 
       /**
@@ -377,7 +391,7 @@ export const [NgpFocusTrapStateToken, ngpFocusTrap, injectFocusTrapState, provid
           // elements (e.g. `<summary>`), and the browser refuses hidden or inert ones.
           focus(candidate);
 
-          if (document.activeElement === candidate) {
+          if (getFocusedElement() === candidate) {
             return true;
           }
         }
