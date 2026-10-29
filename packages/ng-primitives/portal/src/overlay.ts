@@ -909,7 +909,11 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
       activeElement !== this.document.body &&
       activeElement !== this.config.triggerElement &&
       !this.containsElement(activeElement);
-    const target = this.focusReturnTarget(origin, triggerGone);
+    // a trigger the user focused while the overlay was open keeps focus
+    const target =
+      activeElement === this.config.triggerElement
+        ? null
+        : this.focusReturnTarget(origin, triggerGone);
 
     if (!focusMovedAway && target) {
       this.focusMonitor.focusVia(target, origin, { preventScroll: true });

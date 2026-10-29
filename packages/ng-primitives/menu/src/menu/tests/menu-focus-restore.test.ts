@@ -67,6 +67,8 @@ async function open() {
   const trigger = screen.getByTestId('trigger');
   await userEvent.click(trigger);
   await waitFor(() => expect(screen.getByTestId('menu')).toBeInTheDocument());
+  // focus must have left the trigger, or a close would pass without restoring anything
+  await waitFor(() => expect(screen.getByTestId('item-1')).toHaveFocus());
   return trigger;
 }
 
