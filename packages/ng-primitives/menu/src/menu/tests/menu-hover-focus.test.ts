@@ -24,18 +24,10 @@ class HoverMenuComponent {}
   template: `
     <input data-testid="before" />
     <div ngpMenuTriggerGroup>
-      <button
-        [ngpMenuTrigger]="menu"
-        [ngpMenuTriggerOpenTriggers]="['hover']"
-        data-testid="first"
-      >
+      <button [ngpMenuTrigger]="menu" [ngpMenuTriggerOpenTriggers]="['hover']" data-testid="first">
         First
       </button>
-      <button
-        [ngpMenuTrigger]="menu"
-        [ngpMenuTriggerOpenTriggers]="['hover']"
-        data-testid="second"
-      >
+      <button [ngpMenuTrigger]="menu" [ngpMenuTriggerOpenTriggers]="['hover']" data-testid="second">
         Second
       </button>
     </div>
