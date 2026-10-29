@@ -1,7 +1,7 @@
 import { Component, signal } from '@angular/core';
 import { render, screen, waitFor } from '@testing-library/angular';
+import userEvent from '@testing-library/user-event';
 import { describe, expect, it } from 'vitest';
-import { userEvent } from 'vitest/browser';
 import { NgpSelect, NgpSelectDropdown, NgpSelectOption, NgpSelectPortal } from '../../index';
 
 @Component({
