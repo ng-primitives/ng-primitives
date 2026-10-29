@@ -327,12 +327,6 @@ export const [
       }
     });
 
-    // Computed signal to determine if focus should be restored
-    // Only restore if opened via keyboard OR closed via keyboard
-    const shouldRestoreFocus = computed(
-      () => openOrigin() === 'keyboard' || closeOrigin() === 'keyboard',
-    );
-
     // Host bindings
     attrBinding(element, 'aria-haspopup', 'true');
     attrBinding(element, 'aria-expanded', open);
@@ -580,7 +574,7 @@ export const [
         shift: shift(),
         closeOnOutsideClick: true,
         closeOnEscape: true,
-        restoreFocus: shouldRestoreFocus,
+        restoreFocus: true,
         onClose: (origin: FocusOrigin) => closeOrigin.set(origin),
         scrollBehaviour: scrollBehavior?.() ?? 'block',
         overlayType: 'menu',

@@ -85,7 +85,7 @@ export interface NgpOverlayEntry {
  * @internal
  */
 export interface NgpOverlayRef {
-  hide(options?: { immediate?: boolean; origin?: FocusOrigin }): void;
+  hide(options?: { immediate?: boolean; origin?: FocusOrigin; outsidePressTarget?: Element }): void;
   hideImmediate(): void;
 }
 
@@ -455,10 +455,14 @@ export class NgpOverlayRegistry {
       (path.find((node): node is Element => node instanceof Element) as Element) ??
       this.document.documentElement;
 
+    // The element the press started on is the one the browser focused on pointerdown
+    const pressTarget =
+      (pressPath?.find((node): node is Element => node instanceof Element) as Element) ?? target;
+
     // Step 4: Dismiss each root
     for (const [id, entry] of toDismiss) {
       this.evaluateGuardAndDismiss(id, entry.dismissPolicy.outsidePress, target, () =>
-        this.ngZone.run(() => entry.overlay.hide()),
+        this.ngZone.run(() => entry.overlay.hide({ outsidePressTarget: pressTarget })),
       );
     }
   }

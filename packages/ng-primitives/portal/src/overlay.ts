@@ -1,4 +1,4 @@
-import { FocusMonitor, FocusOrigin } from '@angular/cdk/a11y';
+import { FocusMonitor, FocusOrigin, InteractivityChecker } from '@angular/cdk/a11y';
 import { ViewportRuler } from '@angular/cdk/scrolling';
 import { DOCUMENT } from '@angular/common';
 import {
@@ -281,6 +281,7 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
   private readonly destroyRef = inject(DestroyRef);
   private readonly viewContainerRef: ViewContainerRef;
   private readonly focusMonitor = inject(FocusMonitor);
+  private readonly interactivityChecker = inject(InteractivityChecker);
   private readonly cooldownManager = inject(NgpOverlayCooldownManager);
   private readonly registry = inject(NgpOverlayRegistry);
   /** Access any parent overlays */
@@ -808,9 +809,7 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
           : (this.config.restoreFocus ?? false);
 
       if (shouldRestoreFocus) {
-        this.focusMonitor.focusVia(this.config.triggerElement, options?.origin ?? 'program', {
-          preventScroll: true,
-        });
+        this.restoreFocus(origin, options?.outsidePressTarget);
       }
 
       await this.destroyOverlay();
@@ -829,6 +828,43 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
       this.instantTransition.set(false);
       this.closeTimeout = this.disposables.setTimeout(dispose, delay);
     }
+  }
+
+  /**
+   * Return focus to the trigger, unless the user has put it somewhere else: an outside press
+   * on a control hands focus to that control (a focus trap inside the overlay may have pulled
+   * it back on pointerdown), and focus already moved outside the overlay is left alone.
+   */
+  private restoreFocus(origin: FocusOrigin, outsidePressTarget?: Element): void {
+    const pressedControl = outsidePressTarget && this.findFocusableAncestor(outsidePressTarget);
+
+    if (pressedControl) {
+      this.focusMonitor.focusVia(pressedControl, 'mouse', { preventScroll: true });
+      return;
+    }
+
+    const activeElement = this.document.activeElement;
+    const focusMovedAway =
+      activeElement !== null &&
+      activeElement !== this.document.body &&
+      activeElement !== this.config.triggerElement &&
+      !this.getElements().some(element => element.contains(activeElement));
+
+    if (!focusMovedAway) {
+      this.focusMonitor.focusVia(this.config.triggerElement, origin, { preventScroll: true });
+    }
+  }
+
+  private findFocusableAncestor(element: Element): HTMLElement | null {
+    for (let node: Element | null = element; node; node = node.parentElement) {
+      if (node === this.document.body) {
+        return null;
+      }
+      if (node instanceof HTMLElement && this.interactivityChecker.isFocusable(node)) {
+        return node;
+      }
+    }
+    return null;
   }
 
   /**
@@ -1602,4 +1638,9 @@ export interface OverlayTriggerOptions {
    * The origin of the focus event that triggered the visibility change.
    */
   origin?: FocusOrigin;
+  /**
+   * The element an outside press landed on, when that press closed the overlay.
+   * @internal
+   */
+  outsidePressTarget?: Element;
 }
