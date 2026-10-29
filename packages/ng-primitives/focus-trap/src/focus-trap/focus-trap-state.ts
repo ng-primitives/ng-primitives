@@ -158,7 +158,7 @@ export const [NgpFocusTrapStateToken, ngpFocusTrap, injectFocusTrapState, provid
           document.addEventListener('focusout', handleFocusOut);
         });
 
-        const previouslyFocusedElement = document.activeElement as HTMLElement | null;
+        const previouslyFocusedElement = getFocusedElement();
         const hasFocusedCandidate = element.nativeElement.contains(previouslyFocusedElement);
 
         // Only perform initial focusing if the focus trap is not disabled
@@ -173,7 +173,7 @@ export const [NgpFocusTrapStateToken, ngpFocusTrap, injectFocusTrapState, provid
                 }
 
                 // if the focus didn't change, focus the container
-                if (document.activeElement === previouslyFocusedElement) {
+                if (getFocusedElement() === previouslyFocusedElement) {
                   focus(element.nativeElement);
                 }
               },
@@ -269,7 +269,7 @@ export const [NgpFocusTrapStateToken, ngpFocusTrap, injectFocusTrapState, provid
           return;
         }
 
-        const focusedElement = document.activeElement as HTMLElement | null;
+        const focusedElement = getFocusedElement();
 
         if (focusedElement !== document.body) {
           return;
@@ -400,12 +400,12 @@ export const [NgpFocusTrapStateToken, ngpFocusTrap, injectFocusTrapState, provid
       }
 
       function focusFirst(): void {
-        const previouslyFocusedElement = document.activeElement;
+        const previouslyFocusedElement = getFocusedElement();
 
         for (const candidate of getTabbableCandidates(element.nativeElement)) {
           focus(candidate);
 
-          if (document.activeElement !== previouslyFocusedElement) {
+          if (getFocusedElement() !== previouslyFocusedElement) {
             return;
           }
         }

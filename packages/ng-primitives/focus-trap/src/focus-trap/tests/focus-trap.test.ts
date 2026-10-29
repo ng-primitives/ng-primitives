@@ -1,8 +1,17 @@
 import { FocusMonitor, InteractivityChecker } from '@angular/cdk/a11y';
-import { Component, signal, ViewEncapsulation } from '@angular/core';
+import {
+  ApplicationRef,
+  Component,
+  ElementRef,
+  EnvironmentInjector,
+  Injector,
+  runInInjectionContext,
+  signal,
+  ViewEncapsulation,
+} from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { fireEvent, render, waitFor } from '@testing-library/angular';
-import { NgpFocusTrap } from 'ng-primitives/focus-trap';
+import { NgpFocusTrap, ngpFocusTrap } from 'ng-primitives/focus-trap';
 import { describe, expect, it, vi } from 'vitest';
 
 @Component({
@@ -260,6 +269,25 @@ class TestShadowFocusTrapTrailingHeadingComponent {}
   `,
 })
 class TestShadowFocusTrapOnlyHeadingComponent {}
+
+@Component({
+  selector: 'test-shadow-focus-trap',
+  imports: [NgpFocusTrap],
+  encapsulation: ViewEncapsulation.ShadowDom,
+  template: `
+    <button data-testid="toggle">Toggle</button>
+    @if (show()) {
+      <div ngpFocusTrap data-testid="focus-trap">
+        <button data-testid="first">First</button>
+        <button data-testid="middle">Middle</button>
+        <button data-testid="last">Last</button>
+      </div>
+    }
+  `,
+})
+class TestShadowFocusTrapComponent {
+  readonly show = signal(false);
+}
 
 describe('NgpFocusTrap', () => {
   describe('Host Bindings', () => {
@@ -867,6 +895,53 @@ describe('Focus trap inside a shadow root', () => {
       shadowRoot.querySelector<HTMLElement>(`[data-testid="${id}"]`)!;
     return { shadowRoot, getByTestId };
   }
+
+  it('should focus the first tabbable element when focus starts in the same shadow root', async () => {
+    const { fixture } = await render(TestShadowFocusTrapComponent);
+    const shadowRoot = (fixture.nativeElement as HTMLElement).shadowRoot!;
+    const getByTestId = (id: string) =>
+      shadowRoot.querySelector<HTMLElement>(`[data-testid="${id}"]`)!;
+    getByTestId('toggle').focus();
+
+    fixture.componentInstance.show.set(true);
+    fixture.detectChanges();
+
+    await waitFor(() => expect(shadowRoot.activeElement).toBe(getByTestId('first')));
+  });
+
+  it('should leave focus where it is when it is already inside the trap on activation', async () => {
+    // A template creates the trap before its children, so focus cannot already be inside;
+    // run the factory directly against a container that already holds focus.
+    const host = document.createElement('div');
+    document.body.appendChild(host);
+    const shadowRoot = host.attachShadow({ mode: 'open' });
+    shadowRoot.innerHTML = `
+      <div data-testid="focus-trap">
+        <button data-testid="first">First</button>
+        <button data-testid="middle">Middle</button>
+        <button data-testid="last">Last</button>
+      </div>
+    `;
+    const container = shadowRoot.querySelector<HTMLElement>('[data-testid="focus-trap"]')!;
+    const middle = shadowRoot.querySelector<HTMLElement>('[data-testid="middle"]')!;
+    middle.focus();
+    expect(shadowRoot.activeElement).toBe(middle);
+
+    try {
+      const injector = Injector.create({
+        providers: [{ provide: ElementRef, useValue: new ElementRef(container) }],
+        parent: TestBed.inject(EnvironmentInjector),
+      });
+      runInInjectionContext(injector, () => ngpFocusTrap({}));
+
+      TestBed.inject(ApplicationRef).tick();
+      await new Promise(resolve => setTimeout(resolve, 0));
+
+      expect(shadowRoot.activeElement).toBe(middle);
+    } finally {
+      host.remove();
+    }
+  });
 
   it('should focus the element with the autofocus attribute', async () => {
     const { shadowRoot, getByTestId } = await renderInShadowRoot(
