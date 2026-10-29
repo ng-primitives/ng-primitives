@@ -42,6 +42,31 @@ class HoverMenuComponent {}
 })
 class HoverGroupComponent {}
 
+@Component({
+  template: `
+    <input data-testid="before" />
+    <button [ngpMenuTrigger]="menuA" [ngpMenuTriggerOpenTriggers]="['hover']" data-testid="a">
+      A
+    </button>
+    <button [ngpMenuTrigger]="menuB" [ngpMenuTriggerOpenTriggers]="['hover']" data-testid="b">
+      B
+    </button>
+
+    <ng-template #menuA>
+      <div ngpMenu data-testid="menu-a">
+        <button ngpMenuItem data-testid="a-item">A item</button>
+      </div>
+    </ng-template>
+    <ng-template #menuB>
+      <div ngpMenu data-testid="menu">
+        <button ngpMenuItem>B item</button>
+      </div>
+    </ng-template>
+  `,
+  imports: [NgpMenuTrigger, NgpMenu, NgpMenuItem],
+})
+class UngroupedHoverMenusComponent {}
+
 /** Leave the trigger heading away from the menu, so no hover bridge keeps it open. */
 async function pointerAway(trigger: HTMLElement): Promise<void> {
   const rect = trigger.getBoundingClientRect();
@@ -97,6 +122,25 @@ describe('NgpMenu opened on hover', () => {
     fireEvent.pointerLeave(first, { pointerType: 'mouse' });
     await hoverOpen(second);
     await pointerAway(second);
+
+    expect(before).toHaveFocus();
+  });
+
+  it('leaves focus where it was when another menu replaces one that still holds focus', async () => {
+    await render(UngroupedHoverMenusComponent);
+    const before = screen.getByTestId('before');
+    before.focus();
+    const a = screen.getByTestId('a');
+    const b = screen.getByTestId('b');
+
+    await hoverOpen(a);
+    await waitFor(() => expect(screen.getByTestId('a-item')).toHaveFocus());
+
+    // B opens before A's hover grace period ends, so A is replaced while focus is in it
+    fireEvent.pointerLeave(a, { pointerType: 'mouse' });
+    await hoverOpen(b);
+    await waitFor(() => expect(screen.queryByTestId('menu-a')).not.toBeInTheDocument());
+    await pointerAway(b);
 
     expect(before).toHaveFocus();
   });

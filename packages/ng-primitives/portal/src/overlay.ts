@@ -893,7 +893,7 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
 
   /**
    * Take over the focus a same-type overlay was going to return to, when this overlay
-   * replaces it (a hover handoff between grouped triggers).
+   * replaces it while it still holds focus (a hover moving straight to another trigger).
    * @internal
    */
   takeOverFocusReturn(replaced: CooldownOverlay): void {
@@ -910,10 +910,11 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
   }
 
   private findFocusableAncestor(element: Element): HTMLElement | null {
-    for (let node: Element | null = element; node; node = node.parentElement) {
-      if (node === this.document.body) {
-        return null;
-      }
+    for (
+      let node: Element | null = element;
+      node && node !== this.document.body;
+      node = node.parentElement
+    ) {
       if (node instanceof HTMLElement && this.interactivityChecker.isFocusable(node)) {
         return node;
       }
