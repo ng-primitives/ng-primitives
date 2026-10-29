@@ -168,7 +168,9 @@ export const [NgpFocusTrapStateToken, ngpFocusTrap, injectFocusTrapState, provid
           afterNextRender(
             {
               write: () => {
-                focusFirst();
+                if (!focusAutofocusElement()) {
+                  focusFirst();
+                }
 
                 // if the focus didn't change, focus the container
                 if (document.activeElement === previouslyFocusedElement) {
@@ -357,6 +359,30 @@ export const [NgpFocusTrapStateToken, ngpFocusTrap, injectFocusTrapState, provid
         focusMonitor.focusVia(element, origin, {
           preventScroll: true,
         });
+      }
+
+      /**
+       * Focuses the first focusable `[autofocus]` descendant, as a native `<dialog>` does on
+       * `showModal()`. Angular does not apply `autofocus` to dynamically inserted content.
+       * Returns whether an element received focus.
+       */
+      function focusAutofocusElement(): boolean {
+        const candidates = element.nativeElement.querySelectorAll<HTMLElement>('[autofocus]');
+
+        for (const candidate of Array.from(candidates)) {
+          if (!interactivityChecker.isFocusable(candidate)) {
+            continue;
+          }
+
+          focus(candidate);
+
+          // an inert subtree passes the checker but refuses focus
+          if (document.activeElement === candidate) {
+            return true;
+          }
+        }
+
+        return false;
       }
 
       function focusFirst(): void {

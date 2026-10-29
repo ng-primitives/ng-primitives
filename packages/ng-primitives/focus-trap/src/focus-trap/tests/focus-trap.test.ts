@@ -1,7 +1,7 @@
 import { FocusMonitor, InteractivityChecker } from '@angular/cdk/a11y';
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { fireEvent, render } from '@testing-library/angular';
+import { fireEvent, render, waitFor } from '@testing-library/angular';
 import { NgpFocusTrap } from 'ng-primitives/focus-trap';
 import { describe, expect, it, vi } from 'vitest';
 
@@ -107,6 +107,60 @@ class TestFocusTrapWithCdkOverlayComponent {}
   `,
 })
 class TestFocusTrapWithExternalTrapComponent {}
+
+@Component({
+  selector: 'test-focus-trap-autofocus',
+  imports: [NgpFocusTrap],
+  template: `
+    <div ngpFocusTrap data-testid="focus-trap">
+      <button data-testid="first">First</button>
+      <!-- eslint-disable-next-line @angular-eslint/template/no-autofocus -->
+      <button data-testid="autofocus" autofocus>Autofocus</button>
+    </div>
+  `,
+})
+class TestFocusTrapAutofocusComponent {}
+
+@Component({
+  selector: 'test-focus-trap-disabled-autofocus',
+  imports: [NgpFocusTrap],
+  template: `
+    <div ngpFocusTrap data-testid="focus-trap">
+      <button data-testid="first">First</button>
+      <!-- eslint-disable-next-line @angular-eslint/template/no-autofocus -->
+      <button data-testid="autofocus" autofocus disabled>Autofocus</button>
+    </div>
+  `,
+})
+class TestFocusTrapDisabledAutofocusComponent {}
+
+@Component({
+  selector: 'test-focus-trap-hidden-autofocus',
+  imports: [NgpFocusTrap],
+  template: `
+    <div ngpFocusTrap data-testid="focus-trap">
+      <button data-testid="first">First</button>
+      <!-- eslint-disable-next-line @angular-eslint/template/no-autofocus -->
+      <button data-testid="autofocus" autofocus hidden>Autofocus</button>
+    </div>
+  `,
+})
+class TestFocusTrapHiddenAutofocusComponent {}
+
+@Component({
+  selector: 'test-focus-trap-inert-autofocus',
+  imports: [NgpFocusTrap],
+  template: `
+    <div ngpFocusTrap data-testid="focus-trap">
+      <button data-testid="first">First</button>
+      <div inert>
+        <!-- eslint-disable-next-line @angular-eslint/template/no-autofocus -->
+        <button data-testid="autofocus" autofocus>Autofocus</button>
+      </div>
+    </div>
+  `,
+})
+class TestFocusTrapInertAutofocusComponent {}
 
 describe('NgpFocusTrap', () => {
   describe('Host Bindings', () => {
@@ -632,5 +686,37 @@ describe('Focus-out with CDK overlays and external traps', () => {
     fireEvent.focusOut(trapBtn, { relatedTarget: outsideBtn });
 
     expect(focusViaSpy).toHaveBeenCalledWith(trapBtn, expect.anything(), expect.anything());
+  });
+});
+
+describe('Initial focus', () => {
+  it('should focus the first tabbable element when nothing has autofocus', async () => {
+    const { getByTestId } = await render(TestFocusTrapComponent);
+
+    await waitFor(() => expect(getByTestId('button1')).toHaveFocus());
+  });
+
+  it('should focus the element with the autofocus attribute', async () => {
+    const { getByTestId } = await render(TestFocusTrapAutofocusComponent);
+
+    await waitFor(() => expect(getByTestId('autofocus')).toHaveFocus());
+  });
+
+  it('should fall back to the first tabbable element when the autofocus element is disabled', async () => {
+    const { getByTestId } = await render(TestFocusTrapDisabledAutofocusComponent);
+
+    await waitFor(() => expect(getByTestId('first')).toHaveFocus());
+  });
+
+  it('should fall back to the first tabbable element when the autofocus element is hidden', async () => {
+    const { getByTestId } = await render(TestFocusTrapHiddenAutofocusComponent);
+
+    await waitFor(() => expect(getByTestId('first')).toHaveFocus());
+  });
+
+  it('should fall back to the first tabbable element when the autofocus element is inert', async () => {
+    const { getByTestId } = await render(TestFocusTrapInertAutofocusComponent);
+
+    await waitFor(() => expect(getByTestId('first')).toHaveFocus());
   });
 });

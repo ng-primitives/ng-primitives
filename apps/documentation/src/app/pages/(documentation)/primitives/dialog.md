@@ -234,6 +234,8 @@ passed to `NgpDialogManager.open()`.
 
 Adheres to the [WAI-ARIA design pattern](https://www.w3.org/WAI/ARIA/apg/patterns/dialog-modal/examples/dialog/).
 
+Add `autofocus` to an element to focus it when the dialog opens; otherwise the first focusable element is focused.
+
 ### Keyboard Interactions
 
 - <kbd>Esc</kbd>: Close the dialog.
