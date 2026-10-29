@@ -900,7 +900,10 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
     return origin === 'keyboard' && trigger.isConnected ? trigger : null;
   }
 
-  /** Whether the element is in this overlay or in an overlay opened from inside it. */
+  /**
+   * Whether the element is in this overlay or in a nested overlay that closes with it. One
+   * that opted out of closing with it (a dialog opened from a menu item) is somewhere else.
+   */
   private containsElement(element: Element): boolean {
     if (this.getElements().some(overlayElement => overlayElement.contains(element))) {
       return true;
@@ -908,7 +911,7 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
 
     const containingId =
       element instanceof HTMLElement ? this.registry.findContainingOverlay(element) : null;
-    return containingId !== null && this.registry.isAncestorOf(this.id(), containingId);
+    return containingId !== null && this.registry.closesWith(containingId, this.id());
   }
 
   /**
