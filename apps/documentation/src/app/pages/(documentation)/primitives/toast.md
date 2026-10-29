@@ -167,3 +167,8 @@ bootstrapApplication(AppComponent, {
 ## Accessibility
 
 For screen reader announcements, ensure your toast container includes `role="status"` or `role="alert"` with `aria-live="polite"` so that new toasts are announced to assistive technology users.
+
+### Keyboard Interactions
+
+- <kbd>F6</kbd>: Move focus to the region holding the newest toast, or back to where it was. This works while a dialog traps focus.
+- <kbd>Esc</kbd>: While focus is in the toast region, return it to where it was, without closing an open dialog.

@@ -1,9 +1,12 @@
+import { DOCUMENT } from '@angular/common';
 import {
   ApplicationRef,
   computed,
+  DestroyRef,
   inject,
   Injectable,
   Injector,
+  NgZone,
   RendererFactory2,
   signal,
   TemplateRef,
@@ -25,8 +28,15 @@ export class NgpToastManager {
   private readonly rendererFactory = inject(RendererFactory2);
   private readonly renderer = this.rendererFactory.createRenderer(null, null);
   private readonly injector = inject(Injector);
+  private readonly document = inject(DOCUMENT);
+  private readonly ngZone = inject(NgZone);
+  private readonly destroyRef = inject(DestroyRef);
   // Map to store containers by placement
   private readonly containers = new Map<string, HTMLElement>();
+
+  /** The element focused before F6 moved focus to the toasts, restored by F6 again or Escape. */
+  private focusBeforeToasts: HTMLElement | null = null;
+  private listeningForKeys = false;
 
   readonly toasts = signal<NgpToastRecord[]>([]);
 
@@ -117,7 +127,81 @@ export class NgpToastManager {
     }
     const container = this.createContainer(placement);
     this.containers.set(placement, container);
+    this.listenForKeys();
     return container;
+  }
+
+  /**
+   * F6 moves focus to the newest toast's region and back, so toasts stay reachable from the
+   * keyboard even while a dialog traps focus.
+   */
+  private listenForKeys(): void {
+    const view = this.document.defaultView;
+
+    if (this.listeningForKeys || !view) {
+      return;
+    }
+
+    this.listeningForKeys = true;
+
+    const onF6 = (event: KeyboardEvent) => {
+      if (event.key !== 'F6' || event.defaultPrevented) {
+        return;
+      }
+
+      if (this.focusedContainer()) {
+        event.preventDefault();
+        this.returnFocus();
+        return;
+      }
+
+      const newest = this.toasts()[0];
+      const container = newest && this.containers.get(newest.instance.options.placement);
+
+      if (!container?.isConnected) {
+        return;
+      }
+
+      event.preventDefault();
+      this.focusBeforeToasts = this.document.activeElement as HTMLElement | null;
+      container.focus({ preventScroll: true });
+    };
+
+    // Capture on the window runs before the overlay registry's capture listener on the
+    // document, so an open dialog never sees the Escape that leaves the toasts.
+    const onEscape = (event: KeyboardEvent) => {
+      if (event.key !== 'Escape' || !this.focusBeforeToasts || !this.focusedContainer()) {
+        return;
+      }
+
+      event.preventDefault();
+      event.stopPropagation();
+      this.returnFocus();
+    };
+
+    this.ngZone.runOutsideAngular(() => {
+      view.addEventListener('keydown', onF6);
+      view.addEventListener('keydown', onEscape, { capture: true });
+    });
+
+    this.destroyRef.onDestroy(() => {
+      view.removeEventListener('keydown', onF6);
+      view.removeEventListener('keydown', onEscape, { capture: true });
+    });
+  }
+
+  private focusedContainer(): HTMLElement | undefined {
+    const active = this.document.activeElement;
+    return [...this.containers.values()].find(container => container.contains(active));
+  }
+
+  private returnFocus(): void {
+    const target = this.focusBeforeToasts;
+    this.focusBeforeToasts = null;
+
+    if (target?.isConnected) {
+      target.focus({ preventScroll: true });
+    }
   }
 
   /**
