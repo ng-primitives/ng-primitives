@@ -183,6 +183,14 @@ export class NgpOverlayRegistry {
   }
 
   /**
+   * Whether overlay `id` closes along with `ancestorId`: nested in it, with no overlay that
+   * opted out of cascading in between.
+   */
+  closesWith(id: string, ancestorId: string): boolean {
+    return this.getCascadingDescendants(ancestorId).some(entry => entry.id === id);
+  }
+
+  /**
    * Descendants of `id` that close along with it. The walk stops at an entry that opted
    * out, leaving its own subtree open too.
    */
