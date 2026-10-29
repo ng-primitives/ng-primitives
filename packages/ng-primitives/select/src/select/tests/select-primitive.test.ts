@@ -2563,6 +2563,22 @@ describe('NgpSelect', () => {
         });
       });
 
+      it('should return focus to the trigger when Escape is typed in the input', async () => {
+        await render(TestSelectInputComponent);
+        const select = screen.getByTestId('select-with-input');
+
+        fireEvent.click(select);
+
+        const input = await screen.findByTestId('select-input');
+        await waitFor(() => expect(input).toHaveFocus());
+        await browserUserEvent.keyboard('{Escape}');
+
+        await waitFor(() => {
+          expect(screen.queryByTestId('select-input')).not.toBeInTheDocument();
+        });
+        expect(select).toHaveFocus();
+      });
+
       it('should move the active option onto a rendered option when filtering removes the active one', async () => {
         await render(TestSelectInputComponent);
         const select = screen.getByTestId('select-with-input');
