@@ -850,25 +850,36 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
    */
   private restoreFocus(origin: FocusOrigin, outsidePressTarget?: Element): void {
     const pressedControl = outsidePressTarget && this.findFocusableAncestor(outsidePressTarget);
+    const target = pressedControl || this.focusReturnTargetIfStillOurs(origin);
 
-    if (pressedControl) {
-      this.focusMonitor.focusVia(pressedControl, 'mouse', { preventScroll: true });
+    if (!target) {
       return;
     }
 
+    // Overlays opened from inside this one close first, or their focus traps would pull
+    // focus straight back before they are torn down.
+    this.registry.closeDescendants(this.id());
+    this.focusMonitor.focusVia(target, pressedControl ? 'mouse' : origin, { preventScroll: true });
+  }
+
+  /**
+   * Where focus returns, or null when the user has already put it somewhere: outside this
+   * overlay and the overlays nested in it, or back on the trigger.
+   */
+  private focusReturnTargetIfStillOurs(origin: FocusOrigin): HTMLElement | null {
     const activeElement = this.document.activeElement;
+
+    // a trigger the user focused while the overlay was open keeps focus
+    if (activeElement === this.config.triggerElement) {
+      return null;
+    }
+
     const focusMovedAway =
       activeElement !== null &&
       activeElement !== this.document.body &&
-      activeElement !== this.config.triggerElement &&
       !this.containsElement(activeElement);
-    // a trigger the user focused while the overlay was open keeps focus
-    const target =
-      activeElement === this.config.triggerElement ? null : this.focusReturnTarget(origin);
 
-    if (!focusMovedAway && target) {
-      this.focusMonitor.focusVia(target, origin, { preventScroll: true });
-    }
+    return focusMovedAway ? null : this.focusReturnTarget(origin);
   }
 
   private focusReturnTarget(origin: FocusOrigin): HTMLElement | null {
@@ -889,8 +900,15 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
     return origin === 'keyboard' && trigger.isConnected ? trigger : null;
   }
 
+  /** Whether the element is in this overlay or in an overlay opened from inside it. */
   private containsElement(element: Element): boolean {
-    return this.getElements().some(overlayElement => overlayElement.contains(element));
+    if (this.getElements().some(overlayElement => overlayElement.contains(element))) {
+      return true;
+    }
+
+    const containingId =
+      element instanceof HTMLElement ? this.registry.findContainingOverlay(element) : null;
+    return containingId !== null && this.registry.isAncestorOf(this.id(), containingId);
   }
 
   /**
