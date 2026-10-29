@@ -1,8 +1,8 @@
 import { Component } from '@angular/core';
 import { render, screen, waitFor } from '@testing-library/angular';
+import userEvent from '@testing-library/user-event';
 import { NgpMenu, NgpMenuItem, NgpMenuTrigger } from 'ng-primitives/menu';
 import { describe, expect, it } from 'vitest';
-import { userEvent } from 'vitest/browser';
 
 @Component({
   template: `

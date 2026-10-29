@@ -1,10 +1,10 @@
 import { FocusOrigin } from '@angular/cdk/a11y';
 import { Component, signal, viewChild } from '@angular/core';
 import { render, screen, waitFor } from '@testing-library/angular';
+import userEvent from '@testing-library/user-event';
 import { NgpPopover, NgpPopoverTrigger } from 'ng-primitives/popover';
 import { NgpOverlayFinalFocus } from 'ng-primitives/portal';
 import { describe, expect, it } from 'vitest';
-import { userEvent } from 'vitest/browser';
 
 @Component({
   template: `
