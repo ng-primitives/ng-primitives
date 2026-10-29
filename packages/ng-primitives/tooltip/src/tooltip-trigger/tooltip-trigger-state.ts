@@ -432,8 +432,8 @@ export const [
       try {
         return trigger.nativeElement.matches(':focus-visible');
       } catch {
-        // a browser without `:focus-visible` can't tell keyboard focus apart, so keep opening
-        return true;
+        // a browser without `:focus-visible` can't tell keyboard focus apart, so any focus counts
+        return trigger.nativeElement.matches(':focus');
       }
     }
 
