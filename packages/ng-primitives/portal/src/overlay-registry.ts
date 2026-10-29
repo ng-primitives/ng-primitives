@@ -455,7 +455,8 @@ export class NgpOverlayRegistry {
       (path.find((node): node is Element => node instanceof Element) as Element) ??
       this.document.documentElement;
 
-    // The element the press started on is the one the browser focused on pointerdown
+    // The element the press started on, which `restoreFocus` uses to hand focus to the
+    // control the user pressed
     const pressTarget =
       (pressPath?.find((node): node is Element => node instanceof Element) as Element) ?? target;
 
