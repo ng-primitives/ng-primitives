@@ -335,13 +335,14 @@ export const [
 
     const overlay = signal<NgpOverlay<T> | null>(null);
     const open = computed(() => overlay()?.isOpen() ?? false);
+    const expanded = computed(() => open() && !overlay()?.isClosing());
 
     // Two show() calls inside the show delay both settle when that single open
     // completes, so track what has been announced rather than what was open per call.
     let announcedOpen = false;
 
     // Host binding
-    attrBinding(elementRef, 'aria-expanded', () => (open() ? 'true' : 'false'));
+    attrBinding(elementRef, 'aria-expanded', () => (expanded() ? 'true' : 'false'));
     // the popover is a focus-trapped, dialog-like overlay, so advertise the popup type
     attrBinding(elementRef, 'aria-haspopup', 'dialog');
     attrBinding(elementRef, 'aria-describedby', () => overlay()?.ariaDescribedBy());

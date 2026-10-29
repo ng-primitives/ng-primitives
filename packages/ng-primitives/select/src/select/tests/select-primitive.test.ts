@@ -1,6 +1,7 @@
 import { Component, computed, Directive, OnInit, signal, viewChild } from '@angular/core';
 import { fireEvent, render, screen, waitFor } from '@testing-library/angular';
 import userEvent from '@testing-library/user-event';
+import { NgpTemplatePortal } from 'ng-primitives/portal';
 import { describe, expect, it, vi, afterEach } from 'vitest';
 import { userEvent as browserUserEvent } from 'vitest/browser';
 import {
@@ -283,6 +284,37 @@ describe('NgpSelect', () => {
       await waitFor(() => {
         expect(select).toHaveAttribute('aria-expanded', 'false');
       });
+    });
+
+    it('should set aria-expanded="false" as soon as closing starts, before the exit animation ends', async () => {
+      const user = userEvent.setup();
+      await render(TestSelectComponent);
+
+      const select = screen.getByTestId('select');
+      await user.click(select);
+      await waitFor(() => expect(select).toHaveAttribute('aria-expanded', 'true'));
+
+      // hold detach() open the way a running exit animation would
+      let release!: () => void;
+      const gate = new Promise<void>(resolve => (release = resolve));
+      const realDetach = NgpTemplatePortal.prototype.detach;
+      const spy = vi
+        .spyOn(NgpTemplatePortal.prototype, 'detach')
+        .mockImplementation(async function (this: NgpTemplatePortal<unknown>, options) {
+          await gate;
+          return realDetach.call(this, options);
+        });
+
+      try {
+        await user.click(select);
+        await waitFor(() => expect(select).toHaveAttribute('aria-expanded', 'false'));
+        expect(screen.getByTestId('dropdown')).toBeInTheDocument();
+      } finally {
+        release();
+        spy.mockRestore();
+      }
+
+      await waitFor(() => expect(screen.queryByTestId('dropdown')).not.toBeInTheDocument());
     });
 
     it('should render all options when dropdown is open', async () => {

@@ -20,6 +20,25 @@ import { injectOverlay, NgpOverlay, NgpPlacement, NgpTemplatePortal } from 'ng-p
 import { NgpTooltip, NgpTooltipTrigger, provideTooltipConfig } from 'ng-primitives/tooltip';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
+/**
+ * Hold `detach()` open the way a pending exit animation would, so a test can act while
+ * a close is still in flight. `release()` lets the real detach proceed.
+ */
+function gateDetach(): { release: () => void; restore: () => void } {
+  const realDetach = NgpTemplatePortal.prototype.detach;
+  let release!: () => void;
+  const gate = new Promise<void>(resolve => (release = resolve));
+  const spy = vi.spyOn(NgpTemplatePortal.prototype, 'detach').mockImplementation(async function (
+    this: NgpTemplatePortal<unknown>,
+    options,
+  ) {
+    await gate;
+    return realDetach.call(this, options);
+  });
+
+  return { release, restore: () => spy.mockRestore() };
+}
+
 @Component({
   template: `
     <button [ngpPopoverTrigger]="content">Open Popover</button>
@@ -381,6 +400,54 @@ describe('NgpPopover', () => {
       });
     });
 
+    it('should set aria-expanded="false" as soon as closing starts, before the exit animation ends', async () => {
+      const { getByRole } = await render(PopoverTestComponent);
+      const trigger = getByRole('button');
+
+      fireEvent.click(trigger);
+      await waitFor(() => expect(trigger).toHaveAttribute('aria-expanded', 'true'));
+
+      const detach = gateDetach();
+      try {
+        fireEvent.keyDown(document.activeElement ?? document.body, { key: 'Escape' });
+        await waitFor(() => expect(trigger).toHaveAttribute('aria-expanded', 'false'));
+        // the exit is still in flight: the popover is on screen and the trigger still styled open
+        expect(document.querySelector('[ngpPopover]')).toBeInTheDocument();
+        expect(trigger).toHaveAttribute('data-open');
+      } finally {
+        detach.release();
+        detach.restore();
+      }
+
+      await waitFor(() => expect(document.querySelector('[ngpPopover]')).not.toBeInTheDocument());
+      expect(trigger).toHaveAttribute('aria-expanded', 'false');
+    });
+
+    it('should set aria-expanded back to "true" when reopened during the exit animation', async () => {
+      const { fixture, getByRole } = await render(PopoverTestComponent);
+      const trigger = getByRole('button');
+      const popoverTrigger = fixture.debugElement
+        .query(By.directive(NgpPopoverTrigger))
+        .injector.get(NgpPopoverTrigger);
+
+      fireEvent.click(trigger);
+      await waitFor(() => expect(trigger).toHaveAttribute('aria-expanded', 'true'));
+
+      const detach = gateDetach();
+      try {
+        fireEvent.click(trigger); // close - held mid-exit
+        await waitFor(() => expect(trigger).toHaveAttribute('aria-expanded', 'false'));
+
+        popoverTrigger.show(); // reopen before the exit finishes
+        await waitFor(() => expect(trigger).toHaveAttribute('aria-expanded', 'true'));
+      } finally {
+        detach.release();
+        detach.restore();
+      }
+
+      expect(document.querySelector('[ngpPopover]')).toBeInTheDocument();
+    });
+
     it('should link the trigger to the popover via aria-describedby and a matching id', async () => {
       const { getByRole } = await render(PopoverTestComponent);
       const trigger = getByRole('button');
@@ -611,24 +678,6 @@ describe('NgpPopover', () => {
       KeepMountedContentComponent.instanceCount = 0;
       CaptureOverlayDirective.overlay = null;
     });
-
-    /**
-     * Hold `detach()` open the way a pending exit animation would, so a test can act while
-     * a close is still in flight. `release()` lets the real detach proceed.
-     */
-    function gateDetach(): { release: () => void; restore: () => void } {
-      const realDetach = NgpTemplatePortal.prototype.detach;
-      let release!: () => void;
-      const gate = new Promise<void>(resolve => (release = resolve));
-      const spy = vi
-        .spyOn(NgpTemplatePortal.prototype, 'detach')
-        .mockImplementation(async function (this: NgpTemplatePortal<unknown>, options) {
-          await gate;
-          return realDetach.call(this, options);
-        });
-
-      return { release, restore: () => spy.mockRestore() };
-    }
 
     it('should destroy and recreate the content on every close/reopen by default', async () => {
       const { getByRole } = await render(KeepMountedTestComponent);

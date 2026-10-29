@@ -1,7 +1,8 @@
 import { Component, TemplateRef, viewChild } from '@angular/core';
 import { fireEvent, render, waitFor } from '@testing-library/angular';
 import { NgpMenu, NgpMenuItem, NgpMenuTrigger, NgpSubmenuTrigger } from 'ng-primitives/menu';
-import { describe, expect, it } from 'vitest';
+import { NgpTemplatePortal } from 'ng-primitives/portal';
+import { describe, expect, it, vi } from 'vitest';
 
 @Component({
   template: `
@@ -502,6 +503,38 @@ describe('NgpMenuTrigger', () => {
         expect(document.querySelector('[data-testid="menu"]')).toBeInTheDocument();
         expect(trigger).toHaveAttribute('aria-expanded', 'true');
       });
+    });
+
+    it('should set aria-expanded="false" as soon as closing starts, before the exit animation ends', async () => {
+      const { fixture } = await render(TestMenuWithDisabledItemsComponent);
+      const trigger = fixture.debugElement.nativeElement.querySelector('[data-testid="trigger"]');
+
+      fireEvent.click(trigger);
+      await waitFor(() => expect(trigger).toHaveAttribute('aria-expanded', 'true'));
+
+      // hold detach() open the way a running exit animation would
+      let release!: () => void;
+      const gate = new Promise<void>(resolve => (release = resolve));
+      const realDetach = NgpTemplatePortal.prototype.detach;
+      const spy = vi
+        .spyOn(NgpTemplatePortal.prototype, 'detach')
+        .mockImplementation(async function (this: NgpTemplatePortal<unknown>, options) {
+          await gate;
+          return realDetach.call(this, options);
+        });
+
+      try {
+        fireEvent.click(trigger);
+        await waitFor(() => expect(trigger).toHaveAttribute('aria-expanded', 'false'));
+        expect(document.querySelector('[data-testid="menu"]')).toBeInTheDocument();
+      } finally {
+        release();
+        spy.mockRestore();
+      }
+
+      await waitFor(() =>
+        expect(document.querySelector('[data-testid="menu"]')).not.toBeInTheDocument(),
+      );
     });
   });
 

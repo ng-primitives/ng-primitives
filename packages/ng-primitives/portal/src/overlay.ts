@@ -374,6 +374,12 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
   /** Signal tracking whether the overlay is open */
   readonly isOpen = signal(false);
 
+  /**
+   * Whether the overlay is on its way out: `isOpen()` stays true until the exit
+   * animation ends, while this is true from the moment the close starts.
+   */
+  readonly isClosing = computed(() => this.isOpen() && this.portal() === null);
+
   /** A unique id for the overlay */
   readonly id = signal<string>(uniqueId('ngp-overlay'));
 
