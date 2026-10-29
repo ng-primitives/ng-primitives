@@ -883,7 +883,7 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
     }
 
     if (finalFocus instanceof HTMLElement) {
-      this.focusMonitor.focusVia(finalFocus, origin, { preventScroll: true });
+      this.moveFocus(finalFocus, origin);
       return;
     }
 
@@ -899,25 +899,45 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
     const pressedControl = outsidePressTarget && this.findFocusableAncestor(outsidePressTarget);
 
     if (pressedControl) {
-      this.focusMonitor.focusVia(pressedControl, 'mouse', { preventScroll: true });
+      this.moveFocus(pressedControl, 'mouse');
       return;
     }
 
+    const target = this.focusReturnTargetIfStillOurs(origin, triggerGone);
+
+    if (target) {
+      this.moveFocus(target, origin);
+    }
+  }
+
+  private moveFocus(target: HTMLElement, origin: FocusOrigin): void {
+    // Overlays opened from inside this one close first, or their focus traps would pull
+    // focus straight back before they are torn down.
+    this.registry.closeDescendants(this.id());
+    this.focusMonitor.focusVia(target, origin, { preventScroll: true });
+  }
+
+  /**
+   * Where focus returns, or null when the user has already put it somewhere: outside this
+   * overlay and the overlays nested in it, or back on the trigger.
+   */
+  private focusReturnTargetIfStillOurs(
+    origin: FocusOrigin,
+    triggerGone?: boolean,
+  ): HTMLElement | null {
     const activeElement = this.document.activeElement;
+
+    // a trigger the user focused while the overlay was open keeps focus
+    if (activeElement === this.config.triggerElement) {
+      return null;
+    }
+
     const focusMovedAway =
       activeElement !== null &&
       activeElement !== this.document.body &&
-      activeElement !== this.config.triggerElement &&
       !this.containsElement(activeElement);
-    // a trigger the user focused while the overlay was open keeps focus
-    const target =
-      activeElement === this.config.triggerElement
-        ? null
-        : this.focusReturnTarget(origin, triggerGone);
 
-    if (!focusMovedAway && target) {
-      this.focusMonitor.focusVia(target, origin, { preventScroll: true });
-    }
+    return focusMovedAway ? null : this.focusReturnTarget(origin, triggerGone);
   }
 
   private focusReturnTarget(origin: FocusOrigin, triggerGone?: boolean): HTMLElement | null {
@@ -958,8 +978,15 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
     }
   }
 
+  /** Whether the element is in this overlay or in an overlay opened from inside it. */
   private containsElement(element: Element): boolean {
-    return this.getElements().some(overlayElement => overlayElement.contains(element));
+    if (this.getElements().some(overlayElement => overlayElement.contains(element))) {
+      return true;
+    }
+
+    const containingId =
+      element instanceof HTMLElement ? this.registry.findContainingOverlay(element) : null;
+    return containingId !== null && this.registry.isAncestorOf(this.id(), containingId);
   }
 
   private findFocusableAncestor(element: Element): HTMLElement | null {

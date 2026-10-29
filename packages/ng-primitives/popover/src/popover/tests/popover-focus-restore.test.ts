@@ -22,6 +22,28 @@ import { describe, expect, it } from 'vitest';
 })
 class PopoverFocusComponent {}
 
+@Component({
+  template: `
+    <button #outerTrigger="ngpPopoverTrigger" [ngpPopoverTrigger]="outer" data-testid="trigger">
+      Open
+    </button>
+    <div style="height: 40px" data-testid="empty"></div>
+
+    <ng-template #outer>
+      <div ngpPopover data-testid="outer">
+        <button [ngpPopoverTrigger]="inner" data-testid="inner-trigger">Open inner</button>
+      </div>
+    </ng-template>
+    <ng-template #inner>
+      <div ngpPopover data-testid="inner">
+        <button (click)="outerTrigger.hide()" data-testid="inner-button">Close all</button>
+      </div>
+    </ng-template>
+  `,
+  imports: [NgpPopoverTrigger, NgpPopover],
+})
+class NestedPopoverFocusComponent {}
+
 async function open() {
   await render(PopoverFocusComponent);
   const trigger = screen.getByTestId('trigger');
@@ -36,6 +58,38 @@ async function closed() {
 }
 
 describe('NgpPopover focus on close', () => {
+  it('returns focus to the root trigger when an outside click closes a nested popover tree', async () => {
+    await render(NestedPopoverFocusComponent);
+    const trigger = screen.getByTestId('trigger');
+
+    await userEvent.click(trigger);
+    await waitFor(() => expect(screen.getByTestId('inner-trigger')).toHaveFocus());
+    await userEvent.click(screen.getByTestId('inner-trigger'));
+    await waitFor(() => expect(screen.getByTestId('inner-button')).toHaveFocus());
+
+    await userEvent.click(screen.getByTestId('empty'));
+    await waitFor(() => expect(screen.queryByTestId('outer')).not.toBeInTheDocument());
+    expect(screen.queryByTestId('inner')).not.toBeInTheDocument();
+
+    expect(trigger).toHaveFocus();
+  });
+
+  it('returns focus to the root trigger when the tree closes with focus in a nested popover', async () => {
+    await render(NestedPopoverFocusComponent);
+    const trigger = screen.getByTestId('trigger');
+
+    await userEvent.click(trigger);
+    await waitFor(() => expect(screen.getByTestId('inner-trigger')).toHaveFocus());
+    await userEvent.click(screen.getByTestId('inner-trigger'));
+    await waitFor(() => expect(screen.getByTestId('inner-button')).toHaveFocus());
+
+    // closes the root from inside the nested popover, so focus is still in it
+    await userEvent.click(screen.getByTestId('inner-button'));
+    await waitFor(() => expect(screen.queryByTestId('outer')).not.toBeInTheDocument());
+
+    expect(trigger).toHaveFocus();
+  });
+
   it('returns focus to the trigger on Escape', async () => {
     const trigger = await open();
 
