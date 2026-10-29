@@ -36,6 +36,7 @@ export * from './utilities/dom-removal';
 export * from './utilities/dom-sort';
 export * from './utilities/element-ref';
 export * from './utilities/escape-key-claims';
+export * from './utilities/focus-restoration';
 export { fromMutationObserver } from './utilities/mutation-observer';
 export { renderList, type NgpRenderListOptions } from './utilities/render-list';
 export { Dimensions, fromResizeEvent, injectDimensions, observeResize } from './utilities/resize';

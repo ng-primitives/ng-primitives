@@ -8,7 +8,12 @@ import {
   computed,
   ElementRef,
 } from '@angular/core';
-import { createHoverBridge, HoverBridgePoint, injectElementRef } from 'ng-primitives/internal';
+import {
+  createHoverBridge,
+  HoverBridgePoint,
+  injectElementRef,
+  NgpFocusRestoration,
+} from 'ng-primitives/internal';
 import {
   createOverlay,
   NgpFlip,
@@ -345,6 +350,7 @@ export const [
     const viewContainerRef = inject(ViewContainerRef);
     const trigger = inject(ElementRef<HTMLElement>);
     const tooltipTriggerState = injectTooltipTriggerState<T>();
+    const focusRestoration = inject(NgpFocusRestoration);
 
     // Every input is wrapped so the state can expose a setter for it - see the
     // setter block further down the factory.
@@ -391,7 +397,13 @@ export const [
 
     // Listeners
     listener(elementRef, 'mouseenter', showFromInteraction);
-    listener(elementRef, 'focus', showFromInteraction);
+    listener(elementRef, 'focus', () => {
+      // Only the user arriving by keyboard opens the tooltip - not focus left by a click,
+      // moved there by code, or handed back by an overlay that is closing.
+      if (hasKeyboardFocus() && !focusRestoration.isRestoring(trigger.nativeElement)) {
+        showFromInteraction();
+      }
+    });
     listener(elementRef, 'mouseleave', hideFromInteraction);
     listener(elementRef, 'blur', () => hideFromInteraction());
 
@@ -399,15 +411,23 @@ export const [
     // already on the trigger, so check for them instead. Focus counts only when it is
     // keyboard focus: focus left behind by a click is not the user arriving.
     onChange(disabled, (isDisabled, wasDisabled) => {
-      const element = trigger.nativeElement;
       if (
         wasDisabled &&
         !isDisabled &&
-        (element.matches(':hover') || element.matches(':focus-visible'))
+        (trigger.nativeElement.matches(':hover') || hasKeyboardFocus())
       ) {
         showFromInteraction();
       }
     });
+
+    function hasKeyboardFocus(): boolean {
+      try {
+        return trigger.nativeElement.matches(':focus-visible');
+      } catch {
+        // a browser without `:focus-visible` can't tell keyboard focus apart, so keep opening
+        return true;
+      }
+    }
 
     onDestroy(() => {
       hoverBridge.clear();

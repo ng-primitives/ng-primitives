@@ -132,7 +132,8 @@ describe('NgpTooltipTrigger (primitive)', () => {
         { imports: [NgpTooltipTrigger, NgpTooltip] },
       );
 
-      fireEvent.focus(getByRole('button'));
+      await userEvent.keyboard('{Tab}');
+      expect(getByRole('button')).toHaveFocus();
 
       await waitFor(() => {
         expect(document.querySelector('[ngpTooltip]')).toBeInTheDocument();
@@ -186,7 +187,7 @@ describe('NgpTooltipTrigger (primitive)', () => {
       );
 
       const trigger = getByRole('button');
-      fireEvent.focus(trigger);
+      await userEvent.keyboard('{Tab}');
 
       await waitFor(() => {
         expect(document.querySelector('[ngpTooltip]')).toBeInTheDocument();
@@ -467,7 +468,8 @@ describe('NgpTooltipTrigger (primitive)', () => {
         { imports: [NgpTooltipTrigger, NgpTooltip] },
       );
 
-      fireEvent.focus(getByRole('button'));
+      await userEvent.keyboard('{Tab}');
+      expect(getByRole('button')).toHaveFocus();
 
       // Wait a bit to ensure tooltip doesn't show
       await new Promise(resolve => setTimeout(resolve, 100));
@@ -860,7 +862,7 @@ describe('NgpTooltipTrigger (primitive)', () => {
       );
 
       const trigger = getByRole('button');
-      fireEvent.focus(trigger);
+      await userEvent.keyboard('{Tab}');
 
       await waitFor(() => {
         expect(document.querySelector('[ngpTooltip]')).toBeInTheDocument();
@@ -1118,7 +1120,8 @@ describe('NgpTooltipTrigger (primitive)', () => {
         { imports: [NgpTooltipTrigger, NgpTooltip] },
       );
 
-      fireEvent.focus(getByRole('button'));
+      await userEvent.keyboard('{Tab}');
+      expect(getByRole('button')).toHaveFocus();
 
       await new Promise(resolve => setTimeout(resolve, 100));
 
@@ -1143,7 +1146,8 @@ describe('NgpTooltipTrigger (primitive)', () => {
         { imports: [NgpTooltipTrigger, NgpTooltip] },
       );
 
-      fireEvent.focus(getByRole('button'));
+      await userEvent.keyboard('{Tab}');
+      expect(getByRole('button')).toHaveFocus();
 
       await new Promise(resolve => setTimeout(resolve, 100));
 

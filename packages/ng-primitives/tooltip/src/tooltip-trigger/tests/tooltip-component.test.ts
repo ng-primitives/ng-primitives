@@ -7,6 +7,7 @@ import {
   NgpTooltipTrigger,
 } from 'ng-primitives/tooltip';
 import { afterEach, describe, expect, it } from 'vitest';
+import { userEvent } from 'vitest/browser';
 
 /**
  * Inline fixture mirroring the reusable tooltip component in
@@ -83,7 +84,8 @@ describe('Tooltip (reusable component) - standalone', () => {
       { imports: [TooltipTrigger] },
     );
 
-    fireEvent.focus(getByRole('button'));
+    await userEvent.keyboard('{Tab}');
+    expect(getByRole('button')).toHaveFocus();
 
     await waitFor(() => {
       const tooltip = document.querySelector('[role="tooltip"]') as HTMLElement;
