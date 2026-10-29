@@ -1,5 +1,5 @@
 import { signal, Signal } from '@angular/core';
-import { explicitEffect, injectElementRef } from 'ng-primitives/internal';
+import { explicitEffect, injectElementRef, labelledByTrigger } from 'ng-primitives/internal';
 import { injectOverlay } from 'ng-primitives/portal';
 import {
   attrBinding,
@@ -8,6 +8,7 @@ import {
   dataBinding,
   styleBinding,
 } from 'ng-primitives/state';
+import { injectPopoverTriggerState } from '../popover-trigger/popover-trigger-state';
 
 export interface NgpPopoverState {
   /** The unique id of the tooltip. */
@@ -24,6 +25,7 @@ export const [NgpPopoverStateToken, ngpPopover, injectPopoverState, providePopov
     const elementRef = injectElementRef<HTMLElement>();
 
     const overlay = injectOverlay();
+    const trigger = injectPopoverTriggerState({ optional: true });
     const id = controlled(_id);
 
     // Register this element as the overlay outlet so floating-ui positions it correctly,
@@ -36,6 +38,7 @@ export const [NgpPopoverStateToken, ngpPopover, injectPopoverState, providePopov
     // Host binding
     attrBinding(elementRef, 'role', 'dialog');
     attrBinding(elementRef, 'id', id);
+    labelledByTrigger(elementRef, () => trigger()?.elementRef.nativeElement.id);
     styleBinding(elementRef, 'left.px', () => overlay.position().x ?? null);
     styleBinding(elementRef, 'top.px', () => overlay.position().y ?? null);
     styleBinding(elementRef, '--ngp-popover-trigger-width.px', () => overlay.triggerWidth());

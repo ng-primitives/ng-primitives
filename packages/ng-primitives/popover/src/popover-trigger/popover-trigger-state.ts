@@ -31,6 +31,7 @@ import {
   onDestroy,
   StateInjectionOptions,
 } from 'ng-primitives/state';
+import { uniqueId } from 'ng-primitives/utils';
 
 export interface NgpPopoverTriggerState<T> {
   /** Access the trigger element. */
@@ -341,6 +342,9 @@ export const [
     let announcedOpen = false;
 
     // Host binding
+    // the popover is named by its trigger, so the trigger needs an id; the consumer's own is kept
+    const fallbackId = uniqueId('ngp-popover-trigger');
+    attrBinding(elementRef, 'id', () => elementRef.nativeElement.id || fallbackId);
     attrBinding(elementRef, 'aria-expanded', () => (open() ? 'true' : 'false'));
     // the popover is a focus-trapped, dialog-like overlay, so advertise the popup type
     attrBinding(elementRef, 'aria-haspopup', 'dialog');
