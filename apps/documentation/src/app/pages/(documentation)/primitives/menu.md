@@ -430,6 +430,8 @@ bootstrapApplication(AppComponent, {
 });
 ```
 
+`closeOnNavigation` is off by default. Turn it on to close an open menu when the URL changes, whether through the router or `Location`.
+
 ### NgpMenuConfig
 
 <api-reference-config name="NgpMenuConfig"></api-reference-config>

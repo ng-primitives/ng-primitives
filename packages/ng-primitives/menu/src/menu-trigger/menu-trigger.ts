@@ -102,8 +102,8 @@ export class NgpMenuTrigger<T = unknown> {
   });
 
   /**
-   * Define whether the menu should close when the Angular router starts a navigation.
-   * @default true
+   * Define whether the menu should close when the URL changes.
+   * @default false
    */
   readonly closeOnNavigation = input<boolean, BooleanInput>(this.config.closeOnNavigation, {
     alias: 'ngpMenuTriggerCloseOnNavigation',

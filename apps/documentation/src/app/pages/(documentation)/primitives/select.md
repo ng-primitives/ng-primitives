@@ -198,6 +198,8 @@ bootstrapApplication(AppComponent, {
 });
 ```
 
+`closeOnNavigation` is off by default. Turn it on to close an open dropdown when the URL changes, whether through the router or `Location`.
+
 ### NgpSelectConfig
 
 <api-reference-config name="NgpSelectConfig"></api-reference-config>

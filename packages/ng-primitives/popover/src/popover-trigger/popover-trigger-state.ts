@@ -245,8 +245,8 @@ export interface NgpPopoverTriggerProps<T> {
    */
   readonly scrollBehavior?: Signal<'reposition' | 'block' | 'close'>;
   /**
-   * Define whether the popover should close when the Angular router starts a navigation.
-   * @default true
+   * Define whether the popover should close when the URL changes.
+   * @default false
    */
   readonly closeOnNavigation?: Signal<boolean>;
   /**
@@ -304,7 +304,7 @@ export const [
     closeOnOutsideClick: _closeOnOutsideClick,
     closeOnEscape: _closeOnEscape,
     scrollBehavior: _scrollBehavior,
-    closeOnNavigation = signal(true),
+    closeOnNavigation = signal(false),
     context: _context,
     anchor: _anchor,
     trackPosition: _trackPosition,

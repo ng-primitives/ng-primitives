@@ -37,8 +37,8 @@ export interface NgpMenuConfig {
   scrollBehavior: 'reposition' | 'block' | 'close';
 
   /**
-   * Whether the menu should close when the Angular router starts a navigation.
-   * @default true
+   * Whether the menu should close when the URL changes.
+   * @default false
    */
   closeOnNavigation: boolean;
 
@@ -88,7 +88,7 @@ export const defaultMenuConfig: NgpMenuConfig = {
   flip: true,
   container: 'body',
   scrollBehavior: 'block',
-  closeOnNavigation: true,
+  closeOnNavigation: false,
   shift: undefined,
   wrap: true,
   cooldown: 0,

@@ -1,6 +1,6 @@
 import { FocusMonitor, FocusOrigin } from '@angular/cdk/a11y';
 import { ViewportRuler } from '@angular/cdk/scrolling';
-import { DOCUMENT } from '@angular/common';
+import { DOCUMENT, Location } from '@angular/common';
 import {
   DestroyRef,
   Injector,
@@ -16,7 +16,6 @@ import {
   signal,
 } from '@angular/core';
 import { ControlContainer } from '@angular/forms';
-import { NavigationStart, Router } from '@angular/router';
 import {
   VirtualElement,
   arrow,
@@ -205,8 +204,8 @@ export interface NgpOverlayConfig<T = unknown> {
    */
   restoreFocus?: boolean | Signal<boolean>;
   /**
-   * Whether to close the overlay when the Angular router starts a navigation.
-   * Read when the navigation starts. Has no effect when no router is provided.
+   * Whether to close the overlay when the URL changes, through the router or `Location`.
+   * A signal is read when the URL changes.
    * @default false
    */
   closeOnNavigation?: boolean | Signal<boolean>;
@@ -290,7 +289,9 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
   private readonly focusMonitor = inject(FocusMonitor);
   private readonly cooldownManager = inject(NgpOverlayCooldownManager);
   private readonly registry = inject(NgpOverlayRegistry);
-  private readonly router = inject(Router, { optional: true });
+  /** Only injected when the overlay closes on navigation */
+  private readonly location: Location | null;
+  private removeUrlChangeListener?: () => void;
   /** Access any parent overlays */
   private readonly parentOverlay = inject(NgpOverlay, { optional: true });
   /** Signal tracking the portal instance */
@@ -459,6 +460,7 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
   constructor(private config: NgpOverlayConfig<T>) {
     // we cannot inject the viewContainerRef as this can throw an error during hydration in SSR
     this.viewContainerRef = config.viewContainerRef;
+    this.location = config.closeOnNavigation ? inject(Location) : null;
 
     this.anchorSource.set(config.anchorElement);
 
@@ -491,30 +493,37 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
     this.boundReference = this.referenceElement;
     explicitEffect([this.anchorElement], () => this.handleAnchorChange());
 
-    this.closeOnNavigation();
-
     // Ensure cleanup on destroy
     this.destroyRef.onDestroy(() => {
+      this.stopListeningToUrlChanges();
       this.destroy();
     });
   }
 
-  /** Hide the overlay when the router starts a navigation, if the config asks for it. */
-  private closeOnNavigation(): void {
+  /**
+   * Hide the overlay when the URL changes while it is open. `Location` reports router
+   * navigations, `go()`/`replaceState()` and back/forward, so no router is needed.
+   */
+  private listenToUrlChanges(): void {
     const { closeOnNavigation } = this.config;
 
-    if (!this.router || !closeOnNavigation) {
+    if (!this.location || !closeOnNavigation || this.removeUrlChangeListener) {
       return;
     }
 
-    this.router.events.pipe(safeTakeUntilDestroyed(this.destroyRef)).subscribe(event => {
+    this.removeUrlChangeListener = this.location.onUrlChange(() => {
       const enabled =
         typeof closeOnNavigation === 'function' ? closeOnNavigation() : closeOnNavigation;
 
-      if (event instanceof NavigationStart && enabled && this.isOpen()) {
+      if (enabled) {
         this.hide();
       }
     });
+  }
+
+  private stopListeningToUrlChanges(): void {
+    this.removeUrlChangeListener?.();
+    this.removeUrlChangeListener = undefined;
   }
 
   /**
@@ -1108,6 +1117,7 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
 
     // Mark as open
     this.isOpen.set(true);
+    this.listenToUrlChanges();
 
     // Register with the overlay registry for centralized dismiss routing
     this.registerWithRegistry();
@@ -1474,6 +1484,7 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
 
       this.renderedContent = null;
       this.isOpen.set(false);
+      this.stopListeningToUrlChanges();
       this.finalPlacement.set(undefined);
       this.instantTransition.set(false);
     }

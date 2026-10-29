@@ -147,8 +147,8 @@ export class NgpPopoverTrigger<T = null> {
   });
 
   /**
-   * Define whether the popover should close when the Angular router starts a navigation.
-   * @default true
+   * Define whether the popover should close when the URL changes.
+   * @default false
    */
   readonly closeOnNavigation = input<boolean, BooleanInput>(this.config.closeOnNavigation, {
     alias: 'ngpPopoverTriggerCloseOnNavigation',

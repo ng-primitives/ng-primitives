@@ -269,6 +269,8 @@ bootstrapApplication(AppComponent, {
 });
 ```
 
+`closeOnNavigation` is off by default. Turn it on to close an open popover when the URL changes, whether through the router or `Location`.
+
 ### NgpPopoverConfig
 
 <api-reference-config name="NgpPopoverConfig"></api-reference-config>

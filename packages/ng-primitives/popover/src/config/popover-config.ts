@@ -59,8 +59,8 @@ export interface NgpPopoverConfig {
   scrollBehavior: 'reposition' | 'block' | 'close';
 
   /**
-   * Whether the popover should close when the Angular router starts a navigation.
-   * @default true
+   * Whether the popover should close when the URL changes.
+   * @default false
    */
   closeOnNavigation: boolean;
 
@@ -107,7 +107,7 @@ export const defaultPopoverConfig: NgpPopoverConfig = {
   closeOnOutsideClick: true,
   closeOnEscape: true,
   scrollBehavior: 'reposition',
-  closeOnNavigation: true,
+  closeOnNavigation: false,
   shift: undefined,
   trackPosition: false,
   cooldown: 0,

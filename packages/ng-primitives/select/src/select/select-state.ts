@@ -76,7 +76,7 @@ export interface NgpSelectState<T> {
    */
   readonly offset: Signal<NgpOffset>;
 
-  /** Whether the dropdown should close when the Angular router starts a navigation. */
+  /** Whether the dropdown should close when the URL changes. */
   readonly closeOnNavigation: Signal<boolean>;
 
   /**
@@ -335,7 +335,7 @@ export interface NgpSelectProps<T> {
    */
   readonly offset?: Signal<NgpOffset>;
 
-  /** Whether the dropdown should close when the Angular router starts a navigation. */
+  /** Whether the dropdown should close when the URL changes. */
   readonly closeOnNavigation?: Signal<boolean>;
 
   /**
@@ -367,7 +367,7 @@ export const [NgpSelectStateToken, ngpSelect, _injectSelectState, provideSelectS
       container: _container,
       flip = signal<NgpFlip>(true),
       offset = signal<NgpOffset>(0),
-      closeOnNavigation = signal(true),
+      closeOnNavigation = signal(false),
       scrollToOption = signal<((index: number) => void) | undefined>(undefined),
       allOptions = signal<T[] | undefined>(undefined),
       onValueChange,

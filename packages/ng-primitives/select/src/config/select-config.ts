@@ -30,8 +30,8 @@ export interface NgpSelectConfig {
   offset: NgpOffset;
 
   /**
-   * Whether the select dropdown should close when the Angular router starts a navigation.
-   * @default true
+   * Whether the select dropdown should close when the URL changes.
+   * @default false
    */
   closeOnNavigation: boolean;
 }
@@ -41,7 +41,7 @@ export const defaultSelectConfig: NgpSelectConfig = {
   container: 'body',
   flip: true,
   offset: 0,
-  closeOnNavigation: true,
+  closeOnNavigation: false,
 };
 
 export const NgpSelectConfigToken = new InjectionToken<NgpSelectConfig>('NgpSelectConfigToken');
