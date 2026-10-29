@@ -31,11 +31,17 @@ class SelectFocusComponent {
   readonly options = ['Apple', 'Banana'];
 }
 
-async function open() {
+/** Open the select, then move focus off its trigger and into an option. */
+async function openWithFocusInside() {
   await render(SelectFocusComponent);
   const select = screen.getByTestId('select');
   await userEvent.click(select);
   await waitFor(() => expect(screen.getByTestId('dropdown')).toBeInTheDocument());
+
+  const option = screen.getByTestId('option-Apple');
+  option.focus();
+  expect(option).toHaveFocus();
+
   return select;
 }
 
@@ -45,7 +51,7 @@ async function closed() {
 
 describe('NgpSelect focus on close', () => {
   it('returns focus to the select after a mouse pick', async () => {
-    const select = await open();
+    const select = await openWithFocusInside();
 
     await userEvent.click(screen.getByTestId('option-Banana'));
     await closed();
@@ -54,7 +60,7 @@ describe('NgpSelect focus on close', () => {
   });
 
   it('returns focus to the select on Escape', async () => {
-    const select = await open();
+    const select = await openWithFocusInside();
 
     await userEvent.keyboard('{Escape}');
     await closed();
@@ -63,7 +69,7 @@ describe('NgpSelect focus on close', () => {
   });
 
   it('returns focus to the select on an outside click on empty space', async () => {
-    const select = await open();
+    const select = await openWithFocusInside();
 
     await userEvent.click(screen.getByTestId('empty'));
     await closed();
@@ -72,7 +78,7 @@ describe('NgpSelect focus on close', () => {
   });
 
   it('leaves focus on a control the outside click landed on', async () => {
-    await open();
+    await openWithFocusInside();
     const input = screen.getByTestId('outside-input');
 
     await userEvent.click(input);
