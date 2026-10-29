@@ -1,8 +1,8 @@
 import { Component } from '@angular/core';
 import { fireEvent, render, screen, waitFor } from '@testing-library/angular';
+import userEvent from '@testing-library/user-event';
 import { NgpPopover, NgpPopoverTrigger } from 'ng-primitives/popover';
 import { describe, expect, it } from 'vitest';
-import { userEvent } from 'vitest/browser';
 
 @Component({
   template: `
