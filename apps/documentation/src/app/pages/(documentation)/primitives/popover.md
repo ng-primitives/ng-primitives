@@ -151,6 +151,7 @@ Use dismiss guards to prevent a popover from closing when there are unsaved chan
 Overlays handle Escape before the controls inside them, so stopping the event in a control is too late. A control that uses Escape itself, such as an inline-edit field that reverts its value, claims the key with `claimEscapeKey` from `ng-primitives/portal`. Call it in an injection context; the claim is released when that context is destroyed. A claimed Escape pressed inside the topmost overlay leaves it open. Compare against `event.composedPath()[0]` rather than `event.target`, which is retargeted to the shadow host when the overlay renders inside a shadow root.
 
 ```ts
+import { ElementRef, signal, viewChild } from '@angular/core';
 import { claimEscapeKey } from 'ng-primitives/portal';
 
 export class InlineEdit {
