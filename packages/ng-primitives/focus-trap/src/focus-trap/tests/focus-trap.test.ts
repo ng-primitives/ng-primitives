@@ -206,6 +206,18 @@ class TestFocusTrapTrailingHeadingAutofocusComponent {}
 })
 class TestFocusTrapLeadingHeadingAutofocusComponent {}
 
+@Component({
+  selector: 'test-focus-trap-only-heading-autofocus',
+  imports: [NgpFocusTrap],
+  template: `
+    <div ngpFocusTrap data-testid="focus-trap">
+      <!-- eslint-disable-next-line @angular-eslint/template/no-autofocus -->
+      <h2 data-testid="heading" tabindex="-1" autofocus>Heading</h2>
+    </div>
+  `,
+})
+class TestFocusTrapOnlyHeadingAutofocusComponent {}
+
 describe('NgpFocusTrap', () => {
   describe('Host Bindings', () => {
     it('should set tabindex to -1', async () => {
@@ -788,5 +800,18 @@ describe('Initial focus', () => {
     fireEvent.keyDown(heading, { key: 'Tab', shiftKey: true });
 
     expect(getByTestId('last')).toHaveFocus();
+  });
+
+  it('should block Tab and Shift+Tab from a non-tabbable target when nothing inside is tabbable', async () => {
+    const { getByTestId } = await render(TestFocusTrapOnlyHeadingAutofocusComponent);
+    const heading = getByTestId('heading');
+    await waitFor(() => expect(heading).toHaveFocus());
+
+    const tabNotPrevented = fireEvent.keyDown(heading, { key: 'Tab' });
+    const shiftTabNotPrevented = fireEvent.keyDown(heading, { key: 'Tab', shiftKey: true });
+
+    expect(tabNotPrevented).toBe(false);
+    expect(shiftTabNotPrevented).toBe(false);
+    expect(heading).toHaveFocus();
   });
 });

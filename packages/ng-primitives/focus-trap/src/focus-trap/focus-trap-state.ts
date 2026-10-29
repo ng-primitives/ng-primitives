@@ -303,7 +303,7 @@ export const [NgpFocusTrapStateToken, ngpFocusTrap, injectFocusTrapState, provid
         );
 
         if (tabbables.length === 0) {
-          if (focusedElement === container) {
+          if (container.contains(focusedElement)) {
             event.preventDefault();
           }
           return;

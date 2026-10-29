@@ -234,7 +234,7 @@ passed to `NgpDialogManager.open()`.
 
 Adheres to the [WAI-ARIA design pattern](https://www.w3.org/WAI/ARIA/apg/patterns/dialog-modal/examples/dialog/).
 
-Add `autofocus` to an element to focus it when the dialog opens; otherwise the first tabbable element is focused, or the dialog itself if there is none.
+Add `autofocus` to one or more usable elements to focus the first one when the dialog opens; otherwise the first tabbable element is focused, or the dialog itself if there is none.
 
 ### Keyboard Interactions
 
