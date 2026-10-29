@@ -159,7 +159,7 @@ export const [NgpFocusTrapStateToken, ngpFocusTrap, injectFocusTrapState, provid
         });
 
         const previouslyFocusedElement = document.activeElement as HTMLElement | null;
-        const hasFocusedCandidate = element.nativeElement.contains(previouslyFocusedElement);
+        const hasFocusedCandidate = element.nativeElement.contains(getFocusedElementInTrapTree());
 
         // Only perform initial focusing if the focus trap is not disabled
         if (!hasFocusedCandidate && !disabled?.()) {
@@ -291,9 +291,15 @@ export const [NgpFocusTrapStateToken, ngpFocusTrap, injectFocusTrapState, provid
         }
 
         const isTabKey = event.key === 'Tab' && !event.altKey && !event.ctrlKey && !event.metaKey;
-        const focusedElement = getFocusedElement();
+        const focusedElement = getFocusedElementInTrapTree();
 
         if (!isTabKey || !focusedElement) {
+          return;
+        }
+
+        // The tabbable walker does not enter nested shadow roots, so from inside one the trap
+        // cannot tell where Tab should go; leave it to the browser.
+        if (focusedElement !== getFocusedElement()) {
           return;
         }
 
@@ -336,6 +342,22 @@ export const [NgpFocusTrapStateToken, ngpFocusTrap, injectFocusTrapState, provid
         }
 
         return focusedElement;
+      }
+
+      /**
+       * Returns the focused element, or the shadow host that contains it, in the trap's own
+       * tree, so it can be compared with the trap's descendants.
+       */
+      function getFocusedElementInTrapTree(): HTMLElement | null {
+        const trapRoot = element.nativeElement.getRootNode();
+        let focusedElement: Element | null = getFocusedElement();
+
+        while (focusedElement && focusedElement.getRootNode() !== trapRoot) {
+          const root = focusedElement.getRootNode();
+          focusedElement = root instanceof ShadowRoot ? root.host : null;
+        }
+
+        return focusedElement as HTMLElement | null;
       }
 
       /**
@@ -391,7 +413,8 @@ export const [NgpFocusTrapStateToken, ngpFocusTrap, injectFocusTrapState, provid
           // elements (e.g. `<summary>`), and the browser refuses hidden or inert ones.
           focus(candidate);
 
-          if (getFocusedElement() === candidate) {
+          // a host that delegates focus hands it to a control in its own shadow root
+          if (getFocusedElement() === candidate || candidate.shadowRoot?.activeElement) {
             return true;
           }
         }

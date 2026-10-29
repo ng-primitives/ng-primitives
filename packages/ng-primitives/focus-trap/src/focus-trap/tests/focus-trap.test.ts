@@ -1,8 +1,18 @@
 import { FocusMonitor, InteractivityChecker } from '@angular/cdk/a11y';
-import { Component, signal, ViewEncapsulation } from '@angular/core';
+import {
+  ApplicationRef,
+  Component,
+  CUSTOM_ELEMENTS_SCHEMA,
+  ElementRef,
+  EnvironmentInjector,
+  Injector,
+  runInInjectionContext,
+  signal,
+  ViewEncapsulation,
+} from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { fireEvent, render, waitFor } from '@testing-library/angular';
-import { NgpFocusTrap } from 'ng-primitives/focus-trap';
+import { NgpFocusTrap, ngpFocusTrap } from 'ng-primitives/focus-trap';
 import { describe, expect, it, vi } from 'vitest';
 
 @Component({
@@ -260,6 +270,70 @@ class TestShadowFocusTrapTrailingHeadingComponent {}
   `,
 })
 class TestShadowFocusTrapOnlyHeadingComponent {}
+
+class TestDelegatesFocusInputElement extends HTMLElement {
+  constructor() {
+    super();
+    this.attachShadow({ mode: 'open', delegatesFocus: true }).innerHTML =
+      '<input data-testid="inner-input" />';
+  }
+}
+
+class TestTwoButtonsElement extends HTMLElement {
+  constructor() {
+    super();
+    this.attachShadow({ mode: 'open' }).innerHTML =
+      '<button data-testid="inner-first">Inner first</button>' +
+      '<button data-testid="inner-last">Inner last</button>';
+  }
+}
+
+if (!customElements.get('test-delegates-focus-input')) {
+  customElements.define('test-delegates-focus-input', TestDelegatesFocusInputElement);
+}
+if (!customElements.get('test-two-buttons')) {
+  customElements.define('test-two-buttons', TestTwoButtonsElement);
+}
+
+@Component({
+  selector: 'test-focus-trap-delegates-focus-autofocus',
+  imports: [NgpFocusTrap],
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
+  template: `
+    <div ngpFocusTrap data-testid="focus-trap">
+      <button data-testid="first">First</button>
+      <test-delegates-focus-input data-testid="autofocus" autofocus />
+      <button data-testid="last">Last</button>
+    </div>
+  `,
+})
+class TestFocusTrapDelegatesFocusAutofocusComponent {}
+
+@Component({
+  selector: 'test-focus-trap-nested-shadow',
+  imports: [NgpFocusTrap],
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
+  template: `
+    <div ngpFocusTrap data-testid="focus-trap">
+      <button data-testid="first">First</button>
+      <test-two-buttons data-testid="nested" />
+      <button data-testid="last">Last</button>
+    </div>
+  `,
+})
+class TestFocusTrapNestedShadowComponent {}
+
+@Component({
+  selector: 'test-focus-trap-only-nested-shadow',
+  imports: [NgpFocusTrap],
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
+  template: `
+    <div ngpFocusTrap data-testid="focus-trap">
+      <test-two-buttons data-testid="nested" />
+    </div>
+  `,
+})
+class TestFocusTrapOnlyNestedShadowComponent {}
 
 describe('NgpFocusTrap', () => {
   describe('Host Bindings', () => {
@@ -898,5 +972,74 @@ describe('Focus trap inside a shadow root', () => {
     expect(fireEvent.keyDown(heading, { key: 'Tab' })).toBe(false);
     expect(fireEvent.keyDown(heading, { key: 'Tab', shiftKey: true })).toBe(false);
     expect(shadowRoot.activeElement).toBe(heading);
+  });
+
+  it('should leave focus where it is and skip autofocus when focus is already inside on activation', async () => {
+    // A template creates the trap before its children, so focus cannot already be inside;
+    // run the factory directly against a container that already holds focus.
+    const host = document.createElement('div');
+    document.body.appendChild(host);
+    const shadowRoot = host.attachShadow({ mode: 'open' });
+    shadowRoot.innerHTML = `
+      <div data-testid="focus-trap">
+        <button data-testid="first">First</button>
+        <button data-testid="middle">Middle</button>
+        <button data-testid="autofocus" autofocus>Autofocus</button>
+      </div>
+    `;
+    const container = shadowRoot.querySelector<HTMLElement>('[data-testid="focus-trap"]')!;
+    const middle = shadowRoot.querySelector<HTMLElement>('[data-testid="middle"]')!;
+    middle.focus();
+    expect(shadowRoot.activeElement).toBe(middle);
+
+    try {
+      const injector = Injector.create({
+        providers: [{ provide: ElementRef, useValue: new ElementRef(container) }],
+        parent: TestBed.inject(EnvironmentInjector),
+      });
+      runInInjectionContext(injector, () => ngpFocusTrap({}));
+
+      TestBed.inject(ApplicationRef).tick();
+      await new Promise(resolve => setTimeout(resolve, 0));
+
+      expect(shadowRoot.activeElement).toBe(middle);
+    } finally {
+      host.remove();
+    }
+  });
+});
+
+describe('Focus trap containing shadow roots', () => {
+  it('should focus inside an autofocus shadow host that delegates focus', async () => {
+    const { getByTestId } = await render(TestFocusTrapDelegatesFocusAutofocusComponent);
+    const host = getByTestId('autofocus');
+    const innerInput = host.shadowRoot!.querySelector('[data-testid="inner-input"]');
+
+    await waitFor(() => expect(host.shadowRoot!.activeElement).toBe(innerInput));
+  });
+
+  it('should leave Tab and Shift+Tab to the browser inside a nested shadow root', async () => {
+    const { getByTestId } = await render(TestFocusTrapNestedShadowComponent);
+    await waitFor(() => expect(getByTestId('first')).toHaveFocus());
+    const nested = getByTestId('nested');
+    const innerFirst = nested.shadowRoot!.querySelector<HTMLElement>(
+      '[data-testid="inner-first"]',
+    )!;
+    innerFirst.focus();
+
+    expect(fireEvent.keyDown(innerFirst, { key: 'Tab' })).toBe(true);
+    expect(fireEvent.keyDown(innerFirst, { key: 'Tab', shiftKey: true })).toBe(true);
+    expect(nested.shadowRoot!.activeElement).toBe(innerFirst);
+  });
+
+  it('should not lock Tab when the only tabbable elements are inside a nested shadow root', async () => {
+    const { getByTestId } = await render(TestFocusTrapOnlyNestedShadowComponent);
+    const nested = getByTestId('nested');
+    const innerFirst = nested.shadowRoot!.querySelector<HTMLElement>(
+      '[data-testid="inner-first"]',
+    )!;
+    innerFirst.focus();
+
+    expect(fireEvent.keyDown(innerFirst, { key: 'Tab' })).toBe(true);
   });
 });
