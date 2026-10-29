@@ -5,7 +5,7 @@ import userEvent from '@testing-library/user-event';
 import { NgpDialog, NgpDialogManager, NgpDialogOverlay } from 'ng-primitives/dialog';
 import { NgpMenu, NgpMenuItem, NgpMenuTrigger } from 'ng-primitives/menu';
 import { NgpOverlayRegistry } from 'ng-primitives/portal';
-import { describe, expect, it, vi } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 
 @Component({
   template: `
@@ -47,6 +47,12 @@ class MenuDialogComponent {
 }
 
 describe('NgpMenu closing behind a dialog it opened', () => {
+  // the dialog outlives the menu, so close it here or it leaks into the next test
+  afterEach(async () => {
+    TestBed.inject(NgpDialogManager).closeAll();
+    await waitFor(() => expect(document.querySelector('[ngpDialog]')).toBeNull());
+  });
+
   it('leaves focus in the dialog, which stays open', async () => {
     const { fixture } = await render(MenuDialogComponent);
 
