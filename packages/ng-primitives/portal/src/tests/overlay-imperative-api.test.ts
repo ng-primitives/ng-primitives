@@ -401,11 +401,15 @@ describe('createOverlay imperative usage', () => {
     placement.set('top');
     await waitFor(() => expect(held).not.toBeNull());
 
-    placement.set('bottom-end');
-    await waitFor(() => expect(overlay.finalPlacement()).toBe('bottom-end'));
+    try {
+      placement.set('bottom-end');
+      await waitFor(() => expect(overlay.finalPlacement()).toBe('bottom-end'));
+    } finally {
+      held!.release();
+    }
 
-    held!.release();
-    await new Promise(resolve => setTimeout(resolve, 50));
+    // the released pass only has microtasks left, so one macrotask lets it finish
+    await new Promise(resolve => setTimeout(resolve));
     expect(overlay.finalPlacement()).toBe('bottom-end');
   });
 });
