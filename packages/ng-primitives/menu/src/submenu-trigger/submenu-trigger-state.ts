@@ -31,7 +31,7 @@ import {
   deprecatedSetter,
   listener,
 } from 'ng-primitives/state';
-import { injectDisposables, safeTakeUntilDestroyed } from 'ng-primitives/utils';
+import { injectDisposables, safeTakeUntilDestroyed, uniqueId } from 'ng-primitives/utils';
 import { injectMenuState } from '../menu/menu-state';
 
 export interface NgpSubmenuTriggerState {
@@ -146,6 +146,12 @@ export interface NgpSubmenuTriggerState {
    * @internal
    */
   setPointerOverContent(isOver: boolean): void;
+
+  /**
+   * The id of the trigger element, which names the menu.
+   * @internal
+   */
+  triggerId(): string | null;
 }
 
 export interface NgpSubmenuTriggerProps<T = unknown> {
@@ -272,6 +278,9 @@ export const [
       });
 
     // Host bindings
+    // the submenu is named by its trigger, so the trigger needs an id; the consumer's own is kept
+    const fallbackId = uniqueId('ngp-submenu-trigger');
+    attrBinding(element, 'id', () => element.nativeElement.id || fallbackId);
     attrBinding(element, 'aria-haspopup', 'true');
     attrBinding(element, 'aria-expanded', open);
     dataBinding(element, 'data-open', open);
@@ -497,6 +506,7 @@ export const [
       setContainer,
       focus,
       setPointerOverContent,
+      triggerId: () => element.nativeElement.id,
       container: deprecatedSetter(container, 'setContainer', setContainer),
     } satisfies NgpSubmenuTriggerState;
   },

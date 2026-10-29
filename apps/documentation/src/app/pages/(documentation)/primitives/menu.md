@@ -437,6 +437,8 @@ bootstrapApplication(AppComponent, {
 
 Adheres to the [WAI-ARIA Menu Button Pattern](https://www.w3.org/WAI/ARIA/apg/patterns/menu-button/).
 
+A menu is named by its trigger through `aria-labelledby`, and a submenu by its submenu trigger, unless you give it an `aria-label` or `aria-labelledby` of your own. A context menu has no trigger to take a name from, so give it an `aria-label`.
+
 ### Keyboard Interactions
 
 | Key                   | Description                                                                                    |
