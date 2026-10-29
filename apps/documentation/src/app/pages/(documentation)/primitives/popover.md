@@ -274,7 +274,7 @@ bootstrapApplication(AppComponent, {
 
 ## Accessibility
 
-The popover element is assigned `role="dialog"` and the trigger element uses `aria-expanded` to indicate the popover's open state. The trigger is linked to the popover via `aria-describedby`, and the popover is named by its trigger through `aria-labelledby` unless you give it an `aria-label` or `aria-labelledby` of your own. Focus is trapped within the popover when open.
+The popover element is assigned `role="dialog"` and the trigger element uses `aria-expanded` to indicate the popover's open state. The trigger is linked to the popover via `aria-describedby`, and the popover is named by its trigger through `aria-labelledby` unless an `aria-label` or `aria-labelledby` is present when the overlay renders; labels added later do not override the trigger name. Focus is trapped within the popover when open.
 
 ### Keyboard Interactions
 
