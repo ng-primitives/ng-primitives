@@ -1,3 +1,4 @@
+import { FocusMonitor } from '@angular/cdk/a11y';
 import {
   signal,
   Signal,
@@ -7,6 +8,7 @@ import {
   ViewContainerRef,
   computed,
   ElementRef,
+  untracked,
 } from '@angular/core';
 import {
   createHoverBridge,
@@ -35,7 +37,7 @@ import {
   onDestroy,
   StateInjectionOptions,
 } from 'ng-primitives/state';
-import { isString, onChange } from 'ng-primitives/utils';
+import { isString, onChange, safeTakeUntilDestroyed } from 'ng-primitives/utils';
 import { NgpTooltipTextContentComponent } from '../tooltip-text-content/tooltip-text-content';
 
 export interface NgpTooltipTriggerState<T> {
@@ -350,6 +352,7 @@ export const [
     const viewContainerRef = inject(ViewContainerRef);
     const trigger = inject(ElementRef<HTMLElement>);
     const tooltipTriggerState = injectTooltipTriggerState<T>();
+    const focusMonitor = inject(FocusMonitor);
     const focusRestoration = inject(NgpFocusRestoration);
 
     // Every input is wrapped so the state can expose a setter for it - see the
@@ -395,51 +398,50 @@ export const [
     attrBinding(elementRef, 'aria-describedby', () => overlay()?.ariaDescribedBy());
     dataBinding(elementRef, 'data-open', () => (open() ? '' : null));
 
-    // Remembered for the re-enable check below, which runs after the focus event is over.
-    let focusWasRestored = false;
+    // Whether the trigger holds focus the user moved there with the keyboard. Kept for the
+    // re-enable check below, which runs after the focus event is over.
+    let hasUserKeyboardFocus = false;
 
     // Listeners
     listener(elementRef, 'mouseenter', showFromInteraction);
-    listener(elementRef, 'focus', () => {
-      focusWasRestored = focusRestoration.isRestoring(trigger.nativeElement);
-
-      // Only the user arriving by keyboard opens the tooltip - not focus left by a click,
-      // moved there by code, or handed back by an overlay that is closing.
-      if (hasKeyboardFocus() && !focusWasRestored) {
-        showFromInteraction();
-      }
-    });
     listener(elementRef, 'mouseleave', hideFromInteraction);
-    listener(elementRef, 'blur', () => {
-      focusWasRestored = false;
-      hideFromInteraction();
-    });
+    listener(elementRef, 'blur', () => hideFromInteraction());
+
+    // Only the user arriving by keyboard opens the tooltip - not focus from a pointer, moved
+    // there by code, or handed back by an overlay that is closing (which reports a keyboard
+    // origin after an Escape). FocusMonitor reports null on blur.
+    focusMonitor
+      .monitor(trigger.nativeElement)
+      .pipe(safeTakeUntilDestroyed())
+      .subscribe(origin =>
+        untracked(() => {
+          hasUserKeyboardFocus =
+            origin === 'keyboard' && !focusRestoration.isRestoring(trigger.nativeElement);
+
+          if (hasUserKeyboardFocus) {
+            showFromInteraction();
+          }
+        }),
+      );
 
     // Re-enabling fires neither `mouseenter` nor `focus` for a pointer or focus that is
-    // already on the trigger, so check for them instead. Focus counts only when it is
-    // keyboard focus the user moved there: not focus left by a click or handed back by an overlay.
+    // already on the trigger, so check for them instead.
     onChange(disabled, (isDisabled, wasDisabled) => {
       if (
         wasDisabled &&
         !isDisabled &&
-        (trigger.nativeElement.matches(':hover') || (hasKeyboardFocus() && !focusWasRestored))
+        (trigger.nativeElement.matches(':hover') || hasUserKeyboardFocus)
       ) {
         showFromInteraction();
       }
     });
 
-    function hasKeyboardFocus(): boolean {
-      try {
-        return trigger.nativeElement.matches(':focus-visible');
-      } catch {
-        // a browser without `:focus-visible` can't tell keyboard focus apart, so any focus counts
-        return trigger.nativeElement.matches(':focus');
-      }
-    }
-
     onDestroy(() => {
       hoverBridge.clear();
       overlay()?.destroy();
+      // Unsubscribing does not remove the element from FocusMonitor's registry, so the
+      // element info and its root-node listeners have to be released explicitly.
+      focusMonitor.stopMonitoring(trigger.nativeElement);
     });
 
     function show(): void {
