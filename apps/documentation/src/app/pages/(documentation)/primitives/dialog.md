@@ -78,6 +78,10 @@ Use dismiss guards to prevent a dialog from closing when there are unsaved chang
 
 <docs-example name="dialog-dismiss-guard"></docs-example>
 
+### Handling Escape inside the dialog
+
+A control inside the dialog that uses Escape itself, such as an inline-edit field that reverts its value, claims the key with `claimEscapeKey` from `ng-primitives/portal` so the dialog stays open. The [Popover](/primitives/popover) page has an example; it works the same for every overlay.
+
 ### Dialog with external data
 
 Data can be passed to the dialog using the `NgpDialogManager`.

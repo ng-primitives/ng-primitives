@@ -146,6 +146,23 @@ Use dismiss guards to prevent a popover from closing when there are unsaved chan
 
 <docs-example name="popover-dismiss-guard"></docs-example>
 
+### Handling Escape inside the popover
+
+Overlays handle Escape before the controls inside them, so stopping the event in a control is too late. A control that uses Escape itself, such as an inline-edit field that reverts its value, claims the key with `claimEscapeKey` from `ng-primitives/portal`. Call it in an injection context; the claim is released when that context is destroyed. A claimed Escape pressed inside the topmost overlay leaves it open.
+
+```ts
+import { claimEscapeKey } from 'ng-primitives/portal';
+
+export class InlineEdit {
+  private readonly field = viewChild.required<ElementRef<HTMLInputElement>>('field');
+  readonly editing = signal(false);
+
+  constructor() {
+    claimEscapeKey(event => event.target === this.field().nativeElement && this.editing());
+  }
+}
+```
+
 ### Keeping Content Mounted
 
 By default, the popover content is destroyed when the popover closes and created again on the next open, so any one-time setup runs every time. Set `ngpPopoverTriggerKeepMounted` to keep the content instance alive between opens instead.
