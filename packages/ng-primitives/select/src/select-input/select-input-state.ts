@@ -83,7 +83,7 @@ export const [
 
     // the overlay registry would close the dropdown in the capture phase, removing the input
     // before its own Escape handler can hand focus back to the trigger
-    claimEscapeKey(event => event.target === elementRef.nativeElement);
+    claimEscapeKey(event => event.composedPath()[0] === elementRef.nativeElement);
 
     // options are focusable, so a click in the list would pull focus out of the search field
     const dropdown = selectState().dropdown();

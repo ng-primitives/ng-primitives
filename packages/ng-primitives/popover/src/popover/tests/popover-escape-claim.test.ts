@@ -11,11 +11,17 @@ import { describe, expect, it } from 'vitest';
   `,
 })
 class InlineEditComponent {
+  /** The rendered instance, which lives in the overlay and is out of the fixture's reach. */
+  static current: InlineEditComponent | null = null;
+
   readonly editing = signal(true);
-  private readonly field = viewChild.required<ElementRef<HTMLInputElement>>('field');
+  private readonly field = viewChild<ElementRef<HTMLInputElement>>('field');
 
   constructor() {
-    claimEscapeKey(event => event.target === this.field().nativeElement && this.editing());
+    InlineEditComponent.current = this;
+    claimEscapeKey(
+      event => this.editing() && event.composedPath()[0] === this.field()?.nativeElement,
+    );
   }
 }
 
@@ -48,6 +54,15 @@ describe('claimEscapeKey', () => {
     // give any close handler a chance to run, then assert it stayed open
     await new Promise(resolve => setTimeout(resolve, 50));
     expect(document.querySelector('[ngpPopover]')).toBeInTheDocument();
+  });
+
+  it('closes the popover when the control declines to claim the Escape', async () => {
+    const field = await open();
+    InlineEditComponent.current!.editing.set(false);
+
+    fireEvent.keyDown(field, { key: 'Escape' });
+
+    await waitFor(() => expect(document.querySelector('[ngpPopover]')).not.toBeInTheDocument());
   });
 
   it('closes the popover on an Escape the control does not claim', async () => {
