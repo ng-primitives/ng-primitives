@@ -161,7 +161,7 @@ Two things to weigh before enabling it:
 
 ### Final focus
 
-When the popover closes, focus returns to its trigger. If the trigger has been removed, focus goes to the element that was focused when the popover opened. Set `ngpPopoverFinalFocus` to choose another element, to pass a function that receives the close origin and returns one, or to `false` to leave focus where it is.
+When the popover closes, focus returns to the element that was focused when it opened, usually its trigger. Set `ngpPopoverFinalFocus` to choose another element, to pass a function that receives the close origin and returns one, or to `false` to leave focus where it is.
 
 ```html
 <button [ngpPopoverTrigger]="popover">Rename</button>
@@ -287,7 +287,7 @@ bootstrapApplication(AppComponent, {
 
 ## Accessibility
 
-The popover element is assigned `role="dialog"` and the trigger element uses `aria-expanded` to indicate the popover's open state. The trigger is linked to the popover via `aria-describedby`. Focus is trapped within the popover when open. When it closes, focus returns to the trigger, unless an outside click landed on another control, which keeps focus.
+The popover element is assigned `role="dialog"` and the trigger element uses `aria-expanded` to indicate the popover's open state. The trigger is linked to the popover via `aria-describedby`. Focus is trapped within the popover when open. When it closes, focus returns to the element that was focused when it opened, usually the trigger, unless an outside click landed on another control, which keeps focus.
 
 ### Keyboard Interactions
 
