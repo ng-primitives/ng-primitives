@@ -105,6 +105,11 @@ export interface NgpListboxProps<T> {
    */
   readonly compareWith?: Signal<(a: T, b: T) => boolean>;
   /**
+   * Whether selecting an option closes the enclosing popover. Only applies in single selection
+   * mode; a multiple selection listbox never closes it.
+   */
+  readonly closeOnSelect?: Signal<boolean>;
+  /**
    * Emits when the listbox selection changes.
    */
   readonly onValueChange?: (value: T[]) => void;
@@ -120,6 +125,7 @@ export const [NgpListboxStateToken, ngpListbox, _injectListboxState, provideList
       defaultValue: _defaultValue,
       disabled: _disabled = signal<boolean>(false),
       compareWith = signal<(a: T, b: T) => boolean>((a, b) => a === b),
+      closeOnSelect = signal(true),
       onValueChange,
     }: NgpListboxProps<T>) => {
       const elementRef = injectElementRef();
@@ -260,7 +266,7 @@ export const [NgpListboxStateToken, ngpListbox, _injectListboxState, provideList
         }
 
         // If the listbox is within a popover, close the popover on selection if it is not in a multiple selection mode.
-        if (mode() !== 'multiple') {
+        if (mode() !== 'multiple' && closeOnSelect()) {
           popoverTriggerState()?.hide(origin);
         }
       }

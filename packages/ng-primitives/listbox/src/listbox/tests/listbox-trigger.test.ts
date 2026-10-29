@@ -73,6 +73,33 @@ describe('NgpListboxTrigger', () => {
     expect(trigger).toHaveAttribute('aria-expanded', 'false');
   });
 
+  it('keeps the popover open on a single selection when closeOnSelect is false', async () => {
+    const keepOpenTemplate = `
+      <button [ngpPopoverTrigger]="dropdown" ngpListboxTrigger data-testid="trigger">Open</button>
+      <ng-template #dropdown>
+        <div ngpPopover ngpListbox ngpListboxCloseOnSelect="false" aria-label="Fruit">
+          <div ngpListboxOption ngpListboxOptionValue="a">A</div>
+          <div ngpListboxOption ngpListboxOptionValue="b">B</div>
+        </div>
+      </ng-template>
+    `;
+    const { getByTestId, fixture } = await render(keepOpenTemplate, { imports });
+    const trigger = getByTestId('trigger');
+
+    fireEvent.keyDown(trigger, { key: 'ArrowDown' });
+    await waitFor(() => expect(document.querySelector('[ngpListbox]')).toBeInTheDocument());
+
+    const option = document.querySelector('[ngpListboxOption]')!;
+    fireEvent.click(option);
+    // the popover closes on a timer, so give a pending close the chance to land
+    await new Promise(resolve => setTimeout(resolve, 100));
+    await fixture.whenStable();
+
+    expect(option).toHaveAttribute('data-selected');
+    expect(document.querySelector('[ngpListbox]')).toBeInTheDocument();
+    expect(trigger).toHaveAttribute('aria-expanded', 'true');
+  });
+
   it('keeps the popover open when an option is selected in multiple mode', async () => {
     const multipleTemplate = `
       <button [ngpPopoverTrigger]="dropdown" ngpListboxTrigger data-testid="trigger">Open</button>
@@ -90,6 +117,7 @@ describe('NgpListboxTrigger', () => {
     await waitFor(() => expect(document.querySelector('[ngpListbox]')).toBeInTheDocument());
 
     fireEvent.click(document.querySelector('[ngpListboxOption]')!);
+    await new Promise(resolve => setTimeout(resolve, 100));
 
     // in multiple-selection mode the popover stays open so more options can be picked
     expect(document.querySelector('[ngpListbox]')).toBeInTheDocument();
