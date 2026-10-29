@@ -1,7 +1,7 @@
 import { Component, inject, TemplateRef, viewChild, ViewContainerRef } from '@angular/core';
 import { fireEvent, render, waitFor } from '@testing-library/angular';
 import { NgpDialog, NgpDialogManager, NgpDialogOverlay } from 'ng-primitives/dialog';
-import { NgpToast, NgpToastManager } from 'ng-primitives/toast';
+import { NgpToast, NgpToastManager, NgpToastPlacement, NgpToastRef } from 'ng-primitives/toast';
 import { afterEach, describe, expect, it } from 'vitest';
 
 @Component({
@@ -16,6 +16,7 @@ class TestToast {}
 @Component({
   template: `
     <button data-testid="page-button">Page</button>
+    <button data-testid="other-button">Other</button>
 
     <ng-template #dialog>
       <div ngpDialogOverlay>
@@ -33,8 +34,8 @@ class ToastKeyboardHost {
   readonly dialog = viewChild.required<TemplateRef<unknown>>('dialog');
   private readonly viewContainerRef = inject(ViewContainerRef);
 
-  showToast(): void {
-    this.toasts.show(TestToast, { persistent: true });
+  showToast(placement?: NgpToastPlacement): NgpToastRef {
+    return this.toasts.show(TestToast, { persistent: true, placement });
   }
 
   openDialog(): void {
@@ -42,15 +43,18 @@ class ToastKeyboardHost {
   }
 }
 
-function container(): HTMLElement {
-  const element = document.querySelector<HTMLElement>('[data-ngp-toast-container]');
+function container(placement?: NgpToastPlacement): HTMLElement {
+  const selector = placement
+    ? `[data-ngp-toast-container="${placement}"]`
+    : '[data-ngp-toast-container]';
+  const element = document.querySelector<HTMLElement>(selector);
   expect(element).toBeTruthy();
   return element!;
 }
 
-function pressKey(key: string): KeyboardEvent {
+function pressKey(key: string, init: KeyboardEventInit = {}): KeyboardEvent {
   const target = document.activeElement ?? document.body;
-  const event = new KeyboardEvent('keydown', { key, bubbles: true, cancelable: true });
+  const event = new KeyboardEvent('keydown', { key, bubbles: true, cancelable: true, ...init });
   target.dispatchEvent(event);
   return event;
 }
@@ -86,14 +90,96 @@ describe('NgpToastManager keyboard access', () => {
     expect(document.activeElement).toBe(pageButton);
   });
 
-  it('does nothing on F6 when there are no toasts', async () => {
-    const { getByTestId } = await renderHost();
+  it('does nothing on F6 once every toast is dismissed', async () => {
+    const { host, getByTestId } = await renderHost();
+    // showing a toast registers the key listeners; dismissing it leaves an empty container
+    await host.showToast().dismiss();
     const pageButton = getByTestId('page-button');
     pageButton.focus();
 
     const event = pressKey('F6');
 
     expect(event.defaultPrevented).toBe(false);
+    expect(document.activeElement).toBe(pageButton);
+  });
+
+  it('lets F6 through when the toasts were reached with Tab', async () => {
+    const { host } = await renderHost();
+    host.showToast();
+    const action = document.querySelector<HTMLElement>('[data-testid="toast-action"]')!;
+    action.focus();
+
+    const event = pressKey('F6');
+
+    expect(event.defaultPrevented).toBe(false);
+    expect(document.activeElement).toBe(action);
+  });
+
+  it('forgets the saved element once focus leaves the toasts another way', async () => {
+    const { host, getByTestId } = await renderHost();
+    host.showToast();
+    const pageButton = getByTestId('page-button');
+    pageButton.focus();
+    pressKey('F6');
+    expect(document.activeElement).toBe(container());
+
+    getByTestId('other-button').focus();
+    const action = document.querySelector<HTMLElement>('[data-testid="toast-action"]')!;
+    action.focus();
+
+    const event = pressKey('Escape');
+
+    expect(event.defaultPrevented).toBe(false);
+    expect(document.activeElement).toBe(action);
+  });
+
+  it('forgets the saved element when the focused toast is dismissed', async () => {
+    const { host, getByTestId } = await renderHost();
+    const first = host.showToast();
+    getByTestId('page-button').focus();
+    pressKey('F6');
+    document.querySelector<HTMLElement>('[data-testid="toast-action"]')!.focus();
+
+    await first.dismiss();
+    host.showToast();
+    const action = document.querySelector<HTMLElement>('[data-testid="toast-action"]')!;
+    action.focus();
+
+    const event = pressKey('Escape');
+
+    expect(event.defaultPrevented).toBe(false);
+    expect(document.activeElement).toBe(action);
+  });
+
+  it('leaves Escape to an input method that is composing', async () => {
+    const { host, getByTestId } = await renderHost();
+    host.showToast();
+    getByTestId('page-button').focus();
+    pressKey('F6');
+
+    const event = pressKey('Escape', { isComposing: true });
+
+    expect(event.defaultPrevented).toBe(false);
+    expect(document.activeElement).toBe(container());
+  });
+
+  it("moves to the newest toast's region from an emptied one", async () => {
+    const { host, getByTestId } = await renderHost();
+    const first = host.showToast('top-start');
+    const pageButton = getByTestId('page-button');
+    pageButton.focus();
+    pressKey('F6');
+    expect(document.activeElement).toBe(container('top-start'));
+
+    host.showToast('bottom-end');
+    await first.dismiss();
+    // focus stays on the emptied top-start region
+    expect(document.activeElement).toBe(container('top-start'));
+
+    pressKey('F6');
+    expect(document.activeElement).toBe(container('bottom-end'));
+
+    pressKey('F6');
     expect(document.activeElement).toBe(pageButton);
   });
 

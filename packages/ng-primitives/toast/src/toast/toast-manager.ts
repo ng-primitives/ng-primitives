@@ -149,9 +149,15 @@ export class NgpToastManager {
         return;
       }
 
-      if (this.focusedContainer()) {
-        event.preventDefault();
-        this.returnFocus();
+      const focused = this.containerOf(this.document.activeElement);
+
+      // Back out only from a region that still shows toasts. Reached with Tab, there is
+      // nowhere to go back to, so F6 is left to the browser.
+      if (focused && this.hasToasts(focused)) {
+        if (this.focusBeforeToasts) {
+          event.preventDefault();
+          this.returnFocus();
+        }
         return;
       }
 
@@ -163,14 +169,24 @@ export class NgpToastManager {
       }
 
       event.preventDefault();
-      this.focusBeforeToasts = this.document.activeElement as HTMLElement | null;
+
+      // From an emptied region, keep the element saved when F6 first moved here.
+      if (!focused) {
+        this.focusBeforeToasts = this.document.activeElement as HTMLElement | null;
+      }
+
       container.focus({ preventScroll: true });
     };
 
     // Capture on the window runs before the overlay registry's capture listener on the
     // document, so an open dialog never sees the Escape that leaves the toasts.
     const onEscape = (event: KeyboardEvent) => {
-      if (event.key !== 'Escape' || !this.focusBeforeToasts || !this.focusedContainer()) {
+      if (
+        event.key !== 'Escape' ||
+        event.isComposing ||
+        !this.focusBeforeToasts ||
+        !this.containerOf(this.document.activeElement)
+      ) {
         return;
       }
 
@@ -179,20 +195,37 @@ export class NgpToastManager {
       this.returnFocus();
     };
 
+    // Leaving the toasts by any other way (a click, Tab) ends the F6 round trip.
+    const onFocusOut = (event: FocusEvent) => {
+      if (
+        this.containerOf(event.target as Node | null) &&
+        !this.containerOf(event.relatedTarget as Node | null)
+      ) {
+        this.focusBeforeToasts = null;
+      }
+    };
+
     this.ngZone.runOutsideAngular(() => {
       view.addEventListener('keydown', onF6);
       view.addEventListener('keydown', onEscape, { capture: true });
+      view.addEventListener('focusout', onFocusOut);
     });
 
     this.destroyRef.onDestroy(() => {
       view.removeEventListener('keydown', onF6);
       view.removeEventListener('keydown', onEscape, { capture: true });
+      view.removeEventListener('focusout', onFocusOut);
     });
   }
 
-  private focusedContainer(): HTMLElement | undefined {
-    const active = this.document.activeElement;
-    return [...this.containers.values()].find(container => container.contains(active));
+  private containerOf(node: Node | null): HTMLElement | undefined {
+    return [...this.containers.values()].find(container => container.contains(node));
+  }
+
+  private hasToasts(container: HTMLElement): boolean {
+    return this.toasts().some(
+      toast => this.containers.get(toast.instance.options.placement) === container,
+    );
   }
 
   private returnFocus(): void {
