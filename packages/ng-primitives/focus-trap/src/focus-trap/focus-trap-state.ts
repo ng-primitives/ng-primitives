@@ -293,36 +293,42 @@ export const [NgpFocusTrapStateToken, ngpFocusTrap, injectFocusTrapState, provid
         const isTabKey = event.key === 'Tab' && !event.altKey && !event.ctrlKey && !event.metaKey;
         const focusedElement = document.activeElement as HTMLElement | null;
 
-        if (isTabKey && focusedElement) {
-          const container = event.currentTarget as HTMLElement;
-          const [first, last] = getTabbableEdges(container);
-          const hasTabbableElementsInside = first && last;
+        if (!isTabKey || !focusedElement) {
+          return;
+        }
 
-          // we can only wrap focus if we have tabbable edges
-          if (!hasTabbableElementsInside) {
-            if (focusedElement === container) {
-              event.preventDefault();
-            }
-          } else {
-            if (!event.shiftKey && focusedElement === last) {
-              event.preventDefault();
-              focus(first);
-            } else if (event.shiftKey && focusedElement === first) {
-              event.preventDefault();
-              focus(last);
-            }
+        const container = event.currentTarget as HTMLElement;
+        const tabbables = getTabbableCandidates(container).filter(candidate =>
+          interactivityChecker.isVisible(candidate),
+        );
+
+        if (tabbables.length === 0) {
+          if (focusedElement === container) {
+            event.preventDefault();
           }
+          return;
+        }
+
+        // Wrap when no tabbable lies ahead of focus in DOM order, rather than only from the
+        // edges: focus can sit on a non-tabbable element, such as a `tabindex="-1"` autofocus
+        // target or the container itself.
+        if (!event.shiftKey && !tabbables.some(tabbable => follows(tabbable, focusedElement))) {
+          event.preventDefault();
+          focus(tabbables[0]);
+        } else if (
+          event.shiftKey &&
+          !tabbables.some(tabbable => follows(focusedElement, tabbable))
+        ) {
+          event.preventDefault();
+          focus(tabbables[tabbables.length - 1]);
         }
       }
 
       /**
-       * Returns the first and last tabbable elements inside a container.
+       * Whether `node` comes after `reference` in DOM order.
        */
-      function getTabbableEdges(container: HTMLElement) {
-        const candidates = getTabbableCandidates(container);
-        const first = findVisible(candidates);
-        const last = findVisible(candidates.reverse());
-        return [first, last] as const;
+      function follows(node: Node, reference: Node): boolean {
+        return (reference.compareDocumentPosition(node) & Node.DOCUMENT_POSITION_FOLLOWING) !== 0;
       }
 
       /**
@@ -340,13 +346,6 @@ export const [NgpFocusTrapStateToken, ngpFocusTrap, injectFocusTrapState, provid
           nodes.push(walker.currentNode as HTMLElement);
         }
         return nodes;
-      }
-
-      /**
-       * Returns the first visible element in a list.
-       */
-      function findVisible(elements: HTMLElement[]) {
-        return elements.find(element => interactivityChecker.isVisible(element)) ?? null;
       }
 
       function focus(element: HTMLElement | null): void {
@@ -370,13 +369,14 @@ export const [NgpFocusTrapStateToken, ngpFocusTrap, injectFocusTrapState, provid
         const candidates = element.nativeElement.querySelectorAll<HTMLElement>('[autofocus]');
 
         for (const candidate of Array.from(candidates)) {
-          if (!interactivityChecker.isFocusable(candidate)) {
+          if (candidate.matches(':disabled')) {
             continue;
           }
 
+          // Let the browser decide focusability: CDK's checker rejects some natively focusable
+          // elements (e.g. `<summary>`), and the browser refuses hidden or inert ones.
           focus(candidate);
 
-          // an inert subtree passes the checker but refuses focus
           if (document.activeElement === candidate) {
             return true;
           }

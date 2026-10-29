@@ -162,6 +162,50 @@ class TestFocusTrapHiddenAutofocusComponent {}
 })
 class TestFocusTrapInertAutofocusComponent {}
 
+@Component({
+  selector: 'test-focus-trap-summary-autofocus',
+  imports: [NgpFocusTrap],
+  template: `
+    <div ngpFocusTrap data-testid="focus-trap">
+      <button data-testid="first">First</button>
+      <details>
+        <!-- eslint-disable-next-line @angular-eslint/template/no-autofocus -->
+        <summary data-testid="autofocus" autofocus>Details</summary>
+        Content
+      </details>
+    </div>
+  `,
+})
+class TestFocusTrapSummaryAutofocusComponent {}
+
+@Component({
+  selector: 'test-focus-trap-trailing-heading-autofocus',
+  imports: [NgpFocusTrap],
+  template: `
+    <div ngpFocusTrap data-testid="focus-trap">
+      <button data-testid="first">First</button>
+      <button data-testid="last">Last</button>
+      <!-- eslint-disable-next-line @angular-eslint/template/no-autofocus -->
+      <h2 data-testid="heading" tabindex="-1" autofocus>Heading</h2>
+    </div>
+  `,
+})
+class TestFocusTrapTrailingHeadingAutofocusComponent {}
+
+@Component({
+  selector: 'test-focus-trap-leading-heading-autofocus',
+  imports: [NgpFocusTrap],
+  template: `
+    <div ngpFocusTrap data-testid="focus-trap">
+      <!-- eslint-disable-next-line @angular-eslint/template/no-autofocus -->
+      <h2 data-testid="heading" tabindex="-1" autofocus>Heading</h2>
+      <button data-testid="first">First</button>
+      <button data-testid="last">Last</button>
+    </div>
+  `,
+})
+class TestFocusTrapLeadingHeadingAutofocusComponent {}
+
 describe('NgpFocusTrap', () => {
   describe('Host Bindings', () => {
     it('should set tabindex to -1', async () => {
@@ -718,5 +762,31 @@ describe('Initial focus', () => {
     const { getByTestId } = await render(TestFocusTrapInertAutofocusComponent);
 
     await waitFor(() => expect(getByTestId('first')).toHaveFocus());
+  });
+
+  it('should focus a natively focusable summary with the autofocus attribute', async () => {
+    const { getByTestId } = await render(TestFocusTrapSummaryAutofocusComponent);
+
+    await waitFor(() => expect(getByTestId('autofocus')).toHaveFocus());
+  });
+
+  it('should wrap Tab to the first tabbable element from a non-tabbable target after the last one', async () => {
+    const { getByTestId } = await render(TestFocusTrapTrailingHeadingAutofocusComponent);
+    const heading = getByTestId('heading');
+    await waitFor(() => expect(heading).toHaveFocus());
+
+    fireEvent.keyDown(heading, { key: 'Tab' });
+
+    expect(getByTestId('first')).toHaveFocus();
+  });
+
+  it('should wrap Shift+Tab to the last tabbable element from a non-tabbable target before the first one', async () => {
+    const { getByTestId } = await render(TestFocusTrapLeadingHeadingAutofocusComponent);
+    const heading = getByTestId('heading');
+    await waitFor(() => expect(heading).toHaveFocus());
+
+    fireEvent.keyDown(heading, { key: 'Tab', shiftKey: true });
+
+    expect(getByTestId('last')).toHaveFocus();
   });
 });

@@ -44,4 +44,4 @@ The following directives are available to import from the `ng-primitives/focus-t
 
 Adheres to the [WAI-ARIA design pattern](https://www.w3.org/TR/UNDERSTANDING-WCAG20/keyboard-operation-trapping.html).
 
-Add `autofocus` to an element to focus it when the focus trap activates; otherwise the first focusable element is focused.
+Add `autofocus` to an element to focus it when the focus trap activates; otherwise the first tabbable element is focused, or the focus trap container itself if there is none.

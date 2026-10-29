@@ -276,7 +276,7 @@ bootstrapApplication(AppComponent, {
 
 The popover element is assigned `role="dialog"` and the trigger element uses `aria-expanded` to indicate the popover's open state. The trigger is linked to the popover via `aria-describedby`. Focus is trapped within the popover when open.
 
-Add `autofocus` to an element to focus it when the popover opens; otherwise the first focusable element is focused.
+Add `autofocus` to an element to focus it when the popover opens; otherwise the first tabbable element is focused, or the popover itself if there is none.
 
 ### Keyboard Interactions
 
