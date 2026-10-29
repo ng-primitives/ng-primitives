@@ -59,6 +59,18 @@ describe('NgpPopover final focus', () => {
     expect(other).toHaveFocus();
   });
 
+  it('focuses the finalFocus element when the trigger is removed while open', async () => {
+    const { component, fixture, other } = await setup(other => other);
+    await openWithClick();
+
+    // the trigger's view goes, and the popover content with it, before the overlay closes
+    component.showTrigger.set(false);
+    fixture.detectChanges();
+    await closed();
+
+    expect(other).toHaveFocus();
+  });
+
   it('focuses the finalFocus element on close', async () => {
     const { other } = await setup(other => other);
     await openWithClick();

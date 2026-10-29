@@ -384,6 +384,9 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
   /** Where focus goes on close, as set by the overlay's content. */
   private finalFocus: NgpOverlayFinalFocus | null = null;
 
+  /** Whether the content let go of `finalFocus` while open, so it is dropped once closed. */
+  private finalFocusReleased = false;
+
   /** The element focused when the overlay opened, where focus returns on close. */
   private focusBeforeOpen: HTMLElement | null = null;
 
@@ -852,6 +855,7 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
    */
   setFinalFocus(finalFocus: NgpOverlayFinalFocus | null): void {
     this.finalFocus = finalFocus;
+    this.finalFocusReleased = false;
   }
 
   /**
@@ -859,6 +863,12 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
    * @internal
    */
   removeFinalFocus(): void {
+    // The content can go before the overlay closes, when its trigger's view is destroyed,
+    // so an open overlay keeps the value for that close and drops it once closed.
+    if (this.isOpen()) {
+      this.finalFocusReleased = true;
+      return;
+    }
     this.finalFocus = null;
   }
 
@@ -1640,6 +1650,11 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
       this.isOpen.set(false);
       this.finalPlacement.set(undefined);
       this.instantTransition.set(false);
+
+      if (this.finalFocusReleased) {
+        this.finalFocus = null;
+        this.finalFocusReleased = false;
+      }
     }
   }
 
