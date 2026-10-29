@@ -4,6 +4,7 @@ import {
   OnDestroy,
   OnInit,
   TemplateRef,
+  ViewEncapsulation,
   signal,
   viewChild,
 } from '@angular/core';
@@ -24,19 +25,29 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
  * Hold `detach()` open the way a pending exit animation would, so a test can act while
  * a close is still in flight. `release()` lets the real detach proceed.
  */
-function gateDetach(): { release: () => void; restore: () => void } {
+function gateDetach(): {
+  release: () => void;
+  settled: () => Promise<unknown>;
+  restore: () => void;
+} {
   const realDetach = NgpTemplatePortal.prototype.detach;
   let release!: () => void;
   const gate = new Promise<void>(resolve => (release = resolve));
-  const spy = vi.spyOn(NgpTemplatePortal.prototype, 'detach').mockImplementation(async function (
+  const pending: Promise<void>[] = [];
+  const spy = vi.spyOn(NgpTemplatePortal.prototype, 'detach').mockImplementation(function (
     this: NgpTemplatePortal<unknown>,
     options,
   ) {
-    await gate;
-    return realDetach.call(this, options);
+    const detach = gate.then(() => realDetach.call(this, options));
+    pending.push(detach);
+    return detach;
   });
 
-  return { release, restore: () => spy.mockRestore() };
+  return {
+    release,
+    settled: () => Promise.allSettled(pending),
+    restore: () => spy.mockRestore(),
+  };
 }
 
 @Component({
@@ -50,6 +61,32 @@ function gateDetach(): { release: () => void; restore: () => void } {
   imports: [NgpPopoverTrigger, NgpPopover],
 })
 class PopoverTestComponent {}
+
+@Component({
+  template: `
+    <button [ngpPopoverTrigger]="content">Open Popover</button>
+
+    <ng-template #content>
+      <div ngpPopover>Popover content</div>
+    </ng-template>
+  `,
+  styles: `
+    /* !important and a more specific selector override test-setup's global 0s duration */
+    [ngpPopover][data-exit] {
+      animation: popover-exit 400ms linear;
+      animation-duration: 400ms !important;
+    }
+
+    @keyframes popover-exit {
+      to {
+        opacity: 0;
+      }
+    }
+  `,
+  imports: [NgpPopoverTrigger, NgpPopover],
+  encapsulation: ViewEncapsulation.None,
+})
+class ExitAnimationPopoverComponent {}
 
 @Component({
   template: `
@@ -416,6 +453,7 @@ describe('NgpPopover', () => {
         expect(trigger).toHaveAttribute('data-open');
       } finally {
         detach.release();
+        await detach.settled();
         detach.restore();
       }
 
@@ -424,7 +462,7 @@ describe('NgpPopover', () => {
     });
 
     it('should set aria-expanded back to "true" when reopened during the exit animation', async () => {
-      const { fixture, getByRole } = await render(PopoverTestComponent);
+      const { fixture, getByRole } = await render(ExitAnimationPopoverComponent);
       const trigger = getByRole('button');
       const popoverTrigger = fixture.debugElement
         .query(By.directive(NgpPopoverTrigger))
@@ -433,19 +471,17 @@ describe('NgpPopover', () => {
       fireEvent.click(trigger);
       await waitFor(() => expect(trigger).toHaveAttribute('aria-expanded', 'true'));
 
-      const detach = gateDetach();
-      try {
-        fireEvent.click(trigger); // close - held mid-exit
-        await waitFor(() => expect(trigger).toHaveAttribute('aria-expanded', 'false'));
+      fireEvent.click(trigger); // close - the exit animation keeps the popover on screen
+      await waitFor(() => expect(trigger).toHaveAttribute('aria-expanded', 'false'));
+      expect(document.querySelector('[ngpPopover]')).toHaveAttribute('data-exit');
 
-        popoverTrigger.show(); // reopen before the exit finishes
-        await waitFor(() => expect(trigger).toHaveAttribute('aria-expanded', 'true'));
-      } finally {
-        detach.release();
-        detach.restore();
-      }
+      popoverTrigger.show(); // reopen before the exit finishes
+      await waitFor(() => expect(trigger).toHaveAttribute('aria-expanded', 'true'));
 
+      // outlive the cancelled exit animation, which must not remove the popover
+      await new Promise(resolve => setTimeout(resolve, 500));
       expect(document.querySelector('[ngpPopover]')).toBeInTheDocument();
+      expect(trigger).toHaveAttribute('aria-expanded', 'true');
     });
 
     it('should link the trigger to the popover via aria-describedby and a matching id', async () => {

@@ -516,12 +516,15 @@ describe('NgpMenuTrigger', () => {
       let release!: () => void;
       const gate = new Promise<void>(resolve => (release = resolve));
       const realDetach = NgpTemplatePortal.prototype.detach;
-      const spy = vi
-        .spyOn(NgpTemplatePortal.prototype, 'detach')
-        .mockImplementation(async function (this: NgpTemplatePortal<unknown>, options) {
-          await gate;
-          return realDetach.call(this, options);
-        });
+      const pending: Promise<void>[] = [];
+      const spy = vi.spyOn(NgpTemplatePortal.prototype, 'detach').mockImplementation(function (
+        this: NgpTemplatePortal<unknown>,
+        options,
+      ) {
+        const detach = gate.then(() => realDetach.call(this, options));
+        pending.push(detach);
+        return detach;
+      });
 
       try {
         fireEvent.click(trigger);
@@ -529,6 +532,7 @@ describe('NgpMenuTrigger', () => {
         expect(document.querySelector('[data-testid="menu"]')).toBeInTheDocument();
       } finally {
         release();
+        await Promise.allSettled(pending);
         spy.mockRestore();
       }
 
