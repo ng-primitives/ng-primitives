@@ -105,6 +105,12 @@ export class NgpToastManager {
     const ref = this.toasts().find(t => t.instance === toast);
 
     if (ref) {
+      // Read before the detach: removing the focused toast fires focusout in some browsers
+      // only, and that clears the saved element.
+      const returnTo = this.containerOf(this.document.activeElement)
+        ? this.focusBeforeToasts
+        : null;
+
       // Detach the portal from the container
       await ref.portal.detach();
 
@@ -114,6 +120,15 @@ export class NgpToastManager {
       // if there are no more toasts, ensure the container is no longer considered expanded
       if (this.toasts().length === 0) {
         this.expanded.update(expanded => expanded.filter(p => p !== toast.options.placement));
+      }
+
+      // A focused toast that leaves takes focus with it, so land where F6 came from.
+      const active = this.document.activeElement;
+      if (returnTo && (!active || active === this.document.body)) {
+        this.focusBeforeToasts = null;
+        if (returnTo.isConnected) {
+          returnTo.focus({ preventScroll: true });
+        }
       }
     }
   }

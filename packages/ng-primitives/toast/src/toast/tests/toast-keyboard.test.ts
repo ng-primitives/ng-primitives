@@ -133,22 +133,51 @@ describe('NgpToastManager keyboard access', () => {
     expect(document.activeElement).toBe(action);
   });
 
-  it('forgets the saved element when the focused toast is dismissed', async () => {
-    const { host, getByTestId } = await renderHost();
-    const first = host.showToast();
-    getByTestId('page-button').focus();
-    pressKey('F6');
-    document.querySelector<HTMLElement>('[data-testid="toast-action"]')!.focus();
+  describe('when the focused toast is dismissed', () => {
+    async function dismissFocusedToast() {
+      const view = await renderHost();
+      const first = view.host.showToast();
+      const pageButton = view.getByTestId('page-button');
+      pageButton.focus();
+      pressKey('F6');
+      document.querySelector<HTMLElement>('[data-testid="toast-action"]')!.focus();
 
-    await first.dismiss();
-    host.showToast();
-    const action = document.querySelector<HTMLElement>('[data-testid="toast-action"]')!;
-    action.focus();
+      await first.dismiss();
+      return { ...view, pageButton };
+    }
 
-    const event = pressKey('Escape');
+    async function expectSavedElementForgotten(host: ToastKeyboardHost) {
+      host.showToast();
+      const action = document.querySelector<HTMLElement>('[data-testid="toast-action"]')!;
+      action.focus();
 
-    expect(event.defaultPrevented).toBe(false);
-    expect(document.activeElement).toBe(action);
+      const event = pressKey('Escape');
+
+      expect(event.defaultPrevented).toBe(false);
+      expect(document.activeElement).toBe(action);
+    }
+
+    it('returns focus to where F6 came from', async () => {
+      const { host, pageButton } = await dismissFocusedToast();
+
+      expect(document.activeElement).toBe(pageButton);
+      await expectSavedElementForgotten(host);
+    });
+
+    it('returns focus even where removing an element fires no focusout', async () => {
+      // Safari and Firefox do not dispatch focusout for a focused element that is removed
+      const swallow = (event: Event) => event.stopPropagation();
+      window.addEventListener('focusout', swallow, { capture: true });
+
+      try {
+        const { host, pageButton } = await dismissFocusedToast();
+
+        expect(document.activeElement).toBe(pageButton);
+        await expectSavedElementForgotten(host);
+      } finally {
+        window.removeEventListener('focusout', swallow, { capture: true });
+      }
+    });
   });
 
   it('leaves Escape to an input method that is composing', async () => {
