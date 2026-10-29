@@ -137,6 +137,25 @@ describe('createOverlay imperative usage', () => {
     target.dispatchEvent(new MouseEvent('mouseup', { bubbles: true, composed: true }));
   }
 
+  it('reads a restoreFocus signal when the overlay closes', async () => {
+    const restoreFocus = signal(true);
+    const { overlay, getByTestId } = await setup(() => ({ restoreFocus }));
+    const trigger = getByTestId('trigger');
+
+    trigger.focus();
+    await overlay.show();
+    trigger.blur();
+    overlay.hide({ origin: 'keyboard' });
+    await waitFor(() => expect(document.activeElement).toBe(trigger));
+
+    restoreFocus.set(false);
+    await overlay.show();
+    trigger.blur();
+    overlay.hide({ origin: 'keyboard' });
+    await waitFor(() => expect(overlay.isOpen()).toBe(false));
+    expect(document.activeElement).toBe(document.body);
+  });
+
   it('positions at a programmatic point and follows updates to that point', async () => {
     const position = signal<NgpPosition | null>({ x: 200, y: 150 });
     const { overlay } = await setup(() => ({
