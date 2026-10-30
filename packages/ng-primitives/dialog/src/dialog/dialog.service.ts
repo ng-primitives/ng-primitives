@@ -279,17 +279,6 @@ export class NgpDialogManager implements OnDestroy {
   }
 
   ngOnDestroy(): void {
-    // Make one pass over all the dialogs that need to be untracked, but should not be closed. We
-    // want to stop tracking the open dialog even if it hasn't been closed, because the tracking
-    // determines when `aria-hidden` is removed from elements outside the dialog.
-    reverseForEach(this.openDialogsAtThisLevel, dialog => {
-      // Check for `false` specifically since we want `undefined` to be interpreted as `true`.
-      this.removeOpenDialog(dialog, false);
-    });
-
-    // Make a second pass and close the remaining dialogs. We do this second pass in order to
-    // correctly dispatch the `afterAllClosed` event in case we have a mixed array of dialogs
-    // that should be closed and dialogs that should not.
     reverseForEach(this.openDialogsAtThisLevel, dialog => dialog.close());
 
     this.afterAllClosedAtThisLevel.complete();
