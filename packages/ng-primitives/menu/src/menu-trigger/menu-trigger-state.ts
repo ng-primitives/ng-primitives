@@ -277,6 +277,7 @@ export const [
     // Internal state
     const overlay = signal<NgpOverlay<T> | null>(null);
     const open = computed(() => overlay()?.isOpen() ?? false);
+    const expanded = computed(() => open() && !overlay()?.isClosing());
     const openOrigin = signal<FocusOrigin>('program');
     const closeOrigin = signal<FocusOrigin>('program');
 
@@ -335,7 +336,7 @@ export const [
 
     // Host bindings
     attrBinding(element, 'aria-haspopup', 'true');
-    attrBinding(element, 'aria-expanded', open);
+    attrBinding(element, 'aria-expanded', expanded);
     dataBinding(element, 'data-open', open);
     dataBinding(element, 'data-placement', placement);
 
