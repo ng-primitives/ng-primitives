@@ -95,6 +95,25 @@ class AlertDialogHost {
   readonly viewContainerRef = inject(ViewContainerRef);
 }
 
+@Component({
+  template: `
+    <ng-template #dialogTemplate let-close="close">
+      <div ngpDialogOverlay data-testid="overlay">
+        <div ngpDialog ngpDialogRole="alertdialog" data-testid="dialog">
+          <button (click)="close()" data-testid="confirm-btn">Delete</button>
+          <!-- eslint-disable-next-line @angular-eslint/template/no-autofocus -->
+          <button (click)="close()" data-testid="cancel-btn" autofocus>Cancel</button>
+        </div>
+      </div>
+    </ng-template>
+  `,
+  imports: [NgpDialog, NgpDialogOverlay],
+})
+class AutofocusDialogHost {
+  readonly dialogTemplate = viewChild.required<TemplateRef<NgpDialogContext>>('dialogTemplate');
+  readonly viewContainerRef = inject(ViewContainerRef);
+}
+
 describe('NgpDialog', () => {
   let dialogManager: NgpDialogManager | undefined;
 
@@ -496,6 +515,27 @@ describe('NgpDialog', () => {
       await waitFor(() => {
         expect(dialog.contains(document.activeElement)).toBe(true);
       });
+    });
+
+    it('should focus the first tabbable element when nothing has autofocus', async () => {
+      await openDialog();
+      const closeButton = document.querySelector('[data-testid="close-btn"]') as HTMLElement;
+
+      await waitFor(() => expect(closeButton).toHaveFocus());
+    });
+
+    it('should focus the element with the autofocus attribute when opened', async () => {
+      const view = await render(AutofocusDialogHost);
+      dialogManager = TestBed.inject(NgpDialogManager);
+      const component = view.fixture.componentInstance;
+      dialogManager.open(component.dialogTemplate(), {
+        viewContainerRef: component.viewContainerRef,
+      });
+      await view.fixture.whenStable();
+
+      const cancelButton = document.querySelector('[data-testid="cancel-btn"]') as HTMLElement;
+
+      await waitFor(() => expect(cancelButton).toHaveFocus());
     });
   });
 
