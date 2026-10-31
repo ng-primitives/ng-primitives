@@ -6,6 +6,8 @@ export interface CooldownOverlay {
   /** The registry id, which is how ancestry between overlays is resolved. */
   id(): string;
   hideImmediate(options?: { skipExitAnimation?: boolean }): void;
+  /** Take over where the replaced overlay was going to return focus. */
+  takeOverFocusReturn?(replaced: CooldownOverlay): void;
   /** Optional signal to mark the transition as instant due to cooldown */
   instantTransition?: WritableSignal<boolean>;
 }
@@ -88,6 +90,7 @@ export class NgpOverlayCooldownManager {
         return;
       }
       stack.pop();
+      overlay.takeOverFocusReturn?.(top);
       // Enable instant transition only if cooldown is active. The same condition
       // decides whether an overlay already animating out is cut short: within a
       // cooldown the swap should read as one movement, without one the outgoing
