@@ -51,6 +51,22 @@ class OpenChangeTestComponent {
 }
 
 @Component({
+  template: `
+    <button [ngpPopoverTrigger]="content">Open Popover</button>
+
+    <ng-template #content>
+      <div ngpPopover>
+        <button>First</button>
+        <!-- eslint-disable-next-line @angular-eslint/template/no-autofocus -->
+        <button autofocus>Autofocus</button>
+      </div>
+    </ng-template>
+  `,
+  imports: [NgpPopoverTrigger, NgpPopover],
+})
+class AutofocusTestComponent {}
+
+@Component({
   selector: 'test-keep-mounted-content',
   template: `
     Content instance {{ id }}
@@ -336,6 +352,18 @@ describe('NgpPopover', () => {
         const popover = document.querySelector('[ngpPopover]') as HTMLElement | null;
         expect(popover).toBeInTheDocument();
         expect(popover!.contains(document.activeElement)).toBe(true);
+      });
+    });
+
+    it('should focus the element with the autofocus attribute when opened', async () => {
+      const { getByRole } = await render(AutofocusTestComponent);
+      const trigger = getByRole('button', { name: 'Open Popover' });
+      trigger.focus();
+
+      fireEvent.click(trigger);
+
+      await waitFor(() => {
+        expect(document.querySelector('[ngpPopover] [autofocus]')).toHaveFocus();
       });
     });
 
