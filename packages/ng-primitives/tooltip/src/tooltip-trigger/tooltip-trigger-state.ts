@@ -1,3 +1,4 @@
+import { FocusMonitor } from '@angular/cdk/a11y';
 import {
   signal,
   Signal,
@@ -7,8 +8,14 @@ import {
   ViewContainerRef,
   computed,
   ElementRef,
+  untracked,
 } from '@angular/core';
-import { createHoverBridge, HoverBridgePoint, injectElementRef } from 'ng-primitives/internal';
+import {
+  createHoverBridge,
+  HoverBridgePoint,
+  injectElementRef,
+  NgpFocusRestoration,
+} from 'ng-primitives/internal';
 import {
   createOverlay,
   NgpFlip,
@@ -30,7 +37,7 @@ import {
   onDestroy,
   StateInjectionOptions,
 } from 'ng-primitives/state';
-import { isString, onChange } from 'ng-primitives/utils';
+import { isString, onChange, safeTakeUntilDestroyed } from 'ng-primitives/utils';
 import { NgpTooltipTextContentComponent } from '../tooltip-text-content/tooltip-text-content';
 
 export interface NgpTooltipTriggerState<T> {
@@ -345,6 +352,8 @@ export const [
     const viewContainerRef = inject(ViewContainerRef);
     const trigger = inject(ElementRef<HTMLElement>);
     const tooltipTriggerState = injectTooltipTriggerState<T>();
+    const focusMonitor = inject(FocusMonitor);
+    const focusRestoration = inject(NgpFocusRestoration);
 
     // Every input is wrapped so the state can expose a setter for it - see the
     // setter block further down the factory.
@@ -389,21 +398,43 @@ export const [
     attrBinding(elementRef, 'aria-describedby', () => overlay()?.ariaDescribedBy());
     dataBinding(elementRef, 'data-open', () => (open() ? '' : null));
 
+    // Whether the current focus opens the tooltip. Kept for the re-enable check below, which
+    // runs after the focus event is over.
+    let focusShowsTooltip = false;
+
     // Listeners
     listener(elementRef, 'mouseenter', showFromInteraction);
-    listener(elementRef, 'focus', showFromInteraction);
     listener(elementRef, 'mouseleave', hideFromInteraction);
     listener(elementRef, 'blur', () => hideFromInteraction());
 
+    // Pointer focus is left to hover, and focus an overlay hands back on close (which reports a
+    // keyboard origin after an Escape) is not the user arriving. 'program' still opens it: a
+    // screen reader moving focus sends no keydown, and `aria-describedby` only exists while the
+    // tooltip is open. FocusMonitor reports null on blur.
+    focusMonitor
+      .monitor(trigger.nativeElement)
+      .pipe(safeTakeUntilDestroyed())
+      .subscribe(origin =>
+        untracked(() => {
+          focusShowsTooltip =
+            origin !== null &&
+            origin !== 'mouse' &&
+            origin !== 'touch' &&
+            !focusRestoration.isRestoring(trigger.nativeElement);
+
+          if (focusShowsTooltip) {
+            showFromInteraction();
+          }
+        }),
+      );
+
     // Re-enabling fires neither `mouseenter` nor `focus` for a pointer or focus that is
-    // already on the trigger, so check for them instead. Focus counts only when it is
-    // keyboard focus: focus left behind by a click is not the user arriving.
+    // already on the trigger, so check for them instead.
     onChange(disabled, (isDisabled, wasDisabled) => {
-      const element = trigger.nativeElement;
       if (
         wasDisabled &&
         !isDisabled &&
-        (element.matches(':hover') || element.matches(':focus-visible'))
+        (trigger.nativeElement.matches(':hover') || focusShowsTooltip)
       ) {
         showFromInteraction();
       }
@@ -412,6 +443,9 @@ export const [
     onDestroy(() => {
       hoverBridge.clear();
       overlay()?.destroy();
+      // Unsubscribing does not remove the element from FocusMonitor's registry, so the
+      // element info and its root-node listeners have to be released explicitly.
+      focusMonitor.stopMonitoring(trigger.nativeElement);
     });
 
     function show(): void {
