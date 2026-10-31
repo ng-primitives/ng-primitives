@@ -327,12 +327,6 @@ export const [
       }
     });
 
-    // Computed signal to determine if focus should be restored
-    // Only restore if opened via keyboard OR closed via keyboard
-    const shouldRestoreFocus = computed(
-      () => openOrigin() === 'keyboard' || closeOrigin() === 'keyboard',
-    );
-
     // Host bindings
     attrBinding(element, 'aria-haspopup', 'true');
     attrBinding(element, 'aria-expanded', open);
@@ -531,11 +525,11 @@ export const [
       if (open()) {
         hide(origin);
       } else {
-        show(origin);
+        show(origin, true);
       }
     }
 
-    function show(origin: FocusOrigin = 'program'): void {
+    function show(origin: FocusOrigin = 'program', fromTriggerPress = false): void {
       // Store the origin used to open the menu
       openOrigin.set(origin);
 
@@ -545,7 +539,7 @@ export const [
       }
 
       // Show the overlay
-      overlay()?.show();
+      overlay()?.show({ fromTriggerPress });
     }
 
     function hide(origin: FocusOrigin = 'program'): void {
@@ -580,7 +574,7 @@ export const [
         shift: shift(),
         closeOnOutsideClick: true,
         closeOnEscape: true,
-        restoreFocus: shouldRestoreFocus,
+        restoreFocus: true,
         onClose: (origin: FocusOrigin) => closeOrigin.set(origin),
         scrollBehaviour: scrollBehavior?.() ?? 'block',
         overlayType: 'menu',

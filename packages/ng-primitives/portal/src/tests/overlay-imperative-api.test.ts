@@ -137,6 +137,39 @@ describe('createOverlay imperative usage', () => {
     target.dispatchEvent(new MouseEvent('mouseup', { bubbles: true, composed: true }));
   }
 
+  it('reads a restoreFocus signal when the overlay closes', async () => {
+    const restoreFocus = signal(true);
+    const { overlay, getByTestId } = await setup(() => ({ restoreFocus }));
+    const trigger = getByTestId('trigger');
+
+    trigger.focus();
+    await overlay.show();
+    trigger.blur();
+    overlay.hide({ origin: 'keyboard' });
+    await waitFor(() => expect(document.activeElement).toBe(trigger));
+
+    restoreFocus.set(false);
+    await overlay.show();
+    trigger.blur();
+    overlay.hide({ origin: 'keyboard' });
+    await waitFor(() => expect(overlay.isOpen()).toBe(false));
+    expect(document.activeElement).toBe(document.body);
+  });
+
+  it('leaves focus on a trigger the user focused while the overlay was open', async () => {
+    const { overlay, getByTestId } = await setup(() => ({ restoreFocus: true }));
+    const outside = getByTestId('outside');
+    const trigger = getByTestId('trigger');
+
+    outside.focus();
+    await overlay.show();
+    trigger.focus();
+    overlay.hide({ origin: 'mouse' });
+
+    await waitFor(() => expect(overlay.isOpen()).toBe(false));
+    expect(document.activeElement).toBe(trigger);
+  });
+
   it('positions at a programmatic point and follows updates to that point', async () => {
     const position = signal<NgpPosition | null>({ x: 200, y: 150 });
     const { overlay } = await setup(() => ({

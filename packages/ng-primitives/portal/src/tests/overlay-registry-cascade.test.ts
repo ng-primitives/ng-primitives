@@ -112,6 +112,21 @@ describe('NgpOverlayRegistry cascade closing', () => {
     expect(grandchild.overlay.hideImmediate).toHaveBeenCalledTimes(1);
   });
 
+  it('reports which overlays close with an ancestor', () => {
+    // menu > tooltip, menu > dialog (opted out) > popover
+    const menu = entry('menu', null);
+    const tooltip = entry('tooltip', 'menu');
+    const dialog = entry('dialog', 'menu', false);
+    const popover = entry('popover', 'dialog');
+    register(menu, tooltip, dialog, popover);
+
+    expect(registry.closesWith('tooltip', 'menu')).toBe(true);
+    expect(registry.closesWith('dialog', 'menu')).toBe(false);
+    expect(registry.closesWith('popover', 'menu')).toBe(false);
+    expect(registry.closesWith('popover', 'dialog')).toBe(true);
+    expect(registry.closesWith('menu', 'menu')).toBe(false);
+  });
+
   it('closes siblings that did not opt out', () => {
     const menu = entry('menu', null);
     const dialog = entry('dialog', 'menu', false);

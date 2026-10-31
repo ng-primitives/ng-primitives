@@ -1,14 +1,21 @@
 import { FocusOrigin } from '@angular/cdk/a11y';
 import { Directionality } from '@angular/cdk/bidi';
-import { computed, ElementRef, inject } from '@angular/core';
+import { computed, ElementRef, inject, Signal, signal } from '@angular/core';
 import { ngpFocusTrap } from 'ng-primitives/focus-trap';
 import {
   createHoverTransitTracker,
   HoverTransitTracker,
   injectElementRef,
 } from 'ng-primitives/internal';
-import { injectOverlay } from 'ng-primitives/portal';
-import { attrBinding, createPrimitive, listener, styleBinding } from 'ng-primitives/state';
+import { injectOverlay, NgpOverlayFinalFocus } from 'ng-primitives/portal';
+import {
+  attrBinding,
+  createPrimitive,
+  listener,
+  onDestroy,
+  styleBinding,
+} from 'ng-primitives/state';
+import { onChange } from 'ng-primitives/utils';
 import { Subject } from 'rxjs';
 import { injectMenuTriggerState } from '../menu-trigger/menu-trigger-state';
 
@@ -31,11 +38,18 @@ export interface NgpMenuState extends HoverTransitTracker {
   readonly element: ElementRef<HTMLElement>;
 }
 
-export interface NgpMenuProps {}
+export interface NgpMenuProps {
+  /** Where focus goes when the menu closes. */
+  readonly finalFocus?: Signal<NgpOverlayFinalFocus | null>;
+  /**
+   * @deprecated Has no effect: wrapping is set on the menu's roving focus group.
+   */
+  readonly wrap?: Signal<boolean>;
+}
 
 export const [NgpMenuStateToken, ngpMenu, injectMenuState, provideMenuState] = createPrimitive(
   'NgpMenu',
-  ({}: NgpMenuProps) => {
+  ({ finalFocus = signal<NgpOverlayFinalFocus | null>(null) }: NgpMenuProps) => {
     const element = injectElementRef<HTMLElement>();
     const transit = createHoverTransitTracker();
     const overlay = injectOverlay();
@@ -54,6 +68,9 @@ export const [NgpMenuStateToken, ngpMenu, injectMenuState, provideMenuState] = c
     // even when this directive is on a nested child component rather than the portal root.
     overlay.registerOutletElement(element.nativeElement);
     overlay.registerAvailableSizePrefix('--ngp-menu');
+
+    onChange(finalFocus, value => overlay.setFinalFocus(value));
+    onDestroy(() => overlay.removeFinalFocus());
 
     // Host bindings
     attrBinding(element, 'role', 'menu');
