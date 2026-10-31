@@ -1,6 +1,6 @@
 import { afterNextRender, ElementRef, inject, Injector, Signal, signal } from '@angular/core';
 import { ngpInteractions } from 'ng-primitives/interactions';
-import { injectElementRef } from 'ng-primitives/internal';
+import { claimEscapeKey, injectElementRef } from 'ng-primitives/internal';
 import {
   attrBinding,
   createPrimitive,
@@ -80,6 +80,10 @@ export const [
     // Event listeners
     listener(elementRef, 'keydown', handleKeydown);
     listener(elementRef, 'blur', onBlur);
+
+    // the overlay registry would close the dropdown in the capture phase, removing the input
+    // before its own Escape handler can hand focus back to the trigger
+    claimEscapeKey(event => event.composedPath()[0] === elementRef.nativeElement);
 
     // options are focusable, so a click in the list would pull focus out of the search field
     const dropdown = selectState().dropdown();
