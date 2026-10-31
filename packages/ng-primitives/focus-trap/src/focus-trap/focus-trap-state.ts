@@ -254,6 +254,10 @@ export const [NgpFocusTrapStateToken, ngpFocusTrap, injectFocusTrapState, provid
         if (target.closest?.('[data-focus-trap]') || target.closest?.('.cdk-overlay-container')) {
           return true;
         }
+        // toasts stay reachable from inside a trap (F6, see NgpToastManager)
+        if (target.closest?.('[data-ngp-toast-container]')) {
+          return true;
+        }
         return overlayRegistry.findContainingOverlay(target) !== null;
       }
 

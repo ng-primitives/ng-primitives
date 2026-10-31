@@ -1,9 +1,12 @@
+import { DOCUMENT } from '@angular/common';
 import {
   ApplicationRef,
   computed,
+  DestroyRef,
   inject,
   Injectable,
   Injector,
+  NgZone,
   RendererFactory2,
   signal,
   TemplateRef,
@@ -25,8 +28,15 @@ export class NgpToastManager {
   private readonly rendererFactory = inject(RendererFactory2);
   private readonly renderer = this.rendererFactory.createRenderer(null, null);
   private readonly injector = inject(Injector);
+  private readonly document = inject(DOCUMENT);
+  private readonly ngZone = inject(NgZone);
+  private readonly destroyRef = inject(DestroyRef);
   // Map to store containers by placement
   private readonly containers = new Map<string, HTMLElement>();
+
+  /** The element focused before F6 moved focus to the toasts, restored by F6 again or Escape. */
+  private focusBeforeToasts: HTMLElement | null = null;
+  private listeningForKeys = false;
 
   readonly toasts = signal<NgpToastRecord[]>([]);
 
@@ -95,6 +105,12 @@ export class NgpToastManager {
     const ref = this.toasts().find(t => t.instance === toast);
 
     if (ref) {
+      // Read before the detach: removing the focused toast fires focusout in some browsers
+      // only, and that clears the saved element.
+      const returnTo = this.containerOf(this.document.activeElement)
+        ? this.focusBeforeToasts
+        : null;
+
       // Detach the portal from the container
       await ref.portal.detach();
 
@@ -104,6 +120,15 @@ export class NgpToastManager {
       // if there are no more toasts, ensure the container is no longer considered expanded
       if (this.toasts().length === 0) {
         this.expanded.update(expanded => expanded.filter(p => p !== toast.options.placement));
+      }
+
+      // A focused toast that leaves takes focus with it, so land where F6 came from.
+      const active = this.document.activeElement;
+      if (returnTo && (!active || active === this.document.body)) {
+        this.focusBeforeToasts = null;
+        if (returnTo.isConnected) {
+          returnTo.focus({ preventScroll: true });
+        }
       }
     }
   }
@@ -117,7 +142,114 @@ export class NgpToastManager {
     }
     const container = this.createContainer(placement);
     this.containers.set(placement, container);
+    this.listenForKeys();
     return container;
+  }
+
+  /**
+   * F6 moves focus to the newest toast's region and back, so toasts stay reachable from the
+   * keyboard even while a dialog traps focus.
+   */
+  private listenForKeys(): void {
+    const view = this.document.defaultView;
+
+    if (this.listeningForKeys || !view) {
+      return;
+    }
+
+    this.listeningForKeys = true;
+
+    const onF6 = (event: KeyboardEvent) => {
+      if (event.key !== 'F6' || event.defaultPrevented) {
+        return;
+      }
+
+      const focused = this.containerOf(this.document.activeElement);
+
+      // Back out only from a region that still shows toasts. Reached with Tab, there is
+      // nowhere to go back to, so F6 is left to the browser.
+      if (focused && this.hasToasts(focused)) {
+        if (this.focusBeforeToasts) {
+          event.preventDefault();
+          this.returnFocus();
+        }
+        return;
+      }
+
+      const newest = this.toasts()[0];
+      const container = newest && this.containers.get(newest.instance.options.placement);
+
+      if (!container?.isConnected) {
+        return;
+      }
+
+      event.preventDefault();
+
+      // From an emptied region, keep the element saved when F6 first moved here.
+      if (!focused) {
+        this.focusBeforeToasts = this.document.activeElement as HTMLElement | null;
+      }
+
+      container.focus({ preventScroll: true });
+    };
+
+    // Capture on the window runs before the overlay registry's capture listener on the
+    // document, so an open dialog never sees the Escape that leaves the toasts.
+    const onEscape = (event: KeyboardEvent) => {
+      if (
+        event.key !== 'Escape' ||
+        event.isComposing ||
+        !this.focusBeforeToasts ||
+        !this.containerOf(this.document.activeElement)
+      ) {
+        return;
+      }
+
+      event.preventDefault();
+      event.stopPropagation();
+      this.returnFocus();
+    };
+
+    // Leaving the toasts by any other way (a click, Tab) ends the F6 round trip.
+    const onFocusOut = (event: FocusEvent) => {
+      if (
+        this.containerOf(event.target as Node | null) &&
+        !this.containerOf(event.relatedTarget as Node | null)
+      ) {
+        this.focusBeforeToasts = null;
+      }
+    };
+
+    this.ngZone.runOutsideAngular(() => {
+      view.addEventListener('keydown', onF6);
+      view.addEventListener('keydown', onEscape, { capture: true });
+      view.addEventListener('focusout', onFocusOut);
+    });
+
+    this.destroyRef.onDestroy(() => {
+      view.removeEventListener('keydown', onF6);
+      view.removeEventListener('keydown', onEscape, { capture: true });
+      view.removeEventListener('focusout', onFocusOut);
+    });
+  }
+
+  private containerOf(node: Node | null): HTMLElement | undefined {
+    return [...this.containers.values()].find(container => container.contains(node));
+  }
+
+  private hasToasts(container: HTMLElement): boolean {
+    return this.toasts().some(
+      toast => this.containers.get(toast.instance.options.placement) === container,
+    );
+  }
+
+  private returnFocus(): void {
+    const target = this.focusBeforeToasts;
+    this.focusBeforeToasts = null;
+
+    if (target?.isConnected) {
+      target.focus({ preventScroll: true });
+    }
   }
 
   /**
