@@ -77,10 +77,20 @@ export const [
 
     // Setup click event listener
     listener(element, 'click', () => {
-      if (disabled()) {
+      if (disabled() || group()?.disabled()) {
         return;
       }
       group()?.setActiveItem(id, 'mouse');
+    });
+
+    // Focus can also arrive without a key press or a click (element.focus(), focus restoration,
+    // assistive technology), so claim the tab stop whenever the item receives focus. setTabStop
+    // does not move focus, so this cannot re-enter the listener.
+    listener(element, 'focus', () => {
+      if (disabled() || group()?.disabled()) {
+        return;
+      }
+      group()?.setTabStop(id);
     });
 
     function focus(origin: FocusOrigin): void {
