@@ -12,6 +12,7 @@ import { injectComboboxState } from '../combobox/combobox-state';
     role: 'listbox',
     '[id]': 'id()',
     '[attr.aria-multiselectable]': 'state().multiple()',
+    '[attr.data-reference-hidden]': 'state().overlay()?.referenceHidden() ? "" : null',
     '[style.left.px]': 'state().overlay()?.position()?.x',
     '[style.top.px]': 'state().overlay()?.position()?.y',
     '[style.--ngp-combobox-transform-origin]': 'state().overlay()?.transformOrigin()',
