@@ -39,6 +39,15 @@ export const [
     listener(elementRef, 'pointerdown', handleOnPointerDown);
     listener(elementRef, 'pointercancel', handleOnPointerCancel);
     listener(elementRef, 'click', handleOnClick);
+    listener(elementRef, 'mousedown', handleOnMouseDown);
+
+    // The backdrop is not focusable, so a press on it would move focus to the body, which the
+    // focus trap does not reclaim.
+    function handleOnMouseDown(event: MouseEvent): void {
+      if (event.target === event.currentTarget) {
+        event.preventDefault();
+      }
+    }
 
     function handleOnPointerDown(event: Event): void {
       startedPointerDownOnOverlay.set(event.target === event.currentTarget);
