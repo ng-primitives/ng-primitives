@@ -1,4 +1,5 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, PLATFORM_ID } from '@angular/core';
+import { TestBed } from '@angular/core/testing';
 import { fireEvent, render, waitFor } from '@testing-library/angular';
 import {
   injectToastContext,
@@ -109,6 +110,54 @@ describe('NgpToastManager behaviour', () => {
       expect(container.style.right).toBe('20px');
       expect(container.style.getPropertyValue('--ngp-toast-gap')).toBe('12px');
       expect(toasts()[0].style.getPropertyValue('--ngp-toast-gap')).toBe('12px');
+    });
+  });
+
+  describe('live regions', () => {
+    it('adds a container for every placement before the first toast', async () => {
+      await renderHost({ placement: 'bottom-start', ariaLive: 'polite' });
+
+      expect(containers().map(c => c.dataset['ngpToastContainer'])).toEqual([
+        'bottom-start',
+        'top-start',
+        'top-center',
+        'top-end',
+        'bottom-center',
+        'bottom-end',
+      ]);
+      for (const container of containers()) {
+        expect(container.parentElement).toBe(document.body);
+        expect(container).toHaveAttribute('role', 'status');
+        expect(container).toHaveAttribute('aria-live', 'polite');
+        expect(container.children).toHaveLength(0);
+      }
+    });
+
+    it('shows a toast in the container created ahead of it, whatever its placement', async () => {
+      const host = await renderHost({ persistent: true });
+      const container = document.querySelector('[data-ngp-toast-container="bottom-center"]')!;
+
+      host.show('A', { placement: 'bottom-center' });
+
+      await waitFor(() => expect(toasts().length).toBe(1));
+      expect(container.contains(toasts()[0])).toBe(true);
+      expect(containers()).toHaveLength(6);
+    });
+
+    it('removes the containers when the manager is destroyed', () => {
+      TestBed.inject(NgpToastManager);
+      expect(containers()).toHaveLength(6);
+
+      TestBed.resetTestingModule();
+
+      expect(containers()).toHaveLength(0);
+    });
+
+    it('does not add the containers on the server', () => {
+      TestBed.configureTestingModule({ providers: [{ provide: PLATFORM_ID, useValue: 'server' }] });
+      TestBed.inject(NgpToastManager);
+
+      expect(containers()).toHaveLength(0);
     });
   });
 

@@ -1,9 +1,12 @@
+import { DOCUMENT, isPlatformBrowser } from '@angular/common';
 import {
   ApplicationRef,
   computed,
+  DestroyRef,
   inject,
   Injectable,
   Injector,
+  PLATFORM_ID,
   RendererFactory2,
   signal,
   TemplateRef,
@@ -25,6 +28,8 @@ export class NgpToastManager {
   private readonly rendererFactory = inject(RendererFactory2);
   private readonly renderer = this.rendererFactory.createRenderer(null, null);
   private readonly injector = inject(Injector);
+  private readonly document = inject(DOCUMENT);
+  private readonly destroyRef = inject(DestroyRef);
   // Map to store containers by placement
   private readonly containers = new Map<string, HTMLElement>();
 
@@ -32,6 +37,22 @@ export class NgpToastManager {
 
   /** Signal that tracks which placements are expanded */
   private readonly expanded = signal<NgpToastPlacement[]>([]);
+
+  constructor() {
+    // A container is a live region, and a live region must be in the page before the content
+    // it announces, or screen readers may skip the first toast. The configured placement
+    // comes first so that `querySelector('[data-ngp-toast-container]')` still finds the
+    // container default toasts render into.
+    if (isPlatformBrowser(inject(PLATFORM_ID))) {
+      const placements = new Set([this.config.placement, ...TOAST_PLACEMENTS]);
+      placements.forEach(placement => this.getOrCreateContainer(placement));
+    }
+
+    this.destroyRef.onDestroy(() => {
+      this.containers.forEach(container => container.remove());
+      this.containers.clear();
+    });
+  }
 
   /** Show a toast notification */
   show(toast: TemplateRef<void> | Type<unknown>, options: NgpToastOptions = {}): NgpToastRef {
@@ -187,10 +208,19 @@ export class NgpToastManager {
         throw new Error(`Unknown toast placement: ${placement}`);
     }
 
-    this.renderer.appendChild(document.body, container);
+    this.renderer.appendChild(this.document.body, container);
     return container;
   }
 }
+
+const TOAST_PLACEMENTS = Object.keys({
+  'top-start': true,
+  'top-center': true,
+  'top-end': true,
+  'bottom-start': true,
+  'bottom-center': true,
+  'bottom-end': true,
+} satisfies Record<NgpToastPlacement, true>) as NgpToastPlacement[];
 
 export interface NgpToastOptions<T = unknown> {
   /** The position of the toast */

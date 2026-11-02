@@ -363,7 +363,7 @@ describe('NgpDialogManager container', () => {
     const dialog = TestBed.inject(NgpDialogManager);
     const first = dialog.open(TestDialog, { container });
 
-    // the toast container is created lazily, after the dialog has already hidden the page
+    // the toast containers are created with the manager, after the dialog has already hidden the page
     TestBed.inject(NgpToastManager).show(TestToast, { persistent: true });
     const toastContainer = document.querySelector('[data-ngp-toast-container]')!;
 
