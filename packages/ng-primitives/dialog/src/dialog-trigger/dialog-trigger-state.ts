@@ -114,7 +114,7 @@ export const [
         closeOnOutsideClick: closeOnOutsideClick(),
         // resolve `undefined` here, the manager only sees the root configuration
         container: container() === undefined ? config.container : container(),
-        modal: modal(),
+        modal: modal() ?? config.modal,
       });
 
       openDialog.set(dialogRef);

@@ -4,6 +4,7 @@ import { provideFocusTrapState } from 'ng-primitives/focus-trap';
 import { NgpExitAnimation } from 'ng-primitives/internal';
 import { uniqueId } from 'ng-primitives/utils';
 import { injectDialogConfig } from '../config/dialog-config';
+import { injectDialogRef } from './dialog-ref';
 import { ngpDialog, provideDialogState } from './dialog-state';
 
 @Directive({
@@ -24,10 +25,10 @@ export class NgpDialog<T = unknown, R = unknown> {
   });
 
   /**
-   * Whether the dialog is a modal, reflected in `aria-modal`. Defaults to `modal` in the dialog
-   * configuration, which decides the behaviour when the dialog opens.
+   * Whether the dialog is a modal, reflected in `aria-modal`. Defaults to the `modal` the dialog
+   * was opened with, which decides its behaviour.
    */
-  readonly modal = input<boolean, BooleanInput>(this.config.modal ?? false, {
+  readonly modal = input<boolean, BooleanInput>(injectDialogRef().config.modal !== false, {
     alias: 'ngpDialogModal',
     transform: booleanAttribute,
   });

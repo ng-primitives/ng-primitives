@@ -10,8 +10,38 @@ import {
 import { ScrollStrategy } from 'ng-primitives/portal';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
+let scrollBlocked = false;
+const scrollStrategy: ScrollStrategy = {
+  enable: () => (scrollBlocked = true),
+  disable: () => (scrollBlocked = false),
+};
+
 @Component({ selector: 'ngp-plain-dialog', template: '<p>Dialog</p>' })
 class PlainDialog {}
+
+@Component({
+  template: `
+    <button [ngpDialogTrigger]="drawer" data-testid="open">Open</button>
+
+    <ng-template #drawer>
+      <div ngpDialog data-testid="drawer">
+        <button [ngpDialogTrigger]="inner" data-testid="open-inner">Inner</button>
+      </div>
+    </ng-template>
+
+    <ng-template #inner>
+      <div ngpDialog data-testid="inner">Inner</div>
+    </ng-template>
+  `,
+  imports: [NgpDialogTrigger, NgpDialog],
+  providers: [provideDialogConfig({ modal: false })],
+})
+class ComponentConfigHost {}
+
+@Component({ template: '', providers: [NgpDialogManager] })
+class NestedManagerHost {
+  readonly manager = inject(NgpDialogManager);
+}
 
 @Directive({ selector: '[appFocusOnInit]' })
 class FocusOnInit implements AfterViewInit {
@@ -92,11 +122,6 @@ class DrawerFromModalHost {}
 
 describe('Non-modal dialog', () => {
   let page: HTMLElement;
-  let scrollBlocked: boolean;
-  const scrollStrategy: ScrollStrategy = {
-    enable: () => (scrollBlocked = true),
-    disable: () => (scrollBlocked = false),
-  };
 
   beforeEach(() => {
     page = document.createElement('main');
@@ -286,6 +311,40 @@ describe('Non-modal dialog', () => {
     expect(confirm.getAttribute('aria-modal')).toBe('true');
     expect(page.getAttribute('aria-hidden')).toBe('true');
     expect(scrollBlocked).toBe(true);
+  });
+
+  it('opens non-modal from a configuration provided by a component', async () => {
+    await render(ComponentConfigHost);
+    fireEvent.click(screen.getByTestId('open'));
+    const drawer = await screen.findByTestId('drawer');
+
+    expect(drawer.getAttribute('aria-modal')).toBe('false');
+  });
+
+  it('opens a dialog from inside it with the configuration it was opened from', async () => {
+    await render(ComponentConfigHost);
+    fireEvent.click(screen.getByTestId('open'));
+    fireEvent.click(await screen.findByTestId('open-inner'));
+    const inner = await screen.findByTestId('inner');
+
+    expect(inner.getAttribute('aria-modal')).toBe('false');
+  });
+
+  it('releases the scroll block when the last modal dialog closes through a nested manager', async () => {
+    const { fixture } = await render(NestedManagerHost, {
+      providers: [provideDialogConfig({ scrollStrategy })],
+    });
+    const root = TestBed.inject(NgpDialogManager);
+    const nested = fixture.componentInstance.manager;
+
+    const first = root.open(PlainDialog);
+    const second = nested.open(PlainDialog);
+    expect(scrollBlocked).toBe(true);
+
+    await first.close();
+    await second.close();
+
+    expect(scrollBlocked).toBe(false);
   });
 
   it('stays modal by default', async () => {

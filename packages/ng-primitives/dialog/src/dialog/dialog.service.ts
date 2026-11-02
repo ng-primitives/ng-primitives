@@ -329,9 +329,16 @@ export class NgpDialogManager implements OnDestroy {
     const userInjector = config.injector || config.viewContainerRef?.injector;
     const providers: StaticProvider[] = [
       { provide: NgpDialogRef, useValue: dialogRef },
-      // expose the merged per-dialog config so NgpDialog honours role/modal/closeOn*
-      // passed to open(), not just the global config
-      { provide: NgpDialogConfigToken, useValue: config },
+      // expose the merged per-dialog config so NgpDialog honours role/closeOn* passed to open(),
+      // not just the global config. `modal` belongs to this dialog only: a trigger inside it
+      // starts from the configuration where this dialog was opened.
+      {
+        provide: NgpDialogConfigToken,
+        useValue: {
+          ...config,
+          modal: (userInjector?.get(NgpDialogConfigToken, null) ?? this.defaultOptions).modal,
+        },
+      },
       { provide: NgpExitAnimationManager, useClass: NgpExitAnimationManager },
     ];
 
@@ -367,6 +374,12 @@ export class NgpDialogManager implements OnDestroy {
    * Enable scroll blocking when the first dialog opens.
    */
   private enableScrollBlocking(config?: NgpDialogConfig): void {
+    // Nested managers share the open dialogs, so the root one owns the scroll block.
+    if (this.parentDialogManager) {
+      this.parentDialogManager.enableScrollBlocking(config);
+      return;
+    }
+
     if (!this.scrollStrategy) {
       this.scrollStrategy =
         config?.scrollStrategy ?? new BlockScrollStrategy(this.viewportRuler, this.document);
@@ -378,6 +391,11 @@ export class NgpDialogManager implements OnDestroy {
    * Disable scroll blocking when the last dialog closes.
    */
   private disableScrollBlocking(): void {
+    if (this.parentDialogManager) {
+      this.parentDialogManager.disableScrollBlocking();
+      return;
+    }
+
     this.scrollStrategy?.disable();
     this.scrollStrategy = null;
   }

@@ -57,7 +57,7 @@ export class NgpDialogTrigger<T = unknown> {
 
   /**
    * Whether the dialog is modal. A non-modal dialog, such as a drawer, leaves the page usable.
-   * `undefined` uses `modal` from the dialog configuration.
+   * `undefined` uses `modal` from the dialog configuration, not from a dialog the trigger is in.
    * @default `true`
    */
   readonly modal = input<boolean | undefined, BooleanInput>(undefined, {
