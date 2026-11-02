@@ -90,6 +90,29 @@ A drawer is a type of dialog that slides in from the side of the screen.
 
 <docs-example name="dialog-drawer"></docs-example>
 
+### Non-modal drawer
+
+A drawer that acts on the page beside it, such as view settings or filters next to a table, should leave that page usable. Set `ngpDialogTriggerModal` to `false` (or pass `modal: false` to `NgpDialogManager.open()` or `provideDialogConfig`). While a non-modal dialog is open:
+
+- the page stays scrollable, clickable and readable by screen readers;
+- focus moves to the dialog element on open, but is not trapped. On close it returns to the trigger only if it was still inside the dialog;
+- a second click on the trigger closes the dialog;
+- Escape closes the dialog only while focus is inside it;
+- an outside click does not close it. Leave out `ngpDialogOverlay`, so nothing covers the page.
+
+```html
+<button [ngpDialogTrigger]="settings" ngpDialogTriggerModal="false">View settings</button>
+
+<ng-template #settings let-close="close">
+  <div ngpDialog>
+    <h2 ngpDialogTitle>View settings</h2>
+    <button (click)="close()">Done</button>
+  </div>
+</ng-template>
+```
+
+`modal` is read when the dialog opens. `ngpDialogModal` on the dialog only sets `aria-modal`.
+
 ## API Reference
 
 The following directives are available to import from the `ng-primitives/dialog` package:
@@ -236,6 +259,6 @@ Adheres to the [WAI-ARIA design pattern](https://www.w3.org/WAI/ARIA/apg/pattern
 
 ### Keyboard Interactions
 
-- <kbd>Esc</kbd>: Close the dialog.
-- <kbd>Tab</kbd>: Navigate through focusable elements within the dialog.
-- <kbd>Shift</kbd> + <kbd>Tab</kbd>: Navigate backwards through focusable elements within the dialog.
+- <kbd>Esc</kbd>: Close the dialog. A non-modal dialog closes only while focus is inside it.
+- <kbd>Tab</kbd>: Navigate through focusable elements within the dialog. In a non-modal dialog, focus can move on to the page.
+- <kbd>Shift</kbd> + <kbd>Tab</kbd>: Navigate backwards through focusable elements within the dialog. In a non-modal dialog, focus can move on to the page.

@@ -1,4 +1,6 @@
-import { signal, Signal } from '@angular/core';
+import { DOCUMENT } from '@angular/common';
+import { afterNextRender, Injector, inject, signal, Signal } from '@angular/core';
+import { ngpFocusTrap } from 'ng-primitives/focus-trap';
 import { injectElementRef } from 'ng-primitives/internal';
 import {
   attrBinding,
@@ -47,6 +49,16 @@ export const [NgpDialogStateToken, ngpDialog, _injectDialogState, provideDialogS
     }: NgpDialogProps) => {
       const elementRef = injectElementRef();
       const dialogRef = injectDialogRef<T, R>();
+      const injector = inject(Injector);
+      const document = inject(DOCUMENT);
+
+      // A non-modal dialog leaves the page usable, so focus can leave it. It joins no trap, which
+      // would otherwise deactivate the trap of a modal dialog below it.
+      if (dialogRef.config.modal !== false) {
+        ngpFocusTrap({});
+      } else {
+        afterNextRender({ write: focusOnOpen }, { injector });
+      }
 
       const labelledBy = signal<string[]>([]);
       const describedBy = signal<string[]>([]);
@@ -61,6 +73,12 @@ export const [NgpDialogStateToken, ngpDialog, _injectDialogState, provideDialogS
 
       // Close the dialog when the directive is destroyed.
       onDestroy(() => close());
+
+      function focusOnOpen(): void {
+        if (!elementRef.nativeElement.contains(document.activeElement)) {
+          elementRef.nativeElement.focus({ preventScroll: true });
+        }
+      }
 
       function close(result?: R): void {
         dialogRef.close(result);

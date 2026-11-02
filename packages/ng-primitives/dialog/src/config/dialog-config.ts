@@ -23,7 +23,11 @@ export interface NgpDialogConfig<T = any> {
   /** The role of the dialog. */
   role?: NgpDialogRole;
 
-  /** Whether this is a modal dialog. Used to set the `aria-modal` attribute. */
+  /**
+   * Whether the dialog is modal, read when it opens. A modal dialog hides the page from screen
+   * readers, blocks its scroll and traps focus. A non-modal one leaves the page usable and closes
+   * on Escape only while focus is inside it.
+   */
   modal?: boolean;
 
   /**

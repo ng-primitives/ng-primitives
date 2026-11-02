@@ -32,6 +32,10 @@ export interface NgpDialogTriggerState<T> {
    * dialog configuration, `null` renders into the body.
    */
   readonly container?: Signal<HTMLElement | string | null | undefined>;
+  /**
+   * Whether the dialog is modal. `undefined` uses `modal` from the dialog configuration.
+   */
+  readonly modal?: Signal<boolean | undefined>;
   /** The event that is fired when the closed state changes. */
   readonly closedChange: Observable<T>;
 }
@@ -54,6 +58,10 @@ export interface NgpDialogTriggerProps<T> {
    * dialog configuration, `null` renders into the body.
    */
   readonly container?: Signal<HTMLElement | string | null | undefined>;
+  /**
+   * Whether the dialog is modal. `undefined` uses `modal` from the dialog configuration.
+   */
+  readonly modal?: Signal<boolean | undefined>;
   readonly onClosedChange?: (value: T) => void;
 }
 
@@ -69,6 +77,7 @@ export const [
     closeOnEscape = signal<NgpDismissGuard<KeyboardEvent>>(true),
     closeOnOutsideClick = signal<NgpDismissGuard<Element>>(true),
     container = signal<HTMLElement | string | null | undefined>(undefined),
+    modal = signal<boolean | undefined>(undefined),
     onClosedChange,
   }: NgpDialogTriggerProps<T>) => {
     const config = injectDialogConfig();
@@ -91,6 +100,13 @@ export const [
     listener(elementRef, 'click', handleClick);
 
     function handleClick(): void {
+      // A non-modal dialog leaves its trigger usable: a second click closes it.
+      const current = openDialog();
+      if (current && current.config.modal === false) {
+        current.close();
+        return;
+      }
+
       const dialogRef = dialogManager.open(template(), {
         injector,
         triggerElement: elementRef.nativeElement,
@@ -98,6 +114,7 @@ export const [
         closeOnOutsideClick: closeOnOutsideClick(),
         // resolve `undefined` here, the manager only sees the root configuration
         container: container() === undefined ? config.container : container(),
+        modal: modal(),
       });
 
       openDialog.set(dialogRef);
@@ -117,6 +134,7 @@ export const [
       closeOnEscape,
       closeOnOutsideClick,
       container,
+      modal,
       closedChange: closed.asObservable(),
     } satisfies NgpDialogTriggerState<T>;
   },

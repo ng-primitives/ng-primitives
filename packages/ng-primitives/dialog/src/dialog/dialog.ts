@@ -1,6 +1,6 @@
 import { BooleanInput } from '@angular/cdk/coercion';
 import { booleanAttribute, Directive, input } from '@angular/core';
-import { NgpFocusTrap } from 'ng-primitives/focus-trap';
+import { provideFocusTrapState } from 'ng-primitives/focus-trap';
 import { NgpExitAnimation } from 'ng-primitives/internal';
 import { uniqueId } from 'ng-primitives/utils';
 import { injectDialogConfig } from '../config/dialog-config';
@@ -9,8 +9,8 @@ import { ngpDialog, provideDialogState } from './dialog-state';
 @Directive({
   selector: '[ngpDialog]',
   exportAs: 'ngpDialog',
-  providers: [provideDialogState()],
-  hostDirectives: [NgpFocusTrap, NgpExitAnimation],
+  providers: [provideDialogState(), provideFocusTrapState()],
+  hostDirectives: [NgpExitAnimation],
 })
 export class NgpDialog<T = unknown, R = unknown> {
   private readonly config = injectDialogConfig();
@@ -23,7 +23,10 @@ export class NgpDialog<T = unknown, R = unknown> {
     alias: 'ngpDialogRole',
   });
 
-  /** Whether the dialog is a modal. */
+  /**
+   * Whether the dialog is a modal, reflected in `aria-modal`. Defaults to `modal` in the dialog
+   * configuration, which decides the behaviour when the dialog opens.
+   */
   readonly modal = input<boolean, BooleanInput>(this.config.modal ?? false, {
     alias: 'ngpDialogModal',
     transform: booleanAttribute,
