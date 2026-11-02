@@ -3,7 +3,7 @@ import { computed, inject, Injector, Signal, signal, WritableSignal } from '@ang
 import { activeDescendantManager } from 'ng-primitives/a11y';
 import { NgpSelectionMode } from 'ng-primitives/common';
 import { ngpFocusVisible } from 'ng-primitives/interactions';
-import { explicitEffect, injectElementRef } from 'ng-primitives/internal';
+import { domSort, explicitEffect, injectElementRef } from 'ng-primitives/internal';
 import { injectPopoverTriggerState } from 'ng-primitives/popover';
 import {
   attrBinding,
@@ -127,6 +127,10 @@ export const [NgpListboxStateToken, ngpListbox, _injectListboxState, provideList
       const popoverTriggerState = injectPopoverTriggerState({ optional: true });
 
       const options = signal<NgpListboxOptionState<T>[]>([]);
+      // options register in creation order, so a re-created option lands at the end
+      const sortedOptions = computed(() =>
+        domSort(options(), option => option.elementRef.nativeElement),
+      );
       const isFocused = signal<boolean>(false);
 
       const defaultValue = controlled(_defaultValue, []);
@@ -145,11 +149,11 @@ export const [NgpListboxStateToken, ngpListbox, _injectListboxState, provideList
 
       const activeDescendant = activeDescendantManager({
         disabled,
-        count: computed(() => options().length),
-        getItemId: index => options()[index]?.id(),
-        isItemDisabled: index => options()[index]?.disabled() ?? false,
-        getItemLabel: index => options()[index]?.getLabel() ?? '',
-        scrollIntoView: index => options()[index]?.scrollIntoView(),
+        count: computed(() => sortedOptions().length),
+        getItemId: index => sortedOptions()[index]?.id(),
+        isItemDisabled: index => sortedOptions()[index]?.disabled() ?? false,
+        getItemLabel: index => sortedOptions()[index]?.getLabel() ?? '',
+        scrollIntoView: index => sortedOptions()[index]?.scrollIntoView(),
       });
 
       // Setup interactions
@@ -175,14 +179,29 @@ export const [NgpListboxStateToken, ngpListbox, _injectListboxState, provideList
       // Keep the active item in sync as options register/change and as the value
       // changes (e.g. the previously active item was removed). This runs on setup
       // too, so it sets the initial active item once the options are projected.
-      explicitEffect([options, value], () => updateActiveItem(), { injector });
+      explicitEffect([sortedOptions, value, disabled], () => updateActiveItem(), { injector });
+
+      // The manager tracks the active option by index, so resolve it against the list it
+      // was set on: an option added or removed before it would otherwise shift the index.
+      let previousOptions: NgpListboxOptionState<T>[] = [];
 
       function updateActiveItem(): void {
-        const items = options();
-        const index = activeDescendant.index();
+        // the manager ignores activation while disabled, so keep the snapshot until re-enabled
+        if (disabled()) {
+          return;
+        }
+
+        const items = sortedOptions();
+        const activeOption = previousOptions[activeDescendant.index()];
+        previousOptions = items;
 
         // keep the current active option if it is still present and enabled
-        if (index >= 0 && index < items.length && !items[index].disabled()) {
+        const index = activeOption ? items.indexOf(activeOption) : -1;
+
+        if (index >= 0 && !items[index].disabled()) {
+          if (index !== activeDescendant.index()) {
+            activeDescendant.activateByIndex(index, { scroll: false });
+          }
           return;
         }
 
@@ -253,7 +272,7 @@ export const [NgpListboxStateToken, ngpListbox, _injectListboxState, provideList
         }
 
         // Set the active descendant to the selected option.
-        const index = options().findIndex(o => compareWith()(o.value(), val));
+        const index = sortedOptions().findIndex(o => compareWith()(o.value(), val));
 
         if (index >= 0) {
           activeDescendant.activateByIndex(index);
@@ -266,7 +285,7 @@ export const [NgpListboxStateToken, ngpListbox, _injectListboxState, provideList
       }
 
       function activateOption(val: T) {
-        const index = options().findIndex(o => compareWith()(o.value(), val));
+        const index = sortedOptions().findIndex(o => compareWith()(o.value(), val));
 
         if (index >= 0) {
           activeDescendant.activateByIndex(index, { origin: 'pointer' });
