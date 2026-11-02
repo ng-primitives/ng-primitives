@@ -67,6 +67,16 @@ describe('NgpOutsideHiding', () => {
     expect(page.getAttribute('aria-hidden')).toBe('false');
   });
 
+  it('restores an empty value as empty', () => {
+    page.setAttribute('aria-hidden', '');
+    const dialog = layer([panel]);
+
+    hiding.update(dialog);
+    hiding.remove(dialog);
+
+    expect(page.getAttribute('aria-hidden')).toBe('');
+  });
+
   it('sets inert for an inert layer', () => {
     const popover = layer([panel], 'inert');
 
