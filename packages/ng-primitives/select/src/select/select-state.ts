@@ -433,16 +433,58 @@ export const [NgpSelectStateToken, ngpSelect, _injectSelectState, provideSelectS
         },
       });
 
-      // When the visible (or virtual) options change while open, revalidate so the
-      // active index can't point at a removed option and leave a stale aria-activedescendant.
+      // The manager tracks the active option by index, so keep the lists it was last set on:
+      // an option added or removed before the active one would otherwise shift it.
+      let previousOptions: NgpSelectOptionState[] = [];
+      let previousValues: T[] | undefined;
+
+      // When the visible (or virtual) options change while open, re-resolve the active option and
+      // revalidate so the index can't point at a removed option and leave a stale aria-activedescendant.
       effect(() => {
-        sortedOptions();
-        allOptions();
+        const currentOptions = sortedOptions();
+        const currentValues = allOptions();
+
+        // the manager ignores activation while disabled, so keep the snapshot until re-enabled
+        if (disabled()) {
+          return;
+        }
 
         if (open()) {
-          untracked(() => activeDescendantManagerInstance.validate());
+          untracked(() => {
+            restoreActiveOption();
+            activeDescendantManagerInstance.validate();
+          });
         }
+
+        previousOptions = currentOptions;
+        previousValues = currentValues;
       });
+
+      function restoreActiveOption(): void {
+        const index = activeDescendantManagerInstance.index();
+
+        if (index < 0) {
+          return;
+        }
+
+        // virtual options are only known by value; rendered options keep their identity
+        const values = allOptions();
+        let nextIndex = -1;
+
+        if (values && previousValues && index < previousValues.length) {
+          const activeValue = previousValues[index];
+          // stay put while the value still matches, e.g. on a virtual scroll or with duplicates
+          nextIndex = compareWith()(values[index], activeValue)
+            ? index
+            : values.findIndex(value => compareWith()(value, activeValue));
+        } else if (!values && index < previousOptions.length) {
+          nextIndex = sortedOptions().indexOf(previousOptions[index]);
+        }
+
+        if (nextIndex !== -1 && nextIndex !== index) {
+          activeDescendantManagerInstance.activateByIndex(nextIndex, { scroll: false });
+        }
+      }
 
       // Host bindings
       attrBinding(elementRef, 'role', () => (input() ? null : 'combobox'));
