@@ -9,8 +9,10 @@ import {
 } from 'ng-primitives/dialog';
 import { NgpMenu, NgpMenuItem, NgpMenuTrigger, NgpSubmenuTrigger } from 'ng-primitives/menu';
 import { NgpPopover, NgpPopoverTrigger } from 'ng-primitives/popover';
+import { NgpTooltip, NgpTooltipTrigger } from 'ng-primitives/tooltip';
 import { firstValueFrom } from 'rxjs';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { userEvent } from 'vitest/browser';
 
 @Component({ selector: 'ngp-nested-dialog', template: '<p>Nested</p>' })
 class NestedDialog {}
@@ -90,6 +92,63 @@ class SubmenuInDialogHost {}
   imports: [NgpPopoverTrigger, NgpPopover],
 })
 class PagePopoverHost {}
+
+@Component({
+  template: `
+    <button [ngpDialogTrigger]="dialog" data-testid="open-dialog">Open</button>
+
+    <ng-template #dialog>
+      <div ngpDialogOverlay style="position: fixed; inset: 0" data-testid="overlay">
+        <div ngpDialog style="width: 200px; margin: 200px auto" data-testid="dialog">
+          <button
+            [ngpPopoverTrigger]="popover"
+            [ngpPopoverTriggerCloseOnOutsideClick]="popoverClosesOnOutsideClick"
+            data-testid="open-popover"
+          >
+            Popover
+          </button>
+          <button
+            [ngpTooltipTrigger]="tooltip"
+            ngpTooltipTriggerShowDelay="0"
+            data-testid="tooltip-trigger"
+          >
+            Tooltip
+          </button>
+          <button [ngpMenuTrigger]="menu" data-testid="open-menu">Menu</button>
+        </div>
+      </div>
+    </ng-template>
+
+    <ng-template #popover>
+      <div ngpPopover data-testid="popover">Popover</div>
+    </ng-template>
+
+    <ng-template #tooltip>
+      <div ngpTooltip data-testid="tooltip">Tooltip</div>
+    </ng-template>
+
+    <ng-template #menu>
+      <div ngpMenu data-testid="menu">
+        <button ngpMenuItem>Item</button>
+      </div>
+    </ng-template>
+  `,
+  imports: [
+    NgpDialogTrigger,
+    NgpDialog,
+    NgpDialogOverlay,
+    NgpPopoverTrigger,
+    NgpPopover,
+    NgpTooltipTrigger,
+    NgpTooltip,
+    NgpMenuTrigger,
+    NgpMenu,
+    NgpMenuItem,
+  ],
+})
+class BackdropHost {
+  popoverClosesOnOutsideClick = true;
+}
 
 /** Whether assistive technology can reach the element. */
 function isExposed(element: Element): boolean {
@@ -179,5 +238,71 @@ describe('NgpDialogManager overlays opened from a dialog', () => {
     dialog.close();
 
     expect(isExposed(popover)).toBe(true);
+  });
+});
+
+describe('NgpDialogOverlay backdrop click with an overlay open in the dialog', () => {
+  afterEach(async () => {
+    TestBed.inject(NgpDialogManager).closeAll();
+    await waitFor(() => expect(document.querySelector('[ngpDialogOverlay]')).toBeNull());
+  });
+
+  async function openDialog(popoverClosesOnOutsideClick = true): Promise<void> {
+    await render(BackdropHost, { componentProperties: { popoverClosesOnOutsideClick } });
+    fireEvent.click(screen.getByTestId('open-dialog'));
+    await screen.findByTestId('dialog');
+  }
+
+  async function openPopoverInDialog(popoverClosesOnOutsideClick = true): Promise<void> {
+    await openDialog(popoverClosesOnOutsideClick);
+    fireEvent.click(screen.getByTestId('open-popover'));
+    await screen.findByTestId('popover');
+  }
+
+  /** A real click on the backdrop corner, away from the dialog and its overlays. */
+  async function clickBackdrop(): Promise<void> {
+    await userEvent.click(screen.getByTestId('overlay'), { position: { x: 5, y: 5 } });
+  }
+
+  it('should close only the popover, then the dialog on the next click', async () => {
+    await openPopoverInDialog();
+
+    await clickBackdrop();
+
+    await waitFor(() => expect(screen.queryByTestId('popover')).toBeNull());
+    expect(TestBed.inject(NgpDialogManager).openDialogs.length).toBe(1);
+
+    await clickBackdrop();
+
+    expect(TestBed.inject(NgpDialogManager).openDialogs.length).toBe(0);
+  });
+
+  it('should close only the menu', async () => {
+    await openDialog();
+    fireEvent.click(screen.getByTestId('open-menu'));
+    await screen.findByTestId('menu');
+
+    await clickBackdrop();
+
+    await waitFor(() => expect(screen.queryByTestId('menu')).toBeNull());
+    expect(TestBed.inject(NgpDialogManager).openDialogs.length).toBe(1);
+  });
+
+  it('should close the dialog when the open overlay does not close on outside click', async () => {
+    await openPopoverInDialog(false);
+
+    await clickBackdrop();
+
+    expect(TestBed.inject(NgpDialogManager).openDialogs.length).toBe(0);
+  });
+
+  it('should close the dialog when only a tooltip is open in it', async () => {
+    await openDialog();
+    fireEvent.mouseEnter(screen.getByTestId('tooltip-trigger'));
+    await screen.findByTestId('tooltip');
+
+    await clickBackdrop();
+
+    expect(TestBed.inject(NgpDialogManager).openDialogs.length).toBe(0);
   });
 });
