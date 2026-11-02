@@ -93,6 +93,22 @@ The following directives are available to import from the `ng-primitives/switch`
   <api-attribute name="data-press" description="Applied when the switch thumb is pressed." />
 </api-reference-attributes>
 
+## Global Configuration
+
+You can configure the default options for all switches in your application by using the `provideSwitchConfig` function in a providers array.
+
+```ts
+import { provideSwitchConfig } from 'ng-primitives/switch';
+
+bootstrapApplication(AppComponent, {
+  providers: [provideSwitchConfig({ toggleOnEnter: false })],
+});
+```
+
+### NgpSwitchConfig
+
+<api-reference-config name="NgpSwitchConfig"></api-reference-config>
+
 ## Accessibility
 
 Adheres to the [WAI-ARIA switch design pattern](https://www.w3.org/WAI/ARIA/apg/patterns/switch/).
@@ -100,4 +116,4 @@ Adheres to the [WAI-ARIA switch design pattern](https://www.w3.org/WAI/ARIA/apg/
 ### Keyboard Interactions
 
 - <kbd>Space</kbd> - Toggle the switch state.
-- <kbd>Enter</kbd> - Toggle the switch state.
+- <kbd>Enter</kbd> - Toggle the switch state, unless `ngpSwitchToggleOnEnter` is `false`.
