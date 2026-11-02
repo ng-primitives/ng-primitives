@@ -3158,6 +3158,9 @@ describe('NgpCombobox ArrowUp open options and scrolling', () => {
 describe('NgpCombobox active option when options change', () => {
   afterEach(removeLingeringDropdown);
 
+  // each call creates new objects, so only a compareWith on id matches them
+  const fruits = (ids: string[]) => ids.map(id => ({ id }));
+
   @Component({
     imports: [
       NgpCombobox,
@@ -3191,12 +3194,12 @@ describe('NgpCombobox active option when options change', () => {
       NgpComboboxPortal,
     ],
     template: `
-      <div [ngpComboboxOptions]="options()" ngpCombobox>
+      <div [ngpComboboxOptions]="options()" [ngpComboboxCompareWith]="compareWith" ngpCombobox>
         <input ngpComboboxInput />
         <div *ngpComboboxPortal ngpComboboxDropdown>
-          @for (option of options(); track option; let i = $index) {
+          @for (option of options(); track option.id; let i = $index) {
             <div [ngpComboboxOptionValue]="option" [ngpComboboxOptionIndex]="i" ngpComboboxOption>
-              {{ option }}
+              {{ option.id }}
             </div>
           }
         </div>
@@ -3204,7 +3207,8 @@ describe('NgpCombobox active option when options change', () => {
     `,
   })
   class VirtualOptionsComponent {
-    readonly options = signal(['Apple', 'Banana', 'Cherry', 'Date']);
+    readonly options = signal(fruits(['Apple', 'Banana', 'Cherry', 'Date']));
+    readonly compareWith = (a?: { id: string }, b?: { id: string }) => a?.id === b?.id;
   }
 
   const activeOption = () =>
@@ -3263,7 +3267,8 @@ describe('NgpCombobox active option when options change', () => {
     const { fixture } = await render(VirtualOptionsComponent);
     await openOnCherry();
 
-    fixture.componentInstance.options.set(['Banana', 'Cherry', 'Date']);
+    // new objects, so the active option can only be found through compareWith
+    fixture.componentInstance.options.set(fruits(['Banana', 'Cherry', 'Date']));
     fixture.detectChanges();
 
     await waitFor(() => expect(screen.queryByText('Apple')).toBeNull());
