@@ -1,8 +1,16 @@
-import { Component, inject, TemplateRef, viewChild, ViewContainerRef } from '@angular/core';
+import {
+  Component,
+  inject,
+  Injector,
+  TemplateRef,
+  viewChild,
+  ViewContainerRef,
+} from '@angular/core';
 import { fireEvent, render, waitFor } from '@testing-library/angular';
 import { NgpDialog, NgpDialogManager, NgpDialogOverlay } from 'ng-primitives/dialog';
 import { NgpToast, NgpToastManager, NgpToastPlacement, NgpToastRef } from 'ng-primitives/toast';
 import { afterEach, describe, expect, it } from 'vitest';
+import { userEvent } from 'vitest/browser';
 
 @Component({
   selector: 'test-keyboard-toast',
@@ -18,6 +26,12 @@ class TestToast {}
     <button data-testid="page-button">Page</button>
     <button data-testid="other-button">Other</button>
 
+    <ng-template #animatedToast>
+      <div ngpToast animate.leave="toast-leave">
+        <button data-testid="animated-toast-action">Undo</button>
+      </div>
+    </ng-template>
+
     <ng-template #dialog>
       <div ngpDialogOverlay>
         <div ngpDialog data-testid="dialog">
@@ -26,16 +40,33 @@ class TestToast {}
       </div>
     </ng-template>
   `,
-  imports: [NgpDialog, NgpDialogOverlay],
+  styles: `
+    .toast-leave {
+      animation: toast-leave 150ms;
+    }
+
+    @keyframes toast-leave {
+      to {
+        opacity: 0;
+      }
+    }
+  `,
+  imports: [NgpDialog, NgpDialogOverlay, NgpToast],
 })
 class ToastKeyboardHost {
   readonly toasts = inject(NgpToastManager);
   readonly dialogs = inject(NgpDialogManager);
   readonly dialog = viewChild.required<TemplateRef<unknown>>('dialog');
+  readonly animatedToast = viewChild.required<TemplateRef<void>>('animatedToast');
   private readonly viewContainerRef = inject(ViewContainerRef);
+  private readonly injector = inject(Injector);
 
   showToast(placement?: NgpToastPlacement): NgpToastRef {
     return this.toasts.show(TestToast, { persistent: true, placement });
+  }
+
+  showAnimatedToast(): NgpToastRef {
+    return this.toasts.show(this.animatedToast(), { persistent: true, injector: this.injector });
   }
 
   openDialog(): void {
@@ -52,6 +83,10 @@ function container(placement?: NgpToastPlacement): HTMLElement {
   return element!;
 }
 
+function actions(): HTMLElement[] {
+  return Array.from(document.querySelectorAll<HTMLElement>('[data-testid="toast-action"]'));
+}
+
 function pressKey(key: string, init: KeyboardEventInit = {}): KeyboardEvent {
   const target = document.activeElement ?? document.body;
   const event = new KeyboardEvent('keydown', { key, bubbles: true, cancelable: true, ...init });
@@ -63,8 +98,10 @@ function wait(ms: number): Promise<void> {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-async function renderHost() {
-  const view = await render(ToastKeyboardHost);
+async function renderHost({ animationsEnabled = false } = {}) {
+  const view = await render(ToastKeyboardHost, {
+    configureTestBed: testBed => testBed.configureTestingModule({ animationsEnabled }),
+  });
   return { host: view.fixture.componentInstance, getByTestId: view.getByTestId };
 }
 
@@ -177,6 +214,164 @@ describe('NgpToastManager keyboard access', () => {
       } finally {
         window.removeEventListener('focusout', swallow, { capture: true });
       }
+    });
+  });
+
+  describe('when a toast reached with Tab closes', () => {
+    async function showTwoToasts({ animationsEnabled = false } = {}) {
+      const view = await renderHost({ animationsEnabled });
+      const older = view.host.showToast();
+      const newer = view.host.showToast();
+      const [olderAction, newerAction] = Array.from(
+        document.querySelectorAll<HTMLElement>('[data-testid="toast-action"]'),
+      );
+      const toastOf = (action: HTMLElement) => action.closest<HTMLElement>('test-keyboard-toast')!;
+      return { ...view, older, newer, olderAction, newerAction, toastOf };
+    }
+
+    it('moves focus to the next older toast', async () => {
+      const { newer, olderAction, newerAction, toastOf, getByTestId } = await showTwoToasts();
+      getByTestId('other-button').focus();
+      await userEvent.keyboard('{Tab}{Tab}');
+      expect(document.activeElement).toBe(newerAction);
+
+      await newer.dismiss();
+
+      expect(document.activeElement).toBe(toastOf(olderAction));
+    });
+
+    it('moves focus to the newer toast when the oldest closes', async () => {
+      const { older, olderAction, newerAction, toastOf, getByTestId } = await showTwoToasts();
+      getByTestId('other-button').focus();
+      await userEvent.keyboard('{Tab}');
+      expect(document.activeElement).toBe(olderAction);
+
+      await older.dismiss();
+
+      expect(document.activeElement).toBe(toastOf(newerAction));
+    });
+
+    it('returns focus to where Tab came from once no toast is left', async () => {
+      const { older, newer, getByTestId } = await showTwoToasts();
+      const otherButton = getByTestId('other-button');
+      otherButton.focus();
+      await userEvent.keyboard('{Tab}{Tab}');
+
+      await newer.dismiss();
+      await older.dismiss();
+
+      expect(document.activeElement).toBe(otherButton);
+    });
+
+    it('keeps F6 and Escape to an F6 round trip after moving to the next toast', async () => {
+      const { newer, olderAction, toastOf, getByTestId } = await showTwoToasts();
+      getByTestId('other-button').focus();
+      await userEvent.keyboard('{Tab}{Tab}');
+      await newer.dismiss();
+
+      expect(pressKey('Escape').defaultPrevented).toBe(false);
+      expect(pressKey('F6').defaultPrevented).toBe(false);
+      expect(document.activeElement).toBe(toastOf(olderAction));
+    });
+
+    it('moves focus from a toast in the middle to the next older one', async () => {
+      const view = await renderHost();
+      view.host.showToast();
+      const middle = view.host.showToast();
+      view.host.showToast();
+      const [oldestAction] = actions();
+      view.getByTestId('other-button').focus();
+      await userEvent.keyboard('{Tab}{Tab}');
+      expect(document.activeElement).toBe(actions()[1]);
+
+      await middle.dismiss();
+
+      expect(document.activeElement).toBe(oldestAction.closest('test-keyboard-toast'));
+    });
+
+    it('skips a neighbour that is closing at the same time', async () => {
+      const view = await renderHost();
+      view.host.showToast();
+      const middle = view.host.showToast();
+      const newest = view.host.showToast();
+      const [oldestAction] = actions();
+      view.getByTestId('other-button').focus();
+      await userEvent.keyboard('{Tab}{Tab}{Tab}');
+
+      await Promise.all([middle.dismiss(), newest.dismiss()]);
+
+      expect(document.activeElement).toBe(oldestAction.closest('test-keyboard-toast'));
+    });
+
+    it('does not move focus to a toast at another placement', async () => {
+      const view = await renderHost();
+      view.host.showToast('top-start');
+      const toast = view.host.showToast('bottom-end');
+      const otherButton = view.getByTestId('other-button');
+      otherButton.focus();
+      await userEvent.keyboard('{Tab}{Tab}');
+      expect(container('bottom-end').contains(document.activeElement)).toBe(true);
+
+      await toast.dismiss();
+
+      expect(document.activeElement).toBe(otherButton);
+    });
+
+    it('keeps the tabindex while the window, not the page, takes focus away', async () => {
+      const { newer, olderAction, toastOf, getByTestId } = await showTwoToasts();
+      getByTestId('other-button').focus();
+      await userEvent.keyboard('{Tab}{Tab}');
+      await newer.dismiss();
+
+      // switching window or tab blurs the active element without changing it
+      toastOf(olderAction).dispatchEvent(new FocusEvent('blur'));
+
+      expect(toastOf(olderAction)).toHaveAttribute('tabindex', '-1');
+    });
+
+    it('takes back the tabindex it gave a toast once that toast loses focus', async () => {
+      const { newer, olderAction, toastOf, getByTestId } = await showTwoToasts();
+      getByTestId('other-button').focus();
+      await userEvent.keyboard('{Tab}{Tab}');
+      await newer.dismiss();
+      expect(toastOf(olderAction)).toHaveAttribute('tabindex', '-1');
+
+      getByTestId('page-button').focus();
+
+      expect(toastOf(olderAction)).not.toHaveAttribute('tabindex');
+    });
+
+    it('moves focus on as the toast starts to close, before an animate.leave removes it', async () => {
+      const { host, newerAction, toastOf, getByTestId } = await showTwoToasts({
+        animationsEnabled: true,
+      });
+      const animated = host.showAnimatedToast();
+      const animatedAction = document.querySelector<HTMLElement>(
+        '[data-testid="animated-toast-action"]',
+      )!;
+      getByTestId('other-button').focus();
+      await userEvent.keyboard('{Tab}{Tab}{Tab}');
+      expect(document.activeElement).toBe(animatedAction);
+
+      await animated.dismiss();
+
+      // Angular keeps the element for its leave animation after the view is destroyed
+      expect(animatedAction.isConnected).toBe(true);
+      expect(document.activeElement).toBe(toastOf(newerAction));
+      await waitFor(() => expect(animatedAction.isConnected).toBe(false));
+      expect(document.activeElement).toBe(toastOf(newerAction));
+    });
+
+    it('returns focus to the page after a pointer close rather than to the next toast', async () => {
+      const { newer, newerAction, getByTestId } = await showTwoToasts();
+      const pageButton = getByTestId('page-button');
+      pageButton.focus();
+      await userEvent.click(newerAction);
+      expect(document.activeElement).toBe(newerAction);
+
+      await newer.dismiss();
+
+      expect(document.activeElement).toBe(pageButton);
     });
   });
 

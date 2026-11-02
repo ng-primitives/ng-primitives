@@ -45,6 +45,8 @@ export class NgpToast {
   private readonly manager = inject(NgpToastManager);
   private readonly injector = inject(Injector);
   private readonly elementRef = inject<ElementRef<HTMLElement>>(ElementRef);
+  /** @internal */
+  readonly element = this.elementRef.nativeElement;
   protected readonly config = injectToastConfig();
   /** @internal */
   readonly options = injectToastOptions();
