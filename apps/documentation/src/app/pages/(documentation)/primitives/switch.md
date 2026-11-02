@@ -116,4 +116,4 @@ Adheres to the [WAI-ARIA switch design pattern](https://www.w3.org/WAI/ARIA/apg/
 ### Keyboard Interactions
 
 - <kbd>Space</kbd> - Toggle the switch state.
-- <kbd>Enter</kbd> - Toggle the switch state, unless `ngpSwitchToggleOnEnter` (or `toggleOnEnter` in `provideSwitchConfig`) is `false`.
+- <kbd>Enter</kbd> - Toggle the switch state, unless `ngpSwitchToggleOnEnter` is `false`; it defaults to the `toggleOnEnter` option from `provideSwitchConfig`.
