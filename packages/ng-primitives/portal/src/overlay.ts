@@ -443,6 +443,11 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
     y: undefined,
   });
 
+  /** @internal The injector of the trigger this overlay was opened from. */
+  get triggerInjector(): Injector {
+    return this.config.injector;
+  }
+
   /**
    * Creates a new overlay instance
    * @param config Initial configuration for the overlay
