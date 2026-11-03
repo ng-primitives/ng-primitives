@@ -95,8 +95,8 @@ A drawer is a type of dialog that slides in from the side of the screen.
 A drawer that acts on the page beside it, such as view settings or filters next to a table, should leave that page usable. Set `ngpDialogTriggerModal` to `false` (or pass `modal: false` to `NgpDialogManager.open()` or `provideDialogConfig`). While a non-modal dialog is open:
 
 - the page stays scrollable, clickable and readable by screen readers, unless a modal dialog below it still covers the page;
-- focus moves to the dialog element on open, unless an element inside it already took focus. It is not trapped. On close it returns to the trigger only if it was still inside the dialog;
-- a second click on the trigger closes the dialog;
+- focus moves to the dialog element on open, unless an element inside it already took focus. It is not trapped. On close it returns to the trigger only if it was still inside the dialog, or in an overlay opened from it;
+- a second click on the trigger closes the dialog, unless `disableClose` is set;
 - `closeOnEscape` applies only to an Escape pressed inside the dialog. Elsewhere, Escape goes to the overlay below;
 - an outside click does not close it. Leave out `ngpDialogOverlay`, so nothing covers the page.
 
