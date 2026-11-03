@@ -43,7 +43,7 @@ export class NgpMenu {
     alias: 'ngpMenuFinalFocus',
   });
 
-  private readonly state = ngpMenu({ wrap: this.wrap, finalFocus: this.finalFocus });
+  private readonly state = ngpMenu({ finalFocus: this.finalFocus });
 
   constructor() {
     ngpRovingFocusGroup({ inherit: false, wrap: this.wrap });
