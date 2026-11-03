@@ -34,6 +34,10 @@ export const [
     const dialogRef = injectDialogRef();
 
     const startedPointerDownOnOverlay = signal(false);
+    // The backdrop is not focusable, so a press on it blurs the focused control to the body. The
+    // blur is let through so values that commit on blur are up to date when a dismiss guard runs,
+    // and focus is returned only once the press is known not to close the dialog.
+    let focusedBeforePress: HTMLElement | null = null;
 
     // Listener
     listener(elementRef, 'pointerdown', handleOnPointerDown);
@@ -41,19 +45,24 @@ export const [
     listener(elementRef, 'click', handleOnClick);
 
     function handleOnPointerDown(event: Event): void {
-      startedPointerDownOnOverlay.set(event.target === event.currentTarget);
+      const onOverlay = event.target === event.currentTarget;
+      startedPointerDownOnOverlay.set(onOverlay);
+      // A press while an async guard is pending keeps the target saved by the first press, since
+      // focus is already on the body by then.
+      focusedBeforePress = onOverlay ? (focusedBeforePress ?? getActiveElement()) : null;
     }
 
     function handleOnPointerCancel(): void {
       startedPointerDownOnOverlay.set(false);
+      restoreFocus();
     }
 
     function handleOnClick(event: Event): void {
       const isOverlayClick = startedPointerDownOnOverlay() && event.target === event.currentTarget;
-
-      handleOnPointerCancel();
+      startedPointerDownOnOverlay.set(false);
 
       if (!isOverlayClick || dialogRef.disableClose) {
+        restoreFocus();
         return;
       }
 
@@ -64,11 +73,12 @@ export const [
 
     function evaluateGuard(guard: NgpDismissGuard<Element>, target: Element): void {
       if (guard === true) {
-        dialogRef.close(undefined, 'mouse');
+        close();
         return;
       }
 
       if (guard === false) {
+        restoreFocus();
         return;
       }
 
@@ -78,24 +88,50 @@ export const [
         result = guard(target);
       } catch (error) {
         console.error('NgpDialogOverlay: dismiss guard threw', error);
+        restoreFocus();
         return;
       }
 
       if (typeof result === 'boolean') {
-        if (result) {
-          dialogRef.close(undefined, 'mouse');
-        }
+        closeOrRestoreFocus(result);
       } else {
-        result
-          .then(shouldClose => {
-            if (shouldClose) {
-              dialogRef.close(undefined, 'mouse');
-            }
-          })
-          .catch(error => {
-            console.error('NgpDialogOverlay: dismiss guard rejected', error);
-          });
+        result.then(closeOrRestoreFocus).catch(error => {
+          console.error('NgpDialogOverlay: dismiss guard rejected', error);
+          restoreFocus();
+        });
       }
+    }
+
+    function closeOrRestoreFocus(shouldClose: boolean): void {
+      if (shouldClose) {
+        close();
+      } else {
+        restoreFocus();
+      }
+    }
+
+    function close(): void {
+      focusedBeforePress = null;
+      dialogRef.close(undefined, 'mouse');
+    }
+
+    function restoreFocus(): void {
+      const element = focusedBeforePress;
+      focusedBeforePress = null;
+
+      // Leave focus alone if something else (e.g. the guard) has moved it since the press.
+      if (element?.isConnected && getActiveElement() === element.ownerDocument.body) {
+        element.focus();
+      }
+    }
+
+    // `document.activeElement` stops at a shadow host, which `focus()` can't send focus back into.
+    function getActiveElement(): HTMLElement | null {
+      let element = elementRef.nativeElement.ownerDocument.activeElement as HTMLElement | null;
+      while (element?.shadowRoot?.activeElement) {
+        element = element.shadowRoot.activeElement as HTMLElement;
+      }
+      return element;
     }
 
     return {
