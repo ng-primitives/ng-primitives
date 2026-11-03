@@ -210,9 +210,11 @@ export class NgpToastManager {
       this.returnFocus();
     };
 
-    // Leaving the toasts by any other way (a click, Tab) ends the F6 round trip.
+    // Leaving the toasts by any other way (a click, Tab) ends the F6 round trip. Switching to
+    // another window does not: focus comes back to the toasts.
     const onFocusOut = (event: FocusEvent) => {
       if (
+        this.document.hasFocus() &&
         this.containerOf(event.target as Node | null) &&
         !this.containerOf(event.relatedTarget as Node | null)
       ) {
