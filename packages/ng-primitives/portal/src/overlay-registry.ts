@@ -436,29 +436,26 @@ export class NgpOverlayRegistry {
   }
 
   /**
-   * Close the topmost modal overlay on a click outside it. The click is swallowed only when its
-   * press started outside too, so a synthetic click (a test's `fireEvent.click`) still reaches
-   * its target.
+   * Swallow the click that ends a press outside the topmost modal overlay, and close it. A click
+   * with no such press - from the keyboard, or fired by code like a test's `fireEvent.click` or a
+   * download link's `a.click()` - is left alone.
    * @returns Whether the click was swallowed.
    */
   private handleModalClick(event: MouseEvent): boolean {
-    // A click from the keyboard (`detail` 0) does not end a press, whatever press came before.
-    const pressOutsideModal = event.detail === 0 ? null : this.pressOutsideModal;
+    const pressOutsideModal = this.pressOutsideModal;
     this.pressOutsideModal = null;
 
-    // A press that started inside, such as a text selection dragged out, keeps the overlay open.
-    if (pressOutsideModal === false) {
+    // A click from the keyboard or from code has a `detail` of 0: it does not end the press.
+    if (!pressOutsideModal || event.detail === 0) {
       return false;
     }
 
+    event.preventDefault();
+    event.stopImmediatePropagation();
+    this.pointerDownTarget = null;
+
     const path = event.composedPath();
     const modal = this.findBlockingModal(path);
-
-    if (pressOutsideModal) {
-      event.preventDefault();
-      event.stopImmediatePropagation();
-      this.pointerDownTarget = null;
-    }
 
     if (modal && !this.pendingGuardIds.has(modal.id)) {
       const target =
@@ -470,7 +467,7 @@ export class NgpOverlayRegistry {
       );
     }
 
-    return pressOutsideModal === true;
+    return true;
   }
 
   /** Whether the event landed on a scrollbar, outside the viewport's client area. */
@@ -511,11 +508,6 @@ export class NgpOverlayRegistry {
 
     // Ignore scrollbar clicks — the click lands outside the viewport's client area.
     if (this.isOnScrollbar(event)) {
-      return;
-    }
-
-    // A press outside a modal overlay closes it on the click, one layer at a time.
-    if (this.pressOutsideModal) {
       return;
     }
 

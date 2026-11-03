@@ -427,6 +427,8 @@ export class NgpDialogManager implements OnDestroy {
       this.outsideHiding.update(this.hidingLayer);
     } else {
       this.outsideHiding.remove(this.hidingLayer);
+      // A non-modal dialog opened from inside a hiding layer must not stay hidden.
+      this.outsideHiding.refresh();
     }
   }
 

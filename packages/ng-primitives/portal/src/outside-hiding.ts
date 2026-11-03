@@ -98,7 +98,15 @@ export class NgpOutsideHiding {
     this.exposedSources.delete(source);
   }
 
-  private refresh(): void {
+  /**
+   * Recompute the open layers, for an overlay that opened or closed while they are open: one
+   * opened from inside a layer into another container must not stay hidden.
+   */
+  refresh(): void {
+    if (this.layers.length === 0 && this.previousValues.size === 0) {
+      return;
+    }
+
     this.restore();
 
     // A layer hides what is below it, never the layers opened above it.

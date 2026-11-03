@@ -107,7 +107,7 @@ describe('NgpOverlayRegistry modal overlays', () => {
     expect(modal.overlay.hide).toHaveBeenCalledWith({ origin: 'mouse' });
   });
 
-  it('closes on a click with no press before it, but lets the click through', () => {
+  it('leaves a click with no press before it alone', () => {
     const modal = register({ id: 'modal', modal: true, getElements: () => [panel] });
     const onClick = vi.fn();
     outside.addEventListener('click', onClick);
@@ -116,7 +116,21 @@ describe('NgpOverlayRegistry modal overlays', () => {
 
     expect(event.defaultPrevented).toBe(false);
     expect(onClick).toHaveBeenCalledTimes(1);
-    expect(modal.overlay.hide).toHaveBeenCalledTimes(1);
+    expect(modal.overlay.hide).not.toHaveBeenCalled();
+  });
+
+  it('stays open when code inside it clicks an element outside, like a download link', () => {
+    const modal = register({ id: 'modal', modal: true, getElements: () => [panel] });
+    const exportButton = document.createElement('button');
+    panel.append(exportButton);
+    const onDownload = vi.fn();
+    outside.addEventListener('click', onDownload);
+    exportButton.addEventListener('click', () => outside.click());
+
+    press(exportButton);
+
+    expect(onDownload).toHaveBeenCalledTimes(1);
+    expect(modal.overlay.hide).not.toHaveBeenCalled();
   });
 
   it('leaves a press inside the overlay alone', () => {

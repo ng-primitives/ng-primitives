@@ -196,14 +196,59 @@ describe('NgpPopoverTrigger modal', () => {
     expect(document.activeElement).toBe(screen.getByTestId('trigger'));
   });
 
-  it('closes on a synthetic click outside and lets it through', async () => {
+  it('leaves a synthetic click outside alone', async () => {
     const { fixture } = await render(ModalPopoverHost);
     await openPopover();
 
     fireEvent.click(screen.getByTestId('page-button'));
 
-    await waitFor(() => expect(screen.queryByTestId('popover')).toBeNull());
     expect(fixture.componentInstance.pageClicks()).toBe(1);
+    expect(screen.getByTestId('popover')).toBeInTheDocument();
+  });
+
+  it('keeps an overlay opened from it into another container usable', async () => {
+    @Component({
+      imports: [NgpPopoverTrigger, NgpPopover],
+      template: `
+        <button [ngpPopoverTrigger]="content" ngpPopoverTriggerModal data-testid="trigger">
+          Open
+        </button>
+
+        <ng-template #content>
+          <div ngpPopover data-testid="popover">
+            <button
+              [ngpPopoverTrigger]="nested"
+              ngpPopoverTriggerContainer="#test-overlays"
+              data-testid="open-nested"
+            >
+              More
+            </button>
+          </div>
+        </ng-template>
+
+        <ng-template #nested>
+          <div ngpPopover data-testid="nested">Nested</div>
+        </ng-template>
+      `,
+    })
+    class OtherContainerHost {}
+
+    const overlays = document.body.appendChild(document.createElement('div'));
+    overlays.id = 'test-overlays';
+
+    try {
+      await render(OtherContainerHost);
+      await openPopover();
+      expect(isInert(overlays)).toBe(true);
+
+      await userEvent.click(screen.getByTestId('open-nested'));
+      const nested = await screen.findByTestId('nested');
+
+      expect(overlays.contains(nested)).toBe(true);
+      expect(isInert(nested)).toBe(false);
+    } finally {
+      overlays.remove();
+    }
   });
 
   it('keeps an exempt element usable', async () => {
@@ -288,7 +333,10 @@ describe('NgpPopoverTrigger modal', () => {
   });
 
   describe('with a dialog opened from it', () => {
-    afterEach(() => TestBed.inject(NgpDialogManager).closeAll());
+    afterEach(async () => {
+      TestBed.inject(NgpDialogManager).closeAll();
+      await waitFor(() => expect(document.querySelector('[ngpDialog]')).toBeNull());
+    });
 
     it('keeps the dialog usable', async () => {
       await render(ModalPopoverHost);
@@ -299,6 +347,29 @@ describe('NgpPopoverTrigger modal', () => {
 
       expect(isInert(dialog)).toBe(false);
       expect(isInert(screen.getByTestId('page-button'))).toBe(true);
+    });
+
+    it('keeps a non-modal dialog opened into another container usable', async () => {
+      const overlays = document.body.appendChild(document.createElement('div'));
+      overlays.id = 'test-overlays';
+
+      try {
+        const { fixture } = await render(ModalPopoverHost);
+        await openPopover();
+        expect(isInert(overlays)).toBe(true);
+
+        TestBed.inject(NgpDialogManager).open(fixture.componentInstance.dialog(), {
+          modal: false,
+          container: overlays,
+          viewContainerRef: fixture.debugElement.injector.get(ViewContainerRef),
+        });
+        const dialog = await screen.findByTestId('dialog');
+
+        expect(overlays.contains(dialog)).toBe(true);
+        expect(isInert(dialog)).toBe(false);
+      } finally {
+        overlays.remove();
+      }
     });
 
     it('keeps the dialog usable when the popover itself is in a dialog', async () => {

@@ -1069,7 +1069,9 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
       order,
     );
 
-    if (modal && !this.hidingLayer) {
+    if (!modal) {
+      this.outsideHiding.refresh();
+    } else if (!this.hidingLayer) {
       // The trigger stays usable, so pressing it closes the overlay like it opened it.
       this.hidingLayer = {
         attribute: 'inert',
@@ -1087,6 +1089,8 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
     if (this.hidingLayer) {
       this.outsideHiding.remove(this.hidingLayer);
       this.hidingLayer = null;
+    } else {
+      this.outsideHiding.refresh();
     }
   }
 
