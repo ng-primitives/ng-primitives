@@ -1,6 +1,6 @@
 import { inject, signal, Signal } from '@angular/core';
 import { injectElementRef } from 'ng-primitives/internal';
-import { NgpDismissGuard, NgpOverlayRegistry } from 'ng-primitives/portal';
+import { NgpDismissGuard, NgpOverlayEntry, NgpOverlayRegistry } from 'ng-primitives/portal';
 import { createPrimitive, listener } from 'ng-primitives/state';
 import { injectDialogRef } from '../dialog/dialog-ref';
 
@@ -56,21 +56,45 @@ export const [
 
     function handleOnPointerDown(event: Event): void {
       const isOnOverlay = event.target === event.currentTarget;
+      const closingOverlays = isOnOverlay ? childOverlaysClosingOnOutsidePress() : [];
       startedPointerDownOnOverlay.set(isOnOverlay);
-      pressClosesChildOverlay.set(isOnOverlay && hasChildOverlayClosingOnOutsidePress());
+      pressClosesChildOverlay.set(closingOverlays.length > 0);
       // A press while an async guard is pending keeps the target saved by the first press, since
       // focus is already on the body by then.
-      focusedBeforePress = isOnOverlay ? (focusedBeforePress ?? getActiveElement()) : null;
+      focusedBeforePress = isOnOverlay
+        ? (focusedBeforePress ?? outsideOf(closingOverlays, getActiveElement()))
+        : null;
     }
 
-    function hasChildOverlayClosingOnOutsidePress(): boolean {
+    function childOverlaysClosingOnOutsidePress(): NgpOverlayEntry[] {
       return registry
         .getDescendants(dialogRef.id)
-        .some(
+        .filter(
           entry =>
             entry.dismissPolicy.outsidePress !== false &&
             !PASSIVE_OVERLAY_TYPES.has(entry.overlayType ?? ''),
         );
+    }
+
+    /**
+     * Focus inside an overlay the press closes would go with it, so it is returned to the trigger
+     * of that overlay instead, walking out through nested ones such as a submenu.
+     */
+    function outsideOf(
+      overlays: NgpOverlayEntry[],
+      element: HTMLElement | null,
+    ): HTMLElement | null {
+      let target = element;
+      for (let depth = 0; target && depth < overlays.length; depth++) {
+        const owner = overlays.find(entry =>
+          entry.getElements().some(overlayElement => overlayElement.contains(target)),
+        );
+        if (!owner) {
+          break;
+        }
+        target = owner.triggerElement;
+      }
+      return target;
     }
 
     function handleOnPointerCancel(): void {

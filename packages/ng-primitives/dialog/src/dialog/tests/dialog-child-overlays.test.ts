@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { fireEvent, render, screen, waitFor } from '@testing-library/angular';
+import { fireEvent, render, screen, waitFor, within } from '@testing-library/angular';
 import {
   NgpDialog,
   NgpDialogManager,
@@ -286,6 +286,20 @@ describe('NgpDialogOverlay backdrop click with an overlay open in the dialog', (
 
     await waitFor(() => expect(screen.queryByTestId('menu')).toBeNull());
     expect(TestBed.inject(NgpDialogManager).openDialogs.length).toBe(1);
+  });
+
+  it('should return focus from a mouse-opened menu to its trigger, inside the dialog', async () => {
+    await openDialog();
+    // A mouse-opened menu does not return focus to its trigger when it closes.
+    await userEvent.click(screen.getByTestId('open-menu'));
+    const item = within(await screen.findByTestId('menu')).getByRole('menuitem');
+    item.focus();
+
+    await clickBackdrop();
+
+    await waitFor(() => expect(screen.queryByTestId('menu')).toBeNull());
+    expect(TestBed.inject(NgpDialogManager).openDialogs.length).toBe(1);
+    expect(document.activeElement).toBe(screen.getByTestId('open-menu'));
   });
 
   it('should close the dialog when the open overlay does not close on outside click', async () => {
