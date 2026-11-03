@@ -4,7 +4,7 @@ import { NgpDialog, NgpDialogOverlay, NgpDialogTrigger } from 'ng-primitives/dia
 import { NgpMenu, NgpMenuItem, NgpMenuTrigger } from 'ng-primitives/menu';
 import { NgpPopover, NgpPopoverTrigger } from 'ng-primitives/popover';
 import { NgpTooltip, NgpTooltipTrigger } from 'ng-primitives/tooltip';
-import { describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it } from 'vitest';
 import { userEvent } from 'vitest/browser';
 
 @Component({
@@ -116,6 +116,15 @@ const tooltip = () => document.querySelector('[ngpTooltip]');
 const settle = () => new Promise(resolve => setTimeout(resolve, 100));
 
 describe('NgpTooltipTrigger focus', () => {
+  // The pointer keeps its position across test files: park it where nothing renders, so a
+  // later file does not open something on hover.
+  afterEach(async () => {
+    const corner = document.body.appendChild(document.createElement('div'));
+    corner.style.cssText = 'position: fixed; right: 0; bottom: 0; width: 4px; height: 4px;';
+    await userEvent.hover(corner);
+    corner.remove();
+  });
+
   it('opens when the user tabs onto the trigger', async () => {
     const { getByTestId } = await render(TooltipFocusComponent);
 
