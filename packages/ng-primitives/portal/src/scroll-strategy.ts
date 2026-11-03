@@ -153,7 +153,7 @@ export class BlockScrollStrategy implements ScrollStrategy {
       htmlStyle.scrollBehavior = bodyStyle.scrollBehavior = 'auto';
     }
 
-    window.scroll(previousScrollPosition.left, previousScrollPosition.top);
+    this.document.defaultView?.scroll(previousScrollPosition.left, previousScrollPosition.top);
 
     if (supportsScrollBehavior()) {
       htmlStyle.scrollBehavior = previousHtmlScrollBehavior;

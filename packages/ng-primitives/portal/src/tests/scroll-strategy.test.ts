@@ -112,9 +112,10 @@ describe('BlockScrollStrategy', () => {
     getViewportScrollPosition: () => ({ top: 0, left: 0 }),
   } as unknown as ViewportRuler;
   const strategies: BlockScrollStrategy[] = [];
+  const initialHtmlStyle = html.style.cssText;
 
-  function createStrategy(): BlockScrollStrategy {
-    const strategy = new BlockScrollStrategy(viewportRuler, document);
+  function createStrategy(doc: Document = document): BlockScrollStrategy {
+    const strategy = new BlockScrollStrategy(viewportRuler, doc);
     strategies.push(strategy);
     return strategy;
   }
@@ -122,7 +123,7 @@ describe('BlockScrollStrategy', () => {
   afterEach(() => {
     strategies.splice(0).forEach(strategy => strategy.disable());
     html.classList.remove('cdk-global-scrollblock');
-    html.style.top = '';
+    html.style.cssText = initialHtmlStyle;
   });
 
   it('should block the page scroll until disabled', () => {
@@ -153,7 +154,13 @@ describe('BlockScrollStrategy', () => {
   });
 
   it('should restore the inline styles from before the first block', () => {
-    html.style.top = '5px';
+    Object.assign(html.style, {
+      left: '1px',
+      top: '5px',
+      position: 'relative',
+      overflowY: 'auto',
+      width: '90%',
+    });
     const menu = createStrategy();
     const dialog = createStrategy();
 
@@ -162,7 +169,34 @@ describe('BlockScrollStrategy', () => {
     menu.disable();
     dialog.disable();
 
-    expect(html.style.top).toBe('5px');
+    expect(html.style).toMatchObject({
+      left: '1px',
+      top: '5px',
+      position: 'relative',
+      overflowY: 'auto',
+      width: '90%',
+    });
+  });
+
+  it('should restore the scroll position of its own document', () => {
+    const iframe = document.createElement('iframe');
+    document.body.appendChild(iframe);
+
+    try {
+      const frameWindow = iframe.contentWindow!;
+      const frameScroll = vi.spyOn(frameWindow, 'scroll');
+      const pageScroll = vi.spyOn(window, 'scroll');
+      const strategy = createStrategy(frameWindow.document);
+
+      strategy.enable();
+      strategy.disable();
+
+      expect(frameScroll).toHaveBeenCalled();
+      expect(pageScroll).not.toHaveBeenCalled();
+    } finally {
+      vi.restoreAllMocks();
+      iframe.remove();
+    }
   });
 
   it('should not release the block of another overlay when disabled twice', () => {
