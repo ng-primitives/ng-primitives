@@ -127,9 +127,10 @@ export const [
         }
         case 'Tab':
           // the dropdown is portaled to the end of the body, so close it (focusing the trigger)
-          // and let the browser tab on from the select's place in the page
+          // and let the browser tab on from the select's place in the page. Right away, so a
+          // modal dropdown lifts `inert` from the page first.
           if (!selectState().elementRef.nativeElement.contains(elementRef.nativeElement)) {
-            selectState().closeDropdown();
+            selectState().closeDropdown({ immediate: true });
           }
           break;
         case 'Escape':

@@ -1,4 +1,4 @@
-import { Component, signal } from '@angular/core';
+import { Component, signal, viewChild } from '@angular/core';
 import { fireEvent, render, screen, waitFor } from '@testing-library/angular';
 import {
   NgpMenu,
@@ -8,7 +8,7 @@ import {
   NgpSubmenuTrigger,
   provideMenuConfig,
 } from 'ng-primitives/menu';
-import { afterEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { userEvent } from 'vitest/browser';
 
 @Component({
@@ -43,6 +43,7 @@ import { userEvent } from 'vitest/browser';
   `,
 })
 class ModalMenuHost {
+  readonly trigger = viewChild.required(NgpMenuTrigger);
   readonly modal = signal(true);
   readonly triggers = signal<('click' | 'hover')[]>(['click']);
   readonly pageClicks = signal(0);
@@ -97,6 +98,16 @@ describe('NgpMenuTrigger modal', () => {
     expect(isInert(screen.getByTestId('page-button'))).toBe(false);
   });
 
+  it('returns focus to the trigger after a click outside', async () => {
+    await render(ModalMenuHost);
+    await openMenu();
+
+    await clickThrough(screen.getByTestId('page-button'));
+
+    await waitFor(() => expect(screen.queryByTestId('menu')).toBeNull());
+    expect(document.activeElement).toBe(screen.getByTestId('trigger'));
+  });
+
   it('lets the click through when it is not modal', async () => {
     const { fixture } = await render(ModalMenuHost);
     fixture.componentInstance.modal.set(false);
@@ -116,6 +127,7 @@ describe('NgpMenuTrigger modal', () => {
     await openMenu();
     const submenu = await openSubmenu();
 
+    expect(isInert(screen.getByTestId('page-button'))).toBe(true);
     expect(isInert(submenu)).toBe(false);
   });
 
@@ -135,6 +147,7 @@ describe('NgpMenuTrigger modal', () => {
     await render(ModalMenuHost);
     const menu = await openMenu();
     await openSubmenu();
+    expect(isInert(screen.getByTestId('page-button'))).toBe(true);
 
     await userEvent.click(screen.getByTestId('menu-label'));
 
@@ -189,6 +202,51 @@ describe('NgpMenuTrigger modal', () => {
     await openMenu();
 
     expect(isInert(screen.getByTestId('page-button'))).toBe(false);
+  });
+
+  describe('during its exit animation', () => {
+    let style: HTMLStyleElement;
+
+    beforeEach(() => {
+      style = document.head.appendChild(document.createElement('style'));
+      style.textContent = `
+        @keyframes test-menu-exit { from { opacity: 1; } to { opacity: 0; } }
+        [ngpMenu][data-exit] { animation: test-menu-exit 300ms !important; }
+      `;
+    });
+
+    afterEach(() => style.remove());
+
+    async function closeWithAnimation(fixture: { componentInstance: ModalMenuHost }) {
+      const menu = await screen.findByTestId('menu');
+      fixture.componentInstance.trigger().hide();
+      await waitFor(() => expect(menu).toHaveAttribute('data-exit'));
+      return menu;
+    }
+
+    it('makes the page inert again when it reopens', async () => {
+      const { fixture } = await render(ModalMenuHost);
+      fireEvent.click(screen.getByTestId('trigger'));
+      const menu = await closeWithAnimation(fixture);
+
+      fixture.componentInstance.trigger().show();
+
+      await waitFor(() => expect(menu).not.toHaveAttribute('data-exit'));
+      expect(isInert(screen.getByTestId('page-button'))).toBe(true);
+    });
+
+    it('is not modal when the pointer brings it back on hover', async () => {
+      const { fixture } = await render(ModalMenuHost);
+      fixture.componentInstance.triggers.set(['click', 'hover']);
+      fixture.detectChanges();
+      fireEvent.click(screen.getByTestId('trigger'));
+      const menu = await closeWithAnimation(fixture);
+
+      fireEvent.pointerEnter(screen.getByTestId('trigger'), { pointerType: 'mouse' });
+
+      await waitFor(() => expect(menu).not.toHaveAttribute('data-exit'));
+      expect(isInert(screen.getByTestId('page-button'))).toBe(false);
+    });
   });
 
   it('can be made modal from the config', async () => {

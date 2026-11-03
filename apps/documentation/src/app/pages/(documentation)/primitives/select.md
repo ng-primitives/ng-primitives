@@ -223,7 +223,7 @@ The select primitive follows the [WAI-ARIA Combobox pattern](https://www.w3.org/
 
 When a search input (`ngpSelectInput`) is used, the combobox semantics move to the input, which receives focus when the dropdown opens. The dropdown becomes a `dialog` wrapping the input and an `ngpSelectList` (`role="listbox"`), and the input drives the options via `aria-activedescendant` and `aria-controls`. Naming is left to the consumer, so add an `aria-label` (or `aria-labelledby`) to both the dropdown dialog and the list.
 
-A modal select makes the rest of the page `inert` while the dropdown is open, so screen readers only reach the select and its dropdown. Live regions and elements with `data-ngp-modal-exempt` stay reachable.
+A modal select makes the rest of the page `inert` while the dropdown is open, so screen readers only reach the select and its dropdown. Elements with `data-ngp-modal-exempt`, such as the toast region, and `aria-live` regions placed directly in `<body>` stay reachable. A live region nested in the page, such as a form error, is `inert` too while the dropdown is open.
 
 ### Keyboard Interactions
 

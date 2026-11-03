@@ -151,9 +151,10 @@ export interface NgpSelectState<T> {
 
   /**
    * Close the dropdown.
+   * @param options.immediate - Skip the exit animation.
    * @internal
    */
-  closeDropdown(): void;
+  closeDropdown(options?: { immediate?: boolean }): void;
 
   /**
    * Handle the overlay being closed (e.g. via outside click or Escape).
@@ -542,7 +543,7 @@ export const [NgpSelectStateToken, ngpSelect, _injectSelectState, provideSelectS
        * Close the dropdown.
        * @internal
        */
-      function closeDropdown(): void {
+      function closeDropdown(options?: { immediate?: boolean }): void {
         if (!open()) {
           return;
         }
@@ -552,7 +553,7 @@ export const [NgpSelectStateToken, ngpSelect, _injectSelectState, provideSelectS
           focus();
         }
 
-        portal()?.hide();
+        portal()?.hide(options);
       }
 
       /**
@@ -910,6 +911,11 @@ export const [NgpSelectStateToken, ngpSelect, _injectSelectState, provideSelectS
           case ' ':
             void toggleDropdown();
             event.preventDefault();
+            break;
+          case 'Tab':
+            // close right away, so a modal dropdown lifts `inert` from the page before the
+            // browser picks where focus goes next
+            closeDropdown({ immediate: true });
             break;
         }
       }

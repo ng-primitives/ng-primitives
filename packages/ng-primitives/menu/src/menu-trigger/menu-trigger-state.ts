@@ -378,6 +378,8 @@ export const [
       // trigger, so any in-progress hover bridge is no longer needed.
       if (open()) {
         hoverBridge.clear();
+        // A menu brought back on hover during its exit animation is a hover menu
+        openedOnHover.set(true);
         overlay()?.cancelPendingClose();
         return;
       }

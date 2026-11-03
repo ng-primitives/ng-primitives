@@ -18,9 +18,10 @@ export interface NgpSelectPortalState {
 
   /**
    * Hide the portal.
+   * @param options.immediate - Skip the exit animation.
    * @internal
    */
-  hide(): void;
+  hide(options?: { immediate?: boolean }): void;
 
   /**
    * Destroy the overlay. The directive class calls this from ngOnDestroy so
@@ -59,8 +60,8 @@ export const [
     return overlay()?.show();
   }
 
-  function hide(): void {
-    overlay()?.hide();
+  function hide(options?: { immediate?: boolean }): void {
+    overlay()?.hide(options);
   }
 
   function destroy(): void {

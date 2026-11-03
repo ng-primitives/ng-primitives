@@ -282,7 +282,7 @@ By default a click outside the menu closes it and also reaches what is underneat
 <button [ngpMenuTrigger]="menu" ngpMenuTriggerModal>Options</button>
 ```
 
-- The trigger stays usable, so clicking it again closes the menu.
+- The trigger stays usable, so clicking it again closes the menu. So does the anchor, when one is set.
 - Submenus follow their root menu: a click outside both closes them together.
 - A menu opened on hover is never modal, since the pointer moves on to the page. Neither is a menu opened from an `NgpMenuTriggerGroup`, so the group can switch between its menus.
 - An outside click closes the topmost modal overlay only, one layer at a time. A click fired from code, such as `element.click()` or a test's `fireEvent.click`, does not close it.
@@ -455,7 +455,7 @@ bootstrapApplication(AppComponent, {
 
 Adheres to the [WAI-ARIA Menu Button Pattern](https://www.w3.org/WAI/ARIA/apg/patterns/menu-button/).
 
-A modal menu makes the rest of the page `inert`, so screen readers only reach the menu, its submenus and its trigger. Live regions and elements with `data-ngp-modal-exempt` stay reachable.
+A modal menu makes the rest of the page `inert`, so screen readers only reach the menu, its submenus and its trigger. Elements with `data-ngp-modal-exempt`, such as the toast region, and `aria-live` regions placed directly in `<body>` stay reachable. A live region nested in the page, such as a form error, is `inert` too while the menu is open.
 
 ### Keyboard Interactions
 

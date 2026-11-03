@@ -3,6 +3,8 @@ import { render, screen, waitFor } from '@testing-library/angular';
 import {
   NgpSelect,
   NgpSelectDropdown,
+  NgpSelectInput,
+  NgpSelectList,
   NgpSelectOption,
   NgpSelectPortal,
   provideSelectConfig,
@@ -59,6 +61,7 @@ describe('NgpSelect modal', () => {
   it('keeps the select usable, so clicking it closes the dropdown', async () => {
     await render(ModalSelectHost);
     await openDropdown();
+    expect(isInert(screen.getByTestId('page-button'))).toBe(true);
 
     await userEvent.click(screen.getByTestId('select'));
 
@@ -89,6 +92,64 @@ describe('NgpSelect modal', () => {
 
     await waitFor(() => expect(screen.queryByTestId('dropdown')).toBeNull());
     expect(fixture.componentInstance.pageClicks()).toBe(1);
+  });
+
+  it('moves on to the next field on Tab', async () => {
+    @Component({
+      imports: [NgpSelect, NgpSelectDropdown, NgpSelectOption, NgpSelectPortal],
+      template: `
+        <div ngpSelect ngpSelectDropdownModal data-testid="select">
+          Pick a fruit
+          <div *ngpSelectPortal ngpSelectDropdown data-testid="dropdown">
+            <div ngpSelectOptionValue="Apple" ngpSelectOption>Apple</div>
+          </div>
+        </div>
+        <input data-testid="next" aria-label="Next" />
+      `,
+    })
+    class TabHost {}
+
+    await render(TabHost);
+    await openDropdown();
+
+    await userEvent.keyboard('{Tab}');
+
+    expect(document.activeElement).toBe(screen.getByTestId('next'));
+    await waitFor(() => expect(screen.queryByTestId('dropdown')).toBeNull());
+  });
+
+  it('moves on to the next field on Tab from the search input', async () => {
+    @Component({
+      imports: [
+        NgpSelect,
+        NgpSelectDropdown,
+        NgpSelectInput,
+        NgpSelectList,
+        NgpSelectOption,
+        NgpSelectPortal,
+      ],
+      template: `
+        <div ngpSelect ngpSelectDropdownModal data-testid="select">
+          Pick a fruit
+          <div *ngpSelectPortal ngpSelectDropdown data-testid="dropdown" aria-label="Fruits">
+            <input ngpSelectInput aria-label="Search" data-testid="search" />
+            <div ngpSelectList aria-label="Options">
+              <div ngpSelectOptionValue="Apple" ngpSelectOption>Apple</div>
+            </div>
+          </div>
+        </div>
+        <input data-testid="next" aria-label="Next" />
+      `,
+    })
+    class SearchTabHost {}
+
+    await render(SearchTabHost);
+    await openDropdown();
+    await waitFor(() => expect(document.activeElement).toBe(screen.getByTestId('search')));
+
+    await userEvent.keyboard('{Tab}');
+
+    expect(document.activeElement).toBe(screen.getByTestId('next'));
   });
 
   it('can be made modal from the config', async () => {
