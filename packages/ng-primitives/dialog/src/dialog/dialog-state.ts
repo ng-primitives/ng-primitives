@@ -57,7 +57,9 @@ export const [NgpDialogStateToken, ngpDialog, _injectDialogState, provideDialogS
       if (dialogRef.config.modal !== false) {
         ngpFocusTrap({});
       } else {
-        afterNextRender({ write: focusOnOpen }, { injector });
+        const focusOnRender = afterNextRender({ write: focusOnOpen }, { injector });
+        // A dialog closed before it rendered must not take focus during its exit animation.
+        dialogRef.closed.subscribe(() => focusOnRender.destroy());
       }
 
       const labelledBy = signal<string[]>([]);
