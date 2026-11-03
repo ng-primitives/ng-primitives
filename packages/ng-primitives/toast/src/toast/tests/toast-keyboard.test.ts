@@ -247,6 +247,19 @@ describe('NgpToastManager keyboard access', () => {
     expect(document.activeElement).toBe(pageButton);
   });
 
+  it('returns focus to where F6 came from when the last toast leaves the focused region', async () => {
+    const { host, getByTestId } = await renderHost();
+    const toast = host.showToast();
+    const pageButton = getByTestId('page-button');
+    pageButton.focus();
+    pressKey('F6');
+    expect(document.activeElement).toBe(container());
+
+    await toast.dismiss();
+
+    expect(document.activeElement).toBe(pageButton);
+  });
+
   describe('with a dialog open', () => {
     async function openDialogWithToast() {
       const view = await renderHost();

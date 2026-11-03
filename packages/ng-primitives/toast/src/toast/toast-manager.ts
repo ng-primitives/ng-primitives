@@ -124,9 +124,14 @@ export class NgpToastManager {
         this.expanded.update(expanded => expanded.filter(p => p !== toast.options.placement));
       }
 
-      // A focused toast that leaves takes focus with it, so land where F6 came from.
+      // A focused toast that leaves takes focus with it, so land where F6 came from. So does
+      // the last toast leaving a focused region: F6 has no toast left to go back from.
       const active = this.document.activeElement;
-      if (returnTo && (!active || active === this.document.body)) {
+      const focusLost =
+        !active ||
+        active === this.document.body ||
+        (this.toasts().length === 0 && !!this.containerOf(active));
+      if (returnTo && focusLost) {
         this.focusBeforeToasts = null;
         this.focusBeforeEntry = null;
         if (returnTo.isConnected) {
