@@ -971,8 +971,10 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
   }
 
   /**
-   * Take over the focus a same-type overlay was going to return to, when this overlay
-   * replaces it while it still holds focus (a hover moving straight to another trigger).
+   * Take over the focus a same-type overlay was going to return to, when this overlay replaces
+   * it (a hover moving straight to another trigger) and has no target of its own, or only one
+   * inside the replaced overlay. An overlay that already started closing has returned focus, so
+   * this overlay recorded where that focus landed.
    * @internal
    */
   takeOverFocusReturn(replaced: CooldownOverlay): void {
@@ -1006,7 +1008,7 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
     for (
       let node: Element | null = element;
       node && node !== this.document.body;
-      node = node.parentElement
+      node = node.parentElement ?? shadowHostOf(node)
     ) {
       if (node instanceof HTMLElement && this.interactivityChecker.isFocusable(node)) {
         return node;
@@ -1817,4 +1819,10 @@ export interface OverlayTriggerOptions {
    * @internal
    */
   outsidePressTarget?: Element;
+}
+
+/** The host of the shadow root the element is in, so a walk up can leave the shadow tree. */
+function shadowHostOf(element: Element): Element | null {
+  const root = element.getRootNode();
+  return root instanceof ShadowRoot ? root.host : null;
 }
