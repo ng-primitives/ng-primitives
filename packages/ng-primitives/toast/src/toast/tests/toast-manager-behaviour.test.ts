@@ -214,6 +214,24 @@ describe('NgpToastManager behaviour', () => {
       }
     });
 
+    it('collapses a hovered placement once its last toast is dismissed while another placement has toasts', async () => {
+      const host = await renderHost({ persistent: true });
+      host.show('A', { placement: 'top-end' });
+      host.show('B', { placement: 'bottom-end' });
+
+      await waitFor(() => expect(toasts().length).toBe(2));
+      const topEnd = containers().find(c => c.dataset['ngpToastContainer'] === 'top-end')!;
+      topEnd.dispatchEvent(new MouseEvent('mouseenter'));
+      await waitFor(() => expect(toastWithLabel('A')).toHaveAttribute('data-expanded', 'true'));
+
+      // An emptied container fires no mouseleave.
+      toastWithLabel('A').querySelector<HTMLButtonElement>('.dismiss')!.click();
+      await waitFor(() => expect(toasts().length).toBe(1));
+
+      host.show('C', { placement: 'top-end' });
+      await waitFor(() => expect(toastWithLabel('C')).toHaveAttribute('data-expanded', 'false'));
+    });
+
     it('collapses the placement once its focused last toast is dismissed', async () => {
       const host = await renderHost({ persistent: true });
       host.show('A');

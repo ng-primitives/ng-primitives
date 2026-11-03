@@ -108,8 +108,8 @@ export class NgpToastManager {
 
       const placement = toast.options.placement;
 
-      // if there are no more toasts, ensure the container is no longer considered expanded
-      if (this.toasts().length === 0) {
+      // An emptied container fires no mouseleave, so stop treating it as hovered
+      if (!this.toasts().some(t => t.instance.options.placement === placement)) {
         this.hovered.update(placements => without(placements, placement));
       }
 
