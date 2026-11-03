@@ -2,6 +2,7 @@ import { DOCUMENT } from '@angular/common';
 import {
   ApplicationRef,
   Component,
+  ComponentRef,
   inject,
   OnDestroy,
   PLATFORM_ID,
@@ -190,28 +191,53 @@ describe('NgpToastManager behaviour', () => {
       expect(containers()).toHaveLength(0);
     });
 
-    it('destroys the open toasts when a component-provided manager is destroyed', async () => {
-      destroyedToasts.length = 0;
-      const { fixture } = await render(ScopedToastsHost, {
-        providers: [provideToastConfig({ persistent: true })],
-      });
-      // Toasts render in the root component's view container, which outlives the manager.
-      const rootElement = document.createElement('test-app-root');
-      document.body.appendChild(rootElement);
-      const root = TestBed.inject(ApplicationRef).bootstrap(TestAppRoot, rootElement);
+    describe('with a component-provided manager', () => {
+      let root: ComponentRef<TestAppRoot> | undefined;
 
-      try {
-        fixture.componentInstance.scoped().manager.show(TestToast, { context: { label: 'A' } });
+      afterEach(() => {
+        root?.location.nativeElement.remove();
+        root?.destroy();
+        root = undefined;
+      });
+
+      async function renderScoped() {
+        destroyedToasts.length = 0;
+        const { fixture } = await render(ScopedToastsHost, {
+          providers: [provideToastConfig({ persistent: true })],
+        });
+        // Toasts render in the root component's view container, which outlives the manager.
+        const rootElement = document.createElement('test-app-root');
+        document.body.appendChild(rootElement);
+        root = TestBed.inject(ApplicationRef).bootstrap(TestAppRoot, rootElement);
+        const manager = fixture.componentInstance.scoped().manager;
+        const destroyManager = () => {
+          fixture.componentInstance.show.set(false);
+          fixture.detectChanges();
+        };
+        return { manager, destroyManager };
+      }
+
+      it('destroys the open toasts when the manager is destroyed', async () => {
+        const { manager, destroyManager } = await renderScoped();
+        manager.show(TestToast, { context: { label: 'A' } });
         await waitFor(() => expect(toasts().length).toBe(1));
 
-        fixture.componentInstance.show.set(false);
-        fixture.detectChanges();
+        destroyManager();
 
         expect(destroyedToasts).toEqual(['A']);
-      } finally {
-        root.destroy();
-        rootElement.remove();
-      }
+      });
+
+      it('destroys a closing toast right away when the manager is destroyed', async () => {
+        const { manager, destroyManager } = await renderScoped();
+        manager.show(TestToast, { context: { label: 'A' } });
+        await waitFor(() => expect(toasts().length).toBe(1));
+
+        // Not awaited: the toast is still waiting for its exit animation.
+        void manager.dismiss(manager.toasts()[0].instance);
+        destroyManager();
+
+        expect(destroyedToasts).toEqual(['A']);
+      });
     });
 
     it('waits for the first toast to add the containers when the document has no body yet', () => {
@@ -225,8 +251,9 @@ describe('NgpToastManager behaviour', () => {
       bodiless.documentElement.appendChild(bodiless.createElement('body'));
       manager.show(TestToast, { context: { label: 'A' }, placement: 'top-end', persistent: true });
 
+      const created = bodiless.body.querySelectorAll('[data-ngp-toast-container]');
+      expect(created).toHaveLength(6);
       const container = bodiless.body.querySelector('[data-ngp-toast-container="top-end"]');
-      expect(container).not.toBeNull();
       expect(container!.querySelector('test-toast')).not.toBeNull();
     });
 
