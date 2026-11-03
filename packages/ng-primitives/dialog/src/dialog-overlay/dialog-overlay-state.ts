@@ -56,7 +56,7 @@ export const [
 
     function handleOnPointerDown(event: Event): void {
       const isOnOverlay = event.target === event.currentTarget;
-      const closingOverlays = isOnOverlay ? childOverlaysClosingOnOutsidePress() : [];
+      const closingOverlays = isOnOverlay ? childOverlaysClosedByPress() : [];
       startedPointerDownOnOverlay.set(isOnOverlay);
       pressClosesChildOverlay.set(closingOverlays.length > 0);
       // A press while an async guard is pending keeps the target saved by the first press, since
@@ -66,14 +66,28 @@ export const [
         : null;
     }
 
-    function childOverlaysClosingOnOutsidePress(): NgpOverlayEntry[] {
-      return registry
-        .getDescendants(dialogRef.id)
-        .filter(
-          entry =>
-            entry.dismissPolicy.outsidePress !== false &&
-            !PASSIVE_OVERLAY_TYPES.has(entry.overlayType ?? ''),
-        );
+    /**
+     * The overlays opened from the dialog that a backdrop press closes: those that close on an
+     * outside press, and those that close along with such a parent.
+     */
+    function childOverlaysClosedByPress(): NgpOverlayEntry[] {
+      // Listed parent before child, so a parent is decided before its children.
+      const descendants = registry.getDescendants(dialogRef.id);
+      const closing = new Set<string>();
+
+      for (const entry of descendants) {
+        const closesOnPress =
+          entry.dismissPolicy.outsidePress !== false &&
+          !PASSIVE_OVERLAY_TYPES.has(entry.overlayType ?? '');
+        const closesWithParent =
+          entry.parentId !== null && closing.has(entry.parentId) && entry.cascadeClose !== false;
+
+        if (closesOnPress || closesWithParent) {
+          closing.add(entry.id);
+        }
+      }
+
+      return descendants.filter(entry => closing.has(entry.id));
     }
 
     /**
@@ -84,15 +98,19 @@ export const [
       overlays: NgpOverlayEntry[],
       element: HTMLElement | null,
     ): HTMLElement | null {
+      const ownerOf = (node: HTMLElement | null) =>
+        node
+          ? overlays.find(entry =>
+              entry.getElements().some(overlayElement => containsComposed(overlayElement, node)),
+            )
+          : undefined;
+
       let target = element;
-      for (let depth = 0; target && depth < overlays.length; depth++) {
-        const owner = overlays.find(entry =>
-          entry.getElements().some(overlayElement => overlayElement.contains(target)),
-        );
-        if (!owner) {
-          break;
-        }
+      let owner = ownerOf(target);
+      // Bounded by the number of overlays, in case a trigger sits inside its own overlay.
+      for (let depth = 0; owner && depth < overlays.length; depth++) {
         target = owner.triggerElement;
+        owner = ownerOf(target);
       }
       return target;
     }
@@ -187,3 +205,14 @@ export const [
     } satisfies NgpDialogOverlayState;
   },
 );
+
+/** Whether `node` is `ancestor` or inside it, crossing shadow root boundaries. */
+function containsComposed(ancestor: Node, node: Node): boolean {
+  for (let current: Node | null = node; current; ) {
+    if (current === ancestor) {
+      return true;
+    }
+    current = current instanceof ShadowRoot ? current.host : current.parentNode;
+  }
+  return false;
+}

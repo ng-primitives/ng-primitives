@@ -130,6 +130,20 @@ class PagePopoverHost {}
     <ng-template #menu>
       <div ngpMenu data-testid="menu">
         <button ngpMenuItem>Item</button>
+        <button
+          [ngpPopoverTrigger]="stickyPopover"
+          [ngpPopoverTriggerCloseOnOutsideClick]="false"
+          data-testid="open-sticky-popover"
+        >
+          Details
+        </button>
+        <div data-testid="menu-shadow-host"></div>
+      </div>
+    </ng-template>
+
+    <ng-template #stickyPopover>
+      <div ngpPopover data-testid="sticky-popover">
+        <button data-testid="sticky-button">Action</button>
       </div>
     </ng-template>
   `,
@@ -299,6 +313,33 @@ describe('NgpDialogOverlay backdrop click with an overlay open in the dialog', (
 
     await waitFor(() => expect(screen.queryByTestId('menu')).toBeNull());
     expect(TestBed.inject(NgpDialogManager).openDialogs.length).toBe(1);
+    expect(document.activeElement).toBe(screen.getByTestId('open-menu'));
+  });
+
+  it('should return focus to the menu trigger from a control in a shadow root inside the menu', async () => {
+    await openDialog();
+    await userEvent.click(screen.getByTestId('open-menu'));
+    await screen.findByTestId('menu');
+    const field = document.createElement('input');
+    screen.getByTestId('menu-shadow-host').attachShadow({ mode: 'open' }).appendChild(field);
+    field.focus();
+
+    await clickBackdrop();
+
+    await waitFor(() => expect(screen.queryByTestId('menu')).toBeNull());
+    expect(document.activeElement).toBe(screen.getByTestId('open-menu'));
+  });
+
+  it('should return focus to the menu trigger from an overlay that closes along with the menu', async () => {
+    await openDialog();
+    await userEvent.click(screen.getByTestId('open-menu'));
+    fireEvent.click(await screen.findByTestId('open-sticky-popover'));
+    (await screen.findByTestId('sticky-button')).focus();
+
+    await clickBackdrop();
+
+    await waitFor(() => expect(screen.queryByTestId('menu')).toBeNull());
+    expect(screen.queryByTestId('sticky-popover')).toBeNull();
     expect(document.activeElement).toBe(screen.getByTestId('open-menu'));
   });
 
