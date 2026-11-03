@@ -47,7 +47,9 @@ export const [
     function handleOnPointerDown(event: Event): void {
       const onOverlay = event.target === event.currentTarget;
       startedPointerDownOnOverlay.set(onOverlay);
-      focusedBeforePress = onOverlay ? getActiveElement() : null;
+      // A press while an async guard is pending keeps the target saved by the first press, since
+      // focus is already on the body by then.
+      focusedBeforePress = onOverlay ? (focusedBeforePress ?? getActiveElement()) : null;
     }
 
     function handleOnPointerCancel(): void {
@@ -123,8 +125,13 @@ export const [
       }
     }
 
+    // `document.activeElement` stops at a shadow host, which `focus()` can't send focus back into.
     function getActiveElement(): HTMLElement | null {
-      return elementRef.nativeElement.ownerDocument.activeElement as HTMLElement | null;
+      let element = elementRef.nativeElement.ownerDocument.activeElement as HTMLElement | null;
+      while (element?.shadowRoot?.activeElement) {
+        element = element.shadowRoot.activeElement as HTMLElement;
+      }
+      return element;
     }
 
     return {

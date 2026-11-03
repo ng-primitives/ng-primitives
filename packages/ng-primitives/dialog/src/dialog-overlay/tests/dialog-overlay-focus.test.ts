@@ -81,6 +81,60 @@ describe('NgpDialogOverlay focus', () => {
     expect(document.activeElement).toBe(dialog.field);
   });
 
+  it('should close the dialog on a backdrop press by default', async () => {
+    const dialog = await openDialog();
+    ref = dialog.ref;
+
+    await pressBackdrop();
+
+    expect(dialog.manager.openDialogs).not.toContain(ref);
+  });
+
+  it('should return focus to the dialog when the press is cancelled', async () => {
+    const dialog = await openDialog();
+    ref = dialog.ref;
+    const overlay = document.querySelector<HTMLElement>('[data-testid="overlay"]')!;
+
+    overlay.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true }));
+    // What the browser does on a press on the non-focusable backdrop.
+    dialog.field.blur();
+    overlay.dispatchEvent(new PointerEvent('pointercancel', { bubbles: true }));
+
+    expect(dialog.manager.openDialogs).toContain(ref);
+    expect(document.activeElement).toBe(dialog.field);
+  });
+
+  it('should return focus to the field when a second press lands while an async guard is pending', async () => {
+    const resolvers: ((shouldClose: boolean) => void)[] = [];
+    const dialog = await openDialog({
+      closeOnOutsideClick: () => new Promise<boolean>(resolve => resolvers.push(resolve)),
+    });
+    ref = dialog.ref;
+
+    await pressBackdrop();
+    await pressBackdrop();
+    expect(resolvers).toHaveLength(2);
+    resolvers.forEach(resolve => resolve(false));
+
+    await waitFor(() => expect(document.activeElement).toBe(dialog.field));
+    expect(dialog.manager.openDialogs).toContain(ref);
+  });
+
+  it('should return focus to a field inside a shadow root', async () => {
+    const dialog = await openDialog({ closeOnOutsideClick: false });
+    ref = dialog.ref;
+    const shadowHost = document.createElement('div');
+    document.querySelector('[data-testid="dialog"]')!.appendChild(shadowHost);
+    const shadowField = document.createElement('input');
+    shadowHost.attachShadow({ mode: 'open' }).appendChild(shadowField);
+    shadowField.focus();
+
+    await pressBackdrop();
+
+    expect(document.activeElement).toBe(shadowHost);
+    expect(shadowHost.shadowRoot!.activeElement).toBe(shadowField);
+  });
+
   it('should return focus to the dialog when the dialog has close disabled', async () => {
     const dialog = await openDialog();
     ref = dialog.ref;
