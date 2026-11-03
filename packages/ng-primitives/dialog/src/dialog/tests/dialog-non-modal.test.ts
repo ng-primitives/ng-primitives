@@ -7,6 +7,7 @@ import {
   NgpDialogTrigger,
   provideDialogConfig,
 } from 'ng-primitives/dialog';
+import { NgpPopover, NgpPopoverTrigger } from 'ng-primitives/popover';
 import { ScrollStrategy } from 'ng-primitives/portal';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
@@ -18,6 +19,33 @@ const scrollStrategy: ScrollStrategy = {
 
 @Component({ selector: 'ngp-plain-dialog', template: '<p>Dialog</p>' })
 class PlainDialog {}
+
+@Component({
+  selector: 'ngp-early-dialog',
+  template: '<div ngpDialog data-testid="early">Early</div>',
+  imports: [NgpDialog],
+})
+class EarlyDialog {}
+
+@Component({
+  template: `
+    <button [ngpDialogTrigger]="drawer" ngpDialogTriggerModal="false" data-testid="open">
+      Open
+    </button>
+
+    <ng-template #drawer>
+      <div ngpDialog data-testid="drawer">
+        <button [ngpPopoverTrigger]="popover" data-testid="open-popover">More</button>
+      </div>
+    </ng-template>
+
+    <ng-template #popover>
+      <div ngpPopover><button data-testid="popover-button">Action</button></div>
+    </ng-template>
+  `,
+  imports: [NgpDialogTrigger, NgpDialog, NgpPopoverTrigger, NgpPopover],
+})
+class PopoverInDrawerHost {}
 
 @Component({
   template: `
@@ -132,6 +160,7 @@ describe('Non-modal dialog', () => {
   afterEach(async () => {
     TestBed.inject(NgpDialogManager).closeAll();
     await waitFor(() => expect(document.querySelector('[ngpDialog]')).toBeNull());
+    await waitFor(() => expect(document.querySelector('ngp-plain-dialog')).toBeNull());
     page.remove();
   });
 
@@ -143,6 +172,52 @@ describe('Non-modal dialog', () => {
     fireEvent.click(screen.getByTestId('open'));
     return screen.findByTestId('drawer');
   }
+
+  it('stays open when its trigger is clicked again and it cannot be closed', async () => {
+    const drawer = await openDrawer();
+    TestBed.inject(NgpDialogManager).openDialogs[0].disableClose = true;
+
+    fireEvent.click(screen.getByTestId('open'));
+    await new Promise(resolve => setTimeout(resolve));
+
+    expect(drawer.isConnected).toBe(true);
+  });
+
+  it('returns focus to the trigger when it closes with focus in a popover opened from it', async () => {
+    await render(PopoverInDrawerHost);
+    fireEvent.click(screen.getByTestId('open'));
+    await screen.findByTestId('drawer');
+    fireEvent.click(screen.getByTestId('open-popover'));
+    const action = await screen.findByTestId('popover-button');
+    action.focus();
+    expect(document.activeElement).toBe(action);
+
+    TestBed.inject(NgpDialogManager).openDialogs[0].close();
+
+    await waitFor(() => expect(document.activeElement).toBe(screen.getByTestId('open')));
+  });
+
+  it('does not take focus when it closes before it renders', async () => {
+    const style = document.head.appendChild(document.createElement('style'));
+    style.textContent = `
+      @keyframes test-dialog-exit { from { opacity: 1; } to { opacity: 0; } }
+      [ngpDialog][data-exit] { animation: test-dialog-exit 300ms !important; }
+    `;
+
+    try {
+      await render(DefaultHost);
+      const dialogRef = TestBed.inject(NgpDialogManager).open(EarlyDialog, { modal: false });
+      dialogRef.close();
+
+      const dialog = await screen.findByTestId('early');
+      await new Promise(resolve => requestAnimationFrame(() => setTimeout(resolve)));
+
+      expect(dialog.contains(document.activeElement)).toBe(false);
+      await waitFor(() => expect(dialog.isConnected).toBe(false));
+    } finally {
+      style.remove();
+    }
+  });
 
   it('leaves the page readable and scrollable', async () => {
     const drawer = await openDrawer();
@@ -292,6 +367,17 @@ describe('Non-modal dialog', () => {
     expect(page.hasAttribute('aria-hidden')).toBe(false);
   });
 
+  it('falls back to the global configuration when open() is given an undefined modal', async () => {
+    await render(DefaultHost, {
+      providers: [provideDialogConfig({ modal: false, scrollStrategy })],
+    });
+
+    TestBed.inject(NgpDialogManager).open(PlainDialog, { modal: undefined });
+
+    expect(page.hasAttribute('aria-hidden')).toBe(false);
+    expect(scrollBlocked).toBe(false);
+  });
+
   it('opens another modal dialog on a second click on its trigger', async () => {
     await render(DefaultHost, { providers: [provideDialogConfig({ scrollStrategy })] });
     fireEvent.click(screen.getByTestId('open'));
@@ -342,8 +428,21 @@ describe('Non-modal dialog', () => {
     expect(scrollBlocked).toBe(true);
 
     await first.close();
-    await second.close();
+    expect(scrollBlocked).toBe(true);
 
+    await second.close();
+    expect(scrollBlocked).toBe(false);
+  });
+
+  it('blocks scrolling through the root manager when a nested manager opens the first modal', async () => {
+    const { fixture } = await render(NestedManagerHost, {
+      providers: [provideDialogConfig({ scrollStrategy })],
+    });
+
+    const dialog = fixture.componentInstance.manager.open(PlainDialog);
+    expect(scrollBlocked).toBe(true);
+
+    await dialog.close();
     expect(scrollBlocked).toBe(false);
   });
 

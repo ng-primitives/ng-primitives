@@ -25,7 +25,8 @@ export interface NgpDialogConfig<T = any> {
 
   /**
    * Whether the dialog is modal, read when it opens. A modal dialog hides the page from screen
-   * readers, blocks its scroll and traps focus. A non-modal one leaves the page usable, and
+   * readers, applies the `scrollStrategy` (which blocks the page scroll by default) and traps
+   * focus. A non-modal one leaves the page usable, and
    * applies `closeOnEscape` only to an Escape pressed inside it.
    */
   modal?: boolean;
