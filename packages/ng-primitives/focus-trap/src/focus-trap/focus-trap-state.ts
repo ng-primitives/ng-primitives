@@ -332,10 +332,16 @@ export const [NgpFocusTrapStateToken, ngpFocusTrap, injectFocusTrapState, provid
 
       /**
        * Returns the focused element, looking through shadow roots: inside one,
-       * `document.activeElement` is the shadow host rather than the element itself.
+       * `document.activeElement` is the shadow host rather than the element itself. A closed
+       * root can't be entered from its host, so start from the trap's own root when it holds focus.
        */
       function getFocusedElement(): HTMLElement | null {
-        let focusedElement = document.activeElement as HTMLElement | null;
+        const trapRoot = element.nativeElement.getRootNode();
+        let focusedElement = (
+          trapRoot instanceof ShadowRoot && trapRoot.activeElement
+            ? trapRoot.activeElement
+            : document.activeElement
+        ) as HTMLElement | null;
 
         while (focusedElement?.shadowRoot?.activeElement) {
           focusedElement = focusedElement.shadowRoot.activeElement as HTMLElement;

@@ -1044,6 +1044,41 @@ describe('Focus trap inside a shadow root', () => {
   });
 });
 
+describe('Focus trap inside a closed shadow root', () => {
+  it('should focus the first tabbable element when focus was elsewhere in the same root', async () => {
+    const host = document.createElement('div');
+    document.body.appendChild(host);
+    // the closed root is only reachable through this reference
+    const shadowRoot = host.attachShadow({ mode: 'closed' });
+    shadowRoot.innerHTML = `
+      <button data-testid="outside">Outside</button>
+      <div data-testid="focus-trap">
+        <button data-testid="first">First</button>
+      </div>
+    `;
+    const container = shadowRoot.querySelector<HTMLElement>('[data-testid="focus-trap"]')!;
+    const first = shadowRoot.querySelector<HTMLElement>('[data-testid="first"]')!;
+    shadowRoot.querySelector<HTMLElement>('[data-testid="outside"]')!.focus();
+
+    const injector = Injector.create({
+      providers: [{ provide: ElementRef, useValue: new ElementRef(container) }],
+      parent: TestBed.inject(EnvironmentInjector),
+    });
+
+    try {
+      runInInjectionContext(injector, () => ngpFocusTrap({}));
+
+      TestBed.inject(ApplicationRef).tick();
+      await new Promise(resolve => setTimeout(resolve, 0));
+
+      expect(shadowRoot.activeElement).toBe(first);
+    } finally {
+      injector.destroy();
+      host.remove();
+    }
+  });
+});
+
 describe('Focus trap containing shadow roots', () => {
   it('should focus inside an autofocus shadow host that delegates focus', async () => {
     const { getByTestId } = await render(TestFocusTrapDelegatesFocusAutofocusComponent);
