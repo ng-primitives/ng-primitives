@@ -219,8 +219,15 @@ describe('NgpToastManager behaviour', () => {
       bodiless.body.remove();
       TestBed.configureTestingModule({ providers: [{ provide: DOCUMENT, useValue: bodiless }] });
 
-      expect(() => TestBed.inject(NgpToastManager)).not.toThrow();
-      expect(containers()).toHaveLength(0);
+      const manager = TestBed.inject(NgpToastManager);
+      expect(bodiless.querySelector('[data-ngp-toast-container]')).toBeNull();
+
+      bodiless.documentElement.appendChild(bodiless.createElement('body'));
+      manager.show(TestToast, { context: { label: 'A' }, placement: 'top-end', persistent: true });
+
+      const container = bodiless.body.querySelector('[data-ngp-toast-container="top-end"]');
+      expect(container).not.toBeNull();
+      expect(container!.querySelector('test-toast')).not.toBeNull();
     });
 
     it('does not add the containers on the server', () => {
