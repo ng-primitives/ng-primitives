@@ -267,6 +267,24 @@ describe('NgpToastManager keyboard access', () => {
     });
   });
 
+  it('closes a toast when no element is active', async () => {
+    const { host, getByTestId } = await renderHost();
+    const toast = host.showToast();
+    const pageButton = getByTestId('page-button');
+    pageButton.focus();
+    // `activeElement` is null in a document without a body.
+    const activeElement = vi.spyOn(document, 'activeElement', 'get').mockReturnValue(null);
+
+    try {
+      await toast.dismiss();
+    } finally {
+      activeElement.mockRestore();
+    }
+
+    expect(actions()).toHaveLength(0);
+    expect(document.activeElement).toBe(pageButton);
+  });
+
   describe('when a toast reached with Tab closes', () => {
     async function showTwoToasts({ animationsEnabled = false } = {}) {
       const view = await renderHost({ animationsEnabled });
