@@ -168,4 +168,4 @@ bootstrapApplication(AppComponent, {
 
 For screen reader announcements, ensure your toast container includes `role="status"` or `role="alert"` with `aria-live="polite"` so that new toasts are announced to assistive technology users.
 
-`NgpToastManager` adds an empty live region for every placement when it is first injected. Inject it before the first toast is shown, for example as a field of the component that shows toasts, so that the first toast is announced.
+In the browser, `NgpToastManager` adds an empty live region for every placement when it is first injected. Screen readers can skip a toast added in the same task as its live region, so inject the manager before the first toast is due, for example in the root component, rather than right where the toast is shown.

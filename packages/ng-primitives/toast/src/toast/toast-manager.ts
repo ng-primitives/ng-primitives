@@ -43,12 +43,17 @@ export class NgpToastManager {
     // it announces, or screen readers may skip the first toast. The configured placement
     // comes first so that `querySelector('[data-ngp-toast-container]')` still finds the
     // container default toasts render into.
-    if (isPlatformBrowser(inject(PLATFORM_ID))) {
+    // `body` can be missing when the manager is injected from a script in the `<head>`; the
+    // containers are then created on the first `show()`.
+    if (isPlatformBrowser(inject(PLATFORM_ID)) && this.document.body) {
       const placements = new Set([this.config.placement, ...TOAST_PLACEMENTS]);
       placements.forEach(placement => this.getOrCreateContainer(placement));
     }
 
     this.destroyRef.onDestroy(() => {
+      // Toast views are created in the root view container, so they would outlive the manager.
+      this.toasts().forEach(({ portal }) => void portal.detach({ immediate: true }));
+      this.toasts.set([]);
       this.containers.forEach(container => container.remove());
       this.containers.clear();
     });
