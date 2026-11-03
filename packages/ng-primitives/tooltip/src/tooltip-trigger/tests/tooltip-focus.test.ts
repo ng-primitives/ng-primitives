@@ -1,6 +1,7 @@
 import { Component, signal } from '@angular/core';
 import { render, screen, waitFor } from '@testing-library/angular';
 import { NgpDialog, NgpDialogOverlay, NgpDialogTrigger } from 'ng-primitives/dialog';
+import { NgpMenu, NgpMenuItem, NgpMenuTrigger } from 'ng-primitives/menu';
 import { NgpPopover, NgpPopoverTrigger } from 'ng-primitives/popover';
 import { NgpTooltip, NgpTooltipTrigger } from 'ng-primitives/tooltip';
 import { describe, expect, it } from 'vitest';
@@ -84,6 +85,31 @@ class DisabledTooltipFocusComponent {
   readonly disabled = signal(true);
 }
 
+@Component({
+  template: `
+    <button
+      [ngpMenuTrigger]="menu"
+      [ngpTooltipTrigger]="tooltip"
+      ngpTooltipTriggerShowDelay="0"
+      data-testid="menu-trigger"
+    >
+      Open menu
+    </button>
+
+    <ng-template #tooltip>
+      <div ngpTooltip>Tooltip</div>
+    </ng-template>
+
+    <ng-template #menu>
+      <div ngpMenu>
+        <button ngpMenuItem data-testid="menu-item">Item</button>
+      </div>
+    </ng-template>
+  `,
+  imports: [NgpMenuTrigger, NgpMenu, NgpMenuItem, NgpTooltipTrigger, NgpTooltip],
+})
+class MenuTooltipFocusComponent {}
+
 const tooltip = () => document.querySelector('[ngpTooltip]');
 
 /** Long enough for a tooltip with no show delay to have opened. */
@@ -144,6 +170,39 @@ describe('NgpTooltipTrigger focus', () => {
     await waitFor(() => expect(tooltip()).not.toBeInTheDocument());
 
     await userEvent.keyboard('{Escape}');
+
+    await waitFor(() => expect(trigger).toHaveFocus());
+    await settle();
+    expect(tooltip()).not.toBeInTheDocument();
+  });
+
+  it('stays closed when a menu closed with Escape hands focus back', async () => {
+    const { getByTestId } = await render(MenuTooltipFocusComponent);
+    const trigger = getByTestId('menu-trigger');
+
+    await userEvent.keyboard('{Tab}');
+    expect(trigger).toHaveFocus();
+    await userEvent.keyboard('{Enter}');
+    await waitFor(() => expect(document.querySelector('[ngpMenu]')).toBeInTheDocument());
+    await waitFor(() => expect(tooltip()).not.toBeInTheDocument());
+
+    await userEvent.keyboard('{Escape}');
+
+    await waitFor(() => expect(trigger).toHaveFocus());
+    await settle();
+    expect(tooltip()).not.toBeInTheDocument();
+  });
+
+  it('stays closed when a mouse pick from a menu hands focus back', async () => {
+    const { getByTestId } = await render(MenuTooltipFocusComponent);
+    const trigger = getByTestId('menu-trigger');
+
+    // open with the keyboard, so the pointer never hovers the trigger
+    await userEvent.keyboard('{Tab}');
+    await userEvent.keyboard('{Enter}');
+    await waitFor(() => expect(document.querySelector('[ngpMenu]')).toBeInTheDocument());
+    await waitFor(() => expect(tooltip()).not.toBeInTheDocument());
+    await userEvent.click(screen.getByTestId('menu-item'));
 
     await waitFor(() => expect(trigger).toHaveFocus());
     await settle();
