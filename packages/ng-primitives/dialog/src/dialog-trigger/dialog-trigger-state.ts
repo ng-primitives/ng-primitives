@@ -1,10 +1,17 @@
 import { DestroyRef, Injector, Signal, TemplateRef, inject, signal } from '@angular/core';
 import { injectElementRef } from 'ng-primitives/internal';
 import { NgpDismissGuard } from 'ng-primitives/portal';
-import { createPrimitive, emitter, listener, StateInjectionOptions } from 'ng-primitives/state';
+import {
+  attrBinding,
+  createPrimitive,
+  emitter,
+  listener,
+  StateInjectionOptions,
+} from 'ng-primitives/state';
 import { safeTakeUntilDestroyed } from 'ng-primitives/utils';
 import { Observable } from 'rxjs';
 import { injectDialogConfig } from '../config/dialog-config';
+import { NgpDialogRef } from '../dialog/dialog-ref';
 import { NgpDialogContext, NgpDialogManager } from '../dialog/dialog.service';
 
 export interface NgpDialogTriggerState<T> {
@@ -74,6 +81,12 @@ export const [
 
     const closed = emitter<T>();
 
+    // The dialog this trigger opened last, until it starts closing.
+    const openDialog = signal<NgpDialogRef | null>(null);
+
+    // Host bindings
+    attrBinding(elementRef, 'aria-expanded', () => (openDialog() ? 'true' : 'false'));
+
     // Listener
     listener(elementRef, 'click', handleClick);
 
@@ -87,7 +100,13 @@ export const [
         container: container() === undefined ? config.container : container(),
       });
 
+      openDialog.set(dialogRef);
+
+      // `closed` emits when closing starts, before the exit animation
       dialogRef.closed.pipe(safeTakeUntilDestroyed(destroyRef)).subscribe(({ result }) => {
+        if (openDialog() === dialogRef) {
+          openDialog.set(null);
+        }
         onClosedChange?.(result as T);
         closed.emit(result as T);
       });
