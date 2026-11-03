@@ -89,6 +89,21 @@ class TestNestedFocusTrapsComponent {
 class TestFocusTrapWithNegativeTabIndexComponent {}
 
 @Component({
+  selector: 'test-focus-trap-long-list',
+  imports: [NgpFocusTrap],
+  template: `
+    <div ngpFocusTrap data-testid="focus-trap">
+      @for (index of items; track index) {
+        <button [attr.data-testid]="'item-' + index">Item {{ index }}</button>
+      }
+    </div>
+  `,
+})
+class TestFocusTrapLongListComponent {
+  readonly items = Array.from({ length: 50 }, (_, index) => index);
+}
+
+@Component({
   selector: 'test-focus-trap-cdk-overlay',
   imports: [NgpFocusTrap],
   template: `
@@ -742,6 +757,40 @@ describe('Tabbable candidate filtering', () => {
     // Verify isTabbable was called with both buttons
     expect(isTabbableSpy.mock.calls.some(call => call[0] === btn1)).toBe(true);
     expect(isTabbableSpy.mock.calls.some(call => call[0] === btn2)).toBe(true);
+  });
+});
+
+describe('Tab handling cost', () => {
+  it('should check visibility only at the edges of the list on Tab', async () => {
+    const { getByTestId } = await render(TestFocusTrapLongListComponent);
+    const middle = getByTestId('item-25');
+    middle.focus();
+    const isVisibleSpy = vi.spyOn(TestBed.inject(InteractivityChecker), 'isVisible');
+
+    const tabNotPrevented = fireEvent.keyDown(middle, { key: 'Tab' });
+    const shiftTabNotPrevented = fireEvent.keyDown(middle, { key: 'Tab', shiftKey: true });
+
+    // Neither press wraps from the middle, and `isVisible()` reads layout, so it must not run
+    // once per tabbable. The CDK's `isTabbable()` also checks the test runner's iframe, which a
+    // page outside a frame doesn't pay for, so only calls on the trap's items count.
+    const trap = getByTestId('focus-trap');
+    const itemChecks = isVisibleSpy.mock.calls.filter(([element]) => trap.contains(element));
+    expect(tabNotPrevented).toBe(true);
+    expect(shiftTabNotPrevented).toBe(true);
+    expect(itemChecks).toHaveLength(4);
+  });
+
+  it('should wrap from the last item to the first on Tab, and back on Shift+Tab', async () => {
+    const { getByTestId } = await render(TestFocusTrapLongListComponent);
+    const first = getByTestId('item-0');
+    const last = getByTestId('item-49');
+    last.focus();
+
+    fireEvent.keyDown(last, { key: 'Tab' });
+    expect(first).toHaveFocus();
+
+    fireEvent.keyDown(first, { key: 'Tab', shiftKey: true });
+    expect(last).toHaveFocus();
   });
 });
 
