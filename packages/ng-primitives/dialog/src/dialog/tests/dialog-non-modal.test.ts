@@ -197,6 +197,22 @@ describe('Non-modal dialog', () => {
     await waitFor(() => expect(document.activeElement).toBe(screen.getByTestId('open')));
   });
 
+  it('leaves focus in a dialog opened from it that stays open', async () => {
+    const drawer = await openDrawer();
+    screen.getByTestId('close').focus();
+    const manager = TestBed.inject(NgpDialogManager);
+    // opened from inside the drawer, but not closed with it
+    manager.open(EarlyDialog, { modal: false });
+    const nested = await screen.findByTestId('early');
+    await waitFor(() => expect(nested.contains(document.activeElement)).toBe(true));
+
+    manager.openDialogs[0].close();
+    await waitFor(() => expect(drawer.isConnected).toBe(false));
+
+    expect(nested.isConnected).toBe(true);
+    expect(nested.contains(document.activeElement)).toBe(true);
+  });
+
   it('does not take focus when it closes before it renders', async () => {
     const style = document.head.appendChild(document.createElement('style'));
     style.textContent = `
