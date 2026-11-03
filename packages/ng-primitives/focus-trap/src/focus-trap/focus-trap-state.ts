@@ -158,7 +158,7 @@ export const [NgpFocusTrapStateToken, ngpFocusTrap, injectFocusTrapState, provid
           document.addEventListener('focusout', handleFocusOut);
         });
 
-        const previouslyFocusedElement = document.activeElement as HTMLElement | null;
+        const previouslyFocusedElement = getFocusedElement();
         const hasFocusedCandidate = element.nativeElement.contains(getFocusedElementInTrapTree());
 
         // Only perform initial focusing if the focus trap is not disabled
@@ -173,7 +173,7 @@ export const [NgpFocusTrapStateToken, ngpFocusTrap, injectFocusTrapState, provid
                 }
 
                 // if the focus didn't change, focus the container
-                if (document.activeElement === previouslyFocusedElement) {
+                if (getFocusedElement() === previouslyFocusedElement) {
                   focus(element.nativeElement);
                 }
               },
@@ -332,10 +332,16 @@ export const [NgpFocusTrapStateToken, ngpFocusTrap, injectFocusTrapState, provid
 
       /**
        * Returns the focused element, looking through shadow roots: inside one,
-       * `document.activeElement` is the shadow host rather than the element itself.
+       * `document.activeElement` is the shadow host rather than the element itself. A closed
+       * root can't be entered from its host, so start from the trap's own root when it holds focus.
        */
       function getFocusedElement(): HTMLElement | null {
-        let focusedElement = document.activeElement as HTMLElement | null;
+        const trapRoot = element.nativeElement.getRootNode();
+        let focusedElement = (
+          trapRoot instanceof ShadowRoot && trapRoot.activeElement
+            ? trapRoot.activeElement
+            : document.activeElement
+        ) as HTMLElement | null;
 
         while (focusedElement?.shadowRoot?.activeElement) {
           focusedElement = focusedElement.shadowRoot.activeElement as HTMLElement;
@@ -423,12 +429,12 @@ export const [NgpFocusTrapStateToken, ngpFocusTrap, injectFocusTrapState, provid
       }
 
       function focusFirst(): void {
-        const previouslyFocusedElement = document.activeElement;
+        const previouslyFocusedElement = getFocusedElement();
 
         for (const candidate of getTabbableCandidates(element.nativeElement)) {
           focus(candidate);
 
-          if (document.activeElement !== previouslyFocusedElement) {
+          if (getFocusedElement() !== previouslyFocusedElement) {
             return;
           }
         }
