@@ -29,9 +29,7 @@ import { NgpMenu, NgpMenuItem, NgpMenuTrigger } from 'ng-primitives/menu';
       <div ngpMenu>
         <button ngpMenuItem>Rename</button>
         <button ngpMenuItem>Duplicate</button>
-        <button [ngpDialogTrigger]="confirm" [ngpMenuItemCloseOnSelect]="false" ngpMenuItem>
-          Delete...
-        </button>
+        <button [ngpDialogTrigger]="confirm" ngpMenuItem>Delete...</button>
       </div>
     </ng-template>
 

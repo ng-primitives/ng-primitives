@@ -1,5 +1,6 @@
-import { CloseScrollStrategy } from 'ng-primitives/portal';
-import { describe, expect, it, vi } from 'vitest';
+import { ViewportRuler } from '@angular/cdk/scrolling';
+import { BlockScrollStrategy, CloseScrollStrategy } from 'ng-primitives/portal';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 describe('CloseScrollStrategy', () => {
   let strategy: CloseScrollStrategy;
@@ -100,5 +101,93 @@ describe('CloseScrollStrategy', () => {
 
     scrollableContainer.dispatchEvent(new Event('scroll'));
     expect(onClose).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe('BlockScrollStrategy', () => {
+  const html = document.documentElement;
+  // a viewport smaller than the page, so the page counts as scrollable
+  const viewportRuler = {
+    getViewportSize: () => ({ width: 0, height: 0 }),
+    getViewportScrollPosition: () => ({ top: 0, left: 0 }),
+  } as unknown as ViewportRuler;
+  const strategies: BlockScrollStrategy[] = [];
+
+  function createStrategy(): BlockScrollStrategy {
+    const strategy = new BlockScrollStrategy(viewportRuler, document);
+    strategies.push(strategy);
+    return strategy;
+  }
+
+  afterEach(() => {
+    strategies.splice(0).forEach(strategy => strategy.disable());
+    html.classList.remove('cdk-global-scrollblock');
+    html.style.top = '';
+  });
+
+  it('should block the page scroll until disabled', () => {
+    const strategy = createStrategy();
+
+    strategy.enable();
+    expect(html.hasAttribute('data-scrollblock')).toBe(true);
+    expect(html.style.position).toBe('fixed');
+
+    strategy.disable();
+    expect(html.hasAttribute('data-scrollblock')).toBe(false);
+    expect(html.style.position).toBe('');
+  });
+
+  it('should keep the page blocked while another overlay still blocks it', () => {
+    const menu = createStrategy();
+    const dialog = createStrategy();
+
+    menu.enable();
+    dialog.enable();
+    menu.disable();
+
+    expect(html.hasAttribute('data-scrollblock')).toBe(true);
+    expect(html.style.position).toBe('fixed');
+
+    dialog.disable();
+    expect(html.hasAttribute('data-scrollblock')).toBe(false);
+  });
+
+  it('should restore the inline styles from before the first block', () => {
+    html.style.top = '5px';
+    const menu = createStrategy();
+    const dialog = createStrategy();
+
+    menu.enable();
+    dialog.enable();
+    menu.disable();
+    dialog.disable();
+
+    expect(html.style.top).toBe('5px');
+  });
+
+  it('should not release the block of another overlay when disabled twice', () => {
+    const menu = createStrategy();
+    const dialog = createStrategy();
+
+    menu.enable();
+    dialog.enable();
+    dialog.disable();
+    dialog.disable();
+
+    expect(html.hasAttribute('data-scrollblock')).toBe(true);
+
+    menu.disable();
+    expect(html.hasAttribute('data-scrollblock')).toBe(false);
+  });
+
+  it('should leave a block it did not set alone', () => {
+    html.classList.add('cdk-global-scrollblock');
+    const strategy = createStrategy();
+
+    strategy.enable();
+    expect(html.hasAttribute('data-scrollblock')).toBe(false);
+
+    strategy.disable();
+    expect(html.classList.contains('cdk-global-scrollblock')).toBe(true);
   });
 });

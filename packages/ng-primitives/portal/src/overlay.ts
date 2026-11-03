@@ -1053,8 +1053,8 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
 
   /**
    * The overlay this one was opened from: the nearest registered overlay containing the
-   * trigger in the DOM, else the injected one. The injector chain alone would skip a dialog,
-   * whose injector descends from its trigger's.
+   * trigger in the DOM, else the injected one. Inside a dialog the injected one is `null`, as a
+   * dialog is not an `NgpOverlay`.
    */
   private resolveParentId(): string | null {
     const trigger = this.config.triggerElement;

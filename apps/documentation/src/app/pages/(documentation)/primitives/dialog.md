@@ -234,6 +234,8 @@ passed to `NgpDialogManager.open()`.
 
 Adheres to the [WAI-ARIA design pattern](https://www.w3.org/WAI/ARIA/apg/patterns/dialog-modal/examples/dialog/).
 
+When a dialog closes, focus returns to the element that opened it. If that element is gone, for example a menu item whose menu closed on select, focus goes to the trigger of the menu or popover it was in.
+
 ### Keyboard Interactions
 
 - <kbd>Esc</kbd>: Close the dialog.
