@@ -292,6 +292,17 @@ describe('Non-modal dialog', () => {
     expect(page.hasAttribute('aria-hidden')).toBe(false);
   });
 
+  it('falls back to the global configuration when open() is given an undefined modal', async () => {
+    await render(DefaultHost, {
+      providers: [provideDialogConfig({ modal: false, scrollStrategy })],
+    });
+
+    TestBed.inject(NgpDialogManager).open(PlainDialog, { modal: undefined });
+
+    expect(page.hasAttribute('aria-hidden')).toBe(false);
+    expect(scrollBlocked).toBe(false);
+  });
+
   it('opens another modal dialog on a second click on its trigger', async () => {
     await render(DefaultHost, { providers: [provideDialogConfig({ scrollStrategy })] });
     fireEvent.click(screen.getByTestId('open'));
@@ -344,6 +355,18 @@ describe('Non-modal dialog', () => {
     await first.close();
     await second.close();
 
+    expect(scrollBlocked).toBe(false);
+  });
+
+  it('blocks scrolling through the root manager when a nested manager opens the first modal', async () => {
+    const { fixture } = await render(NestedManagerHost, {
+      providers: [provideDialogConfig({ scrollStrategy })],
+    });
+
+    const dialog = fixture.componentInstance.manager.open(PlainDialog);
+    expect(scrollBlocked).toBe(true);
+
+    await dialog.close();
     expect(scrollBlocked).toBe(false);
   });
 
