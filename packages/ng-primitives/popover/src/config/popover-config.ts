@@ -60,7 +60,8 @@ export interface NgpPopoverConfig {
 
   /**
    * Whether the popover is modal. While it is open the rest of the page is `inert`, so a click
-   * outside only closes the popover and screen readers only reach the popover and its trigger.
+   * outside does not reach it (it closes the popover, unless `closeOnOutsideClick` says not to).
+   * The trigger, the anchor, exempt elements and overlays opened above the popover stay usable.
    * @default false
    */
   modal: boolean;

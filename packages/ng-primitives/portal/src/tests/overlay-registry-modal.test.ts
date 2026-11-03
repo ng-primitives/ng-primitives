@@ -36,11 +36,13 @@ describe('NgpOverlayRegistry modal overlays', () => {
     return entry;
   }
 
-  function pointerDown(target: HTMLElement): PointerEvent {
+  function pointerDown(target: HTMLElement, init: PointerEventInit = {}): PointerEvent {
     const event = new PointerEvent('pointerdown', {
       bubbles: true,
       cancelable: true,
       composed: true,
+      isPrimary: true,
+      ...init,
     });
     target.dispatchEvent(event);
     return event;
@@ -318,6 +320,46 @@ describe('NgpOverlayRegistry modal overlays', () => {
     click(action, 0);
 
     expect(onClick).toHaveBeenCalledTimes(1);
+  });
+
+  it('closes only the topmost of two modal overlays on an outside press', () => {
+    const lowerPanel = append(document.createElement('div'));
+    const lower = register({ id: 'lower', modal: true, getElements: () => [lowerPanel] });
+    const upper = register({ id: 'upper', modal: true, getElements: () => [panel] });
+
+    press(outside);
+
+    expect(upper.overlay.hide).toHaveBeenCalledTimes(1);
+    expect(lower.overlay.hide).not.toHaveBeenCalled();
+  });
+
+  it('keeps the press of the first finger when a second one touches down', () => {
+    const modal = register({ id: 'modal', modal: true, getElements: () => [panel] });
+    const onClick = vi.fn();
+    outside.addEventListener('click', onClick);
+
+    pointerDown(outside);
+    pointerDown(panel, { isPrimary: false });
+    click(outside);
+
+    expect(onClick).not.toHaveBeenCalled();
+    expect(modal.overlay.hide).toHaveBeenCalledTimes(1);
+  });
+
+  it('swallows the click of a press that started outside, after the modal overlay is gone', () => {
+    const otherPanel = append(document.createElement('div'));
+    register({ id: 'other', getElements: () => [otherPanel] });
+    const modal = register({ id: 'modal', modal: true, getElements: () => [panel] });
+    const onClick = vi.fn();
+    outside.addEventListener('click', onClick);
+
+    pointerDown(outside);
+    registry.deregister(modal.id);
+    const event = click(outside);
+
+    expect(event.defaultPrevented).toBe(true);
+    expect(onClick).not.toHaveBeenCalled();
+    expect(modal.overlay.hide).not.toHaveBeenCalled();
   });
 
   it('keeps closing every non-modal overlay tree on an outside press', () => {

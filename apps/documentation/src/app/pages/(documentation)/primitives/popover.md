@@ -167,9 +167,9 @@ By default a click outside the popover closes it and also reaches what is undern
 <button [ngpPopoverTrigger]="popover" ngpPopoverTriggerModal>Open</button>
 ```
 
-- The trigger stays usable, so clicking it again closes the popover. So does the anchor, when one is set.
+- The trigger stays usable, so clicking it again closes the popover. The anchor, when one is set, stays usable too.
 - An outside click closes the topmost modal popover only, one layer at a time. A click fired from code, such as `element.click()` or a test's `fireEvent.click`, does not close it.
-- The document still scrolls: use `ngpPopoverTriggerScrollBehavior="block"` to block it. Any other scroll container, such as the `<main>` of an app shell, is `inert` and does not scroll with the wheel.
+- The document still scrolls: use `ngpPopoverTriggerScrollBehavior="block"` to block it. Other scroll containers, such as the `<main>` of an app shell, are `inert` and do not scroll with the wheel, unless they hold the trigger or the anchor.
 - Toasts stay usable. Add the `data-ngp-modal-exempt` attribute to any other element that must stay usable, such as the container of a third-party overlay library.
 - A `closeOnOutsideClick` guard receives the nearest element that is not `inert`, often `<body>`, rather than the element under the pointer.
 

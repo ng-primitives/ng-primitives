@@ -422,6 +422,11 @@ export class NgpOverlayRegistry {
    * overlay closes on the `click` instead.
    */
   private handleModalPointerDown(event: PointerEvent): void {
+    // A second finger on a touch screen does not end the press the first one started.
+    if (!event.isPrimary) {
+      return;
+    }
+
     if (event.button !== 0 || this.getTopmostModalIndex() === -1 || this.isOnScrollbar(event)) {
       this.pressOutsideModal = null;
       return;
