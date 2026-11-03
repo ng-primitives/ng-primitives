@@ -103,7 +103,9 @@ export const [
       // A non-modal dialog leaves its trigger usable: a second click closes it.
       const current = openDialog();
       if (current && current.config.modal === false) {
-        current.close();
+        if (!current.disableClose) {
+          current.close();
+        }
         return;
       }
 

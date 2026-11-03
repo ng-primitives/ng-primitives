@@ -427,9 +427,19 @@ export class NgpDialogManager implements OnDestroy {
     }
   }
 
+  /** Whether focus is in the dialog, or in an overlay opened from it that closes along with it. */
   private isFocusInDialog(dialogRef: NgpDialogRef): boolean {
+    const elements = [...dialogRef.getElements()];
+
+    // Entries are in open order, so a submenu's parent is collected before the submenu.
+    for (const entry of this.registry.getEntries()) {
+      if (elements.some(element => element.contains(entry.triggerElement))) {
+        elements.push(...entry.getElements());
+      }
+    }
+
     const focused = this.document.activeElement;
-    return dialogRef.getElements().some(element => element.contains(focused));
+    return elements.some(element => element.contains(focused));
   }
 
   private hasModalDialog(): boolean {
