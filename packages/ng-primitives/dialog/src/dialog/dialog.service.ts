@@ -14,7 +14,7 @@ import {
   isDevMode,
 } from '@angular/core';
 import { NavigationStart, Router } from '@angular/router';
-import { NgpExitAnimationManager } from 'ng-primitives/internal';
+import { NgpExitAnimationManager, NgpFocusRestoration } from 'ng-primitives/internal';
 import {
   BlockScrollStrategy,
   NgpHidingLayer,
@@ -42,6 +42,7 @@ export class NgpDialogManager implements OnDestroy {
   private readonly injector = inject(Injector);
   private readonly document = inject<Document>(DOCUMENT);
   private readonly focusMonitor = inject(FocusMonitor);
+  private readonly focusRestoration = inject(NgpFocusRestoration);
   private readonly viewportRuler = inject(ViewportRuler);
   private readonly registry = inject(NgpOverlayRegistry);
   private readonly outsideHiding = inject(NgpOutsideHiding);
@@ -236,7 +237,7 @@ export class NgpDialogManager implements OnDestroy {
       // Deregister from the overlay registry immediately so stacking order is updated.
       this.registry.deregister(dialogRef.id);
       this.closingDialogs.add(dialogRef);
-      this.removeOpenDialog(dialogRef as NgpDialogRef<any, any>, true);
+      this.removeOpenDialog(dialogRef as NgpDialogRef<any, any>);
     });
 
     dialogRef.afterClosed$.subscribe(({ focusOrigin }) => {
@@ -249,9 +250,11 @@ export class NgpDialogManager implements OnDestroy {
       if (restoreFocus && originElement && this.document.body.contains(originElement)) {
         // Its not great that we are relying on an internal API here, but we need to in order to
         // try and best determine the focus origin when it is programmatically closed by the user.
-        this.focusMonitor.focusVia(
-          originElement,
-          focusOrigin ?? (this.focusMonitor as any)._lastFocusOrigin,
+        this.focusRestoration.restore(originElement, () =>
+          this.focusMonitor.focusVia(
+            originElement,
+            focusOrigin ?? (this.focusMonitor as any)._lastFocusOrigin,
+          ),
         );
       }
     });
@@ -299,17 +302,6 @@ export class NgpDialogManager implements OnDestroy {
   }
 
   ngOnDestroy(): void {
-    // Make one pass over all the dialogs that need to be untracked, but should not be closed. We
-    // want to stop tracking the open dialog even if it hasn't been closed, because the tracking
-    // determines when `aria-hidden` is removed from elements outside the dialog.
-    reverseForEach(this.openDialogsAtThisLevel, dialog => {
-      // Check for `false` specifically since we want `undefined` to be interpreted as `true`.
-      this.removeOpenDialog(dialog, false);
-    });
-
-    // Make a second pass and close the remaining dialogs. We do this second pass in order to
-    // correctly dispatch the `afterAllClosed` event in case we have a mixed array of dialogs
-    // that should be closed and dialogs that should not.
     reverseForEach(this.openDialogsAtThisLevel, dialog => dialog.close());
 
     this.afterAllClosedAtThisLevel.complete();
@@ -350,7 +342,7 @@ export class NgpDialogManager implements OnDestroy {
   /**
    * Removes a dialog from the array of open dialogs.
    */
-  private removeOpenDialog(dialogRef: NgpDialogRef, emitEvent: boolean) {
+  private removeOpenDialog(dialogRef: NgpDialogRef) {
     const index = this.openDialogs.indexOf(dialogRef);
 
     if (index > -1) {
@@ -364,7 +356,7 @@ export class NgpDialogManager implements OnDestroy {
         this.disableScrollBlocking();
       }
 
-      if (!this.openDialogs.length && emitEvent) {
+      if (!this.openDialogs.length) {
         this.getAfterAllClosed().next();
       }
     }
