@@ -160,6 +160,7 @@ describe('NgpDialogTrigger lifetime', () => {
   let root: ComponentRef<TestAppRoot> | undefined;
 
   afterEach(async () => {
+    vi.restoreAllMocks();
     TestBed.inject(NgpDialogManager).closeAll();
     await waitFor(() => expect(document.querySelector('[ngpDialogOverlay]')).toBeNull());
     root?.location.nativeElement.remove();
@@ -220,8 +221,8 @@ describe('NgpDialogTrigger lifetime', () => {
     fixture.detectChanges();
 
     expect(openDialogs()).toHaveLength(0);
+    expect(fixture.componentInstance.closedCount).toBe(0);
     expect(warn).not.toHaveBeenCalledWith(expect.stringContaining('NG0953'));
-    warn.mockRestore();
   });
 
   it('should stop following the trigger once the dialog has closed', async () => {

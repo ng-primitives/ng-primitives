@@ -229,8 +229,9 @@ passed to `NgpDialogManager.open()`.
 A dialog opened by `NgpDialogTrigger` stays open when its trigger is removed, for example by an
 `@if`. Set `lifetime: 'trigger'` to close it along with its trigger. A trigger inside a menu or
 popover follows that overlay's trigger instead, so a dialog opened from a menu item stays open
-when the menu closes. A dialog opened from inside another dialog closes when that dialog closes,
-since its trigger goes with it. Dialogs opened with `NgpDialogManager.open()` are not affected.
+when the menu closes. With `lifetime: 'trigger'`, a dialog opened from inside another dialog
+closes when that dialog closes, since its trigger goes with it. Dialogs opened with
+`NgpDialogManager.open()` are not affected.
 
 ```ts
 provideDialogConfig({ lifetime: 'trigger' });

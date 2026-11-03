@@ -6,7 +6,8 @@ export type NgpDialogRole = 'dialog' | 'alertdialog';
 
 /**
  * How long a dialog opened by `ngpDialogTrigger` stays open.
- * - `application`: until it is closed or the route changes, even if its trigger is removed.
+ * - `application`: until it is closed or (by default) the route changes, even if its trigger is
+ *   removed.
  * - `trigger`: also closes when its trigger is removed. A trigger inside a menu or popover
  *   defers to that overlay's trigger, so the dialog outlives the menu closing.
  */
