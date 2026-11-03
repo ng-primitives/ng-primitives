@@ -287,7 +287,7 @@ bootstrapApplication(AppComponent, {
 
 ## Accessibility
 
-The popover element is assigned `role="dialog"` and the trigger element uses `aria-expanded` to indicate the popover's open state. The trigger is linked to the popover via `aria-describedby`. Focus is trapped within the popover when open. When it closes, focus returns to the element that was focused when it opened, usually the trigger, unless an outside click landed on another control, which keeps focus.
+The popover element is assigned `role="dialog"` and the trigger element uses `aria-expanded` to indicate the popover's open state. The trigger is linked to the popover via `aria-describedby`. Focus is trapped within the popover when open. When it closes, focus returns to the element that was focused when it opened, usually the trigger. An outside click on another control moves focus to that control, and focus the user already moved elsewhere stays there. `ngpPopoverFinalFocus` can choose another target, or `false` to leave focus where it is.
 
 ### Keyboard Interactions
 

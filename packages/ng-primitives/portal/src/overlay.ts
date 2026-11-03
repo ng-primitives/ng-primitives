@@ -265,8 +265,10 @@ export interface NgpOverlayConfig<T = unknown> {
 export type NgpOverlayContent<T> = TemplateRef<NgpOverlayTemplateContext<T>> | Type<unknown>;
 
 /**
- * Where focus goes when an overlay closes: an element, `false` to leave focus alone, or
- * `true`/`null` for the default (the trigger). A function receives the close origin.
+ * Where focus goes when an overlay closes: an element, `false` to leave focus alone, `null` for
+ * the default (the element focused when it opened, usually the trigger), or `true` for the
+ * default even where the overlay does not restore focus on its own. A function receives the
+ * close origin.
  */
 export type NgpOverlayFinalFocus =
   | boolean
@@ -902,7 +904,8 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
         ? this.config.restoreFocus()
         : (this.config.restoreFocus ?? false);
 
-    if (!shouldRestoreFocus) {
+    // An explicit `true` asks for the default restoration, whatever the overlay's own setting
+    if (finalFocus !== true && !shouldRestoreFocus) {
       return;
     }
 
@@ -1044,9 +1047,10 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
       return;
     }
 
-    // Nothing left to render - close rather than leave the previous content on screen.
+    // Nothing left to render - close rather than leave the previous content on screen, and
+    // hand on the focus the removed content held.
     if (!content) {
-      this.hideImmediate();
+      this.closeImmediately(undefined, true);
       return;
     }
 
@@ -1088,6 +1092,13 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
    * @param options Optional hide configuration
    */
   hideImmediate(options?: OverlayHideImmediateOptions): void {
+    this.closeImmediately(options, false);
+  }
+
+  private closeImmediately(
+    options: OverlayHideImmediateOptions | undefined,
+    restoreFocusIfInside: boolean,
+  ): void {
     // An exit already under way owns the portal - `portal()` is nulled the
     // moment destroyOverlay starts - so ending it is the only way an immediate
     // hide reaches an overlay that has begun animating out. Opt-in, because a
@@ -1121,15 +1132,16 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
       this.closeOrigin.set('program');
       this.config.onClose?.('program');
 
-      // Tearing the overlay down means its trigger is going away with it. The content can
-      // already be gone with the trigger's view, which leaves focus on the body.
+      // Focus held by content that is going away moves on, after `closing` so focus traps have
+      // let go. Tearing the overlay down takes its trigger with it, and the content can already
+      // be gone with the trigger's view, which leaves focus on the body.
       const activeElement = this.document.activeElement;
       const focusWasInside =
         activeElement === null ||
         activeElement === this.document.body ||
         this.containsElement(activeElement);
-      if (options?.forceDestroy && focusWasInside) {
-        this.restoreFocus('program', { triggerGone: true });
+      if ((options?.forceDestroy || restoreFocusIfInside) && focusWasInside) {
+        this.restoreFocus('program', { triggerGone: options?.forceDestroy });
       }
     }
     this.destroyOverlay({ immediate: true, forceDestroy: options?.forceDestroy });

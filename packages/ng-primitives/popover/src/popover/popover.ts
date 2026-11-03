@@ -20,7 +20,8 @@ export class NgpPopover {
 
   /**
    * Where focus goes when the popover closes: an element, a function of the close origin
-   * returning one, `false` to leave focus where it is, or `null` for the trigger.
+   * returning one, `false` to leave focus where it is, or `null` for the default: the element
+   * focused when it opened, usually the trigger.
    * @default null
    */
   readonly finalFocus = input<NgpOverlayFinalFocus | null>(null, {
