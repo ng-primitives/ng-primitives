@@ -332,7 +332,19 @@ export const [NgpFocusTrapStateToken, ngpFocusTrap, injectFocusTrapState, provid
       function getTabbableEdges(container: HTMLElement) {
         const candidates = getTabbableCandidates(container);
         const isVisible = (candidate: HTMLElement) => interactivityChecker.isVisible(candidate);
-        return [candidates.find(isVisible), [...candidates].reverse().find(isVisible)] as const;
+        const firstIndex = candidates.findIndex(isVisible);
+
+        if (firstIndex === -1) {
+          return [undefined, undefined] as const;
+        }
+
+        // Scan back only down to the first visible one, so each candidate is checked once at most.
+        let lastIndex = candidates.length - 1;
+        while (lastIndex > firstIndex && !isVisible(candidates[lastIndex])) {
+          lastIndex--;
+        }
+
+        return [candidates[firstIndex], candidates[lastIndex]] as const;
       }
 
       /**

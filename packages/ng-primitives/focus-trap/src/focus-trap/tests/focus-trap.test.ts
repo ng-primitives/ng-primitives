@@ -104,6 +104,28 @@ class TestFocusTrapLongListComponent {
 }
 
 @Component({
+  selector: 'test-focus-trap-hidden-list',
+  imports: [NgpFocusTrap],
+  template: `
+    <div ngpFocusTrap data-testid="focus-trap">
+      <div tabindex="-1" data-testid="start">Start</div>
+      @for (index of items; track index) {
+        <button
+          [attr.data-testid]="'item-' + index"
+          [style.display]="index === visibleIndex() ? null : 'none'"
+        >
+          Item {{ index }}
+        </button>
+      }
+    </div>
+  `,
+})
+class TestFocusTrapHiddenListComponent {
+  readonly items = Array.from({ length: 50 }, (_, index) => index);
+  readonly visibleIndex = signal<number | null>(null);
+}
+
+@Component({
   selector: 'test-focus-trap-cdk-overlay',
   imports: [NgpFocusTrap],
   template: `
@@ -778,6 +800,27 @@ describe('Tab handling cost', () => {
     expect(tabNotPrevented).toBe(true);
     expect(shiftTabNotPrevented).toBe(true);
     expect(itemChecks).toHaveLength(4);
+  });
+
+  it.each([
+    ['no item is visible', null],
+    ['a single item in the middle is visible', 25],
+  ])('should check each item once at most on Tab when %s', async (_, visibleIndex) => {
+    const { getByTestId, fixture } = await render(TestFocusTrapHiddenListComponent);
+    fixture.componentInstance.visibleIndex.set(visibleIndex);
+    fixture.detectChanges();
+    const start = getByTestId('start');
+    start.focus();
+    const isVisibleSpy = vi.spyOn(TestBed.inject(InteractivityChecker), 'isVisible');
+
+    fireEvent.keyDown(start, { key: 'Tab' });
+
+    const trap = getByTestId('focus-trap');
+    const checked = isVisibleSpy.mock.calls
+      .map(([element]) => element)
+      .filter(element => trap.contains(element));
+    expect(checked).toHaveLength(new Set(checked).size);
+    expect(checked).toHaveLength(50);
   });
 
   it('should wrap from the last item to the first on Tab, and back on Shift+Tab', async () => {
