@@ -172,6 +172,29 @@ describe('NgpPopover focus on close', () => {
     }
   });
 
+  it('moves focus to the shadow button a slotted label belongs to, not an outer host', async () => {
+    await open();
+    const outer = document.body.appendChild(document.createElement('div'));
+    outer.tabIndex = 0;
+    const host = outer.appendChild(document.createElement('div'));
+    const shadow = host.attachShadow({ mode: 'open' });
+    shadow.innerHTML = '<button><slot></slot></button>';
+    const label = host.appendChild(document.createElement('span'));
+    label.textContent = 'Slotted label';
+
+    try {
+      const init = { bubbles: true, composed: true };
+      label.dispatchEvent(new PointerEvent('pointerdown', init));
+      label.dispatchEvent(new MouseEvent('mouseup', init));
+      label.dispatchEvent(new MouseEvent('click', init));
+      await closed();
+
+      expect(shadow.activeElement).toBe(shadow.querySelector('button'));
+    } finally {
+      outer.remove();
+    }
+  });
+
   it('returns focus to the trigger after a press on the page root', async () => {
     const trigger = await open();
     const init = { bubbles: true, composed: true };

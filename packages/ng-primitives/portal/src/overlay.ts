@@ -1011,10 +1011,11 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
   }
 
   private findFocusableAncestor(element: Element): HTMLElement | null {
+    // Walk the rendered tree: slotted content sits in its slot, a shadow tree in its host.
     for (
       let node: Element | null = element;
       node && node !== this.document.body;
-      node = node.parentElement ?? shadowHostOf(node)
+      node = node.assignedSlot ?? node.parentElement ?? shadowHostOf(node)
     ) {
       if (node instanceof HTMLElement && this.interactivityChecker.isFocusable(node)) {
         return node;
