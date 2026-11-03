@@ -232,6 +232,11 @@ export interface NgpMenuTriggerProps<T = unknown> {
    * The delay before hiding the menu.
    */
   readonly hideDelay?: Signal<number>;
+
+  /**
+   * Whether the menu is modal. A menu opened on hover, or from a trigger group, is never modal.
+   */
+  readonly modal?: Signal<boolean>;
 }
 
 export const [
@@ -256,6 +261,7 @@ export const [
     triggers = signal(['click'] as NgpMenuTriggerType[]),
     showDelay = signal(0),
     hideDelay = signal(0),
+    modal = signal(false),
   }: NgpMenuTriggerProps<T>) => {
     const element = injectElementRef();
     const injector = inject(Injector);
@@ -279,6 +285,7 @@ export const [
     const open = computed(() => overlay()?.isOpen() ?? false);
     const openOrigin = signal<FocusOrigin>('program');
     const closeOrigin = signal<FocusOrigin>('program');
+    const openedOnHover = signal(false);
 
     // Track whether pointer is over trigger or content (for hover triggers)
     const pointerOverTrigger = signal(false);
@@ -311,7 +318,7 @@ export const [
     const declineHoverDuringTransit = createHoverTransitDecline({
       isBlocked: () => triggerGroup()?.isTransitBlocked(element.nativeElement) ?? false,
       isPointerOverTrigger: pointerOverTrigger,
-      show: () => show('mouse'),
+      show: showOnHover,
     });
 
     // Reset pointer tracking when menu closes
@@ -379,7 +386,7 @@ export const [
         return;
       }
 
-      show('mouse');
+      showOnHover();
     }
 
     function onPointerLeave(event: PointerEvent): void {
@@ -536,6 +543,16 @@ export const [
     }
 
     function show(origin: FocusOrigin = 'program'): void {
+      openedOnHover.set(false);
+      showMenu(origin);
+    }
+
+    function showOnHover(): void {
+      openedOnHover.set(true);
+      showMenu('mouse');
+    }
+
+    function showMenu(origin: FocusOrigin): void {
       // Store the origin used to open the menu
       openOrigin.set(origin);
 
@@ -587,6 +604,9 @@ export const [
         cooldown: cooldown?.(),
         showDelay: showDelay(),
         hideDelay: hideDelay(),
+        // The pointer leaves a menu opened on hover, and a trigger group switches between its
+        // menus, so neither can make the rest of the page inert.
+        modal: computed(() => modal() && !openedOnHover() && !triggerGroup()),
       };
 
       overlay.set(createOverlay(config));

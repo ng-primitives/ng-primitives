@@ -76,6 +76,9 @@ export interface NgpSelectState<T> {
    */
   readonly offset: Signal<NgpOffset>;
 
+  /** Whether the dropdown is modal. */
+  readonly modal: Signal<boolean>;
+
   /**
    * A function that will scroll the active option into view. This can be overridden
    * for cases such as virtual scrolling where we cannot scroll the option directly because
@@ -332,6 +335,9 @@ export interface NgpSelectProps<T> {
    */
   readonly offset?: Signal<NgpOffset>;
 
+  /** Whether the dropdown is modal: the rest of the page is `inert` while it is open. */
+  readonly modal?: Signal<boolean>;
+
   /**
    * A function that will scroll the active option into view. This can be overridden
    * for cases such as virtual scrolling where we cannot scroll the option directly because
@@ -361,6 +367,7 @@ export const [NgpSelectStateToken, ngpSelect, _injectSelectState, provideSelectS
       container: _container,
       flip = signal<NgpFlip>(true),
       offset = signal<NgpOffset>(0),
+      modal = signal(false),
       scrollToOption = signal<((index: number) => void) | undefined>(undefined),
       allOptions = signal<T[] | undefined>(undefined),
       onValueChange,
@@ -960,6 +967,7 @@ export const [NgpSelectStateToken, ngpSelect, _injectSelectState, provideSelectS
         container: deprecatedSetter(container, 'setContainer', setContainer),
         flip,
         offset,
+        modal,
         scrollToOption,
         allOptions,
         portal,
