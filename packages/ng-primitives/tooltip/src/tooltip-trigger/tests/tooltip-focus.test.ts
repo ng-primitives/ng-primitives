@@ -110,6 +110,33 @@ class DisabledTooltipFocusComponent {
 })
 class MenuTooltipFocusComponent {}
 
+@Component({
+  template: `
+    <button
+      [ngpPopoverTrigger]="showContent() ? popover : undefined"
+      [ngpTooltipTrigger]="tooltip"
+      ngpTooltipTriggerShowDelay="0"
+      data-testid="popover-trigger"
+    >
+      Launch popover
+    </button>
+
+    <ng-template #tooltip>
+      <div ngpTooltip>Tooltip</div>
+    </ng-template>
+
+    <ng-template #popover>
+      <div ngpPopover>
+        <button data-testid="popover-content">Popover content</button>
+      </div>
+    </ng-template>
+  `,
+  imports: [NgpPopoverTrigger, NgpPopover, NgpTooltipTrigger, NgpTooltip],
+})
+class ClearedPopoverTooltipComponent {
+  readonly showContent = signal(true);
+}
+
 const tooltip = () => document.querySelector('[ngpTooltip]');
 
 /** Long enough for a tooltip with no show delay to have opened. */
@@ -203,6 +230,22 @@ describe('NgpTooltipTrigger focus', () => {
     await waitFor(() => expect(document.querySelector('[ngpMenu]')).toBeInTheDocument());
     await waitFor(() => expect(tooltip()).not.toBeInTheDocument());
     await userEvent.click(screen.getByTestId('menu-item'));
+
+    await waitFor(() => expect(trigger).toHaveFocus());
+    await settle();
+    expect(tooltip()).not.toBeInTheDocument();
+  });
+
+  it('stays closed when a popover whose content is cleared hands focus back', async () => {
+    const { fixture, getByTestId } = await render(ClearedPopoverTooltipComponent);
+    const trigger = getByTestId('popover-trigger');
+
+    await userEvent.keyboard('{Tab}');
+    await userEvent.keyboard('{Enter}');
+    await waitFor(() => expect(screen.getByTestId('popover-content')).toHaveFocus());
+    await waitFor(() => expect(tooltip()).not.toBeInTheDocument());
+
+    fixture.componentInstance.showContent.set(false);
 
     await waitFor(() => expect(trigger).toHaveFocus());
     await settle();

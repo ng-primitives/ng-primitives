@@ -1068,6 +1068,12 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
     // than a content change.
     portal.detach({ immediate: true });
     this.attachPortal(content, true, this.openContainer ?? undefined);
+
+    // The replaced content's finalFocus went with it; content that sets one does so as it renders.
+    if (this.finalFocusReleased) {
+      this.finalFocus = null;
+      this.finalFocusReleased = false;
+    }
   }
 
   /**

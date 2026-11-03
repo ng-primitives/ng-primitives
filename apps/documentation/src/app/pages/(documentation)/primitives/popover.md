@@ -161,7 +161,7 @@ Two things to weigh before enabling it:
 
 ### Final focus
 
-When the popover closes, focus returns to the element that was focused when it opened, usually its trigger. Set `ngpPopoverFinalFocus` to choose another element, to pass a function that receives the close origin and returns one, or to `false` to leave focus where it is.
+When the popover closes, focus returns to the element that was focused when it opened, usually its trigger. Set `ngpPopoverFinalFocus` to choose another element, to `false` to leave focus where it is, or to a function that receives the close origin and returns one of these.
 
 ```html
 <button [ngpPopoverTrigger]="popover">Rename</button>

@@ -44,6 +44,24 @@ async function closed() {
   await waitFor(() => expect(screen.queryByTestId('popover')).not.toBeInTheDocument());
 }
 
+@Component({
+  template: `
+    <button [ngpPopoverTrigger]="useFirst() ? first : second" data-testid="trigger">Open</button>
+    <input #other data-testid="other" />
+
+    <ng-template #first>
+      <div [ngpPopoverFinalFocus]="other" ngpPopover data-testid="first">First</div>
+    </ng-template>
+    <ng-template #second>
+      <div data-testid="second">Second</div>
+    </ng-template>
+  `,
+  imports: [NgpPopoverTrigger, NgpPopover],
+})
+class SwappedContentComponent {
+  readonly useFirst = signal(true);
+}
+
 describe('NgpPopover final focus', () => {
   it('focuses the element focused before opening when the trigger is gone', async () => {
     const { component, fixture, other } = await setup();
@@ -104,5 +122,19 @@ describe('NgpPopover final focus', () => {
     await closed();
 
     expect(screen.getByTestId('trigger')).not.toHaveFocus();
+  });
+
+  it("drops the replaced content's finalFocus when new content takes its place", async () => {
+    const { fixture } = await render(SwappedContentComponent);
+    const trigger = screen.getByTestId('trigger');
+    await userEvent.click(trigger);
+    await screen.findByTestId('first');
+
+    fixture.componentInstance.useFirst.set(false);
+    await screen.findByTestId('second');
+    await userEvent.keyboard('{Escape}');
+    await waitFor(() => expect(screen.queryByTestId('second')).not.toBeInTheDocument());
+
+    expect(trigger).toHaveFocus();
   });
 });
