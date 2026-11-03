@@ -417,11 +417,11 @@ export const [
       if (open()) {
         hide(origin);
       } else {
-        show();
+        show(true);
       }
     }
 
-    async function show(): Promise<void> {
+    async function show(fromTriggerPress = false): Promise<void> {
       // If the trigger is disabled, don't show the popover
       if (disabled()) {
         return;
@@ -433,7 +433,7 @@ export const [
       }
 
       // Show the overlay
-      await overlay()?.show();
+      await overlay()?.show({ fromTriggerPress });
 
       // Only announce an actual transition - show() also resolves when the popover was
       // already open, or when a concurrent call opened it first.

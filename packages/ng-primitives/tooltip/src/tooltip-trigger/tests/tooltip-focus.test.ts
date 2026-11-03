@@ -1,9 +1,10 @@
 import { Component, signal } from '@angular/core';
 import { render, screen, waitFor } from '@testing-library/angular';
 import { NgpDialog, NgpDialogOverlay, NgpDialogTrigger } from 'ng-primitives/dialog';
+import { NgpMenu, NgpMenuItem, NgpMenuTrigger } from 'ng-primitives/menu';
 import { NgpPopover, NgpPopoverTrigger } from 'ng-primitives/popover';
 import { NgpTooltip, NgpTooltipTrigger } from 'ng-primitives/tooltip';
-import { describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it } from 'vitest';
 import { userEvent } from 'vitest/browser';
 
 @Component({
@@ -84,12 +85,46 @@ class DisabledTooltipFocusComponent {
   readonly disabled = signal(true);
 }
 
+@Component({
+  template: `
+    <button
+      [ngpMenuTrigger]="menu"
+      [ngpTooltipTrigger]="tooltip"
+      ngpTooltipTriggerShowDelay="0"
+      data-testid="menu-trigger"
+    >
+      Open menu
+    </button>
+
+    <ng-template #tooltip>
+      <div ngpTooltip>Tooltip</div>
+    </ng-template>
+
+    <ng-template #menu>
+      <div ngpMenu>
+        <button ngpMenuItem data-testid="menu-item">Item</button>
+      </div>
+    </ng-template>
+  `,
+  imports: [NgpMenuTrigger, NgpMenu, NgpMenuItem, NgpTooltipTrigger, NgpTooltip],
+})
+class MenuTooltipFocusComponent {}
+
 const tooltip = () => document.querySelector('[ngpTooltip]');
 
 /** Long enough for a tooltip with no show delay to have opened. */
 const settle = () => new Promise(resolve => setTimeout(resolve, 100));
 
 describe('NgpTooltipTrigger focus', () => {
+  // The pointer keeps its position across test files: park it where nothing renders, so a
+  // later file does not open something on hover.
+  afterEach(async () => {
+    const corner = document.body.appendChild(document.createElement('div'));
+    corner.style.cssText = 'position: fixed; right: 0; bottom: 0; width: 4px; height: 4px;';
+    await userEvent.hover(corner);
+    corner.remove();
+  });
+
   it('opens when the user tabs onto the trigger', async () => {
     const { getByTestId } = await render(TooltipFocusComponent);
 
@@ -144,6 +179,39 @@ describe('NgpTooltipTrigger focus', () => {
     await waitFor(() => expect(tooltip()).not.toBeInTheDocument());
 
     await userEvent.keyboard('{Escape}');
+
+    await waitFor(() => expect(trigger).toHaveFocus());
+    await settle();
+    expect(tooltip()).not.toBeInTheDocument();
+  });
+
+  it('stays closed when a menu closed with Escape hands focus back', async () => {
+    const { getByTestId } = await render(MenuTooltipFocusComponent);
+    const trigger = getByTestId('menu-trigger');
+
+    await userEvent.keyboard('{Tab}');
+    expect(trigger).toHaveFocus();
+    await userEvent.keyboard('{Enter}');
+    await waitFor(() => expect(document.querySelector('[ngpMenu]')).toBeInTheDocument());
+    await waitFor(() => expect(tooltip()).not.toBeInTheDocument());
+
+    await userEvent.keyboard('{Escape}');
+
+    await waitFor(() => expect(trigger).toHaveFocus());
+    await settle();
+    expect(tooltip()).not.toBeInTheDocument();
+  });
+
+  it('stays closed when a mouse pick from a menu hands focus back', async () => {
+    const { getByTestId } = await render(MenuTooltipFocusComponent);
+    const trigger = getByTestId('menu-trigger');
+
+    // open with the keyboard, so the pointer never hovers the trigger
+    await userEvent.keyboard('{Tab}');
+    await userEvent.keyboard('{Enter}');
+    await waitFor(() => expect(document.querySelector('[ngpMenu]')).toBeInTheDocument());
+    await waitFor(() => expect(tooltip()).not.toBeInTheDocument());
+    await userEvent.click(screen.getByTestId('menu-item'));
 
     await waitFor(() => expect(trigger).toHaveFocus());
     await settle();
