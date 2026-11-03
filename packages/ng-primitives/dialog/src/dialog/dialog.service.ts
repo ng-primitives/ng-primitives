@@ -216,7 +216,7 @@ export class NgpDialogManager implements OnDestroy {
       // Deregister from the overlay registry immediately so stacking order is updated.
       this.registry.deregister(dialogRef.id);
       this.closingDialogs.add(dialogRef);
-      this.removeOpenDialog(dialogRef as NgpDialogRef<any, any>, true);
+      this.removeOpenDialog(dialogRef as NgpDialogRef<any, any>);
     });
 
     dialogRef.afterClosed$.subscribe(({ focusOrigin }) => {
@@ -312,7 +312,7 @@ export class NgpDialogManager implements OnDestroy {
   /**
    * Removes a dialog from the array of open dialogs.
    */
-  private removeOpenDialog(dialogRef: NgpDialogRef, emitEvent: boolean) {
+  private removeOpenDialog(dialogRef: NgpDialogRef) {
     const index = this.openDialogs.indexOf(dialogRef);
 
     if (index > -1) {
@@ -324,10 +324,7 @@ export class NgpDialogManager implements OnDestroy {
       if (!this.openDialogs.length) {
         this.restoreAssistiveTechnologyHiding();
         this.disableScrollBlocking();
-
-        if (emitEvent) {
-          this.getAfterAllClosed().next();
-        }
+        this.getAfterAllClosed().next();
       }
     }
   }
