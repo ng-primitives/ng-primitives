@@ -21,7 +21,7 @@ export class NgpAutocompletePortal implements OnDestroy {
   private readonly viewContainerRef = inject(ViewContainerRef);
 
   /** Access the template reference. */
-  private readonly templateRef = inject(TemplateRef);
+  private readonly templateRef = signal(inject(TemplateRef));
 
   /** Access the injector. */
   private readonly injector = inject(Injector);
