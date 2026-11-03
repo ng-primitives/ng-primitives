@@ -1,3 +1,4 @@
+import { ViewportRuler } from '@angular/cdk/scrolling';
 import {
   ApplicationRef,
   Component,
@@ -19,7 +20,7 @@ import {
 } from 'ng-primitives/dialog';
 import { NgpMenu, NgpMenuItem, NgpMenuTrigger, NgpSubmenuTrigger } from 'ng-primitives/menu';
 import { NgpPopover, NgpPopoverTrigger } from 'ng-primitives/popover';
-import { afterEach, describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 
 /**
  * `NgpDialogManager.open()` renders into the root component's view container. Without one,
@@ -167,6 +168,7 @@ describe('NgpDialog opened from a menu or popover', () => {
   let root: ComponentRef<TestAppRoot> | undefined;
 
   afterEach(async () => {
+    vi.restoreAllMocks();
     TestBed.inject(NgpDialogManager).closeAll();
     await waitFor(() => expect(document.querySelector('[ngpDialogOverlay]')).toBeNull());
     root?.location.nativeElement.remove();
@@ -181,6 +183,10 @@ describe('NgpDialog opened from a menu or popover', () => {
     document.body.appendChild(rootElement);
     root = TestBed.inject(ApplicationRef).bootstrap(TestAppRoot, rootElement);
     return result;
+  }
+
+  function openDialogs() {
+    return TestBed.inject(NgpDialogManager).openDialogs;
   }
 
   /** Activates an element with the keyboard: a click with `detail: 0`. */
@@ -207,24 +213,27 @@ describe('NgpDialog opened from a menu or popover', () => {
 
   it('should keep the page scroll blocked after the menu closes', async () => {
     const html = document.documentElement;
-    // the page must be taller than the viewport for scroll blocking to apply
-    document.body.style.height = '200vh';
+    await renderInApp(MenuDialogHost);
+    // scroll blocking only applies to a page taller than the viewport
+    vi.spyOn(TestBed.inject(ViewportRuler), 'getViewportSize').mockReturnValue({
+      width: 0,
+      height: 0,
+    });
 
-    try {
-      await renderInApp(MenuDialogHost);
-      press(screen.getByTestId('menu-trigger'));
-      press(await screen.findByTestId('item'));
-      await screen.findByTestId('dialog');
-      await waitFor(() => expect(screen.queryByTestId('menu')).toBeNull());
+    press(screen.getByTestId('menu-trigger'));
+    await screen.findByTestId('menu');
+    expect(html.hasAttribute('data-scrollblock')).toBe(true);
 
-      expect(html.hasAttribute('data-scrollblock')).toBe(true);
+    press(screen.getByTestId('item'));
+    await screen.findByTestId('dialog');
+    await waitFor(() => expect(screen.queryByTestId('menu')).toBeNull());
 
-      await closeDialog();
+    expect(openDialogs()).toHaveLength(1);
+    expect(html.hasAttribute('data-scrollblock')).toBe(true);
 
-      expect(html.hasAttribute('data-scrollblock')).toBe(false);
-    } finally {
-      document.body.style.height = '';
-    }
+    await closeDialog();
+
+    expect(html.hasAttribute('data-scrollblock')).toBe(false);
   });
 
   it('should focus the menu trigger when a dialog opened from a menu item closes', async () => {
