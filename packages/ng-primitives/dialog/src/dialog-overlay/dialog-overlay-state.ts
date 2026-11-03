@@ -98,15 +98,13 @@ export const [
       overlays: NgpOverlayEntry[],
       element: HTMLElement | null,
     ): HTMLElement | null {
-      const ownerOf = (node: HTMLElement | null) =>
-        node
-          ? overlays.find(entry =>
-              entry.getElements().some(overlayElement => containsComposed(overlayElement, node)),
-            )
-          : undefined;
+      const ownerOf = (node: HTMLElement) =>
+        overlays.find(entry =>
+          entry.getElements().some(overlayElement => containsComposed(overlayElement, node)),
+        );
 
       let target = element;
-      let owner = ownerOf(target);
+      let owner = target ? ownerOf(target) : undefined;
       // Bounded by the number of overlays, in case a trigger sits inside its own overlay.
       for (let depth = 0; owner && depth < overlays.length; depth++) {
         target = owner.triggerElement;
