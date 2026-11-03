@@ -19,9 +19,9 @@ export class NgpPopover {
   readonly id = input('');
 
   /**
-   * Where focus goes when the popover closes: an element, a function of the close origin
-   * returning one, `false` to leave focus where it is, or `null` for the default: the element
-   * focused when it opened, usually the trigger.
+   * Where focus goes when the popover closes: an element, `false` to leave focus where it is,
+   * `null` or `true` for the default (the element focused when it opened, usually the trigger),
+   * or a function that receives the close origin and returns one of these.
    * @default null
    */
   readonly finalFocus = input<NgpOverlayFinalFocus | null>(null, {

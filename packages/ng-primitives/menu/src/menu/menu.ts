@@ -34,9 +34,10 @@ export class NgpMenu {
   });
 
   /**
-   * Where focus goes when the menu closes: an element, a function of the close origin
-   * returning one, `false` to leave focus where it is, or `null` for the default: for a root
-   * menu, the element focused when it opened, usually the trigger; a submenu leaves focus alone.
+   * Where focus goes when the menu closes: an element, `false` to leave focus where it is,
+   * `null` for the default (for a root menu, the element focused when it opened, usually the
+   * trigger; a submenu leaves focus alone), `true` for that default in a submenu too, or a
+   * function that receives the close origin and returns one of these.
    * @default null
    */
   readonly finalFocus = input<NgpOverlayFinalFocus | null>(null, {

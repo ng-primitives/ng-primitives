@@ -456,4 +456,4 @@ Adheres to the [WAI-ARIA Menu Button Pattern](https://www.w3.org/WAI/ARIA/apg/pa
 - When a menu is opened via keyboard, the first menu item receives visible focus (`:focus-visible`).
 - When a menu is opened via mouse, focus moves into the menu but without the visible focus ring until arrow keys are used.
 - Closing all menus (via Escape, item selection or a click on empty space) returns focus to the element that was focused when the menu opened, usually the root menu trigger, whether the menu was used with the keyboard or the mouse. A menu opened on hover leaves focus where it was before the hover. An outside click on another control leaves focus on that control.
-- Set `ngpMenuFinalFocus` on `ngpMenu` to send focus elsewhere on close: an element, a function that receives the close origin, or `false` to leave focus where it is.
+- Set `ngpMenuFinalFocus` on `ngpMenu` to send focus elsewhere on close: an element, a function that receives the close origin and returns one of these, or `false` to leave focus where it is.
