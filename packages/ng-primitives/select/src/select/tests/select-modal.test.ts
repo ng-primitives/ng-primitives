@@ -152,6 +152,47 @@ describe('NgpSelect modal', () => {
     expect(document.activeElement).toBe(screen.getByTestId('next'));
   });
 
+  it('moves on to the next field on Tab from a search input rendered inside the select', async () => {
+    @Component({
+      imports: [
+        NgpSelect,
+        NgpSelectDropdown,
+        NgpSelectInput,
+        NgpSelectList,
+        NgpSelectOption,
+        NgpSelectPortal,
+      ],
+      template: `
+        <div
+          [ngpSelectDropdownContainer]="inside"
+          ngpSelect
+          ngpSelectDropdownModal
+          data-testid="select"
+        >
+          Pick a fruit
+          <div #inside></div>
+          <div *ngpSelectPortal ngpSelectDropdown data-testid="dropdown" aria-label="Fruits">
+            <input ngpSelectInput aria-label="Search" data-testid="search" />
+            <div ngpSelectList aria-label="Options">
+              <div ngpSelectOptionValue="Apple" ngpSelectOption>Apple</div>
+            </div>
+          </div>
+        </div>
+        <input data-testid="next" aria-label="Next" />
+      `,
+    })
+    class ContainedSearchTabHost {}
+
+    await render(ContainedSearchTabHost);
+    const dropdown = await openDropdown();
+    expect(screen.getByTestId('select').contains(dropdown)).toBe(true);
+    await waitFor(() => expect(document.activeElement).toBe(screen.getByTestId('search')));
+
+    await userEvent.keyboard('{Tab}');
+
+    expect(document.activeElement).toBe(screen.getByTestId('next'));
+  });
+
   it('can be made modal from the config', async () => {
     @Component({
       imports: [NgpSelect, NgpSelectDropdown, NgpSelectOption, NgpSelectPortal],

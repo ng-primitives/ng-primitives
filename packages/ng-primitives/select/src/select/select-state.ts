@@ -151,10 +151,13 @@ export interface NgpSelectState<T> {
 
   /**
    * Close the dropdown.
-   * @param options.immediate - Skip the exit animation.
+   * @param options.immediate - Skip the hide delay, so the dropdown leaves the page (and a modal
+   * one lifts `inert`) right away. The exit animation still runs.
+   * @param options.focusTrigger - Move focus from the search input to the trigger first. Defaults
+   * to true.
    * @internal
    */
-  closeDropdown(options?: { immediate?: boolean }): void;
+  closeDropdown(options?: { immediate?: boolean; focusTrigger?: boolean }): void;
 
   /**
    * Handle the overlay being closed (e.g. via outside click or Escape).
@@ -543,17 +546,20 @@ export const [NgpSelectStateToken, ngpSelect, _injectSelectState, provideSelectS
        * Close the dropdown.
        * @internal
        */
-      function closeDropdown(options?: { immediate?: boolean }): void {
+      function closeDropdown({
+        immediate,
+        focusTrigger = true,
+      }: { immediate?: boolean; focusTrigger?: boolean } = {}): void {
         if (!open()) {
           return;
         }
 
         // the search input is about to be removed, so don't let focus fall back to the body
-        if (document.activeElement === input()?.elementRef.nativeElement) {
+        if (focusTrigger && document.activeElement === input()?.elementRef.nativeElement) {
           focus();
         }
 
-        portal()?.hide(options);
+        portal()?.hide({ immediate });
       }
 
       /**

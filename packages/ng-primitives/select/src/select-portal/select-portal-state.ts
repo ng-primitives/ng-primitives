@@ -18,7 +18,8 @@ export interface NgpSelectPortalState {
 
   /**
    * Hide the portal.
-   * @param options.immediate - Skip the exit animation.
+   * @param options.immediate - Skip the hide delay, so the dropdown leaves the page (and a modal
+   * one lifts `inert`) right away. The exit animation still runs.
    * @internal
    */
   hide(options?: { immediate?: boolean }): void;
