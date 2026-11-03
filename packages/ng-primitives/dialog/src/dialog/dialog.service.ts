@@ -237,6 +237,8 @@ export class NgpDialogManager implements OnDestroy {
       // Deregister from the overlay registry immediately so stacking order is updated.
       this.registry.deregister(dialogRef.id);
       this.closingDialogs.add(dialogRef);
+      // A modal overlay below must not make the dialog `inert` while it still holds focus.
+      this.outsideHiding.keepExposed(dialogRef);
       this.removeOpenDialog(dialogRef as NgpDialogRef<any, any>);
     });
 
@@ -244,6 +246,7 @@ export class NgpDialogManager implements OnDestroy {
       // Recompute only now: until its exit animation ends the closing dialog is still in the DOM
       // and holds focus, and hiding it would put focus inside an `aria-hidden` subtree.
       this.closingDialogs.delete(dialogRef);
+      this.outsideHiding.releaseExposed(dialogRef);
       this.refreshAssistiveTechnologyHiding();
 
       // Focus the trigger element after exit animations complete.

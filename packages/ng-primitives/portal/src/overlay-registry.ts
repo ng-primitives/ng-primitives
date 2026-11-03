@@ -34,6 +34,12 @@ export function dismissGuardAttribute<T>(value: NgpDismissGuardInput<T>): NgpDis
 }
 
 /**
+ * Marks an element that stays usable while a modal overlay or dialog is open, such as a toast
+ * region or a third-party portal container.
+ */
+export const NGP_MODAL_EXEMPT_ATTRIBUTE = 'data-ngp-modal-exempt';
+
+/**
  * Dismiss policy for an overlay entry.
  * Determines how the overlay responds to outside clicks and escape key presses.
  * @internal
@@ -74,6 +80,11 @@ export interface NgpOverlayEntry {
    * the overlay below. For an overlay that leaves the page usable, such as a non-modal dialog.
    */
   escapeKeyInsideOnly?: boolean;
+  /**
+   * If true, a press outside the overlay only closes it: the click is swallowed, so the topmost
+   * modal overlay closes and nothing underneath reacts.
+   */
+  modal?: boolean;
   /** Optional subject that receives pointer events that occur outside the overlay */
   outsidePointerEvents$?: Subject<MouseEvent>;
   /**
@@ -124,6 +135,12 @@ export class NgpOverlayRegistry {
 
   /** Composed path of the last pointerdown, so a press that starts inside an overlay keeps it open */
   private pressPath: EventTarget[] | null = null;
+
+  /**
+   * Whether the current primary press started outside the topmost modal overlay, or null when
+   * there is no press or no modal overlay. Consumed by the click that ends the press.
+   */
+  private pressOutsideModal: boolean | null = null;
 
   /** Open order of each entry, parallel to `entries`, which stays sorted by it. */
   private readonly orders = new Map<string, number>();
@@ -318,23 +335,33 @@ export class NgpOverlayRegistry {
       const onPointerDown = (event: PointerEvent) => {
         this.pointerDownTarget = this.getComposedTarget(event);
         this.pressPath = event.composedPath();
+        this.handleModalPointerDown(event);
       };
 
       // A cancelled press (e.g. a touch that turns into a scroll) gets no mouseup to consume it
-      const onPointerCancel = () => (this.pressPath = null);
+      const onPointerCancel = () => {
+        this.pressPath = null;
+        this.pressOutsideModal = null;
+      };
+
+      const onClick = (event: MouseEvent) => {
+        if (!this.handleModalClick(event)) {
+          this.handleOutsidePointerEvent(event);
+        }
+      };
 
       const onPointerEvent = (event: MouseEvent) => this.handleOutsidePointerEvent(event);
 
       this.document.addEventListener('pointerdown', onPointerDown, true);
       this.document.addEventListener('pointercancel', onPointerCancel, true);
-      this.document.addEventListener('click', onPointerEvent, true);
+      this.document.addEventListener('click', onClick, true);
       this.document.addEventListener('auxclick', onPointerEvent, true);
       this.document.addEventListener('contextmenu', onPointerEvent, true);
 
       this.removeOutsidePointerListeners = () => {
         this.document.removeEventListener('pointerdown', onPointerDown, true);
         this.document.removeEventListener('pointercancel', onPointerCancel, true);
-        this.document.removeEventListener('click', onPointerEvent, true);
+        this.document.removeEventListener('click', onClick, true);
         this.document.removeEventListener('auxclick', onPointerEvent, true);
         this.document.removeEventListener('contextmenu', onPointerEvent, true);
       };
@@ -353,6 +380,100 @@ export class NgpOverlayRegistry {
     this.removeOutsidePointerListeners = undefined;
     this.pointerDownTarget = null;
     this.pressPath = null;
+    this.pressOutsideModal = null;
+  }
+
+  /**
+   * The topmost modal overlay when the event path is outside it, or null. Inside covers the
+   * overlays opened above it, its trigger and anchor, and exempt elements.
+   */
+  private findBlockingModal(path: EventTarget[]): NgpOverlayEntry | null {
+    const index = this.getTopmostModalIndex();
+
+    if (index === -1) {
+      return null;
+    }
+
+    const isInside =
+      this.entries.slice(index).some(entry => !this.isClickOutsideEntry(entry, path)) ||
+      path.some(node => node instanceof Element && node.hasAttribute(NGP_MODAL_EXEMPT_ATTRIBUTE));
+
+    return isInside ? null : this.entries[index];
+  }
+
+  private getTopmostModalIndex(): number {
+    for (let i = this.entries.length - 1; i >= 0; i--) {
+      if (this.entries[i].modal) {
+        return i;
+      }
+    }
+    return -1;
+  }
+
+  /**
+   * Stop a primary press outside the topmost modal overlay from reaching the page. Cancelling
+   * `pointerdown` also suppresses the `mousedown` and `mouseup` that follow it, so the modal
+   * overlay closes on the `click` instead.
+   */
+  private handleModalPointerDown(event: PointerEvent): void {
+    if (event.button !== 0 || this.getTopmostModalIndex() === -1 || this.isOnScrollbar(event)) {
+      this.pressOutsideModal = null;
+      return;
+    }
+
+    this.pressOutsideModal = this.findBlockingModal(event.composedPath()) !== null;
+
+    if (this.pressOutsideModal) {
+      event.preventDefault();
+      event.stopPropagation();
+    }
+  }
+
+  /**
+   * Close the topmost modal overlay on a click outside it. The click is swallowed only when its
+   * press started outside too, so a synthetic click (a test's `fireEvent.click`) still reaches
+   * its target.
+   * @returns Whether the click was swallowed.
+   */
+  private handleModalClick(event: MouseEvent): boolean {
+    const pressOutsideModal = this.pressOutsideModal;
+    this.pressOutsideModal = null;
+
+    // A press that started inside, such as a text selection dragged out, keeps the overlay open.
+    if (pressOutsideModal === false) {
+      return false;
+    }
+
+    const path = event.composedPath();
+    const modal = this.findBlockingModal(path);
+
+    if (pressOutsideModal) {
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      this.pointerDownTarget = null;
+    }
+
+    if (modal && !this.pendingGuardIds.has(modal.id)) {
+      const target =
+        (path.find((node): node is Element => node instanceof Element) as Element) ??
+        this.document.documentElement;
+
+      this.evaluateGuardAndDismiss(modal.id, modal.dismissPolicy.outsidePress, target, () =>
+        this.ngZone.run(() => modal.overlay.hide({ origin: 'mouse' })),
+      );
+    }
+
+    return pressOutsideModal === true;
+  }
+
+  /** Whether the event landed on a scrollbar, outside the viewport's client area. */
+  private isOnScrollbar(event: MouseEvent): boolean {
+    const { clientWidth, clientHeight } = this.document.documentElement;
+    return (
+      clientWidth > 0 &&
+      clientHeight > 0 &&
+      (event.clientX >= clientWidth || event.clientY >= clientHeight)
+    );
   }
 
   /**
@@ -382,14 +503,18 @@ export class NgpOverlayRegistry {
     }
 
     // Ignore scrollbar clicks — the click lands outside the viewport's client area.
-    const { clientWidth, clientHeight } = this.document.documentElement;
-    if (
-      clientWidth > 0 &&
-      clientHeight > 0 &&
-      (event.clientX >= clientWidth || event.clientY >= clientHeight)
-    ) {
+    if (this.isOnScrollbar(event)) {
       return;
     }
+
+    // A press outside a modal overlay closes it on the click, one layer at a time.
+    if (this.pressOutsideModal) {
+      return;
+    }
+
+    // Overlays below a modal overlay can't be reached, and the modal overlay itself closes on the
+    // click, so only the overlays above it are candidates.
+    const lowestCandidate = this.getTopmostModalIndex() + 1;
 
     const path = event.composedPath();
 
@@ -422,7 +547,7 @@ export class NgpOverlayRegistry {
     const coveredIds = new Set<string>(); // entries covered by an ancestor we'll dismiss
 
     // Walk from topmost to oldest
-    for (let i = this.entries.length - 1; i >= 0; i--) {
+    for (let i = this.entries.length - 1; i >= lowestCandidate; i--) {
       const entry = this.entries[i];
 
       // Skip entries where the click was inside
@@ -439,6 +564,7 @@ export class NgpOverlayRegistry {
       while (currentId !== null) {
         const parent = this.entries.find(e => e.id === currentId);
         if (!parent) break;
+        if (this.entries.indexOf(parent) < lowestCandidate) break;
         if (insideIds.has(parent.id)) break;
         if (parent.dismissPolicy.outsidePress === false) break;
         if (this.pendingGuardIds.has(parent.id)) break;

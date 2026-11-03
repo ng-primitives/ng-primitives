@@ -159,6 +159,21 @@ Two things to weigh before enabling it:
 - The kept-alive view stays attached to change detection while the popover is hidden, so its bindings continue to be checked.
 - The instance lives until the trigger itself is destroyed, or until the `ngpPopoverTrigger` content changes, so anything expensive it holds on to stays in memory.
 
+### Modal
+
+By default a click outside the popover closes it and also reaches what is underneath: a button fires, a link navigates. Set `ngpPopoverTriggerModal` to make the rest of the page `inert` while the popover is open, so a click outside only closes the popover.
+
+```html
+<button [ngpPopoverTrigger]="popover" ngpPopoverTriggerModal>Open</button>
+```
+
+- The trigger stays usable, so clicking it again closes the popover.
+- An outside click closes the topmost modal popover only, one layer at a time.
+- Scrolling is not blocked: use `ngpPopoverTriggerScrollBehavior="block"` for that.
+- Toasts stay usable. Add the `data-ngp-modal-exempt` attribute to any other element that must stay usable, such as the container of a third-party overlay library.
+
+End-to-end tests that click something outside an open modal popover have to close it first: the target is `inert`, so a Playwright click waits for it to take pointer events and times out.
+
 ## API Reference
 
 The following directives are available to import from the `ng-primitives/popover` package:
@@ -263,6 +278,7 @@ bootstrapApplication(AppComponent, {
       scrollBehavior: 'reposition',
       cooldown: 0,
       keepMounted: false,
+      modal: false,
     }),
   ],
 });
@@ -275,6 +291,8 @@ bootstrapApplication(AppComponent, {
 ## Accessibility
 
 The popover element is assigned `role="dialog"` and the trigger element uses `aria-expanded` to indicate the popover's open state. The trigger is linked to the popover via `aria-describedby`. Focus is trapped within the popover when open.
+
+A modal popover makes the rest of the page `inert`, so screen readers only reach the popover and its trigger. Live regions and elements with `data-ngp-modal-exempt` stay reachable.
 
 ### Keyboard Interactions
 

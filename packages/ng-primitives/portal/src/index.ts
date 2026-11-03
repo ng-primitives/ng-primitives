@@ -1,7 +1,12 @@
 export { provideControlContainerIsolation } from './control-container';
 export { coerceFlip, NgpFlip, NgpFlipInput, NgpFlipOptions } from './flip';
 export { coerceOffset, NgpOffset, NgpOffsetInput, NgpOffsetOptions } from './offset';
-export { NgpHidingAttribute, NgpHidingLayer, NgpOutsideHiding } from './outside-hiding';
+export {
+  NgpExposedSource,
+  NgpHidingAttribute,
+  NgpHidingLayer,
+  NgpOutsideHiding,
+} from './outside-hiding';
 export {
   createOverlay,
   injectOverlay,
@@ -14,6 +19,7 @@ export {
 export { NgpOverlayCooldownManager } from './overlay-cooldown';
 export {
   dismissGuardAttribute,
+  NGP_MODAL_EXEMPT_ATTRIBUTE,
   NgpDismissGuard,
   NgpDismissGuardInput,
   NgpDismissPolicy,

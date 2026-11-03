@@ -31,6 +31,7 @@ import { injectDisposables, safeTakeUntilDestroyed, uniqueId } from 'ng-primitiv
 import { Subject, Subscription } from 'rxjs';
 import { NgpFlip, NgpFlipOptions } from './flip';
 import { NgpOffset } from './offset';
+import { NgpHidingLayer, NgpOutsideHiding } from './outside-hiding';
 import { CooldownOverlay, NgpOverlayCooldownManager } from './overlay-cooldown';
 import { NgpDismissGuard, NgpOverlayRegistry } from './overlay-registry';
 import { provideOverlayContext } from './overlay-token';
@@ -199,6 +200,13 @@ export interface NgpOverlayConfig<T = unknown> {
   /** Whether to close the overlay when pressing escape, or a guard function */
   closeOnEscape?: NgpDismissGuard<KeyboardEvent>;
   /**
+   * Whether the overlay is modal: while it is open the rest of the page is `inert`, and a press
+   * outside it only closes it. Read each time the overlay opens.
+   * @default false
+   */
+  modal?: boolean | Signal<boolean>;
+
+  /**
    * Whether to restore focus to the trigger element when hiding the overlay.
    * Can be a boolean or a signal that returns a boolean.
    */
@@ -284,6 +292,10 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
   private readonly focusRestoration = inject(NgpFocusRestoration);
   private readonly cooldownManager = inject(NgpOverlayCooldownManager);
   private readonly registry = inject(NgpOverlayRegistry);
+  private readonly outsideHiding = inject(NgpOutsideHiding);
+
+  /** The `inert` layer while a modal overlay is open. */
+  private hidingLayer: NgpHidingLayer | null = null;
   /** Access any parent overlays */
   private readonly parentOverlay = inject(NgpOverlay, { optional: true });
   /** Signal tracking the portal instance */
@@ -1037,6 +1049,8 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
 
   /** Add this overlay to the registry. Idempotent, so an interrupted close can re-run it. */
   private registerWithRegistry(order?: number): void {
+    const modal = this.isModal();
+
     this.registryOrder = this.registry.register(
       {
         id: this.id(),
@@ -1050,9 +1064,35 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
           escapeKey: this.config.closeOnEscape ?? false,
         },
         treatTriggerClickAsOutside: this.config.treatTriggerClickAsOutside,
+        modal,
       },
       order,
     );
+
+    if (modal && !this.hidingLayer) {
+      // The trigger stays usable, so pressing it closes the overlay like it opened it.
+      this.hidingLayer = {
+        attribute: 'inert',
+        entryId: this.id(),
+        getElements: () => [...this.getElements(), this.config.triggerElement],
+      };
+      this.outsideHiding.update(this.hidingLayer);
+    }
+  }
+
+  /** Remove the overlay from the registry, and lift its `inert` layer. */
+  private deregisterFromRegistry(): void {
+    this.registry.deregister(this.id());
+
+    if (this.hidingLayer) {
+      this.outsideHiding.remove(this.hidingLayer);
+      this.hidingLayer = null;
+    }
+  }
+
+  private isModal(): boolean {
+    const modal = this.config.modal;
+    return (isSignal(modal) ? modal() : modal) ?? false;
   }
 
   /**
@@ -1379,8 +1419,8 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
     // Close any descendant overlays before destroying this one
     this.registry.closeDescendants(this.id());
 
-    // Deregister from the overlay registry
-    this.registry.deregister(this.id());
+    // Deregister from the overlay registry, so the page is usable during the exit animation
+    this.deregisterFromRegistry();
 
     // Clear portal reference to prevent double destruction
     this.portal.set(null);
