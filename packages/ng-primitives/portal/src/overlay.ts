@@ -571,6 +571,11 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
       return;
     }
 
+    // A modal overlay exposes its anchor, so the new one has to leave the inert content.
+    if (this.hidingLayer) {
+      this.outsideHiding.refresh();
+    }
+
     // CloseScrollStrategy resolves the reference's overflow ancestors in enable().
     if (this.config.scrollBehaviour === 'close') {
       this.scrollStrategy.disable();

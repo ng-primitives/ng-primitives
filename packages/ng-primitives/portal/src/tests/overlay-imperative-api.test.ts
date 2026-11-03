@@ -378,7 +378,12 @@ describe('createOverlay imperative usage', () => {
   describe('modal', () => {
     function pressOutside(target: Element): void {
       target.dispatchEvent(
-        new PointerEvent('pointerdown', { bubbles: true, cancelable: true, composed: true }),
+        new PointerEvent('pointerdown', {
+          bubbles: true,
+          cancelable: true,
+          composed: true,
+          isPrimary: true,
+        }),
       );
       target.dispatchEvent(
         new MouseEvent('click', { bubbles: true, cancelable: true, composed: true, detail: 1 }),
@@ -397,6 +402,17 @@ describe('createOverlay imperative usage', () => {
 
       await waitFor(() => expect(overlay.isOpen()).toBe(false));
       expect(document.activeElement).toBe(getByTestId('trigger'));
+    });
+
+    it('exposes a new anchor set while it is open', async () => {
+      const anchor = signal<HTMLElement | null>(null);
+      const { overlay, getByTestId } = await setup(() => ({ modal: true, anchorElement: anchor }));
+      await overlay.show();
+      expect(getByTestId('anchor').closest('[inert]')).not.toBeNull();
+
+      anchor.set(getByTestId('anchor'));
+
+      await waitFor(() => expect(getByTestId('anchor').closest('[inert]')).toBeNull());
     });
 
     it('keeps the anchor exposed, like the trigger', async () => {

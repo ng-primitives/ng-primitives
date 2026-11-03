@@ -97,7 +97,8 @@ export interface NgpPopoverTriggerState<T> {
   readonly scrollBehavior: WritableSignal<'reposition' | 'block' | 'close'>;
   /**
    * Whether the popover is modal. While it is open the rest of the page is `inert`, so a click
-   * outside only closes the popover and screen readers only reach the popover and its trigger.
+   * outside does not reach it (it closes the popover, unless `closeOnOutsideClick` says not to).
+   * The trigger, the anchor, exempt elements and overlays opened above the popover stay usable.
    * Read each time the popover opens.
    * @default false
    */
@@ -255,7 +256,8 @@ export interface NgpPopoverTriggerProps<T> {
   readonly scrollBehavior?: Signal<'reposition' | 'block' | 'close'>;
   /**
    * Whether the popover is modal. While it is open the rest of the page is `inert`, so a click
-   * outside only closes the popover and screen readers only reach the popover and its trigger.
+   * outside does not reach it (it closes the popover, unless `closeOnOutsideClick` says not to).
+   * The trigger, the anchor, exempt elements and overlays opened above the popover stay usable.
    * Read each time the popover opens.
    * @default false
    */
