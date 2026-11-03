@@ -14,7 +14,7 @@ import {
   isDevMode,
 } from '@angular/core';
 import { NavigationStart, Router } from '@angular/router';
-import { NgpExitAnimationManager } from 'ng-primitives/internal';
+import { NgpExitAnimationManager, NgpFocusRestoration } from 'ng-primitives/internal';
 import {
   BlockScrollStrategy,
   NgpOverlayRegistry,
@@ -40,6 +40,7 @@ export class NgpDialogManager implements OnDestroy {
   private readonly injector = inject(Injector);
   private readonly document = inject<Document>(DOCUMENT);
   private readonly focusMonitor = inject(FocusMonitor);
+  private readonly focusRestoration = inject(NgpFocusRestoration);
   private readonly viewportRuler = inject(ViewportRuler);
   private readonly registry = inject(NgpOverlayRegistry);
   private readonly defaultOptions = injectDialogConfig();
@@ -229,9 +230,11 @@ export class NgpDialogManager implements OnDestroy {
       if (originElement && this.document.body.contains(originElement)) {
         // Its not great that we are relying on an internal API here, but we need to in order to
         // try and best determine the focus origin when it is programmatically closed by the user.
-        this.focusMonitor.focusVia(
-          originElement,
-          focusOrigin ?? (this.focusMonitor as any)._lastFocusOrigin,
+        this.focusRestoration.restore(originElement, () =>
+          this.focusMonitor.focusVia(
+            originElement,
+            focusOrigin ?? (this.focusMonitor as any)._lastFocusOrigin,
+          ),
         );
       }
     });

@@ -26,7 +26,7 @@ import {
   shift,
   size,
 } from '@floating-ui/dom';
-import { explicitEffect, fromResizeEvent } from 'ng-primitives/internal';
+import { explicitEffect, fromResizeEvent, NgpFocusRestoration } from 'ng-primitives/internal';
 import { injectDisposables, safeTakeUntilDestroyed, uniqueId } from 'ng-primitives/utils';
 import { Subject, Subscription } from 'rxjs';
 import { NgpFlip, NgpFlipOptions } from './flip';
@@ -281,6 +281,7 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
   private readonly destroyRef = inject(DestroyRef);
   private readonly viewContainerRef: ViewContainerRef;
   private readonly focusMonitor = inject(FocusMonitor);
+  private readonly focusRestoration = inject(NgpFocusRestoration);
   private readonly cooldownManager = inject(NgpOverlayCooldownManager);
   private readonly registry = inject(NgpOverlayRegistry);
   /** Access any parent overlays */
@@ -808,9 +809,12 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
           : (this.config.restoreFocus ?? false);
 
       if (shouldRestoreFocus) {
-        this.focusMonitor.focusVia(this.config.triggerElement, options?.origin ?? 'program', {
-          preventScroll: true,
-        });
+        const trigger = this.config.triggerElement;
+        this.focusRestoration.restore(trigger, () =>
+          this.focusMonitor.focusVia(trigger, options?.origin ?? 'program', {
+            preventScroll: true,
+          }),
+        );
       }
 
       await this.destroyOverlay();
