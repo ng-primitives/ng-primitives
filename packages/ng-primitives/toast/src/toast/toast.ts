@@ -304,7 +304,10 @@ export class NgpToast {
     const velocity = Math.abs(swipeAmount) / timeTaken;
 
     if (Math.abs(swipeAmount) >= this.config.swipeThreshold || velocity > 0.11) {
-      afterNextRender({ write: () => this.manager.dismiss(this) }, { injector: this.injector });
+      afterNextRender(
+        { write: () => this.manager.dismissBySwipe(this) },
+        { injector: this.injector },
+      );
       return;
     } else {
       this.swipeAmount.set({ x: 0, y: 0 });

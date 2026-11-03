@@ -41,8 +41,9 @@ class TestToast {}
     </ng-template>
   `,
   styles: `
+    /* !important beats the test setup, which sets every animation to 0s */
     .toast-leave {
-      animation: toast-leave 150ms;
+      animation: toast-leave 150ms !important;
     }
 
     @keyframes toast-leave {
@@ -170,6 +171,35 @@ describe('NgpToastManager keyboard access', () => {
     expect(document.activeElement).toBe(action);
   });
 
+  it('leaves a second F6 to the browser when F6 entered from the body', async () => {
+    const { host } = await renderHost();
+    host.showToast();
+    (document.activeElement as HTMLElement | null)?.blur();
+    pressKey('F6');
+    expect(document.activeElement).toBe(container());
+
+    const event = pressKey('F6');
+
+    expect(event.defaultPrevented).toBe(false);
+  });
+
+  it('forgets the saved element when focus moves to the page while the window is in the background', async () => {
+    const { host, getByTestId } = await renderHost();
+    host.showToast();
+    getByTestId('page-button').focus();
+    pressKey('F6');
+    expect(document.activeElement).toBe(container());
+
+    const hasFocus = vi.spyOn(document, 'hasFocus').mockReturnValue(false);
+    getByTestId('other-button').focus();
+    hasFocus.mockRestore();
+    (document.activeElement as HTMLElement).blur();
+    pressKey('F6');
+    expect(document.activeElement).toBe(container());
+
+    expect(pressKey('F6').defaultPrevented).toBe(false);
+  });
+
   it('keeps the saved element when the window loses focus', async () => {
     const { host, getByTestId } = await renderHost();
     host.showToast();
@@ -182,6 +212,8 @@ describe('NgpToastManager keyboard access', () => {
     const hasFocus = vi.spyOn(document, 'hasFocus').mockReturnValue(false);
     container().dispatchEvent(new FocusEvent('focusout', { bubbles: true, relatedTarget: null }));
     hasFocus.mockRestore();
+    // coming back, focus re-enters the toasts with no related target either
+    container().dispatchEvent(new FocusEvent('focusin', { bubbles: true, relatedTarget: null }));
 
     pressKey('Escape');
 
@@ -378,6 +410,62 @@ describe('NgpToastManager keyboard access', () => {
       expect(document.activeElement).toBe(toastOf(newerAction));
       await waitFor(() => expect(animatedAction.isConnected).toBe(false));
       expect(document.activeElement).toBe(toastOf(newerAction));
+    });
+
+    it('returns focus to the page when the last toast leaves a region that holds focus', async () => {
+      const { host, getByTestId } = await renderHost();
+      const toast = host.showToast();
+      const pageButton = getByTestId('page-button');
+      pageButton.focus();
+      pressKey('F6');
+      expect(document.activeElement).toBe(container());
+
+      await toast.dismiss();
+
+      expect(document.activeElement).toBe(pageButton);
+    });
+
+    it('keeps focus on a region that still shows toasts', async () => {
+      const { older, getByTestId } = await showTwoToasts();
+      getByTestId('page-button').focus();
+      pressKey('F6');
+      expect(document.activeElement).toBe(container());
+
+      await older.dismiss();
+
+      expect(document.activeElement).toBe(container());
+    });
+
+    it('returns focus to the page once the last toast closes in another region', async () => {
+      const { host, getByTestId } = await renderHost();
+      const first = host.showToast('top-start');
+      const second = host.showToast('bottom-end');
+      const pageButton = getByTestId('page-button');
+      pageButton.focus();
+      pressKey('F6');
+      expect(document.activeElement).toBe(container('bottom-end'));
+
+      await second.dismiss();
+      expect(document.activeElement).toBe(container('bottom-end'));
+      await first.dismiss();
+
+      expect(document.activeElement).toBe(pageButton);
+    });
+
+    it('returns focus to the page after a swipe, even from keyboard focus', async () => {
+      const { newerAction, toastOf, getByTestId } = await showTwoToasts();
+      const otherButton = getByTestId('other-button');
+      otherButton.focus();
+      await userEvent.keyboard('{Tab}{Tab}');
+      expect(document.activeElement).toBe(newerAction);
+      const toast = toastOf(newerAction);
+      toast.setPointerCapture = vi.fn();
+
+      fireEvent(toast, new PointerEvent('pointerdown', { button: 0, clientX: 0, pointerId: 1 }));
+      fireEvent(toast, new PointerEvent('pointermove', { clientX: 200, pointerId: 1 }));
+      fireEvent(toast, new PointerEvent('pointerup', { clientX: 200, pointerId: 1 }));
+
+      await waitFor(() => expect(document.activeElement).toBe(otherButton));
     });
 
     it('returns focus to the page after a pointer close rather than to the next toast', async () => {
