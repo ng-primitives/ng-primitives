@@ -372,6 +372,38 @@ describe('Non-modal dialog', () => {
     expect(manager.openDialogs.length).toBe(1);
   });
 
+  it('keeps a non-modal dialog opened over a modal dialog exposed', async () => {
+    await render(DefaultHost, { providers: [provideDialogConfig({ scrollStrategy })] });
+    const manager = TestBed.inject(NgpDialogManager);
+
+    manager.open(PlainDialog);
+    const drawer = manager.open(PlainDialog, {
+      modal: false,
+      triggerElement: screen.getByTestId('open'),
+    });
+
+    expect(page.getAttribute('aria-hidden')).toBe('true');
+    expect(drawer.getElements()[0].closest('[aria-hidden="true"]')).toBeNull();
+  });
+
+  it('hides a non-modal dialog between two modal dialogs', async () => {
+    await render(DefaultHost, { providers: [provideDialogConfig({ scrollStrategy })] });
+    const manager = TestBed.inject(NgpDialogManager);
+
+    manager.open(PlainDialog);
+    const drawer = manager.open(PlainDialog, {
+      modal: false,
+      triggerElement: screen.getByTestId('open'),
+    });
+    const confirm = manager.open(PlainDialog);
+
+    expect(drawer.getElements()[0].closest('[aria-hidden="true"]')).not.toBeNull();
+
+    await confirm.close();
+
+    expect(drawer.getElements()[0].closest('[aria-hidden="true"]')).toBeNull();
+  });
+
   it('opens non-modal from the global configuration', async () => {
     await render(DefaultHost, {
       providers: [provideDialogConfig({ modal: false, scrollStrategy })],

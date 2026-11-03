@@ -58,11 +58,21 @@ export class NgpDialogManager implements OnDestroy {
   private readonly afterOpenedAtThisLevel = new Subject<NgpDialogRef>();
   private readonly hidingLayerAtThisLevel: NgpHidingLayer = {
     attribute: 'aria-hidden',
-    // A closing dialog keeps focus until it detaches, so it stays exposed alongside the open ones.
-    getElements: () =>
-      [...this.openDialogs, ...this.closingDialogs]
-        .filter(dialog => isModal(dialog.config))
-        .flatMap(dialog => dialog.getElements()),
+    getElements: () => {
+      // Stacked modal dialogs all stay exposed, a non-modal one only above the top modal dialog.
+      let topModalIndex = -1;
+      this.openDialogs.forEach((dialog, index) => {
+        if (isModal(dialog.config)) {
+          topModalIndex = index;
+        }
+      });
+      const open = this.openDialogs.filter(
+        (dialog, index) => isModal(dialog.config) || index > topModalIndex,
+      );
+      // A closing dialog keeps focus until it detaches, so it stays exposed alongside the open ones.
+      const closing = [...this.closingDialogs].filter(dialog => isModal(dialog.config));
+      return [...open, ...closing].flatMap(dialog => dialog.getElements());
+    },
   };
   private readonly closingDialogsAtThisLevel = new Set<NgpDialogRef>();
   private routerSubscription: Subscription | undefined;
