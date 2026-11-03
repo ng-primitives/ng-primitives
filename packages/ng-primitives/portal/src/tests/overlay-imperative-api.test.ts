@@ -374,4 +374,41 @@ describe('createOverlay imperative usage', () => {
     await waitFor(() => expect(overlay.isOpen()).toBe(false));
     expect(document.querySelector('[data-testid="overlay"]')).not.toBeInTheDocument();
   });
+
+  describe('modal', () => {
+    function pressOutside(target: Element): void {
+      target.dispatchEvent(
+        new PointerEvent('pointerdown', { bubbles: true, cancelable: true, composed: true }),
+      );
+      target.dispatchEvent(
+        new MouseEvent('click', { bubbles: true, cancelable: true, composed: true, detail: 1 }),
+      );
+    }
+
+    it('returns focus to the trigger after an outside press, whatever restoreFocus says', async () => {
+      const { overlay, getByTestId } = await setup(() => ({
+        modal: true,
+        restoreFocus: false,
+        closeOnOutsideClick: true,
+      }));
+      await overlay.show();
+
+      pressOutside(getByTestId('outside'));
+
+      await waitFor(() => expect(overlay.isOpen()).toBe(false));
+      expect(document.activeElement).toBe(getByTestId('trigger'));
+    });
+
+    it('keeps the anchor exposed, like the trigger', async () => {
+      const { overlay, getByTestId } = await setup(byTestId => ({
+        modal: true,
+        anchorElement: byTestId('anchor'),
+      }));
+      await overlay.show();
+
+      expect(getByTestId('anchor').closest('[inert]')).toBeNull();
+      expect(getByTestId('trigger').closest('[inert]')).toBeNull();
+      expect(getByTestId('outside').closest('[inert]')).not.toBeNull();
+    });
+  });
 });

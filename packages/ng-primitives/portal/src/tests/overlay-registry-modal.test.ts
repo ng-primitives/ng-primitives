@@ -104,7 +104,7 @@ describe('NgpOverlayRegistry modal overlays', () => {
     expect(up.defaultPrevented).toBe(true);
     expect(onClick).not.toHaveBeenCalled();
     expect(modal.overlay.hide).toHaveBeenCalledTimes(1);
-    expect(modal.overlay.hide).toHaveBeenCalledWith({ origin: 'mouse' });
+    expect(modal.overlay.hide).toHaveBeenCalledWith({ origin: 'mouse', restoreFocus: true });
   });
 
   it('leaves a click with no press before it alone', () => {

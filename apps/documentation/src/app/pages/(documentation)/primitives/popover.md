@@ -167,7 +167,7 @@ By default a click outside the popover closes it and also reaches what is undern
 <button [ngpPopoverTrigger]="popover" ngpPopoverTriggerModal>Open</button>
 ```
 
-- The trigger stays usable, so clicking it again closes the popover.
+- The trigger stays usable, so clicking it again closes the popover. So does the anchor, when one is set.
 - An outside click closes the topmost modal popover only, one layer at a time. A click fired from code, such as `element.click()` or a test's `fireEvent.click`, does not close it.
 - The document still scrolls: use `ngpPopoverTriggerScrollBehavior="block"` to block it. Any other scroll container, such as the `<main>` of an app shell, is `inert` and does not scroll with the wheel.
 - Toasts stay usable. Add the `data-ngp-modal-exempt` attribute to any other element that must stay usable, such as the container of a third-party overlay library.
@@ -293,7 +293,7 @@ bootstrapApplication(AppComponent, {
 
 The popover element is assigned `role="dialog"` and the trigger element uses `aria-expanded` to indicate the popover's open state. The trigger is linked to the popover via `aria-describedby`. Focus is trapped within the popover when open.
 
-A modal popover makes the rest of the page `inert`, so screen readers only reach the popover and its trigger. Live regions and elements with `data-ngp-modal-exempt` stay reachable.
+A modal popover makes the rest of the page `inert`, so screen readers only reach the popover and its trigger. Elements with `data-ngp-modal-exempt`, such as the toast region, and `aria-live` regions placed directly in `<body>` stay reachable. A live region nested in the page, such as a form error, is `inert` too while the popover is open.
 
 ### Keyboard Interactions
 

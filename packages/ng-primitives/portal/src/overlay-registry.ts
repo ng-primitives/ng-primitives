@@ -101,7 +101,7 @@ export interface NgpOverlayEntry {
  * @internal
  */
 export interface NgpOverlayRef {
-  hide(options?: { immediate?: boolean; origin?: FocusOrigin }): void;
+  hide(options?: { immediate?: boolean; origin?: FocusOrigin; restoreFocus?: boolean }): void;
   hideImmediate(): void;
 }
 
@@ -463,7 +463,8 @@ export class NgpOverlayRegistry {
         this.document.documentElement;
 
       this.evaluateGuardAndDismiss(modal.id, modal.dismissPolicy.outsidePress, target, () =>
-        this.ngZone.run(() => modal.overlay.hide({ origin: 'mouse' })),
+        // The swallowed press focused nothing, so focus would otherwise fall to the body
+        this.ngZone.run(() => modal.overlay.hide({ origin: 'mouse', restoreFocus: true })),
       );
     }
 
