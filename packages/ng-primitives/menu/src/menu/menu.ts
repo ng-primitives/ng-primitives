@@ -35,15 +35,15 @@ export class NgpMenu {
 
   /**
    * Where focus goes when the menu closes: an element, a function of the close origin
-   * returning one, `false` to leave focus where it is, or `null` for the default: the element
-   * focused when it opened, usually the trigger.
+   * returning one, `false` to leave focus where it is, or `null` for the default: for a root
+   * menu, the element focused when it opened, usually the trigger; a submenu leaves focus alone.
    * @default null
    */
   readonly finalFocus = input<NgpOverlayFinalFocus | null>(null, {
     alias: 'ngpMenuFinalFocus',
   });
 
-  private readonly state = ngpMenu({ finalFocus: this.finalFocus });
+  private readonly state = ngpMenu({ wrap: this.wrap, finalFocus: this.finalFocus });
 
   constructor() {
     ngpRovingFocusGroup({ inherit: false, wrap: this.wrap });

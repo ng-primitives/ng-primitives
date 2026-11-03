@@ -41,9 +41,7 @@ export interface NgpMenuState extends HoverTransitTracker {
 export interface NgpMenuProps {
   /** Where focus goes when the menu closes. */
   readonly finalFocus?: Signal<NgpOverlayFinalFocus | null>;
-  /**
-   * @deprecated Has no effect: wrapping is set on the menu's roving focus group.
-   */
+  /** The menu directives' `wrap` input. Wrapping itself is set on their roving focus group. */
   readonly wrap?: Signal<boolean>;
 }
 

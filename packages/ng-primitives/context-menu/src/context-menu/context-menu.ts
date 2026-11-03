@@ -29,7 +29,7 @@ export class NgpContextMenu {
     transform: booleanAttribute,
   });
 
-  private readonly state = ngpMenu({});
+  private readonly state = ngpMenu({ wrap: this.wrap });
 
   constructor() {
     ngpRovingFocusGroup({ inherit: false, wrap: this.wrap });

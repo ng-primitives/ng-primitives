@@ -1136,8 +1136,8 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
       this.config.onClose?.('program');
 
       // Focus held by content that is going away moves on, after `closing` so focus traps have
-      // let go. Tearing the overlay down takes its trigger with it, and the content can already
-      // be gone with the trigger's view, which leaves focus on the body.
+      // let go. A forced destroy also takes the trigger with it, and the content can already be
+      // gone with the trigger's view, which leaves focus on the body.
       const activeElement = this.document.activeElement;
       const focusWasInside =
         activeElement === null ||
