@@ -816,9 +816,10 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
 
       // Determine if focus should be restored
       const shouldRestoreFocus =
-        typeof this.config.restoreFocus === 'function'
+        options?.restoreFocus ||
+        (typeof this.config.restoreFocus === 'function'
           ? this.config.restoreFocus()
-          : (this.config.restoreFocus ?? false);
+          : (this.config.restoreFocus ?? false));
 
       if (shouldRestoreFocus) {
         const trigger = this.config.triggerElement;
@@ -1072,11 +1073,16 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
     if (!modal) {
       this.outsideHiding.refresh();
     } else if (!this.hidingLayer) {
-      // The trigger stays usable, so pressing it closes the overlay like it opened it.
+      // The trigger stays usable, so pressing it closes the overlay like it opened it. So does
+      // the anchor, which counts as inside the overlay as it does for a non-modal one.
       this.hidingLayer = {
         attribute: 'inert',
         entryId: this.id(),
-        getElements: () => [...this.getElements(), this.config.triggerElement],
+        getElements: () => {
+          const anchor = this.anchorElement();
+          const exposed = [...this.getElements(), this.config.triggerElement];
+          return anchor ? [...exposed, anchor] : exposed;
+        },
       };
       this.outsideHiding.update(this.hidingLayer);
     }
@@ -1650,4 +1656,9 @@ export interface OverlayTriggerOptions {
    * The origin of the focus event that triggered the visibility change.
    */
   origin?: FocusOrigin;
+  /**
+   * Restore focus to the trigger whatever `restoreFocus` the overlay was configured with.
+   * @internal
+   */
+  restoreFocus?: boolean;
 }
