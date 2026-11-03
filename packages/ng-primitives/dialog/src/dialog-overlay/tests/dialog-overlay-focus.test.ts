@@ -2,11 +2,13 @@ import { Component, TemplateRef, ViewContainerRef, inject, viewChild } from '@an
 import { render, waitFor } from '@testing-library/angular';
 import {
   NgpDialog,
+  NgpDialogConfig,
   NgpDialogContext,
   NgpDialogManager,
   NgpDialogOverlay,
+  NgpDialogRef,
 } from 'ng-primitives/dialog';
-import { describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { userEvent } from 'vitest/browser';
 
 @Component({
@@ -18,7 +20,8 @@ import { userEvent } from 'vitest/browser';
         style="position: fixed; inset: 0; display: grid; place-items: center"
       >
         <div ngpDialog data-testid="dialog" style="width: 200px; height: 100px">
-          <button data-testid="panel-button">Action</button>
+          <input (blur)="committed = true" data-testid="field" />
+          <button data-testid="other">Other</button>
         </div>
       </div>
     </ng-template>
@@ -28,35 +31,156 @@ import { userEvent } from 'vitest/browser';
 class BackdropHost {
   readonly dialog = viewChild.required<TemplateRef<NgpDialogContext>>('dialog');
   readonly viewContainerRef = inject(ViewContainerRef);
+  /** Set when the field blurs, like a control that commits its value on blur. */
+  committed = false;
+}
+
+async function openDialog(config: NgpDialogConfig = {}) {
+  const { fixture } = await render(BackdropHost);
+  const host = fixture.componentInstance;
+  const manager = fixture.debugElement.injector.get(NgpDialogManager);
+  const ref = manager.open(host.dialog(), { viewContainerRef: host.viewContainerRef, ...config });
+  fixture.detectChanges();
+
+  const field = await waitFor(() => {
+    const element = document.querySelector<HTMLInputElement>('[data-testid="field"]');
+    expect(element).toBeInTheDocument();
+    return element!;
+  });
+  field.focus();
+  expect(document.activeElement).toBe(field);
+
+  return { host, manager, ref, field };
+}
+
+/** A real pointer press on the backdrop, clear of the panel. */
+async function pressBackdrop(): Promise<void> {
+  const overlay = document.querySelector<HTMLElement>('[data-testid="overlay"]')!;
+  await userEvent.click(overlay, { position: { x: 5, y: 5 } });
 }
 
 describe('NgpDialogOverlay focus', () => {
-  it('should keep focus in the dialog when a backdrop press does not close it', async () => {
-    const { fixture } = await render(BackdropHost);
-    const manager = fixture.debugElement.injector.get(NgpDialogManager);
-    const ref = manager.open(fixture.componentInstance.dialog(), {
-      viewContainerRef: fixture.componentInstance.viewContainerRef,
-      closeOnClick: false,
+  let ref: NgpDialogRef | undefined;
+
+  afterEach(async () => {
+    vi.restoreAllMocks();
+    if (ref) {
+      ref.disableClose = false;
+      await ref.close();
+    }
+    ref = undefined;
+  });
+
+  it('should return focus to the dialog when the backdrop cannot close it', async () => {
+    const dialog = await openDialog({ closeOnOutsideClick: false });
+    ref = dialog.ref;
+
+    await pressBackdrop();
+
+    expect(dialog.manager.openDialogs).toContain(ref);
+    expect(document.activeElement).toBe(dialog.field);
+  });
+
+  it('should return focus to the dialog when the dialog has close disabled', async () => {
+    const dialog = await openDialog();
+    ref = dialog.ref;
+    ref.disableClose = true;
+
+    await pressBackdrop();
+
+    expect(dialog.manager.openDialogs).toContain(ref);
+    expect(document.activeElement).toBe(dialog.field);
+  });
+
+  it('should blur before a sync guard runs and return focus when it keeps the dialog open', async () => {
+    let committedWhenGuarded: boolean | undefined;
+    const dialog = await openDialog({
+      closeOnOutsideClick: () => {
+        committedWhenGuarded = dialog.host.committed;
+        return false;
+      },
     });
-    fixture.detectChanges();
+    ref = dialog.ref;
 
-    const button = await waitFor(() => {
-      const element = document.querySelector<HTMLElement>('[data-testid="panel-button"]');
-      expect(element).toBeInTheDocument();
-      return element!;
+    await pressBackdrop();
+
+    expect(committedWhenGuarded).toBe(true);
+    expect(dialog.manager.openDialogs).toContain(ref);
+    expect(document.activeElement).toBe(dialog.field);
+  });
+
+  it('should blur before an async guard runs and return focus when it keeps the dialog open', async () => {
+    let committedWhenGuarded: boolean | undefined;
+    const dialog = await openDialog({
+      closeOnOutsideClick: async () => {
+        committedWhenGuarded = dialog.host.committed;
+        return false;
+      },
     });
-    button.focus();
-    expect(document.activeElement).toBe(button);
+    ref = dialog.ref;
 
-    // A real pointer press on the backdrop, clear of the panel.
-    const overlay = document.querySelector<HTMLElement>('[data-testid="overlay"]')!;
-    await userEvent.click(overlay, { position: { x: 5, y: 5 } });
+    await pressBackdrop();
 
-    expect(manager.openDialogs).toContain(ref);
-    expect(document.querySelector('[data-testid="dialog"]')!.contains(document.activeElement)).toBe(
-      true,
-    );
+    expect(committedWhenGuarded).toBe(true);
+    await waitFor(() => expect(document.activeElement).toBe(dialog.field));
+    expect(dialog.manager.openDialogs).toContain(ref);
+  });
 
-    await ref.close();
+  it('should blur before a guard that closes the dialog runs', async () => {
+    let committedWhenGuarded: boolean | undefined;
+    const dialog = await openDialog({
+      closeOnOutsideClick: () => {
+        committedWhenGuarded = dialog.host.committed;
+        return true;
+      },
+    });
+    ref = dialog.ref;
+
+    await pressBackdrop();
+
+    expect(committedWhenGuarded).toBe(true);
+    expect(dialog.manager.openDialogs).not.toContain(ref);
+  });
+
+  it('should return focus to the dialog when the guard throws', async () => {
+    vi.spyOn(console, 'error').mockImplementation(() => undefined);
+    const dialog = await openDialog({
+      closeOnOutsideClick: () => {
+        throw new Error('guard failed');
+      },
+    });
+    ref = dialog.ref;
+
+    await pressBackdrop();
+
+    expect(dialog.manager.openDialogs).toContain(ref);
+    expect(document.activeElement).toBe(dialog.field);
+  });
+
+  it('should return focus to the dialog when the guard rejects', async () => {
+    vi.spyOn(console, 'error').mockImplementation(() => undefined);
+    const dialog = await openDialog({
+      closeOnOutsideClick: () => Promise.reject(new Error('guard failed')),
+    });
+    ref = dialog.ref;
+
+    await pressBackdrop();
+
+    await waitFor(() => expect(document.activeElement).toBe(dialog.field));
+    expect(dialog.manager.openDialogs).toContain(ref);
+  });
+
+  it('should leave focus where the guard moved it', async () => {
+    const dialog = await openDialog({
+      closeOnOutsideClick: () => {
+        document.querySelector<HTMLElement>('[data-testid="other"]')!.focus();
+        return false;
+      },
+    });
+    ref = dialog.ref;
+
+    await pressBackdrop();
+
+    expect(document.activeElement).toBe(document.querySelector('[data-testid="other"]'));
   });
 });
