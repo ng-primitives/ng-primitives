@@ -133,6 +133,23 @@ describe('NgpToastManager keyboard access', () => {
     expect(document.activeElement).toBe(action);
   });
 
+  it('forgets where a clicked toast was entered from once focus leaves the toasts', async () => {
+    const { host, getByTestId } = await renderHost();
+    getByTestId('page-button').focus();
+    const toast = host.showToast();
+    // a click focuses the action, as Chrome does, without F6
+    const action = document.querySelector<HTMLElement>('[data-testid="toast-action"]')!;
+    action.focus();
+    getByTestId('other-button').focus();
+    // come back from nothing focused, so there is no new element to record
+    (document.activeElement as HTMLElement).blur();
+    action.focus();
+
+    await toast.dismiss();
+
+    expect(document.activeElement).toBe(document.body);
+  });
+
   it('keeps the saved element when the window loses focus', async () => {
     const { host, getByTestId } = await renderHost();
     host.showToast();
