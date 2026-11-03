@@ -46,8 +46,14 @@ describe('NgpOverlayRegistry modal overlays', () => {
     return event;
   }
 
-  function click(target: HTMLElement): MouseEvent {
-    const event = new MouseEvent('click', { bubbles: true, cancelable: true, composed: true });
+  /** A pointer click, which has a `detail` of 1 unlike a click from the keyboard. */
+  function click(target: HTMLElement, detail = 1): MouseEvent {
+    const event = new MouseEvent('click', {
+      bubbles: true,
+      cancelable: true,
+      composed: true,
+      detail,
+    });
     target.dispatchEvent(event);
     return event;
   }
@@ -106,7 +112,7 @@ describe('NgpOverlayRegistry modal overlays', () => {
     const onClick = vi.fn();
     outside.addEventListener('click', onClick);
 
-    const event = click(outside);
+    const event = click(outside, 0);
 
     expect(event.defaultPrevented).toBe(false);
     expect(onClick).toHaveBeenCalledTimes(1);
@@ -266,6 +272,36 @@ describe('NgpOverlayRegistry modal overlays', () => {
     pointerDown(outside);
     outside.dispatchEvent(new PointerEvent('pointercancel', { bubbles: true, composed: true }));
     click(outside);
+
+    expect(onClick).toHaveBeenCalledTimes(1);
+  });
+
+  it('does not carry a press that opened a context menu over to the next click', () => {
+    register({ id: 'modal', modal: true, getElements: () => [panel] });
+    const action = document.createElement('button');
+    panel.append(action);
+    const onClick = vi.fn();
+    action.addEventListener('click', onClick);
+
+    // a macOS Ctrl+click: a primary press that ends in a context menu, not a click
+    pointerDown(outside);
+    outside.dispatchEvent(new MouseEvent('contextmenu', { bubbles: true, composed: true }));
+    const event = click(action);
+
+    expect(event.defaultPrevented).toBe(false);
+    expect(onClick).toHaveBeenCalledTimes(1);
+  });
+
+  it('never swallows a click from the keyboard', () => {
+    register({ id: 'modal', modal: true, getElements: () => [panel] });
+    const action = document.createElement('button');
+    panel.append(action);
+    const onClick = vi.fn();
+    action.addEventListener('click', onClick);
+
+    // a press outside whose click never came
+    pointerDown(outside);
+    click(action, 0);
 
     expect(onClick).toHaveBeenCalledTimes(1);
   });

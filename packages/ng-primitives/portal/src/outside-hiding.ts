@@ -162,7 +162,7 @@ export class NgpOutsideHiding {
       }
     };
 
-    exposedElements.forEach(addPath);
+    exposedElements.filter(element => element.isConnected).forEach(addPath);
 
     // Nothing of the layer is in the document, so there is nothing to hide it from.
     if (exposedPaths.size === 0) {

@@ -171,6 +171,7 @@ By default a click outside the popover closes it and also reaches what is undern
 - An outside click closes the topmost modal popover only, one layer at a time.
 - Scrolling is not blocked: use `ngpPopoverTriggerScrollBehavior="block"` for that.
 - Toasts stay usable. Add the `data-ngp-modal-exempt` attribute to any other element that must stay usable, such as the container of a third-party overlay library.
+- A `closeOnOutsideClick` guard receives the nearest element that is not `inert`, often `<body>`, rather than the element under the pointer.
 
 End-to-end tests that click something outside an open modal popover have to close it first: the target is `inert`, so a Playwright click waits for it to take pointer events and times out.
 

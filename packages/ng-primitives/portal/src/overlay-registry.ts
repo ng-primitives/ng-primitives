@@ -352,18 +352,24 @@ export class NgpOverlayRegistry {
 
       const onPointerEvent = (event: MouseEvent) => this.handleOutsidePointerEvent(event);
 
+      // A press that opens a context menu (a macOS Ctrl+click) ends without a click
+      const onContextMenu = (event: MouseEvent) => {
+        this.pressOutsideModal = null;
+        this.handleOutsidePointerEvent(event);
+      };
+
       this.document.addEventListener('pointerdown', onPointerDown, true);
       this.document.addEventListener('pointercancel', onPointerCancel, true);
       this.document.addEventListener('click', onClick, true);
       this.document.addEventListener('auxclick', onPointerEvent, true);
-      this.document.addEventListener('contextmenu', onPointerEvent, true);
+      this.document.addEventListener('contextmenu', onContextMenu, true);
 
       this.removeOutsidePointerListeners = () => {
         this.document.removeEventListener('pointerdown', onPointerDown, true);
         this.document.removeEventListener('pointercancel', onPointerCancel, true);
         this.document.removeEventListener('click', onClick, true);
         this.document.removeEventListener('auxclick', onPointerEvent, true);
-        this.document.removeEventListener('contextmenu', onPointerEvent, true);
+        this.document.removeEventListener('contextmenu', onContextMenu, true);
       };
     });
   }
@@ -436,7 +442,8 @@ export class NgpOverlayRegistry {
    * @returns Whether the click was swallowed.
    */
   private handleModalClick(event: MouseEvent): boolean {
-    const pressOutsideModal = this.pressOutsideModal;
+    // A click from the keyboard (`detail` 0) does not end a press, whatever press came before.
+    const pressOutsideModal = event.detail === 0 ? null : this.pressOutsideModal;
     this.pressOutsideModal = null;
 
     // A press that started inside, such as a text selection dragged out, keeps the overlay open.

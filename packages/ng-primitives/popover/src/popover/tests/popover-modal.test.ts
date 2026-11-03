@@ -1,8 +1,21 @@
-import { Component, inject, signal, TemplateRef, viewChild, ViewContainerRef } from '@angular/core';
+import {
+  Component,
+  Directive,
+  inject,
+  signal,
+  TemplateRef,
+  viewChild,
+  ViewContainerRef,
+} from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { fireEvent, render, screen, waitFor } from '@testing-library/angular';
 import { NgpDialog, NgpDialogManager } from 'ng-primitives/dialog';
-import { NgpPopover, NgpPopoverTrigger, providePopoverConfig } from 'ng-primitives/popover';
+import {
+  injectPopoverTriggerState,
+  NgpPopover,
+  NgpPopoverTrigger,
+  providePopoverConfig,
+} from 'ng-primitives/popover';
 import { afterEach, describe, expect, it } from 'vitest';
 import { userEvent } from 'vitest/browser';
 
@@ -82,6 +95,23 @@ class NestedDialogsHost {
   }
 }
 
+@Directive({ selector: '[testPopoverState]' })
+class PopoverStateProbe {
+  readonly state = injectPopoverTriggerState();
+}
+
+@Component({
+  imports: [NgpPopoverTrigger, NgpPopover, PopoverStateProbe],
+  template: `
+    <button data-testid="page-button">Page</button>
+    <button [ngpPopoverTrigger]="content" testPopoverState data-testid="trigger">Open</button>
+    <ng-template #content><div ngpPopover data-testid="popover">Popover</div></ng-template>
+  `,
+})
+class StateHost {
+  readonly probe = viewChild.required(PopoverStateProbe);
+}
+
 function isInert(element: Element): boolean {
   return element.closest('[inert]') !== null;
 }
@@ -128,11 +158,17 @@ describe('NgpPopoverTrigger modal', () => {
   it('closes on a click outside without letting the click through', async () => {
     const { fixture } = await render(ModalPopoverHost);
     await openPopover();
+    // the click on inert content lands on the nearest ancestor that is not inert
+    let bodyClicks = 0;
+    const onBodyClick = () => bodyClicks++;
+    document.body.addEventListener('click', onBodyClick);
 
     await clickThrough(screen.getByTestId('page-button'));
+    document.body.removeEventListener('click', onBodyClick);
 
     await waitFor(() => expect(screen.queryByTestId('popover')).toBeNull());
     expect(fixture.componentInstance.pageClicks()).toBe(0);
+    expect(bodyClicks).toBe(0);
     expect(isInert(screen.getByTestId('page-button'))).toBe(false);
   });
 
@@ -182,6 +218,36 @@ describe('NgpPopoverTrigger modal', () => {
     expect(screen.getByTestId('popover')).toBeInTheDocument();
   });
 
+  it('makes the page inert again when it reopens during its exit animation', async () => {
+    const style = document.createElement('style');
+    style.textContent = `
+      @keyframes test-popover-exit { from { opacity: 1; } to { opacity: 0; } }
+      [ngpPopover][data-exit] { animation: test-popover-exit 300ms !important; }
+    `;
+    document.head.appendChild(style);
+
+    try {
+      const { fixture } = await render(StateHost);
+      const state = fixture.componentInstance.probe().state;
+      state().setModal(true);
+      await openPopover();
+      const popover = screen.getByTestId('popover');
+
+      state().hide();
+      await waitFor(() => expect(popover).toHaveAttribute('data-exit'));
+      expect(isInert(screen.getByTestId('page-button'))).toBe(false);
+
+      state().show();
+
+      // the same popover, brought back rather than created again
+      await waitFor(() => expect(popover).not.toHaveAttribute('data-exit'));
+      expect(screen.getByTestId('popover')).toBe(popover);
+      expect(isInert(screen.getByTestId('page-button'))).toBe(true);
+    } finally {
+      style.remove();
+    }
+  });
+
   it('applies a change of the input the next time it opens', async () => {
     const { fixture } = await render(ModalPopoverHost);
     await openPopover();
@@ -193,6 +259,14 @@ describe('NgpPopoverTrigger modal', () => {
     await openPopover();
 
     expect(isInert(screen.getByTestId('page-button'))).toBe(false);
+  });
+
+  it('can be made modal through the state', async () => {
+    const { fixture } = await render(StateHost);
+    fixture.componentInstance.probe().state().setModal(true);
+    await openPopover();
+
+    expect(isInert(screen.getByTestId('page-button'))).toBe(true);
   });
 
   it('can be made modal from the config', async () => {

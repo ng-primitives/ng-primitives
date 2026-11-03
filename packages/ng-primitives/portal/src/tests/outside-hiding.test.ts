@@ -274,6 +274,15 @@ describe('NgpOutsideHiding', () => {
     expect(leaving.hasAttribute('inert')).toBe(true);
   });
 
+  it('hides nothing for an element outside the document, even beside an exempt element', () => {
+    const region = append(document.createElement('section'));
+    region.setAttribute(NGP_MODAL_EXEMPT_ATTRIBUTE, '');
+
+    hiding.update(layer([document.createElement('div')], 'inert'));
+
+    expect(page.hasAttribute('inert')).toBe(false);
+  });
+
   it('ignores the removal of a layer it does not hold', () => {
     page.setAttribute('aria-hidden', 'true');
 
