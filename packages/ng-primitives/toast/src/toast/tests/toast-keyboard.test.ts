@@ -9,7 +9,7 @@ import {
 import { fireEvent, render, waitFor } from '@testing-library/angular';
 import { NgpDialog, NgpDialogManager, NgpDialogOverlay } from 'ng-primitives/dialog';
 import { NgpToast, NgpToastManager, NgpToastPlacement, NgpToastRef } from 'ng-primitives/toast';
-import { afterEach, describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { userEvent } from 'vitest/browser';
 
 @Component({
@@ -168,6 +168,24 @@ describe('NgpToastManager keyboard access', () => {
 
     expect(event.defaultPrevented).toBe(false);
     expect(document.activeElement).toBe(action);
+  });
+
+  it('keeps the saved element when the window loses focus', async () => {
+    const { host, getByTestId } = await renderHost();
+    host.showToast();
+    const pageButton = getByTestId('page-button');
+    pageButton.focus();
+    pressKey('F6');
+    expect(document.activeElement).toBe(container());
+
+    // switching to another window blurs the toasts with no related target
+    const hasFocus = vi.spyOn(document, 'hasFocus').mockReturnValue(false);
+    container().dispatchEvent(new FocusEvent('focusout', { bubbles: true, relatedTarget: null }));
+    hasFocus.mockRestore();
+
+    pressKey('Escape');
+
+    expect(document.activeElement).toBe(pageButton);
   });
 
   describe('when the focused toast is dismissed', () => {

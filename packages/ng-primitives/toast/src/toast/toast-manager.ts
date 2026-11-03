@@ -251,9 +251,11 @@ export class NgpToastManager {
       }
     };
 
-    // Focus leaving the toasts forgets where it came from.
+    // Focus leaving the toasts forgets where it came from. Switching to another window does not:
+    // focus comes back to the toasts.
     const onFocusOut = (event: FocusEvent) => {
       if (
+        this.document.hasFocus() &&
         this.containerOf(event.target as Node | null) &&
         !this.containerOf(event.relatedTarget as Node | null)
       ) {
