@@ -67,7 +67,7 @@ class HoverGroupComponent {}
 })
 class UngroupedHoverMenusComponent {}
 
-/** Leave the trigger heading away from the menu, so no hover bridge keeps it open. */
+/** Move the pointer off the trigger, away from the menu, so no hover bridge keeps it open. */
 async function pointerAway(trigger: HTMLElement): Promise<void> {
   const rect = trigger.getBoundingClientRect();
   fireEvent.pointerLeave(trigger, {

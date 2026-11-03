@@ -132,6 +132,41 @@ describe('NgpPopover focus on close', () => {
     expect(trigger).toHaveFocus();
   });
 
+  it('moves focus to a control whose shadow content the outside click landed on', async () => {
+    const trigger = await open();
+    const host = document.body.appendChild(document.createElement('div'));
+    host.tabIndex = 0;
+    const label = host.attachShadow({ mode: 'open' }).appendChild(document.createElement('span'));
+    label.textContent = 'Shadow control';
+
+    try {
+      // synthetic events move no focus, so the overlay has to find the control itself
+      const init = { bubbles: true, composed: true };
+      label.dispatchEvent(new PointerEvent('pointerdown', init));
+      label.dispatchEvent(new MouseEvent('mouseup', init));
+      label.dispatchEvent(new MouseEvent('click', init));
+      await closed();
+
+      expect(host).toHaveFocus();
+      expect(trigger).not.toHaveFocus();
+    } finally {
+      host.remove();
+    }
+  });
+
+  it('returns focus to the trigger after a press on the page root', async () => {
+    const trigger = await open();
+    const init = { bubbles: true, composed: true };
+    const root = document.documentElement;
+
+    root.dispatchEvent(new PointerEvent('pointerdown', init));
+    root.dispatchEvent(new MouseEvent('mouseup', init));
+    root.dispatchEvent(new MouseEvent('click', init));
+    await closed();
+
+    expect(trigger).toHaveFocus();
+  });
+
   it('leaves focus on a control the outside click landed on', async () => {
     await open();
     const input = screen.getByTestId('outside-input');

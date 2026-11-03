@@ -278,7 +278,6 @@ export const [
     const overlay = signal<NgpOverlay<T> | null>(null);
     const open = computed(() => overlay()?.isOpen() ?? false);
     const openOrigin = signal<FocusOrigin>('program');
-    const closeOrigin = signal<FocusOrigin>('program');
 
     // Track whether pointer is over trigger or content (for hover triggers)
     const pointerOverTrigger = signal(false);
@@ -548,7 +547,7 @@ export const [
         return;
       }
 
-      // Hide the overlay (this will trigger onClose callback which updates closeOrigin)
+      // Hide the overlay
       currentOverlay.hide({ origin });
     }
 
@@ -575,7 +574,6 @@ export const [
         closeOnOutsideClick: true,
         closeOnEscape: true,
         restoreFocus: true,
-        onClose: (origin: FocusOrigin) => closeOrigin.set(origin),
         scrollBehaviour: scrollBehavior?.() ?? 'block',
         overlayType: 'menu',
         cooldown: cooldown?.(),
