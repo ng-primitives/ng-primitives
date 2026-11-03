@@ -36,6 +36,8 @@ export class NgpToastManager {
 
   /** The element focused before F6 moved focus to the toasts, restored by F6 again or Escape. */
   private focusBeforeToasts: HTMLElement | null = null;
+  /** The element focused before focus entered the toasts by any means, such as a click. */
+  private focusBeforeEntry: HTMLElement | null = null;
   private listeningForKeys = false;
 
   readonly toasts = signal<NgpToastRecord[]>([]);
@@ -108,7 +110,7 @@ export class NgpToastManager {
       // Read before the detach: removing the focused toast fires focusout in some browsers
       // only, and that clears the saved element.
       const returnTo = this.containerOf(this.document.activeElement)
-        ? this.focusBeforeToasts
+        ? (this.focusBeforeToasts ?? this.focusBeforeEntry)
         : null;
 
       // Detach the portal from the container
@@ -126,6 +128,7 @@ export class NgpToastManager {
       const active = this.document.activeElement;
       if (returnTo && (!active || active === this.document.body)) {
         this.focusBeforeToasts = null;
+        this.focusBeforeEntry = null;
         if (returnTo.isConnected) {
           returnTo.focus({ preventScroll: true });
         }
@@ -219,6 +222,17 @@ export class NgpToastManager {
         !this.containerOf(event.relatedTarget as Node | null)
       ) {
         this.focusBeforeToasts = null;
+        this.focusBeforeEntry = null;
+      }
+    };
+
+    // A toast removed while focused takes focus with it, so remember where focus came from
+    // even when it did not arrive with F6 (a click in Chrome focuses the toast's button).
+    const onFocusIn = (event: FocusEvent) => {
+      const from = event.relatedTarget as HTMLElement | null;
+
+      if (this.containerOf(event.target as Node | null) && from && !this.containerOf(from)) {
+        this.focusBeforeEntry = from;
       }
     };
 
@@ -226,12 +240,14 @@ export class NgpToastManager {
       view.addEventListener('keydown', onF6);
       view.addEventListener('keydown', onEscape, { capture: true });
       view.addEventListener('focusout', onFocusOut);
+      view.addEventListener('focusin', onFocusIn);
     });
 
     this.destroyRef.onDestroy(() => {
       view.removeEventListener('keydown', onF6);
       view.removeEventListener('keydown', onEscape, { capture: true });
       view.removeEventListener('focusout', onFocusOut);
+      view.removeEventListener('focusin', onFocusIn);
     });
   }
 

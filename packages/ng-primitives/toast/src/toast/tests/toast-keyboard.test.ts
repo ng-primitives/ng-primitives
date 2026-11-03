@@ -240,8 +240,8 @@ describe('NgpToastManager keyboard access', () => {
         return button!;
       });
       dialogButton.focus();
-      view.host.showToast();
-      return { ...view, dialogButton };
+      const toast = view.host.showToast();
+      return { ...view, dialogButton, toast };
     }
 
     it('lets F6 move focus out of the focus trap to the toasts', async () => {
@@ -280,6 +280,16 @@ describe('NgpToastManager keyboard access', () => {
 
       await wait(50);
       expect(document.querySelector('[data-testid="dialog"]')).toBeInTheDocument();
+    });
+
+    it('returns focus into the dialog when a clicked toast dismisses itself', async () => {
+      const { dialogButton, toast } = await openDialogWithToast();
+
+      // a click focuses the action, as Chrome does, without F6
+      document.querySelector<HTMLElement>('[data-testid="toast-action"]')!.focus();
+      await toast.dismiss();
+
+      expect(document.activeElement).toBe(dialogButton);
     });
   });
 });
