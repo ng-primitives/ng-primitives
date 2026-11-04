@@ -3077,7 +3077,7 @@ describe('NgpTooltipTrigger (primitive)', () => {
         `,
         { imports: [NgpTooltipTrigger, NgpTooltip] },
       );
-      const circle = document.querySelector('circle')!;
+      const circle = (fixture.nativeElement as HTMLElement).querySelector('circle')!;
       const trigger = fixture.debugElement.query(By.directive(NgpTooltipTrigger));
 
       trigger.injector.get(NgpTooltipTrigger).setAnchor(circle);

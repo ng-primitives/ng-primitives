@@ -312,7 +312,9 @@ describe('overlay anchored to an svg element', () => {
     fixture.autoDetectChanges(true);
 
     const host = fixture.componentInstance;
-    const anchor = fixture.nativeElement.querySelector(`[data-testid="${testId}"]`) as SVGElement;
+    const query = (id: string) =>
+      (fixture.nativeElement as HTMLElement).querySelector<SVGElement>(`[data-testid="${id}"]`)!;
+    const anchor = query(testId);
 
     overlay = TestBed.runInInjectionContext(() =>
       createOverlay({
@@ -328,7 +330,7 @@ describe('overlay anchored to an svg element', () => {
     await overlay.show();
     await waitFor(() => expect(overlay!.position().y).toBeDefined());
 
-    return anchor.getBoundingClientRect();
+    return { rect: anchor.getBoundingClientRect(), chart: query('chart') };
   }
 
   it.each([
@@ -336,17 +338,16 @@ describe('overlay anchored to an svg element', () => {
     { anchor: 'chart', width: 200 },
     { anchor: 'inset', width: 40 },
   ] as const)('should position below the svg $anchor and measure it', async ({ anchor, width }) => {
-    const rect = await openAnchoredTo(anchor);
+    const { rect } = await openAnchoredTo(anchor);
 
     expect(overlay!.position().y).toBeCloseTo(rect.bottom, 0);
     await waitFor(() => expect(overlay!.triggerWidth()).toBe(width));
   });
 
   it('should remeasure an svg shape when its svg is resized', async () => {
-    await openAnchoredTo('point');
+    const { chart } = await openAnchoredTo('point');
     await waitFor(() => expect(overlay!.triggerWidth()).toBe(32));
 
-    const chart = document.querySelector('[data-testid="chart"]')!;
     chart.setAttribute('width', '400');
     chart.setAttribute('height', '240');
 

@@ -1994,7 +1994,7 @@ describe('NgpPopover', () => {
         `,
         { imports: [NgpPopoverTrigger, NgpPopover] },
       );
-      const circle = document.querySelector('circle')!;
+      const circle = (fixture.nativeElement as HTMLElement).querySelector('circle')!;
       const trigger = fixture.debugElement.query(By.directive(NgpPopoverTrigger));
 
       trigger.injector.get(NgpPopoverTrigger).setAnchor(circle);
