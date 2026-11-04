@@ -885,7 +885,8 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
    * Return focus to where it was when the overlay opened, unless the user has put it somewhere
    * else: an outside press on a control hands focus to that control (a focus trap inside the
    * overlay may have pulled it back on pointerdown), and focus already moved outside the
-   * overlay is left alone. An explicit `finalFocus` overrides all of this.
+   * overlay is left alone. An explicit `finalFocus` overrides all of this except the outside
+   * press, and `false` overrides that too.
    */
   private restoreFocus(
     origin: FocusOrigin,
@@ -901,8 +902,10 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
       return;
     }
 
+    const pressedControl = outsidePressTarget && this.findFocusableAncestor(outsidePressTarget);
+
     if (finalFocus instanceof HTMLElement) {
-      this.moveFocus(finalFocus, origin);
+      this.moveFocus(pressedControl || finalFocus, pressedControl ? 'mouse' : origin);
       return;
     }
 
@@ -915,8 +918,6 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
     if (finalFocus !== true && !shouldRestoreFocus) {
       return;
     }
-
-    const pressedControl = outsidePressTarget && this.findFocusableAncestor(outsidePressTarget);
 
     if (pressedControl) {
       this.moveFocus(pressedControl, 'mouse');
