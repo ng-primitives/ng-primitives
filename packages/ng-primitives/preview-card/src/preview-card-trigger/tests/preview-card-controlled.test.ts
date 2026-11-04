@@ -115,14 +115,36 @@ class SetDefaultOpenComponent {}
 @Component({
   template: `
     <div style="padding: 200px">
-      <a href="https://angularprimitives.com" ngpPreviewCardTrigger ngpPreviewCardTriggerOpen>
+      <a
+        [ngpPreviewCardTrigger]="hasContent() ? card : undefined"
+        (ngpPreviewCardTriggerOpenChange)="changes.push($event)"
+        href="https://angularprimitives.com"
+        ngpPreviewCardTriggerOpen
+      >
         Angular Primitives
       </a>
     </div>
+
+    <ng-template #card>
+      <div ngpPreviewCard>Card</div>
+    </ng-template>
   `,
-  imports: [NgpPreviewCardTrigger],
+  imports: [NgpPreviewCardTrigger, NgpPreviewCard],
 })
-class BoundWithoutContentComponent {}
+class LateContentComponent {
+  readonly hasContent = signal(false);
+  readonly changes: boolean[] = [];
+}
+
+/** An exit animation that never settles, holding the card mid-close. */
+function pendingAnimation(): Animation {
+  return {
+    finished: new Promise<void>(() => undefined),
+    cancel: () => undefined,
+    finish: () => undefined,
+    effect: { getComputedTiming: () => ({ iterations: 1, endTime: 100_000 }) },
+  } as unknown as Animation;
+}
 
 const card = () => document.querySelector('[ngpPreviewCard]');
 const settle = () => new Promise(resolve => setTimeout(resolve, 50));
@@ -195,17 +217,42 @@ describe('NgpPreviewCardTrigger open binding', () => {
       expect(card()).toBeInTheDocument();
     });
 
-    it('logs an error instead of opening when there is no content', async () => {
-      const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+    it('reports a hover during the exit animation once, without reopening', async () => {
+      const { fixture, getByRole } = await render(OneWayComponent);
+      const host = fixture.componentInstance;
+      host.open.set(true);
+      fixture.detectChanges();
+      await waitFor(() => expect(card()).toBeInTheDocument());
 
-      await render(BoundWithoutContentComponent);
+      const element = card() as HTMLElement;
+      element.getAnimations = () => [pendingAnimation()];
+      host.open.set(false);
+      fixture.detectChanges();
+      await waitFor(() => expect(element).toHaveAttribute('data-exit'));
+
+      fireEvent.pointerEnter(getByRole('link'), { pointerType: 'mouse' });
       await settle();
 
-      expect(consoleSpy).toHaveBeenCalledWith(
-        '[ngpPreviewCardTrigger]: Preview card must be a TemplateRef or a ComponentType.',
-      );
-      expect(card()).not.toBeInTheDocument();
-      consoleSpy.mockRestore();
+      expect(host.changes).toEqual([true]);
+    });
+
+    it('opens once content arrives for a binding that is already true', async () => {
+      const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+
+      try {
+        const { fixture } = await render(LateContentComponent);
+        await settle();
+        expect(card()).not.toBeInTheDocument();
+
+        fixture.componentInstance.hasContent.set(true);
+        fixture.detectChanges();
+
+        await waitFor(() => expect(card()).toBeInTheDocument());
+        expect(fixture.componentInstance.changes).toEqual([]);
+        expect(consoleSpy).not.toHaveBeenCalled();
+      } finally {
+        consoleSpy.mockRestore();
+      }
     });
   });
 
