@@ -158,8 +158,8 @@ export const [NgpFocusTrapStateToken, ngpFocusTrap, injectFocusTrapState, provid
           document.addEventListener('focusout', handleFocusOut);
         });
 
-        const previouslyFocusedElement = document.activeElement as HTMLElement | null;
-        const hasFocusedCandidate = element.nativeElement.contains(previouslyFocusedElement);
+        const previouslyFocusedElement = getFocusedElement();
+        const hasFocusedCandidate = element.nativeElement.contains(getFocusedElementInTrapTree());
 
         // Only perform initial focusing if the focus trap is not disabled
         if (!hasFocusedCandidate && !disabled?.()) {
@@ -168,10 +168,12 @@ export const [NgpFocusTrapStateToken, ngpFocusTrap, injectFocusTrapState, provid
           afterNextRender(
             {
               write: () => {
-                focusFirst();
+                if (!focusAutofocusElement()) {
+                  focusFirst();
+                }
 
                 // if the focus didn't change, focus the container
-                if (document.activeElement === previouslyFocusedElement) {
+                if (getFocusedElement() === previouslyFocusedElement) {
                   focus(element.nativeElement);
                 }
               },
@@ -254,6 +256,10 @@ export const [NgpFocusTrapStateToken, ngpFocusTrap, injectFocusTrapState, provid
         if (target.closest?.('[data-focus-trap]') || target.closest?.('.cdk-overlay-container')) {
           return true;
         }
+        // toasts stay reachable from inside a trap (F6, see NgpToastManager)
+        if (target.closest?.('[data-ngp-toast-container]')) {
+          return true;
+        }
         return overlayRegistry.findContainingOverlay(target) !== null;
       }
 
@@ -289,38 +295,103 @@ export const [NgpFocusTrapStateToken, ngpFocusTrap, injectFocusTrapState, provid
         }
 
         const isTabKey = event.key === 'Tab' && !event.altKey && !event.ctrlKey && !event.metaKey;
-        const focusedElement = document.activeElement as HTMLElement | null;
+        const focusedElement = getFocusedElementInTrapTree();
 
-        if (isTabKey && focusedElement) {
-          const container = event.currentTarget as HTMLElement;
-          const [first, last] = getTabbableEdges(container);
-          const hasTabbableElementsInside = first && last;
+        if (!isTabKey || !focusedElement) {
+          return;
+        }
 
-          // we can only wrap focus if we have tabbable edges
-          if (!hasTabbableElementsInside) {
-            if (focusedElement === container) {
-              event.preventDefault();
-            }
-          } else {
-            if (!event.shiftKey && focusedElement === last) {
-              event.preventDefault();
-              focus(first);
-            } else if (event.shiftKey && focusedElement === first) {
-              event.preventDefault();
-              focus(last);
-            }
+        // The tabbable walker does not enter nested shadow roots, so from inside one the trap
+        // cannot tell where Tab should go; leave it to the browser.
+        if (focusedElement !== getFocusedElement()) {
+          return;
+        }
+
+        const container = event.currentTarget as HTMLElement;
+        const [first, last] = getTabbableEdges(container);
+
+        if (!first || !last) {
+          if (container.contains(focusedElement)) {
+            event.preventDefault();
           }
+          return;
+        }
+
+        // Wrap when no tabbable lies ahead of focus in DOM order, rather than only from the
+        // edges: focus can sit on a non-tabbable element, such as a `tabindex="-1"` autofocus
+        // target or the container itself. Comparing with the edges is enough, and keeps the
+        // layout reads of `isVisible()` to the two ends of the list.
+        if (!event.shiftKey && !follows(last, focusedElement)) {
+          event.preventDefault();
+          focus(first);
+        } else if (event.shiftKey && !follows(focusedElement, first)) {
+          event.preventDefault();
+          focus(last);
         }
       }
 
       /**
-       * Returns the first and last tabbable elements inside a container.
+       * Returns the first and last visible tabbable elements inside a container.
        */
       function getTabbableEdges(container: HTMLElement) {
         const candidates = getTabbableCandidates(container);
-        const first = findVisible(candidates);
-        const last = findVisible(candidates.reverse());
-        return [first, last] as const;
+        const isVisible = (candidate: HTMLElement) => interactivityChecker.isVisible(candidate);
+        const firstIndex = candidates.findIndex(isVisible);
+
+        if (firstIndex === -1) {
+          return [undefined, undefined] as const;
+        }
+
+        // Scan back only down to the first visible one, so each candidate is checked once at most.
+        let lastIndex = candidates.length - 1;
+        while (lastIndex > firstIndex && !isVisible(candidates[lastIndex])) {
+          lastIndex--;
+        }
+
+        return [candidates[firstIndex], candidates[lastIndex]] as const;
+      }
+
+      /**
+       * Returns the focused element, looking through shadow roots: inside one,
+       * `document.activeElement` is the shadow host rather than the element itself. A closed
+       * root can't be entered from its host, so start from the trap's own root when it holds focus.
+       */
+      function getFocusedElement(): HTMLElement | null {
+        const trapRoot = element.nativeElement.getRootNode();
+        let focusedElement = (
+          trapRoot instanceof ShadowRoot && trapRoot.activeElement
+            ? trapRoot.activeElement
+            : document.activeElement
+        ) as HTMLElement | null;
+
+        while (focusedElement?.shadowRoot?.activeElement) {
+          focusedElement = focusedElement.shadowRoot.activeElement as HTMLElement;
+        }
+
+        return focusedElement;
+      }
+
+      /**
+       * Returns the focused element, or the shadow host that contains it, in the trap's own
+       * tree, so it can be compared with the trap's descendants.
+       */
+      function getFocusedElementInTrapTree(): HTMLElement | null {
+        const trapRoot = element.nativeElement.getRootNode();
+        let focusedElement: Element | null = getFocusedElement();
+
+        while (focusedElement && focusedElement.getRootNode() !== trapRoot) {
+          const root = focusedElement.getRootNode();
+          focusedElement = root instanceof ShadowRoot ? root.host : null;
+        }
+
+        return focusedElement as HTMLElement | null;
+      }
+
+      /**
+       * Whether `node` comes after `reference` in DOM order.
+       */
+      function follows(node: Node, reference: Node): boolean {
+        return (reference.compareDocumentPosition(node) & Node.DOCUMENT_POSITION_FOLLOWING) !== 0;
       }
 
       /**
@@ -340,13 +411,6 @@ export const [NgpFocusTrapStateToken, ngpFocusTrap, injectFocusTrapState, provid
         return nodes;
       }
 
-      /**
-       * Returns the first visible element in a list.
-       */
-      function findVisible(elements: HTMLElement[]) {
-        return elements.find(element => interactivityChecker.isVisible(element)) ?? null;
-      }
-
       function focus(element: HTMLElement | null): void {
         if (!element) {
           return;
@@ -359,13 +423,39 @@ export const [NgpFocusTrapStateToken, ngpFocusTrap, injectFocusTrapState, provid
         });
       }
 
+      /**
+       * Focuses the first focusable `[autofocus]` descendant, as a native `<dialog>` does on
+       * `showModal()`. Angular does not apply `autofocus` to dynamically inserted content.
+       * Returns whether an element received focus.
+       */
+      function focusAutofocusElement(): boolean {
+        const candidates = element.nativeElement.querySelectorAll<HTMLElement>('[autofocus]');
+
+        for (const candidate of Array.from(candidates)) {
+          if (candidate.matches(':disabled')) {
+            continue;
+          }
+
+          // Let the browser decide focusability: CDK's checker rejects some natively focusable
+          // elements (e.g. `<summary>`), and the browser refuses hidden or inert ones.
+          focus(candidate);
+
+          // a host that delegates focus hands it to a control in its own shadow root
+          if (getFocusedElement() === candidate || candidate.shadowRoot?.activeElement) {
+            return true;
+          }
+        }
+
+        return false;
+      }
+
       function focusFirst(): void {
-        const previouslyFocusedElement = document.activeElement;
+        const previouslyFocusedElement = getFocusedElement();
 
         for (const candidate of getTabbableCandidates(element.nativeElement)) {
           focus(candidate);
 
-          if (document.activeElement !== previouslyFocusedElement) {
+          if (getFocusedElement() !== previouslyFocusedElement) {
             return;
           }
         }

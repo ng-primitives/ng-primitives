@@ -339,7 +339,7 @@ bootstrapApplication(AppComponent, {
 
 ## Accessibility
 
-The tooltip primitive follows the [WAI-ARIA Tooltip pattern](https://www.w3.org/WAI/ARIA/apg/patterns/tooltip/). The tooltip element is assigned `role="tooltip"` and the trigger element is linked to the tooltip via `aria-describedby`.
+The tooltip primitive follows the [WAI-ARIA Tooltip pattern](https://www.w3.org/WAI/ARIA/apg/patterns/tooltip/). The tooltip element is assigned `role="tooltip"` and the trigger element is linked to the tooltip via `aria-describedby`. Focus opens the tooltip, including focus a screen reader moves, except focus from a pointer (hover covers it) and focus an overlay or dialog hands back to the trigger when it closes.
 
 ### Keyboard Interactions
 
