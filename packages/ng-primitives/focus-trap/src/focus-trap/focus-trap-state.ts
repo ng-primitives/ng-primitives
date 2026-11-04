@@ -256,6 +256,10 @@ export const [NgpFocusTrapStateToken, ngpFocusTrap, injectFocusTrapState, provid
         if (target.closest?.('[data-focus-trap]') || target.closest?.('.cdk-overlay-container')) {
           return true;
         }
+        // toasts stay reachable from inside a trap (F6, see NgpToastManager)
+        if (target.closest?.('[data-ngp-toast-container]')) {
+          return true;
+        }
         return overlayRegistry.findContainingOverlay(target) !== null;
       }
 
@@ -304,11 +308,9 @@ export const [NgpFocusTrapStateToken, ngpFocusTrap, injectFocusTrapState, provid
         }
 
         const container = event.currentTarget as HTMLElement;
-        const tabbables = getTabbableCandidates(container).filter(candidate =>
-          interactivityChecker.isVisible(candidate),
-        );
+        const [first, last] = getTabbableEdges(container);
 
-        if (tabbables.length === 0) {
+        if (!first || !last) {
           if (container.contains(focusedElement)) {
             event.preventDefault();
           }
@@ -317,17 +319,36 @@ export const [NgpFocusTrapStateToken, ngpFocusTrap, injectFocusTrapState, provid
 
         // Wrap when no tabbable lies ahead of focus in DOM order, rather than only from the
         // edges: focus can sit on a non-tabbable element, such as a `tabindex="-1"` autofocus
-        // target or the container itself.
-        if (!event.shiftKey && !tabbables.some(tabbable => follows(tabbable, focusedElement))) {
+        // target or the container itself. Comparing with the edges is enough, and keeps the
+        // layout reads of `isVisible()` to the two ends of the list.
+        if (!event.shiftKey && !follows(last, focusedElement)) {
           event.preventDefault();
-          focus(tabbables[0]);
-        } else if (
-          event.shiftKey &&
-          !tabbables.some(tabbable => follows(focusedElement, tabbable))
-        ) {
+          focus(first);
+        } else if (event.shiftKey && !follows(focusedElement, first)) {
           event.preventDefault();
-          focus(tabbables[tabbables.length - 1]);
+          focus(last);
         }
+      }
+
+      /**
+       * Returns the first and last visible tabbable elements inside a container.
+       */
+      function getTabbableEdges(container: HTMLElement) {
+        const candidates = getTabbableCandidates(container);
+        const isVisible = (candidate: HTMLElement) => interactivityChecker.isVisible(candidate);
+        const firstIndex = candidates.findIndex(isVisible);
+
+        if (firstIndex === -1) {
+          return [undefined, undefined] as const;
+        }
+
+        // Scan back only down to the first visible one, so each candidate is checked once at most.
+        let lastIndex = candidates.length - 1;
+        while (lastIndex > firstIndex && !isVisible(candidates[lastIndex])) {
+          lastIndex--;
+        }
+
+        return [candidates[firstIndex], candidates[lastIndex]] as const;
       }
 
       /**

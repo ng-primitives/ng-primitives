@@ -137,6 +137,20 @@ describe('createOverlay imperative usage', () => {
     target.dispatchEvent(new MouseEvent('mouseup', { bubbles: true, composed: true }));
   }
 
+  it('leaves focus on a trigger the user focused while the overlay was open', async () => {
+    const { overlay, getByTestId } = await setup(() => ({ restoreFocus: true }));
+    const outside = getByTestId('outside');
+    const trigger = getByTestId('trigger');
+
+    outside.focus();
+    await overlay.show();
+    trigger.focus();
+    overlay.hide({ origin: 'mouse' });
+
+    await waitFor(() => expect(overlay.isOpen()).toBe(false));
+    expect(document.activeElement).toBe(trigger);
+  });
+
   it('positions at a programmatic point and follows updates to that point', async () => {
     const position = signal<NgpPosition | null>({ x: 200, y: 150 });
     const { overlay } = await setup(() => ({

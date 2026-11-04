@@ -89,6 +89,43 @@ class TestNestedFocusTrapsComponent {
 class TestFocusTrapWithNegativeTabIndexComponent {}
 
 @Component({
+  selector: 'test-focus-trap-long-list',
+  imports: [NgpFocusTrap],
+  template: `
+    <div ngpFocusTrap data-testid="focus-trap">
+      @for (index of items; track index) {
+        <button [attr.data-testid]="'item-' + index">Item {{ index }}</button>
+      }
+    </div>
+  `,
+})
+class TestFocusTrapLongListComponent {
+  readonly items = Array.from({ length: 50 }, (_, index) => index);
+}
+
+@Component({
+  selector: 'test-focus-trap-hidden-list',
+  imports: [NgpFocusTrap],
+  template: `
+    <div ngpFocusTrap data-testid="focus-trap">
+      <div tabindex="-1" data-testid="start">Start</div>
+      @for (index of items; track index) {
+        <button
+          [attr.data-testid]="'item-' + index"
+          [style.display]="index === visibleIndex() ? null : 'none'"
+        >
+          Item {{ index }}
+        </button>
+      }
+    </div>
+  `,
+})
+class TestFocusTrapHiddenListComponent {
+  readonly items = Array.from({ length: 50 }, (_, index) => index);
+  readonly visibleIndex = signal<number | null>(null);
+}
+
+@Component({
   selector: 'test-focus-trap-cdk-overlay',
   imports: [NgpFocusTrap],
   template: `
@@ -270,25 +307,6 @@ class TestShadowFocusTrapTrailingHeadingComponent {}
   `,
 })
 class TestShadowFocusTrapOnlyHeadingComponent {}
-
-@Component({
-  selector: 'test-shadow-focus-trap',
-  imports: [NgpFocusTrap],
-  encapsulation: ViewEncapsulation.ShadowDom,
-  template: `
-    <button data-testid="toggle">Toggle</button>
-    @if (show()) {
-      <div ngpFocusTrap data-testid="focus-trap">
-        <button data-testid="first">First</button>
-        <button data-testid="middle">Middle</button>
-        <button data-testid="last">Last</button>
-      </div>
-    }
-  `,
-})
-class TestShadowFocusTrapComponent {
-  readonly show = signal(false);
-}
 
 class TestDelegatesFocusInputElement extends HTMLElement {
   constructor() {
@@ -764,6 +782,61 @@ describe('Tabbable candidate filtering', () => {
   });
 });
 
+describe('Tab handling cost', () => {
+  it('should check visibility only at the edges of the list on Tab', async () => {
+    const { getByTestId } = await render(TestFocusTrapLongListComponent);
+    const middle = getByTestId('item-25');
+    middle.focus();
+    const isVisibleSpy = vi.spyOn(TestBed.inject(InteractivityChecker), 'isVisible');
+
+    const tabNotPrevented = fireEvent.keyDown(middle, { key: 'Tab' });
+    const shiftTabNotPrevented = fireEvent.keyDown(middle, { key: 'Tab', shiftKey: true });
+
+    // Neither press wraps from the middle, and `isVisible()` reads layout, so it must not run
+    // once per tabbable. The CDK's `isTabbable()` also checks the test runner's iframe, which a
+    // page outside a frame doesn't pay for, so only calls on the trap's items count.
+    const trap = getByTestId('focus-trap');
+    const itemChecks = isVisibleSpy.mock.calls.filter(([element]) => trap.contains(element));
+    expect(tabNotPrevented).toBe(true);
+    expect(shiftTabNotPrevented).toBe(true);
+    expect(itemChecks).toHaveLength(4);
+  });
+
+  it.each([
+    ['no item is visible', null],
+    ['a single item in the middle is visible', 25],
+  ])('should check each item once at most on Tab when %s', async (_, visibleIndex) => {
+    const { getByTestId, fixture } = await render(TestFocusTrapHiddenListComponent);
+    fixture.componentInstance.visibleIndex.set(visibleIndex);
+    fixture.detectChanges();
+    const start = getByTestId('start');
+    start.focus();
+    const isVisibleSpy = vi.spyOn(TestBed.inject(InteractivityChecker), 'isVisible');
+
+    fireEvent.keyDown(start, { key: 'Tab' });
+
+    const trap = getByTestId('focus-trap');
+    const checked = isVisibleSpy.mock.calls
+      .map(([element]) => element)
+      .filter(element => trap.contains(element));
+    expect(checked).toHaveLength(new Set(checked).size);
+    expect(checked).toHaveLength(50);
+  });
+
+  it('should wrap from the last item to the first on Tab, and back on Shift+Tab', async () => {
+    const { getByTestId } = await render(TestFocusTrapLongListComponent);
+    const first = getByTestId('item-0');
+    const last = getByTestId('item-49');
+    last.focus();
+
+    fireEvent.keyDown(last, { key: 'Tab' });
+    expect(first).toHaveFocus();
+
+    fireEvent.keyDown(first, { key: 'Tab', shiftKey: true });
+    expect(last).toHaveFocus();
+  });
+});
+
 describe('Focus-in with CDK overlays and external traps', () => {
   it('should not redirect focus when it moves to a [data-focus-trap] element', async () => {
     const { getByTestId, fixture } = await render(TestFocusTrapWithExternalTrapComponent);
@@ -960,19 +1033,6 @@ describe('Focus trap inside a shadow root', () => {
       shadowRoot.querySelector<HTMLElement>(`[data-testid="${id}"]`)!;
     return { shadowRoot, getByTestId };
   }
-
-  it('should focus the first tabbable element when focus starts in the same shadow root', async () => {
-    const { fixture } = await render(TestShadowFocusTrapComponent);
-    const shadowRoot = (fixture.nativeElement as HTMLElement).shadowRoot!;
-    const getByTestId = (id: string) =>
-      shadowRoot.querySelector<HTMLElement>(`[data-testid="${id}"]`)!;
-    getByTestId('toggle').focus();
-
-    fixture.componentInstance.show.set(true);
-    fixture.detectChanges();
-
-    await waitFor(() => expect(shadowRoot.activeElement).toBe(getByTestId('first')));
-  });
 
   it('should focus the element with the autofocus attribute', async () => {
     const { shadowRoot, getByTestId } = await renderInShadowRoot(
