@@ -139,6 +139,16 @@ class SetDefaultOpen implements OnInit {
 })
 class SetDefaultOpenComponent {}
 
+/** An exit animation that never settles, holding the popover mid-close. */
+function pendingAnimation(): Animation {
+  return {
+    finished: new Promise<void>(() => undefined),
+    cancel: () => undefined,
+    finish: () => undefined,
+    effect: { getComputedTiming: () => ({ iterations: 1, endTime: 100_000 }) },
+  } as unknown as Animation;
+}
+
 const popover = () => document.querySelector('[ngpPopover]');
 const settle = () => new Promise(resolve => setTimeout(resolve, 50));
 
@@ -268,6 +278,38 @@ describe('NgpPopoverTrigger open binding', () => {
 
       await waitFor(() => expect(popover()).not.toBeInTheDocument());
       expect(host.changes).toEqual([false]);
+    });
+
+    it('reports a show() during the exit animation once, without reopening', async () => {
+      const { fixture } = await render(OneWayComponent);
+      const host = fixture.componentInstance;
+      host.open.set(true);
+      fixture.detectChanges();
+      await waitFor(() => expect(popover()).toBeInTheDocument());
+
+      const element = popover() as HTMLElement;
+      element.getAnimations = () => [pendingAnimation()];
+      host.open.set(false);
+      fixture.detectChanges();
+      await waitFor(() => expect(element).toHaveAttribute('data-exit'));
+
+      await host.trigger().show();
+
+      expect(host.changes).toEqual([true]);
+    });
+
+    it('opens once content arrives for a binding that is already true', async () => {
+      const { fixture } = await render(ClearedContentComponent, {
+        componentProperties: { hasContent: signal(false) },
+      });
+      await settle();
+      expect(popover()).not.toBeInTheDocument();
+
+      fixture.componentInstance.hasContent.set(true);
+      fixture.detectChanges();
+
+      await waitFor(() => expect(popover()).toBeInTheDocument());
+      expect(fixture.componentInstance.changes).toEqual([]);
     });
 
     it('reports a show() call instead of opening', async () => {

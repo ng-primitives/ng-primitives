@@ -383,15 +383,15 @@ export const [
     let rendered = false;
     afterRenderEffect(() => {
       const bound = _open?.();
+      // Tracked so that a binding already `true` opens once the content arrives.
+      const hasContent = !!popover();
       const firstRender = !rendered;
       rendered = true;
 
       untracked(() => {
-        if (bound === true) {
-          openOverlay();
-        } else if (bound === false) {
+        if (bound === false) {
           overlay()?.hide({ immediate: true });
-        } else if (firstRender && defaultOpen()) {
+        } else if (hasContent && (bound === true || (firstRender && defaultOpen()))) {
           openOverlay();
         }
       });
@@ -412,9 +412,14 @@ export const [
       return false;
     }
 
-    /** Report a change the popover made on its own - one the binding did not ask for. */
+    /**
+     * Report a change the popover made on its own. While bound, only a close can be one: every
+     * open is the binding's own, or a request `requestOpenChange` has already reported.
+     */
     function announce(value: boolean): void {
-      if (_open?.() !== value) {
+      const bound = _open?.();
+
+      if (bound === undefined || (bound && !value)) {
         onOpenChange?.(value);
       }
     }
