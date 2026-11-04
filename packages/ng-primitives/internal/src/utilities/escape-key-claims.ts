@@ -25,7 +25,8 @@ export class NgpEscapeKeyClaims {
 
 /**
  * Claim the Escape keys `claim` returns true for, for the lifetime of the current injection context.
- * An overlay leaves a claimed Escape to the control when the key is pressed inside the topmost overlay.
+ * Call it in an injection context. A claim only applies to Escape pressed inside the topmost
+ * overlay, and it also skips that overlay's `closeOnEscape` guard.
  */
 export function claimEscapeKey(claim: NgpEscapeKeyClaim): void {
   inject(DestroyRef).onDestroy(inject(NgpEscapeKeyClaims).add(claim));
