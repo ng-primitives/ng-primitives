@@ -213,6 +213,7 @@ export const [
 
     const overlay = signal<NgpOverlay<T> | null>(null);
     const open = computed(() => overlay()?.isOpen() ?? false);
+    const expanded = computed(() => open() && !overlay()?.isClosing());
     const openOrigin = signal<FocusOrigin>('program');
 
     // Track pointer presence for the safe-polygon hover bridge.
@@ -282,7 +283,7 @@ export const [
     const fallbackId = uniqueId('ngp-submenu-trigger');
     attrBinding(element, 'id', () => element.nativeElement.id || fallbackId);
     attrBinding(element, 'aria-haspopup', 'true');
-    attrBinding(element, 'aria-expanded', open);
+    attrBinding(element, 'aria-expanded', expanded);
     dataBinding(element, 'data-open', open);
 
     // Event listeners
