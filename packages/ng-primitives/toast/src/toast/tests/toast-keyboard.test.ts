@@ -90,6 +90,41 @@ describe('NgpToastManager keyboard access', () => {
     expect(document.activeElement).toBe(pageButton);
   });
 
+  describe('when nothing had focus before F6', () => {
+    async function f6FromNothing() {
+      const view = await renderHost();
+      const toast = view.host.showToast();
+      (document.activeElement as HTMLElement | null)?.blur();
+      pressKey('F6');
+      expect(document.activeElement).toBe(container());
+      return toast;
+    }
+
+    it('leaves the toasts on F6 again', async () => {
+      await f6FromNothing();
+
+      pressKey('F6');
+
+      expect(document.activeElement).toBe(document.body);
+    });
+
+    it('leaves the toasts on Escape', async () => {
+      await f6FromNothing();
+
+      pressKey('Escape');
+
+      expect(document.activeElement).toBe(document.body);
+    });
+
+    it('leaves the toasts when the last toast leaves the focused region', async () => {
+      const toast = await f6FromNothing();
+
+      await toast.dismiss();
+
+      expect(document.activeElement).toBe(document.body);
+    });
+  });
+
   it('does nothing on F6 once every toast is dismissed', async () => {
     const { host, getByTestId } = await renderHost();
     // showing a toast registers the key listeners; dismissing it leaves an empty container

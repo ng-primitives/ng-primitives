@@ -134,9 +134,7 @@ export class NgpToastManager {
       if (returnTo && focusLost) {
         this.focusBeforeToasts = null;
         this.focusBeforeEntry = null;
-        if (returnTo.isConnected) {
-          returnTo.focus({ preventScroll: true });
-        }
+        this.moveFocusTo(returnTo);
       }
     }
   }
@@ -270,7 +268,16 @@ export class NgpToastManager {
     const target = this.focusBeforeToasts;
     this.focusBeforeToasts = null;
 
-    if (target?.isConnected) {
+    if (target) {
+      this.moveFocusTo(target);
+    }
+  }
+
+  private moveFocusTo(target: HTMLElement): void {
+    // Nothing had focus before: `body.focus()` would leave focus where it is, so blur instead.
+    if (target === this.document.body) {
+      (this.document.activeElement as HTMLElement | null)?.blur();
+    } else if (target.isConnected) {
       target.focus({ preventScroll: true });
     }
   }
