@@ -499,11 +499,13 @@ describe('NgpPreviewCardTrigger (primitive)', () => {
   });
 
   describe('tab order', () => {
+    const afterButton = '<button type="button" data-testid="after">after</button>';
+
     /**
      * The card is portalled to the end of the body, so the trigger handles Tab to put it in
      * the tab sequence right after the trigger.
      */
-    function tabTemplate(label: string, content: string): string {
+    function tabTemplate(label: string, content: string, after = afterButton): string {
       return wrap(`
         <button type="button" data-testid="before">before</button>
 
@@ -516,7 +518,7 @@ describe('NgpPreviewCardTrigger (primitive)', () => {
           >Angular Primitives</a
         >
 
-        <button type="button" data-testid="after">after</button>
+        ${after}
 
         <ng-template #card>
           <div ngpPreviewCard>
@@ -532,8 +534,8 @@ describe('NgpPreviewCardTrigger (primitive)', () => {
       <a href="#" data-testid="last">last</a>
     `;
 
-    async function openWithKeyboard(label: string, content = twoLinks) {
-      const result = await render(tabTemplate(label, content), {
+    async function openWithKeyboard(label: string, content = twoLinks, after = afterButton) {
+      const result = await render(tabTemplate(label, content, after), {
         imports: [NgpPreviewCardTrigger, NgpPreviewCard],
       });
 
@@ -580,6 +582,37 @@ describe('NgpPreviewCardTrigger (primitive)', () => {
       expect(getByTestId('after')).toHaveFocus();
       await waitFor(() => {
         expect(card('tab-out-of-card')).toBeNull();
+      });
+    });
+
+    it('should skip elements that are not tabbable when tabbing out of the card', async () => {
+      const { getByTestId } = await openWithKeyboard(
+        'tab-out-past-untabbable',
+        twoLinks,
+        `
+          <p>Some text</p>
+          <button type="button" disabled>disabled</button>
+          <div><button type="button" data-testid="after">after</button></div>
+        `,
+      );
+
+      inCard('tab-out-past-untabbable', 'last').focus();
+      await userEvent.tab();
+
+      expect(getByTestId('after')).toHaveFocus();
+    });
+
+    it('should not move focus back into the card when nothing tabbable follows the trigger', async () => {
+      await openWithKeyboard('tab-out-nothing-after', twoLinks, '');
+
+      const first = inCard('tab-out-nothing-after', 'first');
+
+      inCard('tab-out-nothing-after', 'last').focus();
+      await userEvent.tab();
+
+      expect(first).not.toHaveFocus();
+      await waitFor(() => {
+        expect(card('tab-out-nothing-after')).toBeNull();
       });
     });
 
