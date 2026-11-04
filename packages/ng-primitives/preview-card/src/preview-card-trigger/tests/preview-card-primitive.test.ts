@@ -3,6 +3,7 @@ import { ComponentFixture } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { fireEvent, render, waitFor } from '@testing-library/angular';
 import userEvent from '@testing-library/user-event';
+import { NgpFocusTrap } from 'ng-primitives/focus-trap';
 import {
   injectPreviewCardTriggerState,
   NgpPreviewCard,
@@ -501,24 +502,46 @@ describe('NgpPreviewCardTrigger (primitive)', () => {
   describe('tab order', () => {
     const afterButton = '<button type="button" data-testid="after">after</button>';
 
+    const twoLinks = `
+      <a href="#" data-testid="first">first</a>
+      <a href="#" data-testid="last">last</a>
+    `;
+
+    interface TabFixture {
+      /** The card's content after its label. */
+      content?: string;
+      /** What follows the trigger in the page. */
+      after?: string;
+      showDelay?: number;
+      hideDelay?: number;
+      /** Wraps the page in a focus trap, as in a dialog. */
+      focusTrap?: boolean;
+    }
+
     /**
      * The card is portalled to the end of the body, so the trigger handles Tab to put it in
      * the tab sequence right after the trigger.
      */
-    function tabTemplate(label: string, content: string, after = afterButton): string {
-      return wrap(`
+    function tabTemplate(label: string, fixture: TabFixture = {}): string {
+      const { content = twoLinks, after = afterButton, showDelay = 0, hideDelay = 0 } = fixture;
+      const page = `
         <button type="button" data-testid="before">before</button>
 
         <a
           href="https://angularprimitives.com"
           data-testid="trigger"
           [ngpPreviewCardTrigger]="card"
-          ngpPreviewCardTriggerShowDelay="0"
-          ngpPreviewCardTriggerHideDelay="0"
+          ngpPreviewCardTriggerShowDelay="${showDelay}"
+          ngpPreviewCardTriggerHideDelay="${hideDelay}"
+          (ngpPreviewCardTriggerOpenChange)="openChange($event)"
           >Angular Primitives</a
         >
 
         ${after}
+      `;
+
+      return wrap(`
+        ${fixture.focusTrap ? `<div ngpFocusTrap>${page}</div>` : page}
 
         <ng-template #card>
           <div ngpPreviewCard>
@@ -529,15 +552,18 @@ describe('NgpPreviewCardTrigger (primitive)', () => {
       `);
     }
 
-    const twoLinks = `
-      <a href="#" data-testid="first">first</a>
-      <a href="#" data-testid="last">last</a>
-    `;
-
-    async function openWithKeyboard(label: string, content = twoLinks, after = afterButton) {
-      const result = await render(tabTemplate(label, content, after), {
-        imports: [NgpPreviewCardTrigger, NgpPreviewCard],
+    async function renderTab(label: string, fixture: TabFixture = {}) {
+      const openChange = vi.fn();
+      const result = await render(tabTemplate(label, fixture), {
+        imports: [NgpPreviewCardTrigger, NgpPreviewCard, NgpFocusTrap],
+        componentProperties: { openChange },
       });
+
+      return { ...result, openChange };
+    }
+
+    async function openWithKeyboard(label: string, fixture: TabFixture = {}) {
+      const result = await renderTab(label, fixture);
 
       result.getByTestId('before').focus();
       await userEvent.tab();
@@ -550,8 +576,24 @@ describe('NgpPreviewCardTrigger (primitive)', () => {
       return result;
     }
 
+    function openCard(label: string): HTMLElement {
+      const element = card(label);
+
+      if (!element) {
+        throw new Error(`The "${label}" card is not open`);
+      }
+
+      return element;
+    }
+
     function inCard(label: string, testId: string): HTMLElement {
-      return card(label)!.querySelector<HTMLElement>(`[data-testid="${testId}"]`)!;
+      const element = openCard(label).querySelector<HTMLElement>(`[data-testid="${testId}"]`);
+
+      if (!element) {
+        throw new Error(`The "${label}" card has no "${testId}"`);
+      }
+
+      return element;
     }
 
     it('should move focus from the trigger to the first tabbable element in the card', async () => {
@@ -574,19 +616,37 @@ describe('NgpPreviewCardTrigger (primitive)', () => {
     });
 
     it('should move focus from the trigger to a summary in the card', async () => {
-      await openWithKeyboard(
-        'tab-into-summary',
-        `
+      await openWithKeyboard('tab-into-summary', {
+        content: `
           <details>
             <summary data-testid="summary">More</summary>
             <p>Details</p>
           </details>
         `,
-      );
+      });
 
       await userEvent.tab();
 
       expect(inCard('tab-into-summary', 'summary')).toHaveFocus();
+    });
+
+    it('should skip elements in the card that cannot take focus', async () => {
+      const { getByTestId } = await openWithKeyboard('tab-past-unfocusable', {
+        content: `
+          <a>not a link</a>
+          <div inert><button type="button">inert</button></div>
+          <details>
+            <summary data-testid="summary">More</summary>
+            <a href="#">in closed details</a>
+          </details>
+        `,
+      });
+
+      await userEvent.tab();
+      expect(inCard('tab-past-unfocusable', 'summary')).toHaveFocus();
+
+      await userEvent.tab();
+      expect(getByTestId('after')).toHaveFocus();
     });
 
     it('should move focus from the last element in the card to the element after the trigger', async () => {
@@ -602,16 +662,17 @@ describe('NgpPreviewCardTrigger (primitive)', () => {
     });
 
     it('should skip elements that are not tabbable when tabbing out of the card', async () => {
-      const { getByTestId } = await openWithKeyboard(
-        'tab-out-past-untabbable',
-        twoLinks,
-        `
+      const { getByTestId } = await openWithKeyboard('tab-out-past-untabbable', {
+        after: `
           <p>Some text</p>
+          <a>not a link</a>
+          <div inert><button type="button">inert</button></div>
+          <button type="button" style="visibility: hidden">hidden</button>
           <button type="button" disabled>disabled</button>
           <fieldset disabled><button type="button">in disabled fieldset</button></fieldset>
           <div><button type="button" data-testid="after">after</button></div>
         `,
-      );
+      });
 
       inCard('tab-out-past-untabbable', 'last').focus();
       await userEvent.tab();
@@ -620,16 +681,93 @@ describe('NgpPreviewCardTrigger (primitive)', () => {
     });
 
     it('should not move focus back into the card when nothing tabbable follows the trigger', async () => {
-      await openWithKeyboard('tab-out-nothing-after', twoLinks, '');
+      await openWithKeyboard('tab-out-nothing-after', { after: '' });
 
-      const first = inCard('tab-out-nothing-after', 'first');
+      const cardElement = openCard('tab-out-nothing-after');
 
       inCard('tab-out-nothing-after', 'last').focus();
       await userEvent.tab();
 
-      expect(first).not.toHaveFocus();
+      expect(cardElement.contains(document.activeElement)).toBe(false);
       await waitFor(() => {
         expect(card('tab-out-nothing-after')).toBeNull();
+      });
+    });
+
+    it('should keep the card open when Tab moves focus into it while a close is pending', async () => {
+      await openWithKeyboard('tab-cancels-pending-close', { hideDelay: 200 });
+
+      // The pointer passes over the card and leaves it, which schedules a close.
+      const cardElement = openCard('tab-cancels-pending-close');
+      fireEvent.pointerEnter(cardElement, { pointerType: 'mouse' });
+      fireEvent.pointerLeave(cardElement, { pointerType: 'mouse' });
+
+      await userEvent.tab();
+      await new Promise(resolve => setTimeout(resolve, 300));
+
+      expect(card('tab-cancels-pending-close')).toBeInTheDocument();
+      expect(inCard('tab-cancels-pending-close', 'first')).toHaveFocus();
+    });
+
+    it('should keep the card open when Tab moves focus into it during the hover corridor', async () => {
+      const { getByTestId } = await openWithKeyboard('tab-clears-corridor');
+
+      // Leaving toward the card starts the corridor, which closes the card once idle.
+      const trigger = getByTestId('trigger');
+      const rect = trigger.getBoundingClientRect();
+      fireEvent.pointerEnter(trigger, { pointerType: 'mouse' });
+      fireEvent.pointerLeave(trigger, {
+        pointerType: 'mouse',
+        clientX: rect.left + rect.width / 2,
+        clientY: rect.bottom,
+      });
+
+      await userEvent.tab();
+      await new Promise(resolve => setTimeout(resolve, 300));
+
+      expect(card('tab-clears-corridor')).toBeInTheDocument();
+      expect(inCard('tab-clears-corridor', 'first')).toHaveFocus();
+    });
+
+    it('should move focus into the card and out to the next element inside a focus trap', async () => {
+      const { getByTestId } = await openWithKeyboard('tab-in-focus-trap', { focusTrap: true });
+
+      await userEvent.tab();
+      expect(inCard('tab-in-focus-trap', 'first')).toHaveFocus();
+
+      await userEvent.tab();
+      await userEvent.tab();
+      expect(getByTestId('after')).toHaveFocus();
+    });
+
+    describe('when Tab is already handled', () => {
+      function preventTab(event: KeyboardEvent): void {
+        if (event.key === 'Tab') {
+          event.preventDefault();
+        }
+      }
+
+      afterEach(() => {
+        document.removeEventListener('keydown', preventTab, { capture: true });
+      });
+
+      it('should not move focus from the trigger into the card', async () => {
+        const { getByTestId } = await openWithKeyboard('tab-handled-on-trigger');
+        document.addEventListener('keydown', preventTab, { capture: true });
+
+        await userEvent.tab();
+
+        expect(getByTestId('trigger')).toHaveFocus();
+      });
+
+      it('should not move focus out of the card', async () => {
+        await openWithKeyboard('tab-handled-in-card');
+        document.addEventListener('keydown', preventTab, { capture: true });
+
+        inCard('tab-handled-in-card', 'last').focus();
+        await userEvent.tab();
+
+        expect(inCard('tab-handled-in-card', 'last')).toHaveFocus();
       });
     });
 
@@ -644,6 +782,15 @@ describe('NgpPreviewCardTrigger (primitive)', () => {
       expect(card('shift-tab-to-trigger')).toBeInTheDocument();
     });
 
+    it('should move focus back through the card on Shift+Tab', async () => {
+      await openWithKeyboard('shift-tab-through-card');
+
+      inCard('shift-tab-through-card', 'last').focus();
+      await userEvent.tab({ shift: true });
+
+      expect(inCard('shift-tab-through-card', 'first')).toHaveFocus();
+    });
+
     it('should move focus to the element before the trigger on Shift+Tab from the trigger', async () => {
       const { getByTestId } = await openWithKeyboard('shift-tab-from-trigger');
 
@@ -656,7 +803,7 @@ describe('NgpPreviewCardTrigger (primitive)', () => {
     });
 
     it('should leave Tab to the browser when the card has nothing tabbable', async () => {
-      const { getByTestId } = await openWithKeyboard('tab-empty-card', '');
+      const { getByTestId } = await openWithKeyboard('tab-empty-card', { content: '' });
 
       await userEvent.tab();
 
@@ -667,13 +814,7 @@ describe('NgpPreviewCardTrigger (primitive)', () => {
     });
 
     it('should leave Tab to the browser while the card is closed', async () => {
-      const { getByTestId } = await render(
-        tabTemplate('tab-closed-card', twoLinks).replace(
-          'ngpPreviewCardTriggerShowDelay="0"',
-          'ngpPreviewCardTriggerShowDelay="10000"',
-        ),
-        { imports: [NgpPreviewCardTrigger, NgpPreviewCard] },
-      );
+      const { getByTestId } = await renderTab('tab-closed-card', { showDelay: 10000 });
 
       getByTestId('before').focus();
       await userEvent.tab();
@@ -720,7 +861,7 @@ describe('NgpPreviewCardTrigger (primitive)', () => {
     });
 
     it('should return focus to the trigger without reopening when Escape closes the card from inside', async () => {
-      const { getByTestId } = await openWithKeyboard('escape-from-card');
+      const { getByTestId, openChange } = await openWithKeyboard('escape-from-card');
 
       await userEvent.tab();
       expect(inCard('escape-from-card', 'first')).toHaveFocus();
@@ -734,12 +875,11 @@ describe('NgpPreviewCardTrigger (primitive)', () => {
 
       await settle();
       expect(card('escape-from-card')).toBeNull();
+      expect(openChange.mock.calls).toEqual([[true], [false]]);
     });
 
     it('should not move focus to the trigger when Escape closes a card focus is not in', async () => {
-      const { getByTestId } = await render(tabTemplate('escape-focus-outside', twoLinks), {
-        imports: [NgpPreviewCardTrigger, NgpPreviewCard],
-      });
+      const { getByTestId } = await renderTab('escape-focus-outside');
 
       getByTestId('after').focus();
       fireEvent.pointerEnter(getByTestId('trigger'), { pointerType: 'mouse' });

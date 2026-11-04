@@ -190,7 +190,7 @@ The card is deliberately not exposed to assistive technology: the content carrie
 That constrains how it can be used:
 
 - **The trigger must work without the card.** Use a link, or another independently useful control.
-- **Never put unique content or actions in the card.** Screen reader and touch users will not see them.
+- **Never put unique content or actions in the card.** Touch users cannot open it, and a screen reader does not announce it: a keyboard user who tabs into it reaches its controls without hearing that a card opened.
 - **Mark the trigger with more than colour**, such as an underline, to satisfy [WCAG 1.4.1 Use of Color](https://www.w3.org/WAI/WCAG22/Understanding/use-of-color.html).
 
 ### Keyboard Interactions
@@ -199,3 +199,5 @@ That constrains how it can be used:
 - <kbd>Shift</kbd> + <kbd>Tab</kbd>: From the first focusable element in the card, moves focus back to the trigger.
 - <kbd>Esc</kbd>: Closes the card. If focus is in the card, it returns to the trigger.
 - <kbd>Enter</kbd>: Activates the trigger.
+
+Tab follows the card's DOM order. Positive `tabindex` values, content inside a shadow root, and a preview card nested in another one are not supported.
