@@ -1,4 +1,4 @@
-import { Directive } from '@angular/core';
+import { Component, Directive, ViewEncapsulation } from '@angular/core';
 import { ComponentFixture } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { fireEvent, render, waitFor } from '@testing-library/angular';
@@ -829,6 +829,51 @@ describe('NgpPreviewCardTrigger (primitive)', () => {
       expect(card('shift-tab-to-trigger')).toBeInTheDocument();
     });
 
+    it('should return focus to a trigger in a shadow root on Shift+Tab from the card', async () => {
+      @Component({
+        selector: 'preview-card-in-shadow-root',
+        imports: [NgpPreviewCardTrigger, NgpPreviewCard],
+        encapsulation: ViewEncapsulation.ShadowDom,
+        template: `
+          <a
+            [ngpPreviewCardTrigger]="card"
+            href="https://angularprimitives.com"
+            data-testid="trigger"
+            ngpPreviewCardTriggerShowDelay="0"
+            ngpPreviewCardTriggerHideDelay="0"
+          >
+            Angular Primitives
+          </a>
+
+          <ng-template #card>
+            <div ngpPreviewCard>
+              <span>shift-tab-to-shadow-trigger</span>
+              <a href="#" data-testid="first">first</a>
+            </div>
+          </ng-template>
+        `,
+      })
+      class PreviewCardInShadowRoot {}
+
+      const { container } = await render(PreviewCardInShadowRoot);
+      const shadowRoot = container.shadowRoot;
+      const trigger = shadowRoot?.querySelector<HTMLElement>('[data-testid="trigger"]');
+
+      if (!shadowRoot || !trigger) {
+        throw new Error('The trigger did not render in a shadow root');
+      }
+
+      fireEvent.pointerEnter(trigger, { pointerType: 'mouse' });
+      await waitFor(() => {
+        expect(card('shift-tab-to-shadow-trigger')).toBeInTheDocument();
+      });
+
+      inCard('shift-tab-to-shadow-trigger', 'first').focus();
+      await userEvent.tab({ shift: true });
+
+      expect(shadowRoot.activeElement).toBe(trigger);
+    });
+
     it('should move focus back through the card on Shift+Tab', async () => {
       await openWithKeyboard('shift-tab-through-card');
 
@@ -942,6 +987,9 @@ describe('NgpPreviewCardTrigger (primitive)', () => {
       await userEvent.tab();
 
       expect(getByTestId('nested')).toHaveFocus();
+      // Focus is still within the trigger, which keeps the card open.
+      await settle();
+      expect(card('tab-out-to-nested')).toBeInTheDocument();
     });
 
     it('should return focus to the trigger without reopening when Escape closes the card from inside', async () => {

@@ -408,7 +408,12 @@ export const [
     function moveFocus(event: KeyboardEvent, target: HTMLElement): void {
       focusMonitor.focusVia(target, 'keyboard');
 
-      if (target.ownerDocument.activeElement === target) {
+      // In a shadow root, the document's active element is the shadow host.
+      const root = target.getRootNode();
+      const activeElement =
+        root instanceof ShadowRoot ? root.activeElement : target.ownerDocument.activeElement;
+
+      if (activeElement === target) {
         event.preventDefault();
       }
     }
