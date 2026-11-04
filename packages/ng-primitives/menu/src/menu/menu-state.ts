@@ -6,11 +6,13 @@ import {
   createHoverTransitTracker,
   HoverTransitTracker,
   injectElementRef,
+  labelledByTrigger,
 } from 'ng-primitives/internal';
 import { injectOverlay, NgpOverlayFinalFocus } from 'ng-primitives/portal';
 import {
   attrBinding,
   createPrimitive,
+  dataBinding,
   listener,
   onDestroy,
   styleBinding,
@@ -72,7 +74,9 @@ export const [NgpMenuStateToken, ngpMenu, injectMenuState, provideMenuState] = c
 
     // Host bindings
     attrBinding(element, 'role', 'menu');
+    labelledByTrigger(element, () => menuTrigger()?.triggerId());
     attrBinding(element, 'data-placement', overlay.finalPlacement);
+    dataBinding(element, 'data-reference-hidden', overlay.referenceHidden);
     attrBinding(element, 'data-overlay', '');
     styleBinding(element, 'left.px', () => overlay.position().x ?? null);
     styleBinding(element, 'top.px', () => overlay.position().y ?? null);

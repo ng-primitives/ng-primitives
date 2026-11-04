@@ -106,6 +106,7 @@ export const [
     attrBinding(element, 'aria-labelledby', () => triggerState?.()?.id ?? null);
     dataBinding(element, 'data-open', open);
     dataBinding(element, 'data-placement', () => overlay?.finalPlacement() ?? null);
+    dataBinding(element, 'data-reference-hidden', () => overlay?.referenceHidden() ?? false);
     dataBinding(element, 'data-orientation', orientation);
     dataBinding(element, 'data-instant', () => overlay?.instantTransition() ?? false);
 

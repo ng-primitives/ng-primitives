@@ -273,7 +273,7 @@ export const [NgpFocusTrapStateToken, ngpFocusTrap, injectFocusTrapState, provid
           return;
         }
 
-        const focusedElement = document.activeElement as HTMLElement | null;
+        const focusedElement = getFocusedElement();
 
         if (focusedElement !== document.body) {
           return;

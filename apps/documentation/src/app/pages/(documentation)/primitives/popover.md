@@ -146,6 +146,27 @@ Use dismiss guards to prevent a popover from closing when there are unsaved chan
 
 <docs-example name="popover-dismiss-guard"></docs-example>
 
+### Handling Escape inside the popover
+
+Overlays handle Escape before the controls inside them, so stopping the event in a control is too late. A control that uses Escape itself, such as an inline-edit field that reverts its value, claims the key with `claimEscapeKey` from `ng-primitives/portal`. Call it in an injection context; the claim is released when that context is destroyed. A claimed Escape pressed inside the topmost overlay leaves it open. Compare against `event.composedPath()[0]` rather than `event.target`, which is retargeted to the shadow host when the overlay renders inside a shadow root.
+
+```ts
+import { ElementRef, signal, viewChild } from '@angular/core';
+import { claimEscapeKey } from 'ng-primitives/portal';
+
+export class InlineEdit {
+  private readonly field = viewChild<ElementRef<HTMLInputElement>>('field');
+  // true while the value is being edited; Escape then reverts it instead of closing the popover
+  readonly editing = signal(false);
+
+  constructor() {
+    claimEscapeKey(
+      event => this.editing() && event.composedPath()[0] === this.field()?.nativeElement,
+    );
+  }
+}
+```
+
 ### Keeping Content Mounted
 
 By default, the popover content is destroyed when the popover closes and created again on the next open, so any one-time setup runs every time. Set `ngpPopoverTriggerKeepMounted` to keep the content instance alive between opens instead.
@@ -186,6 +207,7 @@ The following directives are available to import from the `ng-primitives/popover
   <api-attribute name="data-enter" description="Applied when the popover is being added to the DOM. This can be used to trigger animations." />
   <api-attribute name="data-exit" description="Applied when the popover is being removed from the DOM. This can be used to trigger animations." />
   <api-attribute name="data-placement" description="The final rendered placement of the popover." />
+  <api-attribute name="data-reference-hidden" description="Applied while the element the popover is positioned against is scrolled or clipped out of view." />
 </api-reference-attributes>
 
 <api-reference-css-vars>
@@ -240,6 +262,16 @@ For the popover to be positioned correctly relative to the trigger element, it m
 }
 ```
 
+With the default `reposition` scroll behavior, the popover follows its reference element (the anchor, or the trigger when no anchor is set) even once that element is scrolled out of view. `data-reference-hidden` is applied while that is the case, so you can show that the popover has lost its reference, for example by fading it:
+
+```css
+[ngpPopover][data-reference-hidden] {
+  opacity: 0.4;
+}
+```
+
+Don't hide an open popover with `visibility: hidden` or `display: none`: it still traps focus, so a keyboard user would be stuck in content they cannot see. To dismiss the popover when the page scrolls, set `ngpPopoverTriggerScrollBehavior="close"`.
+
 ## Animations
 
 The `ngpPopover` primitive adds a CSS custom property `--ngp-popover-transform-origin` to the element that can be used to animate the popover from the trigger element.
@@ -287,7 +319,7 @@ bootstrapApplication(AppComponent, {
 
 ## Accessibility
 
-The popover element is assigned `role="dialog"` and the trigger element uses `aria-expanded` to indicate the popover's open state. The trigger is linked to the popover via `aria-describedby`. Focus is trapped within the popover when open. When it closes, focus returns to the element that was focused when it opened, usually the trigger. An outside click on another control moves focus to that control, and focus the user already moved elsewhere stays there. `ngpPopoverFinalFocus` can choose another target, or `false` to leave focus where it is.
+The popover element is assigned `role="dialog"` and the trigger element uses `aria-expanded` to indicate the popover's open state. The trigger is linked to the popover via `aria-describedby`, and the popover is named by its trigger through `aria-labelledby` unless an `aria-label` or `aria-labelledby` is present when the overlay renders; labels added later do not override the trigger name. Focus is trapped within the popover when open. When it closes, focus returns to the element that was focused when it opened, usually the trigger. An outside click on another control moves focus to that control, and focus the user already moved elsewhere stays there. `ngpPopoverFinalFocus` can choose another target, or `false` to leave focus where it is.
 
 Add `autofocus` to one or more usable elements to focus the first one when the popover opens; otherwise the first tabbable element is focused, or the popover itself if there is none. If focus is already inside the popover when it opens, it stays there and `autofocus` is ignored.
 
