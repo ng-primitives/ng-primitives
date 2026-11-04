@@ -1,5 +1,14 @@
 import { FocusMonitor } from '@angular/cdk/a11y';
-import { computed, inject, Injector, signal, Signal, ViewContainerRef } from '@angular/core';
+import {
+  afterRenderEffect,
+  computed,
+  inject,
+  Injector,
+  signal,
+  Signal,
+  untracked,
+  ViewContainerRef,
+} from '@angular/core';
 import { createHoverBridge, injectElementRef } from 'ng-primitives/internal';
 import {
   createOverlay,
@@ -46,6 +55,8 @@ export interface NgpPreviewCardTriggerState<T> {
    * @param container - The new container
    */
   setContainer: (container: HTMLElement | string | null) => void;
+  /** Set whether the preview card opens on first render when its open state is not bound. */
+  setDefaultOpen: (defaultOpen: boolean) => void;
   /** Show the preview card. */
   show: () => void;
   /** Hide the preview card. */
@@ -66,6 +77,15 @@ export interface NgpPreviewCardTriggerState<T> {
 export interface NgpPreviewCardTriggerProps<T> {
   /** Access the preview card template ref. */
   readonly previewCard?: Signal<NgpOverlayContent<T> | undefined>;
+  /**
+   * Whether the preview card is open. Leave `undefined` to let the trigger manage it.
+   */
+  readonly open?: Signal<boolean | undefined>;
+  /**
+   * Whether the preview card opens on first render when `open` is `undefined`.
+   * @default false
+   */
+  readonly defaultOpen?: Signal<boolean>;
   /**
    * Whether the preview card is disabled. This allows the preview card to be enabled or disabled dynamically.
    * @default false
@@ -143,6 +163,8 @@ export const [
   'NgpPreviewCardTrigger',
   <T>({
     previewCard: _previewCard = signal<NgpOverlayContent<T> | undefined>(undefined),
+    open: _open,
+    defaultOpen: _defaultOpen,
     disabled = signal<boolean>(false),
     placement = signal<NgpPreviewCardPlacement>('bottom'),
     offset = signal<NgpOffset>(4),
@@ -164,6 +186,7 @@ export const [
 
     const previewCard = controlled(_previewCard);
     const container = controlled(_container, 'body');
+    const defaultOpen = controlled(_defaultOpen, false);
 
     const overlay = signal<NgpOverlay<T> | null>(null);
     const open = computed(() => overlay()?.isOpen() ?? false);
@@ -197,6 +220,47 @@ export const [
       isPointerInAnchor: () => triggerHovered() || cardHovered(),
       close: () => hide(),
     });
+
+    // Runs after render, so a bound or default open never runs during server rendering.
+    let rendered = false;
+    afterRenderEffect(() => {
+      const bound = _open?.();
+      const firstRender = !rendered;
+      rendered = true;
+
+      untracked(() => {
+        if (bound === true) {
+          openOverlay();
+        } else if (bound === false) {
+          hoverBridge.clear();
+          overlay()?.hide({ immediate: true });
+        } else if (firstRender && defaultOpen()) {
+          openOverlay();
+        }
+      });
+    });
+
+    /**
+     * Let a change through when nothing is bound or it matches the binding. Anything else is
+     * reported through `openChange` and left to the binding.
+     */
+    function requestOpenChange(next: boolean): boolean {
+      const bound = _open?.();
+
+      if (bound === undefined || bound === next) {
+        return true;
+      }
+
+      onOpenChange?.(next);
+      return false;
+    }
+
+    /** Report a change the card made on its own - one the binding did not ask for. */
+    function announce(value: boolean): void {
+      if (_open?.() !== value) {
+        onOpenChange?.(value);
+      }
+    }
 
     // Host bindings.
     //
@@ -327,26 +391,8 @@ export const [
     }
 
     function show(): void {
-      if (disabled()) {
+      if (disabled() || !ensureOverlay()) {
         return;
-      }
-
-      // Create the overlay if it doesn't exist yet
-      if (!overlay()) {
-        if (!previewCard()) {
-          if (ngDevMode) {
-            console.error(
-              '[ngpPreviewCardTrigger]: Preview card must be a TemplateRef or a ComponentType.',
-            );
-          }
-
-          // Hover and keyboard focus reach show() on their own, so throwing here would
-          // fire on interaction - and from the focus subscription it would tear that
-          // subscription down, leaving the trigger permanently inert.
-          return;
-        }
-
-        createOverlayInstance();
       }
 
       // Only announce an open that actually happened, and only once. show() is reached
@@ -357,9 +403,43 @@ export const [
         .then(() => {
           if (open() && !announcedOpen) {
             announcedOpen = true;
-            onOpenChange?.(true);
+            announce(true);
           }
         });
+    }
+
+    /** Open for the binding or `defaultOpen`: no delay, nothing to report, disabled or not. */
+    function openOverlay(): void {
+      if (!ensureOverlay()) {
+        return;
+      }
+
+      overlay()
+        ?.show({ immediate: true })
+        .then(() => (announcedOpen ||= open()));
+    }
+
+    /** Create the overlay on first use. False when there is no content to show. */
+    function ensureOverlay(): boolean {
+      if (overlay()) {
+        return true;
+      }
+
+      if (!previewCard()) {
+        if (ngDevMode) {
+          console.error(
+            '[ngpPreviewCardTrigger]: Preview card must be a TemplateRef or a ComponentType.',
+          );
+        }
+
+        // Hover and keyboard focus reach show() on their own, so throwing here would
+        // fire on interaction - and from the focus subscription it would tear that
+        // subscription down, leaving the trigger permanently inert.
+        return false;
+      }
+
+      createOverlayInstance();
+      return true;
     }
 
     function hide(): void {
@@ -373,6 +453,10 @@ export const [
 
     function setPreviewCard(content: NgpOverlayContent<T> | undefined): void {
       previewCard.set(content);
+    }
+
+    function setDefaultOpen(shouldOpen: boolean): void {
+      defaultOpen.set(shouldOpen);
     }
 
     function createOverlayInstance(): void {
@@ -398,11 +482,12 @@ export const [
         viewContainerRef,
         overlayType: 'preview-card',
         cooldown: cooldown(),
+        requestOpenChange,
         onClose: () => {
           announcedOpen = false;
 
           if (!destroyed) {
-            onOpenChange?.(false);
+            announce(false);
           }
         },
       };
@@ -416,6 +501,7 @@ export const [
       open,
       setPreviewCard,
       setContainer,
+      setDefaultOpen,
       show,
       hide,
       setPointerOverCard,
