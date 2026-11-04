@@ -438,8 +438,9 @@ export const [
     }
 
     /**
-     * The first tabbable element after the trigger in DOM order, outside the trigger and the
-     * card. Positive `tabindex` values are not taken into account.
+     * The first tabbable element after the trigger in DOM order, outside the card. Controls
+     * nested in the trigger come first, as they would without the card. Positive `tabindex`
+     * values are not taken into account.
      */
     function getTabbableAfterTrigger(): HTMLElement | null {
       const trigger = elementRef.nativeElement;
@@ -453,7 +454,7 @@ export const [
               return NodeFilter.FILTER_REJECT;
             }
 
-            return !trigger.contains(node) && isTabbable(node as HTMLElement)
+            return isTabbable(node as HTMLElement)
               ? NodeFilter.FILTER_ACCEPT
               : NodeFilter.FILTER_SKIP;
           },

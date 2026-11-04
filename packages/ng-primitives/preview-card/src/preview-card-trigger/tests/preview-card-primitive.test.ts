@@ -860,6 +860,43 @@ describe('NgpPreviewCardTrigger (primitive)', () => {
       expect(getByTestId('nested-last')).toHaveFocus();
     });
 
+    it('should move focus from the card to the controls nested in the trigger', async () => {
+      const { getByTestId } = await render(
+        wrap(`
+          <button type="button" data-testid="before">before</button>
+
+          <div
+            tabindex="0"
+            data-testid="trigger"
+            [ngpPreviewCardTrigger]="card"
+            ngpPreviewCardTriggerShowDelay="0"
+            ngpPreviewCardTriggerHideDelay="0"
+          >
+            <button type="button" data-testid="nested">nested</button>
+          </div>
+
+          <ng-template #card>
+            <div ngpPreviewCard>
+              <span>tab-out-to-nested</span>
+              ${twoLinks}
+            </div>
+          </ng-template>
+        `),
+        { imports: [NgpPreviewCardTrigger, NgpPreviewCard] },
+      );
+
+      getByTestId('before').focus();
+      await userEvent.tab();
+      await waitFor(() => {
+        expect(card('tab-out-to-nested')).toBeInTheDocument();
+      });
+
+      inCard('tab-out-to-nested', 'last').focus();
+      await userEvent.tab();
+
+      expect(getByTestId('nested')).toHaveFocus();
+    });
+
     it('should return focus to the trigger without reopening when Escape closes the card from inside', async () => {
       const { getByTestId, openChange } = await openWithKeyboard('escape-from-card');
 
