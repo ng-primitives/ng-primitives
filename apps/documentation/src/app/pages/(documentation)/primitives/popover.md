@@ -146,6 +146,16 @@ Use dismiss guards to prevent a popover from closing when there are unsaved chan
 
 <docs-example name="popover-dismiss-guard"></docs-example>
 
+### Controlled
+
+Bind `ngpPopoverTriggerOpen` to own the open state - to open the popover from somewhere else, restore it from the URL, or keep it open while work it started is in flight. With `[(ngpPopoverTriggerOpen)]` the binding follows every open and close.
+
+<docs-example name="popover-controlled"></docs-example>
+
+While it is bound, the binding decides. A click on the trigger, Escape or an outside press emits `ngpPopoverTriggerOpenChange` and the popover waits for the binding to change, so a value you do not update keeps it as it is. A change you make to the binding opens or closes it with the usual animations, skips the show and hide delays, and is not emitted back. Calls to `show()` and `hide()`, and a listbox closing its popover on select, are requests too. A few closes cannot wait for the binding - the trigger being hidden, the content being cleared, a parent overlay closing - and are emitted as they happen, so a binding you do not update from `ngpPopoverTriggerOpenChange` can be left `true` on a closed popover.
+
+Use `ngpPopoverTriggerDefaultOpen` instead to open an unbound popover on first render.
+
 ### Keeping Content Mounted
 
 By default, the popover content is destroyed when the popover closes and created again on the next open, so any one-time setup runs every time. Set `ngpPopoverTriggerKeepMounted` to keep the content instance alive between opens instead.
