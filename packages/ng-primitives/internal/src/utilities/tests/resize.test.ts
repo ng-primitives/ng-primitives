@@ -265,6 +265,34 @@ describe('fromResizeEvent', () => {
     expect(emissions).toEqual([{ width: 32, height: 32 }]);
   });
 
+  it('should remeasure an svg shape when the outermost svg is resized', async () => {
+    const emissions: { width: number; height: number }[] = [];
+    const host = document.createElement('div');
+    host.innerHTML = `
+      <svg width="120" height="40" viewBox="0 0 60 20">
+        <svg width="60" height="20"><circle cx="20" cy="10" r="8" /></svg>
+      </svg>`;
+    document.body.appendChild(host);
+    const outer = host.querySelector('svg')!;
+    const circle = host.querySelector('circle')!;
+
+    fromResizeEvent(circle, { injector }).subscribe(dimensions => emissions.push(dimensions));
+    await Promise.resolve();
+
+    const observer = MockResizeObserver.instances[0];
+    expect(observer.observedElements).toEqual([circle, outer]);
+
+    outer.setAttribute('width', '240');
+    outer.setAttribute('height', '80');
+    observer.trigger([{ borderBoxSize: [{ inlineSize: 240, blockSize: 80 }] }]);
+    host.remove();
+
+    expect(emissions).toEqual([
+      { width: 32, height: 32 },
+      { width: 64, height: 64 },
+    ]);
+  });
+
   it('should not measure a percentage size as pixels', async () => {
     const emissions: { width: number; height: number }[] = [];
     element.style.display = 'none';

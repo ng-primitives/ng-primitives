@@ -86,12 +86,20 @@ export function fromResizeEvent(
             return;
           }
 
-          // otherwise, take the first entry and emit the dimensions
+          // otherwise, take the first entry and emit the dimensions. The entry can belong to
+          // the outer `<svg>`, but an element inside one is measured without it.
           const entry = entries[0];
           emit(getElementDimensions(element, entry));
         });
 
         observer.observe(element);
+
+        // Resizing an `<svg>` rescales what is inside it without changing its box in user
+        // units, which is all the observer watches for those elements.
+        const viewport = getOutermostSvg(element);
+        if (viewport) {
+          observer.observe(viewport);
+        }
 
         // Emit an initial measurement to avoid one-frame stale layout while waiting
         // for the first ResizeObserver callback, but defer it to a microtask.
@@ -166,6 +174,14 @@ export function observeResize(elementFn: () => HTMLElement | undefined): Signal<
   });
 
   return dimensions;
+}
+
+function getOutermostSvg(element: Element): SVGSVGElement | null {
+  let svg = element instanceof SVGElement ? element.ownerSVGElement : null;
+  while (svg?.ownerSVGElement) {
+    svg = svg.ownerSVGElement;
+  }
+  return svg;
 }
 
 function getElementDimensions(element: Element, entry?: ResizeObserverEntry): Dimensions {

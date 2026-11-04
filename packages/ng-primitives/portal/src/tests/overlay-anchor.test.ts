@@ -341,4 +341,15 @@ describe('overlay anchored to an svg element', () => {
     expect(overlay!.position().y).toBeCloseTo(rect.bottom, 0);
     await waitFor(() => expect(overlay!.triggerWidth()).toBe(width));
   });
+
+  it('should remeasure an svg shape when its svg is resized', async () => {
+    await openAnchoredTo('point');
+    await waitFor(() => expect(overlay!.triggerWidth()).toBe(32));
+
+    const chart = document.querySelector('[data-testid="chart"]')!;
+    chart.setAttribute('width', '400');
+    chart.setAttribute('height', '240');
+
+    await waitFor(() => expect(overlay!.triggerWidth()).toBe(64));
+  });
 });
