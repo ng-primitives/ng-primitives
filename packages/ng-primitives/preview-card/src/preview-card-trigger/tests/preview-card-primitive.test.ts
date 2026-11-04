@@ -516,6 +516,8 @@ describe('NgpPreviewCardTrigger (primitive)', () => {
       hideDelay?: number;
       /** Wraps the page in a focus trap, as in a dialog. */
       focusTrap?: boolean;
+      /** Wraps the page in a native modal `<dialog>`, which leaves the card out of reach. */
+      modalDialog?: boolean;
     }
 
     /**
@@ -540,8 +542,16 @@ describe('NgpPreviewCardTrigger (primitive)', () => {
         ${after}
       `;
 
+      let wrapped = page;
+
+      if (fixture.focusTrap) {
+        wrapped = `<div ngpFocusTrap>${page}</div>`;
+      } else if (fixture.modalDialog) {
+        wrapped = `<dialog data-testid="dialog">${page}</dialog>`;
+      }
+
       return wrap(`
-        ${fixture.focusTrap ? `<div ngpFocusTrap>${page}</div>` : page}
+        ${wrapped}
 
         <ng-template #card>
           <div ngpPreviewCard>
@@ -558,6 +568,10 @@ describe('NgpPreviewCardTrigger (primitive)', () => {
         imports: [NgpPreviewCardTrigger, NgpPreviewCard, NgpFocusTrap],
         componentProperties: { openChange },
       });
+
+      if (fixture.modalDialog) {
+        (result.getByTestId('dialog') as HTMLDialogElement).showModal();
+      }
 
       return { ...result, openChange };
     }
@@ -630,10 +644,21 @@ describe('NgpPreviewCardTrigger (primitive)', () => {
       expect(inCard('tab-into-summary', 'summary')).toHaveFocus();
     });
 
+    it('should move focus from the trigger to an editable element in the card', async () => {
+      await openWithKeyboard('tab-into-editable', {
+        content: '<div contenteditable="true" data-testid="editor">Edit me</div>',
+      });
+
+      await userEvent.tab();
+
+      expect(inCard('tab-into-editable', 'editor')).toHaveFocus();
+    });
+
     it('should skip elements in the card that cannot take focus', async () => {
       const { getByTestId } = await openWithKeyboard('tab-past-unfocusable', {
         content: `
           <a>not a link</a>
+          <div contenteditable="false">not editable</div>
           <div inert><button type="button">inert</button></div>
           <details>
             <summary data-testid="summary">More</summary>
@@ -727,6 +752,28 @@ describe('NgpPreviewCardTrigger (primitive)', () => {
 
       expect(card('tab-clears-corridor')).toBeInTheDocument();
       expect(inCard('tab-clears-corridor', 'first')).toHaveFocus();
+    });
+
+    it('should wrap to the start of a focus trap when the trigger is its last element', async () => {
+      const { getByTestId } = await openWithKeyboard('tab-out-wraps-in-focus-trap', {
+        focusTrap: true,
+        after: '',
+      });
+
+      inCard('tab-out-wraps-in-focus-trap', 'last').focus();
+      await userEvent.tab();
+
+      expect(getByTestId('before')).toHaveFocus();
+    });
+
+    it('should leave Tab to the browser when the card cannot take focus', async () => {
+      const { getByTestId } = await openWithKeyboard('tab-blocked-by-modal', {
+        modalDialog: true,
+      });
+
+      await userEvent.tab();
+
+      expect(getByTestId('after')).toHaveFocus();
     });
 
     it('should move focus into the card and out to the next element inside a focus trap', async () => {

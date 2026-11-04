@@ -360,11 +360,10 @@ export const [
       const [first] = getCardTabbables();
 
       if (first) {
-        event.preventDefault();
         // A close the pointer scheduled would remove the card from under keyboard focus.
         hoverBridge.clear();
         overlay()?.cancelPendingClose();
-        focusMonitor.focusVia(first, 'keyboard');
+        moveFocus(event, first);
       }
     }
 
@@ -385,8 +384,7 @@ export const [
 
       if (event.shiftKey) {
         if (!first || !follows(focused, first)) {
-          event.preventDefault();
-          focusMonitor.focusVia(elementRef.nativeElement, 'keyboard');
+          moveFocus(event, elementRef.nativeElement);
         }
         return;
       }
@@ -399,8 +397,19 @@ export const [
       const next = getTabbableAfterTrigger();
 
       if (next) {
+        moveFocus(event, next);
+      }
+    }
+
+    /**
+     * Cancels the browser's own Tab only once focus has landed, so an element that refuses
+     * focus, such as one outside a modal dialog, leaves Tab to the browser.
+     */
+    function moveFocus(event: KeyboardEvent, target: HTMLElement): void {
+      focusMonitor.focusVia(target, 'keyboard');
+
+      if (target.ownerDocument.activeElement === target) {
         event.preventDefault();
-        focusMonitor.focusVia(next, 'keyboard');
       }
     }
 
@@ -412,6 +421,8 @@ export const [
     function isTabbable(element: HTMLElement): boolean {
       return (
         interactivityChecker.isTabbable(element) &&
+        // CDK accepts any `[contenteditable]` without a `tabindex`, `"false"` included.
+        (element.tabIndex >= 0 || element.isContentEditable) &&
         !element.matches(NOT_FOCUSABLE) &&
         interactivityChecker.isVisible(element)
       );
@@ -439,14 +450,16 @@ export const [
 
     /**
      * The first tabbable element after the trigger in DOM order, outside the card. Controls
-     * nested in the trigger come first, as they would without the card. Positive `tabindex`
-     * values are not taken into account.
+     * nested in the trigger come first, as they would without the card. In a focus trap, the
+     * search stays inside it and wraps to its start, as the trap's own Tab does. Positive
+     * `tabindex` values are not taken into account.
      */
     function getTabbableAfterTrigger(): HTMLElement | null {
       const trigger = elementRef.nativeElement;
       const cards = getCardElements();
+      const focusTrap = trigger.closest<HTMLElement>('[data-focus-trap]');
       const walker = trigger.ownerDocument.createTreeWalker(
-        trigger.ownerDocument.body,
+        focusTrap ?? trigger.ownerDocument.body,
         NodeFilter.SHOW_ELEMENT,
         {
           acceptNode: node => {
@@ -462,6 +475,13 @@ export const [
       );
 
       walker.currentNode = trigger;
+      const next = walker.nextNode() as HTMLElement | null;
+
+      if (next || !focusTrap) {
+        return next;
+      }
+
+      walker.currentNode = focusTrap;
       return walker.nextNode() as HTMLElement | null;
     }
 
