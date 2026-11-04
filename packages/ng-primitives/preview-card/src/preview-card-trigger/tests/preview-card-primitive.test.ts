@@ -633,6 +633,42 @@ describe('NgpPreviewCardTrigger (primitive)', () => {
       expect(card('tab-closed-card')).toBeNull();
     });
 
+    it('should leave Tab to the browser from a control nested in the trigger', async () => {
+      const { getByTestId } = await render(
+        wrap(`
+          <div
+            tabindex="0"
+            data-testid="trigger"
+            [ngpPreviewCardTrigger]="card"
+            ngpPreviewCardTriggerShowDelay="0"
+            ngpPreviewCardTriggerHideDelay="0"
+          >
+            <button type="button" data-testid="nested-first">nested first</button>
+            <button type="button" data-testid="nested-last">nested last</button>
+          </div>
+
+          <ng-template #card>
+            <div ngpPreviewCard>
+              <span>tab-nested-in-trigger</span>
+              ${twoLinks}
+            </div>
+          </ng-template>
+        `),
+        { imports: [NgpPreviewCardTrigger, NgpPreviewCard] },
+      );
+
+      fireEvent.pointerEnter(getByTestId('trigger'), { pointerType: 'mouse' });
+
+      await waitFor(() => {
+        expect(card('tab-nested-in-trigger')).toBeInTheDocument();
+      });
+
+      getByTestId('nested-first').focus();
+      await userEvent.tab();
+
+      expect(getByTestId('nested-last')).toHaveFocus();
+    });
+
     it('should return focus to the trigger without reopening when Escape closes the card from inside', async () => {
       const { getByTestId } = await openWithKeyboard('escape-from-card');
 

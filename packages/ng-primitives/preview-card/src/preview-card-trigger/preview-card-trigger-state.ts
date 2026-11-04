@@ -324,7 +324,13 @@ export const [
      * Tab from the trigger steps into the open card instead.
      */
     function onKeydown(event: KeyboardEvent): void {
-      if (!isPlainTab(event) || event.shiftKey || !open()) {
+      // A control nested in the trigger keeps its own place in the tab order.
+      if (
+        !isPlainTab(event) ||
+        event.shiftKey ||
+        !open() ||
+        event.target !== elementRef.nativeElement
+      ) {
         return;
       }
 
