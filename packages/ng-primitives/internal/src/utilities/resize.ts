@@ -169,9 +169,10 @@ export function observeResize(elementFn: () => HTMLElement | undefined): Signal<
 }
 
 function getElementDimensions(element: Element, entry?: ResizeObserverEntry): Dimensions {
-  // An SVG shape has no CSS box: the observer reports its bounding box in user units,
-  // before the `viewBox` scales it, so both paths measure it on screen instead.
-  if (element instanceof SVGElement && !(element instanceof SVGSVGElement)) {
+  // Only the outermost `<svg>` has a CSS box. For anything inside it, shapes and nested
+  // `<svg>` alike, the observer reports a box in user units, before the `viewBox` scales
+  // it, so both paths measure it on screen instead.
+  if (element instanceof SVGElement && element.ownerSVGElement) {
     const rect = element.getBoundingClientRect();
     return { width: rect.width, height: rect.height };
   }

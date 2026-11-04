@@ -275,7 +275,10 @@ describe('overlay anchorElement via updateConfig', () => {
       viewBox="0 0 100 60"
       style="position: absolute; top: 100px; left: 40px;"
     >
-      <circle data-testid="point" cx="150" cy="60" r="8" />
+      <circle data-testid="point" cx="75" cy="30" r="8" />
+      <svg data-testid="inset" x="10" y="10" width="20" height="10">
+        <rect width="20" height="10" />
+      </svg>
     </svg>
     <button data-testid="trigger" type="button" style="position: absolute; top: 500px; left: 40px;">
       Trigger
@@ -304,7 +307,7 @@ describe('overlay anchored to an svg element', () => {
     document.querySelectorAll('[data-testid="overlay"]').forEach(el => el.remove());
   });
 
-  async function openAnchoredTo(testId: 'chart' | 'point') {
+  async function openAnchoredTo(testId: 'chart' | 'point' | 'inset') {
     const { fixture, getByTestId } = await render(SvgAnchorHostComponent);
     fixture.autoDetectChanges(true);
 
@@ -331,6 +334,7 @@ describe('overlay anchored to an svg element', () => {
   it.each([
     { anchor: 'point', width: 32 },
     { anchor: 'chart', width: 200 },
+    { anchor: 'inset', width: 40 },
   ] as const)('should position below the svg $anchor and measure it', async ({ anchor, width }) => {
     const rect = await openAnchoredTo(anchor);
 

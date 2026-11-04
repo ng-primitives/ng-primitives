@@ -240,27 +240,27 @@ describe('fromResizeEvent', () => {
     expect(emissions).toEqual([{ width: 120, height: 40 }]);
   });
 
-  it('should measure an svg shape on screen, scaled by the viewBox', async () => {
+  it.each([
+    { name: 'shape', markup: '<circle cx="20" cy="10" r="8" />' },
+    {
+      name: 'nested svg',
+      markup: '<svg x="10" y="2" width="16" height="16"><rect width="16" height="16" /></svg>',
+    },
+  ])('should measure an svg $name on screen, scaled by the viewBox', async ({ markup }) => {
     const emissions: { width: number; height: number }[] = [];
-    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-    svg.setAttribute('width', '120');
-    svg.setAttribute('height', '40');
-    svg.setAttribute('viewBox', '0 0 60 20');
-    const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-    circle.setAttribute('cx', '20');
-    circle.setAttribute('cy', '10');
-    circle.setAttribute('r', '8');
-    svg.appendChild(circle);
-    document.body.appendChild(svg);
+    const host = document.createElement('div');
+    host.innerHTML = `<svg width="120" height="40" viewBox="0 0 60 20">${markup}</svg>`;
+    document.body.appendChild(host);
+    const target = host.querySelector('svg')!.firstElementChild!;
 
-    fromResizeEvent(circle, { injector }).subscribe(dimensions => emissions.push(dimensions));
+    fromResizeEvent(target, { injector }).subscribe(dimensions => emissions.push(dimensions));
     await Promise.resolve();
 
-    // The observer reports the circle's bounding box in user units, unscaled.
+    // The observer reports the box in user units, before the viewBox scales it.
     MockResizeObserver.instances[0].trigger([
       { borderBoxSize: [{ inlineSize: 16, blockSize: 16 }] },
     ]);
-    svg.remove();
+    host.remove();
 
     expect(emissions).toEqual([{ width: 32, height: 32 }]);
   });
