@@ -3,6 +3,7 @@ import {
   ElementRef,
   inject,
   Injector,
+  signal,
   TemplateRef,
   viewChild,
   ViewContainerRef,
@@ -51,6 +52,19 @@ function pendingAnimation(): Animation {
     finish: () => undefined,
     effect: { getComputedTiming: () => ({ iterations: 1, endTime: 100_000 }) },
   } as unknown as Animation;
+}
+
+/** An exit animation the test ends by calling `finish`. */
+function controlledAnimation(): { animation: Animation; finish: () => void } {
+  let finish!: () => void;
+  const finished = new Promise<void>(resolve => (finish = resolve));
+  const animation = {
+    finished,
+    cancel: () => undefined,
+    finish: () => finish(),
+    effect: { getComputedTiming: () => ({ iterations: 1, endTime: 100_000 }) },
+  } as unknown as Animation;
+  return { animation, finish };
 }
 
 /** A stand-in for a trigger whose open state is bound: it allows only what the binding says. */
@@ -111,6 +125,18 @@ describe('NgpOverlay requestOpenChange', () => {
     expect(overlay.isOpen()).toBe(true);
   });
 
+  it('skips the delay of an open already scheduled when an immediate show joins it', async () => {
+    const { fixture } = await render(OverlayHost);
+    overlay = fixture.componentInstance.create(() => true, { showDelay: 10_000 });
+
+    const scheduled = overlay.show();
+    overlay.show({ immediate: true });
+    await wait(20);
+
+    expect(overlay.isOpen()).toBe(true);
+    expect(await Promise.race([scheduled.then(() => 'settled'), wait(20)])).toBe('settled');
+  });
+
   it('stays open when the close is declined, without tearing anything down', async () => {
     const { fixture } = await render(OverlayHost);
     const owner = boundOwner(true);
@@ -153,6 +179,52 @@ describe('NgpOverlay requestOpenChange', () => {
 
     owner.open = false;
     overlay.hide({ immediate: true });
+
+    await waitFor(() => expect(overlay!.isOpen()).toBe(false));
+    expect(document.activeElement).toBe(fixture.componentInstance.trigger().nativeElement);
+  });
+
+  it('applies a content change made during a declined close', async () => {
+    const { fixture } = await render(OverlayHost);
+    const owner = boundOwner(true);
+    const content = signal<TemplateRef<unknown> | undefined>(fixture.componentInstance.content());
+    overlay = fixture.componentInstance.create(owner.requestOpenChange, {
+      content,
+      hideDelay: 20,
+    });
+    await overlay.show();
+
+    overlay.hide();
+    content.set(undefined);
+    fixture.detectChanges();
+
+    // nothing is left to render, so the overlay closes once it is no longer closing
+    await waitFor(() => expect(overlay!.isOpen()).toBe(false));
+  });
+
+  it('keeps the trigger press of a reopen declined during an exit animation', async () => {
+    const { fixture } = await render(OverlayHost);
+    const owner = boundOwner(true);
+    overlay = fixture.componentInstance.create(owner.requestOpenChange);
+    (document.activeElement as HTMLElement | null)?.blur();
+    await overlay.show();
+
+    const exit = controlledAnimation();
+    document.querySelector<HTMLElement>('[data-testid="overlay"]')!.getAnimations = () => [
+      exit.animation,
+    ];
+    owner.open = false;
+    overlay.hide({ immediate: true });
+
+    // pressed while the overlay is still animating out, and declined
+    await overlay.show({ fromTriggerPress: true });
+    exit.finish();
+    await waitFor(() => expect(overlay!.isOpen()).toBe(false));
+
+    owner.open = true;
+    await overlay.show({ immediate: true });
+    owner.open = false;
+    overlay.hide({ origin: 'mouse', immediate: true });
 
     await waitFor(() => expect(overlay!.isOpen()).toBe(false));
     expect(document.activeElement).toBe(fixture.componentInstance.trigger().nativeElement);

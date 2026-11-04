@@ -672,7 +672,7 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
       // If destruction is in progress (exit animation running), cancel it
       // and reuse the existing overlay instead of creating a new one.
       if (this.destroyingPortal) {
-        this.cancelDestruction();
+        this.cancelDestruction(!!options?.fromTriggerPress);
         resolve();
         return;
       }
@@ -684,11 +684,20 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
       }
 
       // An open is already scheduled: join it rather than starting a second one, so
-      // this caller settles when that open completes (or when it is cancelled).
+      // this caller settles when that open completes (or when it is cancelled). An
+      // immediate show also reschedules it without the delay.
+      const joining = !!this.openTimeout;
+
       if (this.openTimeout) {
         this.pendingTriggerPress ||= !!options?.fromTriggerPress;
         this.pendingShowResolvers.push(resolve);
-        return;
+
+        if (!options?.immediate) {
+          return;
+        }
+
+        this.openTimeout();
+        this.openTimeout = undefined;
       }
 
       let delay = options?.immediate ? 0 : (this.config.showDelay ?? 0);
@@ -715,8 +724,10 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
 
       // Queue this caller alongside any that join while the open is scheduled, so a
       // cancelled open settles the caller that started it as well as the joiners.
-      this.pendingShowResolvers.push(resolve);
-      this.pendingTriggerPress = !!options?.fromTriggerPress;
+      if (!joining) {
+        this.pendingShowResolvers.push(resolve);
+        this.pendingTriggerPress = !!options?.fromTriggerPress;
+      }
 
       this.openTimeout = this.disposables.setTimeout(() => {
         this.openTimeout = undefined;
@@ -773,12 +784,17 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
    * restores the portal, and re-enables positioning and scroll strategy.
    * Used when show() or cancelPendingClose() is called during exit animation.
    */
-  private cancelDestruction(): void {
+  private cancelDestruction(fromTriggerPress = false): void {
     const portal = this.destroyingPortal;
 
     // Teardown is terminal - a destroyed overlay must not be brought back, and its portal
     // stays on the destroy path so the view is released when the detach settles.
-    if (!portal || this.forceDestroyed || !this.isOpenChangeAllowed(true)) {
+    if (!portal || this.forceDestroyed) {
+      return;
+    }
+
+    if (!this.isOpenChangeAllowed(true)) {
+      this.declinedOpenFromTriggerPress ||= fromTriggerPress;
       return;
     }
 
@@ -879,6 +895,8 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
       if (canBeDeclined) {
         if (!this.isOpenChangeAllowed(false)) {
           this.declinedClose = options ?? {};
+          // Content changes wait while a close is pending, so catch up now it stays open.
+          this.replaceContent();
           return;
         }
 
