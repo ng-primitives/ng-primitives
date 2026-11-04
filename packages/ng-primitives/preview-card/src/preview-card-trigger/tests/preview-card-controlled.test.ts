@@ -136,6 +136,22 @@ class LateContentComponent {
   readonly changes: boolean[] = [];
 }
 
+@Component({
+  template: `
+    <div style="padding: 200px">
+      <a
+        href="https://angularprimitives.com"
+        ngpPreviewCardTrigger
+        ngpPreviewCardTriggerDefaultOpen
+      >
+        Angular Primitives
+      </a>
+    </div>
+  `,
+  imports: [NgpPreviewCardTrigger],
+})
+class DefaultOpenWithoutContentComponent {}
+
 /** An exit animation that never settles, holding the card mid-close. */
 function pendingAnimation(): Animation {
   return {
@@ -230,10 +246,16 @@ describe('NgpPreviewCardTrigger open binding', () => {
       fixture.detectChanges();
       await waitFor(() => expect(element).toHaveAttribute('data-exit'));
 
-      fireEvent.pointerEnter(getByRole('link'), { pointerType: 'mouse' });
-      await settle();
+      try {
+        fireEvent.pointerEnter(getByRole('link'), { pointerType: 'mouse' });
+        await settle();
 
-      expect(host.changes).toEqual([true]);
+        expect(host.changes).toEqual([true]);
+      } finally {
+        element.getAnimations = () => [];
+        host.open.set(undefined);
+        fixture.detectChanges();
+      }
     });
 
     it('opens once content arrives for a binding that is already true', async () => {
@@ -257,6 +279,22 @@ describe('NgpPreviewCardTrigger open binding', () => {
   });
 
   describe('defaultOpen', () => {
+    it('reports missing content rather than waiting for it', async () => {
+      const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+
+      try {
+        await render(DefaultOpenWithoutContentComponent);
+        await settle();
+
+        expect(consoleSpy).toHaveBeenCalledWith(
+          '[ngpPreviewCardTrigger]: Preview card must be a TemplateRef or a ComponentType.',
+        );
+        expect(card()).not.toBeInTheDocument();
+      } finally {
+        consoleSpy.mockRestore();
+      }
+    });
+
     it('can be set through the state before the first render', async () => {
       await render(SetDefaultOpenComponent);
 

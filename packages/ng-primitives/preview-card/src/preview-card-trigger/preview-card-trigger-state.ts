@@ -234,7 +234,12 @@ export const [
         if (bound === false) {
           hoverBridge.clear();
           overlay()?.hide({ immediate: true });
-        } else if (hasContent && (bound === true || (firstRender && defaultOpen()))) {
+        } else if (bound === true) {
+          if (hasContent) {
+            openOverlay();
+          }
+        } else if (firstRender && defaultOpen()) {
+          // Read once, so a missing content is reported rather than waited for.
           openOverlay();
         }
       });
