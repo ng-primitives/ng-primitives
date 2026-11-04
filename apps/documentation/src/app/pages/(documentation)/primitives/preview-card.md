@@ -36,7 +36,7 @@ Assemble the directives in your template. The trigger should be a link, or anoth
 
 ## Preview Card vs Tooltip vs Popover
 
-A tooltip labels a control with a short piece of text. A popover holds content the user works with: it opens on click and traps focus. A preview card opens on hover or keyboard focus like a tooltip, holds rich content like a popover, and does not move focus: the user tabs from the trigger into it.
+A tooltip labels a control with a short piece of text. A popover holds content the user works with: it opens on click and traps focus. A preview card opens on hover or keyboard focus like a tooltip, holds rich content like a popover, and does not move focus when it opens: the user tabs from the trigger into it.
 
 A preview card is not exposed to assistive technology and cannot be opened on touch, so use a popover if the content matters.
 
