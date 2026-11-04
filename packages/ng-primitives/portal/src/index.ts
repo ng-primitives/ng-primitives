@@ -9,6 +9,7 @@ export {
   NgpOverlay,
   NgpOverlayConfig,
   NgpOverlayContent,
+  NgpOverlayFinalFocus,
   NgpOverlayTemplateContext,
   OverlayHideImmediateOptions,
 } from './overlay';

@@ -138,6 +138,25 @@ describe('createOverlay imperative usage', () => {
     target.dispatchEvent(new MouseEvent('mouseup', { bubbles: true, composed: true }));
   }
 
+  it('reads a restoreFocus signal when the overlay closes', async () => {
+    const restoreFocus = signal(true);
+    const { overlay, getByTestId } = await setup(() => ({ restoreFocus }));
+    const trigger = getByTestId('trigger');
+
+    trigger.focus();
+    await overlay.show();
+    trigger.blur();
+    overlay.hide({ origin: 'keyboard' });
+    await waitFor(() => expect(document.activeElement).toBe(trigger));
+
+    restoreFocus.set(false);
+    await overlay.show();
+    trigger.blur();
+    overlay.hide({ origin: 'keyboard' });
+    await waitFor(() => expect(overlay.isOpen()).toBe(false));
+    expect(document.activeElement).toBe(document.body);
+  });
+
   it('leaves focus on a trigger the user focused while the overlay was open', async () => {
     const { overlay, getByTestId } = await setup(() => ({ restoreFocus: true }));
     const outside = getByTestId('outside');
@@ -364,6 +383,38 @@ describe('createOverlay imperative usage', () => {
     await new Promise(resolve => setTimeout(resolve, 20));
     expect(overlay.isOpen()).toBe(true);
     expect(document.querySelector('[data-testid="overlay"]')).toBeInTheDocument();
+  });
+
+  it('returns focus with an explicit finalFocus of true even when restoreFocus is false', async () => {
+    const { overlay, getByTestId } = await setup(() => ({ restoreFocus: false }));
+    const trigger = getByTestId('trigger');
+
+    trigger.focus();
+    await overlay.show();
+    overlay.setFinalFocus(true);
+    trigger.blur();
+    overlay.hide({ origin: 'keyboard' });
+
+    await waitFor(() => expect(document.activeElement).toBe(trigger));
+  });
+
+  it('returns focus when its content is cleared while focus is inside', async () => {
+    const content = signal<TemplateRef<NgpOverlayTemplateContext<unknown>> | null>(null);
+    const { overlay, getByTestId } = await setup((_, host) => {
+      content.set(host.content());
+      return { content, restoreFocus: true };
+    });
+    const trigger = getByTestId('trigger');
+
+    trigger.focus();
+    await overlay.show();
+    const panel = await screen.findByTestId('overlay');
+    panel.tabIndex = -1;
+    panel.focus();
+    content.set(null);
+
+    await waitFor(() => expect(overlay.isOpen()).toBe(false));
+    expect(document.activeElement).toBe(trigger);
   });
 
   it('leaves focus where it is on close when restoreFocus is false', async () => {
