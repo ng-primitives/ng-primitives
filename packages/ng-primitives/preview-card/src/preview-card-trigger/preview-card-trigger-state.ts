@@ -379,8 +379,13 @@ export const [
     }
 
     function isTabbable(element: HTMLElement): boolean {
-      // `isTabbable` only reads `tabIndex`, which is 0 on a disabled button.
-      return interactivityChecker.isFocusable(element) && interactivityChecker.isTabbable(element);
+      // `isTabbable` only reads `tabIndex`, which is 0 on a disabled button. `isFocusable`
+      // would exclude it, but also excludes a native `<summary>`.
+      return (
+        interactivityChecker.isTabbable(element) &&
+        interactivityChecker.isVisible(element) &&
+        !element.matches(':disabled')
+      );
     }
 
     /** The card's tabbable elements, in DOM order. */

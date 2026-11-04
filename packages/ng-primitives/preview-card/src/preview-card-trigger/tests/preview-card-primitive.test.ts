@@ -573,6 +573,22 @@ describe('NgpPreviewCardTrigger (primitive)', () => {
       expect(inCard('tab-through-card', 'last')).toHaveFocus();
     });
 
+    it('should move focus from the trigger to a summary in the card', async () => {
+      await openWithKeyboard(
+        'tab-into-summary',
+        `
+          <details>
+            <summary data-testid="summary">More</summary>
+            <p>Details</p>
+          </details>
+        `,
+      );
+
+      await userEvent.tab();
+
+      expect(inCard('tab-into-summary', 'summary')).toHaveFocus();
+    });
+
     it('should move focus from the last element in the card to the element after the trigger', async () => {
       const { getByTestId } = await openWithKeyboard('tab-out-of-card');
 
@@ -592,6 +608,7 @@ describe('NgpPreviewCardTrigger (primitive)', () => {
         `
           <p>Some text</p>
           <button type="button" disabled>disabled</button>
+          <fieldset disabled><button type="button">in disabled fieldset</button></fieldset>
           <div><button type="button" data-testid="after">after</button></div>
         `,
       );
