@@ -161,7 +161,7 @@ export class CloseScrollStrategy implements ScrollStrategy {
   private cleanups: (() => void)[] = [];
 
   constructor(
-    private readonly triggerElement: HTMLElement,
+    private readonly referenceElement: Element,
     private readonly onClose: () => void,
     private readonly overlayElements: () => HTMLElement[],
   ) {}
@@ -170,7 +170,7 @@ export class CloseScrollStrategy implements ScrollStrategy {
     // Guard against double-enable: remove any existing listeners first
     this.disable();
 
-    const ancestors = getOverflowAncestors(this.triggerElement);
+    const ancestors = getOverflowAncestors(this.referenceElement);
 
     const handler = (event: Event) => {
       const target = event.target;

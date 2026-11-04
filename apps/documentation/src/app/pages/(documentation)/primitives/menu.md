@@ -178,6 +178,8 @@ The anchor also becomes the element `--ngp-menu-trigger-width` measures, so a me
 
 The anchor is live: rebinding it moves an already-open menu to the new element, and the new element is the one that counts as inside for dismissal. A single menu can therefore be pointed at whichever of many elements was interacted with, instead of giving each one its own trigger.
 
+The anchor can be any element, including an SVG one such as a point in a chart.
+
 #### Serving many targets from one menu
 
 When one menu serves many targets, re-anchor it with `setAnchor` on `pointerdown` rather than by rebinding `ngpMenuTriggerAnchor`:

@@ -265,3 +265,76 @@ describe('overlay anchorElement via updateConfig', () => {
     });
   });
 });
+
+@Component({
+  template: `
+    <svg
+      data-testid="chart"
+      width="200"
+      height="120"
+      viewBox="0 0 100 60"
+      style="position: absolute; top: 100px; left: 40px;"
+    >
+      <circle data-testid="point" cx="150" cy="60" r="8" />
+    </svg>
+    <button data-testid="trigger" type="button" style="position: absolute; top: 500px; left: 40px;">
+      Trigger
+    </button>
+
+    <ng-template #content>
+      <div data-testid="overlay" style="position: absolute; width: 80px; height: 40px;">
+        Overlay
+      </div>
+    </ng-template>
+  `,
+})
+class SvgAnchorHostComponent {
+  readonly content = viewChild.required<TemplateRef<NgpOverlayTemplateContext<unknown>>>('content');
+  readonly viewContainerRef = inject(ViewContainerRef);
+  readonly injector = inject(Injector);
+}
+
+// The viewBox scales the chart 2x, so a shape's on-screen size differs from its user units.
+describe('overlay anchored to an svg element', () => {
+  let overlay: NgpOverlay<unknown> | null = null;
+
+  afterEach(() => {
+    overlay?.destroy();
+    overlay = null;
+    document.querySelectorAll('[data-testid="overlay"]').forEach(el => el.remove());
+  });
+
+  async function openAnchoredTo(testId: 'chart' | 'point') {
+    const { fixture, getByTestId } = await render(SvgAnchorHostComponent);
+    fixture.autoDetectChanges(true);
+
+    const host = fixture.componentInstance;
+    const anchor = fixture.nativeElement.querySelector(`[data-testid="${testId}"]`) as SVGElement;
+
+    overlay = TestBed.runInInjectionContext(() =>
+      createOverlay({
+        content: host.content,
+        triggerElement: getByTestId('trigger'),
+        injector: host.injector,
+        viewContainerRef: host.viewContainerRef,
+        anchorElement: anchor,
+        placement: signal('bottom'),
+      }),
+    );
+
+    await overlay.show();
+    await waitFor(() => expect(overlay!.position().y).toBeDefined());
+
+    return anchor.getBoundingClientRect();
+  }
+
+  it.each([
+    { anchor: 'point', width: 32 },
+    { anchor: 'chart', width: 200 },
+  ] as const)('should position below the svg $anchor and measure it', async ({ anchor, width }) => {
+    const rect = await openAnchoredTo(anchor);
+
+    expect(overlay!.position().y).toBeCloseTo(rect.bottom, 0);
+    await waitFor(() => expect(overlay!.triggerWidth()).toBe(width));
+  });
+});

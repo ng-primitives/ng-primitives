@@ -92,6 +92,8 @@ You can provide a separate anchor element using `ngpTooltipTriggerAnchor` to con
 
 The anchor is live - rebinding it moves a tooltip that is already showing to the new element.
 
+The anchor can be any element, including an SVG one such as a point in a chart.
+
 ### Custom Shift
 
 You can customize the shift behavior to control how the tooltip stays within the viewport:
