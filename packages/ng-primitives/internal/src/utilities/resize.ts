@@ -33,7 +33,7 @@ interface NgpResizeObserverOptions {
  * @returns The resize event as an Observable.
  */
 export function fromResizeEvent(
-  element: HTMLElement,
+  element: Element,
   { disabled = signal(false), injector }: NgpResizeObserverOptions = {},
 ): Observable<Dimensions> {
   const platformId = injector?.get(PLATFORM_ID) ?? inject(PLATFORM_ID);
@@ -168,7 +168,14 @@ export function observeResize(elementFn: () => HTMLElement | undefined): Signal<
   return dimensions;
 }
 
-function getElementDimensions(element: HTMLElement, entry?: ResizeObserverEntry): Dimensions {
+function getElementDimensions(element: Element, entry?: ResizeObserverEntry): Dimensions {
+  // An SVG shape has no CSS box: the observer reports its bounding box in user units,
+  // before the `viewBox` scales it, so both paths measure it on screen instead.
+  if (element instanceof SVGElement && !(element instanceof SVGSVGElement)) {
+    const rect = element.getBoundingClientRect();
+    return { width: rect.width, height: rect.height };
+  }
+
   if (!entry) {
     // Match what the observer reports: an untransformed border-box size at full
     // precision. `offsetWidth`/`offsetHeight` are untransformed but round to whole
@@ -201,7 +208,7 @@ function getElementDimensions(element: HTMLElement, entry?: ResizeObserverEntry)
  * `width`/`height` resolve to whichever box `box-sizing` selects, so only the
  * content-box case has to add padding, borders and the scrollbar back on.
  */
-function measureBorderBox(element: HTMLElement): Dimensions {
+function measureBorderBox(element: Element): Dimensions {
   const style = getComputedStyle(element);
 
   // Only a px length is a measurement: a non-rendered element keeps its units, so an
@@ -232,8 +239,11 @@ function measureBorderBox(element: HTMLElement): Dimensions {
   // reports, so it has to be added back or the same unchanged element measures a
   // scrollbar smaller here than it does there. Only a scroll container has one, and
   // `offsetWidth`/`clientWidth` cost layout, so the common case stays unmeasured; they
-  // are whole pixels, so a fractional border can leave a sub-pixel remainder.
-  const scrollable = style.overflowX !== 'visible' || style.overflowY !== 'visible';
+  // are whole pixels, so a fractional border can leave a sub-pixel remainder. An `<svg>`
+  // clips its overflow by default but has no offset size and never shows a scrollbar.
+  const scrollable =
+    element instanceof HTMLElement &&
+    (style.overflowX !== 'visible' || style.overflowY !== 'visible');
   const scrollbarHorizontal = scrollable
     ? Math.max(0, element.offsetWidth - element.clientWidth - borderHorizontal)
     : 0;

@@ -226,6 +226,45 @@ describe('fromResizeEvent', () => {
     expect(emissions).toEqual([borderBox]);
   });
 
+  it('should measure an svg root, which clips its overflow but has no offset size', async () => {
+    const emissions: { width: number; height: number }[] = [];
+    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    svg.setAttribute('width', '120');
+    svg.setAttribute('height', '40');
+    document.body.appendChild(svg);
+
+    fromResizeEvent(svg, { injector }).subscribe(dimensions => emissions.push(dimensions));
+    await Promise.resolve();
+    svg.remove();
+
+    expect(emissions).toEqual([{ width: 120, height: 40 }]);
+  });
+
+  it('should measure an svg shape on screen, scaled by the viewBox', async () => {
+    const emissions: { width: number; height: number }[] = [];
+    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    svg.setAttribute('width', '120');
+    svg.setAttribute('height', '40');
+    svg.setAttribute('viewBox', '0 0 60 20');
+    const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+    circle.setAttribute('cx', '20');
+    circle.setAttribute('cy', '10');
+    circle.setAttribute('r', '8');
+    svg.appendChild(circle);
+    document.body.appendChild(svg);
+
+    fromResizeEvent(circle, { injector }).subscribe(dimensions => emissions.push(dimensions));
+    await Promise.resolve();
+
+    // The observer reports the circle's bounding box in user units, unscaled.
+    MockResizeObserver.instances[0].trigger([
+      { borderBoxSize: [{ inlineSize: 16, blockSize: 16 }] },
+    ]);
+    svg.remove();
+
+    expect(emissions).toEqual([{ width: 32, height: 32 }]);
+  });
+
   it('should not measure a percentage size as pixels', async () => {
     const emissions: { width: number; height: number }[] = [];
     element.style.display = 'none';
