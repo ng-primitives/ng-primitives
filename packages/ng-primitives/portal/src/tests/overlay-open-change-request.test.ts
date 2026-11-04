@@ -216,9 +216,12 @@ describe('NgpOverlay requestOpenChange', () => {
     owner.open = false;
     overlay.hide({ immediate: true });
 
-    // pressed while the overlay is still animating out, and declined
-    await overlay.show({ fromTriggerPress: true });
-    exit.finish();
+    try {
+      // pressed while the overlay is still animating out, and declined
+      await overlay.show({ fromTriggerPress: true });
+    } finally {
+      exit.finish();
+    }
     await waitFor(() => expect(overlay!.isOpen()).toBe(false));
 
     owner.open = true;
