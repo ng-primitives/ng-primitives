@@ -195,6 +195,7 @@ That constrains how it can be used:
 
 ### Keyboard Interactions
 
-- <kbd>Tab</kbd>: Moves focus to the trigger, which opens the card. Focus is not moved into the card, and the card is rendered outside the trigger, so tabbing again continues through the page rather than into the card.
-- <kbd>Esc</kbd>: Closes the card.
+- <kbd>Tab</kbd>: Moves focus to the trigger, which opens the card. While the card is open, the next <kbd>Tab</kbd> moves focus to the first focusable element in the card, and <kbd>Tab</kbd> from its last one continues to the element after the trigger. A card with nothing focusable is skipped.
+- <kbd>Shift</kbd> + <kbd>Tab</kbd>: From the first focusable element in the card, moves focus back to the trigger.
+- <kbd>Esc</kbd>: Closes the card. If focus is in the card, it returns to the trigger.
 - <kbd>Enter</kbd>: Activates the trigger.
