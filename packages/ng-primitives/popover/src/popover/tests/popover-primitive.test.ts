@@ -1973,6 +1973,40 @@ describe('NgpPopover', () => {
       anchor.remove();
     });
 
+    it('should position the popover against an svg element passed to the directive setAnchor', async () => {
+      const { fixture, getByRole } = await render(
+        `
+          <svg width="200" height="120" viewBox="0 0 100 60" style="position: fixed; top: 300px; left: 40px;">
+            <circle cx="50" cy="30" r="8" />
+          </svg>
+          <button
+            [ngpPopoverTrigger]="content"
+            ngpPopoverTriggerPlacement="bottom"
+            [ngpPopoverTriggerOffset]="0"
+            [ngpPopoverTriggerFlip]="false"
+            [ngpPopoverTriggerShift]="false"
+          >
+            Open
+          </button>
+          <ng-template #content>
+            <div ngpPopover style="position: fixed; width: 120px; height: 60px;">Popover content</div>
+          </ng-template>
+        `,
+        { imports: [NgpPopoverTrigger, NgpPopover] },
+      );
+      const circle = document.querySelector('circle')!;
+      const trigger = fixture.debugElement.query(By.directive(NgpPopoverTrigger));
+
+      trigger.injector.get(NgpPopoverTrigger).setAnchor(circle);
+      fireEvent.click(getByRole('button'));
+
+      await waitFor(() => {
+        const popoverTop = document.querySelector('[ngpPopover]')!.getBoundingClientRect().top;
+
+        expect(popoverTop).toBeCloseTo(circle.getBoundingClientRect().bottom, 0);
+      });
+    });
+
     it('should attach the popover to the element passed to setContainer', async () => {
       const host = document.createElement('div');
       host.id = 'setter-popover-host';
