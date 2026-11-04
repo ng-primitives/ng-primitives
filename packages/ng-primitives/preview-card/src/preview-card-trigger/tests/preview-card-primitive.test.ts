@@ -562,6 +562,7 @@ describe('NgpPreviewCardTrigger (primitive)', () => {
       `);
     }
 
+    /** Renders the fixture with an `openChange` spy, opening the modal dialog if there is one. */
     async function renderTab(label: string, fixture: TabFixture = {}) {
       const openChange = vi.fn();
       const result = await render(tabTemplate(label, fixture), {
@@ -576,6 +577,7 @@ describe('NgpPreviewCardTrigger (primitive)', () => {
       return { ...result, openChange };
     }
 
+    /** Tabs from the element before the trigger, which opens the card. */
     async function openWithKeyboard(label: string, fixture: TabFixture = {}) {
       const result = await renderTab(label, fixture);
 
@@ -590,6 +592,7 @@ describe('NgpPreviewCardTrigger (primitive)', () => {
       return result;
     }
 
+    /** The open card with this label. Throws when it is not open. */
     function openCard(label: string): HTMLElement {
       const element = card(label);
 
@@ -600,6 +603,7 @@ describe('NgpPreviewCardTrigger (primitive)', () => {
       return element;
     }
 
+    /** The element with this test id in the open card. Throws when it is missing. */
     function inCard(label: string, testId: string): HTMLElement {
       const element = openCard(label).querySelector<HTMLElement>(`[data-testid="${testId}"]`);
 
@@ -788,6 +792,7 @@ describe('NgpPreviewCardTrigger (primitive)', () => {
     });
 
     describe('when Tab is already handled', () => {
+      /** Stands in for a control that handles Tab itself. */
       function preventTab(event: KeyboardEvent): void {
         if (event.key === 'Tab') {
           event.preventDefault();

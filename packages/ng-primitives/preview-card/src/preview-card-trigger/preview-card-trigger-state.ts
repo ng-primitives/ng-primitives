@@ -323,10 +323,12 @@ export const [
       return elementRef.nativeElement.contains(node) || isInsideCard(node);
     }
 
+    /** Whether a node is the card or inside it. */
     function isInsideCard(node: Node): boolean {
       return getCardElements().some(element => element.contains(node));
     }
 
+    /** The card's rendered elements, or none while it is closed. */
     function getCardElements(): HTMLElement[] {
       return overlay()?.getElements() ?? [];
     }
