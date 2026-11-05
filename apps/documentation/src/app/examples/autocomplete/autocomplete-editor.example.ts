@@ -1,13 +1,5 @@
 import { DOCUMENT } from '@angular/common';
-import {
-  Component,
-  computed,
-  DestroyRef,
-  ElementRef,
-  inject,
-  signal,
-  viewChild,
-} from '@angular/core';
+import { Component, computed, ElementRef, inject, signal, viewChild } from '@angular/core';
 import {
   createFragmentMatcher,
   NgpAutocomplete,
@@ -49,7 +41,7 @@ interface Mention {
         [attr.aria-controls]="autocomplete.open() ? autocomplete.dropdownId() : null"
         [attr.aria-activedescendant]="autocomplete.activeOptionId()"
         (input)="onInput()"
-        (keydown)="onKeydown($event)"
+        (keydown)="autocomplete.onKeydown($event)"
         contenteditable="true"
         role="textbox"
         aria-label="Message"
@@ -237,23 +229,9 @@ export default class AutocompleteEditorExample {
     );
   });
 
-  constructor() {
-    // the dropdown sits at a point on screen, so it follows the mention when anything scrolls
-    const onScroll = () => {
-      if (this.autocomplete().open()) {
-        this.updatePosition();
-      }
-    };
-    this.document.addEventListener('scroll', onScroll, { capture: true, passive: true });
-    inject(DestroyRef).onDestroy(() =>
-      this.document.removeEventListener('scroll', onScroll, { capture: true }),
-    );
-  }
-
   protected onInput(): void {
-    this.mention = this.findMention();
+    this.updateMention();
     this.query.set(this.mention?.fragment.query ?? '');
-    this.updatePosition();
     // like typing in ngpAutocompleteInput: opens for a mention, closes without one
     this.autocomplete().setQuery(this.mention ? this.mention.fragment.query : null);
     this.updateMentioned();
@@ -265,43 +243,11 @@ export default class AutocompleteEditorExample {
     }
 
     // leaving the mention closes the dropdown, coming back to one waits for typing
-    this.mention = this.findMention();
+    this.updateMention();
 
-    if (this.mention) {
-      this.updatePosition();
-    } else {
+    if (!this.mention) {
       this.autocomplete().closeDropdown();
     }
-  }
-
-  protected onKeydown(event: KeyboardEvent): void {
-    // an IME uses these keys to pick its candidates, and a closed list leaves them to the text
-    if (event.isComposing || !this.autocomplete().open()) {
-      return;
-    }
-
-    switch (event.key) {
-      case 'ArrowDown':
-        this.autocomplete().activateNextOption();
-        break;
-      case 'ArrowUp':
-        this.autocomplete().activatePreviousOption();
-        break;
-      case 'Enter':
-        // with nothing active, Enter starts a new line
-        if (!this.autocomplete().selectActiveOption()) {
-          this.autocomplete().closeDropdown();
-          return;
-        }
-        break;
-      case 'Escape':
-        this.autocomplete().closeDropdown();
-        break;
-      default:
-        return;
-    }
-
-    event.preventDefault();
   }
 
   protected insertMention(person: Person): void {
@@ -323,7 +269,7 @@ export default class AutocompleteEditorExample {
     chip.textContent = person.name;
 
     // a non-breaking space, as a plain one at the end of a line would collapse
-    const space = this.document.createTextNode(' ');
+    const space = this.document.createTextNode('\u00a0');
     range.insertNode(space);
     range.insertNode(chip);
     this.document.getSelection()?.collapse(space, 1);
@@ -345,19 +291,20 @@ export default class AutocompleteEditorExample {
     return fragment ? { node, fragment } : null;
   }
 
-  private updatePosition(): void {
-    if (!this.mention) {
-      return;
-    }
+  private updateMention(): void {
+    const mention = this.findMention();
+    this.mention = mention;
+    // a function, so the autocomplete measures it again when the page scrolls
+    this.autocomplete().setPosition(mention ? () => this.measure(mention) : null);
+  }
 
-    // under the @, measured from a range around it
-    const { node, fragment } = this.mention;
+  /** The bottom left corner of the @, measured from a range around it. */
+  private measure({ node, fragment }: Mention) {
     const range = this.document.createRange();
     range.setStart(node, fragment.start);
     range.setEnd(node, fragment.start + 1);
     const rect = range.getBoundingClientRect();
-
-    this.autocomplete().setPosition({ x: rect.left, y: rect.bottom });
+    return { x: rect.left, y: rect.bottom };
   }
 
   private updateMentioned(): void {
