@@ -1,4 +1,4 @@
-import { FocusMonitor } from '@angular/cdk/a11y';
+import { FocusMonitor, FocusOrigin, InteractivityChecker } from '@angular/cdk/a11y';
 import { computed, inject, Injector, signal, Signal, ViewContainerRef } from '@angular/core';
 import { createHoverBridge, injectElementRef } from 'ng-primitives/internal';
 import {
@@ -19,6 +19,18 @@ import {
   StateInjectionOptions,
 } from 'ng-primitives/state';
 import { safeTakeUntilDestroyed } from 'ng-primitives/utils';
+
+/** Elements whose `tabIndex` is 0 but that cannot take focus. */
+const NOT_FOCUSABLE = [
+  ':disabled',
+  '[inert]',
+  '[inert] *',
+  'a:not([href], [tabindex])',
+  'area:not([href], [tabindex])',
+  // The content of a closed `<details>`, besides its summary.
+  'details:not([open]) > :not(summary:first-of-type)',
+  'details:not([open]) > :not(summary:first-of-type) *',
+].join(', ');
 
 export interface NgpPreviewCardTriggerState<T> {
   /**
@@ -61,6 +73,12 @@ export interface NgpPreviewCardTriggerState<T> {
    * @internal
    */
   onCardFocusOut: (next: EventTarget | null) => void;
+  /**
+   * Called by the preview card on keydown, so Tab can leave the card for the page around
+   * the trigger.
+   * @internal
+   */
+  onCardKeydown: (event: KeyboardEvent) => void;
 }
 
 export interface NgpPreviewCardTriggerProps<T> {
@@ -161,6 +179,7 @@ export const [
     const viewContainerRef = inject(ViewContainerRef);
     const injector = inject(Injector);
     const focusMonitor = inject(FocusMonitor);
+    const interactivityChecker = inject(InteractivityChecker);
 
     const previewCard = controlled(_previewCard);
     const container = controlled(_container, 'body');
@@ -184,6 +203,10 @@ export const [
     // Two show() calls inside the show delay both settle when that single open
     // completes, so track what has been announced rather than what was open per call.
     let announcedOpen = false;
+
+    // Set while the closing card hands focus back to the trigger, so that keyboard focus
+    // does not reopen it.
+    let returningFocus = false;
 
     const triggerHovered = signal<boolean>(false);
     const cardHovered = signal<boolean>(false);
@@ -214,6 +237,7 @@ export const [
     listener(elementRef, 'pointerenter', onPointerEnter);
     listener(elementRef, 'pointerleave', onPointerLeave);
     listener(elementRef, 'focusout', event => onFocusOut(event.relatedTarget));
+    listener(elementRef, 'keydown', onKeydown);
 
     // Focus is how a sighted keyboard user reaches a preview card - without it they
     // get nothing at all. Only keyboard focus opens it, though: a tap on a touch
@@ -224,7 +248,7 @@ export const [
       .monitor(elementRef.nativeElement)
       .pipe(safeTakeUntilDestroyed())
       .subscribe(origin => {
-        if (origin === 'keyboard') {
+        if (origin === 'keyboard' && !returningFocus) {
           show();
         }
       });
@@ -296,15 +320,203 @@ export const [
 
     /** Whether a node is the trigger, the card, or inside either of them. */
     function isInsidePreviewCard(node: Node): boolean {
-      if (elementRef.nativeElement.contains(node)) {
-        return true;
+      return elementRef.nativeElement.contains(node) || isInsideCard(node);
+    }
+
+    /** Whether a node is the card or inside it. */
+    function isInsideCard(node: Node): boolean {
+      return getCardElements().some(element => element.contains(node));
+    }
+
+    /** The card's rendered elements, or none while it is closed. */
+    function getCardElements(): HTMLElement[] {
+      return overlay()?.getElements() ?? [];
+    }
+
+    /** A control that already handled Tab, such as an editor, keeps it. */
+    function shouldHandleTab(event: KeyboardEvent): boolean {
+      return (
+        event.key === 'Tab' &&
+        !event.defaultPrevented &&
+        !event.altKey &&
+        !event.ctrlKey &&
+        !event.metaKey
+      );
+    }
+
+    /**
+     * The card is portalled away from the trigger, so the browser's tab order skips it.
+     * Tab from the trigger steps into the open card instead.
+     */
+    function onKeydown(event: KeyboardEvent): void {
+      // A control nested in the trigger keeps its own place in the tab order.
+      if (
+        !shouldHandleTab(event) ||
+        event.shiftKey ||
+        !open() ||
+        event.target !== elementRef.nativeElement
+      ) {
+        return;
       }
 
+      const [first] = getCardTabbables();
+
+      if (first) {
+        // A close the pointer scheduled would remove the card from under keyboard focus.
+        hoverBridge.clear();
+        overlay()?.cancelPendingClose();
+        moveFocus(event, first);
+      }
+    }
+
+    /**
+     * Tab out of the card's edges continues from the trigger: Shift+Tab before its first
+     * tabbable returns to the trigger, Tab after its last moves to what follows the trigger.
+     * @internal
+     */
+    function onCardKeydown(event: KeyboardEvent): void {
+      if (!shouldHandleTab(event) || !(event.target instanceof Node)) {
+        return;
+      }
+
+      const focused = event.target;
+      const tabbables = getCardTabbables();
+      const first = tabbables.at(0);
+      const last = tabbables.at(-1);
+
+      if (event.shiftKey) {
+        if (!first || !follows(focused, first)) {
+          moveFocus(event, elementRef.nativeElement);
+        }
+        return;
+      }
+
+      if (last && follows(last, focused)) {
+        return;
+      }
+
+      // With nothing after the trigger, the browser moves focus out of the page itself.
+      const next = getTabbableAfterTrigger();
+
+      if (next) {
+        moveFocus(event, next);
+      }
+    }
+
+    /**
+     * Cancels the browser's own Tab only once focus has landed, so an element that refuses
+     * focus, such as one outside a modal dialog, leaves Tab to the browser.
+     */
+    function moveFocus(event: KeyboardEvent, target: HTMLElement): void {
+      focusMonitor.focusVia(target, 'keyboard');
+
+      // In a shadow root, the document's active element is the shadow host.
+      const root = target.getRootNode();
+      const activeElement =
+        root instanceof ShadowRoot ? root.activeElement : target.ownerDocument.activeElement;
+
+      if (activeElement === target) {
+        event.preventDefault();
+      }
+    }
+
+    /**
+     * `isTabbable` follows the browser's `tabIndex`, which is also 0 on elements that cannot
+     * take focus. CDK's `isFocusable` is not used: it rejects a native `<summary>` and media
+     * controls, and accepts a control in a disabled fieldset.
+     */
+    function isTabbable(element: HTMLElement): boolean {
       return (
-        overlay()
-          ?.getElements()
-          .some(element => element.contains(node)) ?? false
+        interactivityChecker.isTabbable(element) &&
+        // CDK accepts any `[contenteditable]` without a `tabindex`, `"false"` included.
+        (element.tabIndex >= 0 || element.isContentEditable) &&
+        !element.matches(NOT_FOCUSABLE) &&
+        interactivityChecker.isVisible(element)
       );
+    }
+
+    /**
+     * The card's tabbable elements, in DOM order. Positive `tabindex` values and shadow roots
+     * are not taken into account.
+     */
+    function getCardTabbables(): HTMLElement[] {
+      return getCardElements().flatMap(card => {
+        const tabbables: HTMLElement[] = [];
+        const walker = card.ownerDocument.createTreeWalker(card, NodeFilter.SHOW_ELEMENT, {
+          acceptNode: node =>
+            isTabbable(node as HTMLElement) ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_SKIP,
+        });
+
+        while (walker.nextNode()) {
+          tabbables.push(walker.currentNode as HTMLElement);
+        }
+
+        return tabbables;
+      });
+    }
+
+    /**
+     * The first tabbable element after the trigger in DOM order, outside the card. Controls
+     * nested in the trigger come first, as they would without the card. In a focus trap, the
+     * search stays inside it and wraps to its start, as the trap's own Tab does. Positive
+     * `tabindex` values are not taken into account.
+     */
+    function getTabbableAfterTrigger(): HTMLElement | null {
+      const trigger = elementRef.nativeElement;
+      const cards = getCardElements();
+      const focusTrap = trigger.closest<HTMLElement>('[data-focus-trap]');
+      const walker = trigger.ownerDocument.createTreeWalker(
+        focusTrap ?? trigger.ownerDocument.body,
+        NodeFilter.SHOW_ELEMENT,
+        {
+          acceptNode: node => {
+            if (cards.includes(node as HTMLElement)) {
+              return NodeFilter.FILTER_REJECT;
+            }
+
+            return isTabbable(node as HTMLElement)
+              ? NodeFilter.FILTER_ACCEPT
+              : NodeFilter.FILTER_SKIP;
+          },
+        },
+      );
+
+      walker.currentNode = trigger;
+      const next = walker.nextNode() as HTMLElement | null;
+
+      if (next || !focusTrap) {
+        return next;
+      }
+
+      walker.currentNode = focusTrap;
+      return walker.nextNode() as HTMLElement | null;
+    }
+
+    /** Whether `node` comes after `reference` in DOM order. */
+    function follows(node: Node, reference: Node): boolean {
+      return (reference.compareDocumentPosition(node) & Node.DOCUMENT_POSITION_FOLLOWING) !== 0;
+    }
+
+    /**
+     * The card is about to be removed, and focus inside it would fall to the body. The card
+     * belongs to the trigger, so focus goes back there.
+     */
+    function returnFocusFromCard(origin: FocusOrigin): void {
+      const trigger = elementRef.nativeElement;
+      const activeElement = trigger.ownerDocument.activeElement;
+
+      if (!activeElement || !isInsideCard(activeElement)) {
+        return;
+      }
+
+      // FocusMonitor emits synchronously, inside this call.
+      returningFocus = true;
+
+      try {
+        focusMonitor.focusVia(trigger, origin, { preventScroll: true });
+      } finally {
+        returningFocus = false;
+      }
     }
 
     /**
@@ -391,17 +603,18 @@ export const [
         hideDelay: hideDelay(),
         closeOnEscape: true,
         closeOnOutsideClick: true,
-        // A preview card never takes focus away from the trigger, so there is
-        // nothing to restore and no focus to trap.
+        // The overlay would return focus to whatever was focused when the card opened,
+        // which is not always the trigger; `returnFocusFromCard` handles it instead.
         restoreFocus: false,
         scrollBehaviour: scrollBehavior(),
         viewContainerRef,
         overlayType: 'preview-card',
         cooldown: cooldown(),
-        onClose: () => {
+        onClose: origin => {
           announcedOpen = false;
 
           if (!destroyed) {
+            returnFocusFromCard(origin);
             onOpenChange?.(false);
           }
         },
@@ -420,6 +633,7 @@ export const [
       hide,
       setPointerOverCard,
       onCardFocusOut: onFocusOut,
+      onCardKeydown,
     } satisfies NgpPreviewCardTriggerState<T>;
   },
 );

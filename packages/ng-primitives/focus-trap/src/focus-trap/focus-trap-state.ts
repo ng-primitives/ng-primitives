@@ -290,7 +290,9 @@ export const [NgpFocusTrapStateToken, ngpFocusTrap, injectFocusTrapState, provid
        * Handles the `keydown` event.
        */
       function handleKeyDown(event: KeyboardEvent): void {
-        if (!focusTrap.active || disabled?.()) {
+        // A Tab already handled inside the trap, such as one moving focus into a portalled
+        // overlay, is left alone.
+        if (!focusTrap.active || disabled?.() || event.defaultPrevented) {
           return;
         }
 
