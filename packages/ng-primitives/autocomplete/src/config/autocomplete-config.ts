@@ -1,13 +1,12 @@
 import { InjectionToken, Provider, inject } from '@angular/core';
-import { NgpFlip, NgpOffset } from 'ng-primitives/portal';
-import { type NgpAutocompletePlacement } from '../autocomplete/autocomplete';
+import { NgpFlip, NgpOffset, NgpPlacement } from 'ng-primitives/portal';
 
 export interface NgpAutocompleteConfig {
   /**
    * The default placement for the autocomplete dropdown.
    * @default 'bottom'
    */
-  placement: NgpAutocompletePlacement;
+  placement: NgpPlacement;
 
   /**
    * The container element or selector for the autocomplete dropdown.
@@ -29,6 +28,18 @@ export interface NgpAutocompleteConfig {
    * @default 0
    */
   offset: NgpOffset;
+
+  /**
+   * Whether typing activates the first option, so Enter picks it.
+   * @default false
+   */
+  autoActivate: boolean;
+
+  /**
+   * The query length from which typing opens the dropdown.
+   * @default 1
+   */
+  minLength: number;
 }
 
 export const defaultAutocompleteConfig: NgpAutocompleteConfig = {
@@ -36,6 +47,8 @@ export const defaultAutocompleteConfig: NgpAutocompleteConfig = {
   container: 'body',
   flip: true,
   offset: 0,
+  autoActivate: false,
+  minLength: 1,
 };
 
 export const NgpAutocompleteConfigToken = new InjectionToken<NgpAutocompleteConfig>(

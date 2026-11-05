@@ -1,182 +1,59 @@
-import { computed, Directive, HostListener, input } from '@angular/core';
-import { ngpFormControl } from 'ng-primitives/form-field';
-import { ngpInteractions } from 'ng-primitives/interactions';
-import { injectElementRef } from 'ng-primitives/internal';
+import { Directive, input, output } from '@angular/core';
 import { uniqueId } from 'ng-primitives/utils';
-import { injectAutocompleteState } from '../autocomplete/autocomplete-state';
+import {
+  coerceFragmentMatcher,
+  type NgpAutocompleteFragment,
+  type NgpAutocompleteFragmentMatcher,
+  type NgpAutocompleteFragmentMatcherInput,
+} from './autocomplete-fragment';
+import { ngpAutocompleteInput, provideAutocompleteInputState } from './autocomplete-input-state';
 
 @Directive({
-  selector: 'input[ngpAutocompleteInput]',
+  selector: 'input[ngpAutocompleteInput], textarea[ngpAutocompleteInput]',
   exportAs: 'ngpAutocompleteInput',
-  host: {
-    role: 'combobox',
-    type: 'text',
-    autocomplete: 'off',
-    autocorrect: 'off',
-    spellcheck: 'false',
-    'aria-haspopup': 'listbox',
-    'aria-autocomplete': 'list',
-    '[id]': 'id()',
-    '[attr.aria-controls]': 'state().open() ? dropdownId() : undefined',
-    '[attr.aria-expanded]': 'state().open()',
-    '[attr.data-open]': 'state().open() ? "" : undefined',
-    '[attr.data-disabled]': 'state().disabled() ? "" : undefined',
-    '[attr.aria-activedescendant]': 'activeDescendant()',
-    '[disabled]': 'state().disabled()',
-  },
+  providers: [provideAutocompleteInputState()],
 })
 export class NgpAutocompleteInput {
-  /** Access the autocomplete state. */
-  protected readonly state = injectAutocompleteState();
-
-  /**
-   * Access the element reference.
-   * @internal
-   */
-  readonly elementRef = injectElementRef<HTMLInputElement>();
-
   /** The id of the input. */
   readonly id = input<string>(uniqueId('ngp-autocomplete-input'));
 
-  /** The id of the dropdown. */
-  readonly dropdownId = computed(() => this.state().dropdown()?.id());
-
-  /** The id of the active descendant. */
-  protected readonly activeDescendant = computed(() => this.state().activeDescendantManager.id());
-
-  /** Determine if the pointer was used to focus the input. */
-  protected pointerFocused = false;
+  /**
+   * Find the fragment to search by, such as a mention under the caret. Pass trigger characters
+   * such as `'@'`, or a matcher function. Without a matcher, the whole text is the query.
+   */
+  readonly fragmentMatcher = input<
+    NgpAutocompleteFragmentMatcher | undefined,
+    NgpAutocompleteFragmentMatcherInput | null | undefined
+  >(undefined, {
+    alias: 'ngpAutocompleteInputFragmentMatcher',
+    transform: coerceFragmentMatcher,
+  });
 
   /**
-   * The control status - this is required as we apply them to the autocomplete element as well as the input element.
-   * @internal
+   * The text to complete the query with, usually the active option's label. When it starts with
+   * the query, the rest is written after the caret and selected, so typing replaces it.
    */
-  readonly controlStatus = ngpFormControl({ id: this.id, disabled: this.state().disabled });
+  readonly suggestion = input<string>(undefined, {
+    alias: 'ngpAutocompleteInputSuggestion',
+  });
 
-  constructor() {
-    ngpInteractions({
-      focus: true,
-      hover: true,
-      press: true,
-      disabled: this.state().disabled,
-    });
+  /** Emits the fragment under the caret when it changes, `null` when there is none. */
+  readonly fragmentChange = output<NgpAutocompleteFragment | null>({
+    alias: 'ngpAutocompleteInputFragmentChange',
+  });
 
-    this.state().registerInput(this);
-  }
-
-  /** Handle keydown events for accessibility. */
-  @HostListener('keydown', ['$event'])
-  protected handleKeydown(event: KeyboardEvent): void {
-    switch (event.key) {
-      case 'ArrowDown':
-        if (this.state().open()) {
-          this.state().activateNextOption();
-        } else {
-          this.state().openDropdown();
-        }
-        event.preventDefault();
-        break;
-      case 'ArrowUp':
-        if (this.state().open()) {
-          this.state().activatePreviousOption();
-        } else {
-          this.state().openDropdown();
-          this.state().activeDescendantManager.last();
-        }
-        event.preventDefault();
-        break;
-      case 'Home':
-        if (this.state().open()) {
-          this.state().activeDescendantManager.first();
-        }
-        event.preventDefault();
-        break;
-      case 'End':
-        if (this.state().open()) {
-          this.state().activeDescendantManager.last();
-        }
-        event.preventDefault();
-        break;
-      case 'Enter':
-        if (this.state().open()) {
-          const activeId = this.state().activeDescendantManager.id();
-
-          if (activeId) {
-            const option = this.state()
-              .sortedOptions()
-              .find(opt => opt.id() === activeId);
-            option?.select();
-          }
-        }
-        event.preventDefault();
-        break;
-      case 'Escape':
-        this.state().closeDropdown();
-        event.preventDefault();
-        break;
-      case 'Backspace':
-        // if the input is not empty then open the dropdown
-        if (this.elementRef.nativeElement.value.length > 0) {
-          this.state().openDropdown();
-        }
-        break;
-      default:
-        // Ignore keys with length > 1 (e.g., 'Shift', 'ArrowLeft', 'Enter', etc.)
-        // Filter out control/meta key combos (e.g., Ctrl+C)
-        if (
-          event.key !== 'Unidentified' &&
-          (event.key.length > 1 || event.ctrlKey || event.metaKey || event.altKey)
-        ) {
-          return;
-        }
-
-        // if this was a character key, we want to open the dropdown
-        this.state().openDropdown();
-    }
-  }
-
-  @HostListener('blur', ['$event'])
-  protected closeDropdown(event: FocusEvent): void {
-    const relatedTarget = event.relatedTarget as HTMLElement;
-
-    // if the blur was caused by focus moving to the dropdown, don't close
-    if (
-      relatedTarget &&
-      this.state().dropdown()?.elementRef.nativeElement.contains(relatedTarget)
-    ) {
-      return;
-    }
-
-    // if the blur was caused by focus moving to the button, don't close
-    if (relatedTarget && this.state().button()?.elementRef.nativeElement.contains(relatedTarget)) {
-      return;
-    }
-
-    this.state().closeDropdown();
-    event.preventDefault();
-  }
+  protected readonly state = ngpAutocompleteInput({
+    id: this.id,
+    fragmentMatcher: this.fragmentMatcher,
+    suggestion: this.suggestion,
+    onFragmentChange: fragment => this.fragmentChange.emit(fragment),
+  });
 
   /**
-   * Focus the input field
-   * @internal
+   * Replace the fragment, or the whole text without a fragment matcher, and put the caret after
+   * the new text. Dispatches an `input` event, so bindings and forms pick the text up.
    */
-  focus(): void {
-    this.elementRef.nativeElement.focus({ preventScroll: true });
-  }
-
-  @HostListener('focus')
-  protected highlightText(): void {
-    if (this.pointerFocused) {
-      this.pointerFocused = false;
-      return;
-    }
-
-    // highlight the text in the input
-    this.elementRef.nativeElement.setSelectionRange(0, this.elementRef.nativeElement.value.length);
-  }
-
-  @HostListener('pointerdown')
-  protected handlePointerDown(): void {
-    this.pointerFocused = true;
+  replaceFragment(text: string): void {
+    this.state.replaceFragment(text);
   }
 }

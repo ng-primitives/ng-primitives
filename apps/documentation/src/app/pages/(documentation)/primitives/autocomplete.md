@@ -1,11 +1,12 @@
 ---
+title: Autocomplete | Angular Primitives
 name: 'Autocomplete'
 sourceUrl: 'https://github.com/ng-primitives/ng-primitives/tree/next/packages/ng-primitives/autocomplete'
 ---
 
 # Autocomplete
 
-The Autocomplete primitive combines a text input with a filterable dropdown list, allowing users to type and select from matching options.
+The Autocomplete primitive pairs a text input with a list of suggestions. Users type freely and can select a suggestion with a click or <kbd>Enter</kbd>. What happens to the text and the selected value is up to you.
 
 <docs-example name="autocomplete"></docs-example>
 
@@ -29,16 +30,122 @@ import {
 Assemble the autocomplete directives in your template.
 
 ```html
-<div ngpAutocomplete>
-  <input ngpAutocompleteInput />
+<div
+  ngpAutocomplete
+  [ngpAutocompleteSelectedValue]="value()"
+  (ngpAutocompleteSelected)="onSelected($event)"
+>
+  <input ngpAutocompleteInput [value]="query()" (input)="onInput($event)" />
   <button ngpAutocompleteButton>▼</button>
   <div *ngpAutocompletePortal ngpAutocompleteDropdown>
-    @for (option of options; track option) {
+    @for (option of options(); track option) {
     <div ngpAutocompleteOption [ngpAutocompleteOptionValue]="option">{{ option }}</div>
     }
   </div>
 </div>
 ```
+
+The autocomplete never writes the text or a value itself. `ngpAutocompleteSelected` emits the selected option's value every time, even for the option already chosen, and your handler decides what to do with it.
+
+```ts
+onSelected(option: string): void {
+  this.value.set(option);
+  this.query.set(option);
+}
+
+onInput(event: Event): void {
+  this.query.set((event.target as HTMLInputElement).value);
+  // the text no longer names the chosen option
+  this.value.set(undefined);
+}
+```
+
+`ngpAutocompleteSelectedValue` is optional and only read. The matching option gets `data-selected`, and the button and the arrow keys open the dropdown on it. Typing opens the dropdown from `ngpAutocompleteMinLength` characters (1 by default) with no active option, so <kbd>Enter</kbd> keeps the typed text.
+
+## Examples
+
+### Highlight mode
+
+With `ngpAutocompleteAutoActivate`, typing makes the first option active, so <kbd>Enter</kbd> selects it. Bind the active option's label to `ngpAutocompleteInputSuggestion` and the input completes the typed text. The rest of the label appears after the caret, selected, so the next keystroke replaces it.
+
+<docs-example name="autocomplete-highlight"></docs-example>
+
+```html
+<div
+  ngpAutocomplete
+  ngpAutocompleteAutoActivate
+  (ngpAutocompleteActiveValueChange)="active.set($event)"
+  (ngpAutocompleteSelected)="query.set($event)"
+>
+  <input
+    ngpAutocompleteInput
+    [value]="query()"
+    [ngpAutocompleteInputSuggestion]="active()"
+    (input)="query.set($any($event.target).value)"
+  />
+  ...
+</div>
+```
+
+The completion only shows when the label starts with the typed text, ignoring case, and it never reaches your value on its own. <kbd>Enter</kbd> or a click selects the option. Moving the caret past the completion keeps it as typed text, with an `input` event. <kbd>Backspace</kbd>, <kbd>Escape</kbd> or leaving the input removes it. Without a suggestion, `ngpAutocompleteAutoActivate` still suits a search where <kbd>Enter</kbd> takes the first result.
+
+### Mentions
+
+A fragment matcher limits the search to part of the text, such as a mention. `ngpAutocompleteInputFragmentMatcher="@"` matches the word under the caret that starts with `@`, and `['@', '#']` takes several triggers. The dropdown opens at the fragment when one appears under the caret and closes when it goes, and `ngpAutocompleteInputFragmentChange` emits it. The input can be a `textarea`.
+
+<docs-example name="autocomplete-mention"></docs-example>
+
+```html
+<div ngpAutocomplete (ngpAutocompleteSelected)="message.replaceFragment('@' + $event.handle + ' ')">
+  <textarea
+    #message="ngpAutocompleteInput"
+    ngpAutocompleteInput
+    ngpAutocompleteInputFragmentMatcher="@"
+    (ngpAutocompleteInputFragmentChange)="query.set($event?.query ?? '')"
+  ></textarea>
+  ...
+</div>
+```
+
+A fragment has a `start` and an `end`, the range to replace, and a `query` without the trigger. `replaceFragment` writes your text over that range, puts the caret after it and dispatches an `input` event. For another rule, bind a function `(text, caret) => fragment | null`.
+
+In this example, `ngpAutocompleteAutoActivate` makes the first person active, so <kbd>Enter</kbd> inserts the mention instead of a new line, and `ngpAutocompleteMinLength` is `0`, so the trigger alone opens the dropdown. While the dropdown is closed, the textarea keeps all its keys.
+
+### Custom editor
+
+`ngpAutocompleteInput` is optional. To show mentions as chips, or to connect a rich-text editor, drive the autocomplete from your own element inside `ngpAutocomplete`, through `#autocomplete="ngpAutocomplete"`. This example inserts each mention into a `contenteditable` element as a chip that keeps the whole name, spaces included.
+
+<docs-example name="autocomplete-editor"></docs-example>
+
+```html
+<div
+  ngpAutocomplete
+  #autocomplete="ngpAutocomplete"
+  (ngpAutocompleteSelected)="insertMention($event)"
+>
+  <div
+    contenteditable="true"
+    role="textbox"
+    aria-multiline="true"
+    aria-haspopup="listbox"
+    aria-autocomplete="list"
+    [attr.aria-controls]="autocomplete.open() ? autocomplete.dropdownId() : null"
+    [attr.aria-activedescendant]="autocomplete.activeOptionId()"
+    (input)="onInput()"
+    (keydown)="onKeydown($event)"
+  ></div>
+  ...
+</div>
+```
+
+Your element calls these methods:
+
+- `setQuery(query)` as the user types, or `null` when there is nothing to search. It applies `ngpAutocompleteMinLength` and `ngpAutocompleteAutoActivate` as typing does, and ignores the same query reported again while the dropdown is open.
+- `setPosition({ x, y })` with viewport coordinates, such as the trigger's `range.getBoundingClientRect()`. Set it again when the page scrolls.
+- `activateNextOption()`, `activatePreviousOption()` and `selectActiveOption()` for the arrow keys and <kbd>Enter</kbd>. `selectActiveOption()` returns `false` when no option was active, so the key can go back to your element.
+- `openDropdown()` and `closeDropdown()`, for example `closeDropdown()` on <kbd>Escape</kbd>.
+
+`open()`, `dropdownId()` and `activeOptionId()` feed its ARIA attributes, and `createFragmentMatcher('@')` finds the mention in the text node that holds the caret. Keep the element inside `ngpAutocomplete`, so a press on it leaves the dropdown open and focus leaving the autocomplete closes it. Pressing an option leaves focus and the caret in your element. With Tiptap's suggestion utility, call the same methods from `onStart`, `onUpdate`, `onKeyDown` and `onExit`.
 
 ## API Reference
 
@@ -98,7 +205,7 @@ The dropdown that contains the autocomplete options.
 
 ### NgpAutocompleteInput
 
-The input field for the autocomplete.
+The input field for the autocomplete, an `input` or a `textarea`.
 
 <api-docs name="NgpAutocompleteInput"></api-docs>
 
@@ -124,7 +231,7 @@ The individual options within the autocomplete dropdown.
 <api-reference-props name="NgpAutocompleteOption"></api-reference-props>
 
 <api-reference-attributes>
-  <api-attribute name="data-selected" description="Applied when the option is selected." />
+  <api-attribute name="data-selected" description="Applied when the option's value matches ngpAutocompleteSelectedValue." />
   <api-attribute name="data-active" description="Applied when the option is active." />
   <api-attribute name="data-disabled" description="Applied when the option is disabled." />
 </api-reference-attributes>
@@ -182,10 +289,16 @@ Adheres to the [WAI-ARIA](https://www.w3.org/WAI/ARIA/apg/patterns/combobox/) gu
 
 ### Keyboard Interactions
 
-- <kbd>ArrowDown</kbd>: Open the dropdown and focus the first option. If the dropdown is already open, move focus to the next option.
-- <kbd>ArrowUp</kbd>: Open the dropdown and focus the last option. If the dropdown is already open, move focus to the previous option.
-- <kbd>Home</kbd>: Move focus to the first option (when dropdown is open).
-- <kbd>End</kbd>: Move focus to the last option (when dropdown is open).
-- <kbd>Enter</kbd>: Select the focused option and close the dropdown.
-- <kbd>Escape</kbd>: Close the dropdown without selecting an option.
-- <kbd>Any character key</kbd>: Open the dropdown and filter options based on typed text.
+- <kbd>ArrowDown</kbd>: Open the dropdown and activate the selected option, or the first option when none is selected. If the dropdown is already open, move to the next option.
+- <kbd>ArrowUp</kbd>: Open the dropdown and activate the selected option, or the last option when none is selected. If the dropdown is already open, move to the previous option.
+- <kbd>Home</kbd>: Move the caret to the start of the text.
+- <kbd>End</kbd>: Move the caret to the end of the text.
+- <kbd>Enter</kbd>: Select the active option and close the dropdown. With no active option, close the dropdown and leave <kbd>Enter</kbd> to the browser, for example to submit a form.
+- <kbd>Escape</kbd>: Close the dropdown without selecting an option. While the dropdown is closed, it is left to the page, so an enclosing dialog still closes.
+- <kbd>Any character key</kbd>: Open the dropdown once the text reaches the minimum length. No option is active, unless `ngpAutocompleteAutoActivate` makes it the first one.
+
+With a fragment matcher, these keys only apply while the dropdown is open. Without `ngpAutocompleteInput`, your own element handles them.
+
+Focus stays on the input, which points at the active option with `aria-activedescendant`. The active option carries `aria-selected="true"`, as the pattern expects. `data-selected` only reflects `ngpAutocompleteSelectedValue` and has no ARIA equivalent, so do not rely on it alone to convey the chosen value.
+
+Your own element needs the attributes shown in the Custom editor example. A single-line element takes `role="combobox"` with `aria-expanded` from `open()`. A multi-line one keeps `role="textbox"` with `aria-multiline="true"`, as the input does for a `textarea`.

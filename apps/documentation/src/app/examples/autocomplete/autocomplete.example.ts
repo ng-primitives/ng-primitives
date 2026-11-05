@@ -24,15 +24,14 @@ import {
   providers: [provideIcons({ heroChevronDown })],
   template: `
     <div
-      [(ngpAutocompleteValue)]="value"
-      (ngpAutocompleteValueChange)="onValueChange($event)"
-      (ngpAutocompleteOpenChange)="resetOnClose($event)"
+      [ngpAutocompleteSelectedValue]="value()"
+      (ngpAutocompleteSelected)="onSelected($event)"
       ngpAutocomplete
     >
       <input
-        [value]="inputValue()"
-        (input)="onFilterChange($event)"
-        placeholder="Select an option"
+        [value]="query()"
+        (input)="onInput($event)"
+        placeholder="Search a character"
         ngpAutocompleteInput
       />
 
@@ -202,13 +201,13 @@ export default class AutocompleteExample {
     'Strickland',
   ];
 
-  /** The selected value. */
+  /** The chosen option, if the text still names one. */
   readonly value = signal<string | undefined>(undefined);
 
-  /** The input value. */
-  readonly inputValue = signal<string>('');
+  /** The text in the input. */
+  readonly query = signal<string>('');
 
-  /** The filter value. */
+  /** The text the options are filtered by. */
   readonly filter = signal<string>('');
 
   /** Get the filtered options. */
@@ -216,31 +215,21 @@ export default class AutocompleteExample {
     this.options.filter(option => option.toLowerCase().includes(this.filter().toLowerCase())),
   );
 
-  protected onFilterChange(event: Event): void {
-    const input = event.target as HTMLInputElement;
-    this.inputValue.set(input.value);
-    this.filter.set(input.value);
-  }
+  protected onInput(event: Event): void {
+    const text = (event.target as HTMLInputElement).value;
+    this.query.set(text);
+    this.filter.set(text);
 
-  protected onValueChange(value: string | undefined): void {
-    this.inputValue.set(value ?? '');
-    this.filter.set('');
-  }
-
-  protected resetOnClose(open: boolean): void {
-    // if the dropdown is closed, reset the filter value
-    if (open) {
-      return;
-    }
-
-    // if the input value is empty, set the value to undefined
-    if (this.inputValue() === '') {
+    // the text no longer names the chosen option
+    if (text !== this.value()) {
       this.value.set(undefined);
-    } else {
-      // otherwise set the input value to the selected value
-      this.inputValue.set(this.value() ?? '');
     }
+  }
 
+  protected onSelected(option: string): void {
+    this.value.set(option);
+    this.query.set(option);
+    // list every option again, so reopening shows the chosen one among the others
     this.filter.set('');
   }
 }
