@@ -12,7 +12,9 @@ export class NgpDialogOverlay {
   protected readonly dialogRef = injectDialogRef();
 
   /**
-   * Whether the dialog should close on backdrop click.
+   * Whether the dialog should close on backdrop click. A backdrop click that closes a popover,
+   * menu, select or other overlay opened from the dialog leaves the dialog open; tooltips and
+   * preview cards don't count.
    * @default `true`
    */
   readonly closeOnClick = input(this.dialogRef.config.closeOnClick, {
