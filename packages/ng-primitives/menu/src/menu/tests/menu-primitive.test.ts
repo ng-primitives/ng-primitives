@@ -360,7 +360,7 @@ describe('NgpMenu', () => {
       });
     });
 
-    it('should close all menus when Escape is pressed in submenu', async () => {
+    it('should close only the submenu when Escape is pressed in it, then the root on a second Escape', async () => {
       const { fixture } = await render(TestMenuWithSubmenuComponent);
       const trigger = fixture.debugElement.nativeElement.querySelector(
         '[data-testid="root-trigger"]',
@@ -388,11 +388,21 @@ describe('NgpMenu', () => {
       fireEvent.keyDown(submenu!, { key: 'Escape' });
       fixture.detectChanges();
 
-      // All menus should be closed
+      // Only the submenu closes
+      await waitFor(() => expect(submenuTrigger).not.toHaveAttribute('data-open'));
+      // a root menu closing with it would be removed a task later
+      await new Promise(resolve => setTimeout(resolve, 50));
+      expect(trigger).toHaveAttribute('data-open');
+
+      // A second Escape, in the root menu, closes it
+      const rootMenu = document.querySelector('[data-testid="root-menu"]');
+      fireEvent.keyDown(rootMenu!, { key: 'Escape' });
+      fixture.detectChanges();
+
       await waitFor(() => expect(trigger).not.toHaveAttribute('data-open'));
     });
 
-    it('should restore focus to root trigger when Escape is pressed in submenu (keyboard opened)', async () => {
+    it('should return focus to the submenu trigger on Escape in the submenu, then to the root trigger (keyboard opened)', async () => {
       const { fixture } = await render(TestMenuWithSubmenuComponent);
       const trigger = fixture.debugElement.nativeElement.querySelector(
         '[data-testid="root-trigger"]',
@@ -423,14 +433,22 @@ describe('NgpMenu', () => {
       const submenuItem = document.querySelector('[data-testid="submenu-item-1"]') as HTMLElement;
       submenuItem.focus();
 
-      // Press Escape
+      // Press Escape: the submenu closes and focus goes back to its trigger
       fireEvent.keyDown(submenuItem, { key: 'Escape' });
       fixture.detectChanges();
 
-      // All menus should be closed
-      await waitFor(() => expect(trigger).not.toHaveAttribute('data-open'));
+      await waitFor(() => expect(submenuTrigger).not.toHaveAttribute('data-open'));
+      // a root menu closing with it would be removed a task later
+      await new Promise(resolve => setTimeout(resolve, 50));
+      expect(trigger).toHaveAttribute('data-open');
+      expect(document.activeElement).toBe(submenuTrigger);
+      expect(submenuTrigger).toHaveAttribute('data-focus-visible');
 
-      // Focus should be restored to the root trigger
+      // Press Escape again: the root menu closes and focus goes back to the root trigger
+      fireEvent.keyDown(submenuTrigger, { key: 'Escape' });
+      fixture.detectChanges();
+
+      await waitFor(() => expect(trigger).not.toHaveAttribute('data-open'));
       expect(document.activeElement).toBe(trigger);
     });
 
@@ -965,6 +983,8 @@ describe('NgpMenuItem', () => {
 
       // Submenu should be closed, but root menu should still be open
       await waitFor(() => expect(submenuTrigger).not.toHaveAttribute('data-open'));
+      // a root menu closing with it would be removed a task later
+      await new Promise(resolve => setTimeout(resolve, 50));
       expect(trigger).toHaveAttribute('data-open');
     });
 
@@ -1127,7 +1147,7 @@ describe('NgpMenuItem closeOnSelect in submenu', () => {
     });
   });
 
-  it('should still close all menus on Escape even with closeOnSelect=false items', async () => {
+  it('should still close the submenu on Escape even with closeOnSelect=false items', async () => {
     const { fixture } = await render(TestSubmenuCloseOnSelectComponent);
     const rootTrigger = await openSubmenu(fixture);
 
@@ -1135,10 +1155,12 @@ describe('NgpMenuItem closeOnSelect in submenu', () => {
     fireEvent.keyDown(submenu!, { key: 'Escape' });
     fixture.detectChanges();
 
-    // All menus should be closed (async)
-    await waitFor(() => {
-      expect(rootTrigger).not.toHaveAttribute('data-open');
-      expect(document.querySelector('[data-testid="submenu"]')).not.toBeInTheDocument();
-    });
+    // Only the submenu closes (async)
+    await waitFor(() =>
+      expect(document.querySelector('[data-testid="submenu"]')).not.toBeInTheDocument(),
+    );
+    // a root menu closing with it would be removed a task later
+    await new Promise(resolve => setTimeout(resolve, 50));
+    expect(rootTrigger).toHaveAttribute('data-open');
   });
 });

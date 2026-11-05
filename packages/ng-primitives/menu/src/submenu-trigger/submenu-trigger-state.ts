@@ -331,8 +331,7 @@ export const [
     }
 
     function hide(origin: FocusOrigin = 'program'): void {
-      // If the trigger is disabled or the menu is not open, do nothing
-      if (disabled?.() || !open()) {
+      if (!open()) {
         return;
       }
 
@@ -353,9 +352,9 @@ export const [
       // Create config for the overlay
       // Note: restoreFocus is false because submenus should never auto-restore focus.
       // When closeAllMenus is called, the ROOT menu's overlay handles focus restoration.
-      // When closing just the submenu (Left Arrow), the caller handles focus explicitly.
-      // closeOnEscape is false because we handle Escape in menu-state.ts to ensure
-      // proper focus restoration through closeAllMenus.
+      // When closing just the submenu (Left Arrow, Escape), the caller handles focus explicitly.
+      // closeOnEscape is false because menu-state.ts handles Escape, closing only the menu
+      // that has focus.
       const config: NgpOverlayConfig<T> = {
         content: menu,
         triggerElement: element.nativeElement,

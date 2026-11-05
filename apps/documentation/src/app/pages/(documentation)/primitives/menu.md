@@ -445,7 +445,7 @@ A menu is named by its trigger through `aria-labelledby`, and a submenu by its s
 | Key                   | Description                                                                                    |
 | --------------------- | ---------------------------------------------------------------------------------------------- |
 | <kbd>Enter</kbd>      | Activates the focused menu item. Closes all menus unless the item is a checkbox or radio item. |
-| <kbd>Escape</kbd>     | Closes all open menus and returns focus as described in Focus Management below.                |
+| <kbd>Escape</kbd>     | Closes the menu that has focus. In a submenu, focus returns to its submenu trigger.            |
 | <kbd>ArrowDown</kbd>  | Moves focus to the next menu item.                                                             |
 | <kbd>ArrowUp</kbd>    | Moves focus to the previous menu item.                                                         |
 | <kbd>ArrowRight</kbd> | Opens a submenu when focused on a submenu trigger.                                             |
@@ -458,5 +458,6 @@ A menu is named by its trigger through `aria-labelledby`, and a submenu by its s
 - Focus is always trapped within the menu when open (Tab key does not leave the menu).
 - When a menu is opened via keyboard, the first menu item receives visible focus (`:focus-visible`).
 - When a menu is opened via mouse, focus moves into the menu but without the visible focus ring until arrow keys are used.
-- Closing all menus (via Escape, item selection or a click on empty space) returns focus to the element that was focused when the menu opened, usually the root menu trigger, whether the menu was used with the keyboard or the mouse. A menu opened on hover leaves focus where it was before the hover. An outside click on another control leaves focus on that control.
+- Closing all menus (via Escape in the root menu, item selection or a click on empty space) returns focus to the element that was focused when the menu opened, usually the root menu trigger, whether the menu was used with the keyboard or the mouse. A menu opened on hover leaves focus where it was before the hover. An outside click on another control leaves focus on that control.
+- Escape or Left Arrow in a submenu closes only that submenu and focuses its submenu trigger, whatever its `ngpMenuFinalFocus`.
 - Set `ngpMenuFinalFocus` on `ngpMenu` to send focus elsewhere on close: an element, `false` to leave focus where it is, `null` (the default) or `true` for the default restoration, or a function that receives the close origin and returns one of these.
