@@ -318,11 +318,17 @@ export const [
       }
 
       // a mouse or pen click on the trigger of an open submenu keeps it open: hovering the
-      // trigger already opened it, so the click that follows must not close it again. The
-      // mousedown moved focus to the trigger, so hand it back to the submenu.
+      // trigger already opened it, so the click that follows must not close it again.
       // Touch taps, keyboard and screen reader activation still toggle the submenu.
       if (expanded() && event.detail !== 0 && pointerType !== null && pointerType !== 'touch') {
-        focusContent('mouse');
+        // The mousedown focused the trigger, and the item's roving focus refocuses it on this
+        // click, before or after this listener depending on directive order. Hand focus back
+        // to the submenu once the click has been dispatched.
+        disposables.setTimeout(() => {
+          if (expanded()) {
+            focusContent('mouse');
+          }
+        }, 0);
         return;
       }
 
