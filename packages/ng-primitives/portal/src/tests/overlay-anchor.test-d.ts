@@ -26,4 +26,11 @@ describe('anchorElement types', () => {
     expectTypeOf(signal<HTMLElement | null>(null)).toExtend<ConfigAnchor>();
     expectTypeOf(signal<HTMLElement | null>(null)).toExtend<EntryAnchor>();
   });
+
+  it('accepts an svg element, plain or in a signal', () => {
+    expectTypeOf<SVGCircleElement>().toExtend<ConfigAnchor>();
+    expectTypeOf<SVGCircleElement>().toExtend<EntryAnchor>();
+    expectTypeOf(signal<SVGElement | null>(null)).toExtend<ConfigAnchor>();
+    expectTypeOf(signal<SVGElement | null>(null)).toExtend<EntryAnchor>();
+  });
 });

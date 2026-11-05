@@ -64,7 +64,7 @@ export interface NgpOverlayEntry {
    * Optional anchor element. Pass a signal when the anchor can change while the overlay
    * is open - an entry is registered once per open and is not re-registered on a change.
    */
-  anchorElement?: HTMLElement | null | Signal<HTMLElement | null | undefined>;
+  anchorElement?: Element | null | Signal<Element | null | undefined>;
   /** Per-instance dismiss configuration */
   dismissPolicy: NgpDismissPolicy;
   /** If true, clicks on the trigger element are treated as outside clicks */

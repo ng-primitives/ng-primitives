@@ -113,7 +113,7 @@ export interface NgpPreviewCardTriggerProps<T> {
    * Define an anchor element for positioning the preview card.
    * If provided, the preview card will be positioned relative to this element instead of the trigger.
    */
-  readonly anchor?: Signal<HTMLElement | null>;
+  readonly anchor?: Signal<Element | null>;
   /**
    * Provide context to the preview card. This can be used to pass data to the preview card content.
    */
@@ -151,7 +151,7 @@ export const [
     flip = signal<NgpFlip>(true),
     shift = signal<NgpShift>(undefined),
     container: _container,
-    anchor = signal<HTMLElement | null>(null),
+    anchor = signal<Element | null>(null),
     context = signal<T | undefined>(undefined),
     scrollBehavior = signal<'reposition' | 'close'>('reposition'),
     cooldown = signal<number>(300),

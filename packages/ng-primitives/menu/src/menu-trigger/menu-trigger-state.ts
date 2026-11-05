@@ -81,7 +81,7 @@ export interface NgpMenuTriggerState<T = unknown> {
    * Define an anchor element for positioning the menu.
    * If provided, the menu will be positioned relative to this element instead of the trigger.
    */
-  readonly anchor: WritableSignal<HTMLElement | null>;
+  readonly anchor: WritableSignal<Element | null>;
 
   /**
    * The focus origin that was used to open the menu.
@@ -129,7 +129,7 @@ export interface NgpMenuTriggerState<T = unknown> {
    * was meant to move the menu dismisses it instead.
    * @param anchor - The new anchor element
    */
-  setAnchor(anchor: HTMLElement | null): void;
+  setAnchor(anchor: Element | null): void;
 
   /**
    * Set the container in which the menu should be attached. Takes effect the
@@ -218,7 +218,7 @@ export interface NgpMenuTriggerProps<T = unknown> {
    * Define an anchor element for positioning the menu.
    * If provided, the menu will be positioned relative to this element instead of the trigger.
    */
-  readonly anchor?: Signal<HTMLElement | null>;
+  readonly anchor?: Signal<Element | null>;
   /**
    * Cooldown duration in milliseconds.
    */
@@ -277,7 +277,7 @@ export const [
     const shift = controlled(_shift);
     const offset = controlled(_offset);
     const context = controlled(_context);
-    const anchor = controlled<HTMLElement | null>(_anchor, null);
+    const anchor = controlled<Element | null>(_anchor, null);
     const container = controlled(_container, 'body');
 
     // Internal state
@@ -622,7 +622,7 @@ export const [
       context.set(newContext);
     }
 
-    function setAnchor(newAnchor: HTMLElement | null): void {
+    function setAnchor(newAnchor: Element | null): void {
       anchor.set(newAnchor);
     }
 
