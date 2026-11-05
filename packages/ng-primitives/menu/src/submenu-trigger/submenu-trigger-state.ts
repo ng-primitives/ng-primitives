@@ -1,4 +1,4 @@
-import { FocusMonitor, FocusOrigin } from '@angular/cdk/a11y';
+import { FocusMonitor, FocusOrigin, InteractivityChecker } from '@angular/cdk/a11y';
 import {
   computed,
   effect,
@@ -201,6 +201,7 @@ export const [
     const viewContainerRef = inject(ViewContainerRef);
     const parentMenu = injectMenuState({ optional: true });
     const focusMonitor = inject(FocusMonitor);
+    const interactivityChecker = inject(InteractivityChecker);
     const disposables = injectDisposables();
 
     // Controlled properties
@@ -221,8 +222,8 @@ export const [
     const pointerOverContent = signal(false);
     const isPointerOverSubmenu = computed(() => pointerOverTrigger() || pointerOverContent());
 
-    // The pointer type of the last pointerdown on the trigger, cleared once its click is handled.
-    // Clicks without a preceding pointerdown (keyboard, screen readers) leave it null.
+    // The pointer type of a primary-button press on the trigger, kept until its click. Clicks
+    // without one (keyboard, screen readers) see null.
     let lastPointerType: string | null = null;
 
     // Safe-polygon hover intent: while the pointer travels inside a corridor from
@@ -292,6 +293,7 @@ export const [
 
     // Event listeners
     listener(element, 'pointerdown', onPointerDown);
+    listener(element, 'pointercancel', clearPointerType);
     listener(element, 'click', onClick);
     listener(element, 'keydown', handleArrowKey);
     listener(element, 'pointerenter', showSubmenuOnHover);
@@ -299,25 +301,52 @@ export const [
 
     // Methods
     function onPointerDown(event: PointerEvent): void {
-      lastPointerType = event.pointerType;
+      lastPointerType = event.button === 0 ? event.pointerType : null;
+    }
+
+    // Not cleared on pointerup: it fires before the click that needs the pointer type.
+    function clearPointerType(): void {
+      lastPointerType = null;
     }
 
     function onClick(event: MouseEvent): void {
       const pointerType = lastPointerType;
-      lastPointerType = null;
+      clearPointerType();
 
       if (disabled?.()) {
         return;
       }
 
       // a mouse or pen click on the trigger of an open submenu keeps it open: hovering the
-      // trigger already opened it, so the click that follows must not close it again.
+      // trigger already opened it, so the click that follows must not close it again. The
+      // mousedown moved focus to the trigger, so hand it back to the submenu.
       // Touch taps, keyboard and screen reader activation still toggle the submenu.
-      if (open() && event.detail !== 0 && pointerType !== null && pointerType !== 'touch') {
+      if (expanded() && event.detail !== 0 && pointerType !== null && pointerType !== 'touch') {
+        focusContent('mouse');
         return;
       }
 
       toggle(event);
+    }
+
+    // Focuses the open submenu's first tabbable element (its roving tab stop), as its focus
+    // trap does when it opens.
+    function focusContent(origin: FocusOrigin): void {
+      const content = overlay()?.getElements()[0];
+
+      if (!content) {
+        return;
+      }
+
+      const walker = document.createTreeWalker(content, NodeFilter.SHOW_ELEMENT, {
+        acceptNode: node =>
+          interactivityChecker.isTabbable(node as HTMLElement)
+            ? NodeFilter.FILTER_ACCEPT
+            : NodeFilter.FILTER_SKIP,
+      });
+      const target = (walker.nextNode() as HTMLElement | null) ?? content;
+
+      focusMonitor.focusVia(target, origin, { preventScroll: true });
     }
 
     function toggle(event: MouseEvent): void {
@@ -406,7 +435,12 @@ export const [
 
       if ((isRightArrow && !isRtl) || (isLeftArrow && isRtl)) {
         event.preventDefault();
-        show('keyboard');
+
+        if (expanded()) {
+          focusContent('keyboard');
+        } else {
+          show('keyboard');
+        }
       }
     }
 
@@ -433,7 +467,16 @@ export const [
     }
 
     function onPointerLeave(event: Event): void {
-      if (event instanceof PointerEvent === false || event.pointerType === 'touch') {
+      if (event instanceof PointerEvent === false) {
+        return;
+      }
+
+      // a press dragged off the trigger never clicks it
+      if (event.buttons !== 0) {
+        clearPointerType();
+      }
+
+      if (event.pointerType === 'touch') {
         return;
       }
 

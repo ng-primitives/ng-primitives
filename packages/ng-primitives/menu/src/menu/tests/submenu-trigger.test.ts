@@ -1,5 +1,6 @@
 import { Component, Directive, OnInit, signal } from '@angular/core';
-import { fireEvent, render, waitFor } from '@testing-library/angular';
+import { fireEvent, render, screen, waitFor } from '@testing-library/angular';
+import { userEvent } from '@testing-library/user-event';
 import {
   NgpMenu,
   NgpMenuItem,
@@ -726,6 +727,54 @@ describe('NgpSubmenuTrigger click activation', () => {
     });
   });
 
+  it.each([
+    ['was cancelled', (trigger: HTMLElement) => fireEvent.pointerCancel(trigger)],
+    [
+      'was dragged off the trigger',
+      (trigger: HTMLElement) => {
+        fireEvent.pointerLeave(trigger, { pointerType: 'mouse', buttons: 1 });
+        fireEvent.pointerEnter(trigger, { pointerType: 'mouse' });
+      },
+    ],
+  ])(
+    'should toggle on a click without a pointerdown after a mouse press that %s',
+    async (_, endPress) => {
+      const submenuTrigger = await openRootMenu();
+
+      fireEvent.pointerEnter(submenuTrigger, { pointerType: 'mouse' });
+
+      await waitFor(() => {
+        expect(document.querySelector('[data-testid="submenu"]')).toBeInTheDocument();
+      });
+
+      fireEvent.pointerDown(submenuTrigger, { pointerType: 'mouse' });
+      endPress(submenuTrigger);
+      // e.g. a click forwarded from a <label for>
+      fireEvent.click(submenuTrigger, { detail: 1 });
+
+      await waitFor(() => {
+        expect(document.querySelector('[data-testid="submenu"]')).not.toBeInTheDocument();
+      });
+    },
+  );
+
+  it('should toggle on a click after a secondary-button press', async () => {
+    const submenuTrigger = await openRootMenu();
+
+    fireEvent.pointerEnter(submenuTrigger, { pointerType: 'mouse' });
+
+    await waitFor(() => {
+      expect(document.querySelector('[data-testid="submenu"]')).toBeInTheDocument();
+    });
+
+    fireEvent.pointerDown(submenuTrigger, { pointerType: 'mouse', button: 2 });
+    fireEvent.click(submenuTrigger, { detail: 1 });
+
+    await waitFor(() => {
+      expect(document.querySelector('[data-testid="submenu"]')).not.toBeInTheDocument();
+    });
+  });
+
   it('should still toggle the submenu on keyboard activation', async () => {
     const submenuTrigger = await openRootMenu();
 
@@ -741,5 +790,87 @@ describe('NgpSubmenuTrigger click activation', () => {
     await waitFor(() => {
       expect(document.querySelector('[data-testid="submenu"]')).not.toBeInTheDocument();
     });
+  });
+});
+
+// the submenu docs example animates its exit, which keeps a closing submenu's focus trap alive
+@Component({
+  template: `
+    <button [ngpMenuTrigger]="menu" data-testid="root-trigger">Open Menu</button>
+
+    <ng-template #menu>
+      <div ngpMenu data-testid="root-menu">
+        <button ngpMenuItem data-testid="item-1">Item 1</button>
+        <button [ngpSubmenuTrigger]="submenu" ngpMenuItem data-testid="submenu-trigger">
+          Open Submenu
+        </button>
+      </div>
+    </ng-template>
+
+    <ng-template #submenu>
+      <div ngpMenu data-testid="submenu">
+        <button ngpMenuItem data-testid="submenu-item-1">Submenu Item 1</button>
+        <button ngpMenuItem data-testid="submenu-item-2">Submenu Item 2</button>
+      </div>
+    </ng-template>
+  `,
+  styles: `
+    [ngpMenu][data-exit] {
+      animation: menu-hide 50ms ease-out;
+    }
+
+    @keyframes menu-hide {
+      to {
+        opacity: 0;
+      }
+    }
+  `,
+  imports: [NgpMenuTrigger, NgpMenu, NgpMenuItem, NgpSubmenuTrigger],
+})
+class TestAnimatedSubmenuComponent {}
+
+describe('NgpSubmenuTrigger focus after a click on a hover-opened submenu', () => {
+  async function hoverOpenSubmenu() {
+    const { fixture } = await render(TestAnimatedSubmenuComponent);
+    fixture.autoDetectChanges(true);
+
+    await userEvent.click(screen.getByTestId('root-trigger'));
+    const submenuTrigger = await screen.findByTestId('submenu-trigger');
+
+    await userEvent.hover(submenuTrigger);
+    await waitFor(() => expect(screen.getByTestId('submenu-item-1')).toHaveFocus());
+
+    return submenuTrigger;
+  }
+
+  it('should move focus into the submenu on a mouse click', async () => {
+    const submenuTrigger = await hoverOpenSubmenu();
+
+    await userEvent.click(submenuTrigger);
+
+    await waitFor(() => expect(screen.getByTestId('submenu-item-1')).toHaveFocus());
+  });
+
+  it('should return focus to the menu trigger on Escape', async () => {
+    const submenuTrigger = await hoverOpenSubmenu();
+
+    await userEvent.click(submenuTrigger);
+    await userEvent.keyboard('{Escape}');
+
+    await waitFor(() => {
+      expect(document.querySelector('[data-testid="root-menu"]')).not.toBeInTheDocument();
+    });
+    expect(screen.getByTestId('root-trigger')).toHaveFocus();
+  });
+
+  it('should move focus into the open submenu on ArrowRight', async () => {
+    const submenuTrigger = await hoverOpenSubmenu();
+
+    // a click now moves focus into the submenu, so put it back on the trigger directly
+    submenuTrigger.focus();
+    await userEvent.keyboard('{ArrowRight}');
+
+    await waitFor(() => expect(screen.getByTestId('submenu-item-1')).toHaveFocus());
+    expect(submenuTrigger).toHaveAttribute('aria-expanded', 'true');
   });
 });
