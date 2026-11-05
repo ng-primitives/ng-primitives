@@ -890,5 +890,16 @@ describe.each([
       await waitFor(() => expect(screen.getByTestId('submenu-item-1')).toHaveFocus());
       expect(submenuTrigger).toHaveAttribute('aria-expanded', 'true');
     });
+
+    it('should move focus into the open submenu on ArrowLeft in RTL', async () => {
+      const submenuTrigger = await hoverOpenSubmenu();
+      submenuTrigger.style.direction = 'rtl';
+
+      submenuTrigger.focus();
+      await userEvent.keyboard('{ArrowLeft}');
+
+      await waitFor(() => expect(screen.getByTestId('submenu-item-1')).toHaveFocus());
+      expect(submenuTrigger).toHaveAttribute('aria-expanded', 'true');
+    });
   },
 );
