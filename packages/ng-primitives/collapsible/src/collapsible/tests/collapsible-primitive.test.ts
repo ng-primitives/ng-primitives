@@ -284,6 +284,29 @@ describe('NgpCollapsible', () => {
       });
     });
 
+    it('should shrink the height variable when the content gets smaller', async () => {
+      // The documented accordion styling: the open content takes its height from the variable.
+      const fixture = await render(
+        `<div ngpCollapsible ngpCollapsibleDefaultOpen>
+          <div data-testid="content" ngpCollapsibleContent
+               style="overflow: hidden; height: var(--ngp-collapsible-content-height, 0px)">
+            <div style="height: 60px"></div>
+            <div data-testid="extra" style="height: 40px"></div>
+          </div>
+        </div>`,
+        { imports },
+      );
+      const content = fixture.getByTestId('content');
+      const heightVar = () => content.style.getPropertyValue('--ngp-collapsible-content-height');
+
+      await waitFor(() => expect(heightVar()).toBe('100px'));
+
+      fixture.getByTestId('extra').remove();
+
+      await waitFor(() => expect(heightVar()).toBe('60px'));
+      expect(content.clientHeight).toBe(60);
+    });
+
     it('should not set the height variable when closed', async () => {
       const fixture = await renderTemplate();
       expect(
