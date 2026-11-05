@@ -1,3 +1,4 @@
+import { DOCUMENT } from '@angular/common';
 import {
   afterNextRender,
   computed,
@@ -19,7 +20,13 @@ import type {
   NgpPlacement,
   NgpPosition,
 } from 'ng-primitives/portal';
-import { createPrimitive, dataBinding, listener, StateInjectionOptions } from 'ng-primitives/state';
+import {
+  createPrimitive,
+  dataBinding,
+  listener,
+  onDestroy,
+  StateInjectionOptions,
+} from 'ng-primitives/state';
 import type { NgpAutocompleteButtonState } from '../autocomplete-button/autocomplete-button-state';
 import type { NgpAutocompleteDropdownState } from '../autocomplete-dropdown/autocomplete-dropdown-state';
 import type { NgpAutocompleteInputState } from '../autocomplete-input/autocomplete-input-state';
@@ -127,8 +134,17 @@ export interface NgpAutocompleteState<T> {
    */
   onQueryChange(query: string | null, options: { typed: boolean }): void;
 
-  /** Place the dropdown at a viewport position, or at the autocomplete element with `null`. */
-  setPosition(position: NgpPosition | null): void;
+  /**
+   * Place the dropdown at a viewport position, or at the autocomplete element with `null`. A
+   * function is measured again whenever the page scrolls or resizes, as a caret moves with its text.
+   */
+  setPosition(position: NgpPosition | (() => NgpPosition | null) | null): void;
+
+  /**
+   * Handle the keys of an open dropdown, the arrow keys and Enter. A key it handles has its
+   * default prevented, which `event.defaultPrevented` reports. Escape is left to the overlay.
+   */
+  onKeydown(event: KeyboardEvent): void;
 
   /**
    * Handle the overlay being closed, however it was closed.
@@ -257,6 +273,7 @@ export const [
   }: NgpAutocompleteProps<T>): NgpAutocompleteState<T> => {
     const elementRef = injectElementRef<HTMLElement>();
     const injector = inject(Injector);
+    const document = inject(DOCUMENT);
 
     const portal = signal<NgpAutocompletePortalState | undefined>(undefined);
     const dropdown = signal<NgpAutocompleteDropdownState | undefined>(undefined);
@@ -264,6 +281,7 @@ export const [
     const button = signal<NgpAutocompleteButtonState | undefined>(undefined);
     const options = signal<NgpAutocompleteOptionState[]>([]);
     const position = signal<NgpPosition | null>(null);
+    let measurePosition: (() => NgpPosition | null) | null = null;
 
     const overlay = computed(() => portal()?.overlay());
 
@@ -387,6 +405,11 @@ export const [
       closeDropdown();
     });
 
+    // a measured position moves on screen with the page, so it is measured again
+    listener(document, 'scroll', refreshPosition, { config: { capture: true, passive: true } });
+    document.defaultView?.addEventListener('resize', refreshPosition, { passive: true });
+    onDestroy(() => document.defaultView?.removeEventListener('resize', refreshPosition));
+
     async function openDropdown(openOptions?: NgpAutocompleteOpenOptions): Promise<void> {
       if (disabled() || open()) {
         return;
@@ -405,6 +428,11 @@ export const [
 
       // the manager starts on the first option, but an autocomplete opens with none active
       activeDescendantManagerInstance.reset();
+
+      // the page may have scrolled while the dropdown was closed
+      if (measurePosition) {
+        position.set(measurePosition());
+      }
 
       onOpenChange?.(true);
       await portal()?.show();
@@ -492,8 +520,50 @@ export const [
       }
     }
 
-    function setPosition(newPosition: NgpPosition | null): void {
-      position.set(newPosition);
+    function setPosition(newPosition: NgpPosition | (() => NgpPosition | null) | null): void {
+      if (typeof newPosition === 'function') {
+        measurePosition = newPosition;
+        position.set(newPosition());
+      } else {
+        measurePosition = null;
+        position.set(newPosition);
+      }
+    }
+
+    function refreshPosition(): void {
+      if (measurePosition && open()) {
+        position.set(measurePosition());
+      }
+    }
+
+    // void rather than a boolean, as Angular prevents the default of a listener that returns false
+    function onKeydown(event: KeyboardEvent): void {
+      // an IME uses these keys to pick its candidates, and a closed dropdown leaves them alone
+      if (event.defaultPrevented || event.isComposing || !open()) {
+        return;
+      }
+
+      switch (event.key) {
+        case 'ArrowDown':
+          activateNextOption();
+          break;
+        case 'ArrowUp':
+          activatePreviousOption();
+          break;
+        case 'Enter':
+          if (!selectActiveOption()) {
+            // nothing is active, so Enter goes on to the element, e.g. to submit a form
+            closeDropdown();
+            return;
+          }
+          break;
+        // Escape is not here: the overlay registry closes the topmost overlay before the element
+        // sees the key, so handling it here as well could close two layers at once
+        default:
+          return;
+      }
+
+      event.preventDefault();
     }
 
     // Wired to the overlay's onClose, so outside clicks and Escape also emit openChange(false).
@@ -691,6 +761,7 @@ export const [
       setQuery,
       onQueryChange,
       setPosition,
+      onKeydown,
       onOverlayClose,
       selectOption,
       selectActiveOption,

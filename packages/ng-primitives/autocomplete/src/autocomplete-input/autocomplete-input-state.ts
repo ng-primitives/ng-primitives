@@ -152,17 +152,6 @@ export const [
     for (const event of ['keyup', 'click', 'select', 'selectionchange']) {
       listener(elementRef, event, onCaretMove);
     }
-    // the fragment's caret moves on screen when the page or the textarea scrolls
-    listener(
-      document,
-      'scroll',
-      () => {
-        if (state().open()) {
-          updatePosition();
-        }
-      },
-      { config: { capture: true, passive: true } },
-    );
 
     // After render, so a [value] binding updated in the same pass doesn't overwrite it.
     afterRenderEffect({
@@ -176,51 +165,22 @@ export const [
     });
 
     function handleKeydown(event: KeyboardEvent): void {
-      // an IME uses these keys to pick its candidates
-      if (event.isComposing) {
+      // moving through the list shows completions again after a deletion
+      if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
+        deleting = false;
+      }
+
+      state().onKeydown(event);
+
+      // closed, the arrow keys open the dropdown, unless an IME uses them to pick its candidates
+      // or a matcher leaves them to the caret until a fragment opens the dropdown
+      if (event.defaultPrevented || event.isComposing || state().open() || fragmentMatcher()) {
         return;
       }
 
-      // with a matcher, keys move the caret in the text until a fragment has opened the dropdown
-      if (!state().open() && fragmentMatcher()) {
-        return;
-      }
-
-      switch (event.key) {
-        case 'ArrowDown':
-          deleting = false;
-          if (state().open()) {
-            state().activateNextOption();
-          } else {
-            void state().openDropdown({ activate: 'first' });
-          }
-          event.preventDefault();
-          break;
-        case 'ArrowUp':
-          deleting = false;
-          if (state().open()) {
-            state().activatePreviousOption();
-          } else {
-            void state().openDropdown({ activate: 'last' });
-          }
-          event.preventDefault();
-          break;
-        case 'Enter':
-          if (state().selectActiveOption()) {
-            event.preventDefault();
-          } else {
-            // nothing is active, so Enter commits the typed text (e.g. submits the form)
-            state().closeDropdown();
-          }
-          break;
-        case 'Escape':
-          // closed, Escape belongs to whatever encloses the input, such as a dialog
-          if (state().open()) {
-            clearCompletion();
-            state().closeDropdown();
-            event.preventDefault();
-          }
-          break;
+      if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
+        void state().openDropdown({ activate: event.key === 'ArrowDown' ? 'first' : 'last' });
+        event.preventDefault();
       }
     }
 
@@ -321,7 +281,9 @@ export const [
         return;
       }
 
-      state().setPosition(fragment ? getCaretPosition(element, fragment.start) : null);
+      // a function, as the fragment's caret moves on screen when the page or the textarea scrolls
+      const start = fragment?.start;
+      state().setPosition(start === undefined ? null : () => getCaretPosition(element, start));
     }
 
     function updateCompletion(text: string | undefined): void {

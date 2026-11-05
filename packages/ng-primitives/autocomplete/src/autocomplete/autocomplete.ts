@@ -183,9 +183,20 @@ export class NgpAutocomplete {
     this.state.setQuery(query);
   }
 
-  /** Place the dropdown at a viewport position, or at the autocomplete element with `null`. */
-  setPosition(position: NgpPosition | null): void {
+  /**
+   * Place the dropdown at a viewport position, or at the autocomplete element with `null`. A
+   * function is measured again whenever the page scrolls or resizes, as a caret moves with its text.
+   */
+  setPosition(position: NgpPosition | (() => NgpPosition | null) | null): void {
     this.state.setPosition(position);
+  }
+
+  /**
+   * Handle the keys of an open dropdown, the arrow keys and Enter. A key it handles has its
+   * default prevented, which `event.defaultPrevented` reports. Escape is left to the overlay.
+   */
+  onKeydown(event: KeyboardEvent): void {
+    this.state.onKeydown(event);
   }
 
   /** Activate the next option, or the selected option when none is active. */

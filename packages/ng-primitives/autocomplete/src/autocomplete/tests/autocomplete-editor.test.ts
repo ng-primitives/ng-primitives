@@ -29,6 +29,7 @@ import { NgpAutocomplete } from '../autocomplete';
       <div
         [attr.aria-controls]="autocomplete.dropdownId()"
         [attr.aria-activedescendant]="autocomplete.activeOptionId()"
+        (keydown)="autocomplete.onKeydown($event)"
         data-testid="editor"
         contenteditable="true"
         role="textbox"
@@ -66,6 +67,13 @@ async function setup() {
   const editor = screen.getByTestId('editor');
   editor.focus();
   return { fixture, autocomplete, editor };
+}
+
+function keydown(element: HTMLElement, key: string, init: KeyboardEventInit = {}): KeyboardEvent {
+  // cancelable, so defaultPrevented reports whether the autocomplete handled the key
+  const event = new KeyboardEvent('keydown', { key, bubbles: true, cancelable: true, ...init });
+  element.dispatchEvent(event);
+  return event;
 }
 
 function expectClosed() {
@@ -242,5 +250,107 @@ describe('NgpAutocomplete driven by an element of your own', () => {
       expect(Math.abs(rect.left - 120)).toBeLessThan(2);
       expect(Math.abs(rect.top - 80)).toBeLessThan(2);
     });
+  });
+  it('should leave every key to the editor while the dropdown is closed', async () => {
+    const { autocomplete, editor } = await setup();
+
+    for (const key of ['ArrowDown', 'ArrowUp', 'Enter', 'Escape']) {
+      expect(keydown(editor, key).defaultPrevented).toBe(false);
+    }
+    expect(autocomplete.open()).toBe(false);
+  });
+
+  it('should move through the options and select one with the keys of an open dropdown', async () => {
+    const { fixture, autocomplete, editor } = await setup();
+
+    autocomplete.setQuery('m');
+    await screen.findByRole('listbox');
+
+    expect(keydown(editor, 'ArrowDown').defaultPrevented).toBe(true);
+    await waitFor(() => expect(screen.getByText('Marty')).toHaveAttribute('data-active'));
+    expect(keydown(editor, 'ArrowDown').defaultPrevented).toBe(true);
+    expect(keydown(editor, 'ArrowUp').defaultPrevented).toBe(true);
+    await waitFor(() => expect(screen.getByText('Marty')).toHaveAttribute('data-active'));
+
+    expect(keydown(editor, 'Enter').defaultPrevented).toBe(true);
+    expect(fixture.componentInstance.selections).toEqual(['Marty']);
+    await expectClosed();
+  });
+
+  it('should close and leave Enter to the editor when no option is active', async () => {
+    const { fixture, autocomplete, editor } = await setup();
+
+    autocomplete.setQuery('m');
+    await screen.findByRole('listbox');
+
+    expect(keydown(editor, 'Enter').defaultPrevented).toBe(false);
+    expect(fixture.componentInstance.selections).toEqual([]);
+    await expectClosed();
+  });
+
+  it('should ignore keys an IME is composing with, and other keys', async () => {
+    const { autocomplete, editor } = await setup();
+
+    autocomplete.setQuery('m');
+    await screen.findByRole('listbox');
+
+    expect(keydown(editor, 'ArrowDown', { isComposing: true }).defaultPrevented).toBe(false);
+    expect(keydown(editor, 'a').defaultPrevented).toBe(false);
+    expect(autocomplete.activeOptionId()).toBeUndefined();
+  });
+
+  it('should close on Escape, through the overlay', async () => {
+    const { autocomplete, editor } = await setup();
+
+    autocomplete.setQuery('m');
+    await screen.findByRole('listbox');
+
+    keydown(editor, 'Escape');
+    await expectClosed();
+  });
+
+  it('should measure a position function again when the page scrolls or resizes', async () => {
+    const { autocomplete } = await setup();
+    let y = 80;
+
+    autocomplete.setPosition(() => ({ x: 120, y }));
+    autocomplete.setQuery('m');
+    const dropdown = await screen.findByRole('listbox');
+
+    async function expectTop(top: number) {
+      await waitFor(() =>
+        expect(Math.abs(dropdown.getBoundingClientRect().top - top)).toBeLessThan(2),
+      );
+    }
+
+    await expectTop(80);
+
+    y = 140;
+    document.dispatchEvent(new Event('scroll'));
+    await expectTop(140);
+
+    y = 60;
+    window.dispatchEvent(new Event('resize'));
+    await expectTop(60);
+  });
+
+  it('should measure a position function again when the dropdown reopens', async () => {
+    const { autocomplete } = await setup();
+    let y = 80;
+
+    autocomplete.setPosition(() => ({ x: 120, y }));
+    autocomplete.setQuery('m');
+    await screen.findByRole('listbox');
+    autocomplete.closeDropdown();
+    await expectClosed();
+
+    // the page moved while the dropdown was closed
+    y = 150;
+    await autocomplete.openDropdown();
+    const dropdown = await screen.findByRole('listbox');
+
+    await waitFor(() =>
+      expect(Math.abs(dropdown.getBoundingClientRect().top - 150)).toBeLessThan(2),
+    );
   });
 });

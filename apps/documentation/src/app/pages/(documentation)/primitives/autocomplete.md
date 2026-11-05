@@ -132,7 +132,7 @@ In this example, `ngpAutocompleteAutoActivate` makes the first person active, so
     [attr.aria-controls]="autocomplete.open() ? autocomplete.dropdownId() : null"
     [attr.aria-activedescendant]="autocomplete.activeOptionId()"
     (input)="onInput()"
-    (keydown)="onKeydown($event)"
+    (keydown)="autocomplete.onKeydown($event)"
   ></div>
   ...
 </div>
@@ -140,12 +140,12 @@ In this example, `ngpAutocompleteAutoActivate` makes the first person active, so
 
 Your element calls these methods:
 
+- `onKeydown(event)` handles the arrow keys and <kbd>Enter</kbd> while the dropdown is open, and prevents their default. Any other key, or <kbd>Enter</kbd> with no active option, goes on to your element. <kbd>Escape</kbd> closes the dropdown on its own.
 - `setQuery(query)` as the user types, or `null` when there is nothing to search. It applies `ngpAutocompleteMinLength` and `ngpAutocompleteAutoActivate` as typing does, and ignores the same query reported again while the dropdown is open.
-- `setPosition({ x, y })` with viewport coordinates, such as the trigger's `range.getBoundingClientRect()`. Set it again when the page scrolls.
-- `activateNextOption()`, `activatePreviousOption()` and `selectActiveOption()` for the arrow keys and <kbd>Enter</kbd>. `selectActiveOption()` returns `false` when no option was active, so the key can go back to your element.
-- `openDropdown()` and `closeDropdown()`, for example `closeDropdown()` on <kbd>Escape</kbd>.
+- `setPosition(() => ({ x, y }))` with a function that measures the viewport position, such as the trigger's `range.getBoundingClientRect()`. The autocomplete measures it again when the page scrolls or resizes. A plain `{ x, y }` stays where it is.
+- `closeDropdown()` when the caret leaves the mention. `openDropdown()`, `activateNextOption()`, `activatePreviousOption()` and `selectActiveOption()` are there for other keys or controls.
 
-`open()`, `dropdownId()` and `activeOptionId()` feed its ARIA attributes, and `createFragmentMatcher('@')` finds the mention in the text node that holds the caret. Keep the element inside `ngpAutocomplete`, so a press on it leaves the dropdown open and focus leaving the autocomplete closes it. Pressing an option leaves focus and the caret in your element. With Tiptap's suggestion utility, call the same methods from `onStart`, `onUpdate`, `onKeyDown` and `onExit`.
+`open()`, `dropdownId()` and `activeOptionId()` feed its ARIA attributes, and `createFragmentMatcher('@')` finds the mention in the text node that holds the caret. Keep the element inside `ngpAutocomplete`, so a press on it leaves the dropdown open and focus leaving the autocomplete closes it. Pressing an option leaves focus and the caret in your element. With Tiptap's suggestion utility, call the same methods from `onStart`, `onUpdate` and `onExit`, and return `event.defaultPrevented` from `onKeyDown` after `onKeydown(event)`.
 
 ## API Reference
 
@@ -297,7 +297,7 @@ Adheres to the [WAI-ARIA](https://www.w3.org/WAI/ARIA/apg/patterns/combobox/) gu
 - <kbd>Escape</kbd>: Close the dropdown without selecting an option. While the dropdown is closed, it is left to the page, so an enclosing dialog still closes.
 - <kbd>Any character key</kbd>: Open the dropdown once the text reaches the minimum length. No option is active, unless `ngpAutocompleteAutoActivate` makes it the first one.
 
-With a fragment matcher, these keys only apply while the dropdown is open. Without `ngpAutocompleteInput`, your own element handles them.
+With a fragment matcher, these keys only apply while the dropdown is open. Without `ngpAutocompleteInput`, pass the keys of your own element to `onKeydown`.
 
 Focus stays on the input, which points at the active option with `aria-activedescendant`. The active option carries `aria-selected="true"`, as the pattern expects. `data-selected` only reflects `ngpAutocompleteSelectedValue` and has no ARIA equivalent, so do not rely on it alone to convey the chosen value.
 
