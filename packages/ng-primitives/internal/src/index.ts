@@ -42,3 +42,4 @@ export { fromMutationObserver } from './utilities/mutation-observer';
 export { renderList, type NgpRenderListOptions } from './utilities/render-list';
 export { Dimensions, fromResizeEvent, injectDimensions, observeResize } from './utilities/resize';
 export * from './utilities/scrolling';
+export * from './utilities/typeahead';
