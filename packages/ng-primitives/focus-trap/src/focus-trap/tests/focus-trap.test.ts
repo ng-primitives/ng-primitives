@@ -89,6 +89,25 @@ class TestNestedFocusTrapsComponent {
 class TestFocusTrapWithNegativeTabIndexComponent {}
 
 @Component({
+  selector: 'test-focus-trap-unfocusable-edges',
+  imports: [NgpFocusTrap],
+  template: `
+    <div ngpFocusTrap data-testid="focus-trap">
+      <div inert><button>Inert</button></div>
+      <button disabled>Disabled</button>
+      <button data-testid="first">First</button>
+      <fieldset disabled>
+        <legend><button data-testid="last">In the legend, still enabled</button></legend>
+        <button>Disabled by the fieldset</button>
+      </fieldset>
+      <button disabled>Disabled</button>
+      <div inert><button>Inert</button></div>
+    </div>
+  `,
+})
+class TestFocusTrapUnfocusableEdgesComponent {}
+
+@Component({
   selector: 'test-focus-trap-long-list',
   imports: [NgpFocusTrap],
   template: `
@@ -798,6 +817,28 @@ describe('Tabbable candidate filtering', () => {
     // Verify isTabbable was called with both buttons
     expect(isTabbableSpy.mock.calls.some(call => call[0] === btn1)).toBe(true);
     expect(isTabbableSpy.mock.calls.some(call => call[0] === btn2)).toBe(true);
+  });
+
+  it('should wrap Tab past disabled and inert elements at the end of the trap', async () => {
+    const { getByTestId } = await render(TestFocusTrapUnfocusableEdgesComponent);
+    const first = getByTestId('first');
+    const last = getByTestId('last');
+
+    last.focus();
+    const tabNotPrevented = fireEvent.keyDown(last, { key: 'Tab' });
+    expect(tabNotPrevented).toBe(false);
+    expect(first).toHaveFocus();
+  });
+
+  it('should wrap Shift+Tab past disabled and inert elements at the start of the trap', async () => {
+    const { getByTestId } = await render(TestFocusTrapUnfocusableEdgesComponent);
+    const first = getByTestId('first');
+    const last = getByTestId('last');
+
+    first.focus();
+    const tabNotPrevented = fireEvent.keyDown(first, { key: 'Tab', shiftKey: true });
+    expect(tabNotPrevented).toBe(false);
+    expect(last).toHaveFocus();
   });
 });
 

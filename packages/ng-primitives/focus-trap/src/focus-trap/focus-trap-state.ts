@@ -400,10 +400,17 @@ export const [NgpFocusTrapStateToken, ngpFocusTrap, injectFocusTrapState, provid
       function getTabbableCandidates(container: HTMLElement) {
         const nodes: HTMLElement[] = [];
         const walker = document.createTreeWalker(container, NodeFilter.SHOW_ELEMENT, {
-          acceptNode: (node: HTMLElement) =>
-            interactivityChecker.isTabbable(node)
+          // `isTabbable()` checks neither `inert` nor `disabled`. Rejecting an inert node also
+          // skips its subtree; unlike `[disabled]`, `:disabled` also matches a control in a
+          // disabled `<fieldset>`.
+          acceptNode: (node: HTMLElement) => {
+            if (node.inert) {
+              return NodeFilter.FILTER_REJECT;
+            }
+            return interactivityChecker.isTabbable(node) && !node.matches(':disabled')
               ? NodeFilter.FILTER_ACCEPT
-              : NodeFilter.FILTER_SKIP,
+              : NodeFilter.FILTER_SKIP;
+          },
         });
         while (walker.nextNode()) {
           nodes.push(walker.currentNode as HTMLElement);
