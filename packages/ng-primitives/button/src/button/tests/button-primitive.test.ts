@@ -515,6 +515,17 @@ describe('NgpButton pending', () => {
     expect(window.location.hash).not.toBe('#ngp-pending-link');
   });
 
+  it('cancels a middle click on a pending anchor', async () => {
+    const view = await render(`<a href="#ngp-pending-link" ngpButton ngpButtonPending>Open</a>`, {
+      imports: [NgpButton],
+    });
+    const event = new MouseEvent('auxclick', { bubbles: true, cancelable: true, button: 1 });
+
+    view.getByRole('link').dispatchEvent(event);
+
+    expect(event.defaultPrevented).toBe(true);
+  });
+
   it('blocks the host click listener of a component using NgpButton as a host directive', async () => {
     @Component({
       selector: 'button[app-pending-button]',
@@ -617,7 +628,7 @@ describe('NgpButton pending', () => {
   });
 
   it('does not announce the initial pending state', async () => {
-    await setup();
+    await render(Host, { componentProperties: { pending: signal(true) } });
     await new Promise(resolve => setTimeout(resolve, 150));
 
     expect(announcements()).toHaveLength(0);
@@ -627,15 +638,19 @@ describe('NgpButton pending', () => {
 describe('NgpButtonAnnouncer', () => {
   afterEach(() => vi.useRealTimers());
 
-  function setup() {
-    vi.useFakeTimers();
-    const announcer = TestBed.inject(NgpButtonAnnouncer);
+  function addButton(id: string): HTMLButtonElement {
     const button = document.createElement('button');
-    button.id = 'ngp-announced-button';
+    button.id = id;
     button.textContent = 'Save';
     document.body.appendChild(button);
     onTestFinished(() => button.remove());
-    return { announcer, button };
+    return button;
+  }
+
+  function setup() {
+    vi.useFakeTimers();
+    const announcer = TestBed.inject(NgpButtonAnnouncer);
+    return { announcer, button: addButton('ngp-announced-button') };
   }
 
   function announcements(): Element[] {
@@ -661,5 +676,20 @@ describe('NgpButtonAnnouncer', () => {
     vi.advanceTimersByTime(100);
 
     expect(announcements()).toHaveLength(0);
+  });
+
+  it('keeps announcements in order while a new region is being registered', () => {
+    const { announcer } = setup();
+    addButton('ngp-announced-other');
+
+    announcer.announceName('ngp-announced-button');
+    vi.advanceTimersByTime(50);
+    announcer.announceName('ngp-announced-other');
+    vi.advanceTimersByTime(50);
+
+    expect(announcements().map(node => node.getAttribute('aria-labelledby'))).toEqual([
+      'ngp-announced-button',
+      'ngp-announced-other',
+    ]);
   });
 });

@@ -90,18 +90,15 @@ export const [NgpButtonStateToken, ngpButton, injectButtonState, provideButtonSt
 
       // Capture runs before the consumer's `(click)` on the same element. Cancelling the click
       // keeps a submit button from submitting its form, including on Enter in a form field,
-      // while it stays the form's default button.
-      listener(
-        element,
-        'click',
-        event => {
-          if (pending()) {
-            event.preventDefault();
-            event.stopImmediatePropagation();
-          }
-        },
-        { config: { capture: true } },
-      );
+      // while it stays the form's default button. `auxclick` covers a middle click on a link.
+      function cancelWhilePending(event: Event): void {
+        if (pending()) {
+          event.preventDefault();
+          event.stopImmediatePropagation();
+        }
+      }
+      listener(element, 'click', cancelWhilePending, { config: { capture: true } });
+      listener(element, 'auxclick', cancelWhilePending, { config: { capture: true } });
 
       onChange(pending, (_, previous) => {
         if (previous === null || !element.nativeElement.matches(':focus')) {
