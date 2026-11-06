@@ -13,7 +13,7 @@ import {
 import { TestBed } from '@angular/core/testing';
 import { fireEvent, render, waitFor } from '@testing-library/angular';
 import { NgpFocusTrap, ngpFocusTrap } from 'ng-primitives/focus-trap';
-import { describe, expect, it, vi } from 'vitest';
+import { describe, expect, it, onTestFinished, vi } from 'vitest';
 
 @Component({
   selector: 'test-focus-trap',
@@ -87,6 +87,117 @@ class TestNestedFocusTrapsComponent {
   `,
 })
 class TestFocusTrapWithNegativeTabIndexComponent {}
+
+@Component({
+  selector: 'test-focus-trap-unfocusable-edges',
+  imports: [NgpFocusTrap],
+  template: `
+    <div ngpFocusTrap data-testid="focus-trap">
+      <div inert><button>Inert</button></div>
+      <button disabled>Disabled</button>
+      <button data-testid="first">First</button>
+      <fieldset disabled>
+        <legend><button data-testid="last">In the legend, still enabled</button></legend>
+        <button>Disabled by the fieldset</button>
+      </fieldset>
+      <button disabled>Disabled</button>
+      <div inert><button>Inert</button></div>
+    </div>
+  `,
+})
+class TestFocusTrapUnfocusableEdgesComponent {}
+
+@Component({
+  selector: 'test-focus-trap-inert-modal-dialog',
+  imports: [NgpFocusTrap],
+  template: `
+    <div ngpFocusTrap>
+      <button>Outside the modal dialog</button>
+      <div inert>
+        <button>Inert sibling</button>
+        <dialog data-testid="dialog">
+          <button data-testid="first">First</button>
+          <button data-testid="last">Last</button>
+          <div inert><button>Inert inside the modal dialog</button></div>
+        </dialog>
+        <button>Inert sibling</button>
+      </div>
+      <button>Outside the modal dialog</button>
+    </div>
+  `,
+})
+class TestFocusTrapInertModalDialogComponent {}
+
+@Component({
+  selector: 'test-focus-trap-open-dialog',
+  imports: [NgpFocusTrap],
+  template: `
+    <div ngpFocusTrap>
+      <button data-testid="first">First</button>
+      <dialog open>
+        <button data-testid="last">Last</button>
+      </dialog>
+    </div>
+  `,
+})
+class TestFocusTrapOpenDialogComponent {}
+
+@Component({
+  selector: 'test-focus-trap-stacked-modal-dialogs',
+  imports: [NgpFocusTrap],
+  template: `
+    <div ngpFocusTrap>
+      <dialog data-testid="before">
+        <button>In a lower modal dialog</button>
+      </dialog>
+      <dialog data-testid="parent">
+        <button>In the parent modal dialog</button>
+        <dialog data-testid="top">
+          <button data-testid="first">First</button>
+          <button data-testid="last">Last</button>
+        </dialog>
+        <button>In the parent modal dialog</button>
+      </dialog>
+      <dialog data-testid="after">
+        <button>In a lower modal dialog</button>
+      </dialog>
+    </div>
+  `,
+})
+class TestFocusTrapStackedModalDialogsComponent {}
+
+@Component({
+  selector: 'test-focus-trap-collapsed-edge',
+  imports: [NgpFocusTrap],
+  template: `
+    <div ngpFocusTrap>
+      <button data-testid="first">First</button>
+      <details>
+        <summary data-testid="last">Advanced</summary>
+        <button>Collapsed</button>
+      </details>
+    </div>
+  `,
+})
+class TestFocusTrapCollapsedEdgeComponent {}
+
+@Component({
+  selector: 'test-focus-trap-inert-slot',
+  imports: [NgpFocusTrap],
+  template: `
+    <div ngpFocusTrap>
+      <button data-testid="first">First</button>
+      <div data-testid="host">
+        <button data-testid="last">Last</button>
+        <button slot="inert">Inert through its slot</button>
+      </div>
+      <div inert>
+        <div data-testid="inert-host"><button>Inert through its shadow host</button></div>
+      </div>
+    </div>
+  `,
+})
+class TestFocusTrapInertSlotComponent {}
 
 @Component({
   selector: 'test-focus-trap-long-list',
@@ -298,6 +409,23 @@ class TestShadowFocusTrapComponent {
   `,
 })
 class TestShadowFocusTrapAutofocusComponent {}
+
+@Component({
+  selector: 'test-shadow-focus-trap-modal-dialog',
+  imports: [NgpFocusTrap],
+  encapsulation: ViewEncapsulation.ShadowDom,
+  template: `
+    <div ngpFocusTrap>
+      <button>Outside the modal dialog</button>
+      <dialog data-testid="dialog">
+        <button data-testid="first">First</button>
+        <button data-testid="last">Last</button>
+      </dialog>
+      <button>Outside the modal dialog</button>
+    </div>
+  `,
+})
+class TestShadowFocusTrapModalDialogComponent {}
 
 @Component({
   selector: 'test-shadow-focus-trap-trailing-heading',
@@ -799,6 +927,109 @@ describe('Tabbable candidate filtering', () => {
     expect(isTabbableSpy.mock.calls.some(call => call[0] === btn1)).toBe(true);
     expect(isTabbableSpy.mock.calls.some(call => call[0] === btn2)).toBe(true);
   });
+
+  it('should wrap Tab past disabled and inert elements at the end of the trap', async () => {
+    const { getByTestId } = await render(TestFocusTrapUnfocusableEdgesComponent);
+    const first = getByTestId('first');
+    const last = getByTestId('last');
+
+    last.focus();
+    const tabNotPrevented = fireEvent.keyDown(last, { key: 'Tab' });
+    expect(tabNotPrevented).toBe(false);
+    expect(first).toHaveFocus();
+  });
+
+  it('should wrap Shift+Tab past disabled and inert elements at the start of the trap', async () => {
+    const { getByTestId } = await render(TestFocusTrapUnfocusableEdgesComponent);
+    const first = getByTestId('first');
+    const last = getByTestId('last');
+
+    first.focus();
+    const tabNotPrevented = fireEvent.keyDown(first, { key: 'Tab', shiftKey: true });
+    expect(tabNotPrevented).toBe(false);
+    expect(last).toHaveFocus();
+  });
+
+  it('should wrap Tab inside a modal dialog under an inert ancestor', async () => {
+    const { getByTestId } = await render(TestFocusTrapInertModalDialogComponent);
+    const dialog = getByTestId('dialog') as HTMLDialogElement;
+    dialog.showModal();
+    onTestFinished(() => dialog.close());
+    const first = getByTestId('first');
+    const last = getByTestId('last');
+
+    last.focus();
+    expect(fireEvent.keyDown(last, { key: 'Tab' })).toBe(false);
+    expect(first).toHaveFocus();
+
+    expect(fireEvent.keyDown(first, { key: 'Tab', shiftKey: true })).toBe(false);
+    expect(last).toHaveFocus();
+  });
+
+  it('should wrap Tab inside the topmost of stacked modal dialogs', async () => {
+    const { getByTestId } = await render(TestFocusTrapStackedModalDialogsComponent);
+    const dialogs = ['before', 'after', 'parent', 'top'].map(
+      id => getByTestId(id) as HTMLDialogElement,
+    );
+    dialogs.forEach(dialog => dialog.showModal());
+    onTestFinished(() => dialogs.reverse().forEach(dialog => dialog.close()));
+    const first = getByTestId('first');
+    const last = getByTestId('last');
+
+    last.focus();
+    expect(fireEvent.keyDown(last, { key: 'Tab' })).toBe(false);
+    expect(first).toHaveFocus();
+
+    expect(fireEvent.keyDown(first, { key: 'Tab', shiftKey: true })).toBe(false);
+    expect(last).toHaveFocus();
+  });
+
+  it('should wrap Tab past a control collapsed in a closed details element', async () => {
+    const { getByTestId } = await render(TestFocusTrapCollapsedEdgeComponent);
+    const first = getByTestId('first');
+    const last = getByTestId('last');
+
+    last.focus();
+    expect(fireEvent.keyDown(last, { key: 'Tab' })).toBe(false);
+    expect(first).toHaveFocus();
+  });
+
+  it('should treat an open dialog as non-modal where `:modal` is unsupported', async () => {
+    const { getByTestId } = await render(TestFocusTrapOpenDialogComponent);
+    const matches = Element.prototype.matches;
+    const matchesSpy = vi.spyOn(Element.prototype, 'matches').mockImplementation(function (
+      this: Element,
+      selector: string,
+    ) {
+      if (selector === ':modal') {
+        throw new SyntaxError(`unknown pseudo-class selector '${selector}'`);
+      }
+      return matches.call(this, selector);
+    });
+    onTestFinished(() => matchesSpy.mockRestore());
+    const first = getByTestId('first');
+    const last = getByTestId('last');
+
+    last.focus();
+    expect(fireEvent.keyDown(last, { key: 'Tab' })).toBe(false);
+    expect(first).toHaveFocus();
+  });
+
+  it('should wrap Tab past elements made inert through a shadow root', async () => {
+    const { getByTestId } = await render(TestFocusTrapInertSlotComponent);
+    getByTestId('host').attachShadow({ mode: 'open' }).innerHTML =
+      '<slot></slot><div inert><slot name="inert"></slot></div>';
+    getByTestId('inert-host').attachShadow({ mode: 'open' }).innerHTML = '<slot></slot>';
+    const first = getByTestId('first');
+    const last = getByTestId('last');
+
+    last.focus();
+    expect(fireEvent.keyDown(last, { key: 'Tab' })).toBe(false);
+    expect(first).toHaveFocus();
+
+    expect(fireEvent.keyDown(first, { key: 'Tab', shiftKey: true })).toBe(false);
+    expect(last).toHaveFocus();
+  });
 });
 
 describe('Tab handling cost', () => {
@@ -1052,6 +1283,24 @@ describe('Focus trap inside a shadow root', () => {
       shadowRoot.querySelector<HTMLElement>(`[data-testid="${id}"]`)!;
     return { shadowRoot, getByTestId };
   }
+
+  it('should wrap Tab inside a modal dialog in the same shadow root', async () => {
+    const { shadowRoot, getByTestId } = await renderInShadowRoot(
+      TestShadowFocusTrapModalDialogComponent,
+    );
+    const dialog = getByTestId('dialog') as HTMLDialogElement;
+    dialog.showModal();
+    onTestFinished(() => dialog.close());
+    const first = getByTestId('first');
+    const last = getByTestId('last');
+
+    last.focus();
+    expect(fireEvent.keyDown(last, { key: 'Tab' })).toBe(false);
+    expect(shadowRoot.activeElement).toBe(first);
+
+    expect(fireEvent.keyDown(first, { key: 'Tab', shiftKey: true })).toBe(false);
+    expect(shadowRoot.activeElement).toBe(last);
+  });
 
   it('should focus the first tabbable element when focus starts in the same shadow root', async () => {
     const { fixture } = await render(TestShadowFocusTrapComponent);
