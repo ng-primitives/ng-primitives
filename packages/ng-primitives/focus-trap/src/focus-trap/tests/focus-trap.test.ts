@@ -108,6 +108,22 @@ class TestFocusTrapWithNegativeTabIndexComponent {}
 class TestFocusTrapUnfocusableEdgesComponent {}
 
 @Component({
+  selector: 'test-focus-trap-inert-modal-dialog',
+  imports: [NgpFocusTrap],
+  template: `
+    <div ngpFocusTrap>
+      <div inert>
+        <dialog data-testid="dialog">
+          <button data-testid="first">First</button>
+          <button data-testid="last">Last</button>
+        </dialog>
+      </div>
+    </div>
+  `,
+})
+class TestFocusTrapInertModalDialogComponent {}
+
+@Component({
   selector: 'test-focus-trap-long-list',
   imports: [NgpFocusTrap],
   template: `
@@ -838,6 +854,20 @@ describe('Tabbable candidate filtering', () => {
     first.focus();
     const tabNotPrevented = fireEvent.keyDown(first, { key: 'Tab', shiftKey: true });
     expect(tabNotPrevented).toBe(false);
+    expect(last).toHaveFocus();
+  });
+
+  it('should wrap Tab inside a modal dialog under an inert ancestor', async () => {
+    const { getByTestId } = await render(TestFocusTrapInertModalDialogComponent);
+    (getByTestId('dialog') as HTMLDialogElement).showModal();
+    const first = getByTestId('first');
+    const last = getByTestId('last');
+
+    last.focus();
+    fireEvent.keyDown(last, { key: 'Tab' });
+    expect(first).toHaveFocus();
+
+    fireEvent.keyDown(first, { key: 'Tab', shiftKey: true });
     expect(last).toHaveFocus();
   });
 });
