@@ -177,17 +177,16 @@ describe('NgpMenuItemRadio', () => {
     expect(lightRadio).not.toHaveAttribute('data-checked');
   });
 
-  it('should NOT close the menu on click', async () => {
+  it('should close the menu on click', async () => {
     const { fixture } = await render(TestMenuRadioComponent);
     const trigger = await openMenu(fixture);
 
     const darkRadio = document.querySelector('[data-testid="radio-dark"]');
-    fireEvent.click(darkRadio!);
+    fireEvent.click(darkRadio!, { detail: 1 });
     fixture.detectChanges();
 
-    // Menu should still be open
-    expect(trigger).toHaveAttribute('data-open');
-    expect(document.querySelector('[data-testid="menu"]')).toBeInTheDocument();
+    await waitFor(() => expect(trigger).not.toHaveAttribute('data-open'));
+    expect(document.querySelector('[data-testid="menu"]')).not.toBeInTheDocument();
   });
 
   it('should close the menu when regular item is clicked', async () => {
