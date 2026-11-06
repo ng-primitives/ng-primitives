@@ -64,11 +64,18 @@ The following directives are available to import from the `ng-primitives/button`
   <api-attribute name="data-focus-visible" description="Added to the button when focused." />
   <api-attribute name="data-press" description="Added to the button when pressed." />
   <api-attribute name="data-disabled" description="Added to the button when disabled. Empty string when fully disabled, or `soft` when soft-disabled." />
+  <api-attribute name="data-pending" description="Added to the button while it is pending." />
 </api-reference-attributes>
 
 ## Accessibility
 
 Apply the primitive to native `&lt;button&gt;` elements to inherit built-in browser accessibility. With `disabled="'soft'"`, `aria-disabled` is used in place of the native `disabled` attribute so the element remains focusable.
+
+### Pending State
+
+Set `ngpButtonPending` while the request a button started is running. A pending button sets `aria-disabled="true"` and stays focusable, so focus does not fall back to the page. Its clicks are cancelled before your `(click)` handlers run, so a `type="submit"` button does not submit its form, including on <kbd>Enter</kbd> in a form field. When pending starts or ends while the button has focus, its accessible name is announced through a live region, so a screen reader user hears that something is happening. Give the button a name that describes the pending state, for example a visually hidden "Saving" label next to a spinner.
+
+The announcement is made only while the button has focus. Safari and Firefox on macOS, and Safari on iOS, do not focus a button on click or tap, so a pointer or touch activation there is not announced. A button inside a shadow root is not announced either, since the live region cannot reference an element across the shadow boundary.
 
 ### Keyboard Interactions
 
