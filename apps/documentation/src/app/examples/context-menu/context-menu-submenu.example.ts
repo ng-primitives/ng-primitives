@@ -19,7 +19,7 @@ import {
   ],
   providers: [provideIcons({ heroChevronRightMini })],
   template: `
-    <div class="trigger" [ngpContextMenuTrigger]="menu">Right-click me</div>
+    <div class="trigger" [ngpContextMenuTrigger]="menu" tabindex="0">Right-click me</div>
 
     <ng-template #menu>
       <div ngpContextMenu>
@@ -53,6 +53,12 @@ import {
       font-size: 14px;
       letter-spacing: -0.006em;
       user-select: none;
+      outline: none;
+    }
+
+    .trigger:focus-visible {
+      outline: 2px solid var(--ngp-focus-ring);
+      outline-offset: 2px;
     }
 
     [ngpContextMenu] {

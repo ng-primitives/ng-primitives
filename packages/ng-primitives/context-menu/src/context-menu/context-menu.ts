@@ -3,7 +3,7 @@ import { BooleanInput } from '@angular/cdk/coercion';
 import { booleanAttribute, Directive, input } from '@angular/core';
 import { provideFocusTrapState } from 'ng-primitives/focus-trap';
 import { ngpMenu, provideMenuState } from 'ng-primitives/menu';
-import { provideControlContainerIsolation } from 'ng-primitives/portal';
+import { NgpOverlayFinalFocus, provideControlContainerIsolation } from 'ng-primitives/portal';
 import { ngpRovingFocusGroup, provideRovingFocusGroupState } from 'ng-primitives/roving-focus';
 
 /**
@@ -29,7 +29,17 @@ export class NgpContextMenu {
     transform: booleanAttribute,
   });
 
-  private readonly state = ngpMenu({ wrap: this.wrap });
+  /**
+   * Where focus goes when the menu closes: an element, `false` to leave focus where it is,
+   * `null` for the default (the element focused when it opened, usually the trigger area), or a
+   * function that receives the close origin and returns one of these.
+   * @default null
+   */
+  readonly finalFocus = input<NgpOverlayFinalFocus | null>(null, {
+    alias: 'ngpContextMenuFinalFocus',
+  });
+
+  private readonly state = ngpMenu({ wrap: this.wrap, finalFocus: this.finalFocus });
 
   constructor() {
     ngpRovingFocusGroup({ inherit: false, wrap: this.wrap });
