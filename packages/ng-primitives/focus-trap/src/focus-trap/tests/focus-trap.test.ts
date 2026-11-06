@@ -143,6 +143,30 @@ class TestFocusTrapInertModalDialogComponent {}
 class TestFocusTrapOpenDialogComponent {}
 
 @Component({
+  selector: 'test-focus-trap-stacked-modal-dialogs',
+  imports: [NgpFocusTrap],
+  template: `
+    <div ngpFocusTrap>
+      <dialog data-testid="before">
+        <button>In a lower modal dialog</button>
+      </dialog>
+      <dialog data-testid="parent">
+        <button>In the parent modal dialog</button>
+        <dialog data-testid="top">
+          <button data-testid="first">First</button>
+          <button data-testid="last">Last</button>
+        </dialog>
+        <button>In the parent modal dialog</button>
+      </dialog>
+      <dialog data-testid="after">
+        <button>In a lower modal dialog</button>
+      </dialog>
+    </div>
+  `,
+})
+class TestFocusTrapStackedModalDialogsComponent {}
+
+@Component({
   selector: 'test-focus-trap-collapsed-edge',
   imports: [NgpFocusTrap],
   template: `
@@ -931,6 +955,24 @@ describe('Tabbable candidate filtering', () => {
     const dialog = getByTestId('dialog') as HTMLDialogElement;
     dialog.showModal();
     onTestFinished(() => dialog.close());
+    const first = getByTestId('first');
+    const last = getByTestId('last');
+
+    last.focus();
+    expect(fireEvent.keyDown(last, { key: 'Tab' })).toBe(false);
+    expect(first).toHaveFocus();
+
+    expect(fireEvent.keyDown(first, { key: 'Tab', shiftKey: true })).toBe(false);
+    expect(last).toHaveFocus();
+  });
+
+  it('should wrap Tab inside the topmost of stacked modal dialogs', async () => {
+    const { getByTestId } = await render(TestFocusTrapStackedModalDialogsComponent);
+    const dialogs = ['before', 'after', 'parent', 'top'].map(
+      id => getByTestId(id) as HTMLDialogElement,
+    );
+    dialogs.forEach(dialog => dialog.showModal());
+    onTestFinished(() => dialogs.reverse().forEach(dialog => dialog.close()));
     const first = getByTestId('first');
     const last = getByTestId('last');
 
