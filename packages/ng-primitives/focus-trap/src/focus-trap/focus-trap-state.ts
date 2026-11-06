@@ -331,20 +331,28 @@ export const [NgpFocusTrapStateToken, ngpFocusTrap, injectFocusTrapState, provid
       }
 
       /**
-       * Returns the first and last visible tabbable elements inside a container.
+       * Returns the first and last tabbable elements in a container, skipping those that can't take
+       * focus.
        */
       function getTabbableEdges(container: HTMLElement) {
         const candidates = getTabbableCandidates(container);
-        const isVisible = (candidate: HTMLElement) => interactivityChecker.isVisible(candidate);
-        const firstIndex = candidates.findIndex(isVisible);
+        const modalOpen = hasOpenModalDialog();
+        // `isTabbable()` checks neither `disabled` nor `inert`. Like `isVisible()`, which reads
+        // layout, these run only on the ends of the list. Unlike `[disabled]`, `:disabled` also
+        // matches a control in a disabled `<fieldset>`.
+        const canTakeFocus = (candidate: HTMLElement) =>
+          !candidate.matches(':disabled') &&
+          !isInert(candidate, modalOpen) &&
+          interactivityChecker.isVisible(candidate);
+        const firstIndex = candidates.findIndex(canTakeFocus);
 
         if (firstIndex === -1) {
           return [undefined, undefined] as const;
         }
 
-        // Scan back only down to the first visible one, so each candidate is checked once at most.
+        // Scan back only down to the first edge, so each candidate is checked once at most.
         let lastIndex = candidates.length - 1;
-        while (lastIndex > firstIndex && !isVisible(candidates[lastIndex])) {
+        while (lastIndex > firstIndex && !canTakeFocus(candidates[lastIndex])) {
           lastIndex--;
         }
 
@@ -400,22 +408,67 @@ export const [NgpFocusTrapStateToken, ngpFocusTrap, injectFocusTrapState, provid
       function getTabbableCandidates(container: HTMLElement) {
         const nodes: HTMLElement[] = [];
         const walker = document.createTreeWalker(container, NodeFilter.SHOW_ELEMENT, {
-          // `isTabbable()` checks neither `inert` nor `disabled`. An inert node is rejected with
-          // its subtree, unless it holds a modal `<dialog>`, which stays interactive. Unlike
-          // `[disabled]`, `:disabled` also matches a control in a disabled `<fieldset>`.
-          acceptNode: (node: HTMLElement) => {
-            if (node.inert && !node.querySelector('dialog:modal')) {
-              return NodeFilter.FILTER_REJECT;
-            }
-            return interactivityChecker.isTabbable(node) && !node.matches(':disabled')
+          acceptNode: (node: HTMLElement) =>
+            interactivityChecker.isTabbable(node)
               ? NodeFilter.FILTER_ACCEPT
-              : NodeFilter.FILTER_SKIP;
-          },
+              : NodeFilter.FILTER_SKIP,
         });
         while (walker.nextNode()) {
           nodes.push(walker.currentNode as HTMLElement);
         }
         return nodes;
+      }
+
+      /**
+       * Whether `candidate` is inert. Walks the flat tree: the nearest `inert` ancestor wins
+       * unless a modal `<dialog>` sits in between, and while a modal is open, everything outside
+       * one is inert. Approximates the browser, which only lets the topmost of stacked modals
+       * escape, and can't see a modal inside a shadow root, or slots inside a closed one.
+       */
+      function isInert(candidate: Element, modalOpen: boolean): boolean {
+        for (let node: Element | null = candidate; node; node = getFlatTreeParent(node)) {
+          if (node instanceof HTMLElement && node.inert) {
+            return true;
+          }
+          if (isModalDialog(node)) {
+            return false;
+          }
+        }
+        return modalOpen;
+      }
+
+      /**
+       * Whether any `<dialog>` in the document is open as a modal.
+       */
+      function hasOpenModalDialog(): boolean {
+        return Array.from(document.querySelectorAll('dialog[open]')).some(isModalDialog);
+      }
+
+      /**
+       * Whether `node` is a `<dialog>` opened with `showModal()`.
+       */
+      function isModalDialog(node: Element): boolean {
+        if (!(node instanceof HTMLDialogElement) || !node.open) {
+          return false;
+        }
+        try {
+          return node.matches(':modal');
+        } catch {
+          // jsdom before v27 rejects `:modal`, and has no `showModal()` either.
+          return false;
+        }
+      }
+
+      /**
+       * Returns the parent in the flat tree: the slot a node is assigned to, else its parent,
+       * else the host of the shadow root it sits in.
+       */
+      function getFlatTreeParent(node: Element): Element | null {
+        if (node.assignedSlot) {
+          return node.assignedSlot;
+        }
+        const parent = node.parentNode;
+        return parent instanceof ShadowRoot ? parent.host : node.parentElement;
       }
 
       function focus(element: HTMLElement | null): void {

@@ -13,7 +13,7 @@ import {
 import { TestBed } from '@angular/core/testing';
 import { fireEvent, render, waitFor } from '@testing-library/angular';
 import { NgpFocusTrap, ngpFocusTrap } from 'ng-primitives/focus-trap';
-import { describe, expect, it, vi } from 'vitest';
+import { describe, expect, it, onTestFinished, vi } from 'vitest';
 
 @Component({
   selector: 'test-focus-trap',
@@ -112,16 +112,39 @@ class TestFocusTrapUnfocusableEdgesComponent {}
   imports: [NgpFocusTrap],
   template: `
     <div ngpFocusTrap>
+      <button data-testid="outside-first">Outside the modal dialog</button>
       <div inert>
+        <button>Inert sibling</button>
         <dialog data-testid="dialog">
           <button data-testid="first">First</button>
           <button data-testid="last">Last</button>
+          <div inert><button>Inert inside the modal dialog</button></div>
         </dialog>
+        <button>Inert sibling</button>
       </div>
+      <button data-testid="outside-last">Outside the modal dialog</button>
     </div>
   `,
 })
 class TestFocusTrapInertModalDialogComponent {}
+
+@Component({
+  selector: 'test-focus-trap-inert-slot',
+  imports: [NgpFocusTrap],
+  template: `
+    <div ngpFocusTrap>
+      <button data-testid="first">First</button>
+      <div data-testid="host">
+        <button data-testid="last">Last</button>
+        <button slot="inert">Inert through its slot</button>
+      </div>
+      <div inert>
+        <div data-testid="inert-host"><button>Inert through its shadow host</button></div>
+      </div>
+    </div>
+  `,
+})
+class TestFocusTrapInertSlotComponent {}
 
 @Component({
   selector: 'test-focus-trap-long-list',
@@ -859,15 +882,57 @@ describe('Tabbable candidate filtering', () => {
 
   it('should wrap Tab inside a modal dialog under an inert ancestor', async () => {
     const { getByTestId } = await render(TestFocusTrapInertModalDialogComponent);
-    (getByTestId('dialog') as HTMLDialogElement).showModal();
+    const dialog = getByTestId('dialog') as HTMLDialogElement;
+    dialog.showModal();
+    onTestFinished(() => dialog.close());
     const first = getByTestId('first');
     const last = getByTestId('last');
 
     last.focus();
-    fireEvent.keyDown(last, { key: 'Tab' });
+    expect(fireEvent.keyDown(last, { key: 'Tab' })).toBe(false);
     expect(first).toHaveFocus();
 
-    fireEvent.keyDown(first, { key: 'Tab', shiftKey: true });
+    expect(fireEvent.keyDown(first, { key: 'Tab', shiftKey: true })).toBe(false);
+    expect(last).toHaveFocus();
+  });
+
+  it('should treat an open dialog as non-modal where `:modal` is unsupported', async () => {
+    const { getByTestId } = await render(TestFocusTrapInertModalDialogComponent);
+    const dialog = getByTestId('dialog') as HTMLDialogElement;
+    dialog.show();
+    onTestFinished(() => dialog.close());
+    const matches = Element.prototype.matches;
+    const matchesSpy = vi.spyOn(Element.prototype, 'matches').mockImplementation(function (
+      this: Element,
+      selector: string,
+    ) {
+      if (selector === ':modal') {
+        throw new SyntaxError(`unknown pseudo-class selector '${selector}'`);
+      }
+      return matches.call(this, selector);
+    });
+    onTestFinished(() => matchesSpy.mockRestore());
+    const first = getByTestId('outside-first');
+    const last = getByTestId('outside-last');
+
+    last.focus();
+    expect(fireEvent.keyDown(last, { key: 'Tab' })).toBe(false);
+    expect(first).toHaveFocus();
+  });
+
+  it('should wrap Tab past elements made inert through a shadow root', async () => {
+    const { getByTestId } = await render(TestFocusTrapInertSlotComponent);
+    getByTestId('host').attachShadow({ mode: 'open' }).innerHTML =
+      '<slot></slot><div inert><slot name="inert"></slot></div>';
+    getByTestId('inert-host').attachShadow({ mode: 'open' }).innerHTML = '<slot></slot>';
+    const first = getByTestId('first');
+    const last = getByTestId('last');
+
+    last.focus();
+    expect(fireEvent.keyDown(last, { key: 'Tab' })).toBe(false);
+    expect(first).toHaveFocus();
+
+    expect(fireEvent.keyDown(first, { key: 'Tab', shiftKey: true })).toBe(false);
     expect(last).toHaveFocus();
   });
 });
