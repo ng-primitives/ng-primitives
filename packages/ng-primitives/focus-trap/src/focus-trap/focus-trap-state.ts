@@ -308,7 +308,7 @@ export const [NgpFocusTrapStateToken, ngpFocusTrap, injectFocusTrapState, provid
         }
 
         const container = event.currentTarget as HTMLElement;
-        const [first, last] = getTabbableEdges(container);
+        const [first, last] = getTabbableEdges(container, focusedElement);
 
         if (!first || !last) {
           if (container.contains(focusedElement)) {
@@ -334,16 +334,20 @@ export const [NgpFocusTrapStateToken, ngpFocusTrap, injectFocusTrapState, provid
        * Returns the first and last tabbable elements in a container, skipping those that can't take
        * focus.
        */
-      function getTabbableEdges(container: HTMLElement) {
+      function getTabbableEdges(container: HTMLElement, focusedElement: Element) {
         const candidates = getTabbableCandidates(container);
-        const modalOpen = hasOpenModalDialog();
-        // `isTabbable()` checks neither `disabled` nor `inert`. Like `isVisible()`, which reads
-        // layout, these run only on the ends of the list. Unlike `[disabled]`, `:disabled` also
-        // matches a control in a disabled `<fieldset>`.
+        // While a modal is open, everything outside it is inert, so focus is inside it. Reading that
+        // from focus, unlike a document query, also finds a modal in a shadow root.
+        const modalOpen = isInModalDialog(focusedElement);
+        // `isTabbable()` checks neither `disabled` nor `inert`, and `isVisible()` misses collapsed
+        // content, such as a closed `<details>`, which `checkVisibility()` catches. The visibility
+        // checks read layout, so all of these run only on the ends of the list. Unlike
+        // `[disabled]`, `:disabled` also matches a control in a disabled `<fieldset>`.
         const canTakeFocus = (candidate: HTMLElement) =>
           !candidate.matches(':disabled') &&
           !isInert(candidate, modalOpen) &&
-          interactivityChecker.isVisible(candidate);
+          interactivityChecker.isVisible(candidate) &&
+          candidate.checkVisibility?.() !== false;
         const firstIndex = candidates.findIndex(canTakeFocus);
 
         if (firstIndex === -1) {
@@ -422,8 +426,8 @@ export const [NgpFocusTrapStateToken, ngpFocusTrap, injectFocusTrapState, provid
       /**
        * Whether `candidate` is inert. Walks the flat tree: the nearest `inert` ancestor wins
        * unless a modal `<dialog>` sits in between, and while a modal is open, everything outside
-       * one is inert. Approximates the browser, which only lets the topmost of stacked modals
-       * escape, and can't see a modal inside a shadow root, or slots inside a closed one.
+       * one is inert. An approximation: it lets every modal escape where the browser lets only
+       * the topmost, and can't see slots inside a closed shadow root.
        */
       function isInert(candidate: Element, modalOpen: boolean): boolean {
         for (let node: Element | null = candidate; node; node = getFlatTreeParent(node)) {
@@ -438,10 +442,15 @@ export const [NgpFocusTrapStateToken, ngpFocusTrap, injectFocusTrapState, provid
       }
 
       /**
-       * Whether any `<dialog>` in the document is open as a modal.
+       * Whether `element` is inside a modal `<dialog>`, or is one, in the flat tree.
        */
-      function hasOpenModalDialog(): boolean {
-        return Array.from(document.querySelectorAll('dialog[open]')).some(isModalDialog);
+      function isInModalDialog(element: Element): boolean {
+        for (let node: Element | null = element; node; node = getFlatTreeParent(node)) {
+          if (isModalDialog(node)) {
+            return true;
+          }
+        }
+        return false;
       }
 
       /**

@@ -112,7 +112,7 @@ class TestFocusTrapUnfocusableEdgesComponent {}
   imports: [NgpFocusTrap],
   template: `
     <div ngpFocusTrap>
-      <button data-testid="outside-first">Outside the modal dialog</button>
+      <button>Outside the modal dialog</button>
       <div inert>
         <button>Inert sibling</button>
         <dialog data-testid="dialog">
@@ -122,11 +122,40 @@ class TestFocusTrapUnfocusableEdgesComponent {}
         </dialog>
         <button>Inert sibling</button>
       </div>
-      <button data-testid="outside-last">Outside the modal dialog</button>
+      <button>Outside the modal dialog</button>
     </div>
   `,
 })
 class TestFocusTrapInertModalDialogComponent {}
+
+@Component({
+  selector: 'test-focus-trap-open-dialog',
+  imports: [NgpFocusTrap],
+  template: `
+    <div ngpFocusTrap>
+      <button data-testid="first">First</button>
+      <dialog open>
+        <button data-testid="last">Last</button>
+      </dialog>
+    </div>
+  `,
+})
+class TestFocusTrapOpenDialogComponent {}
+
+@Component({
+  selector: 'test-focus-trap-collapsed-edge',
+  imports: [NgpFocusTrap],
+  template: `
+    <div ngpFocusTrap>
+      <button data-testid="first">First</button>
+      <details>
+        <summary data-testid="last">Advanced</summary>
+        <button>Collapsed</button>
+      </details>
+    </div>
+  `,
+})
+class TestFocusTrapCollapsedEdgeComponent {}
 
 @Component({
   selector: 'test-focus-trap-inert-slot',
@@ -356,6 +385,23 @@ class TestShadowFocusTrapComponent {
   `,
 })
 class TestShadowFocusTrapAutofocusComponent {}
+
+@Component({
+  selector: 'test-shadow-focus-trap-modal-dialog',
+  imports: [NgpFocusTrap],
+  encapsulation: ViewEncapsulation.ShadowDom,
+  template: `
+    <div ngpFocusTrap>
+      <button>Outside the modal dialog</button>
+      <dialog data-testid="dialog">
+        <button data-testid="first">First</button>
+        <button data-testid="last">Last</button>
+      </dialog>
+      <button>Outside the modal dialog</button>
+    </div>
+  `,
+})
+class TestShadowFocusTrapModalDialogComponent {}
 
 @Component({
   selector: 'test-shadow-focus-trap-trailing-heading',
@@ -896,11 +942,18 @@ describe('Tabbable candidate filtering', () => {
     expect(last).toHaveFocus();
   });
 
+  it('should wrap Tab past a control collapsed in a closed details element', async () => {
+    const { getByTestId } = await render(TestFocusTrapCollapsedEdgeComponent);
+    const first = getByTestId('first');
+    const last = getByTestId('last');
+
+    last.focus();
+    expect(fireEvent.keyDown(last, { key: 'Tab' })).toBe(false);
+    expect(first).toHaveFocus();
+  });
+
   it('should treat an open dialog as non-modal where `:modal` is unsupported', async () => {
-    const { getByTestId } = await render(TestFocusTrapInertModalDialogComponent);
-    const dialog = getByTestId('dialog') as HTMLDialogElement;
-    dialog.show();
-    onTestFinished(() => dialog.close());
+    const { getByTestId } = await render(TestFocusTrapOpenDialogComponent);
     const matches = Element.prototype.matches;
     const matchesSpy = vi.spyOn(Element.prototype, 'matches').mockImplementation(function (
       this: Element,
@@ -912,8 +965,8 @@ describe('Tabbable candidate filtering', () => {
       return matches.call(this, selector);
     });
     onTestFinished(() => matchesSpy.mockRestore());
-    const first = getByTestId('outside-first');
-    const last = getByTestId('outside-last');
+    const first = getByTestId('first');
+    const last = getByTestId('last');
 
     last.focus();
     expect(fireEvent.keyDown(last, { key: 'Tab' })).toBe(false);
@@ -1188,6 +1241,24 @@ describe('Focus trap inside a shadow root', () => {
       shadowRoot.querySelector<HTMLElement>(`[data-testid="${id}"]`)!;
     return { shadowRoot, getByTestId };
   }
+
+  it('should wrap Tab inside a modal dialog in the same shadow root', async () => {
+    const { shadowRoot, getByTestId } = await renderInShadowRoot(
+      TestShadowFocusTrapModalDialogComponent,
+    );
+    const dialog = getByTestId('dialog') as HTMLDialogElement;
+    dialog.showModal();
+    onTestFinished(() => dialog.close());
+    const first = getByTestId('first');
+    const last = getByTestId('last');
+
+    last.focus();
+    expect(fireEvent.keyDown(last, { key: 'Tab' })).toBe(false);
+    expect(shadowRoot.activeElement).toBe(first);
+
+    expect(fireEvent.keyDown(first, { key: 'Tab', shiftKey: true })).toBe(false);
+    expect(shadowRoot.activeElement).toBe(last);
+  });
 
   it('should focus the first tabbable element when focus starts in the same shadow root', async () => {
     const { fixture } = await render(TestShadowFocusTrapComponent);
