@@ -22,6 +22,7 @@ import {
   autoUpdate,
   computePosition,
   flip,
+  hide,
   offset,
   shift,
   size,
@@ -336,8 +337,17 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
   /** Signal tracking the final placement of the overlay */
   readonly finalPlacement = signal<NgpPlacement | undefined>(undefined);
 
+  /** Whether the reference element is clipped out of view, e.g. scrolled out of its container */
+  readonly referenceHidden = signal(false);
+
   /** Function to dispose the positioning auto-update */
   private disposePositioning?: () => void;
+
+  /**
+   * Bumped by every positioning pass and every teardown. Passes run concurrently, so one
+   * that resolves after a newer pass or a close drops its result instead of overwriting.
+   */
+  private positionPass = 0;
 
   /** Timeout handle for showing the overlay */
   private openTimeout?: () => void;
@@ -398,6 +408,12 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
 
   /** Signal tracking whether the overlay is open */
   readonly isOpen = signal(false);
+
+  /**
+   * Whether the overlay is on its way out: `isOpen()` stays true until the exit
+   * animation ends, while this is true from the moment the close starts.
+   */
+  readonly isClosing = computed(() => this.isOpen() && this.portal() === null);
 
   /** A unique id for the overlay */
   readonly id = signal<string>(uniqueId('ngp-overlay'));
@@ -879,7 +895,8 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
    * Return focus to where it was when the overlay opened, unless the user has put it somewhere
    * else: an outside press on a control hands focus to that control (a focus trap inside the
    * overlay may have pulled it back on pointerdown), and focus already moved outside the
-   * overlay is left alone. An explicit `finalFocus` overrides all of this.
+   * overlay is left alone. An explicit `finalFocus` overrides all of this except the outside
+   * press, and `false` overrides that too.
    */
   private restoreFocus(
     origin: FocusOrigin,
@@ -895,8 +912,10 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
       return;
     }
 
+    const pressedControl = outsidePressTarget && this.findFocusableAncestor(outsidePressTarget);
+
     if (finalFocus instanceof HTMLElement) {
-      this.moveFocus(finalFocus, origin);
+      this.moveFocus(pressedControl || finalFocus, pressedControl ? 'mouse' : origin);
       return;
     }
 
@@ -909,8 +928,6 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
     if (finalFocus !== true && !shouldRestoreFocus) {
       return;
     }
-
-    const pressedControl = outsidePressTarget && this.findFocusableAncestor(outsidePressTarget);
 
     if (pressedControl) {
       this.moveFocus(pressedControl, 'mouse');
@@ -1061,6 +1078,7 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
     this.portal.set(null);
     this.disposePositioning?.();
     this.disposePositioning = undefined;
+    this.positionPass++;
     this.registeredOutletElement = null;
 
     // Immediate on both sides: the exit animation belongs to the content being
@@ -1194,6 +1212,7 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
   destroy(): void {
     this.hideImmediate({ forceDestroy: true });
     this.disposePositioning?.();
+    this.positionPass++;
     this.scrollStrategy.disable();
   }
 
@@ -1456,6 +1475,7 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
    * Compute the overlay position using floating-ui
    */
   private async computePosition(overlayElement: HTMLElement): Promise<void> {
+    const pass = ++this.positionPass;
     const strategy = this.resolveStrategy(overlayElement);
 
     // Create middleware array
@@ -1499,6 +1519,10 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
         rootBoundary: overflowOptions?.rootBoundary,
         altBoundary: overflowOptions?.altBoundary,
         apply: ({ availableWidth, availableHeight, elements }) => {
+          if (pass !== this.positionPass) {
+            return;
+          }
+
           this.availableWidth.set(availableWidth);
           this.availableHeight.set(availableHeight);
 
@@ -1527,6 +1551,9 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
       middleware.push(arrow({ element: this.arrowElement, padding: this.arrowPadding?.() }));
     }
 
+    // Last, so it reads the final position; it only reports, it never moves the overlay
+    middleware.push(hide());
+
     // Compute the position
     const placement = this.config.placement?.() ?? 'top';
 
@@ -1539,11 +1566,16 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
       strategy,
     });
 
+    if (pass !== this.positionPass) {
+      return;
+    }
+
     // Update position signal
     this.position.set({ x: position.x, y: position.y });
 
     // Update final placement signal
     this.finalPlacement.set(position.placement);
+    this.referenceHidden.set(position.middlewareData.hide?.referenceHidden ?? false);
     this.transformOrigin.set(this.getTransformOrigin(position.placement));
 
     // Update arrow position if available
@@ -1613,6 +1645,7 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
     // Clean up positioning
     this.disposePositioning?.();
     this.disposePositioning = undefined;
+    this.positionPass++;
 
     // Track the destroying portal so cancelDestruction() can restore it
     // if show() is called during the exit animation.
@@ -1676,6 +1709,7 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
       this.renderedContent = null;
       this.isOpen.set(false);
       this.finalPlacement.set(undefined);
+      this.referenceHidden.set(false);
       this.instantTransition.set(false);
 
       if (this.finalFocusReleased) {

@@ -1,6 +1,8 @@
+export { claimEscapeKey, NgpEscapeKeyClaim } from 'ng-primitives/internal';
 export { provideControlContainerIsolation } from './control-container';
 export { coerceFlip, NgpFlip, NgpFlipInput, NgpFlipOptions } from './flip';
 export { coerceOffset, NgpOffset, NgpOffsetInput, NgpOffsetOptions } from './offset';
+export { NgpHidingAttribute, NgpHidingLayer, NgpOutsideHiding } from './outside-hiding';
 export {
   createOverlay,
   injectOverlay,

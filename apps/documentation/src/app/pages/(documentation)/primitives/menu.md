@@ -304,6 +304,7 @@ The following directives are available to import from the `ng-primitives/menu` p
   <api-attribute name="data-enter" description="Applied when the menu is being added to the DOM. This can be used to trigger animations." />
   <api-attribute name="data-exit" description="Applied when the menu is being removed from the DOM. This can be used to trigger animations." />
   <api-attribute name="data-placement" description="The final rendered placement of the menu." />
+  <api-attribute name="data-reference-hidden" description="Applied while the element the menu is positioned against is scrolled or clipped out of view." />
   <api-attribute name="data-instant" description="Applied when switching menus within the cooldown period. Use this to skip animations for instant transitions between menu changes." />
 </api-reference-attributes>
 
@@ -436,6 +437,8 @@ bootstrapApplication(AppComponent, {
 ## Accessibility
 
 Adheres to the [WAI-ARIA Menu Button Pattern](https://www.w3.org/WAI/ARIA/apg/patterns/menu-button/).
+
+A menu is named by its trigger through `aria-labelledby`, and a submenu by its submenu trigger, unless an `aria-label` or `aria-labelledby` is present when the overlay renders; labels added later do not override the trigger name. A context menu has no trigger to take a name from, so give it an `aria-label`.
 
 ### Keyboard Interactions
 

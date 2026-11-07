@@ -5,6 +5,7 @@ import userEvent from '@testing-library/user-event';
 import { NgpPopover, NgpPopoverTrigger } from 'ng-primitives/popover';
 import { NgpOverlayFinalFocus } from 'ng-primitives/portal';
 import { describe, expect, it } from 'vitest';
+import { userEvent as browserUserEvent } from 'vitest/browser';
 
 @Component({
   template: `
@@ -12,6 +13,7 @@ import { describe, expect, it } from 'vitest';
       <button [ngpPopoverTrigger]="content" data-testid="trigger">Open</button>
     }
     <input data-testid="other" />
+    <input data-testid="outside" />
 
     <ng-template #content>
       <div [ngpPopoverFinalFocus]="finalFocus()" ngpPopover data-testid="popover">
@@ -112,6 +114,17 @@ describe('NgpPopover final focus', () => {
 
     expect(origins).toEqual(['keyboard']);
     expect(other).toHaveFocus();
+  });
+
+  it('lets an outside press on a control win over the finalFocus element', async () => {
+    await setup(other => other);
+    await openWithClick();
+
+    const outside = screen.getByTestId('outside');
+    await browserUserEvent.click(outside);
+    await closed();
+
+    expect(outside).toHaveFocus();
   });
 
   it('skips focus restoration when finalFocus is false', async () => {
