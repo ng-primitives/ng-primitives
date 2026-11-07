@@ -52,17 +52,18 @@ interface HTMLStyles {
   width: string;
 }
 
-export class BlockScrollStrategy implements ScrollStrategy {
-  private readonly previousHTMLStyles: HTMLStyles = {
-    top: '',
-    left: '',
-    position: '',
-    overflowY: '',
-    width: '',
-  };
-  private previousScrollPosition = { top: 0, left: 0 };
-  private isEnabled = false;
+/** A page scroll block, shared by every overlay that blocks scrolling in the same document. */
+interface SharedScrollBlock {
+  readonly holders: Set<BlockScrollStrategy>;
+  readonly previousHTMLStyles: HTMLStyles;
+  readonly previousScrollPosition: { top: number; left: number };
+}
 
+// Shared so that an overlay closing, such as a menu that opened a dialog, doesn't unblock the
+// page while another overlay still blocks it.
+const scrollBlocks = new WeakMap<Document, SharedScrollBlock>();
+
+export class BlockScrollStrategy implements ScrollStrategy {
   constructor(
     private readonly viewportRuler: ViewportRuler,
     private readonly document: Document,
@@ -70,17 +71,26 @@ export class BlockScrollStrategy implements ScrollStrategy {
 
   /** Blocks page-level scroll while the attached overlay is open. */
   enable() {
+    const block = scrollBlocks.get(this.document);
+
+    if (block) {
+      block.holders.add(this);
+      return;
+    }
+
     if (this.canBeEnabled()) {
       const root = this.document.documentElement!;
 
-      this.previousScrollPosition = this.viewportRuler.getViewportScrollPosition();
+      const previousScrollPosition = this.viewportRuler.getViewportScrollPosition();
 
       // Cache the previous inline styles in case the user had set them.
-      this.previousHTMLStyles.left = root.style.left || '';
-      this.previousHTMLStyles.top = root.style.top || '';
-      this.previousHTMLStyles.position = root.style.position || '';
-      this.previousHTMLStyles.overflowY = root.style.overflowY || '';
-      this.previousHTMLStyles.width = root.style.width || '';
+      const previousHTMLStyles: HTMLStyles = {
+        left: root.style.left || '',
+        top: root.style.top || '',
+        position: root.style.position || '',
+        overflowY: root.style.overflowY || '',
+        width: root.style.width || '',
+      };
 
       // Set the styles to block scrolling.
       root.style.position = 'fixed';
@@ -97,57 +107,67 @@ export class BlockScrollStrategy implements ScrollStrategy {
 
       // Note: we're using the `html` node, instead of the `body`, because the `body` may
       // have the user agent margin, whereas the `html` is guaranteed not to have one.
-      root.style.left = coerceCssPixelValue(-this.previousScrollPosition.left);
-      root.style.top = coerceCssPixelValue(-this.previousScrollPosition.top);
+      root.style.left = coerceCssPixelValue(-previousScrollPosition.left);
+      root.style.top = coerceCssPixelValue(-previousScrollPosition.top);
       root.setAttribute('data-scrollblock', '');
-      this.isEnabled = true;
+
+      scrollBlocks.set(this.document, {
+        holders: new Set([this]),
+        previousHTMLStyles,
+        previousScrollPosition,
+      });
     }
   }
 
-  /** Unblocks page-level scroll while the attached overlay is open. */
+  /** Unblocks page-level scroll, once no other overlay still blocks it. */
   disable(): void {
-    if (this.isEnabled) {
-      const html = this.document.documentElement!;
-      const body = this.document.body!;
-      const htmlStyle = html.style;
-      const bodyStyle = body.style;
-      const previousHtmlScrollBehavior = htmlStyle.scrollBehavior || '';
-      const previousBodyScrollBehavior = bodyStyle.scrollBehavior || '';
+    const block = scrollBlocks.get(this.document);
 
-      this.isEnabled = false;
+    if (!block?.holders.delete(this) || block.holders.size) {
+      return;
+    }
 
-      htmlStyle.left = this.previousHTMLStyles.left;
-      htmlStyle.top = this.previousHTMLStyles.top;
-      htmlStyle.position = this.previousHTMLStyles.position;
-      htmlStyle.overflowY = this.previousHTMLStyles.overflowY;
-      htmlStyle.width = this.previousHTMLStyles.width;
-      html.removeAttribute('data-scrollblock');
+    scrollBlocks.delete(this.document);
 
-      // Disable user-defined smooth scrolling temporarily while we restore the scroll position.
-      // See https://developer.mozilla.org/en-US/docs/Web/CSS/scroll-behavior
-      // Note that we don't mutate the property if the browser doesn't support `scroll-behavior`,
-      // because it can throw off feature detections in `supportsScrollBehavior` which
-      // checks for `'scrollBehavior' in documentElement.style`.
-      if (supportsScrollBehavior()) {
-        htmlStyle.scrollBehavior = bodyStyle.scrollBehavior = 'auto';
-      }
+    const { previousHTMLStyles, previousScrollPosition } = block;
+    const html = this.document.documentElement!;
+    const body = this.document.body!;
+    const htmlStyle = html.style;
+    const bodyStyle = body.style;
+    const previousHtmlScrollBehavior = htmlStyle.scrollBehavior || '';
+    const previousBodyScrollBehavior = bodyStyle.scrollBehavior || '';
 
-      window.scroll(this.previousScrollPosition.left, this.previousScrollPosition.top);
+    htmlStyle.left = previousHTMLStyles.left;
+    htmlStyle.top = previousHTMLStyles.top;
+    htmlStyle.position = previousHTMLStyles.position;
+    htmlStyle.overflowY = previousHTMLStyles.overflowY;
+    htmlStyle.width = previousHTMLStyles.width;
+    html.removeAttribute('data-scrollblock');
 
-      if (supportsScrollBehavior()) {
-        htmlStyle.scrollBehavior = previousHtmlScrollBehavior;
-        bodyStyle.scrollBehavior = previousBodyScrollBehavior;
-      }
+    // Disable user-defined smooth scrolling temporarily while we restore the scroll position.
+    // See https://developer.mozilla.org/en-US/docs/Web/CSS/scroll-behavior
+    // Note that we don't mutate the property if the browser doesn't support `scroll-behavior`,
+    // because it can throw off feature detections in `supportsScrollBehavior` which
+    // checks for `'scrollBehavior' in documentElement.style`.
+    if (supportsScrollBehavior()) {
+      htmlStyle.scrollBehavior = bodyStyle.scrollBehavior = 'auto';
+    }
+
+    this.document.defaultView?.scroll(previousScrollPosition.left, previousScrollPosition.top);
+
+    if (supportsScrollBehavior()) {
+      htmlStyle.scrollBehavior = previousHtmlScrollBehavior;
+      bodyStyle.scrollBehavior = previousBodyScrollBehavior;
     }
   }
 
   private canBeEnabled(): boolean {
     const html = this.document.documentElement!;
 
+    // Blocked by something else, such as the CDK overlay.
     if (
       html.classList.contains('cdk-global-scrollblock') ||
-      html.hasAttribute('data-scrollblock') ||
-      this.isEnabled
+      html.hasAttribute('data-scrollblock')
     ) {
       return false;
     }
