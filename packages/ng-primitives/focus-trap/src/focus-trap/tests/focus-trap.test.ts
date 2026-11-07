@@ -266,6 +266,25 @@ class TestFocusTrapLeadingHeadingAutofocusComponent {}
 class TestFocusTrapOnlyHeadingAutofocusComponent {}
 
 @Component({
+  selector: 'test-shadow-focus-trap',
+  imports: [NgpFocusTrap],
+  encapsulation: ViewEncapsulation.ShadowDom,
+  template: `
+    <button data-testid="toggle">Toggle</button>
+    @if (show()) {
+      <div ngpFocusTrap data-testid="focus-trap">
+        <button data-testid="first">First</button>
+        <button data-testid="middle">Middle</button>
+        <button data-testid="last">Last</button>
+      </div>
+    }
+  `,
+})
+class TestShadowFocusTrapComponent {
+  readonly show = signal(false);
+}
+
+@Component({
   selector: 'test-shadow-focus-trap-autofocus',
   imports: [NgpFocusTrap],
   encapsulation: ViewEncapsulation.ShadowDom,
@@ -1033,6 +1052,19 @@ describe('Focus trap inside a shadow root', () => {
       shadowRoot.querySelector<HTMLElement>(`[data-testid="${id}"]`)!;
     return { shadowRoot, getByTestId };
   }
+
+  it('should focus the first tabbable element when focus starts in the same shadow root', async () => {
+    const { fixture } = await render(TestShadowFocusTrapComponent);
+    const shadowRoot = (fixture.nativeElement as HTMLElement).shadowRoot!;
+    const getByTestId = (id: string) =>
+      shadowRoot.querySelector<HTMLElement>(`[data-testid="${id}"]`)!;
+    getByTestId('toggle').focus();
+
+    fixture.componentInstance.show.set(true);
+    fixture.detectChanges();
+
+    await waitFor(() => expect(shadowRoot.activeElement).toBe(getByTestId('first')));
+  });
 
   it('should focus the element with the autofocus attribute', async () => {
     const { shadowRoot, getByTestId } = await renderInShadowRoot(
