@@ -281,6 +281,23 @@ describe('NgpListbox', () => {
       await waitFor(() => expect(container.getByTestId('opt-a')).toHaveAttribute('data-active'));
     });
 
+    it('should keep the active option when no option matches the typed character', async () => {
+      const container = await render(
+        `<div ngpListbox data-testid="listbox">
+          <div ngpListboxOption ngpListboxOptionValue="a" data-testid="opt-a">Apple</div>
+          <div ngpListboxOption ngpListboxOptionValue="b" data-testid="opt-b">Banana</div>
+        </div>`,
+        { imports },
+      );
+      const listbox = container.getByTestId('listbox');
+      fireEvent.focusIn(listbox);
+      await waitFor(() => expect(container.getByTestId('opt-a')).toHaveAttribute('data-active'));
+
+      fireEvent.keyDown(listbox, { key: 'z' });
+
+      expect(container.getByTestId('opt-a')).toHaveAttribute('data-active');
+    });
+
     it('should skip disabled options during typeahead', async () => {
       const container = await render(
         `<div ngpListbox data-testid="listbox">

@@ -2,6 +2,7 @@ import { FocusOrigin } from '@angular/cdk/a11y';
 import { Directionality } from '@angular/cdk/bidi';
 import { inject, signal, Signal } from '@angular/core';
 import { NgpOrientation } from 'ng-primitives/common';
+import { createTypeahead } from 'ng-primitives/internal';
 import { controlled, createPrimitive, injectInheritedState } from 'ng-primitives/state';
 import type { NgpRovingFocusItemState } from '../roving-focus-item/roving-focus-item-state';
 
@@ -90,6 +91,10 @@ export interface NgpRovingFocusGroupProps {
    */
   readonly disabled?: Signal<boolean>;
   /**
+   * Whether typing a character moves focus to the next item whose text starts with it.
+   */
+  readonly typeahead?: Signal<boolean>;
+  /**
    * Whether to inherit state from a parent roving focus group.
    */
   readonly inherit?: boolean;
@@ -107,6 +112,7 @@ export const [
     wrap = signal(false),
     homeEnd = signal(true),
     disabled = signal(false),
+    typeahead = signal(false),
     inherit = true,
   }: NgpRovingFocusGroupProps): NgpRovingFocusGroupState => {
     const parentGroup = inherit
@@ -120,6 +126,7 @@ export const [
     const directionality = inject(Directionality);
     const items = signal<NgpRovingFocusItemState[]>([]);
     const orientation = controlled(_orientation);
+    const typeaheadSearch = createTypeahead();
 
     /**
      * Get the items in the roving focus group sorted by order.
@@ -318,6 +325,39 @@ export const [
             activateLastItem('keyboard');
           }
           break;
+        default:
+          if (typeahead() && isTypeaheadKey(event)) {
+            event.preventDefault();
+            activateItemByTypeahead(event.key);
+          }
+      }
+    }
+
+    function isTypeaheadKey(event: KeyboardEvent): boolean {
+      return (
+        event.key.length === 1 &&
+        // Space activates the focused item, unless it continues a search ("New folder")
+        (event.key !== ' ' || typeaheadSearch.isSearching()) &&
+        // Windows reports AltGr, which types characters such as "ł", as Ctrl+Alt
+        ((!event.ctrlKey && !event.altKey) || event.getModifierState('AltGraph')) &&
+        !event.metaKey &&
+        // a key typed in a field inside an item belongs to the field
+        items().some(item => item.element.nativeElement === event.target)
+      );
+    }
+
+    function activateItemByTypeahead(key: string): void {
+      const sortedItems = getSortedItems();
+      const index = typeaheadSearch.search(
+        key,
+        sortedItems.length,
+        sortedItems.findIndex(item => item.id() === activeItem()),
+        i => sortedItems[i].element.nativeElement.innerText,
+        i => sortedItems[i].disabled(),
+      );
+
+      if (index >= 0) {
+        setActiveItem(sortedItems[index].id(), 'keyboard');
       }
     }
 

@@ -1,4 +1,5 @@
 import { computed, Signal, signal } from '@angular/core';
+import { createTypeahead } from 'ng-primitives/internal';
 import { controlled } from 'ng-primitives/state';
 import { injectDisposables } from 'ng-primitives/utils';
 
@@ -111,9 +112,7 @@ export function activeDescendantManager({
 
   let clearPointerIgnoreTimer: (() => void) | undefined;
 
-  // buffer of characters typed for typeahead navigation, cleared after a short idle
-  let typeaheadBuffer = '';
-  let clearTypeaheadTimer: (() => void) | undefined;
+  const typeaheadSearch = createTypeahead();
 
   // compute the id of the active descendant
   const id = computed(() => {
@@ -263,44 +262,10 @@ export function activeDescendantManager({
       return;
     }
 
-    typeaheadBuffer += key.toLowerCase();
+    const index = typeaheadSearch.search(key, count(), activeIndex(), getItemLabel, isItemDisabled);
 
-    // clear the buffer shortly after the last keystroke so a new search can begin
-    clearTypeaheadTimer?.();
-    clearTypeaheadTimer = disposables.setTimeout(() => {
-      typeaheadBuffer = '';
-      clearTypeaheadTimer = undefined;
-    }, 500);
-
-    const total = count();
-    if (total === 0) {
-      return;
-    }
-
-    // when every buffered character is the same, treat it as a single-character
-    // search that starts after the current item, so repeating a character cycles
-    // through the items whose label starts with it
-    const hasActive = activeIndex() >= 0;
-    const isRepeatedChar = [...typeaheadBuffer].every(char => char === typeaheadBuffer[0]);
-    const search = isRepeatedChar ? typeaheadBuffer[0] : typeaheadBuffer;
-    // only skip past the current item when there is one to cycle from; with no
-    // active item the search must start at index 0 so the first match is found
-    const startOffset = isRepeatedChar && hasActive ? 1 : 0;
-    const base = hasActive ? activeIndex() : 0;
-
-    for (let i = 0; i < total; i++) {
-      const index = (base + startOffset + i) % total;
-
-      if (isItemDisabled(index)) {
-        continue;
-      }
-
-      const label = (getItemLabel(index) ?? '').toLowerCase().trim();
-
-      if (label.startsWith(search)) {
-        activateByIndex(index, { origin: 'keyboard', ...options });
-        return;
-      }
+    if (index >= 0) {
+      activateByIndex(index, { origin: 'keyboard', ...options });
     }
   }
 

@@ -27,6 +27,23 @@ describe('NgpRovingFocusGroup', () => {
     expect(container.getByTestId('item-3')).toHaveAttribute('tabindex', '-1');
   });
 
+  it('does not move focus on a typed character unless typeahead is on', async () => {
+    const container = await render(
+      `<div ngpRovingFocusGroup>
+        <button ngpRovingFocusItem data-testid="item-1">One</button>
+        <button ngpRovingFocusItem data-testid="item-2">Two</button>
+      </div>`,
+      { imports },
+    );
+
+    const item1 = container.getByTestId('item-1');
+    item1.focus();
+    const notCancelled = fireEvent.keyDown(item1, { key: 't' });
+
+    expect(notCancelled).toBe(true);
+    expect(document.activeElement).toBe(item1);
+  });
+
   describe('vertical orientation (default)', () => {
     it('should move focus with ArrowDown', async () => {
       const container = await render(
