@@ -105,12 +105,18 @@ export interface NgpFocusTrapProps {
    * If not provided, falls back to the FocusMonitor's last known origin.
    */
   readonly focusOrigin?: Signal<FocusOrigin>;
+
+  /**
+   * The element to focus when the trap activates, if no `[autofocus]` element takes focus first.
+   * When it returns nothing, the first tabbable element is focused.
+   */
+  readonly initialFocus?: () => HTMLElement | null | undefined;
 }
 
 export const [NgpFocusTrapStateToken, ngpFocusTrap, injectFocusTrapState, provideFocusTrapState] =
   createPrimitive(
     'NgpFocusTrap',
-    ({ disabled = signal(false), focusOrigin }: NgpFocusTrapProps) => {
+    ({ disabled = signal(false), focusOrigin, initialFocus }: NgpFocusTrapProps) => {
       const element = injectElementRef();
       const overlay = inject(NgpOverlay, { optional: true });
       const injector = inject(Injector);
@@ -168,7 +174,7 @@ export const [NgpFocusTrapStateToken, ngpFocusTrap, injectFocusTrapState, provid
           afterNextRender(
             {
               write: () => {
-                if (!focusAutofocusElement()) {
+                if (!focusAutofocusElement() && !focusInitialElement()) {
                   focusFirst();
                 }
 
@@ -447,6 +453,13 @@ export const [NgpFocusTrapStateToken, ngpFocusTrap, injectFocusTrapState, provid
         }
 
         return false;
+      }
+
+      /** Focuses the element `initialFocus` names. Returns whether it received focus. */
+      function focusInitialElement(): boolean {
+        const target = initialFocus?.();
+        focus(target ?? null);
+        return !!target && getFocusedElement() === target;
       }
 
       function focusFirst(): void {
