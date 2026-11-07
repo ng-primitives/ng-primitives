@@ -34,7 +34,7 @@ import {
   listener,
   StateInjectionOptions,
 } from 'ng-primitives/state';
-import { injectDisposables } from 'ng-primitives/utils';
+import { injectDisposables, uniqueId } from 'ng-primitives/utils';
 import { NgpMenuTriggerType } from '../config/menu-config';
 import { injectMenuTriggerGroupState } from '../menu-trigger-group/menu-trigger-group-state';
 
@@ -167,6 +167,12 @@ export interface NgpMenuTriggerState<T = unknown> {
    * @internal
    */
   setPointerOverContent(isOver: boolean): void;
+
+  /**
+   * The id of the trigger element, which names the menu.
+   * @internal
+   */
+  triggerId(): string | null;
 }
 
 export interface NgpMenuTriggerProps<T = unknown> {
@@ -277,6 +283,7 @@ export const [
     // Internal state
     const overlay = signal<NgpOverlay<T> | null>(null);
     const open = computed(() => overlay()?.isOpen() ?? false);
+    const expanded = computed(() => open() && !overlay()?.isClosing());
     const openOrigin = signal<FocusOrigin>('program');
 
     // Track whether pointer is over trigger or content (for hover triggers)
@@ -327,8 +334,11 @@ export const [
     });
 
     // Host bindings
+    // the menu is named by its trigger, so the trigger needs an id; the consumer's own is kept
+    const fallbackId = uniqueId('ngp-menu-trigger');
+    attrBinding(element, 'id', () => element.nativeElement.id || fallbackId);
     attrBinding(element, 'aria-haspopup', 'true');
-    attrBinding(element, 'aria-expanded', open);
+    attrBinding(element, 'aria-expanded', expanded);
     dataBinding(element, 'data-open', open);
     dataBinding(element, 'data-placement', placement);
 
@@ -665,6 +675,7 @@ export const [
       setAnchor,
       setContainer,
       setPointerOverContent,
+      triggerId: () => element.nativeElement.id,
       flip,
       container: deprecatedSetter(container, 'setContainer', setContainer),
     } satisfies NgpMenuTriggerState<T>;
