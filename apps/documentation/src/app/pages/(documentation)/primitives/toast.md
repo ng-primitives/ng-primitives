@@ -169,3 +169,8 @@ bootstrapApplication(AppComponent, {
 For screen reader announcements, ensure your toast container includes `role="status"` or `role="alert"` with `aria-live="polite"` so that new toasts are announced to assistive technology users.
 
 In the browser, `NgpToastManager` adds an empty live region for every placement when it is first injected, once the page has a `<body>` (before that, they are added with the first toast). Screen readers can skip a toast added in the same task as its live region, so inject the manager before the first toast is due, for example in the root component, rather than right where the toast is shown.
+
+### Keyboard Interactions
+
+- <kbd>F6</kbd>: Move focus to the region holding the newest toast, even while a dialog traps focus. Pressed again, return focus to where it was, if focus entered the toasts with <kbd>F6</kbd>; otherwise the browser handles it.
+- <kbd>Esc</kbd>: After <kbd>F6</kbd> moves focus to the toasts, return it to where it was without closing an open dialog.
