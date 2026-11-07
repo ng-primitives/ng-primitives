@@ -42,8 +42,11 @@ export class NgpToastManager {
 
   readonly toasts = signal<NgpToastRecord[]>([]);
 
-  /** Signal that tracks which placements are expanded */
-  private readonly expanded = signal<NgpToastPlacement[]>([]);
+  /** The placements whose container the pointer is over. */
+  private readonly hovered = signal<NgpToastPlacement[]>([]);
+
+  /** The placements whose container holds focus. */
+  private readonly focused = signal<NgpToastPlacement[]>([]);
 
   /** Show a toast notification */
   show(toast: TemplateRef<void> | Type<unknown>, options: NgpToastOptions = {}): NgpToastRef {
@@ -73,7 +76,9 @@ export class NgpToastManager {
             placement,
             duration,
             register: (toast: NgpToast) => (instance = toast),
-            expanded: computed(() => this.expanded().includes(placement)),
+            expanded: computed(
+              () => this.hovered().includes(placement) || this.focused().includes(placement),
+            ),
             dismissible: options.dismissible ?? this.config.dismissible,
             swipeDirections: options.swipeDirections ?? this.config.swipeDirections,
             sequential: options.sequential ?? this.config.sequential,
@@ -119,9 +124,17 @@ export class NgpToastManager {
       // Remove the toast from the list of toasts
       this.toasts.update(toasts => toasts.filter(t => t !== ref));
 
-      // if there are no more toasts, ensure the container is no longer considered expanded
-      if (this.toasts().length === 0) {
-        this.expanded.update(expanded => expanded.filter(p => p !== toast.options.placement));
+      const placement = toast.options.placement;
+
+      // An emptied container fires no mouseleave, so stop treating it as hovered
+      if (!this.toasts().some(t => t.instance.options.placement === placement)) {
+        this.hovered.update(placements => without(placements, placement));
+      }
+
+      // Safari and Firefox fire no focusout when the focused toast is removed
+      const container = this.containers.get(placement);
+      if (!container?.contains(container.ownerDocument.activeElement)) {
+        this.focused.update(placements => without(placements, placement));
       }
 
       // A focused toast that leaves takes focus with it, so land where F6 came from. So does
@@ -142,7 +155,7 @@ export class NgpToastManager {
   /**
    * Lazily create or get a container for a given placement.
    */
-  private getOrCreateContainer(placement: string): HTMLElement {
+  private getOrCreateContainer(placement: NgpToastPlacement): HTMLElement {
     if (this.containers.has(placement)) {
       return this.containers.get(placement)!;
     }
@@ -285,7 +298,7 @@ export class NgpToastManager {
   /**
    * Create a section in which toasts will be rendered for a specific placement.
    */
-  private createContainer(placement: string): HTMLElement {
+  private createContainer(placement: NgpToastPlacement): HTMLElement {
     const container = this.renderer.createElement('section') as HTMLElement;
     this.renderer.setAttribute(container, 'aria-live', this.config.ariaLive);
     // pair the live region with the role matching its politeness so assistive tech
@@ -306,15 +319,23 @@ export class NgpToastManager {
     container.style.setProperty('--ngp-toast-offset-right', `${this.config.offsetRight}px`);
     container.style.setProperty('--ngp-toast-gap', `${this.config.gap}px`);
 
-    // mark the container as expanded
+    // Hover and focus each expand the container and pause its timers (WCAG 2.2.1).
     this.renderer.listen(container, 'mouseenter', () =>
-      this.expanded.update(expanded => [...expanded, placement as NgpToastPlacement]),
+      this.hovered.update(placements => [...without(placements, placement), placement]),
     );
 
-    this.renderer.listen(container, 'mouseleave', () => {
-      this.expanded.update(expanded =>
-        expanded.filter(p => p !== (placement as NgpToastPlacement)),
-      );
+    this.renderer.listen(container, 'mouseleave', () =>
+      this.hovered.update(placements => without(placements, placement)),
+    );
+
+    this.renderer.listen(container, 'focusin', () =>
+      this.focused.update(placements => [...without(placements, placement), placement]),
+    );
+
+    this.renderer.listen(container, 'focusout', (event: FocusEvent) => {
+      if (!container.contains(event.relatedTarget as Node | null)) {
+        this.focused.update(placements => without(placements, placement));
+      }
     });
 
     // Set placement styles
@@ -390,4 +411,8 @@ interface NgpToastRecord {
 
 export interface NgpToastRef {
   dismiss(): Promise<void>;
+}
+
+function without(placements: NgpToastPlacement[], placement: NgpToastPlacement) {
+  return placements.filter(p => p !== placement);
 }
