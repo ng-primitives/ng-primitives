@@ -17,6 +17,7 @@ import {
   NgpShift,
   NgpShiftInput,
 } from 'ng-primitives/portal';
+import { coerceBooleanOrUndefined } from 'ng-primitives/utils';
 import { injectPopoverConfig } from '../config/popover-config';
 import { ngpPopoverTrigger, providePopoverTriggerState } from './popover-trigger-state';
 
@@ -39,6 +40,26 @@ export class NgpPopoverTrigger<T = null> {
    */
   readonly popover = input<NgpOverlayContent<T>>(undefined, {
     alias: 'ngpPopoverTrigger',
+  });
+
+  /**
+   * Whether the popover is open. Bind it to control the popover: a click, Escape or outside
+   * press then emits `ngpPopoverTriggerOpenChange` and the popover waits for the binding to
+   * change, so `[(ngpPopoverTriggerOpen)]` keeps both in step. Leave unset to let the trigger
+   * manage it.
+   */
+  readonly open = input<boolean | undefined, BooleanInput>(undefined, {
+    alias: 'ngpPopoverTriggerOpen',
+    transform: coerceBooleanOrUndefined,
+  });
+
+  /**
+   * Whether the popover opens on first render when `ngpPopoverTriggerOpen` is unset.
+   * @default false
+   */
+  readonly defaultOpen = input<boolean, BooleanInput>(false, {
+    alias: 'ngpPopoverTriggerDefaultOpen',
+    transform: booleanAttribute,
   });
 
   /**
@@ -201,7 +222,8 @@ export class NgpPopoverTrigger<T = null> {
   });
 
   /**
-   * Event emitted when the popover open state changes.
+   * Event emitted when the popover opens or closes. While `ngpPopoverTriggerOpen` is bound, it
+   * emits when the popover asks to open or close instead, and not for changes the binding made.
    */
   readonly openChange = output<boolean>({
     alias: 'ngpPopoverTriggerOpenChange',
@@ -212,6 +234,8 @@ export class NgpPopoverTrigger<T = null> {
    */
   protected readonly state = ngpPopoverTrigger({
     popover: this.popover,
+    open: this.open,
+    defaultOpen: this.defaultOpen,
     disabled: this.disabled,
     placement: this.placement,
     offset: this.offset,
