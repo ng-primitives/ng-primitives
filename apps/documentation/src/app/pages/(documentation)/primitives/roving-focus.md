@@ -50,6 +50,8 @@ The following directives are available to import from the `ng-primitives/roving-
 
 Adheres to the [WAI-ARIA Keyboard Interface Practices](https://www.w3.org/WAI/ARIA/apg/practices/keyboard-interface/).
 
+The enabled item that was last focused or clicked is the group's tab stop, whether focus arrived by keyboard, pointer or a `focus()` call, so arrow keys move on from it and <kbd>Tab</kbd> returns to it. Focusing a disabled item, or any item while the group is disabled, leaves the tab stop where it was.
+
 ### Keyboard Interactions
 
 - <kbd>Tab</kbd> - Move focus to the first item.
