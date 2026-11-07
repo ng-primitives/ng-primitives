@@ -29,11 +29,18 @@ export class NgpContextMenuItemCheckbox {
     transform: booleanAttribute,
   });
 
+  /** Whether toggling the item closes the menu. */
+  readonly closeOnSelect = input<boolean, BooleanInput>(false, {
+    alias: 'ngpContextMenuItemCheckboxCloseOnSelect',
+    transform: booleanAttribute,
+  });
+
   constructor() {
     ngpMenuItemCheckbox({
       checked: this.checked,
       disabled: this.disabled,
       onCheckedChange: value => this.checkedChange.emit(value),
+      closeOnSelect: this.closeOnSelect,
     });
     ngpRovingFocusItem({ disabled: this.disabled });
   }
