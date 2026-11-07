@@ -22,6 +22,7 @@ import {
   autoUpdate,
   computePosition,
   flip,
+  hide,
   offset,
   shift,
   size,
@@ -274,6 +275,17 @@ export interface NgpOverlayConfig<T = unknown> {
 /** Type for overlay content which can be either a template or component */
 export type NgpOverlayContent<T> = TemplateRef<NgpOverlayTemplateContext<T>> | Type<unknown>;
 
+/**
+ * Where focus goes when an overlay closes: an element, `false` to leave focus alone, `null` for
+ * the default (the element focused when it opened, usually the trigger), or `true` for the
+ * default even where the overlay does not restore focus on its own. A function receives the
+ * close origin.
+ */
+export type NgpOverlayFinalFocus =
+  | boolean
+  | HTMLElement
+  | ((origin: FocusOrigin) => HTMLElement | boolean | null);
+
 /** Context for template-based overlays */
 export type NgpOverlayTemplateContext<T> = {
   $implicit: T;
@@ -335,8 +347,17 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
   /** Signal tracking the final placement of the overlay */
   readonly finalPlacement = signal<NgpPlacement | undefined>(undefined);
 
+  /** Whether the reference element is clipped out of view, e.g. scrolled out of its container */
+  readonly referenceHidden = signal(false);
+
   /** Function to dispose the positioning auto-update */
   private disposePositioning?: () => void;
+
+  /**
+   * Bumped by every positioning pass and every teardown. Passes run concurrently, so one
+   * that resolves after a newer pass or a close drops its result instead of overwriting.
+   */
+  private positionPass = 0;
 
   /** Timeout handle for showing the overlay */
   private openTimeout?: () => void;
@@ -383,6 +404,12 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
    */
   private forceDestroyed = false;
 
+  /** Where focus goes on close, as set by the overlay's content. */
+  private finalFocus: NgpOverlayFinalFocus | null = null;
+
+  /** Whether the content let go of `finalFocus` while open, so it is dropped once closed. */
+  private finalFocusReleased = false;
+
   /** The element focused when the overlay opened, where focus returns on close. */
   private focusBeforeOpen: HTMLElement | null = null;
 
@@ -400,6 +427,12 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
 
   /** Signal tracking whether the overlay is open */
   readonly isOpen = signal(false);
+
+  /**
+   * Whether the overlay is on its way out: `isOpen()` stays true until the exit
+   * animation ends, while this is true from the moment the close starts.
+   */
+  readonly isClosing = computed(() => this.isOpen() && this.portal() === null);
 
   /** A unique id for the overlay */
   readonly id = signal<string>(uniqueId('ngp-overlay'));
@@ -639,7 +672,7 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
       // If destruction is in progress (exit animation running), cancel it
       // and reuse the existing overlay instead of creating a new one.
       if (this.destroyingPortal) {
-        this.cancelDestruction();
+        this.cancelDestruction(!!options?.fromTriggerPress);
         resolve();
         return;
       }
@@ -651,11 +684,20 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
       }
 
       // An open is already scheduled: join it rather than starting a second one, so
-      // this caller settles when that open completes (or when it is cancelled).
+      // this caller settles when that open completes (or when it is cancelled). An
+      // immediate show also reschedules it without the delay.
+      const joining = !!this.openTimeout;
+
       if (this.openTimeout) {
         this.pendingTriggerPress ||= !!options?.fromTriggerPress;
         this.pendingShowResolvers.push(resolve);
-        return;
+
+        if (!options?.immediate) {
+          return;
+        }
+
+        this.openTimeout();
+        this.openTimeout = undefined;
       }
 
       let delay = options?.immediate ? 0 : (this.config.showDelay ?? 0);
@@ -682,8 +724,10 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
 
       // Queue this caller alongside any that join while the open is scheduled, so a
       // cancelled open settles the caller that started it as well as the joiners.
-      this.pendingShowResolvers.push(resolve);
-      this.pendingTriggerPress = !!options?.fromTriggerPress;
+      if (!joining) {
+        this.pendingShowResolvers.push(resolve);
+        this.pendingTriggerPress = !!options?.fromTriggerPress;
+      }
 
       this.openTimeout = this.disposables.setTimeout(() => {
         this.openTimeout = undefined;
@@ -740,12 +784,17 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
    * restores the portal, and re-enables positioning and scroll strategy.
    * Used when show() or cancelPendingClose() is called during exit animation.
    */
-  private cancelDestruction(): void {
+  private cancelDestruction(fromTriggerPress = false): void {
     const portal = this.destroyingPortal;
 
     // Teardown is terminal - a destroyed overlay must not be brought back, and its portal
     // stays on the destroy path so the view is released when the detach settles.
-    if (!portal || this.forceDestroyed || !this.isOpenChangeAllowed(true)) {
+    if (!portal || this.forceDestroyed) {
+      return;
+    }
+
+    if (!this.isOpenChangeAllowed(true)) {
+      this.declinedOpenFromTriggerPress ||= fromTriggerPress;
       return;
     }
 
@@ -846,6 +895,8 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
       if (canBeDeclined) {
         if (!this.isOpenChangeAllowed(false)) {
           this.declinedClose = options ?? {};
+          // Content changes wait while a close is pending, so catch up now it stays open.
+          this.replaceContent();
           return;
         }
 
@@ -863,15 +914,7 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
       // Call the onClose callback if provided (for external signal updates)
       this.config.onClose?.(origin);
 
-      // Determine if focus should be restored
-      const shouldRestoreFocus =
-        typeof this.config.restoreFocus === 'function'
-          ? this.config.restoreFocus()
-          : (this.config.restoreFocus ?? false);
-
-      if (shouldRestoreFocus) {
-        this.restoreFocus(origin, outsidePressTarget);
-      }
+      this.restoreFocus(origin, { outsidePressTarget });
 
       await this.destroyOverlay();
     };
@@ -892,26 +935,84 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
   }
 
   /**
+   * Set where focus goes when the overlay closes, overriding the default.
+   * @internal
+   */
+  setFinalFocus(finalFocus: NgpOverlayFinalFocus | null): void {
+    this.finalFocus = finalFocus;
+    this.finalFocusReleased = false;
+  }
+
+  /**
+   * Go back to the default close focus.
+   * @internal
+   */
+  removeFinalFocus(): void {
+    // The content can go before the overlay closes, when its trigger's view is destroyed,
+    // so an open overlay keeps the value for that close and drops it once closed.
+    if (this.isOpen()) {
+      this.finalFocusReleased = true;
+      return;
+    }
+    this.finalFocus = null;
+  }
+
+  /**
    * Return focus to where it was when the overlay opened, unless the user has put it somewhere
    * else: an outside press on a control hands focus to that control (a focus trap inside the
    * overlay may have pulled it back on pointerdown), and focus already moved outside the
-   * overlay is left alone.
+   * overlay is left alone. An explicit `finalFocus` overrides all of this except the outside
+   * press, and `false` overrides that too.
    */
-  private restoreFocus(origin: FocusOrigin, outsidePressTarget?: Element): void {
-    const pressedControl = outsidePressTarget && this.findFocusableAncestor(outsidePressTarget);
-    const target = pressedControl || this.focusReturnTargetIfStillOurs(origin);
+  private restoreFocus(
+    origin: FocusOrigin,
+    {
+      outsidePressTarget,
+      triggerGone,
+    }: { outsidePressTarget?: Element; triggerGone?: boolean } = {},
+  ): void {
+    const finalFocus =
+      typeof this.finalFocus === 'function' ? this.finalFocus(origin) : this.finalFocus;
 
-    if (!target) {
+    if (finalFocus === false) {
       return;
     }
 
+    const pressedControl = outsidePressTarget && this.findFocusableAncestor(outsidePressTarget);
+
+    if (finalFocus instanceof HTMLElement) {
+      this.moveFocus(pressedControl || finalFocus, pressedControl ? 'mouse' : origin);
+      return;
+    }
+
+    const shouldRestoreFocus =
+      typeof this.config.restoreFocus === 'function'
+        ? this.config.restoreFocus()
+        : (this.config.restoreFocus ?? false);
+
+    // An explicit `true` asks for the default restoration, whatever the overlay's own setting
+    if (finalFocus !== true && !shouldRestoreFocus) {
+      return;
+    }
+
+    if (pressedControl) {
+      this.moveFocus(pressedControl, 'mouse');
+      return;
+    }
+
+    const target = this.focusReturnTargetIfStillOurs(origin, triggerGone);
+
+    if (target) {
+      this.moveFocus(target, origin);
+    }
+  }
+
+  private moveFocus(target: HTMLElement, origin: FocusOrigin): void {
     // Overlays opened from inside this one close first, or their focus traps would pull
     // focus straight back before they are torn down.
     this.registry.closeDescendants(this.id());
     this.focusRestoration.restore(target, () =>
-      this.focusMonitor.focusVia(target, pressedControl ? 'mouse' : origin, {
-        preventScroll: true,
-      }),
+      this.focusMonitor.focusVia(target, origin, { preventScroll: true }),
     );
   }
 
@@ -919,7 +1020,10 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
    * Where focus returns, or null when the user has already put it somewhere: outside this
    * overlay and the overlays nested in it, or back on the trigger.
    */
-  private focusReturnTargetIfStillOurs(origin: FocusOrigin): HTMLElement | null {
+  private focusReturnTargetIfStillOurs(
+    origin: FocusOrigin,
+    triggerGone?: boolean,
+  ): HTMLElement | null {
     const activeElement = this.document.activeElement;
 
     // a trigger the user focused while the overlay was open keeps focus
@@ -932,16 +1036,19 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
       activeElement !== this.document.body &&
       !this.containsElement(activeElement);
 
-    return focusMovedAway ? null : this.focusReturnTarget(origin);
+    return focusMovedAway ? null : this.focusReturnTarget(origin, triggerGone);
   }
 
-  private focusReturnTarget(origin: FocusOrigin): HTMLElement | null {
+  private focusReturnTarget(origin: FocusOrigin, triggerGone?: boolean): HTMLElement | null {
     const before = this.focusBeforeOpen;
+    const trigger = this.config.triggerElement;
+    const triggerAvailable = !triggerGone && trigger.isConnected;
 
     if (
       before &&
       before !== this.document.body &&
       before.isConnected &&
+      (before !== trigger || triggerAvailable) &&
       !this.containsElement(before)
     ) {
       return before;
@@ -949,22 +1056,7 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
 
     // Nothing had focus when the overlay opened (a hover, a programmatic open, or Safari, which
     // does not focus a clicked button), so only a keyboard close needs somewhere to land.
-    const trigger = this.config.triggerElement;
-    return origin === 'keyboard' && trigger.isConnected ? trigger : null;
-  }
-
-  /**
-   * Whether the element is in this overlay or in a nested overlay that closes with it. One
-   * that opted out of closing with it (a dialog opened from a menu item) is somewhere else.
-   */
-  private containsElement(element: Element): boolean {
-    if (this.getElements().some(overlayElement => overlayElement.contains(element))) {
-      return true;
-    }
-
-    const containingId =
-      element instanceof HTMLElement ? this.registry.findContainingOverlay(element) : null;
-    return containingId !== null && this.registry.closesWith(containingId, this.id());
+    return origin === 'keyboard' && triggerAvailable ? trigger : null;
   }
 
   /**
@@ -985,6 +1077,20 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
     if (!own || replaced.containsElement(own)) {
       this.focusBeforeOpen = replaced.focusBeforeOpen;
     }
+  }
+
+  /**
+   * Whether the element is in this overlay or in a nested overlay that closes with it. One
+   * that opted out of closing with it (a dialog opened from a menu item) is somewhere else.
+   */
+  private containsElement(element: Element): boolean {
+    if (this.getElements().some(overlayElement => overlayElement.contains(element))) {
+      return true;
+    }
+
+    const containingId =
+      element instanceof HTMLElement ? this.registry.findContainingOverlay(element) : null;
+    return containingId !== null && this.registry.closesWith(containingId, this.id());
   }
 
   private findFocusableAncestor(element: Element): HTMLElement | null {
@@ -1028,15 +1134,17 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
       return;
     }
 
-    // Nothing left to render - close rather than leave the previous content on screen.
+    // Nothing left to render - close rather than leave the previous content on screen, and
+    // hand on the focus the removed content held.
     if (!content) {
-      this.hideImmediate();
+      this.closeImmediately(undefined, true);
       return;
     }
 
     this.portal.set(null);
     this.disposePositioning?.();
     this.disposePositioning = undefined;
+    this.positionPass++;
     this.registeredOutletElement = null;
 
     // Immediate on both sides: the exit animation belongs to the content being
@@ -1044,6 +1152,12 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
     // than a content change.
     portal.detach({ immediate: true });
     this.attachPortal(content, true, this.openContainer ?? undefined);
+
+    // The replaced content's finalFocus went with it; content that sets one does so as it renders.
+    if (this.finalFocusReleased) {
+      this.finalFocus = null;
+      this.finalFocusReleased = false;
+    }
   }
 
   /**
@@ -1072,6 +1186,13 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
    * @param options Optional hide configuration
    */
   hideImmediate(options?: OverlayHideImmediateOptions): void {
+    this.closeImmediately(options, false);
+  }
+
+  private closeImmediately(
+    options: OverlayHideImmediateOptions | undefined,
+    restoreFocusIfInside: boolean,
+  ): void {
     // An exit already under way owns the portal - `portal()` is nulled the
     // moment destroyOverlay starts - so ending it is the only way an immediate
     // hide reaches an overlay that has begun animating out. Opt-in, because a
@@ -1104,6 +1225,18 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
       // Update close origin and call callback (default to 'program' for immediate closes)
       this.closeOrigin.set('program');
       this.config.onClose?.('program');
+
+      // Focus held by content that is going away moves on, after `closing` so focus traps have
+      // let go. A forced destroy also takes the trigger with it, and the content can already be
+      // gone with the trigger's view, which leaves focus on the body.
+      const activeElement = this.document.activeElement;
+      const focusWasInside =
+        activeElement === null ||
+        activeElement === this.document.body ||
+        this.containsElement(activeElement);
+      if ((options?.forceDestroy || restoreFocusIfInside) && focusWasInside) {
+        this.restoreFocus('program', { triggerGone: options?.forceDestroy });
+      }
     }
     this.destroyOverlay({ immediate: true, forceDestroy: options?.forceDestroy });
   }
@@ -1145,6 +1278,7 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
   destroy(): void {
     this.hideImmediate({ forceDestroy: true });
     this.disposePositioning?.();
+    this.positionPass++;
     this.scrollStrategy.disable();
   }
 
@@ -1423,6 +1557,7 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
    * Compute the overlay position using floating-ui
    */
   private async computePosition(overlayElement: HTMLElement): Promise<void> {
+    const pass = ++this.positionPass;
     const strategy = this.resolveStrategy(overlayElement);
 
     // Create middleware array
@@ -1466,6 +1601,10 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
         rootBoundary: overflowOptions?.rootBoundary,
         altBoundary: overflowOptions?.altBoundary,
         apply: ({ availableWidth, availableHeight, elements }) => {
+          if (pass !== this.positionPass) {
+            return;
+          }
+
           this.availableWidth.set(availableWidth);
           this.availableHeight.set(availableHeight);
 
@@ -1494,6 +1633,9 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
       middleware.push(arrow({ element: this.arrowElement, padding: this.arrowPadding?.() }));
     }
 
+    // Last, so it reads the final position; it only reports, it never moves the overlay
+    middleware.push(hide());
+
     // Compute the position
     const placement = this.config.placement?.() ?? 'top';
 
@@ -1506,11 +1648,16 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
       strategy,
     });
 
+    if (pass !== this.positionPass) {
+      return;
+    }
+
     // Update position signal
     this.position.set({ x: position.x, y: position.y });
 
     // Update final placement signal
     this.finalPlacement.set(position.placement);
+    this.referenceHidden.set(position.middlewareData.hide?.referenceHidden ?? false);
     this.transformOrigin.set(this.getTransformOrigin(position.placement));
 
     // Update arrow position if available
@@ -1580,6 +1727,7 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
     // Clean up positioning
     this.disposePositioning?.();
     this.disposePositioning = undefined;
+    this.positionPass++;
 
     // Track the destroying portal so cancelDestruction() can restore it
     // if show() is called during the exit animation.
@@ -1643,7 +1791,13 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
       this.renderedContent = null;
       this.isOpen.set(false);
       this.finalPlacement.set(undefined);
+      this.referenceHidden.set(false);
       this.instantTransition.set(false);
+
+      if (this.finalFocusReleased) {
+        this.finalFocus = null;
+        this.finalFocusReleased = false;
+      }
     }
   }
 

@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, signal } from '@angular/core';
 import { fireEvent, render, screen, waitFor } from '@testing-library/angular';
 import userEvent from '@testing-library/user-event';
 import { NgpPopover, NgpPopoverTrigger } from 'ng-primitives/popover';
@@ -43,6 +43,24 @@ class PopoverFocusComponent {}
   imports: [NgpPopoverTrigger, NgpPopover],
 })
 class NestedPopoverFocusComponent {}
+
+@Component({
+  template: `
+    <button [ngpPopoverTrigger]="showContent() ? content : undefined" data-testid="trigger">
+      Open
+    </button>
+
+    <ng-template #content>
+      <div ngpPopover data-testid="popover">
+        <button data-testid="inside">Inside</button>
+      </div>
+    </ng-template>
+  `,
+  imports: [NgpPopoverTrigger, NgpPopover],
+})
+class ClearedContentComponent {
+  readonly showContent = signal(true);
+}
 
 async function open() {
   await render(PopoverFocusComponent);
@@ -185,6 +203,18 @@ describe('NgpPopover focus on close', () => {
     root.dispatchEvent(new PointerEvent('pointerdown', init));
     root.dispatchEvent(new MouseEvent('mouseup', init));
     root.dispatchEvent(new MouseEvent('click', init));
+    await closed();
+
+    expect(trigger).toHaveFocus();
+  });
+
+  it('returns focus to the trigger when the content is cleared while it holds focus', async () => {
+    const { fixture } = await render(ClearedContentComponent);
+    const trigger = screen.getByTestId('trigger');
+    await userEvent.click(trigger);
+    await waitFor(() => expect(screen.getByTestId('inside')).toHaveFocus());
+
+    fixture.componentInstance.showContent.set(false);
     await closed();
 
     expect(trigger).toHaveFocus();
