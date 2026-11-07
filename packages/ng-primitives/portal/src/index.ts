@@ -1,3 +1,4 @@
+export { claimEscapeKey, NgpEscapeKeyClaim } from 'ng-primitives/internal';
 export { provideControlContainerIsolation } from './control-container';
 export { coerceFlip, NgpFlip, NgpFlipInput, NgpFlipOptions } from './flip';
 export { coerceOffset, NgpOffset, NgpOffsetInput, NgpOffsetOptions } from './offset';
@@ -8,6 +9,7 @@ export {
   NgpOverlay,
   NgpOverlayConfig,
   NgpOverlayContent,
+  NgpOverlayFinalFocus,
   NgpOverlayTemplateContext,
   OverlayHideImmediateOptions,
 } from './overlay';
