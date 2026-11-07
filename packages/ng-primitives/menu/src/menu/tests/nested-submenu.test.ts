@@ -185,21 +185,31 @@ describe('NgpSubmenuTrigger nested submenus (#805)', () => {
     });
   });
 
-  it('closes the whole chain when Escape is pressed inside the nested submenu', async () => {
+  it('closes one level per Escape pressed inside the nested submenu', async () => {
     vi.useFakeTimers({ shouldAdvanceTime: true });
     await render(NestedSubmenuComponent);
 
     await openLevelOneSubmenu();
     await openLevelTwoSubmenu();
-
-    const level2Menu = document.querySelector('[data-testid="level2-menu"]') as HTMLElement;
-    fireEvent.keyDown(level2Menu, { key: 'Escape' });
-
-    await waitFor(() => {
-      expect(document.querySelector('[data-testid="root-menu"]')).not.toBeInTheDocument();
-      expect(document.querySelector('[data-testid="level1-menu"]')).not.toBeInTheDocument();
-      expect(document.querySelector('[data-testid="level2-menu"]')).not.toBeInTheDocument();
+    const menus = () => ({
+      root: !!document.querySelector('[data-testid="root-menu"]'),
+      level1: !!document.querySelector('[data-testid="level1-menu"]'),
+      level2: !!document.querySelector('[data-testid="level2-menu"]'),
     });
+
+    const byId = (id: string) => document.querySelector(`[data-testid="${id}"]`) as HTMLElement;
+    byId('nested-item').focus();
+
+    fireEvent.keyDown(byId('nested-item'), { key: 'Escape' });
+    await waitFor(() => expect(menus()).toEqual({ root: true, level1: true, level2: false }));
+    expect(document.activeElement).toBe(byId('level2-trigger'));
+
+    fireEvent.keyDown(byId('level2-trigger'), { key: 'Escape' });
+    await waitFor(() => expect(menus()).toEqual({ root: true, level1: false, level2: false }));
+    expect(document.activeElement).toBe(byId('level1-trigger'));
+
+    fireEvent.keyDown(byId('level1-trigger'), { key: 'Escape' });
+    await waitFor(() => expect(menus()).toEqual({ root: false, level1: false, level2: false }));
   });
 
   it('closes the nested submenu when a sibling item in the level-1 panel is hovered', async () => {

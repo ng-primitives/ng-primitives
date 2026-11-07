@@ -103,13 +103,14 @@ export const [NgpMenuStateToken, ngpMenu, injectMenuState, provideMenuState] = c
     }
 
     function onKeydown(event: KeyboardEvent): void {
-      // Handle Escape key - close all menus and restore focus to root trigger
-      // We handle this here instead of using overlay's closeOnEscape to ensure
-      // proper focus restoration through the closeAllMenus chain
+      // Escape closes the menu that has focus. The overlay registry closes a root menu before
+      // this runs; submenus turn closeOnEscape off, so they close here and return focus to
+      // their submenu trigger, as ArrowLeft does.
       if (event.key === 'Escape') {
         event.preventDefault();
         event.stopPropagation();
-        closeAllMenus('keyboard');
+        menuTrigger().hide('keyboard');
+        menuTrigger().focus?.('keyboard');
         return;
       }
 
