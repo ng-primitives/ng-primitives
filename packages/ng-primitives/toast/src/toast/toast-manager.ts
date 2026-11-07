@@ -34,13 +34,16 @@ export class NgpToastManager {
   // Map to store containers by placement
   private readonly containers = new Map<string, HTMLElement>();
 
-  /** The element focused before F6 moved focus to the toasts, restored by F6 again or Escape. */
+  /** The element focused before focus entered the toasts, where it returns once they are gone. */
   private focusBeforeToasts: HTMLElement | null = null;
-  /** The element focused before focus entered the toasts by any means, such as a click. */
-  private focusBeforeEntry: HTMLElement | null = null;
+  /** Whether F6 moved focus to the toasts, so that F6 again or Escape takes it back. */
+  private enteredWithF6 = false;
   private listeningForKeys = false;
 
   readonly toasts = signal<NgpToastRecord[]>([]);
+
+  /** The toasts playing their exit animation, which can no longer take focus. */
+  private readonly dismissing = new Set<NgpToastRecord>();
 
   /** Signal that tracks which placements are expanded */
   private readonly expanded = signal<NgpToastPlacement[]>([]);
@@ -103,18 +106,29 @@ export class NgpToastManager {
   }
 
   /** Hide a toast notification */
-  async dismiss(toast: NgpToast): Promise<void> {
+  dismiss(toast: NgpToast): Promise<void> {
+    return this.hide(toast, false);
+  }
+
+  /** @internal */
+  dismissBySwipe(toast: NgpToast): Promise<void> {
+    // a swipe is a pointer close: focus goes back to the page
+    return this.hide(toast, true);
+  }
+
+  private async hide(toast: NgpToast, bySwipe: boolean): Promise<void> {
     const ref = this.toasts().find(t => t.instance === toast);
 
     if (ref) {
-      // Read before the detach: removing the focused toast fires focusout in some browsers
-      // only, and that clears the saved element.
-      const returnTo = this.containerOf(this.document.activeElement)
-        ? (this.focusBeforeToasts ?? this.focusBeforeEntry)
-        : null;
+      this.dismissing.add(ref);
+      this.moveFocusOutOf(ref, bySwipe);
 
-      // Detach the portal from the container
-      await ref.portal.detach();
+      try {
+        // Detach the portal from the container
+        await ref.portal.detach();
+      } finally {
+        this.dismissing.delete(ref);
+      }
 
       // Remove the toast from the list of toasts
       this.toasts.update(toasts => toasts.filter(t => t !== ref));
@@ -123,20 +137,56 @@ export class NgpToastManager {
       if (this.toasts().length === 0) {
         this.expanded.update(expanded => expanded.filter(p => p !== toast.options.placement));
       }
-
-      // A focused toast that leaves takes focus with it, so land where F6 came from. So does
-      // the last toast leaving a focused region: F6 has no toast left to go back from.
-      const active = this.document.activeElement;
-      const focusLost =
-        !active ||
-        active === this.document.body ||
-        (this.toasts().length === 0 && !!this.containerOf(active));
-      if (returnTo && focusLost) {
-        this.focusBeforeToasts = null;
-        this.focusBeforeEntry = null;
-        this.moveFocusTo(returnTo);
-      }
     }
+  }
+
+  /**
+   * A toast that holds focus as it starts to close hands focus on before its exit animation:
+   * to the next toast for a keyboard user, otherwise back to where focus was before it
+   * entered the toasts. Waiting for the removal would depend on how the toast animates out.
+   */
+  private moveFocusOutOf(ref: NgpToastRecord, bySwipe: boolean): void {
+    const active = this.document.activeElement;
+
+    if (!active) {
+      return;
+    }
+
+    // Focus on a region itself (after F6, or a click on a toast's text) stays while toasts
+    // remain, so F6 can go on to them, and goes back to the page with the last one.
+    if ([...this.containers.values()].includes(active as HTMLElement)) {
+      if (!this.toasts().some(t => t !== ref && !this.dismissing.has(t))) {
+        this.returnFocus();
+      }
+      return;
+    }
+
+    if (!ref.instance.element.contains(active)) {
+      return;
+    }
+
+    // After a pointer close, focus goes back to the page rather than to a toast the user
+    // never moved to.
+    const neighbour = !bySwipe && active.matches(':focus-visible') ? this.neighbourOf(ref) : null;
+
+    if (neighbour) {
+      focusToast(neighbour);
+    } else {
+      this.returnFocus();
+    }
+  }
+
+  /**
+   * The toast that takes focus when the given one leaves: the next older toast at the same
+   * placement, or the next newer one when it was the oldest.
+   */
+  private neighbourOf(ref: NgpToastRecord): HTMLElement | null {
+    const placement = ref.instance.options.placement;
+    const siblings = this.toasts().filter(t => t.instance.options.placement === placement);
+    const index = siblings.indexOf(ref);
+    // `toasts` lists the newest first: walk to the older toasts, then back to the newer ones
+    const candidates = [...siblings.slice(index + 1), ...siblings.slice(0, index).reverse()];
+    return candidates.find(t => !this.dismissing.has(t))?.instance.element ?? null;
   }
 
   /**
@@ -172,10 +222,10 @@ export class NgpToastManager {
 
       const focused = this.containerOf(this.document.activeElement);
 
-      // Back out only from a region that still shows toasts. Reached with Tab, there is
-      // nowhere to go back to, so F6 is left to the browser.
+      // Back out only from a region that still shows toasts, and only after an F6 entry.
+      // After a Tab entry, F6 is left to the browser.
       if (focused && this.hasToasts(focused)) {
-        if (this.focusBeforeToasts) {
+        if (this.enteredWithF6) {
           event.preventDefault();
           this.returnFocus();
         }
@@ -190,13 +240,13 @@ export class NgpToastManager {
       }
 
       event.preventDefault();
-
-      // From an emptied region, keep the element saved when F6 first moved here.
-      if (!focused) {
-        this.focusBeforeToasts = this.document.activeElement as HTMLElement | null;
-      }
-
       container.focus({ preventScroll: true });
+      // after focus(): its focusin records an entry that is not an F6 one. From nothing focused it
+      // has no related target to record, so keep the body: F6 again then leaves the toasts.
+      if (!focused) {
+        this.focusBeforeToasts ??= this.document.body;
+      }
+      this.enteredWithF6 = this.focusBeforeToasts !== null;
     };
 
     // Capture on the window runs before the overlay registry's capture listener on the
@@ -205,7 +255,7 @@ export class NgpToastManager {
       if (
         event.key !== 'Escape' ||
         event.isComposing ||
-        !this.focusBeforeToasts ||
+        !this.enteredWithF6 ||
         !this.containerOf(this.document.activeElement)
       ) {
         return;
@@ -216,8 +266,30 @@ export class NgpToastManager {
       this.returnFocus();
     };
 
-    // Leaving the toasts by any other way (a click, Tab) ends the F6 round trip. Switching to
-    // another window does not: focus comes back to the toasts.
+    // Focus entering the toasts by any way (Tab, a click, F6) records where it came from. Focus
+    // coming back from another window has no related target and keeps what was recorded.
+    const onFocusIn = (event: FocusEvent) => {
+      // Focus anywhere else ends the round trip, even when the matching focusout was skipped
+      // because the window was in the background.
+      if (!this.containerOf(event.target as Node | null)) {
+        this.focusBeforeToasts = null;
+        this.enteredWithF6 = false;
+        return;
+      }
+
+      if (
+        event.relatedTarget &&
+        this.containerOf(event.target as Node | null) &&
+        !this.containerOf(event.relatedTarget as Node | null)
+      ) {
+        this.focusBeforeToasts =
+          event.relatedTarget instanceof HTMLElement ? event.relatedTarget : null;
+        this.enteredWithF6 = false;
+      }
+    };
+
+    // Focus leaving the toasts forgets where it came from. Switching to another window does not:
+    // focus comes back to the toasts.
     const onFocusOut = (event: FocusEvent) => {
       if (
         this.document.hasFocus() &&
@@ -225,32 +297,22 @@ export class NgpToastManager {
         !this.containerOf(event.relatedTarget as Node | null)
       ) {
         this.focusBeforeToasts = null;
-        this.focusBeforeEntry = null;
-      }
-    };
-
-    // A toast removed while focused takes focus with it, so remember where focus came from
-    // even when it did not arrive with F6 (a click in Chrome focuses the toast's button).
-    const onFocusIn = (event: FocusEvent) => {
-      const from = event.relatedTarget as HTMLElement | null;
-
-      if (this.containerOf(event.target as Node | null) && from && !this.containerOf(from)) {
-        this.focusBeforeEntry = from;
+        this.enteredWithF6 = false;
       }
     };
 
     this.ngZone.runOutsideAngular(() => {
       view.addEventListener('keydown', onF6);
       view.addEventListener('keydown', onEscape, { capture: true });
-      view.addEventListener('focusout', onFocusOut);
       view.addEventListener('focusin', onFocusIn);
+      view.addEventListener('focusout', onFocusOut);
     });
 
     this.destroyRef.onDestroy(() => {
       view.removeEventListener('keydown', onF6);
       view.removeEventListener('keydown', onEscape, { capture: true });
-      view.removeEventListener('focusout', onFocusOut);
       view.removeEventListener('focusin', onFocusIn);
+      view.removeEventListener('focusout', onFocusOut);
     });
   }
 
@@ -267,17 +329,12 @@ export class NgpToastManager {
   private returnFocus(): void {
     const target = this.focusBeforeToasts;
     this.focusBeforeToasts = null;
+    this.enteredWithF6 = false;
 
-    if (target) {
-      this.moveFocusTo(target);
-    }
-  }
-
-  private moveFocusTo(target: HTMLElement): void {
     // Nothing had focus before: `body.focus()` would leave focus where it is, so blur instead.
     if (target === this.document.body) {
       (this.document.activeElement as HTMLElement | null)?.blur();
-    } else if (target.isConnected) {
+    } else if (target?.isConnected) {
       target.focus({ preventScroll: true });
     }
   }
@@ -390,4 +447,26 @@ interface NgpToastRecord {
 
 export interface NgpToastRef {
   dismiss(): Promise<void>;
+}
+
+/**
+ * Focus a toast, which is not focusable by itself. It holds a tabindex only while focused, so
+ * a click on a toast never focuses it.
+ */
+function focusToast(element: HTMLElement): void {
+  if (!element.hasAttribute('tabindex')) {
+    element.setAttribute('tabindex', '-1');
+
+    const onBlur = () => {
+      // The window losing focus blurs the toast but keeps it active, to refocus on return.
+      if (element.ownerDocument.activeElement === element) {
+        return;
+      }
+      element.removeAttribute('tabindex');
+      element.removeEventListener('blur', onBlur);
+    };
+
+    element.addEventListener('blur', onBlur);
+  }
+  element.focus({ preventScroll: true });
 }
