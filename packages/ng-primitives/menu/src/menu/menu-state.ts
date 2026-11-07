@@ -1,14 +1,23 @@
 import { FocusOrigin } from '@angular/cdk/a11y';
 import { Directionality } from '@angular/cdk/bidi';
-import { computed, ElementRef, inject } from '@angular/core';
+import { computed, ElementRef, inject, Signal, signal } from '@angular/core';
 import { ngpFocusTrap } from 'ng-primitives/focus-trap';
 import {
   createHoverTransitTracker,
   HoverTransitTracker,
   injectElementRef,
+  labelledByTrigger,
 } from 'ng-primitives/internal';
-import { injectOverlay } from 'ng-primitives/portal';
-import { attrBinding, createPrimitive, listener, styleBinding } from 'ng-primitives/state';
+import { injectOverlay, NgpOverlayFinalFocus } from 'ng-primitives/portal';
+import {
+  attrBinding,
+  createPrimitive,
+  dataBinding,
+  listener,
+  onDestroy,
+  styleBinding,
+} from 'ng-primitives/state';
+import { onChange } from 'ng-primitives/utils';
 import { Subject } from 'rxjs';
 import { injectMenuTriggerState } from '../menu-trigger/menu-trigger-state';
 
@@ -31,11 +40,16 @@ export interface NgpMenuState extends HoverTransitTracker {
   readonly element: ElementRef<HTMLElement>;
 }
 
-export interface NgpMenuProps {}
+export interface NgpMenuProps {
+  /** Where focus goes when the menu closes. */
+  readonly finalFocus?: Signal<NgpOverlayFinalFocus | null>;
+  /** The menu directives' `wrap` input. Wrapping itself is set on their roving focus group. */
+  readonly wrap?: Signal<boolean>;
+}
 
 export const [NgpMenuStateToken, ngpMenu, injectMenuState, provideMenuState] = createPrimitive(
   'NgpMenu',
-  ({}: NgpMenuProps) => {
+  ({ finalFocus = signal<NgpOverlayFinalFocus | null>(null) }: NgpMenuProps) => {
     const element = injectElementRef<HTMLElement>();
     const transit = createHoverTransitTracker();
     const overlay = injectOverlay();
@@ -55,9 +69,14 @@ export const [NgpMenuStateToken, ngpMenu, injectMenuState, provideMenuState] = c
     overlay.registerOutletElement(element.nativeElement);
     overlay.registerAvailableSizePrefix('--ngp-menu');
 
+    onChange(finalFocus, value => overlay.setFinalFocus(value));
+    onDestroy(() => overlay.removeFinalFocus());
+
     // Host bindings
     attrBinding(element, 'role', 'menu');
+    labelledByTrigger(element, () => menuTrigger()?.triggerId());
     attrBinding(element, 'data-placement', overlay.finalPlacement);
+    dataBinding(element, 'data-reference-hidden', overlay.referenceHidden);
     attrBinding(element, 'data-overlay', '');
     styleBinding(element, 'left.px', () => overlay.position().x ?? null);
     styleBinding(element, 'top.px', () => overlay.position().y ?? null);

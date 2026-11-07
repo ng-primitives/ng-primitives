@@ -12,6 +12,7 @@ import {
 import { TestBed } from '@angular/core/testing';
 import { render, screen, waitFor } from '@testing-library/angular';
 import {
+  NgpMiddleware,
   NgpOffset,
   NgpOverlay,
   NgpOverlayConfig,
@@ -136,6 +137,39 @@ describe('createOverlay imperative usage', () => {
     target.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true, composed: true }));
     target.dispatchEvent(new MouseEvent('mouseup', { bubbles: true, composed: true }));
   }
+
+  it('reads a restoreFocus signal when the overlay closes', async () => {
+    const restoreFocus = signal(true);
+    const { overlay, getByTestId } = await setup(() => ({ restoreFocus }));
+    const trigger = getByTestId('trigger');
+
+    trigger.focus();
+    await overlay.show();
+    trigger.blur();
+    overlay.hide({ origin: 'keyboard' });
+    await waitFor(() => expect(document.activeElement).toBe(trigger));
+
+    restoreFocus.set(false);
+    await overlay.show();
+    trigger.blur();
+    overlay.hide({ origin: 'keyboard' });
+    await waitFor(() => expect(overlay.isOpen()).toBe(false));
+    expect(document.activeElement).toBe(document.body);
+  });
+
+  it('leaves focus on a trigger the user focused while the overlay was open', async () => {
+    const { overlay, getByTestId } = await setup(() => ({ restoreFocus: true }));
+    const outside = getByTestId('outside');
+    const trigger = getByTestId('trigger');
+
+    outside.focus();
+    await overlay.show();
+    trigger.focus();
+    overlay.hide({ origin: 'mouse' });
+
+    await waitFor(() => expect(overlay.isOpen()).toBe(false));
+    expect(document.activeElement).toBe(trigger);
+  });
 
   it('positions at a programmatic point and follows updates to that point', async () => {
     const position = signal<NgpPosition | null>({ x: 200, y: 150 });
@@ -351,6 +385,38 @@ describe('createOverlay imperative usage', () => {
     expect(document.querySelector('[data-testid="overlay"]')).toBeInTheDocument();
   });
 
+  it('returns focus with an explicit finalFocus of true even when restoreFocus is false', async () => {
+    const { overlay, getByTestId } = await setup(() => ({ restoreFocus: false }));
+    const trigger = getByTestId('trigger');
+
+    trigger.focus();
+    await overlay.show();
+    overlay.setFinalFocus(true);
+    trigger.blur();
+    overlay.hide({ origin: 'keyboard' });
+
+    await waitFor(() => expect(document.activeElement).toBe(trigger));
+  });
+
+  it('returns focus when its content is cleared while focus is inside', async () => {
+    const content = signal<TemplateRef<NgpOverlayTemplateContext<unknown>> | null>(null);
+    const { overlay, getByTestId } = await setup((_, host) => {
+      content.set(host.content());
+      return { content, restoreFocus: true };
+    });
+    const trigger = getByTestId('trigger');
+
+    trigger.focus();
+    await overlay.show();
+    const panel = await screen.findByTestId('overlay');
+    panel.tabIndex = -1;
+    panel.focus();
+    content.set(null);
+
+    await waitFor(() => expect(overlay.isOpen()).toBe(false));
+    expect(document.activeElement).toBe(trigger);
+  });
+
   it('leaves focus where it is on close when restoreFocus is false', async () => {
     const { overlay, getByTestId } = await setup(() => ({ restoreFocus: false }));
     const outside = getByTestId('outside');
@@ -426,5 +492,42 @@ describe('createOverlay imperative usage', () => {
       expect(getByTestId('trigger').closest('[inert]')).toBeNull();
       expect(getByTestId('outside').closest('[inert]')).not.toBeNull();
     });
+  });
+
+  it('keeps the newest position when an older positioning pass resolves last', async () => {
+    const placement = signal<NgpPlacement>('bottom');
+    let holdNextPass = false;
+    let held: { release: () => void } | null = null;
+
+    // Holds one pass inside the middleware chain until released, so a newer pass can finish first.
+    const holdOnce: NgpMiddleware = {
+      name: 'holdOnce',
+      async fn() {
+        if (holdNextPass) {
+          holdNextPass = false;
+          await new Promise<void>(resolve => (held = { release: resolve }));
+        }
+        return {};
+      },
+    };
+
+    const { overlay } = await setup(() => ({ placement, additionalMiddleware: [holdOnce] }));
+    await overlay.show();
+    await waitFor(() => expect(overlay.finalPlacement()).toBe('bottom'));
+
+    holdNextPass = true;
+    placement.set('top');
+    await waitFor(() => expect(held).not.toBeNull());
+
+    try {
+      placement.set('bottom-end');
+      await waitFor(() => expect(overlay.finalPlacement()).toBe('bottom-end'));
+    } finally {
+      held!.release();
+    }
+
+    // the released pass only has microtasks left, so one macrotask lets it finish
+    await new Promise(resolve => setTimeout(resolve));
+    expect(overlay.finalPlacement()).toBe('bottom-end');
   });
 });
