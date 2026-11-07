@@ -94,6 +94,29 @@ A drawer is a type of dialog that slides in from the side of the screen.
 
 <docs-example name="dialog-drawer"></docs-example>
 
+### Non-modal drawer
+
+A drawer that acts on the page beside it, such as view settings or filters next to a table, should leave that page usable. Set `ngpDialogTriggerModal` to `false` (or pass `modal: false` to `NgpDialogManager.open()` or `provideDialogConfig`). While a non-modal dialog is open:
+
+- the page stays scrollable, clickable and readable by screen readers, unless a modal dialog below it still covers the page;
+- focus moves to the dialog element on open, unless an element inside it already took focus. It is not trapped. On close it returns to the trigger only if it was still inside the dialog, or in an overlay opened from it;
+- a second click on the trigger closes the dialog, unless `disableClose` is set;
+- `closeOnEscape` applies only to an Escape pressed inside the dialog. Elsewhere, Escape goes to the overlay below;
+- an outside click does not close it. Leave out `ngpDialogOverlay`, so nothing covers the page.
+
+```html
+<button [ngpDialogTrigger]="settings" ngpDialogTriggerModal="false">View settings</button>
+
+<ng-template #settings let-close="close">
+  <div ngpDialog>
+    <h2 ngpDialogTitle>View settings</h2>
+    <button (click)="close()">Done</button>
+  </div>
+</ng-template>
+```
+
+`modal` is read when the dialog opens. `ngpDialogModal` on the dialog only sets `aria-modal`. Inside the dialog, `injectDialogRef().config.modal` tells whether it is modal.
+
 ## API Reference
 
 The following directives are available to import from the `ng-primitives/dialog` package:
@@ -242,6 +265,6 @@ Add `autofocus` to one or more usable elements to focus the first one when the d
 
 ### Keyboard Interactions
 
-- <kbd>Esc</kbd>: Close the dialog.
-- <kbd>Tab</kbd>: Navigate through focusable elements within the dialog.
-- <kbd>Shift</kbd> + <kbd>Tab</kbd>: Navigate backwards through focusable elements within the dialog.
+- <kbd>Esc</kbd>: Close the dialog, as set by `closeOnEscape`. A non-modal dialog only takes an Escape pressed inside it.
+- <kbd>Tab</kbd>: Navigate through focusable elements within the dialog. In a non-modal dialog, focus can move on to the page.
+- <kbd>Shift</kbd> + <kbd>Tab</kbd>: Navigate backwards through focusable elements within the dialog. In a non-modal dialog, focus can move on to the page.

@@ -59,6 +59,15 @@ export interface NgpPopoverConfig {
   scrollBehavior: 'reposition' | 'block' | 'close';
 
   /**
+   * Whether the popover is modal. While it is open the rest of the page is `inert`, so a pointer
+   * press outside does not reach it: the click that ends the press closes the popover, unless
+   * `closeOnOutsideClick` says not to. A click from the keyboard or from code is left alone. The
+   * trigger, the anchor, exempt elements and overlays opened above the popover stay usable.
+   * @default false
+   */
+  modal: boolean;
+
+  /**
    * Configure shift behavior to keep the popover in view.
    * Can be a boolean to enable/disable, or an object with padding and limiter options.
    * @default undefined (enabled by default in overlay)
@@ -101,6 +110,7 @@ export const defaultPopoverConfig: NgpPopoverConfig = {
   closeOnOutsideClick: true,
   closeOnEscape: true,
   scrollBehavior: 'reposition',
+  modal: false,
   shift: undefined,
   trackPosition: false,
   cooldown: 0,

@@ -147,6 +147,19 @@ export class NgpPopoverTrigger<T = null> {
   });
 
   /**
+   * Whether the popover is modal. While it is open the rest of the page is `inert`, so a pointer
+   * press outside does not reach it: the click that ends the press closes the popover, unless
+   * `closeOnOutsideClick` says not to. A click from the keyboard or from code is left alone. The
+   * trigger, the anchor, exempt elements and overlays opened above the popover stay usable.
+   * Read each time the popover opens.
+   * @default false
+   */
+  readonly modal = input<boolean, BooleanInput>(this.config.modal, {
+    alias: 'ngpPopoverTriggerModal',
+    transform: booleanAttribute,
+  });
+
+  /**
    * Provide context to the popover. This can be used to pass data to the popover content.
    */
   readonly context = input<T>(undefined, {
@@ -223,6 +236,7 @@ export class NgpPopoverTrigger<T = null> {
     closeOnOutsideClick: this.closeOnOutsideClick,
     closeOnEscape: this.closeOnEscape,
     scrollBehavior: this.scrollBehavior,
+    modal: this.modal,
     context: this.context,
     anchor: this.anchor,
     trackPosition: this.trackPosition,
