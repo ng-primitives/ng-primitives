@@ -9,7 +9,7 @@ import { ngpRovingFocusItem, provideRovingFocusItemState } from 'ng-primitives/r
 @Directive({
   selector: '[ngpContextMenuItem]',
   exportAs: 'ngpContextMenuItem',
-  providers: [provideMenuItemState(), provideRovingFocusItemState()],
+  providers: [provideMenuItemState({ inherit: false }), provideRovingFocusItemState()],
 })
 export class NgpContextMenuItem {
   /** Whether the menu item is disabled */

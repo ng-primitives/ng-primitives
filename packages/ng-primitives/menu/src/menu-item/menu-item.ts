@@ -9,7 +9,7 @@ import { ngpMenuItem, provideMenuItemState } from './menu-item-state';
 @Directive({
   selector: '[ngpMenuItem]',
   exportAs: 'ngpMenuItem',
-  providers: [provideMenuItemState(), provideRovingFocusItemState()],
+  providers: [provideMenuItemState({ inherit: false }), provideRovingFocusItemState()],
 })
 export class NgpMenuItem {
   /** Whether the menu item is disabled */
