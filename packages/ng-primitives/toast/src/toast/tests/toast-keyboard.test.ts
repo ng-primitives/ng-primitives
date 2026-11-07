@@ -171,16 +171,56 @@ describe('NgpToastManager keyboard access', () => {
     expect(document.activeElement).toBe(action);
   });
 
-  it('leaves a second F6 to the browser when F6 entered from the body', async () => {
-    const { host } = await renderHost();
-    host.showToast();
-    (document.activeElement as HTMLElement | null)?.blur();
-    pressKey('F6');
-    expect(document.activeElement).toBe(container());
+  describe('when nothing had focus before F6', () => {
+    async function f6FromNothing() {
+      const view = await renderHost();
+      const toast = view.host.showToast();
+      (document.activeElement as HTMLElement | null)?.blur();
+      pressKey('F6');
+      expect(document.activeElement).toBe(container());
+      return toast;
+    }
 
-    const event = pressKey('F6');
+    it('leaves the toasts on F6 again', async () => {
+      await f6FromNothing();
 
-    expect(event.defaultPrevented).toBe(false);
+      pressKey('F6');
+
+      expect(document.activeElement).toBe(document.body);
+    });
+
+    it('leaves the toasts on Escape', async () => {
+      await f6FromNothing();
+
+      pressKey('Escape');
+
+      expect(document.activeElement).toBe(document.body);
+    });
+
+    it('leaves the toasts when the last toast leaves the focused region', async () => {
+      const toast = await f6FromNothing();
+
+      await toast.dismiss();
+
+      expect(document.activeElement).toBe(document.body);
+    });
+  });
+
+  it('forgets where a clicked toast was entered from once focus leaves the toasts', async () => {
+    const { host, getByTestId } = await renderHost();
+    getByTestId('page-button').focus();
+    const toast = host.showToast();
+    // a click focuses the action, as Chrome does, without F6
+    const action = document.querySelector<HTMLElement>('[data-testid="toast-action"]')!;
+    action.focus();
+    getByTestId('other-button').focus();
+    // come back from nothing focused, so there is no new element to record
+    (document.activeElement as HTMLElement).blur();
+    action.focus();
+
+    await toast.dismiss();
+
+    expect(document.activeElement).toBe(document.body);
   });
 
   it('forgets the saved element when focus moves to the page while the window is in the background', async () => {
@@ -197,7 +237,10 @@ describe('NgpToastManager keyboard access', () => {
     pressKey('F6');
     expect(document.activeElement).toBe(container());
 
-    expect(pressKey('F6').defaultPrevented).toBe(false);
+    pressKey('F6');
+
+    // back to nothing focused, not to the page button saved before
+    expect(document.activeElement).toBe(document.body);
   });
 
   it('keeps the saved element when the window loses focus', async () => {
@@ -541,8 +584,8 @@ describe('NgpToastManager keyboard access', () => {
         return button!;
       });
       dialogButton.focus();
-      view.host.showToast();
-      return { ...view, dialogButton };
+      const toast = view.host.showToast();
+      return { ...view, dialogButton, toast };
     }
 
     it('lets F6 move focus out of the focus trap to the toasts', async () => {
@@ -581,6 +624,16 @@ describe('NgpToastManager keyboard access', () => {
 
       await wait(50);
       expect(document.querySelector('[data-testid="dialog"]')).toBeInTheDocument();
+    });
+
+    it('returns focus into the dialog when a clicked toast dismisses itself', async () => {
+      const { dialogButton, toast } = await openDialogWithToast();
+
+      // a click focuses the action, as Chrome does, without F6
+      document.querySelector<HTMLElement>('[data-testid="toast-action"]')!.focus();
+      await toast.dismiss();
+
+      expect(document.activeElement).toBe(dialogButton);
     });
   });
 });

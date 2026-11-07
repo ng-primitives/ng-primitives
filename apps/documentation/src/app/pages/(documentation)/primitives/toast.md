@@ -170,7 +170,7 @@ For screen reader announcements, ensure your toast container includes `role="sta
 
 ### Keyboard Interactions
 
-- <kbd>F6</kbd>: Move focus to the region holding the newest toast, even while a dialog traps focus. Pressed again, return focus to where <kbd>F6</kbd> brought it from; when focus came another way, or from nothing focused, the browser handles it.
+- <kbd>F6</kbd>: Move focus to the region holding the newest toast, even while a dialog traps focus. Pressed again, return focus to where <kbd>F6</kbd> brought it from, or leave the toasts if nothing was focused; when focus came another way, the browser handles it.
 - <kbd>Esc</kbd>: After <kbd>F6</kbd> moves focus to the toasts, return it to where it was without closing an open dialog.
 
 When the toast that holds keyboard focus closes, focus moves to the next older toast at the same placement, or the newer one if it was the oldest. With no other toast at that placement, or after a pointer interaction, focus returns to the element focused before it entered the toasts.

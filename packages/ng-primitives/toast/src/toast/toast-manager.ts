@@ -241,8 +241,11 @@ export class NgpToastManager {
 
       event.preventDefault();
       container.focus({ preventScroll: true });
-      // after focus(): its focusin records an entry that is not an F6 one. With nothing to return
-      // to (focus was on the body), a second F6 is left to the browser.
+      // after focus(): its focusin records an entry that is not an F6 one. From nothing focused it
+      // has no related target to record, so keep the body: F6 again then leaves the toasts.
+      if (!focused) {
+        this.focusBeforeToasts ??= this.document.body;
+      }
       this.enteredWithF6 = this.focusBeforeToasts !== null;
     };
 
@@ -328,7 +331,10 @@ export class NgpToastManager {
     this.focusBeforeToasts = null;
     this.enteredWithF6 = false;
 
-    if (target?.isConnected) {
+    // Nothing had focus before: `body.focus()` would leave focus where it is, so blur instead.
+    if (target === this.document.body) {
+      (this.document.activeElement as HTMLElement | null)?.blur();
+    } else if (target?.isConnected) {
       target.focus({ preventScroll: true });
     }
   }

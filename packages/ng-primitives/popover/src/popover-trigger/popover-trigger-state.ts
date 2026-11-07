@@ -31,6 +31,7 @@ import {
   onDestroy,
   StateInjectionOptions,
 } from 'ng-primitives/state';
+import { uniqueId } from 'ng-primitives/utils';
 
 export interface NgpPopoverTriggerState<T> {
   /** Access the trigger element. */
@@ -335,13 +336,17 @@ export const [
 
     const overlay = signal<NgpOverlay<T> | null>(null);
     const open = computed(() => overlay()?.isOpen() ?? false);
+    const expanded = computed(() => open() && !overlay()?.isClosing());
 
     // Two show() calls inside the show delay both settle when that single open
     // completes, so track what has been announced rather than what was open per call.
     let announcedOpen = false;
 
     // Host binding
-    attrBinding(elementRef, 'aria-expanded', () => (open() ? 'true' : 'false'));
+    // the popover is named by its trigger, so the trigger needs an id; the consumer's own is kept
+    const fallbackId = uniqueId('ngp-popover-trigger');
+    attrBinding(elementRef, 'id', () => elementRef.nativeElement.id || fallbackId);
+    attrBinding(elementRef, 'aria-expanded', () => (expanded() ? 'true' : 'false'));
     // the popover is a focus-trapped, dialog-like overlay, so advertise the popup type
     attrBinding(elementRef, 'aria-haspopup', 'dialog');
     attrBinding(elementRef, 'aria-describedby', () => overlay()?.ariaDescribedBy());
@@ -417,11 +422,11 @@ export const [
       if (open()) {
         hide(origin);
       } else {
-        show();
+        show(true);
       }
     }
 
-    async function show(): Promise<void> {
+    async function show(fromTriggerPress = false): Promise<void> {
       // If the trigger is disabled, don't show the popover
       if (disabled()) {
         return;
@@ -433,7 +438,7 @@ export const [
       }
 
       // Show the overlay
-      await overlay()?.show();
+      await overlay()?.show({ fromTriggerPress });
 
       // Only announce an actual transition - show() also resolves when the popover was
       // already open, or when a concurrent call opened it first.
