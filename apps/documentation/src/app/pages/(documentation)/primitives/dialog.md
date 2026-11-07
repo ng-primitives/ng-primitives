@@ -78,6 +78,10 @@ Use dismiss guards to prevent a dialog from closing when there are unsaved chang
 
 <docs-example name="dialog-dismiss-guard"></docs-example>
 
+### Handling Escape inside the dialog
+
+A control inside the dialog that uses Escape itself, such as an inline-edit field that reverts its value, claims the key with `claimEscapeKey` from `ng-primitives/portal` so the dialog stays open. A claim only applies to Escape pressed inside the topmost overlay and skips `closeOnEscape` guards. The [Popover](/primitives/popover) page has an example; it works the same for every overlay.
+
 ### Dialog with external data
 
 Data can be passed to the dialog using the `NgpDialogManager`.
@@ -256,6 +260,8 @@ passed to `NgpDialogManager.open()`.
 ## Accessibility
 
 Adheres to the [WAI-ARIA design pattern](https://www.w3.org/WAI/ARIA/apg/patterns/dialog-modal/examples/dialog/).
+
+Add `autofocus` to one or more usable elements to focus the first one when the dialog opens; otherwise the first tabbable element is focused, or the dialog itself if there is none. If focus is already inside the dialog when it opens, it stays there and `autofocus` is ignored.
 
 ### Keyboard Interactions
 

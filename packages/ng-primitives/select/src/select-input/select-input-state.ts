@@ -62,7 +62,11 @@ export const [
     attrBinding(elementRef, 'id', id);
 
     // Dynamic host bindings
-    attrBinding(elementRef, 'aria-expanded', () => selectState().open());
+    attrBinding(
+      elementRef,
+      'aria-expanded',
+      () => selectState().open() && !selectState().overlay()?.isClosing(),
+    );
     attrBinding(elementRef, 'aria-controls', () => {
       if (!selectState().open()) {
         return undefined;
