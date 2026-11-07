@@ -120,6 +120,21 @@ Add `ngpSelectInput` inside the dropdown to provide a search field. Filtering is
 
 <docs-example name="select-input"></docs-example>
 
+### Modal
+
+By default a click outside the open dropdown closes it and also reaches what is underneath: a button fires, a link navigates. Set `ngpSelectDropdownModal` to make the rest of the page `inert` while the dropdown is open, so a click outside only closes the dropdown.
+
+```html
+<div ngpSelect ngpSelectDropdownModal>...</div>
+```
+
+- The select stays usable, so clicking it again closes the dropdown.
+- An outside click closes the topmost modal overlay only, one layer at a time. A click fired from code, such as `element.click()` or a test's `fireEvent.click`, does not close it.
+- The document still scrolls. Any other scroll container, such as the `<main>` of an app shell, is `inert` and does not scroll with the wheel.
+- Toasts stay usable. Add the `data-ngp-modal-exempt` attribute to any other element that must stay usable, such as the container of a third-party overlay library.
+
+End-to-end tests that click something outside an open modal select have to close it first: the target is `inert`, so a Playwright click waits for it to take pointer events and times out.
+
 ## API Reference
 
 The following directives are available to import from the `ng-primitives/select` package:
@@ -196,6 +211,7 @@ bootstrapApplication(AppComponent, {
       container: document.body,
       flip: true,
       offset: 4,
+      modal: false,
     }),
   ],
 });
@@ -210,6 +226,8 @@ bootstrapApplication(AppComponent, {
 The select primitive follows the [WAI-ARIA Combobox pattern](https://www.w3.org/WAI/ARIA/apg/patterns/combobox/). The trigger uses `role="combobox"` with `aria-expanded` and `aria-controls`. The dropdown uses `role="listbox"` (with `aria-multiselectable` reflecting `ngpSelectMultiple`) and options use `role="option"` with `aria-selected`. Focus is managed using `aria-activedescendant`.
 
 When a search input (`ngpSelectInput`) is used, the combobox semantics move to the input, which receives focus when the dropdown opens. The dropdown becomes a `dialog` wrapping the input and an `ngpSelectList` (`role="listbox"`), and the input drives the options via `aria-activedescendant` and `aria-controls`. Naming is left to the consumer, so add an `aria-label` (or `aria-labelledby`) to both the dropdown dialog and the list.
+
+A modal select makes the rest of the page `inert` while the dropdown is open, so screen readers only reach the select and its dropdown. Elements with `data-ngp-modal-exempt`, such as the toast region, and `aria-live` regions placed directly in `<body>` stay reachable. A live region nested in the page, such as a form error, is `inert` too while the dropdown is open.
 
 ### Keyboard Interactions
 
