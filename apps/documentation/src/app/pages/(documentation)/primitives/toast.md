@@ -169,3 +169,8 @@ bootstrapApplication(AppComponent, {
 For screen reader announcements, ensure your toast container includes `role="status"` or `role="alert"` with `aria-live="polite"` so that new toasts are announced to assistive technology users.
 
 The auto-dismiss timer pauses while the pointer is over the toasts or focus is inside them, so a keyboard user can reach a toast's actions before it closes. It resumes once both have left, unless the toast is paused for another reason: it is `persistent`, a pointer is pressed on it, or it is behind another toast with `sequential`.
+
+### Keyboard Interactions
+
+- <kbd>F6</kbd>: Move focus to the region holding the newest toast, even while a dialog traps focus. Pressed again, return focus to where it was, if focus entered the toasts with <kbd>F6</kbd>; otherwise the browser handles it.
+- <kbd>Esc</kbd>: After <kbd>F6</kbd> moves focus to the toasts, return it to where it was without closing an open dialog.

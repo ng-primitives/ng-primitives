@@ -406,6 +406,7 @@ export const [NgpSelectStateToken, ngpSelect, _injectSelectState, provideSelectS
 
       const overlay = computed(() => portal()?.overlay());
       const open = computed(() => overlay()?.isOpen() ?? false);
+      const expanded = computed(() => open() && !overlay()?.isClosing());
 
       const sortedOptions = computed(() =>
         domSort(
@@ -447,7 +448,7 @@ export const [NgpSelectStateToken, ngpSelect, _injectSelectState, provideSelectS
       // Host bindings
       attrBinding(elementRef, 'role', () => (input() ? null : 'combobox'));
       attrBinding(elementRef, 'id', id);
-      attrBinding(elementRef, 'aria-expanded', () => (input() ? undefined : open()));
+      attrBinding(elementRef, 'aria-expanded', () => (input() ? undefined : expanded()));
       attrBinding(elementRef, 'aria-controls', () =>
         input() ? undefined : open() ? (list()?.id() ?? dropdown()?.id()) : undefined,
       );
