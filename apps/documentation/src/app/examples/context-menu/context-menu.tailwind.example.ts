@@ -10,8 +10,9 @@ import {
   imports: [NgpContextMenu, NgpContextMenuTrigger, NgpContextMenuItem],
   template: `
     <div
-      class="flex h-[150px] w-[300px] items-center justify-center rounded-lg border-2 border-dashed border-gray-300 text-sm text-gray-500 select-none dark:border-gray-600 dark:text-gray-400"
+      class="flex h-[150px] w-[300px] items-center justify-center rounded-lg border-2 border-dashed border-gray-300 text-sm text-gray-500 outline-hidden select-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500 focus-visible:outline-solid dark:border-gray-600 dark:text-gray-400 dark:focus-visible:outline-blue-400"
       [ngpContextMenuTrigger]="menu"
+      tabindex="0"
     >
       Right-click me
     </div>

@@ -7,7 +7,7 @@ import { ContextMenuItem } from './context-menu-item';
   selector: 'app-context-menu-example',
   imports: [ContextMenu, NgpContextMenuTrigger, ContextMenuItem],
   template: `
-    <div [ngpContextMenuTrigger]="menu">Right-click me</div>
+    <div [ngpContextMenuTrigger]="menu" tabindex="0">Right-click me</div>
 
     <ng-template #menu>
       <app-context-menu>
@@ -29,6 +29,12 @@ import { ContextMenuItem } from './context-menu-item';
       color: var(--ngp-text-secondary);
       font-size: 14px;
       user-select: none;
+      outline: none;
+    }
+
+    [ngpContextMenuTrigger]:focus-visible {
+      outline: 2px solid var(--ngp-focus-ring);
+      outline-offset: 2px;
     }
   `,
 })
