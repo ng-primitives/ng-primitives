@@ -329,6 +329,19 @@ describe('NgpMenuItemShortcut', () => {
     );
   });
 
+  it('keeps the shortcut when the aria-describedby the consumer binds changes', async () => {
+    const { fixture } = await render(MenuComponent);
+    await openMenu();
+    const describedBy = () => byId('rename').getAttribute('aria-describedby')?.split(' ').sort();
+    await waitFor(() => expect(describedBy()).toEqual(['delete-hint', 'rename-keys']));
+
+    fixture.componentInstance.hint.set('delete-hint-2');
+    await waitFor(() => expect(describedBy()).toEqual(['delete-hint-2', 'rename-keys']));
+
+    fixture.componentInstance.hint.set(null);
+    await waitFor(() => expect(describedBy()).toEqual(['rename-keys']));
+  });
+
   it('lists keys two shortcuts share once and keeps them when one goes', async () => {
     const { fixture } = await render(MenuComponent);
     await openMenu();

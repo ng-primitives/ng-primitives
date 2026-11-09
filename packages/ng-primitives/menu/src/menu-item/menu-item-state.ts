@@ -1,9 +1,9 @@
 import { FocusOrigin } from '@angular/cdk/a11y';
-import { inject, Injector, signal, Signal } from '@angular/core';
+import { computed, inject, Injector, signal, Signal } from '@angular/core';
 import { ngpButton } from 'ng-primitives/button';
-import { injectElementRef } from 'ng-primitives/internal';
+import { fromMutationObserver, injectElementRef } from 'ng-primitives/internal';
 import { attrBinding, createPrimitive, listener } from 'ng-primitives/state';
-import { onChange } from 'ng-primitives/utils';
+import { onChange, safeTakeUntilDestroyed } from 'ng-primitives/utils';
 import { injectMenuState } from '../menu/menu-state';
 import { NgpSubmenuTrigger } from '../submenu-trigger/submenu-trigger';
 
@@ -159,15 +159,33 @@ export const [NgpMenuItemStateToken, ngpMenuItem, injectMenuItemState, provideMe
  * leaves the attribute alone.
  */
 function addTokens(element: HTMLElement, attr: string, tokens: Signal<string[]>): void {
-  onChange(tokens, (current, previous) => {
+  function merge(current: string[], previous: readonly string[]): void {
     const value = element.getAttribute(attr);
-    const others = (value ?? '').split(' ').filter(token => token && !previous?.includes(token));
+    const others = (value ?? '').split(' ').filter(token => token && !previous.includes(token));
     const next = [...new Set([...others, ...current])].filter(Boolean).join(' ');
+
+    if (next === (value ?? '')) {
+      return;
+    }
 
     if (next) {
       element.setAttribute(attr, next);
     } else {
       element.removeAttribute(attr);
     }
-  });
+  }
+
+  onChange(tokens, (current, previous) => merge(current, previous ?? []));
+
+  // A binding of the consumer writes the whole attribute when its value changes.
+  fromMutationObserver(element, {
+    attributes: true,
+    disabled: computed(() => tokens().length === 0),
+  })
+    .pipe(safeTakeUntilDestroyed())
+    .subscribe(mutations => {
+      if (mutations.some(mutation => mutation.attributeName === attr)) {
+        merge(tokens(), tokens());
+      }
+    });
 }
