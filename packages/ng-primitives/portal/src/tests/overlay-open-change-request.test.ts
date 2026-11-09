@@ -233,6 +233,55 @@ describe('NgpOverlay requestOpenChange', () => {
     expect(document.activeElement).toBe(fixture.componentInstance.trigger().nativeElement);
   });
 
+  describe('when the owner commits a declined reopen before the exit animation ends', () => {
+    async function commitDuringExit() {
+      const { fixture } = await render(OverlayHost);
+      const owner = boundOwner(true);
+      overlay = fixture.componentInstance.create(owner.requestOpenChange);
+      (document.activeElement as HTMLElement | null)?.blur();
+      await overlay.show();
+
+      const element = document.querySelector<HTMLElement>('[data-testid="overlay"]')!;
+      element.getAnimations = () => [pendingAnimation()];
+      owner.open = false;
+      overlay.hide({ immediate: true });
+
+      await overlay.show({ fromTriggerPress: true });
+      owner.open = true;
+      await overlay.show({ immediate: true });
+      element.getAnimations = () => [];
+
+      return { owner, trigger: fixture.componentInstance.trigger().nativeElement };
+    }
+
+    it('returns focus to the trigger whose press asked for it', async () => {
+      const { owner, trigger } = await commitDuringExit();
+      expect(overlay!.isOpen()).toBe(true);
+
+      owner.open = false;
+      overlay!.hide({ origin: 'mouse', immediate: true });
+
+      await waitFor(() => expect(overlay!.isOpen()).toBe(false));
+      expect(document.activeElement).toBe(trigger);
+    });
+
+    it('does not carry the press into a later open', async () => {
+      const { owner } = await commitDuringExit();
+      owner.open = false;
+      overlay!.hide({ immediate: true });
+      await waitFor(() => expect(overlay!.isOpen()).toBe(false));
+      (document.activeElement as HTMLElement | null)?.blur();
+
+      owner.open = true;
+      await overlay!.show({ immediate: true });
+      owner.open = false;
+      overlay!.hide({ origin: 'mouse', immediate: true });
+
+      await waitFor(() => expect(overlay!.isOpen()).toBe(false));
+      expect(document.activeElement).toBe(document.body);
+    });
+  });
+
   it('asks before cancelling an exit animation that is already running', async () => {
     const { fixture } = await render(OverlayHost);
     const owner = boundOwner(true);
