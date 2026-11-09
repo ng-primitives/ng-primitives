@@ -63,6 +63,13 @@ export class NgpToastManager {
     const duration = options.duration ?? this.config.duration;
     const container = this.getOrCreateContainer(placement);
 
+    // Emptying the container cleared its hover, and Safari fires no new mouseenter when a toast
+    // appears under a pointer that never left it.
+    const isEmpty = !this.toasts().some(t => t.instance.options.placement === placement);
+    if (isEmpty && container.matches(':hover')) {
+      this.hovered.update(placements => [...without(placements, placement), placement]);
+    }
+
     const portal = createPortal(
       toast,
       viewContainerRef,

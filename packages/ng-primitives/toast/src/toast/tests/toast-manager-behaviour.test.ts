@@ -8,6 +8,7 @@ import {
   provideToastConfig,
 } from 'ng-primitives/toast';
 import { afterEach, describe, expect, it, vi } from 'vitest';
+import { userEvent } from 'vitest/browser';
 
 interface ToastContext {
   label: string;
@@ -294,6 +295,33 @@ describe('NgpToastManager behaviour', () => {
 
       host.show('B');
       await waitFor(() => expect(toastWithLabel('B')).toHaveAttribute('data-expanded', 'false'));
+    });
+
+    it('keeps a placement expanded when its next toast appears under a pointer still over it', async () => {
+      // styled to keep its size once empty, so the pointer never leaves it (only WebKit then fires no mouseenter)
+      const style = document.head.appendChild(document.createElement('style'));
+      style.textContent = '[data-ngp-toast-container] { min-width: 200px; min-height: 80px; }';
+      const corner = document.body.appendChild(document.createElement('div'));
+      corner.style.cssText = 'position: fixed; left: 0; bottom: 0; width: 4px; height: 4px;';
+
+      try {
+        const host = await renderHost({ duration: 100 });
+        host.show('A');
+        await waitFor(() => expect(toasts().length).toBe(1));
+        await userEvent.hover(containers()[0]);
+        await waitFor(() => expect(toastWithLabel('A')).toHaveAttribute('data-expanded', 'true'));
+
+        toastWithLabel('A').querySelector<HTMLButtonElement>('.dismiss')!.click();
+        await waitFor(() => expect(toasts().length).toBe(0));
+
+        host.show('B');
+        await waitFor(() => expect(toastWithLabel('B')).toHaveAttribute('data-expanded', 'true'));
+      } finally {
+        // the pointer keeps its position across test files: park it where nothing renders
+        await userEvent.hover(corner);
+        corner.remove();
+        style.remove();
+      }
     });
   });
 
