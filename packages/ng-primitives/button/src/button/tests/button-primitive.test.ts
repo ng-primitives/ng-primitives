@@ -743,6 +743,17 @@ describe('NgpButtonAnnouncer', () => {
     expect(announcements()[0]).toHaveAccessibleName('Save changes');
   });
 
+  it('labels the announcement by the element when its aria-labelledby names nothing in the page', () => {
+    const { announcer, button } = setup();
+    button.setAttribute('aria-labelledby', 'ngp-missing-label');
+
+    announcer.announceName('ngp-announced-button');
+    vi.advanceTimersByTime(100);
+
+    expect(announcements()[0]).toHaveAttribute('aria-labelledby', 'ngp-announced-button');
+    expect(announcements()[0]).toHaveAccessibleName('Save');
+  });
+
   it('runs its timers outside the Angular zone', () => {
     const { announcer } = setup();
     const runOutsideAngular = vi.spyOn(TestBed.inject(NgZone), 'runOutsideAngular');

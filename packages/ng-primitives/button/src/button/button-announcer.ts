@@ -57,8 +57,12 @@ export class NgpButtonAnnouncer {
     const node = this.document.createElement('div');
     // `aria-labelledby` is not allowed on a generic element, so give the node a role that takes a name.
     node.setAttribute('role', 'img');
-    // Accessible name computation follows one `aria-labelledby` hop, not a second one.
-    node.setAttribute('aria-labelledby', element.getAttribute('aria-labelledby') || id);
+    // Accessible name computation follows one `aria-labelledby` hop, not a second one. Without a
+    // label in the page, the element is named by its content instead.
+    const labelIds = (element.getAttribute('aria-labelledby') ?? '')
+      .split(/\s+/)
+      .filter(labelId => this.document.getElementById(labelId));
+    node.setAttribute('aria-labelledby', labelIds.join(' ') || id);
     this.region.appendChild(node);
     this.schedule(() => node.remove(), ANNOUNCEMENT_TIMEOUT);
   }
