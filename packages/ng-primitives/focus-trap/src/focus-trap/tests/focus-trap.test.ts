@@ -108,6 +108,33 @@ class TestFocusTrapWithNegativeTabIndexComponent {}
 class TestFocusTrapUnfocusableEdgesComponent {}
 
 @Component({
+  selector: 'test-focus-trap-single-enabled-control',
+  imports: [NgpFocusTrap],
+  template: `
+    <div ngpFocusTrap data-testid="focus-trap">
+      <button disabled>Close</button>
+      <button data-testid="only">Delete</button>
+      <button disabled>Cancel</button>
+    </div>
+  `,
+})
+class TestFocusTrapSingleEnabledControlComponent {}
+
+@Component({
+  selector: 'test-focus-trap-anchor-edges',
+  imports: [NgpFocusTrap],
+  template: `
+    <div ngpFocusTrap data-testid="focus-trap">
+      <a>Placeholder link</a>
+      <button data-testid="first">First</button>
+      <button data-testid="last">Last</button>
+      <a>Placeholder link</a>
+    </div>
+  `,
+})
+class TestFocusTrapAnchorEdgesComponent {}
+
+@Component({
   selector: 'test-focus-trap-inert-modal-dialog',
   imports: [NgpFocusTrap],
   template: `
@@ -947,6 +974,31 @@ describe('Tabbable candidate filtering', () => {
     first.focus();
     const tabNotPrevented = fireEvent.keyDown(first, { key: 'Tab', shiftKey: true });
     expect(tabNotPrevented).toBe(false);
+    expect(last).toHaveFocus();
+  });
+
+  it('should keep focus on the one enabled control between disabled ones', async () => {
+    const { getByTestId } = await render(TestFocusTrapSingleEnabledControlComponent);
+    const only = getByTestId('only');
+
+    only.focus();
+    expect(fireEvent.keyDown(only, { key: 'Tab' })).toBe(false);
+    expect(only).toHaveFocus();
+
+    expect(fireEvent.keyDown(only, { key: 'Tab', shiftKey: true })).toBe(false);
+    expect(only).toHaveFocus();
+  });
+
+  it('should wrap Tab past links without an href at the edges of the trap', async () => {
+    const { getByTestId } = await render(TestFocusTrapAnchorEdgesComponent);
+    const first = getByTestId('first');
+    const last = getByTestId('last');
+
+    last.focus();
+    expect(fireEvent.keyDown(last, { key: 'Tab' })).toBe(false);
+    expect(first).toHaveFocus();
+
+    expect(fireEvent.keyDown(first, { key: 'Tab', shiftKey: true })).toBe(false);
     expect(last).toHaveFocus();
   });
 

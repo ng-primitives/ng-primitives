@@ -341,12 +341,13 @@ export const [NgpFocusTrapStateToken, ngpFocusTrap, injectFocusTrapState, provid
         // nearest modal around focus is taken as the topmost, which misreads a modal shown after
         // one nested inside it.
         const activeModal = getModalDialogAncestor(focusedElement);
-        // `isTabbable()` checks neither `disabled` nor `inert`, and `isVisible()` misses collapsed
-        // content, such as a closed `<details>`, which `checkVisibility()` catches. The visibility
-        // checks read layout, so the scan stops at the first match from each end. Unlike
-        // `[disabled]`, `:disabled` also matches a control in a disabled `<fieldset>`.
+        // `isTabbable()` checks neither `disabled` nor `inert`, accepts a link without an `href`
+        // that Tab skips, and `isVisible()` misses collapsed content, such as a closed `<details>`,
+        // which `checkVisibility()` catches. The visibility checks read layout, so the scan stops
+        // at the first match from each end. Unlike `[disabled]`, `:disabled` also matches a
+        // control in a disabled `<fieldset>`.
         const canTakeFocus = (candidate: HTMLElement) =>
-          !candidate.matches(':disabled') &&
+          !candidate.matches(':disabled, a:not([href]):not([tabindex])') &&
           !isInert(candidate, activeModal) &&
           interactivityChecker.isVisible(candidate) &&
           candidate.checkVisibility?.() !== false;
