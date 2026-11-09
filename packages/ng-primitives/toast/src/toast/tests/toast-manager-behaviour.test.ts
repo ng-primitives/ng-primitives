@@ -305,7 +305,7 @@ describe('NgpToastManager behaviour', () => {
       corner.style.cssText = 'position: fixed; left: 0; bottom: 0; width: 4px; height: 4px;';
 
       try {
-        const host = await renderHost({ duration: 100 });
+        const host = await renderHost({ persistent: true });
         host.show('A');
         await waitFor(() => expect(toasts().length).toBe(1));
         await userEvent.hover(containers()[0]);
