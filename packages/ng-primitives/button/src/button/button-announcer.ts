@@ -1,5 +1,5 @@
 import { DOCUMENT } from '@angular/common';
-import { DestroyRef, inject, Injectable } from '@angular/core';
+import { DestroyRef, inject, Injectable, NgZone } from '@angular/core';
 
 /** How long an announcement stays in the live region before it is removed. */
 const ANNOUNCEMENT_TIMEOUT = 7000;
@@ -10,14 +10,15 @@ const NEW_REGION_DELAY = 100;
 /**
  * Announces an element's accessible name through an assertive live region.
  *
- * The announcement is a node with `aria-labelledby` pointing at the element, so the
- * screen reader computes the name itself (`aria-label`, `aria-labelledby`, content)
+ * The announcement is a node with `aria-labelledby` pointing at the element, or at what names
+ * it when it is named by `aria-labelledby`, so the screen reader computes the name itself
  * instead of reading a string we derive from the DOM.
  * @internal
  */
 @Injectable({ providedIn: 'root' })
 export class NgpButtonAnnouncer {
   private readonly document = inject(DOCUMENT);
+  private readonly ngZone = inject(NgZone);
   private region: HTMLElement | null = null;
   /** Ids announced while a new region is still being registered, in call order. */
   private queue: string[] | null = null;
@@ -48,14 +49,16 @@ export class NgpButtonAnnouncer {
   private append(id: string): void {
     // The element can leave the DOM before the append runs (e.g. a dialog closing as its
     // request ends); a node labelled by a missing id would be read as an unnamed image.
-    if (!this.region || !this.document.getElementById(id)) {
+    const element = this.document.getElementById(id);
+    if (!this.region || !element) {
       return;
     }
 
     const node = this.document.createElement('div');
     // `aria-labelledby` is not allowed on a generic element, so give the node a role that takes a name.
     node.setAttribute('role', 'img');
-    node.setAttribute('aria-labelledby', id);
+    // Accessible name computation follows one `aria-labelledby` hop, not a second one.
+    node.setAttribute('aria-labelledby', element.getAttribute('aria-labelledby') || id);
     this.region.appendChild(node);
     this.schedule(() => node.remove(), ANNOUNCEMENT_TIMEOUT);
   }
@@ -86,11 +89,15 @@ export class NgpButtonAnnouncer {
     }, NEW_REGION_DELAY);
   }
 
+  // The callbacks only touch the live region, so they need no change detection, and a zone app
+  // would otherwise stay unstable until the announcement is removed.
   private schedule(callback: () => void, delay: number): void {
-    const timeout = setTimeout(() => {
-      this.timeouts.delete(timeout);
-      callback();
-    }, delay);
+    const timeout = this.ngZone.runOutsideAngular(() =>
+      setTimeout(() => {
+        this.timeouts.delete(timeout);
+        callback();
+      }, delay),
+    );
     this.timeouts.add(timeout);
   }
 }

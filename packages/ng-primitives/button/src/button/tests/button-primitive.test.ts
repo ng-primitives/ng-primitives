@@ -1,5 +1,5 @@
 import { FocusMonitor } from '@angular/cdk/a11y';
-import { Component, input, signal } from '@angular/core';
+import { Component, Directive, ElementRef, inject, input, NgZone, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { fireEvent, render } from '@testing-library/angular';
@@ -633,6 +633,41 @@ describe('NgpButton pending', () => {
 
     expect(announcements()).toHaveLength(0);
   });
+
+  it('cancels the click before a listener added earlier on the same element', async () => {
+    @Directive()
+    class ClickCounter {
+      clicks = 0;
+
+      constructor() {
+        inject<ElementRef<HTMLElement>>(ElementRef).nativeElement.addEventListener(
+          'click',
+          () => this.clicks++,
+        );
+      }
+    }
+
+    // a directive listed before NgpButton registers its click listener first
+    @Component({
+      selector: 'button[appPendingButton]',
+      hostDirectives: [
+        ClickCounter,
+        { directive: NgpButton, inputs: ['ngpButtonPending: pending'] },
+      ],
+      template: 'Save',
+    })
+    class PendingButton {
+      readonly counter = inject(ClickCounter);
+    }
+
+    const view = await render(`<button appPendingButton pending></button>`, {
+      imports: [PendingButton],
+    });
+    view.getByRole('button').click();
+
+    const button = view.fixture.debugElement.query(By.directive(PendingButton));
+    expect(button.injector.get(PendingButton).counter.clicks).toBe(0);
+  });
 });
 
 describe('NgpButtonAnnouncer', () => {
@@ -691,5 +726,31 @@ describe('NgpButtonAnnouncer', () => {
       'ngp-announced-button',
       'ngp-announced-other',
     ]);
+  });
+
+  it('labels the announcement by what names an element named by aria-labelledby', () => {
+    const { announcer, button } = setup();
+    const label = document.body.appendChild(document.createElement('span'));
+    label.id = 'ngp-announced-label';
+    label.textContent = 'Save changes';
+    onTestFinished(() => label.remove());
+    button.setAttribute('aria-labelledby', 'ngp-announced-label');
+
+    announcer.announceName('ngp-announced-button');
+    vi.advanceTimersByTime(100);
+
+    expect(announcements()[0]).toHaveAttribute('aria-labelledby', 'ngp-announced-label');
+    expect(announcements()[0]).toHaveAccessibleName('Save changes');
+  });
+
+  it('runs its timers outside the Angular zone', () => {
+    const { announcer } = setup();
+    const runOutsideAngular = vi.spyOn(TestBed.inject(NgZone), 'runOutsideAngular');
+
+    announcer.announceName('ngp-announced-button');
+    vi.advanceTimersByTime(100);
+
+    // one for the new region's delay, one for removing the announcement
+    expect(runOutsideAngular).toHaveBeenCalledTimes(2);
   });
 });
