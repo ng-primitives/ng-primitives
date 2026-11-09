@@ -334,18 +334,19 @@ export const [
     });
 
     // Runs after render, so a bound or default open never runs during server rendering.
-    let rendered = false;
+    let defaultOpenApplied = false;
     afterRenderEffect(() => {
       const bound = _open?.();
-      // Tracked so that a binding already `true` opens once the content arrives.
+      // Tracked so that a binding already `true`, or `defaultOpen`, opens once the content arrives.
       const hasContent = !!menu();
-      const firstRender = !rendered;
-      rendered = true;
+      // `defaultOpen` applies to the first render that has content, never again.
+      const applyDefaultOpen = hasContent && !defaultOpenApplied;
+      defaultOpenApplied ||= hasContent;
 
       untracked(() => {
         if (bound === false) {
           closeOverlay({ immediate: true });
-        } else if (hasContent && (bound === true || (firstRender && defaultOpen()))) {
+        } else if (hasContent && (bound === true || (applyDefaultOpen && defaultOpen()))) {
           openOverlay();
         }
       });

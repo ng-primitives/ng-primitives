@@ -146,6 +146,22 @@ class DefaultOpenSwapComponent {
 
 @Component({
   template: `
+    <button [ngpMenuTrigger]="loaded() ? menu : undefined" ngpMenuTriggerDefaultOpen>
+      Trigger
+    </button>
+
+    <ng-template #menu>
+      <div ngpMenu data-testid="menu"><button ngpMenuItem>Rename</button></div>
+    </ng-template>
+  `,
+  imports: [NgpMenuTrigger, NgpMenu, NgpMenuItem],
+})
+class DefaultOpenLateContentComponent {
+  readonly loaded = signal(false);
+}
+
+@Component({
+  template: `
     <button
       [ngpMenuTrigger]="menu"
       [ngpMenuTriggerOpen]="true"
@@ -587,6 +603,26 @@ describe('NgpMenuTrigger open binding, interactions', () => {
     await waitFor(() => expect(present('menu')).toBe(false));
 
     fixture.componentInstance.alternate.set(true);
+    fixture.detectChanges();
+    await settle();
+
+    expect(present('menu')).toBe(false);
+  });
+
+  it('opens for defaultOpen once content arrives after the first render, and only once', async () => {
+    const { fixture } = await render(DefaultOpenLateContentComponent);
+    await settle();
+    expect(present('menu')).toBe(false);
+
+    fixture.componentInstance.loaded.set(true);
+    fixture.detectChanges();
+    await waitFor(() => expect(present('menu')).toBe(true));
+
+    fireEvent.keyDown(byId('menu'), { key: 'Escape' });
+    await waitFor(() => expect(present('menu')).toBe(false));
+    fixture.componentInstance.loaded.set(false);
+    fixture.detectChanges();
+    fixture.componentInstance.loaded.set(true);
     fixture.detectChanges();
     await settle();
 
