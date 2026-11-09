@@ -9,7 +9,7 @@ import {
   ViewContainerRef,
 } from '@angular/core';
 import { render, waitFor } from '@testing-library/angular';
-import { afterEach, describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, onTestFinished } from 'vitest';
 import { createOverlay, NgpOverlay, NgpOverlayConfig } from '../overlay';
 
 @Component({
@@ -179,6 +179,24 @@ describe('NgpOverlay requestOpenChange', () => {
 
     owner.open = false;
     overlay.hide({ immediate: true });
+
+    await waitFor(() => expect(overlay!.isOpen()).toBe(false));
+    expect(document.activeElement).toBe(fixture.componentInstance.trigger().nativeElement);
+  });
+
+  it('does not carry a declined outside press into a later close of its own', async () => {
+    const { fixture } = await render(OverlayHost);
+    const owner = boundOwner(true);
+    overlay = fixture.componentInstance.create(owner.requestOpenChange);
+    await overlay.show();
+    const outside = document.body.appendChild(document.createElement('button'));
+    onTestFinished(() => outside.remove());
+
+    overlay.hide({ origin: 'mouse', outsidePressTarget: outside, immediate: true });
+    expect(overlay.isOpen()).toBe(true);
+
+    owner.open = false;
+    overlay.hide({ origin: 'keyboard', immediate: true });
 
     await waitFor(() => expect(overlay!.isOpen()).toBe(false));
     expect(document.activeElement).toBe(fixture.componentInstance.trigger().nativeElement);

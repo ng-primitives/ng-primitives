@@ -909,9 +909,10 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
         this.closing.next();
       }
 
-      const origin = options?.origin ?? this.declinedClose?.origin ?? 'program';
-      const outsidePressTarget =
-        options?.outsidePressTarget ?? this.declinedClose?.outsidePressTarget;
+      // A new dismissal brings its own origin; the owner committing a declined close does not.
+      const close = options?.origin ? options : { ...this.declinedClose, ...options };
+      const origin = close.origin ?? 'program';
+      const outsidePressTarget = close.outsidePressTarget;
       this.declinedClose = null;
 
       // Update the close origin signal so computed signals can react
