@@ -1,4 +1,4 @@
-import { Component, input } from '@angular/core';
+import { Component, CUSTOM_ELEMENTS_SCHEMA, input } from '@angular/core';
 import { fireEvent, render, screen, waitFor } from '@testing-library/angular';
 import { NgpMenu, NgpMenuItem, NgpMenuTrigger } from 'ng-primitives/menu';
 import { NgpPlacement } from 'ng-primitives/portal';
@@ -119,6 +119,41 @@ class HiddenLastItemComponent {}
   imports: [NgpMenuTrigger, NgpMenu, NgpMenuItem],
 })
 class NoEnabledItemComponent {}
+
+/** A menu item that hands focus to a button in its shadow root. */
+class TestDelegatingMenuItemElement extends HTMLElement {
+  constructor() {
+    super();
+    this.attachShadow({ mode: 'open', delegatesFocus: true }).innerHTML =
+      '<button type="button">Archive</button>';
+  }
+}
+
+if (!customElements.get('test-delegating-menu-item')) {
+  customElements.define('test-delegating-menu-item', TestDelegatingMenuItemElement);
+}
+
+@Component({
+  template: `
+    <button
+      [ngpMenuTrigger]="menu"
+      [ngpMenuTriggerOpenTriggers]="['arrowkey']"
+      data-testid="trigger"
+    >
+      Actions
+    </button>
+
+    <ng-template #menu>
+      <div ngpMenu data-testid="menu">
+        <button ngpMenuItem data-testid="rename">Rename</button>
+        <test-delegating-menu-item ngpMenuItem data-testid="archive" />
+      </div>
+    </ng-template>
+  `,
+  imports: [NgpMenuTrigger, NgpMenu, NgpMenuItem],
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
+})
+class DelegatingLastItemComponent {}
 
 const byId = (id: string) => screen.getByTestId(id);
 const present = (id: string) => !!screen.queryByTestId(id);
@@ -261,5 +296,18 @@ describe('NgpMenuTrigger arrow keys', () => {
     await waitFor(() => expect(present('menu')).toBe(true));
     await new Promise(resolve => setTimeout(resolve, 50));
     expect(document.activeElement).not.toBe(byId('rename'));
+  });
+
+  it('keeps focus in a last item that delegates it to its shadow root', async () => {
+    await render(DelegatingLastItemComponent);
+
+    await press('ArrowUp');
+
+    await waitFor(() => expect(present('menu')).toBe(true));
+    await new Promise(resolve => setTimeout(resolve, 50));
+    expect(document.activeElement).toBe(byId('archive'));
+    expect(byId('archive').shadowRoot!.activeElement).toBe(
+      byId('archive').shadowRoot!.querySelector('button'),
+    );
   });
 });

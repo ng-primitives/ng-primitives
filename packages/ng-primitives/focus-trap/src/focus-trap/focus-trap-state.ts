@@ -459,7 +459,8 @@ export const [NgpFocusTrapStateToken, ngpFocusTrap, injectFocusTrapState, provid
       function focusInitialElement(): boolean {
         const target = initialFocus?.();
         focus(target ?? null);
-        return !!target && getFocusedElement() === target;
+        // a host that delegates focus hands it to a control in its own shadow root
+        return !!target && (getFocusedElement() === target || !!target.shadowRoot?.activeElement);
       }
 
       function focusFirst(): void {
