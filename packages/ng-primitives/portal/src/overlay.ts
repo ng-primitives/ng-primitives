@@ -713,6 +713,17 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
     });
   }
 
+  /** Cancel an open waiting for the show delay, and settle everyone who awaited it. */
+  private cancelScheduledOpen(): void {
+    if (!this.openTimeout) {
+      return;
+    }
+    this.openTimeout();
+    this.openTimeout = undefined;
+    this.pendingPress = null;
+    this.settlePendingShows();
+  }
+
   /**
    * Settle everyone who awaited a show that was already scheduled. Called both when the
    * open completes and when it is cancelled - the promise means "the show attempt has
@@ -804,11 +815,7 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
    */
   hide(options?: OverlayTriggerOptions): void {
     // If opening is in progress, cancel it
-    if (this.openTimeout) {
-      this.openTimeout();
-      this.openTimeout = undefined;
-      this.settlePendingShows();
-    }
+    this.cancelScheduledOpen();
 
     // Don't proceed if already closing or closed unless immediate is true
     if ((this.closeTimeout && !options?.immediate) || !this.isOpen()) {
@@ -1156,11 +1163,7 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
     }
 
     // Cancel any pending operations
-    if (this.openTimeout) {
-      this.openTimeout();
-      this.openTimeout = undefined;
-      this.settlePendingShows();
-    }
+    this.cancelScheduledOpen();
     if (this.closeTimeout) {
       this.closeTimeout();
       this.closeTimeout = undefined;
