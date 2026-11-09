@@ -58,21 +58,11 @@ export class NgpDialogManager implements OnDestroy {
   private readonly afterOpenedAtThisLevel = new Subject<NgpDialogRef>();
   private readonly hidingLayerAtThisLevel: NgpHidingLayer = {
     attribute: 'aria-hidden',
-    getElements: () => {
-      // Stacked modal dialogs all stay exposed, a non-modal one only above the top modal dialog.
-      let topModalIndex = -1;
-      this.openDialogs.forEach((dialog, index) => {
-        if (isModal(dialog.config)) {
-          topModalIndex = index;
-        }
-      });
-      const open = this.openDialogs.filter(
-        (dialog, index) => isModal(dialog.config) || index > topModalIndex,
-      );
-      // A closing dialog keeps focus until it detaches, so it stays exposed alongside the open ones.
-      const closing = [...this.closingDialogs].filter(dialog => isModal(dialog.config));
-      return [...open, ...closing].flatMap(dialog => dialog.getElements());
-    },
+    // A closing dialog keeps focus until it detaches, so it stays exposed alongside the open ones.
+    getElements: () =>
+      [...this.exposedOpenDialogs(), ...this.closingDialogs].flatMap(dialog =>
+        dialog.getElements(),
+      ),
   };
   private readonly closingDialogsAtThisLevel = new Set<NgpDialogRef>();
   private routerSubscription: Subscription | undefined;
@@ -97,11 +87,27 @@ export class NgpDialogManager implements OnDestroy {
       : this.hidingLayerAtThisLevel;
   }
 
-  /** Dialogs that have closed but are still in the DOM, running their exit animation. */
+  /**
+   * Dialogs that were exposed when they closed and are still in the DOM, running their exit
+   * animation.
+   */
   private get closingDialogs(): Set<NgpDialogRef> {
     return this.parentDialogManager
       ? this.parentDialogManager.closingDialogs
       : this.closingDialogsAtThisLevel;
+  }
+
+  /** Stacked modal dialogs all stay exposed, a non-modal one only above the top modal dialog. */
+  private exposedOpenDialogs(): NgpDialogRef[] {
+    let topModalIndex = -1;
+    this.openDialogs.forEach((dialog, index) => {
+      if (isModal(dialog.config)) {
+        topModalIndex = index;
+      }
+    });
+    return this.openDialogs.filter(
+      (dialog, index) => isModal(dialog.config) || index > topModalIndex,
+    );
   }
 
   /** Stream that emits when a dialog has been opened. */
@@ -246,7 +252,9 @@ export class NgpDialogManager implements OnDestroy {
       restoreFocus = isModal(config) || this.isFocusInDialog(dialogRef);
       // Deregister from the overlay registry immediately so stacking order is updated.
       this.registry.deregister(dialogRef.id);
-      this.closingDialogs.add(dialogRef);
+      if (this.exposedOpenDialogs().includes(dialogRef as NgpDialogRef)) {
+        this.closingDialogs.add(dialogRef);
+      }
       this.removeOpenDialog(dialogRef as NgpDialogRef<any, any>);
     });
 
