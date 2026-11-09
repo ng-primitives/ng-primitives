@@ -207,7 +207,8 @@ export class NgpOverlayRegistry {
     const visited = new Set<string>();
     for (let currentId: string | null = id; currentId && !visited.has(currentId); ) {
       visited.add(currentId);
-      const entry = this.entries.find(e => e.id === currentId) ?? this.closing.get(currentId);
+      const entry: Pick<NgpOverlayEntry, 'parentId' | 'cascadeClose'> | undefined =
+        this.entries.find(e => e.id === currentId) ?? this.closing.get(currentId);
       if (!entry || entry.cascadeClose === false) {
         return false;
       }
