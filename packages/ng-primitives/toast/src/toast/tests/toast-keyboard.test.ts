@@ -106,9 +106,15 @@ async function renderHost({ animationsEnabled = false } = {}) {
   return { host: view.fixture.componentInstance, getByTestId: view.getByTestId };
 }
 
-afterEach(() => {
+afterEach(async () => {
   // Toasts are portaled to document.body and outlive the fixture in browser mode.
   document.querySelectorAll('[data-ngp-toast-container]').forEach(c => c.remove());
+  // The pointer keeps its position across test files: park it where nothing renders, so a
+  // later file's toast container does not appear under it and pause its auto-dismiss.
+  const corner = document.body.appendChild(document.createElement('div'));
+  corner.style.cssText = 'position: fixed; right: 0; bottom: 0; width: 4px; height: 4px;';
+  await userEvent.hover(corner);
+  corner.remove();
 });
 
 describe('NgpToastManager keyboard access', () => {
