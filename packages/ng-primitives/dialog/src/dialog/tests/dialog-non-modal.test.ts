@@ -404,6 +404,60 @@ describe('Non-modal dialog', () => {
     expect(drawer.getElements()[0].closest('[aria-hidden="true"]')).toBeNull();
   });
 
+  it('keeps a non-modal dialog over a modal dialog exposed while it animates out', async () => {
+    const style = document.head.appendChild(document.createElement('style'));
+    style.textContent = `
+      @keyframes test-dialog-exit { from { opacity: 1; } to { opacity: 0; } }
+      [ngpDialog][data-exit] { animation: test-dialog-exit 300ms !important; }
+    `;
+
+    try {
+      await render(DefaultHost, { providers: [provideDialogConfig({ scrollStrategy })] });
+      const manager = TestBed.inject(NgpDialogManager);
+      const trigger = screen.getByTestId('open');
+      manager.open(PlainDialog);
+      const drawer = manager.open(EarlyDialog, { modal: false, triggerElement: trigger });
+      const drawerElement = await screen.findByTestId('early');
+
+      // switching drawers: the next one opens while the first is still animating out
+      drawer.close();
+      manager.open(PlainDialog, { modal: false, triggerElement: trigger });
+
+      expect(drawerElement.isConnected).toBe(true);
+      expect(drawerElement.closest('[aria-hidden="true"]')).toBeNull();
+    } finally {
+      style.remove();
+    }
+  });
+
+  it('keeps a non-modal dialog between two modal dialogs hidden while it animates out', async () => {
+    const style = document.head.appendChild(document.createElement('style'));
+    style.textContent = `
+      @keyframes test-dialog-exit { from { opacity: 1; } to { opacity: 0; } }
+      [ngpDialog][data-exit] { animation: test-dialog-exit 300ms !important; }
+    `;
+
+    try {
+      await render(DefaultHost, { providers: [provideDialogConfig({ scrollStrategy })] });
+      const manager = TestBed.inject(NgpDialogManager);
+      manager.open(PlainDialog);
+      const drawer = manager.open(EarlyDialog, {
+        modal: false,
+        triggerElement: screen.getByTestId('open'),
+      });
+      const drawerElement = await screen.findByTestId('early');
+      manager.open(PlainDialog);
+
+      drawer.close();
+      manager.open(PlainDialog);
+
+      expect(drawerElement.isConnected).toBe(true);
+      expect(drawerElement.closest('[aria-hidden="true"]')).not.toBeNull();
+    } finally {
+      style.remove();
+    }
+  });
+
   it('opens non-modal from the global configuration', async () => {
     await render(DefaultHost, {
       providers: [provideDialogConfig({ modal: false, scrollStrategy })],
