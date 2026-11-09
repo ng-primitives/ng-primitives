@@ -798,6 +798,12 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
       return;
     }
 
+    // The owner committed the reopen a trigger press asked for before the exit animation ended.
+    if (this.declinedOpenFromTriggerPress) {
+      this.focusBeforeOpen = this.config.triggerElement;
+      this.declinedOpenFromTriggerPress = false;
+    }
+
     this.destroyingPortal = null;
     portal.cancelDetach();
 
