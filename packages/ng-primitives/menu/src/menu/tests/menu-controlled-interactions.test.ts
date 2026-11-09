@@ -379,6 +379,33 @@ describe('NgpMenuTrigger open binding, interactions', () => {
       expect(submenu).toHaveAttribute('data-exit');
     });
 
+    it('unbound: returns focus to the trigger on Escape in a submenu that animates out', async () => {
+      await render(HideDelayWithSubmenuComponent);
+      byId('trigger').focus();
+      await userEvent.keyboard('{Enter}');
+      await openSubmenu();
+      holdExitAnimation('submenu');
+
+      await userEvent.keyboard('{Escape}');
+
+      await waitFor(() => expect(present('menu')).toBe(false));
+      expect(document.activeElement).toBe(byId('trigger'));
+    });
+
+    it('unbound: closes the root without its hide delay on Escape in a submenu', async () => {
+      await render(HideDelayWithSubmenuComponent);
+      await userEvent.click(byId('trigger'));
+      await openSubmenu();
+
+      await userEvent.keyboard('{Escape}');
+      await new Promise(resolve => setTimeout(resolve, 200));
+
+      expect({ menu: present('menu'), submenu: present('submenu') }).toEqual({
+        menu: false,
+        submenu: false,
+      });
+    });
+
     it('bound: reports an Escape in a submenu without waiting for the hide delay', async () => {
       const { fixture } = await render(HideDelayWithSubmenuComponent, {
         componentProperties: { open: signal(true) },

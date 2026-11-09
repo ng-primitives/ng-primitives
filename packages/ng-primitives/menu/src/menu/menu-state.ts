@@ -174,9 +174,10 @@ export const [NgpMenuStateToken, ngpMenu, injectMenuState, provideMenuState] = c
         return;
       }
 
-      // Otherwise each nested menu closes first, without the root's hide delay, and animates out.
-      overlay.hide({ origin });
-      parent.closeAllMenus(origin);
+      // Otherwise each nested menu closes first, without the root's hide delay, and animates out:
+      // its exit is under way before the root closes, so the root lets it finish.
+      overlay.hide({ origin, immediate: options?.immediate });
+      parent.closeAllMenus(origin, options);
     }
 
     function isOpenControlled(): boolean {
