@@ -738,6 +738,39 @@ describe('NgpPreviewCardTrigger (primitive)', () => {
       expect(inCard('tab-cancels-pending-close', 'first')).toHaveFocus();
     });
 
+    it('should keep the card open when the pointer leaves it while it holds focus', async () => {
+      await openWithKeyboard('pointer-leaves-focused-card');
+      await userEvent.tab();
+      expect(inCard('pointer-leaves-focused-card', 'first')).toHaveFocus();
+
+      const cardElement = openCard('pointer-leaves-focused-card');
+      fireEvent.pointerEnter(cardElement, { pointerType: 'mouse' });
+      fireEvent.pointerLeave(cardElement, { pointerType: 'mouse' });
+      await new Promise(resolve => setTimeout(resolve, 300));
+
+      expect(card('pointer-leaves-focused-card')).toBeInTheDocument();
+      expect(inCard('pointer-leaves-focused-card', 'first')).toHaveFocus();
+    });
+
+    it('should keep the card open when the hover corridor ends while it holds focus', async () => {
+      const { getByTestId } = await openWithKeyboard('corridor-ends-focused-card');
+      await userEvent.tab();
+      expect(inCard('corridor-ends-focused-card', 'first')).toHaveFocus();
+
+      const trigger = getByTestId('trigger');
+      const rect = trigger.getBoundingClientRect();
+      fireEvent.pointerEnter(trigger, { pointerType: 'mouse' });
+      fireEvent.pointerLeave(trigger, {
+        pointerType: 'mouse',
+        clientX: rect.left + rect.width / 2,
+        clientY: rect.bottom,
+      });
+      await new Promise(resolve => setTimeout(resolve, 300));
+
+      expect(card('corridor-ends-focused-card')).toBeInTheDocument();
+      expect(inCard('corridor-ends-focused-card', 'first')).toHaveFocus();
+    });
+
     it('should keep the card open when Tab moves focus into it during the hover corridor', async () => {
       const { getByTestId } = await openWithKeyboard('tab-clears-corridor');
 

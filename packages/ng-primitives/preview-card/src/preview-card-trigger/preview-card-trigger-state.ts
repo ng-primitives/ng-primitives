@@ -218,7 +218,7 @@ export const [
     // corridor rather than lingering for the full hide delay.
     const hoverBridge = createHoverBridge({
       isPointerInAnchor: () => triggerHovered() || cardHovered(),
-      close: () => hide(),
+      close: () => hideFromPointer(),
     });
 
     // Host bindings.
@@ -281,7 +281,7 @@ export const [
       const cardElement = overlay()?.getElements()[0];
 
       if (!cardElement) {
-        hide();
+        hideFromPointer();
         return;
       }
 
@@ -295,7 +295,7 @@ export const [
       });
 
       if (!started) {
-        hide();
+        hideFromPointer();
         return;
       }
 
@@ -534,7 +534,7 @@ export const [
       }
 
       if (!triggerHovered()) {
-        hide();
+        hideFromPointer();
       }
     }
 
@@ -577,6 +577,18 @@ export const [
     function hide(): void {
       hoverBridge.clear();
       overlay()?.hide();
+    }
+
+    /** Close as the pointer leaves, unless focus is in the card: leaving it then closes it. */
+    function hideFromPointer(): void {
+      const activeElement = elementRef.nativeElement.ownerDocument.activeElement;
+
+      if (activeElement && isInsideCard(activeElement)) {
+        hoverBridge.clear();
+        return;
+      }
+
+      hide();
     }
 
     function setContainer(newContainer: HTMLElement | string | null): void {
