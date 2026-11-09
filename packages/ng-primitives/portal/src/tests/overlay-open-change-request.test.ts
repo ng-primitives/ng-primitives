@@ -282,6 +282,26 @@ describe('NgpOverlay requestOpenChange', () => {
     });
   });
 
+  it('returns focus to the trigger whose press reopened the overlay during its exit animation', async () => {
+    const { fixture } = await render(OverlayHost);
+    overlay = fixture.componentInstance.create(() => true);
+    (document.activeElement as HTMLElement | null)?.blur();
+    await overlay.show();
+
+    const element = document.querySelector<HTMLElement>('[data-testid="overlay"]')!;
+    element.getAnimations = () => [pendingAnimation()];
+    overlay.hide({ immediate: true });
+
+    await overlay.show({ fromTriggerPress: true });
+    element.getAnimations = () => [];
+    expect(overlay.isOpen()).toBe(true);
+
+    overlay.hide({ origin: 'mouse', immediate: true });
+
+    await waitFor(() => expect(overlay!.isOpen()).toBe(false));
+    expect(document.activeElement).toBe(fixture.componentInstance.trigger().nativeElement);
+  });
+
   it('asks before cancelling an exit animation that is already running', async () => {
     const { fixture } = await render(OverlayHost);
     const owner = boundOwner(true);

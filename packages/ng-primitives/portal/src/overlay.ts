@@ -798,8 +798,8 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
       return;
     }
 
-    // The owner committed the reopen a trigger press asked for before the exit animation ended.
-    if (this.declinedOpenFromTriggerPress) {
+    // A trigger press reopened it, or the owner committed a reopen a declined press asked for.
+    if (fromTriggerPress || this.declinedOpenFromTriggerPress) {
       this.focusBeforeOpen = this.config.triggerElement;
       this.declinedOpenFromTriggerPress = false;
     }
