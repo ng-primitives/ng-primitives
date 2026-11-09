@@ -41,6 +41,45 @@ class MenuComponent {
   };
 }
 
+@Component({
+  template: `
+    <button [ngpMenuTrigger]="menu" ngpMenuTriggerHideDelay="200" data-testid="trigger">
+      Actions
+    </button>
+
+    <ng-template #menu>
+      <div [ngpMenuFinalFocus]="false" ngpMenu data-testid="menu">
+        <button ngpMenuItem data-testid="rename">Rename</button>
+      </div>
+    </ng-template>
+  `,
+  imports: [NgpMenuTrigger, NgpMenu, NgpMenuItem],
+})
+class NoFinalFocusMenuComponent {}
+
+@Component({
+  template: `
+    <button [ngpMenuTrigger]="menu" data-testid="trigger">Actions</button>
+
+    <ng-template #menu>
+      <div ngpMenu data-testid="menu">
+        <button ngpMenuItem data-testid="rename">Rename</button>
+        <button [ngpSubmenuTrigger]="submenu" ngpMenuItem data-testid="share">Share</button>
+      </div>
+    </ng-template>
+
+    <ng-template #submenu>
+      <div [ngpMenuFinalFocus]="rename" ngpMenu data-testid="submenu">
+        <button ngpMenuItem data-testid="email">Email</button>
+      </div>
+    </ng-template>
+  `,
+  imports: [NgpMenuTrigger, NgpMenu, NgpMenuItem, NgpSubmenuTrigger],
+})
+class SubmenuFinalFocusComponent {
+  readonly rename = () => document.querySelector<HTMLElement>('[data-testid="rename"]');
+}
+
 const byId = (id: string) => screen.getByTestId(id);
 const present = (id: string) => !!screen.queryByTestId(id);
 const open = () => ({ menu: present('menu'), submenu: present('submenu') });
@@ -168,11 +207,57 @@ describe('Escape in a submenu', () => {
     await openSubmenuWithKeyboard();
     fixture.componentInstance.shareDisabled.set(true);
     fixture.detectChanges();
+    // disabling the trigger leaves its submenu open, so the Escape is what closes it
+    expect(open()).toEqual({ menu: true, submenu: true });
 
     await userEvent.keyboard('{Escape}');
 
     await submenuClosed();
     expect(open()).toEqual({ menu: true, submenu: false });
     expect(byId('share')).toHaveAttribute('aria-expanded', 'false');
+  });
+
+  it('sends focus to the final focus of the submenu', async () => {
+    await render(SubmenuFinalFocusComponent);
+    await openSubmenuWithKeyboard();
+
+    await userEvent.keyboard('{Escape}');
+
+    await submenuClosed();
+    expect(open()).toEqual({ menu: true, submenu: false });
+    expect(document.activeElement).toBe(byId('rename'));
+  });
+});
+
+describe('Escape in a root menu', () => {
+  it('leaves focus alone when the final focus of the menu is false', async () => {
+    await render(NoFinalFocusMenuComponent);
+    byId('trigger').focus();
+    await userEvent.keyboard('{Enter}');
+    await waitFor(() => expect(document.activeElement).toBe(byId('rename')));
+    // an exit animation keeps the menu open, and closing, after the Escape
+    let finish!: () => void;
+    const finished = new Promise<void>(resolve => (finish = resolve));
+    byId('menu').getAnimations = () =>
+      [
+        {
+          finished,
+          cancel: () => undefined,
+          finish: () => finish(),
+          effect: { getComputedTiming: () => ({ iterations: 1, endTime: 100_000 }) },
+        },
+      ] as unknown as Animation[];
+
+    try {
+      await userEvent.keyboard('{Escape}');
+      await new Promise(resolve => setTimeout(resolve, 50));
+      expect(document.activeElement).not.toBe(byId('trigger'));
+    } finally {
+      finish();
+    }
+    await waitFor(() => expect(present('menu')).toBe(false));
+    // a second close scheduled with the hide delay must not restore focus once the menu is gone
+    await new Promise(resolve => setTimeout(resolve, 300));
+    expect(document.activeElement).not.toBe(byId('trigger'));
   });
 });

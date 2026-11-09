@@ -109,7 +109,10 @@ export const [NgpMenuStateToken, ngpMenu, injectMenuState, provideMenuState] = c
       if (event.key === 'Escape') {
         event.preventDefault();
         event.stopPropagation();
-        menuTrigger().hide('keyboard');
+        // A second close would restore focus again once the menu, and its final focus, are gone.
+        if (!overlay.isClosing()) {
+          menuTrigger().hide('keyboard');
+        }
         menuTrigger().focus?.('keyboard');
         return;
       }
