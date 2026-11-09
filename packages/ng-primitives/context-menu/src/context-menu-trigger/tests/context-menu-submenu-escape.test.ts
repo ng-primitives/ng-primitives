@@ -60,5 +60,6 @@ describe('NgpContextMenu Escape in a submenu', () => {
     await new Promise(resolve => setTimeout(resolve, 50));
     expect(present('menu')).toBe(true);
     expect(document.activeElement).toBe(byId('share'));
+    expect(byId('share')).toHaveAttribute('data-focus-visible');
   });
 });
