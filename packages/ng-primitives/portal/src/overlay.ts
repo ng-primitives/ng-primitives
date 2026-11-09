@@ -1096,7 +1096,10 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
 
     const containingId =
       element instanceof HTMLElement ? this.registry.findContainingOverlay(element) : null;
-    return containingId !== null && this.registry.closesWith(containingId, this.id());
+    if (containingId !== null) {
+      return this.registry.closesWith(containingId, this.id());
+    }
+    return this.registry.isInClosingDescendant(element, this.id());
   }
 
   private findFocusableAncestor(element: Element): HTMLElement | null {
@@ -1724,8 +1727,8 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
     // Close any descendant overlays before destroying this one
     this.registry.closeDescendants(this.id());
 
-    // Deregister from the overlay registry
-    this.registry.deregister(this.id());
+    // Deregister from the overlay registry, still counting as nested while it animates out
+    this.registry.deregister(this.id(), () => portal.getElements());
 
     // Clear portal reference to prevent double destruction
     this.portal.set(null);
@@ -1772,6 +1775,7 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
     if (this.destroyingPortal === portal) {
       const outletElement = this.registeredOutletElement;
       this.destroyingPortal = null;
+      this.registry.releaseClosing(this.id());
       this.registeredOutletElement = null;
       this.openContainer = null;
 

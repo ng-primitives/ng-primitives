@@ -127,6 +127,62 @@ describe('NgpOverlayRegistry cascade closing', () => {
     expect(registry.closesWith('menu', 'menu')).toBe(false);
   });
 
+  describe('an overlay animating out', () => {
+    function close(e: ReturnType<typeof entry>): HTMLElement {
+      const focused = e.getElements()[0].appendChild(document.createElement('button'));
+      registry.deregister(e.id, () => e.getElements());
+      return focused;
+    }
+
+    it('still counts as inside the overlays it would have closed with', () => {
+      const menu = entry('menu', null);
+      const submenu = entry('submenu', 'menu');
+      const nested = entry('nested', 'submenu');
+      register(menu, submenu, nested);
+
+      const focused = close(nested);
+      close(submenu);
+
+      expect(registry.isInClosingDescendant(focused, 'submenu')).toBe(true);
+      expect(registry.isInClosingDescendant(focused, 'menu')).toBe(true);
+      expect(registry.isInClosingDescendant(focused, 'nested')).toBe(false);
+    });
+
+    it('does not count as inside an overlay it opted out of closing with', () => {
+      const menu = entry('menu', null);
+      const dialog = entry('dialog', 'menu', false);
+      register(menu, dialog);
+
+      expect(registry.isInClosingDescendant(close(dialog), 'menu')).toBe(false);
+    });
+
+    it('stops counting once released or registered again', () => {
+      const menu = entry('menu', null);
+      const released = entry('released', 'menu');
+      const reopened = entry('reopened', 'menu');
+      register(menu, released, reopened);
+
+      const inReleased = close(released);
+      const inReopened = close(reopened);
+      registry.releaseClosing('released');
+      registry.register(reopened);
+
+      expect(registry.isInClosingDescendant(inReleased, 'menu')).toBe(false);
+      expect(registry.isInClosingDescendant(inReopened, 'menu')).toBe(false);
+    });
+
+    it('is not kept by a deregistration that names no elements', () => {
+      const menu = entry('menu', null);
+      const submenu = entry('submenu', 'menu');
+      register(menu, submenu);
+      const focused = submenu.getElements()[0].appendChild(document.createElement('button'));
+
+      registry.deregister('submenu');
+
+      expect(registry.isInClosingDescendant(focused, 'menu')).toBe(false);
+    });
+  });
+
   it('closes siblings that did not opt out', () => {
     const menu = entry('menu', null);
     const dialog = entry('dialog', 'menu', false);
