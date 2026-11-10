@@ -202,6 +202,25 @@ describe('NgpOverlay requestOpenChange', () => {
     expect(document.activeElement).toBe(fixture.componentInstance.trigger().nativeElement);
   });
 
+  it('does not take the origin of a declined close for an outside press', async () => {
+    const { fixture } = await render(OverlayHost);
+    const owner = boundOwner(true);
+    const origins: string[] = [];
+    overlay = fixture.componentInstance.create(owner.requestOpenChange, {
+      onClose: origin => origins.push(origin),
+    });
+    await overlay.show();
+
+    overlay.hide({ origin: 'keyboard', immediate: true });
+    expect(overlay.isOpen()).toBe(true);
+
+    owner.open = false;
+    overlay.hide({ outsidePressTarget: document.body, immediate: true });
+
+    await waitFor(() => expect(overlay!.isOpen()).toBe(false));
+    expect(origins).toEqual(['program']);
+  });
+
   it('applies a content change made during a declined close', async () => {
     const { fixture } = await render(OverlayHost);
     const owner = boundOwner(true);
