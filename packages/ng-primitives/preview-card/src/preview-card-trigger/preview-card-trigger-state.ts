@@ -233,7 +233,7 @@ export const [
       untracked(() => {
         if (bound === false) {
           hoverBridge.clear();
-          overlay()?.hide({ immediate: true });
+          overlay()?.hide({ immediate: true, fromOwner: true });
         } else if (bound === true) {
           if (hasContent) {
             openOverlay();
