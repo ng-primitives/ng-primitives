@@ -159,10 +159,14 @@ export const [NgpMenuItemStateToken, ngpMenuItem, injectMenuItemState, provideMe
  * leaves the attribute alone.
  */
 function addTokens(element: HTMLElement, attr: string, tokens: Signal<string[]>): void {
+  // A part can register several tokens at once, such as alternative keys of one shortcut.
+  const split = (values: readonly string[]) => values.flatMap(value => value.split(' '));
+
   function merge(current: string[], previous: readonly string[]): void {
     const value = element.getAttribute(attr);
-    const others = (value ?? '').split(' ').filter(token => token && !previous.includes(token));
-    const next = [...new Set([...others, ...current])].filter(Boolean).join(' ');
+    const stale = split(previous);
+    const others = (value ?? '').split(' ').filter(token => token && !stale.includes(token));
+    const next = [...new Set([...others, ...split(current)])].filter(Boolean).join(' ');
 
     if (next === (value ?? '')) {
       return;

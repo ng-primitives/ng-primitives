@@ -277,6 +277,19 @@ describe('NgpMenuItemShortcut', () => {
     expect(byId('duplicate')).not.toHaveAttribute('aria-keyshortcuts');
   });
 
+  it('drops each of the alternative keys a shortcut no longer has', async () => {
+    const { fixture } = await render(MenuComponent);
+    await openMenu();
+
+    fixture.componentInstance.keys.set('Control+D Meta+D');
+    await waitFor(() =>
+      expect(byId('duplicate')).toHaveAttribute('aria-keyshortcuts', 'Control+D Meta+D'),
+    );
+
+    fixture.componentInstance.keys.set('Meta+D');
+    await waitFor(() => expect(byId('duplicate')).toHaveAttribute('aria-keyshortcuts', 'Meta+D'));
+  });
+
   it('keeps an aria-keyshortcuts set on the item', async () => {
     await render(MenuComponent);
     await openMenu();
