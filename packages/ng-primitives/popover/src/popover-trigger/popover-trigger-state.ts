@@ -395,7 +395,7 @@ export const [
 
       untracked(() => {
         if (bound === false) {
-          overlay()?.hide({ immediate: true });
+          overlay()?.hide({ immediate: true, fromOwner: true });
         } else if (hasContent && (bound === true || (firstRender && defaultOpen()))) {
           openOverlay();
         }
