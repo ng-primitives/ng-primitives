@@ -71,6 +71,8 @@ describe('NgpContextMenu closing the chain', () => {
       expect(submenu.isConnected).toBe(true);
     } finally {
       release();
+      // let the released exit animation finish detaching, even when an assertion above failed
+      await new Promise(resolve => setTimeout(resolve));
     }
 
     await waitFor(() =>

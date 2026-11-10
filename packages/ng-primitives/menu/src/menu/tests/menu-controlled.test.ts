@@ -1,8 +1,9 @@
 import { Component, Directive, OnInit, signal, viewChild } from '@angular/core';
+import { ComponentFixture } from '@angular/core/testing';
 import { fireEvent, render, screen, waitFor } from '@testing-library/angular';
 import userEvent from '@testing-library/user-event';
 import { injectMenuTriggerState, NgpMenu, NgpMenuItem, NgpMenuTrigger } from 'ng-primitives/menu';
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 
 @Component({
   template: `
@@ -171,10 +172,6 @@ const menu = () => document.querySelector('[ngpMenu]');
 const settle = () => new Promise(resolve => setTimeout(resolve, 50));
 
 describe('NgpMenuTrigger open binding', () => {
-  afterEach(() => {
-    document.querySelectorAll('[ngpMenu]').forEach(el => el.remove());
-  });
-
   describe('unbound', () => {
     it('emits openChange when the user opens and closes the menu', async () => {
       const { fixture, getByRole } = await render(UnboundComponent);
@@ -333,11 +330,15 @@ describe('NgpMenuTrigger open binding', () => {
 
     it('opens once content arrives for a binding that is already true', async () => {
       const error = vi.spyOn(console, 'error');
-      const { fixture } = await render(LateContentComponent);
-      await settle();
-      expect(menu()).not.toBeInTheDocument();
-      expect(error).not.toHaveBeenCalled();
-      error.mockRestore();
+      let fixture: ComponentFixture<LateContentComponent>;
+      try {
+        ({ fixture } = await render(LateContentComponent));
+        await settle();
+        expect(menu()).not.toBeInTheDocument();
+        expect(error).not.toHaveBeenCalled();
+      } finally {
+        error.mockRestore();
+      }
 
       fixture.componentInstance.hasContent.set(true);
       fixture.detectChanges();
@@ -386,12 +387,14 @@ describe('NgpMenuTrigger open binding', () => {
       await waitFor(() => expect(menu()).toBeInTheDocument());
 
       const warn = vi.spyOn(console, 'warn');
-
-      expect(() => fixture.destroy()).not.toThrow();
-      expect(fixture.componentInstance.changes).toEqual([]);
-      // NG0953: an output emitting after its directive is destroyed
-      expect(warn).not.toHaveBeenCalledWith(expect.stringContaining('NG0953'));
-      warn.mockRestore();
+      try {
+        expect(() => fixture.destroy()).not.toThrow();
+        expect(fixture.componentInstance.changes).toEqual([]);
+        // NG0953: an output emitting after its directive is destroyed
+        expect(warn).not.toHaveBeenCalledWith(expect.stringContaining('NG0953'));
+      } finally {
+        warn.mockRestore();
+      }
     });
   });
 
