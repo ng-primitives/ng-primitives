@@ -182,7 +182,8 @@ export class NgpMenuTrigger<T = unknown> {
   /**
    * Event emitted when the user or a `show()` call opens or closes the menu, not when
    * `ngpMenuTriggerDefaultOpen` opens it. While `ngpMenuTriggerOpen` is bound, it emits when
-   * the menu asks to open or close instead, and not for changes the binding made.
+   * the menu asks to open or close instead, and not for changes the binding made. A close the
+   * binding cannot hold back, such as another menu taking over, is emitted as it happens.
    */
   readonly openChange = output<boolean>({
     alias: 'ngpMenuTriggerOpenChange',
