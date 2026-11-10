@@ -15,7 +15,7 @@ import { createOverlay, NgpOverlay } from '../overlay';
   template: `
     <button data-testid="elsewhere">Elsewhere</button>
     <div #trigger data-testid="area">
-      Area
+      <span data-testid="label">Area</span>
       <button data-testid="inner">Inner</button>
     </div>
 
@@ -65,6 +65,28 @@ describe('NgpOverlay focus return after a press', () => {
     await closeFromNowhere(overlay);
 
     expect(document.activeElement).toBe(byId('inner'));
+  });
+
+  it('keeps focus where it was when the press lands on nothing focusable in the trigger', async () => {
+    const { fixture } = await render(OverlayHost);
+    const overlay = fixture.componentInstance.create();
+    byId('elsewhere').focus();
+
+    await overlay.show({ pressTarget: byId('label') });
+    await closeFromNowhere(overlay);
+
+    expect(document.activeElement).toBe(byId('elsewhere'));
+  });
+
+  it('keeps focus where it was when the press lands on a trigger that cannot take focus', async () => {
+    const { fixture } = await render(OverlayHost);
+    const overlay = fixture.componentInstance.create();
+    byId('elsewhere').focus();
+
+    await overlay.show({ pressTarget: byId('area') });
+    await closeFromNowhere(overlay);
+
+    expect(document.activeElement).toBe(byId('elsewhere'));
   });
 
   it('keeps the press of an open that a later show joins', async () => {

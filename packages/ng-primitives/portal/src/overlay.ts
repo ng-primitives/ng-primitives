@@ -406,6 +406,9 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
   /** Where the press that opened the overlay landed, while its open waits for the show delay. */
   private pendingPress: Element | null = null;
 
+  /** Whether a press opened the overlay, which then decides where focus returns. */
+  private openedByPress = false;
+
   /** Signal tracking whether the overlay is open */
   readonly isOpen = signal(false);
 
@@ -1008,13 +1011,14 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
 
   /**
    * Take over the focus a same-type overlay was going to return to, when this overlay replaces
-   * it (a hover moving straight to another trigger) and has no target of its own, or only one
-   * inside the replaced overlay. An overlay that already started closing has returned focus, so
-   * this overlay recorded where that focus landed.
+   * it without a press (a hover moving straight to another trigger) and has no target of its
+   * own, or only one inside the replaced overlay. An overlay that already started closing has
+   * returned focus, so this overlay recorded where that focus landed.
    * @internal
    */
   takeOverFocusReturn(replaced: CooldownOverlay): void {
-    if (!(replaced instanceof NgpOverlay) || !replaced.focusBeforeOpen) {
+    // A press decides where focus returns, even one that landed on nothing focusable.
+    if (!(replaced instanceof NgpOverlay) || !replaced.focusBeforeOpen || this.openedByPress) {
       return;
     }
 
@@ -1043,15 +1047,6 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
   /** Where the press that opens the overlay landed, if a press opens it. */
   private pressOf(options?: { fromTriggerPress?: boolean; pressTarget?: Element }): Element | null {
     return options?.pressTarget ?? (options?.fromTriggerPress ? this.config.triggerElement : null);
-  }
-
-  /**
-   * Where focus returns after a press opened the overlay: the trigger when the press named it,
-   * otherwise the element a mousedown there would focus.
-   */
-  private pressedControl(press: Element): HTMLElement | null {
-    const trigger = this.config.triggerElement;
-    return press === trigger ? trigger : this.findFocusableAncestor(press);
   }
 
   private findFocusableAncestor(element: Element): HTMLElement | null {
@@ -1336,11 +1331,14 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
       return;
     }
 
-    // A press on the trigger names it directly: Safari does not focus a clicked button, and
-    // an open overlay's focus trap pulls focus back from a trigger pressed outside it.
+    // A press names the control it landed on: Safari does not focus a clicked button, and an
+    // open overlay's focus trap pulls focus back from a trigger pressed outside it. A press on
+    // nothing focusable, such as a long press, leaves focus where it was.
     const activeElement = this.document.activeElement;
     const hadFocus = activeElement instanceof HTMLElement && activeElement !== this.document.body;
-    this.focusBeforeOpen = press ? this.pressedControl(press) : hadFocus ? activeElement : null;
+    const pressedControl = press ? this.findFocusableAncestor(press) : null;
+    this.focusBeforeOpen = pressedControl ?? (hadFocus ? activeElement : null);
+    this.openedByPress = !!press;
 
     // Skip the enter animation delay if this is an instant transition
     this.attachPortal(content, this.instantTransition());
