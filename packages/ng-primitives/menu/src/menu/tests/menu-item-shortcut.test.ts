@@ -47,6 +47,10 @@ import { userEvent } from 'vitest/browser';
           <span id="archive-keys" ngpMenuItemShortcut>⌘E</span>
         </button>
         <span id="archive-hint">Moves it out of the list</span>
+        <button ngpMenuItem aria-keyshortcuts="Meta+S" data-testid="save">
+          Save
+          <span [ngpMenuItemShortcutKeys]="saveKeys()" ngpMenuItemShortcut>⌘S</span>
+        </button>
         <button ngpMenuItem aria-keyshortcuts="Meta+P" data-testid="print">
           Print
           <span ngpMenuItemShortcut>⌘P</span>
@@ -126,6 +130,7 @@ class MenuComponent {
   readonly showShortcut = signal(true);
   readonly keys = signal<string | undefined>('Meta+D');
   readonly emailKeys = signal<string | undefined>(undefined);
+  readonly saveKeys = signal<string | undefined>('Meta+S');
   readonly showFirstFindShortcut = signal(true);
   readonly showFirstCopyShortcut = signal(true);
   readonly hint = signal<string | null>('delete-hint');
@@ -288,6 +293,22 @@ describe('NgpMenuItemShortcut', () => {
 
     fixture.componentInstance.keys.set('Meta+D');
     await waitFor(() => expect(byId('duplicate')).toHaveAttribute('aria-keyshortcuts', 'Meta+D'));
+  });
+
+  it('keeps keys set on the item when a shortcut with the same keys changes', async () => {
+    const { fixture } = await render(MenuComponent);
+    await openMenu();
+    await waitFor(() => expect(byId('save')).toHaveAccessibleDescription('⌘S'));
+    expect(byId('save')).toHaveAttribute('aria-keyshortcuts', 'Meta+S');
+
+    fixture.componentInstance.saveKeys.set('Control+S');
+
+    await waitFor(() =>
+      expect(byId('save').getAttribute('aria-keyshortcuts')?.split(' ').sort()).toEqual([
+        'Control+S',
+        'Meta+S',
+      ]),
+    );
   });
 
   it('keeps an aria-keyshortcuts set on the item', async () => {

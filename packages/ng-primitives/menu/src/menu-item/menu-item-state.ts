@@ -154,19 +154,24 @@ export const [NgpMenuItemStateToken, ngpMenuItem, injectMenuItemState, provideMe
   );
 
 /**
- * Keep the tokens that parts register in a space-separated attribute of the item, next to
- * whatever else it holds, such as a value the consumer binds. An item without registered tokens
- * leaves the attribute alone.
+ * Keep the tokens that parts register in a space-separated attribute of the item, next to the
+ * consumer's own value, set on the item or bound to it. An item without registered tokens leaves
+ * the attribute alone.
  */
 function addTokens(element: HTMLElement, attr: string, tokens: Signal<string[]>): void {
-  // A part can register several tokens at once, such as alternative keys of one shortcut.
-  const split = (values: readonly string[]) => values.flatMap(value => value.split(' '));
+  const tokensOf = (value: string | null) => (value ?? '').split(' ').filter(Boolean);
+  let ownValue: string[] = [];
+  // What the item last wrote: any other value is the consumer's.
+  let written: string | null | undefined;
 
-  function merge(current: string[], previous: readonly string[]): void {
+  function update(): void {
     const value = element.getAttribute(attr);
-    const stale = split(previous);
-    const others = (value ?? '').split(' ').filter(token => token && !stale.includes(token));
-    const next = [...new Set([...others, ...split(current)])].filter(Boolean).join(' ');
+    if (value !== written) {
+      ownValue = tokensOf(value);
+    }
+    // A part can register several tokens at once, such as alternative keys of one shortcut.
+    const next = [...new Set([...ownValue, ...tokens().flatMap(tokensOf)])].join(' ');
+    written = next || null;
 
     if (next === (value ?? '')) {
       return;
@@ -179,7 +184,7 @@ function addTokens(element: HTMLElement, attr: string, tokens: Signal<string[]>)
     }
   }
 
-  onChange(tokens, (current, previous) => merge(current, previous ?? []));
+  onChange(tokens, update);
 
   // A binding of the consumer writes the whole attribute when its value changes.
   fromMutationObserver(element, {
@@ -189,7 +194,7 @@ function addTokens(element: HTMLElement, attr: string, tokens: Signal<string[]>)
     .pipe(safeTakeUntilDestroyed())
     .subscribe(mutations => {
       if (mutations.some(mutation => mutation.attributeName === attr)) {
-        merge(tokens(), tokens());
+        update();
       }
     });
 }
