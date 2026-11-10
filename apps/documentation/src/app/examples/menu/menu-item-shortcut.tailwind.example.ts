@@ -16,7 +16,7 @@ import { NgpMenu, NgpMenuItem, NgpMenuItemShortcut, NgpMenuTrigger } from 'ng-pr
 
     <ng-template #menu>
       <div
-        class="animate-in fade-in-0 zoom-in-95 fixed flex w-max origin-(--ngp-menu-transform-origin) flex-col rounded-[0.625rem] border border-gray-200 bg-white p-1 shadow-lg outline-none dark:border-zinc-800 dark:bg-zinc-950"
+        class="animate-in fade-in-0 zoom-in-95 fixed flex w-max origin-(--ngp-menu-transform-origin) flex-col rounded-[0.625rem] border border-gray-200 bg-white p-1 shadow-lg outline-none motion-reduce:animate-none dark:border-zinc-800 dark:bg-zinc-950"
         ngpMenu
       >
         @for (item of items; track item.label) {
