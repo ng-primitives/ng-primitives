@@ -345,7 +345,7 @@ export const [
 
       untracked(() => {
         if (bound === false) {
-          closeOverlay({ immediate: true });
+          closeOverlay({ immediate: true, fromOwner: true });
         } else if (hasContent && (bound === true || (applyDefaultOpen && defaultOpen()))) {
           openOverlay();
         }
@@ -675,7 +675,11 @@ export const [
     }
 
     /** Close the overlay unless it is already animating out, which would close it twice. */
-    function closeOverlay(options: { origin?: FocusOrigin; immediate?: boolean }): void {
+    function closeOverlay(options: {
+      origin?: FocusOrigin;
+      immediate?: boolean;
+      fromOwner?: boolean;
+    }): void {
       const currentOverlay = overlay();
 
       if (currentOverlay && !currentOverlay.isClosing()) {
