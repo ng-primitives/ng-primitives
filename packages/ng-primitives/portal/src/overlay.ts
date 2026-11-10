@@ -418,7 +418,7 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
 
   /**
    * The last close `requestOpenChange` declined, so the close the owner commits afterwards
-   * returns focus as the user's own close would have.
+   * (`fromOwner`) returns focus as the user's own close would have.
    */
   private declinedClose: OverlayTriggerOptions | null = null;
 
@@ -909,12 +909,10 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
         this.closing.next();
       }
 
-      // A new dismissal brings its origin or outside press; the owner committing a declined
-      // close brings neither.
-      const isNewDismissal = !!(options?.origin || options?.outsidePressTarget);
-      const close = isNewDismissal ? options : { ...this.declinedClose, ...options };
-      const origin = close.origin ?? 'program';
-      const outsidePressTarget = close.outsidePressTarget;
+      // Only the owner's close commits a declined close, and returns focus as that close would.
+      const close = options?.fromOwner ? { ...this.declinedClose, ...options } : options;
+      const origin = close?.origin ?? 'program';
+      const outsidePressTarget = close?.outsidePressTarget;
       this.declinedClose = null;
 
       // Update the close origin signal so computed signals can react
@@ -1966,6 +1964,12 @@ export interface OverlayTriggerOptions {
    * @internal
    */
   outsidePressTarget?: Element;
+  /**
+   * Whether the owner of the open state closes the overlay, committing a close that
+   * `requestOpenChange` declined.
+   * @internal
+   */
+  fromOwner?: boolean;
 }
 
 /** The host of the shadow root the element is in, so a walk up can leave the shadow tree. */
