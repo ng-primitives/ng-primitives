@@ -304,6 +304,8 @@ describe('NgpMenuTrigger arrow keys', () => {
     await press('ArrowUp');
 
     await waitFor(() => expect(present('menu')).toBe(true));
+    await waitFor(() => expect(document.activeElement).toBe(byId('archive')));
+    // still there once a fallback to the first item would have run
     await new Promise(resolve => setTimeout(resolve, 50));
     expect(document.activeElement).toBe(byId('archive'));
     expect(byId('archive').shadowRoot!.activeElement).toBe(
