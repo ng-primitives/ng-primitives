@@ -178,10 +178,30 @@ describe('NgpOverlay requestOpenChange', () => {
     expect(overlay.isOpen()).toBe(true);
 
     owner.open = false;
-    overlay.hide({ immediate: true });
+    overlay.hide({ immediate: true, fromOwner: true });
 
     await waitFor(() => expect(overlay!.isOpen()).toBe(false));
     expect(document.activeElement).toBe(fixture.componentInstance.trigger().nativeElement);
+  });
+
+  it('does not take the origin of a declined close for a close of its own without one', async () => {
+    const { fixture } = await render(OverlayHost);
+    const owner = boundOwner(true);
+    const origins: string[] = [];
+    overlay = fixture.componentInstance.create(owner.requestOpenChange, {
+      onClose: origin => origins.push(origin),
+    });
+    await overlay.show();
+
+    overlay.hide({ origin: 'keyboard', immediate: true });
+    expect(overlay.isOpen()).toBe(true);
+
+    // a close on scroll or on hover brings no origin
+    owner.open = false;
+    overlay.hide({ immediate: true });
+
+    await waitFor(() => expect(overlay!.isOpen()).toBe(false));
+    expect(origins).toEqual(['program']);
   });
 
   it('does not carry a declined outside press into a later close of its own', async () => {
