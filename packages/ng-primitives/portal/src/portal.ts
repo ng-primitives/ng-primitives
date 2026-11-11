@@ -304,7 +304,10 @@ export class NgpTemplatePortal<T> extends NgpPortal {
    * Get the root elements of the portal.
    */
   getElements(): HTMLElement[] {
-    return this.viewRef ? this.viewRef.rootNodes : [];
+    // Control flow blocks and nested templates leave comment nodes among the root nodes.
+    return this.viewRef
+      ? this.viewRef.rootNodes.filter((node): node is HTMLElement => node instanceof HTMLElement)
+      : [];
   }
 
   /**

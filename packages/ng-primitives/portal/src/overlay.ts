@@ -1418,7 +1418,9 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
     const outletElement = this.findOutletElement(portal);
 
     if (!outletElement) {
-      throw new Error('Overlay element is not available.');
+      throw new Error(
+        'Overlay element is not available. The overlay content must render an element at its root; move any condition inside that element.',
+      );
     }
 
     // Set up positioning
