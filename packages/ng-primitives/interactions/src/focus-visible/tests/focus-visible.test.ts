@@ -235,7 +235,8 @@ describe('NgpFocusVisible', () => {
   });
 
   it('should report the blur when a binding disables the focused element', async () => {
-    // A binding that disables a focused element blurs it synchronously, mid-render.
+    // A binding that disables a focused element blurs it - mid-render in older Chromium,
+    // on the next frame since Chromium 158 (spec focus fixup).
     @Component({
       selector: 'ngp-test',
       imports: [NgpFocusVisible],
@@ -269,7 +270,7 @@ describe('NgpFocusVisible', () => {
 
     expect(uncaught).toBe('');
     expect(trigger.disabled).toBe(true);
-    expect(document.activeElement).not.toBe(trigger);
+    await expect.poll(() => document.activeElement).not.toBe(trigger);
     expect(focusChange).toHaveBeenLastCalledWith(false);
     expect(trigger).not.toHaveAttribute('data-focus-visible');
   });
