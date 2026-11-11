@@ -64,6 +64,9 @@ import { userEvent } from 'vitest/browser';
           Delete
         </button>
         <span id="delete-hint">Cannot be undone</span>
+        <button ngpMenuItem aria-describedby="trash-hint  trash-note" data-testid="trash">
+          Trash
+        </button>
         <span id="delete-hint-2">Moves it to the bin</span>
         <button [attr.aria-describedby]="hint()" ngpMenuItem data-testid="rename">
           Rename
@@ -349,6 +352,13 @@ describe('NgpMenuItemShortcut', () => {
       expect(byId('delete')).toHaveAttribute('aria-describedby', 'delete-hint-2'),
     );
     expect(byId('delete')).not.toHaveAttribute('aria-keyshortcuts');
+  });
+
+  it('leaves the value set on an item without a shortcut exactly as written', async () => {
+    await render(MenuComponent);
+    await openMenu();
+
+    expect(byId('trash')).toHaveAttribute('aria-describedby', 'trash-hint  trash-note');
   });
 
   it('adds the shortcut to an aria-describedby the consumer binds', async () => {

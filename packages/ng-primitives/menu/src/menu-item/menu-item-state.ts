@@ -165,6 +165,10 @@ function addTokens(element: HTMLElement, attr: string, tokens: Signal<string[]>)
   let written: string | null | undefined;
 
   function update(): void {
+    // Until a part registers a token, the consumer's value stays exactly as written.
+    if (written === undefined && tokens().length === 0) {
+      return;
+    }
     const value = element.getAttribute(attr);
     if (value !== written) {
       ownValue = tokensOf(value);
