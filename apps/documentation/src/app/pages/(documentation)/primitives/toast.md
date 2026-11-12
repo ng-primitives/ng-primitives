@@ -113,7 +113,7 @@ The following directives are available to import from the `ng-primitives/toast` 
   <api-attribute name="data-front" description="Whether the toast is the front-most toast in the stack." value="true, false" />
   <api-attribute name="data-swiping" description="Whether the toast is currently being swiped." value="true, false" />
   <api-attribute name="data-swipe-direction" description="The direction of the swipe gesture." value="left, right, up, down" />
-  <api-attribute name="data-expanded" description="Whether the toast is currently expanded. This can be used to collapse or expand stacked toasts." value="true, false" />
+  <api-attribute name="data-expanded" description="Whether the toasts in this placement are expanded, while the pointer is over their container or focus is inside it. All toasts in the placement expand together. This can be used to collapse or expand stacked toasts." value="true, false" />
   <api-attribute name="data-paused" description="Applied while the auto-dismiss timer is paused." />
 </api-reference-attributes>
 
@@ -167,6 +167,8 @@ bootstrapApplication(AppComponent, {
 ## Accessibility
 
 For screen reader announcements, ensure your toast container includes `role="status"` or `role="alert"` with `aria-live="polite"` so that new toasts are announced to assistive technology users.
+
+The auto-dismiss timer pauses while the pointer is over the toasts or focus is inside them, so a keyboard user can reach a toast's actions before it closes. It resumes once both have left, unless the toast is paused for another reason: it is `persistent`, a pointer is pressed on it, or it is behind another toast with `sequential`.
 
 ### Keyboard Interactions
 
