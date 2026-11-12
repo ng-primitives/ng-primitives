@@ -19,6 +19,7 @@ import {
   BlockScrollStrategy,
   NgpHidingLayer,
   NgpOutsideHiding,
+  NgpOverlay,
   NgpOverlayRegistry,
   ScrollStrategy,
   createPortal,
@@ -200,6 +201,10 @@ export class NgpDialogManager implements OnDestroy {
     // menu that closes on select must not take the dialog with it.
     const parentId = originElement ? this.registry.findContainingOverlay(originElement) : null;
 
+    // Read now: a menu that closes on select is gone from the registry by the time the dialog
+    // closes, and with it the item that opened the dialog.
+    const focusTargets = [originElement, ...this.getContainingTriggers(parentId)];
+
     // Register with the overlay registry for centralized escape-key routing.
     // outsidePress is false because the NgpDialogOverlay directive handles its own backdrop clicks.
     this.registry.register({
@@ -234,13 +239,16 @@ export class NgpDialogManager implements OnDestroy {
       this.closingDialogs.delete(dialogRef);
       this.refreshAssistiveTechnologyHiding();
 
-      // Focus the trigger element after exit animations complete.
-      if (originElement && this.document.body.contains(originElement)) {
+      // Focus the trigger element after exit animations complete, or, if it is gone, the
+      // trigger of the nearest menu or popover it sat in that is still in the page.
+      const focusTarget = focusTargets.find(element => element?.isConnected);
+
+      if (focusTarget) {
         // Its not great that we are relying on an internal API here, but we need to in order to
         // try and best determine the focus origin when it is programmatically closed by the user.
-        this.focusRestoration.restore(originElement, () =>
+        this.focusRestoration.restore(focusTarget, () =>
           this.focusMonitor.focusVia(
-            originElement,
+            focusTarget,
             focusOrigin ?? (this.focusMonitor as any)._lastFocusOrigin,
           ),
         );
@@ -313,6 +321,9 @@ export class NgpDialogManager implements OnDestroy {
       // passed to open(), not just the global config
       { provide: NgpDialogConfigToken, useValue: config },
       { provide: NgpExitAnimationManager, useClass: NgpExitAnimationManager },
+      // Keeps a dialog opened from a menu or popover from inheriting that overlay: its focus trap
+      // tears down when that overlay closes.
+      { provide: NgpOverlay, useValue: null },
     ];
 
     // Fall back to the service's own injector (root injector) to ensure
@@ -357,6 +368,24 @@ export class NgpDialogManager implements OnDestroy {
   private disableScrollBlocking(): void {
     this.scrollStrategy?.disable();
     this.scrollStrategy = null;
+  }
+
+  /**
+   * The triggers of the overlay with the given id and of its ancestors, nearest first, up to the
+   * first dialog: a trigger outside that dialog is behind its focus trap.
+   */
+  private getContainingTriggers(id: string | null): HTMLElement[] {
+    const entries = this.registry.getEntries();
+    const triggers: HTMLElement[] = [];
+    let entry = entries.find(e => e.id === id);
+
+    while (entry && !(entry.overlay instanceof NgpDialogRef)) {
+      triggers.push(entry.triggerElement);
+      const parentId = entry.parentId;
+      entry = entries.find(e => e.id === parentId);
+    }
+
+    return triggers;
   }
 
   /**
