@@ -13,7 +13,7 @@ import {
   Type,
   ViewContainerRef,
 } from '@angular/core';
-import { createPortal, NgpPortal } from 'ng-primitives/portal';
+import { createPortal, NGP_MODAL_EXEMPT_ATTRIBUTE, NgpPortal } from 'ng-primitives/portal';
 import { injectToastConfig } from '../config/toast-config';
 import { NgpToast, NgpToastPlacement, NgpToastSwipeDirection } from './toast';
 import { provideToastContext } from './toast-context';
@@ -298,6 +298,7 @@ export class NgpToastManager {
     this.renderer.setAttribute(container, 'aria-atomic', 'false');
     this.renderer.setAttribute(container, 'tabindex', '-1');
     this.renderer.setAttribute(container, 'data-ngp-toast-container', placement);
+    this.renderer.setAttribute(container, NGP_MODAL_EXEMPT_ATTRIBUTE, '');
     container.style.setProperty('position', 'fixed');
     container.style.setProperty('z-index', `${this.config.zIndex}`);
     container.style.setProperty('--ngp-toast-offset-top', `${this.config.offsetTop}px`);
