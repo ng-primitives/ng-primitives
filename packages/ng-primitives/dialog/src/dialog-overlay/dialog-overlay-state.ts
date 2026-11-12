@@ -1,7 +1,13 @@
 import { inject, signal, Signal } from '@angular/core';
 import { injectElementRef } from 'ng-primitives/internal';
-import { NgpDismissGuard, NgpOverlayEntry, NgpOverlayRegistry } from 'ng-primitives/portal';
-import { createPrimitive, listener } from 'ng-primitives/state';
+import {
+  NgpDismissGuard,
+  NgpOverlay,
+  NgpOverlayEntry,
+  NgpOverlayRegistry,
+} from 'ng-primitives/portal';
+import { createPrimitive, listener, onDestroy } from 'ng-primitives/state';
+import { Subscription } from 'rxjs';
 import { injectDialogRef } from '../dialog/dialog-ref';
 
 /** Overlays opened on hover or focus, not on a press: they leave a backdrop click to the dialog. */
@@ -48,6 +54,12 @@ export const [
     // blur is let through so values that commit on blur are up to date when a dismiss guard runs,
     // and focus is returned only once the press is known not to close the dialog.
     let focusedBeforePress: HTMLElement | null = null;
+    // The child overlays the press may close, and those whose close has started since: a dismiss
+    // guard can keep a child open, and focus inside it then stays where it is.
+    let pressedOverlays: NgpOverlayEntry[] = [];
+    const startedClosing = new Set<string>();
+    let closingSubscription = new Subscription();
+    onDestroy(() => closingSubscription.unsubscribe());
 
     // Listener
     listener(elementRef, 'pointerdown', handleOnPointerDown);
@@ -56,21 +68,38 @@ export const [
 
     function handleOnPointerDown(event: Event): void {
       const isOnOverlay = event.target === event.currentTarget;
-      const closingOverlays = isOnOverlay ? childOverlaysClosedByPress() : [];
+      const overlaysPressMayClose = isOnOverlay ? childOverlaysPressMayClose() : [];
       startedPointerDownOnOverlay.set(isOnOverlay);
-      pressClosesChildOverlay.set(closingOverlays.length > 0);
+      pressClosesChildOverlay.set(overlaysPressMayClose.length > 0);
+      watchClosing(overlaysPressMayClose);
       // A press while an async guard is pending keeps the target saved by the first press, since
       // focus is already on the body by then.
-      focusedBeforePress = isOnOverlay
-        ? (focusedBeforePress ?? outsideOf(closingOverlays, getActiveElement()))
-        : null;
+      focusedBeforePress = isOnOverlay ? (focusedBeforePress ?? getActiveElement()) : null;
+    }
+
+    function watchClosing(overlays: NgpOverlayEntry[]): void {
+      closingSubscription.unsubscribe();
+      closingSubscription = new Subscription();
+      startedClosing.clear();
+      pressedOverlays = overlays;
+
+      for (const entry of overlays) {
+        // Another kind of overlay, such as a nested dialog, is taken to close as the press asks.
+        if (!(entry.overlay instanceof NgpOverlay)) {
+          startedClosing.add(entry.id);
+          continue;
+        }
+        closingSubscription.add(
+          entry.overlay.closing.subscribe(() => startedClosing.add(entry.id)),
+        );
+      }
     }
 
     /**
-     * The overlays opened from the dialog that a backdrop press closes: those that close on an
+     * The overlays opened from the dialog that a backdrop press may close: those that close on an
      * outside press, and those that close along with such a parent.
      */
-    function childOverlaysClosedByPress(): NgpOverlayEntry[] {
+    function childOverlaysPressMayClose(): NgpOverlayEntry[] {
       // Listed parent before child, so a parent is decided before its children.
       const descendants = registry.getDescendants(dialogRef.id);
       const closing = new Set<string>();
@@ -176,12 +205,15 @@ export const [
 
     function close(): void {
       focusedBeforePress = null;
+      watchClosing([]);
       dialogRef.close(undefined, 'mouse');
     }
 
     function restoreFocus(): void {
-      const element = focusedBeforePress;
+      const closing = pressedOverlays.filter(entry => startedClosing.has(entry.id));
+      const element = outsideOf(closing, focusedBeforePress);
       focusedBeforePress = null;
+      watchClosing([]);
 
       // Leave focus alone if something else (e.g. the guard) has moved it since the press.
       if (element?.isConnected && getActiveElement() === element.ownerDocument.body) {

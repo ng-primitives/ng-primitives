@@ -2,6 +2,11 @@ import { Component } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { fireEvent, render, screen, waitFor, within } from '@testing-library/angular';
 import {
+  NgpContextMenu,
+  NgpContextMenuItem,
+  NgpContextMenuTrigger,
+} from 'ng-primitives/context-menu';
+import {
   NgpDialog,
   NgpDialogManager,
   NgpDialogOverlay,
@@ -9,6 +14,7 @@ import {
 } from 'ng-primitives/dialog';
 import { NgpMenu, NgpMenuItem, NgpMenuTrigger, NgpSubmenuTrigger } from 'ng-primitives/menu';
 import { NgpPopover, NgpPopoverTrigger } from 'ng-primitives/popover';
+import { NgpDismissGuard } from 'ng-primitives/portal';
 import { NgpTooltip, NgpTooltipTrigger } from 'ng-primitives/tooltip';
 import { firstValueFrom } from 'rxjs';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
@@ -115,12 +121,21 @@ class PagePopoverHost {}
             Tooltip
           </button>
           <button [ngpMenuTrigger]="menu" data-testid="open-menu">Menu</button>
+          <button [ngpContextMenuTrigger]="contextMenu" data-testid="context-area">Area</button>
         </div>
       </div>
     </ng-template>
 
+    <ng-template #contextMenu>
+      <div ngpContextMenu data-testid="context-menu">
+        <button ngpContextMenuItem data-testid="context-item">Copy</button>
+      </div>
+    </ng-template>
+
     <ng-template #popover>
-      <div ngpPopover data-testid="popover">Popover</div>
+      <div ngpPopover data-testid="popover">
+        <button data-testid="popover-button">Action</button>
+      </div>
     </ng-template>
 
     <ng-template #tooltip>
@@ -158,10 +173,13 @@ class PagePopoverHost {}
     NgpMenuTrigger,
     NgpMenu,
     NgpMenuItem,
+    NgpContextMenuTrigger,
+    NgpContextMenu,
+    NgpContextMenuItem,
   ],
 })
 class BackdropHost {
-  popoverClosesOnOutsideClick = true;
+  popoverClosesOnOutsideClick: NgpDismissGuard<Element> = true;
 }
 
 /** Whether assistive technology can reach the element. */
@@ -261,13 +279,17 @@ describe('NgpDialogOverlay backdrop click with an overlay open in the dialog', (
     await waitFor(() => expect(document.querySelector('[ngpDialogOverlay]')).toBeNull());
   });
 
-  async function openDialog(popoverClosesOnOutsideClick = true): Promise<void> {
+  async function openDialog(
+    popoverClosesOnOutsideClick: NgpDismissGuard<Element> = true,
+  ): Promise<void> {
     await render(BackdropHost, { componentProperties: { popoverClosesOnOutsideClick } });
     fireEvent.click(screen.getByTestId('open-dialog'));
     await screen.findByTestId('dialog');
   }
 
-  async function openPopoverInDialog(popoverClosesOnOutsideClick = true): Promise<void> {
+  async function openPopoverInDialog(
+    popoverClosesOnOutsideClick: NgpDismissGuard<Element> = true,
+  ): Promise<void> {
     await openDialog(popoverClosesOnOutsideClick);
     fireEvent.click(screen.getByTestId('open-popover'));
     await screen.findByTestId('popover');
@@ -341,6 +363,47 @@ describe('NgpDialogOverlay backdrop click with an overlay open in the dialog', (
     await waitFor(() => expect(screen.queryByTestId('menu')).toBeNull());
     expect(screen.queryByTestId('sticky-popover')).toBeNull();
     expect(document.activeElement).toBe(screen.getByTestId('open-menu'));
+  });
+
+  it('should return focus to the trigger of a context menu, which does not restore focus itself', async () => {
+    await openDialog();
+    fireEvent.contextMenu(screen.getByTestId('context-area'));
+    (await screen.findByTestId('context-item')).focus();
+
+    await clickBackdrop();
+
+    await waitFor(() => expect(screen.queryByTestId('context-menu')).toBeNull());
+    expect(TestBed.inject(NgpDialogManager).openDialogs.length).toBe(1);
+    expect(document.activeElement).toBe(screen.getByTestId('context-area'));
+  });
+
+  it.each([
+    ['sync', () => false],
+    ['async', () => Promise.resolve(false)],
+  ])(
+    'should leave focus in a popover whose %s guard keeps it open',
+    async (_, guard: () => boolean | Promise<boolean>) => {
+      await openPopoverInDialog(guard);
+      screen.getByTestId('popover-button').focus();
+
+      await clickBackdrop();
+      await new Promise(resolve => setTimeout(resolve, 50));
+
+      expect(screen.getByTestId('popover')).toBeInTheDocument();
+      expect(TestBed.inject(NgpDialogManager).openDialogs.length).toBe(1);
+      expect(document.activeElement).toBe(screen.getByTestId('popover-button'));
+    },
+  );
+
+  it('should return focus to the popover trigger when an async guard lets the popover close', async () => {
+    await openPopoverInDialog(() => Promise.resolve(true));
+    screen.getByTestId('popover-button').focus();
+
+    await clickBackdrop();
+
+    await waitFor(() => expect(screen.queryByTestId('popover')).toBeNull());
+    expect(TestBed.inject(NgpDialogManager).openDialogs.length).toBe(1);
+    expect(document.activeElement).toBe(screen.getByTestId('open-popover'));
   });
 
   it('should close the dialog when the open overlay does not close on outside click', async () => {
