@@ -854,6 +854,23 @@ describe('Tab handling cost', () => {
     fireEvent.keyDown(first, { key: 'Tab', shiftKey: true });
     expect(last).toHaveFocus();
   });
+
+  it('should not wrap a Tab that was already handled', async () => {
+    const { getByTestId } = await render(TestFocusTrapLongListComponent);
+    const first = getByTestId('item-0');
+    const last = getByTestId('item-49');
+    const preventTab = (event: KeyboardEvent) => event.preventDefault();
+    first.addEventListener('keydown', preventTab);
+    last.addEventListener('keydown', preventTab);
+
+    last.focus();
+    fireEvent.keyDown(last, { key: 'Tab' });
+    expect(last).toHaveFocus();
+
+    first.focus();
+    fireEvent.keyDown(first, { key: 'Tab', shiftKey: true });
+    expect(first).toHaveFocus();
+  });
 });
 
 describe('Focus-in with CDK overlays and external traps', () => {
