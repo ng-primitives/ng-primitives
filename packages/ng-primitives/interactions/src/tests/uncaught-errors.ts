@@ -23,3 +23,21 @@ export async function collectUncaughtErrors(run: () => void): Promise<string> {
 
   return messages.join('\n');
 }
+
+/**
+ * Make disabling `input` blur it synchronously, as Chromium did before 158 (which defers the
+ * blur to the next frame), so a blur during Angular's render pass stays covered.
+ */
+export function blurSynchronouslyOnDisable(input: HTMLInputElement): void {
+  const native = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'disabled')!;
+  Object.defineProperty(input, 'disabled', {
+    configurable: true,
+    get: () => native.get!.call(input),
+    set: (value: boolean) => {
+      native.set!.call(input, value);
+      if (value) {
+        input.blur();
+      }
+    },
+  });
+}
