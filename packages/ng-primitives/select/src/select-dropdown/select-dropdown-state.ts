@@ -3,6 +3,7 @@ import { injectElementRef, observeResize } from 'ng-primitives/internal';
 import {
   attrBinding,
   createPrimitive,
+  dataBinding,
   StateInjectionOptions,
   styleBinding,
 } from 'ng-primitives/state';
@@ -47,6 +48,11 @@ export const [
     // aria-multiselectable is not allowed on a dialog, so ngpSelectList carries it instead
     attrBinding(elementRef, 'aria-multiselectable', () =>
       selectState().list() ? null : selectState().multiple(),
+    );
+    dataBinding(
+      elementRef,
+      'data-reference-hidden',
+      () => selectState().overlay()?.referenceHidden() ?? false,
     );
     styleBinding(elementRef, 'left.px', () => selectState().overlay()?.position()?.x ?? null);
     styleBinding(elementRef, 'top.px', () => selectState().overlay()?.position()?.y ?? null);
