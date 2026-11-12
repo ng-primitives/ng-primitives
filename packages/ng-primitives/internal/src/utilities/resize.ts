@@ -29,11 +29,15 @@ interface NgpResizeObserverOptions {
 
 /**
  * A simple helper function to create a resize observer as an RxJS Observable.
+ *
+ * An HTML element is measured by its untransformed border box. An element inside an
+ * `<svg>` has no CSS box, so it is measured on screen, transforms included, and is
+ * remeasured when it or its outermost `<svg>` resizes - not when a transform changes.
  * @param element The element to observe for resize events.
  * @returns The resize event as an Observable.
  */
 export function fromResizeEvent(
-  element: HTMLElement,
+  element: Element,
   { disabled = signal(false), injector }: NgpResizeObserverOptions = {},
 ): Observable<Dimensions> {
   const platformId = injector?.get(PLATFORM_ID) ?? inject(PLATFORM_ID);
@@ -86,7 +90,8 @@ export function fromResizeEvent(
             return;
           }
 
-          // otherwise, take the first entry and emit the dimensions
+          // otherwise, take the first entry and emit the dimensions. The entry can belong to
+          // the outer `<svg>`, but an element inside one is measured without it.
           const entry = entries[0];
           emit(getElementDimensions(element, entry));
         });
@@ -113,6 +118,14 @@ export function fromResizeEvent(
           // `observer` is nulled on teardown, so an unsubscribed observable performs no
           // measurement — the layout read is the cost this whole change exists to avoid.
           if (observer) {
+            // Resizing an `<svg>` rescales what is inside it without changing its box in
+            // user units, which is all the observer watches for those elements. Resolved
+            // here rather than on subscribe, when an `@for` element is not attached yet.
+            const viewport = getOutermostSvg(element);
+            if (viewport) {
+              observer.observe(viewport);
+            }
+
             emit(getElementDimensions(element));
           }
         });
@@ -168,7 +181,33 @@ export function observeResize(elementFn: () => HTMLElement | undefined): Signal<
   return dimensions;
 }
 
-function getElementDimensions(element: HTMLElement, entry?: ResizeObserverEntry): Dimensions {
+// Checked by namespace rather than `instanceof`, which is false for an element from
+// another window, such as an iframe.
+function isSvgElement(element: Element): element is SVGElement {
+  return element.namespaceURI === 'http://www.w3.org/2000/svg';
+}
+
+function isHtmlElement(element: Element): element is HTMLElement {
+  return element.namespaceURI === 'http://www.w3.org/1999/xhtml';
+}
+
+function getOutermostSvg(element: Element): SVGSVGElement | null {
+  let svg = isSvgElement(element) ? element.ownerSVGElement : null;
+  while (svg?.ownerSVGElement) {
+    svg = svg.ownerSVGElement;
+  }
+  return svg;
+}
+
+function getElementDimensions(element: Element, entry?: ResizeObserverEntry): Dimensions {
+  // Only the outermost `<svg>` has a CSS box. For anything inside it, shapes and nested
+  // `<svg>` alike, the observer reports a box in user units, before the `viewBox` scales
+  // it, so both paths measure it on screen instead.
+  if (isSvgElement(element) && element.ownerSVGElement) {
+    const rect = element.getBoundingClientRect();
+    return { width: rect.width, height: rect.height };
+  }
+
   if (!entry) {
     // Match what the observer reports: an untransformed border-box size at full
     // precision. `offsetWidth`/`offsetHeight` are untransformed but round to whole
@@ -201,7 +240,7 @@ function getElementDimensions(element: HTMLElement, entry?: ResizeObserverEntry)
  * `width`/`height` resolve to whichever box `box-sizing` selects, so only the
  * content-box case has to add padding, borders and the scrollbar back on.
  */
-function measureBorderBox(element: HTMLElement): Dimensions {
+function measureBorderBox(element: Element): Dimensions {
   const style = getComputedStyle(element);
 
   // Only a px length is a measurement: a non-rendered element keeps its units, so an
@@ -232,8 +271,10 @@ function measureBorderBox(element: HTMLElement): Dimensions {
   // reports, so it has to be added back or the same unchanged element measures a
   // scrollbar smaller here than it does there. Only a scroll container has one, and
   // `offsetWidth`/`clientWidth` cost layout, so the common case stays unmeasured; they
-  // are whole pixels, so a fractional border can leave a sub-pixel remainder.
-  const scrollable = style.overflowX !== 'visible' || style.overflowY !== 'visible';
+  // are whole pixels, so a fractional border can leave a sub-pixel remainder. An `<svg>`
+  // clips its overflow by default but has no offset size and never shows a scrollbar.
+  const scrollable =
+    isHtmlElement(element) && (style.overflowX !== 'visible' || style.overflowY !== 'visible');
   const scrollbarHorizontal = scrollable
     ? Math.max(0, element.offsetWidth - element.clientWidth - borderHorizontal)
     : 0;

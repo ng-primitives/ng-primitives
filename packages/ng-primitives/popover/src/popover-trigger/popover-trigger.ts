@@ -162,7 +162,7 @@ export class NgpPopoverTrigger<T = null> {
    * An input only reaches this directive on the next change detection pass, which a press
    * can outrun - use `setAnchor()` instead when the anchor is claimed during one.
    */
-  readonly anchor = input<HTMLElement | null>(null, {
+  readonly anchor = input<Element | null>(null, {
     alias: 'ngpPopoverTriggerAnchor',
   });
 
@@ -259,7 +259,7 @@ export class NgpPopoverTrigger<T = null> {
    * it. Writing the anchor here is visible to that check straight away.
    * @param anchor - The new anchor element
    */
-  setAnchor(anchor: HTMLElement | null): void {
+  setAnchor(anchor: Element | null): void {
     this.state.setAnchor(anchor);
   }
 }

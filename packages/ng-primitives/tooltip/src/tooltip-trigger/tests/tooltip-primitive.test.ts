@@ -3056,6 +3056,40 @@ describe('NgpTooltipTrigger (primitive)', () => {
       anchor.remove();
     });
 
+    it('should position the tooltip against an svg element passed to the directive setAnchor', async () => {
+      const { fixture, getByRole } = await render(
+        `
+          <svg width="200" height="120" viewBox="0 0 100 60" style="position: fixed; top: 300px; left: 40px;">
+            <circle cx="50" cy="30" r="8" />
+          </svg>
+          <button
+            [ngpTooltipTrigger]="content"
+            ngpTooltipTriggerPlacement="bottom"
+            [ngpTooltipTriggerOffset]="0"
+            [ngpTooltipTriggerFlip]="false"
+            [ngpTooltipTriggerShift]="false"
+          >
+            Open
+          </button>
+          <ng-template #content>
+            <div ngpTooltip style="position: fixed; width: 120px; height: 60px;">Tooltip content</div>
+          </ng-template>
+        `,
+        { imports: [NgpTooltipTrigger, NgpTooltip] },
+      );
+      const circle = (fixture.nativeElement as HTMLElement).querySelector('circle')!;
+      const trigger = fixture.debugElement.query(By.directive(NgpTooltipTrigger));
+
+      trigger.injector.get(NgpTooltipTrigger).setAnchor(circle);
+      fireEvent.mouseEnter(getByRole('button'));
+
+      await waitFor(() => {
+        const tooltipTop = document.querySelector('[ngpTooltip]')!.getBoundingClientRect().top;
+
+        expect(tooltipTop).toBeCloseTo(circle.getBoundingClientRect().bottom, 0);
+      });
+    });
+
     it('should position the tooltip at the coordinates passed to setPosition', async () => {
       const { state, trigger } = await renderWithState();
 
