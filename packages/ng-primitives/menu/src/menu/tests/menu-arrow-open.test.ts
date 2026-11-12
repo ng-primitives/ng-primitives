@@ -1,3 +1,4 @@
+import { Dir, Direction } from '@angular/cdk/bidi';
 import { Component, CUSTOM_ELEMENTS_SCHEMA, input } from '@angular/core';
 import { fireEvent, render, screen, waitFor } from '@testing-library/angular';
 import { NgpMenu, NgpMenuItem, NgpMenuTrigger } from 'ng-primitives/menu';
@@ -7,14 +8,16 @@ import { userEvent } from 'vitest/browser';
 
 @Component({
   template: `
-    <button
-      [ngpMenuTrigger]="menu"
-      [ngpMenuTriggerPlacement]="placement()"
-      [ngpMenuTriggerOpenTriggers]="['click', 'arrowkey']"
-      data-testid="trigger"
-    >
-      Actions
-    </button>
+    <div [dir]="dir()">
+      <button
+        [ngpMenuTrigger]="menu"
+        [ngpMenuTriggerPlacement]="placement()"
+        [ngpMenuTriggerOpenTriggers]="['click', 'arrowkey']"
+        data-testid="trigger"
+      >
+        Actions
+      </button>
+    </div>
 
     <ng-template #menu>
       <div ngpMenu data-testid="menu">
@@ -26,9 +29,10 @@ import { userEvent } from 'vitest/browser';
       </div>
     </ng-template>
   `,
-  imports: [NgpMenuTrigger, NgpMenu, NgpMenuItem],
+  imports: [Dir, NgpMenuTrigger, NgpMenu, NgpMenuItem],
 })
 class MenuComponent {
+  readonly dir = input<Direction>('ltr');
   readonly placement = input<NgpPlacement>('bottom-start');
   readonly lastDisabled = input(false);
 }
@@ -228,6 +232,30 @@ describe('NgpMenuTrigger arrow keys', () => {
 
     await new Promise(resolve => setTimeout(resolve, 50));
     expect(present('menu')).toBe(false);
+  });
+
+  it('opens a menu to the right on its first item on Right Arrow', async () => {
+    await render(MenuComponent, { inputs: { placement: 'right-start' } });
+
+    await press('ArrowRight');
+
+    await waitFor(() => expect(document.activeElement).toBe(byId('rename')));
+  });
+
+  it('opens a menu to the left on its first item on Left Arrow', async () => {
+    await render(MenuComponent, { inputs: { placement: 'left-start' } });
+
+    await press('ArrowLeft');
+
+    await waitFor(() => expect(document.activeElement).toBe(byId('rename')));
+  });
+
+  it('opens a menu to the right on Left Arrow in RTL', async () => {
+    await render(MenuComponent, { inputs: { placement: 'right-start', dir: 'rtl' } });
+
+    await press('ArrowLeft');
+
+    await waitFor(() => expect(document.activeElement).toBe(byId('rename')));
   });
 
   it('opens on the first item again after a menu opened on its last', async () => {
