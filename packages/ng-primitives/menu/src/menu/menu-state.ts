@@ -9,6 +9,7 @@ import {
   labelledByTrigger,
 } from 'ng-primitives/internal';
 import { injectOverlay, NgpOverlayFinalFocus } from 'ng-primitives/portal';
+import { injectRovingFocusGroupState } from 'ng-primitives/roving-focus';
 import {
   attrBinding,
   createPrimitive,
@@ -60,8 +61,12 @@ export const [NgpMenuStateToken, ngpMenu, injectMenuState, provideMenuState] = c
     // Always trap focus in menus per WAI-ARIA guidelines (Tab should not navigate within menus)
     // Pass the open origin so focus trap uses the correct origin for :focus-visible styling
     const openOrigin = computed(() => menuTrigger()?.openOrigin() ?? 'program');
+    const rovingFocusGroup = injectRovingFocusGroupState();
     ngpFocusTrap({
       focusOrigin: openOrigin,
+      // after an Up Arrow on the trigger, the menu opens on its last item
+      initialFocus: () =>
+        menuTrigger()?.openFocus?.() === 'last' ? rovingFocusGroup().lastEnabledElement() : null,
     });
 
     // Register this element as the overlay outlet so floating-ui positions it correctly,
