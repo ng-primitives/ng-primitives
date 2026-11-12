@@ -173,6 +173,12 @@ export interface NgpMenuTriggerState<T = unknown> {
    * @internal
    */
   triggerId(): string | null;
+
+  /**
+   * Focus the trigger. Only a submenu trigger, which also provides this state, has it.
+   * @internal
+   */
+  focus?(origin: FocusOrigin): void;
 }
 
 export interface NgpMenuTriggerProps<T = unknown> {
