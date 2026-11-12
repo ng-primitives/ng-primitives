@@ -2,7 +2,7 @@ import { Component, signal } from '@angular/core';
 import { fireEvent, render } from '@testing-library/angular';
 import { NgpFocus, provideInteractionsConfig } from 'ng-primitives/interactions';
 import { describe, expect, it, vi } from 'vitest';
-import { collectUncaughtErrors } from '../../tests/uncaught-errors';
+import { blurSynchronouslyOnDisable, collectUncaughtErrors } from '../../tests/uncaught-errors';
 
 describe('NgpFocus', () => {
   it('should apply the data-focus attribute', async () => {
@@ -55,7 +55,7 @@ describe('NgpFocus', () => {
     expect(stateChange).not.toHaveBeenCalled();
   });
 
-  // A binding that disables a focused element blurs it synchronously, mid-render.
+  // A binding that disables a focused element blurs it, mid-render in older Chromium.
   it('should report the blur when a binding disables the focused element', async () => {
     @Component({
       selector: 'ngp-test',
@@ -82,6 +82,8 @@ describe('NgpFocus', () => {
     expect(document.activeElement).toBe(trigger);
     expect(stateChange).toHaveBeenLastCalledWith(true);
     expect(trigger).toHaveAttribute('data-focus');
+
+    blurSynchronouslyOnDisable(trigger);
 
     const uncaught = await collectUncaughtErrors(() => {
       disabled.set(true);
