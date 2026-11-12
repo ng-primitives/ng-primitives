@@ -52,6 +52,11 @@ export default defineConfig(({ mode }) => ({
       instances: [{ browser: 'chromium' }],
       // Don't write failure screenshots or attachments to disk.
       screenshotFailures: false,
+      commands: {
+        // Chromium 158+ fires real mouseenter on an element that renders under a resting
+        // cursor, so a cursor left over the page by one test hovers the next test's trigger.
+        parkPointer: ({ page }) => page.mouse.move(-1, -1),
+      },
     },
   },
   optimizeDeps: {
