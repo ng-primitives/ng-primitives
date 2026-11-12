@@ -141,7 +141,8 @@ describe('NgpAvatarImage', () => {
 
       expect(screen.queryByTestId('avatar-image')).not.toBeInTheDocument();
       expect(avatar).toHaveAttribute('data-status', NgpAvatarStatus.Idle);
-      expect(fallback).not.toHaveStyle({ display: 'none' });
+      // the fallback also waits for its delay timer, which may not have fired yet
+      await waitFor(() => expect(fallback).toBeVisible());
     });
 
     it('should report loaded again when an image is added back after removal', async () => {
