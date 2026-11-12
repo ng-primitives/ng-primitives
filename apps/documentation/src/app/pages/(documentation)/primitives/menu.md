@@ -304,6 +304,7 @@ The following directives are available to import from the `ng-primitives/menu` p
   <api-attribute name="data-enter" description="Applied when the menu is being added to the DOM. This can be used to trigger animations." />
   <api-attribute name="data-exit" description="Applied when the menu is being removed from the DOM. This can be used to trigger animations." />
   <api-attribute name="data-placement" description="The final rendered placement of the menu." />
+  <api-attribute name="data-reference-hidden" description="Applied while the element the menu is positioned against is scrolled or clipped out of view." />
   <api-attribute name="data-instant" description="Applied when switching menus within the cooldown period. Use this to skip animations for instant transitions between menu changes." />
 </api-reference-attributes>
 
@@ -437,12 +438,14 @@ bootstrapApplication(AppComponent, {
 
 Adheres to the [WAI-ARIA Menu Button Pattern](https://www.w3.org/WAI/ARIA/apg/patterns/menu-button/).
 
+A menu is named by its trigger through `aria-labelledby`, and a submenu by its submenu trigger, unless an `aria-label` or `aria-labelledby` is present when the overlay renders; labels added later do not override the trigger name. A context menu has no trigger to take a name from, so give it an `aria-label`.
+
 ### Keyboard Interactions
 
 | Key                   | Description                                                                                    |
 | --------------------- | ---------------------------------------------------------------------------------------------- |
 | <kbd>Enter</kbd>      | Activates the focused menu item. Closes all menus unless the item is a checkbox or radio item. |
-| <kbd>Escape</kbd>     | Closes all open menus and returns focus to the root menu trigger.                              |
+| <kbd>Escape</kbd>     | Closes all open menus and returns focus as described in Focus Management below.                |
 | <kbd>ArrowDown</kbd>  | Moves focus to the next menu item.                                                             |
 | <kbd>ArrowUp</kbd>    | Moves focus to the previous menu item.                                                         |
 | <kbd>ArrowRight</kbd> | Opens a submenu when focused on a submenu trigger.                                             |
@@ -455,4 +458,5 @@ Adheres to the [WAI-ARIA Menu Button Pattern](https://www.w3.org/WAI/ARIA/apg/pa
 - Focus is always trapped within the menu when open (Tab key does not leave the menu).
 - When a menu is opened via keyboard, the first menu item receives visible focus (`:focus-visible`).
 - When a menu is opened via mouse, focus moves into the menu but without the visible focus ring until arrow keys are used.
-- Closing all menus (via Escape or item selection) returns focus to the root menu trigger.
+- Closing all menus (via Escape, item selection or a click on empty space) returns focus to the element that was focused when the menu opened, usually the root menu trigger, whether the menu was used with the keyboard or the mouse. A menu opened on hover leaves focus where it was before the hover. An outside click on another control leaves focus on that control.
+- Set `ngpMenuFinalFocus` on `ngpMenu` to send focus elsewhere on close: an element, `false` to leave focus where it is, `null` (the default) or `true` for the default restoration, or a function that receives the close origin and returns one of these.

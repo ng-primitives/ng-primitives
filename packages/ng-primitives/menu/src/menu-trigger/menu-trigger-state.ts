@@ -34,7 +34,7 @@ import {
   listener,
   StateInjectionOptions,
 } from 'ng-primitives/state';
-import { injectDisposables } from 'ng-primitives/utils';
+import { injectDisposables, uniqueId } from 'ng-primitives/utils';
 import { NgpMenuTriggerType } from '../config/menu-config';
 import { injectMenuTriggerGroupState } from '../menu-trigger-group/menu-trigger-group-state';
 
@@ -167,6 +167,12 @@ export interface NgpMenuTriggerState<T = unknown> {
    * @internal
    */
   setPointerOverContent(isOver: boolean): void;
+
+  /**
+   * The id of the trigger element, which names the menu.
+   * @internal
+   */
+  triggerId(): string | null;
 }
 
 export interface NgpMenuTriggerProps<T = unknown> {
@@ -277,8 +283,8 @@ export const [
     // Internal state
     const overlay = signal<NgpOverlay<T> | null>(null);
     const open = computed(() => overlay()?.isOpen() ?? false);
+    const expanded = computed(() => open() && !overlay()?.isClosing());
     const openOrigin = signal<FocusOrigin>('program');
-    const closeOrigin = signal<FocusOrigin>('program');
 
     // Track whether pointer is over trigger or content (for hover triggers)
     const pointerOverTrigger = signal(false);
@@ -327,15 +333,12 @@ export const [
       }
     });
 
-    // Computed signal to determine if focus should be restored
-    // Only restore if opened via keyboard OR closed via keyboard
-    const shouldRestoreFocus = computed(
-      () => openOrigin() === 'keyboard' || closeOrigin() === 'keyboard',
-    );
-
     // Host bindings
+    // the menu is named by its trigger, so the trigger needs an id; the consumer's own is kept
+    const fallbackId = uniqueId('ngp-menu-trigger');
+    attrBinding(element, 'id', () => element.nativeElement.id || fallbackId);
     attrBinding(element, 'aria-haspopup', 'true');
-    attrBinding(element, 'aria-expanded', open);
+    attrBinding(element, 'aria-expanded', expanded);
     dataBinding(element, 'data-open', open);
     dataBinding(element, 'data-placement', placement);
 
@@ -531,11 +534,11 @@ export const [
       if (open()) {
         hide(origin);
       } else {
-        show(origin);
+        show(origin, true);
       }
     }
 
-    function show(origin: FocusOrigin = 'program'): void {
+    function show(origin: FocusOrigin = 'program', fromTriggerPress = false): void {
       // Store the origin used to open the menu
       openOrigin.set(origin);
 
@@ -545,7 +548,7 @@ export const [
       }
 
       // Show the overlay
-      overlay()?.show();
+      overlay()?.show({ fromTriggerPress });
     }
 
     function hide(origin: FocusOrigin = 'program'): void {
@@ -554,7 +557,7 @@ export const [
         return;
       }
 
-      // Hide the overlay (this will trigger onClose callback which updates closeOrigin)
+      // Hide the overlay
       currentOverlay.hide({ origin });
     }
 
@@ -580,8 +583,7 @@ export const [
         shift: shift(),
         closeOnOutsideClick: true,
         closeOnEscape: true,
-        restoreFocus: shouldRestoreFocus,
-        onClose: (origin: FocusOrigin) => closeOrigin.set(origin),
+        restoreFocus: true,
         scrollBehaviour: scrollBehavior?.() ?? 'block',
         overlayType: 'menu',
         cooldown: cooldown?.(),
@@ -673,6 +675,7 @@ export const [
       setAnchor,
       setContainer,
       setPointerOverContent,
+      triggerId: () => element.nativeElement.id,
       flip,
       container: deprecatedSetter(container, 'setContainer', setContainer),
     } satisfies NgpMenuTriggerState<T>;
