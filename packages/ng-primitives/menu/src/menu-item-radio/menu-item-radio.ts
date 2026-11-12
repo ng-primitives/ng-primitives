@@ -1,6 +1,7 @@
 import { BooleanInput } from '@angular/cdk/coercion';
 import { booleanAttribute, Directive, input } from '@angular/core';
 import { ngpRovingFocusItem, provideRovingFocusItemState } from 'ng-primitives/roving-focus';
+import { provideMenuItemState } from '../menu-item/menu-item-state';
 import { ngpMenuItemRadio, provideMenuItemRadioState } from './menu-item-radio-state';
 
 /**
@@ -9,7 +10,11 @@ import { ngpMenuItemRadio, provideMenuItemRadioState } from './menu-item-radio-s
 @Directive({
   selector: '[ngpMenuItemRadio]',
   exportAs: 'ngpMenuItemRadio',
-  providers: [provideMenuItemRadioState(), provideRovingFocusItemState()],
+  providers: [
+    provideMenuItemRadioState(),
+    provideMenuItemState({ inherit: false }),
+    provideRovingFocusItemState(),
+  ],
 })
 export class NgpMenuItemRadio {
   /** The value this radio item represents */

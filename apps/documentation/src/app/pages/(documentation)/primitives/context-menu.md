@@ -59,6 +59,10 @@ The context menu can contain submenus, which are nested menus that can be opened
 
 <docs-example name="context-menu-submenu"></docs-example>
 
+### Keyboard Shortcuts
+
+Show an item's shortcut with `ngpMenuItemShortcut` from `ng-primitives/menu`. It works the same as in the [menu](/primitives/menu#keyboard-shortcuts): screen readers announce it as the item's description, and `ngpMenuItemShortcutKeys` sets the item's `aria-keyshortcuts`.
+
 ## API Reference
 
 The following directives are available to import from the `ng-primitives/context-menu` package:

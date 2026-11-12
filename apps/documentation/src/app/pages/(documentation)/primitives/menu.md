@@ -25,6 +25,7 @@ import {
   NgpMenuItemRadioGroup,
   NgpMenuItemRadio,
   NgpMenuItemIndicator,
+  NgpMenuItemShortcut,
 } from 'ng-primitives/menu';
 ```
 
@@ -88,6 +89,12 @@ Menu items that can be toggled on and off. Clicking a checkbox item does not clo
 Menu items that allow selecting one option from a group. Clicking a radio item does not close the menu.
 
 <docs-example name="menu-radio"></docs-example>
+
+### Keyboard Shortcuts
+
+Show the shortcut of an item with `ngpMenuItemShortcut`. Screen readers announce it as the item's description, not as part of its name. Set `ngpMenuItemShortcutKeys` to the keys in the `aria-keyshortcuts` format, such as `Meta+D`, to expose them on the item too. The menu does not handle the shortcut itself; bind it where the action lives.
+
+<docs-example name="menu-item-shortcut"></docs-example>
 
 ### Dialog from a Menu Item
 
@@ -373,6 +380,12 @@ The following directives are available to import from the `ng-primitives/menu` p
   <api-attribute name="data-checked" description="Applied when the parent checkbox or radio is checked." />
 </api-reference-attributes>
 
+### NgpMenuItemShortcut
+
+<api-docs name="NgpMenuItemShortcut"></api-docs>
+
+<api-reference-props name="NgpMenuItemShortcut"></api-reference-props>
+
 ## Styling
 
 For the menu to be positioned correctly relative to the trigger element, it should use fixed positioning. For example, you can use the following CSS:
@@ -437,6 +450,8 @@ bootstrapApplication(AppComponent, {
 ## Accessibility
 
 Adheres to the [WAI-ARIA Menu Button Pattern](https://www.w3.org/WAI/ARIA/apg/patterns/menu-button/).
+
+An item with a `ngpMenuItemShortcut` is described by it through `aria-describedby`, and the shortcut is hidden from the item's name. Its `ngpMenuItemShortcutKeys` become the item's `aria-keyshortcuts`.
 
 A menu is named by its trigger through `aria-labelledby`, and a submenu by its submenu trigger, unless an `aria-label` or `aria-labelledby` is present when the overlay renders; labels added later do not override the trigger name. A context menu has no trigger to take a name from, so give it an `aria-label`.
 

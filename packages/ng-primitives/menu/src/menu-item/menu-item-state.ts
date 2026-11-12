@@ -1,12 +1,28 @@
 import { FocusOrigin } from '@angular/cdk/a11y';
-import { inject, Injector, signal, Signal } from '@angular/core';
+import { computed, inject, Injector, signal, Signal } from '@angular/core';
 import { ngpButton } from 'ng-primitives/button';
-import { injectElementRef } from 'ng-primitives/internal';
+import { fromMutationObserver, injectElementRef } from 'ng-primitives/internal';
 import { attrBinding, createPrimitive, listener } from 'ng-primitives/state';
+import { onChange, safeTakeUntilDestroyed } from 'ng-primitives/utils';
 import { injectMenuState } from '../menu/menu-state';
 import { NgpSubmenuTrigger } from '../submenu-trigger/submenu-trigger';
 
-export interface NgpMenuItemState {}
+export interface NgpMenuItemState {
+  /**
+   * Add an element that describes the item, such as its shortcut.
+   * @internal
+   */
+  addDescribedBy(id: string): void;
+  /** @internal */
+  removeDescribedBy(id: string): void;
+  /**
+   * Add keys to the item's `aria-keyshortcuts`.
+   * @internal
+   */
+  addKeyShortcuts(keys: string): void;
+  /** @internal */
+  removeKeyShortcuts(keys: string): void;
+}
 
 export interface NgpMenuItemProps {
   /**
@@ -41,8 +57,13 @@ export const [NgpMenuItemStateToken, ngpMenuItem, injectMenuItemState, provideMe
 
       ngpButton({ disabled });
 
+      const describedBy = signal<string[]>([]);
+      const keyShortcuts = signal<string[]>([]);
+
       // Host bindings
       attrBinding(element, 'role', role);
+      addTokens(element.nativeElement, 'aria-describedby', describedBy);
+      addTokens(element.nativeElement, 'aria-keyshortcuts', keyShortcuts);
 
       // Event listeners
       listener(element, 'click', onClick);
@@ -106,6 +127,78 @@ export const [NgpMenuItemStateToken, ngpMenuItem, injectMenuItemState, provideMe
         parentMenu()?.closeSubmenus.next(element.nativeElement);
       }
 
-      return {} satisfies NgpMenuItemState;
+      function addDescribedBy(id: string): void {
+        describedBy.update(ids => [...ids, id]);
+      }
+
+      function removeDescribedBy(id: string): void {
+        describedBy.update(ids => ids.filter(i => i !== id));
+      }
+
+      function addKeyShortcuts(keys: string): void {
+        keyShortcuts.update(all => [...all, keys]);
+      }
+
+      function removeKeyShortcuts(keys: string): void {
+        // one of them: another shortcut of the item can have the same keys
+        keyShortcuts.update(all => all.filter((_, i) => i !== all.indexOf(keys)));
+      }
+
+      return {
+        addDescribedBy,
+        removeDescribedBy,
+        addKeyShortcuts,
+        removeKeyShortcuts,
+      } satisfies NgpMenuItemState;
     },
   );
+
+/**
+ * Keep the tokens that parts register in a space-separated attribute of the item, next to the
+ * consumer's own value, set on the item or bound to it. An item without registered tokens leaves
+ * the attribute alone.
+ */
+function addTokens(element: HTMLElement, attr: string, tokens: Signal<string[]>): void {
+  const tokensOf = (value: string | null) => (value ?? '').split(' ').filter(Boolean);
+  let ownValue: string[] = [];
+  // What the item last wrote: any other value is the consumer's.
+  let written: string | null | undefined;
+
+  function update(): void {
+    // Until a part registers a token, the consumer's value stays exactly as written.
+    if (written === undefined && tokens().length === 0) {
+      return;
+    }
+    const value = element.getAttribute(attr);
+    if (value !== written) {
+      ownValue = tokensOf(value);
+    }
+    // A part can register several tokens at once, such as alternative keys of one shortcut.
+    const next = [...new Set([...ownValue, ...tokens().flatMap(tokensOf)])].join(' ');
+    written = next || null;
+
+    if (next === (value ?? '')) {
+      return;
+    }
+
+    if (next) {
+      element.setAttribute(attr, next);
+    } else {
+      element.removeAttribute(attr);
+    }
+  }
+
+  onChange(tokens, update);
+
+  // A binding of the consumer writes the whole attribute when its value changes.
+  fromMutationObserver(element, {
+    attributes: true,
+    disabled: computed(() => tokens().length === 0),
+  })
+    .pipe(safeTakeUntilDestroyed())
+    .subscribe(mutations => {
+      if (mutations.some(mutation => mutation.attributeName === attr)) {
+        update();
+      }
+    });
+}
