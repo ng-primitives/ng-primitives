@@ -1,4 +1,15 @@
-import { Component, inject } from '@angular/core';
+import { DOCUMENT } from '@angular/common';
+import {
+  ApplicationRef,
+  Component,
+  ComponentRef,
+  inject,
+  OnDestroy,
+  PLATFORM_ID,
+  signal,
+  viewChild,
+} from '@angular/core';
+import { TestBed } from '@angular/core/testing';
 import { fireEvent, render, waitFor } from '@testing-library/angular';
 import {
   injectToastContext,
@@ -12,6 +23,9 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 interface ToastContext {
   label: string;
 }
+
+/** Labels of the toasts whose view has been destroyed. */
+const destroyedToasts: string[] = [];
 
 @Component({
   selector: 'test-toast',
@@ -27,13 +41,17 @@ interface ToastContext {
     }
   `,
 })
-class TestToast {
+class TestToast implements OnDestroy {
   private readonly manager = inject(NgpToastManager);
   private readonly toast = inject(NgpToast);
   protected readonly context = injectToastContext<ToastContext>();
 
   dismiss(): void {
     this.manager.dismiss(this.toast);
+  }
+
+  ngOnDestroy(): void {
+    destroyedToasts.push(this.context.label);
   }
 }
 
@@ -47,6 +65,27 @@ class ToastHost {
   show(label: string, options: NgpToastOptions = {}) {
     return this.manager.show(TestToast, { context: { label }, ...options });
   }
+}
+
+@Component({ selector: 'test-app-root', template: '' })
+class TestAppRoot {}
+
+@Component({ selector: 'test-scoped-toasts', template: '', providers: [NgpToastManager] })
+class ScopedToasts {
+  readonly manager = inject(NgpToastManager);
+}
+
+@Component({
+  template: `
+    @if (show()) {
+      <test-scoped-toasts />
+    }
+  `,
+  imports: [ScopedToasts],
+})
+class ScopedToastsHost {
+  readonly show = signal(true);
+  readonly scoped = viewChild.required(ScopedToasts);
 }
 
 async function renderHost(config: Parameters<typeof provideToastConfig>[0] = {}) {
@@ -109,6 +148,120 @@ describe('NgpToastManager behaviour', () => {
       expect(container.style.right).toBe('20px');
       expect(container.style.getPropertyValue('--ngp-toast-gap')).toBe('12px');
       expect(toasts()[0].style.getPropertyValue('--ngp-toast-gap')).toBe('12px');
+    });
+  });
+
+  describe('live regions', () => {
+    it('adds a container for every placement before the first toast', async () => {
+      await renderHost({ placement: 'bottom-start', ariaLive: 'polite' });
+
+      expect(containers().map(c => c.dataset['ngpToastContainer'])).toEqual([
+        'bottom-start',
+        'top-start',
+        'top-center',
+        'top-end',
+        'bottom-center',
+        'bottom-end',
+      ]);
+      for (const container of containers()) {
+        expect(container.parentElement).toBe(document.body);
+        expect(container).toHaveAttribute('role', 'status');
+        expect(container).toHaveAttribute('aria-live', 'polite');
+        expect(container.children).toHaveLength(0);
+      }
+    });
+
+    it('shows a toast in the container created ahead of it, whatever its placement', async () => {
+      const host = await renderHost({ persistent: true });
+      const container = document.querySelector('[data-ngp-toast-container="bottom-center"]')!;
+
+      host.show('A', { placement: 'bottom-center' });
+
+      await waitFor(() => expect(toasts().length).toBe(1));
+      expect(container.contains(toasts()[0])).toBe(true);
+      expect(containers()).toHaveLength(6);
+    });
+
+    it('removes the containers when the manager is destroyed', () => {
+      TestBed.inject(NgpToastManager);
+      expect(containers()).toHaveLength(6);
+
+      TestBed.resetTestingModule();
+
+      expect(containers()).toHaveLength(0);
+    });
+
+    describe('with a component-provided manager', () => {
+      let root: ComponentRef<TestAppRoot> | undefined;
+
+      afterEach(() => {
+        root?.location.nativeElement.remove();
+        root?.destroy();
+        root = undefined;
+      });
+
+      async function renderScoped() {
+        destroyedToasts.length = 0;
+        const { fixture } = await render(ScopedToastsHost, {
+          providers: [provideToastConfig({ persistent: true })],
+        });
+        // Toasts render in the root component's view container, which outlives the manager.
+        const rootElement = document.createElement('test-app-root');
+        document.body.appendChild(rootElement);
+        root = TestBed.inject(ApplicationRef).bootstrap(TestAppRoot, rootElement);
+        const manager = fixture.componentInstance.scoped().manager;
+        const destroyManager = () => {
+          fixture.componentInstance.show.set(false);
+          fixture.detectChanges();
+        };
+        return { manager, destroyManager };
+      }
+
+      it('destroys the open toasts when the manager is destroyed', async () => {
+        const { manager, destroyManager } = await renderScoped();
+        manager.show(TestToast, { context: { label: 'A' } });
+        await waitFor(() => expect(toasts().length).toBe(1));
+
+        destroyManager();
+
+        expect(destroyedToasts).toEqual(['A']);
+      });
+
+      it('destroys a closing toast right away when the manager is destroyed', async () => {
+        const { manager, destroyManager } = await renderScoped();
+        manager.show(TestToast, { context: { label: 'A' } });
+        await waitFor(() => expect(toasts().length).toBe(1));
+
+        // Not awaited: the toast is still waiting for its exit animation.
+        void manager.dismiss(manager.toasts()[0].instance);
+        destroyManager();
+
+        expect(destroyedToasts).toEqual(['A']);
+      });
+    });
+
+    it('waits for the first toast to add the containers when the document has no body yet', () => {
+      const bodiless = document.implementation.createHTMLDocument('');
+      bodiless.body.remove();
+      TestBed.configureTestingModule({ providers: [{ provide: DOCUMENT, useValue: bodiless }] });
+
+      const manager = TestBed.inject(NgpToastManager);
+      expect(bodiless.querySelector('[data-ngp-toast-container]')).toBeNull();
+
+      bodiless.documentElement.appendChild(bodiless.createElement('body'));
+      manager.show(TestToast, { context: { label: 'A' }, placement: 'top-end', persistent: true });
+
+      const created = bodiless.body.querySelectorAll('[data-ngp-toast-container]');
+      expect(created).toHaveLength(6);
+      const container = bodiless.body.querySelector('[data-ngp-toast-container="top-end"]');
+      expect(container!.querySelector('test-toast')).not.toBeNull();
+    });
+
+    it('does not add the containers on the server', () => {
+      TestBed.configureTestingModule({ providers: [{ provide: PLATFORM_ID, useValue: 'server' }] });
+      TestBed.inject(NgpToastManager);
+
+      expect(containers()).toHaveLength(0);
     });
   });
 
