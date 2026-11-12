@@ -95,22 +95,24 @@ export const [
 
     function updateDimensions(): void {
       if (collapsible().open()) {
-        const scrollHeight = element.nativeElement.scrollHeight;
-
         // Element is inside a hidden container (e.g. inactive tab with display:none).
         // All three dimensions are 0 only when the element has no layout at all.
         // Checking dimensions() (from ResizeObserver) prevents misidentifying
         // legitimately empty content (e.g. all children removed) as a hidden container.
         const { width, height } = dimensions();
-        if (scrollHeight === 0 && width === 0 && height === 0) {
+        if (element.nativeElement.scrollHeight === 0 && width === 0 && height === 0) {
           return;
         }
 
-        const scrollWidth = element.nativeElement.scrollWidth;
-
-        // remove the inline styles to reset them
+        // Remove the previous dimensions before measuring: while a height taken from the
+        // variable still applies, `scrollHeight` is at least that height, so content that
+        // got smaller would keep the old, larger value.
         element.nativeElement.style.removeProperty(widthVar);
         element.nativeElement.style.removeProperty(heightVar);
+
+        const scrollWidth = element.nativeElement.scrollWidth;
+        const scrollHeight = element.nativeElement.scrollHeight;
+
         // set the dimensions based on the content
         element.nativeElement.style.setProperty(widthVar, `${scrollWidth}px`);
         element.nativeElement.style.setProperty(heightVar, `${scrollHeight}px`);
