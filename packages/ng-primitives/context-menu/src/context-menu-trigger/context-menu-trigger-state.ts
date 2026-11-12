@@ -339,6 +339,8 @@ export const [
         toggle: noop,
         setMenu: noop,
         setPointerOverContent,
+        // the area a context menu opens from is no name for it
+        triggerId: () => null,
       });
     }
 

@@ -103,6 +103,7 @@ The following directives are available to import from the `ng-primitives/preview
   <api-attribute name="data-enter" description="Applied when the preview card is being added to the DOM. This can be used to trigger animations." />
   <api-attribute name="data-exit" description="Applied when the preview card is being removed from the DOM. This can be used to trigger animations." />
   <api-attribute name="data-placement" description="The final rendered placement of the preview card." />
+  <api-attribute name="data-reference-hidden" description="Applied while the element the preview card is positioned against is scrolled or clipped out of view." />
 </api-reference-attributes>
 
 <api-reference-css-vars>

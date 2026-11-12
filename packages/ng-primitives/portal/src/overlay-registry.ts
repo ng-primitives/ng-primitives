@@ -87,7 +87,7 @@ export interface NgpOverlayEntry {
  * @internal
  */
 export interface NgpOverlayRef {
-  hide(options?: { immediate?: boolean; origin?: FocusOrigin }): void;
+  hide(options?: { immediate?: boolean; origin?: FocusOrigin; outsidePressTarget?: Element }): void;
   hideImmediate(): void;
 }
 
@@ -182,6 +182,14 @@ export class NgpOverlayRegistry {
     for (let i = descendants.length - 1; i >= 0; i--) {
       descendants[i].overlay.hideImmediate();
     }
+  }
+
+  /**
+   * Whether overlay `id` closes along with `ancestorId`: nested in it, with no overlay that
+   * opted out of cascading in between.
+   */
+  closesWith(id: string, ancestorId: string): boolean {
+    return this.getCascadingDescendants(ancestorId).some(entry => entry.id === id);
   }
 
   /**
@@ -457,10 +465,15 @@ export class NgpOverlayRegistry {
       (path.find((node): node is Element => node instanceof Element) as Element) ??
       this.document.documentElement;
 
+    // The element the press started on, which `restoreFocus` uses to hand focus to the
+    // control the user pressed
+    const pressTarget =
+      (pressPath?.find((node): node is Element => node instanceof Element) as Element) ?? target;
+
     // Step 4: Dismiss each root
     for (const [id, entry] of toDismiss) {
       this.evaluateGuardAndDismiss(id, entry.dismissPolicy.outsidePress, target, () =>
-        this.ngZone.run(() => entry.overlay.hide()),
+        this.ngZone.run(() => entry.overlay.hide({ outsidePressTarget: pressTarget })),
       );
     }
   }
