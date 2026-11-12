@@ -32,7 +32,7 @@ import {
 Assemble the context menu directives in your template.
 
 ```html
-<div [ngpContextMenuTrigger]="menu">Right-click me</div>
+<div [ngpContextMenuTrigger]="menu" tabindex="0">Right-click me</div>
 
 <ng-template #menu>
   <div ngpContextMenu>
@@ -215,3 +215,9 @@ Adheres to the [WAI-ARIA Menu Pattern](https://www.w3.org/WAI/ARIA/apg/patterns/
 | <kbd>ArrowLeft</kbd>  | Closes the current submenu and moves focus to the parent submenu trigger.                      |
 | <kbd>Home</kbd>       | Moves focus to the first menu item.                                                            |
 | <kbd>End</kbd>        | Moves focus to the last menu item.                                                             |
+
+### Focus Management
+
+- The <kbd>Menu</kbd> key, and <kbd>Shift</kbd> + <kbd>F10</kbd> on Windows and Linux, open the menu from a focused trigger area, and its first item then shows the focus ring. Give the area `tabindex="0"` so keyboard users can reach it.
+- Closing the menu returns focus to the element that was focused when it opened: the trigger area, or the control inside it that was right-clicked, when they can take focus. An outside click on another control leaves focus on that control.
+- Set `ngpContextMenuFinalFocus` on `ngpContextMenu` to send focus elsewhere on close: an element, `false` to leave focus where it is, `null` (the default) or `true` for the default restoration, or a function that receives the close origin and returns one of these.
