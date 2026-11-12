@@ -1,6 +1,6 @@
 import { ngpVisuallyHidden } from 'ng-primitives/a11y';
 import { injectElementRef } from 'ng-primitives/internal';
-import { createPrimitive, listener } from 'ng-primitives/state';
+import { createPrimitive, listener, onDestroy } from 'ng-primitives/state';
 import { injectAvatarState, NgpAvatarStatus } from '../avatar/avatar-state';
 
 export interface NgpAvatarImageState {}
@@ -35,6 +35,10 @@ export const [
   // host listeners
   listener(element, 'load', () => setStatus(NgpAvatarStatus.Loaded));
   listener(element, 'error', () => setStatus(NgpAvatarStatus.Error));
+
+  // without an image the avatar is idle again, so a removed image does not leave it `loaded`
+  // and keep the fallback hidden
+  onDestroy(() => avatar().setStatus(NgpAvatarStatus.Idle));
 
   function setStatus(state: NgpAvatarStatus) {
     avatar().setStatus(state);
