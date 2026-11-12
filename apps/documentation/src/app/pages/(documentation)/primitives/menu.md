@@ -455,7 +455,7 @@ A menu is named by its trigger through `aria-labelledby`, and a submenu by its s
 ### Focus Management
 
 - Focus is always trapped within the menu when open (Tab key does not leave the menu).
-- When a menu is opened via keyboard, the first menu item receives visible focus (`:focus-visible`), or the last one when ArrowUp opened it. An element with `autofocus` in the menu takes focus instead, and the first item does when the last one cannot take focus.
+- When a menu is opened via keyboard, the first menu item receives visible focus (`:focus-visible`), or the last one when ArrowUp opened it. An element with `autofocus` in the menu takes focus instead. When the last item cannot take focus, focus goes where ArrowDown would put it.
 - When a menu is opened via mouse, focus moves into the menu but without the visible focus ring until arrow keys are used.
 - Closing all menus (via Escape, item selection or a click on empty space) returns focus to the element that was focused when the menu opened, usually the root menu trigger, whether the menu was used with the keyboard or the mouse. A menu opened on hover leaves focus where it was before the hover. An outside click on another control leaves focus on that control.
 - Set `ngpMenuFinalFocus` on `ngpMenu` to send focus elsewhere on close: an element, `false` to leave focus where it is, `null` (the default) or `true` for the default restoration, or a function that receives the close origin and returns one of these.
