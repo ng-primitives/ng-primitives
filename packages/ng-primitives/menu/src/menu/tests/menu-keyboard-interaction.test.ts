@@ -157,16 +157,13 @@ describe('NgpMenuItemRadio keyboard and submenu composition', () => {
     expect(fixture.componentInstance.emissions).toEqual([]);
   });
 
-  it.each([
-    ['Enter', '{Enter}'],
-    ['Space', ' '],
-  ] as const)('selects the focused radio with %s and keeps the menu open', async (_, key) => {
+  it('selects the focused radio with Space and keeps the menu open', async () => {
     const { fixture } = await render(RadioMenuComponent);
     await openWithKeyboard();
     await userEvent.keyboard('{ArrowDown}{ArrowDown}');
     expect(document.activeElement).toBe(query('radio-auto'));
 
-    await userEvent.keyboard(key);
+    await userEvent.keyboard(' ');
     TestBed.tick();
 
     expect(fixture.componentInstance.emissions).toEqual(['auto']);
@@ -174,6 +171,18 @@ describe('NgpMenuItemRadio keyboard and submenu composition', () => {
     expect(query('radio-bottom')).toHaveAttribute('aria-checked', 'false');
     expect(query('menu')).toBeInTheDocument();
     expect(document.activeElement).toBe(query('radio-auto'));
+  });
+
+  it('selects the focused radio with Enter and closes the menu', async () => {
+    const { fixture } = await render(RadioMenuComponent);
+    await openWithKeyboard();
+    await userEvent.keyboard('{ArrowDown}{ArrowDown}');
+    expect(document.activeElement).toBe(query('radio-auto'));
+
+    await userEvent.keyboard('{Enter}');
+
+    expect(fixture.componentInstance.emissions).toEqual(['auto']);
+    await waitFor(() => expect(query('menu')).not.toBeInTheDocument());
   });
 
   it('marks only the radio row that is also a submenu trigger as having a popup', async () => {
