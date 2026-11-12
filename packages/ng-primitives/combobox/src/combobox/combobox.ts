@@ -199,6 +199,11 @@ export class NgpCombobox {
    */
   private readonly closing = signal(false);
 
+  // The manager tracks the active option by index, so keep the lists it was last set on:
+  // an option added or removed before the active one would otherwise shift it.
+  private previousOptions: NgpComboboxOption[] = [];
+  private previousValues: T[] | undefined;
+
   /**
    * The open state of the combobox. A dropdown that is closing counts as closed, so
    * input that arrives during its exit animation opens it again.
@@ -260,15 +265,26 @@ export class NgpCombobox {
   protected readonly state = comboboxState<NgpCombobox>(this);
 
   constructor() {
-    // When the visible (or virtual) options change while open, revalidate so the
-    // active index can't point at a removed option and leave a stale aria-activedescendant.
+    // When the visible (or virtual) options change while open, re-resolve the active option and
+    // revalidate so the index can't point at a removed option and leave a stale aria-activedescendant.
     effect(() => {
-      this.sortedOptions();
-      this.state.allOptions();
+      const currentOptions = this.sortedOptions();
+      const currentValues = this.state.allOptions();
+
+      // the manager ignores activation while disabled, so keep the snapshot until re-enabled
+      if (this.state.disabled()) {
+        return;
+      }
 
       if (this.open()) {
-        untracked(() => this.activeDescendantManager.validate());
+        untracked(() => {
+          this.restoreActiveOption();
+          this.activeDescendantManager.validate();
+        });
       }
+
+      this.previousOptions = currentOptions;
+      this.previousValues = currentValues;
     });
 
     // The exit animation has ended once the overlay stops reporting itself open, so the
@@ -836,6 +852,33 @@ export class NgpCombobox {
     const option = this.getOptionAtIndex(index);
     if (option) {
       option.scrollIntoView();
+    }
+  }
+
+  private restoreActiveOption(): void {
+    const index = this.activeDescendantManager.index();
+
+    if (index < 0) {
+      return;
+    }
+
+    // virtual options are only known by value; rendered options keep their identity
+    const values = this.state.allOptions();
+    let nextIndex = -1;
+
+    if (values && this.previousValues && index < this.previousValues.length) {
+      const activeValue = this.previousValues[index];
+      const compareWith = this.state.compareWith();
+      // stay put while the value still matches, e.g. on a virtual scroll or with duplicates
+      nextIndex = compareWith(values[index], activeValue)
+        ? index
+        : values.findIndex(value => compareWith(value, activeValue));
+    } else if (!values && index < this.previousOptions.length) {
+      nextIndex = this.sortedOptions().indexOf(this.previousOptions[index]);
+    }
+
+    if (nextIndex !== -1 && nextIndex !== index) {
+      this.activeDescendantManager.activateByIndex(nextIndex, { scroll: false });
     }
   }
 
