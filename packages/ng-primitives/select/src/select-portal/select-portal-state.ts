@@ -79,7 +79,7 @@ export const [
       container: selectState().container,
       closeOnOutsideClick: true,
       closeOnEscape: true,
-      restoreFocus: false,
+      restoreFocus: true,
       scrollBehaviour: 'reposition',
       onClose: () => selectState().onOverlayClose(),
     };

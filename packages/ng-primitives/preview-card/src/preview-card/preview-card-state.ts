@@ -75,6 +75,7 @@ export const [
   attrBinding(elementRef, 'tabindex', '-1');
   dataBinding(elementRef, 'data-overlay', '');
   dataBinding(elementRef, 'data-placement', () => overlay.finalPlacement()?.toString() ?? null);
+  dataBinding(elementRef, 'data-reference-hidden', overlay.referenceHidden);
   styleBinding(elementRef, 'left.px', () => overlay.position().x ?? null);
   styleBinding(elementRef, 'top.px', () => overlay.position().y ?? null);
   styleBinding(elementRef, '--ngp-preview-card-trigger-width.px', () => overlay.triggerWidth());
