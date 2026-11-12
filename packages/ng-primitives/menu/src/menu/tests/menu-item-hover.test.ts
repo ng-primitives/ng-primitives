@@ -126,6 +126,8 @@ describe('NgpMenuItem hover', () => {
 
   it('follows the mouse again after the keyboard was used', async () => {
     await render(MenuComponent);
+    // a pointer coming from outside the page reports no movement on its first move
+    await userEvent.hover(byId('trigger'));
     byId('trigger').focus();
     await userEvent.keyboard('{Enter}');
     await waitFor(() => expect(document.activeElement).toBe(byId('rename')));
