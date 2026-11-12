@@ -3,6 +3,7 @@ import { Directionality } from '@angular/cdk/bidi';
 import { computed, ElementRef, inject, Signal, signal } from '@angular/core';
 import { ngpFocusTrap } from 'ng-primitives/focus-trap';
 import {
+  claimEscapeKey,
   createHoverTransitTracker,
   HoverTransitTracker,
   injectElementRef,
@@ -25,8 +26,9 @@ export interface NgpMenuState extends HoverTransitTracker {
   /**
    * Close the menu and any parent menus.
    * @param origin - The focus origin
+   * @param options.immediate - Whether to skip the hide delay
    */
-  closeAllMenus(origin: FocusOrigin): void;
+  closeAllMenus(origin: FocusOrigin, options?: { immediate?: boolean }): void;
   /**
    * Subject that emits when submenus should be closed.
    * @internal
@@ -38,6 +40,11 @@ export interface NgpMenuState extends HoverTransitTracker {
    * @internal
    */
   readonly element: ElementRef<HTMLElement>;
+  /**
+   * Whether the root menu's open state is bound, so its binding decides for the whole chain.
+   * @internal
+   */
+  isOpenControlled(): boolean;
 }
 
 export interface NgpMenuProps {
@@ -90,6 +97,10 @@ export const [NgpMenuStateToken, ngpMenu, injectMenuState, provideMenuState] = c
     listener(element, 'pointerleave', onPointerLeave);
     listener(element, 'keydown', onKeydown);
 
+    // Escape inside the menu is handled by onKeydown, so the overlay registry must not
+    // dismiss it as well: a bound trigger would report the same Escape twice.
+    claimEscapeKey(event => event.composedPath().includes(element.nativeElement));
+
     // Subject to notify children to close submenus
     const closeSubmenus = new Subject<HTMLElement>();
 
@@ -109,7 +120,7 @@ export const [NgpMenuStateToken, ngpMenu, injectMenuState, provideMenuState] = c
       if (event.key === 'Escape') {
         event.preventDefault();
         event.stopPropagation();
-        closeAllMenus('keyboard');
+        closeAllMenus('keyboard', { immediate: true });
         return;
       }
 
@@ -146,15 +157,39 @@ export const [NgpMenuStateToken, ngpMenu, injectMenuState, provideMenuState] = c
       }
     }
 
-    function closeAllMenus(origin: FocusOrigin): void {
-      menuTrigger().hide(origin);
-      parentMenu()?.closeAllMenus(origin);
+    function closeAllMenus(origin: FocusOrigin, options?: { immediate?: boolean }): void {
+      const parent = parentMenu();
+
+      if (!parent) {
+        if (!overlay.isClosing()) {
+          overlay.hide({ origin, immediate: options?.immediate });
+        }
+        return;
+      }
+
+      // A bound root decides for the chain: its overlay closes the nested menus once the close
+      // commits, so a close the binding declines leaves them open.
+      if (isOpenControlled()) {
+        parent.closeAllMenus(origin, options);
+        return;
+      }
+
+      // Otherwise each nested menu closes first, without the root's hide delay, and animates out:
+      // its exit is under way before the root closes, so the root lets it finish.
+      overlay.hide({ origin, immediate: options?.immediate });
+      parent.closeAllMenus(origin, options);
+    }
+
+    function isOpenControlled(): boolean {
+      const parent = parentMenu();
+      return parent ? parent.isOpenControlled() : (menuTrigger()?.isOpenControlled?.() ?? false);
     }
 
     return {
       closeAllMenus,
       closeSubmenus,
       element,
+      isOpenControlled,
       ...transit,
     } satisfies NgpMenuState;
   },

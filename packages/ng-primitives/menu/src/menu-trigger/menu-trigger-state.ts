@@ -1,12 +1,14 @@
-import { FocusOrigin } from '@angular/cdk/a11y';
+import { FocusOrigin, InputModalityDetector } from '@angular/cdk/a11y';
 import { Directionality } from '@angular/cdk/bidi';
 import {
+  afterRenderEffect,
   computed,
   effect,
   inject,
   Injector,
   signal,
   Signal,
+  untracked,
   ViewContainerRef,
   WritableSignal,
 } from '@angular/core';
@@ -32,6 +34,7 @@ import {
   dataBinding,
   deprecatedSetter,
   listener,
+  onDestroy,
   StateInjectionOptions,
 } from 'ng-primitives/state';
 import { injectDisposables, uniqueId } from 'ng-primitives/utils';
@@ -120,6 +123,12 @@ export interface NgpMenuTriggerState<T = unknown> {
   setContext(context: T): void;
 
   /**
+   * Set whether the menu opens on first render when its open state is not bound.
+   * @param defaultOpen - Whether the menu opens on first render
+   */
+  setDefaultOpen(defaultOpen: boolean): void;
+
+  /**
    * Set the anchor element the menu is positioned against. An open menu moves to the
    * new anchor.
    *
@@ -139,7 +148,7 @@ export interface NgpMenuTriggerState<T = unknown> {
   setContainer(container: HTMLElement | string | null): void;
 
   /**
-   * Show the menu.
+   * Show the menu. While `open` is bound, ask the binding to open it instead.
    * @param origin - The focus origin
    */
   show(origin?: FocusOrigin): void;
@@ -173,9 +182,25 @@ export interface NgpMenuTriggerState<T = unknown> {
    * @internal
    */
   triggerId(): string | null;
+
+  /**
+   * Whether `open` is bound, so the binding decides whether the menu closes. Optional because
+   * a submenu or context menu trigger also provides this state.
+   * @internal
+   */
+  isOpenControlled?(): boolean;
 }
 
 export interface NgpMenuTriggerProps<T = unknown> {
+  /**
+   * Whether the menu is open. Leave `undefined` to let the trigger manage it.
+   */
+  readonly open?: Signal<boolean | undefined>;
+  /**
+   * Whether the menu opens on first render when `open` is `undefined`.
+   * @default false
+   */
+  readonly defaultOpen?: Signal<boolean>;
   /**
    * Whether the trigger is disabled.
    */
@@ -238,6 +263,11 @@ export interface NgpMenuTriggerProps<T = unknown> {
    * The delay before hiding the menu.
    */
   readonly hideDelay?: Signal<number>;
+
+  /**
+   * Called when the menu opens or closes, or, while `open` is bound, asks to.
+   */
+  readonly onOpenChange?: (open: boolean) => void;
 }
 
 export const [
@@ -248,6 +278,8 @@ export const [
 ] = createPrimitive(
   'NgpMenuTrigger',
   <T>({
+    open: _open,
+    defaultOpen: _defaultOpen,
     disabled: _disabled = signal(false),
     menu: _menu = signal<NgpOverlayContent<T> | undefined>(undefined),
     placement: _placement = signal('bottom-start' as NgpPlacement),
@@ -262,11 +294,13 @@ export const [
     triggers = signal(['click'] as NgpMenuTriggerType[]),
     showDelay = signal(0),
     hideDelay = signal(0),
+    onOpenChange,
   }: NgpMenuTriggerProps<T>) => {
     const element = injectElementRef();
     const injector = inject(Injector);
     const viewContainerRef = inject(ViewContainerRef);
     const directionality = inject(Directionality);
+    const inputModality = inject(InputModalityDetector);
     const disposables = injectDisposables();
 
     // Controlled properties
@@ -279,12 +313,44 @@ export const [
     const context = controlled(_context);
     const anchor = controlled<HTMLElement | null>(_anchor, null);
     const container = controlled(_container, 'body');
+    const defaultOpen = controlled(_defaultOpen, false);
 
     // Internal state
     const overlay = signal<NgpOverlay<T> | null>(null);
     const open = computed(() => overlay()?.isOpen() ?? false);
     const expanded = computed(() => open() && !overlay()?.isClosing());
     const openOrigin = signal<FocusOrigin>('program');
+
+    // Two show() calls inside the show delay both settle when that single open
+    // completes, so track what has been announced rather than what was open per call.
+    let announcedOpen = false;
+
+    // Tearing the overlay down closes it, but a destroyed directive can no longer
+    // emit through `openChange` (Angular NG0953), so skip the notification.
+    let destroyed = false;
+
+    onDestroy(() => {
+      destroyed = true;
+    });
+
+    // Runs after render, so a bound or default open never runs during server rendering.
+    let defaultOpenApplied = false;
+    afterRenderEffect(() => {
+      const bound = _open?.();
+      // Tracked so that a binding already `true`, or `defaultOpen`, opens once the content arrives.
+      const hasContent = !!menu();
+      // `defaultOpen` applies to the first render that has content, never again.
+      const applyDefaultOpen = hasContent && !defaultOpenApplied;
+      defaultOpenApplied ||= hasContent;
+
+      untracked(() => {
+        if (bound === false) {
+          closeOverlay({ immediate: true, fromOwner: true });
+        } else if (hasContent && (bound === true || (applyDefaultOpen && defaultOpen()))) {
+          openOverlay();
+        }
+      });
+    });
 
     // Track whether pointer is over trigger or content (for hover triggers)
     const pointerOverTrigger = signal(false);
@@ -375,6 +441,8 @@ export const [
       if (open()) {
         hoverBridge.clear();
         overlay()?.cancelPendingClose();
+        // the pending close may have been an exit animation, already reported as a close
+        announceOpen();
         return;
       }
 
@@ -476,7 +544,7 @@ export const [
       if (event.key === 'Enter' && enabledTriggers.includes('enter')) {
         event.preventDefault();
         const origin: FocusOrigin = 'keyboard';
-        if (open()) {
+        if (expanded()) {
           hide(origin);
         } else {
           show(origin);
@@ -530,8 +598,8 @@ export const [
       // determine the origin of the event, 0 is keyboard, 1 is mouse
       const origin: FocusOrigin = event.detail === 0 ? 'keyboard' : 'mouse';
 
-      // if the menu is open then hide it
-      if (open()) {
+      // if the menu is open then hide it - one that is animating out opens again
+      if (expanded()) {
         hide(origin);
       } else {
         show(origin, true);
@@ -547,18 +615,76 @@ export const [
         createOverlayInstance();
       }
 
-      // Show the overlay
-      overlay()?.show({ fromTriggerPress });
+      overlay()?.show({ fromTriggerPress }).then(announceOpen);
+    }
+
+    /**
+     * Report an open once. A show also settles when the menu was already open, or when a
+     * concurrent call opened it first.
+     */
+    function announceOpen(): void {
+      if (expanded() && !announcedOpen) {
+        announcedOpen = true;
+        announce(true);
+      }
+    }
+
+    /** Open for the binding or `defaultOpen`: no delay, nothing to report. */
+    function openOverlay(): void {
+      // the binding does not say how it was set, so take the input the user last used
+      openOrigin.set(inputModality.mostRecentModality ?? 'program');
+
+      if (!overlay()) {
+        createOverlayInstance();
+      }
+
+      overlay()
+        ?.show({ immediate: true })
+        .then(() => (announcedOpen ||= open()));
+    }
+
+    /**
+     * Let a change through when nothing is bound or it matches the binding. Anything else is
+     * reported through `onOpenChange` and left to the binding.
+     */
+    function requestOpenChange(next: boolean): boolean {
+      const bound = _open?.();
+
+      if (bound === undefined || bound === next) {
+        return true;
+      }
+
+      onOpenChange?.(next);
+      return false;
+    }
+
+    /**
+     * Report a change the menu made on its own. While bound, only a close can be one: every
+     * open is the binding's own, or a request `requestOpenChange` has already reported.
+     */
+    function announce(value: boolean): void {
+      const bound = _open?.();
+
+      if (bound === undefined || (bound && !value)) {
+        onOpenChange?.(value);
+      }
     }
 
     function hide(origin: FocusOrigin = 'program'): void {
-      const currentOverlay = overlay();
-      if (!currentOverlay) {
-        return;
-      }
+      closeOverlay({ origin });
+    }
 
-      // Hide the overlay
-      currentOverlay.hide({ origin });
+    /** Close the overlay unless it is already animating out, which would close it twice. */
+    function closeOverlay(options: {
+      origin?: FocusOrigin;
+      immediate?: boolean;
+      fromOwner?: boolean;
+    }): void {
+      const currentOverlay = overlay();
+
+      if (currentOverlay && !currentOverlay.isClosing()) {
+        currentOverlay.hide(options);
+      }
     }
 
     function createOverlayInstance(): void {
@@ -589,6 +715,13 @@ export const [
         cooldown: cooldown?.(),
         showDelay: showDelay(),
         hideDelay: hideDelay(),
+        requestOpenChange,
+        onClose: () => {
+          announcedOpen = false;
+          if (!destroyed) {
+            announce(false);
+          }
+        },
       };
 
       overlay.set(createOverlay(config));
@@ -628,6 +761,10 @@ export const [
 
     function setContainer(newContainer: HTMLElement | string | null): void {
       container.set(newContainer);
+    }
+
+    function setDefaultOpen(shouldOpen: boolean): void {
+      defaultOpen.set(shouldOpen);
     }
 
     /**
@@ -674,8 +811,10 @@ export const [
       setContext,
       setAnchor,
       setContainer,
+      setDefaultOpen,
       setPointerOverContent,
       triggerId: () => element.nativeElement.id,
+      isOpenControlled: () => _open?.() !== undefined,
       flip,
       container: deprecatedSetter(container, 'setContainer', setContainer),
     } satisfies NgpMenuTriggerState<T>;

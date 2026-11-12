@@ -1,6 +1,6 @@
 import { FocusOrigin } from '@angular/cdk/a11y';
 import { BooleanInput, NumberInput } from '@angular/cdk/coercion';
-import { booleanAttribute, Directive, input, numberAttribute, Signal } from '@angular/core';
+import { booleanAttribute, Directive, input, numberAttribute, output, Signal } from '@angular/core';
 import {
   coerceFlip,
   coerceOffset,
@@ -14,6 +14,7 @@ import {
   NgpShift,
   NgpShiftInput,
 } from 'ng-primitives/portal';
+import { coerceBooleanOrUndefined } from 'ng-primitives/utils';
 import { injectMenuConfig, NgpMenuTriggerType } from '../config/menu-config';
 import { ngpMenuTrigger, provideMenuTriggerState } from './menu-trigger-state';
 
@@ -36,6 +37,26 @@ export class NgpMenuTrigger<T = unknown> {
    */
   readonly menu = input<NgpOverlayContent<T>>(undefined, {
     alias: 'ngpMenuTrigger',
+  });
+
+  /**
+   * Whether the menu is open. Bind it to control the menu: a click, Escape, an outside press
+   * or a selected item then emits `ngpMenuTriggerOpenChange` and the menu waits for the
+   * binding to change, so `[(ngpMenuTriggerOpen)]` keeps both in step. Leave unset to let the
+   * trigger manage it.
+   */
+  readonly open = input<boolean | undefined, BooleanInput>(undefined, {
+    alias: 'ngpMenuTriggerOpen',
+    transform: coerceBooleanOrUndefined,
+  });
+
+  /**
+   * Whether the menu opens on first render when `ngpMenuTriggerOpen` is unset.
+   * @default false
+   */
+  readonly defaultOpen = input<boolean, BooleanInput>(false, {
+    alias: 'ngpMenuTriggerDefaultOpen',
+    transform: booleanAttribute,
   });
 
   /**
@@ -159,9 +180,21 @@ export class NgpMenuTrigger<T = unknown> {
   });
 
   /**
+   * Event emitted when the user or a `show()` call opens or closes the menu, not when
+   * `ngpMenuTriggerDefaultOpen` opens it. While `ngpMenuTriggerOpen` is bound, it emits when
+   * the menu asks to open or close instead, and not for changes the binding made. A close the
+   * binding cannot hold back, such as another menu taking over, is emitted as it happens.
+   */
+  readonly openChange = output<boolean>({
+    alias: 'ngpMenuTriggerOpenChange',
+  });
+
+  /**
    * The menu trigger state.
    */
   private readonly state = ngpMenuTrigger<T>({
+    open: this.open,
+    defaultOpen: this.defaultOpen,
     disabled: this.disabled,
     menu: this.menu,
     placement: this.placement,
@@ -176,10 +209,11 @@ export class NgpMenuTrigger<T = unknown> {
     triggers: this.triggers,
     showDelay: this.showDelay,
     hideDelay: this.hideDelay,
+    onOpenChange: value => this.openChange.emit(value),
   });
 
   /**
-   * Show the menu.
+   * Show the menu, or, while `ngpMenuTriggerOpen` is bound, ask the binding to open it.
    */
   show(): void {
     this.state.show();

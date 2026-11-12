@@ -120,6 +120,15 @@ export class NgpOverlayRegistry {
   /** Composed path of the last pointerdown, so a press that starts inside an overlay keeps it open */
   private pressPath: EventTarget[] | null = null;
 
+  /**
+   * Overlays animating out after they deregistered, with their parent and the elements still on
+   * screen, so focus left in one still counts as inside the overlays it was opened from.
+   */
+  private readonly closing = new Map<
+    string,
+    Pick<NgpOverlayEntry, 'parentId' | 'cascadeClose' | 'getElements'>
+  >();
+
   /** Open order of each entry, parallel to `entries`, which stays sorted by it. */
   private readonly orders = new Map<string, number>();
 
@@ -139,6 +148,7 @@ export class NgpOverlayRegistry {
       return existing;
     }
 
+    this.closing.delete(entry.id);
     const entryOrder = order ?? this.nextOrder++;
     const index = this.entries.findIndex(e => this.orders.get(e.id)! > entryOrder);
     this.entries.splice(index === -1 ? this.entries.length : index, 0, entry);
@@ -156,9 +166,13 @@ export class NgpOverlayRegistry {
    * Remove an overlay from the registry.
    * Detaches document listeners if no entries remain.
    */
-  deregister(id: string): void {
+  deregister(id: string, closingElements?: () => HTMLElement[]): void {
     const index = this.entries.findIndex(e => e.id === id);
     if (index !== -1) {
+      if (closingElements) {
+        const { parentId, cascadeClose } = this.entries[index];
+        this.closing.set(id, { parentId, cascadeClose, getElements: closingElements });
+      }
       this.entries.splice(index, 1);
       this.orders.delete(id);
       this.pendingGuardIds.delete(id);
@@ -168,6 +182,42 @@ export class NgpOverlayRegistry {
     if (this.entries.length === 0) {
       this.detachListeners();
     }
+  }
+
+  /** Forget an overlay `deregister()` kept as closing, once its exit animation has ended. */
+  releaseClosing(id: string): void {
+    this.closing.delete(id);
+  }
+
+  /**
+   * Whether `element` is inside an overlay that is animating out and would have closed with
+   * `ancestorId`, like `closesWith()` for an overlay still registered.
+   */
+  isInClosingDescendant(element: Element, ancestorId: string): boolean {
+    for (const [id, closing] of this.closing) {
+      if (closing.getElements().some(el => el.contains(element))) {
+        return this.cascadesTo(id, ancestorId);
+      }
+    }
+    return false;
+  }
+
+  /** Whether `id` closes with `ancestorId`, walking parents through open and closing overlays. */
+  private cascadesTo(id: string, ancestorId: string): boolean {
+    const visited = new Set<string>();
+    for (let currentId: string | null = id; currentId && !visited.has(currentId); ) {
+      visited.add(currentId);
+      const entry: Pick<NgpOverlayEntry, 'parentId' | 'cascadeClose'> | undefined =
+        this.entries.find(e => e.id === currentId) ?? this.closing.get(currentId);
+      if (!entry || entry.cascadeClose === false) {
+        return false;
+      }
+      if (entry.parentId === ancestorId) {
+        return true;
+      }
+      currentId = entry.parentId;
+    }
+    return false;
   }
 
   /**

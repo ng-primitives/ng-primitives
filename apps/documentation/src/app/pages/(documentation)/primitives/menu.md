@@ -97,6 +97,16 @@ By default overlays portal into `document.body`, so giving the menu and the dial
 
 <docs-example name="menu-dialog"></docs-example>
 
+### Controlled
+
+Bind `ngpMenuTriggerOpen` to own the open state - to open the menu from a shortcut or another button, or keep it open while work an item started is in flight. With `[(ngpMenuTriggerOpen)]` the binding follows every open and close.
+
+<docs-example name="menu-controlled"></docs-example>
+
+While it is bound, the binding decides. A click on the trigger, Escape, an outside press or a selected item emits `ngpMenuTriggerOpenChange` and the menu waits for the binding to change, so a value you do not update keeps it as it is. A change you make to the binding opens or closes it with the usual animations, skips the show and hide delays, and is not emitted back. A call to `show()` is a request too. A few closes cannot wait for the binding: the trigger being hidden, or another menu or context menu opening and taking over. They are emitted as they happen, even when a request the binding declined has just reported them. A binding you do not update from `ngpMenuTriggerOpenChange` can therefore be left `true` on a closed menu. Submenus stay open while the binding keeps the menu open, and close with it, without an exit animation of their own.
+
+Use `ngpMenuTriggerDefaultOpen` instead to open an unbound menu on first render.
+
 ### Custom Offset
 
 You can customize the offset using either a simple number or an object for more precise control:
