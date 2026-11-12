@@ -258,6 +258,14 @@ describe('NgpMenuTrigger arrow keys', () => {
     await waitFor(() => expect(document.activeElement).toBe(byId('rename')));
   });
 
+  it('opens a menu to the left on Right Arrow in RTL', async () => {
+    await render(MenuComponent, { inputs: { placement: 'left-start', dir: 'rtl' } });
+
+    await press('ArrowRight');
+
+    await waitFor(() => expect(document.activeElement).toBe(byId('rename')));
+  });
+
   it('opens on the first item again after a menu opened on its last', async () => {
     await render(MenuComponent);
     await press('ArrowUp');
