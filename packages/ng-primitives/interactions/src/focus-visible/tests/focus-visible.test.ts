@@ -4,7 +4,7 @@ import { TestBed } from '@angular/core/testing';
 import { fireEvent, render } from '@testing-library/angular';
 import { NgpFocusVisible, provideInteractionsConfig } from 'ng-primitives/interactions';
 import { describe, expect, it, vi } from 'vitest';
-import { collectUncaughtErrors } from '../../tests/uncaught-errors';
+import { blurSynchronouslyOnDisable, collectUncaughtErrors } from '../../tests/uncaught-errors';
 
 describe('NgpFocusVisible', () => {
   it('should not set data-focus-visible to true when mouse focused', async () => {
@@ -235,7 +235,7 @@ describe('NgpFocusVisible', () => {
   });
 
   it('should report the blur when a binding disables the focused element', async () => {
-    // A binding that disables a focused element blurs it synchronously, mid-render.
+    // A binding that disables a focused element blurs it, mid-render in older Chromium.
     @Component({
       selector: 'ngp-test',
       imports: [NgpFocusVisible],
@@ -261,6 +261,8 @@ describe('NgpFocusVisible', () => {
     container.detectChanges();
     expect(focusChange).toHaveBeenLastCalledWith(true);
     expect(trigger).toHaveAttribute('data-focus-visible');
+
+    blurSynchronouslyOnDisable(trigger);
 
     const uncaught = await collectUncaughtErrors(() => {
       disabled.set(true);
