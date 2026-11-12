@@ -452,6 +452,8 @@ A menu is named by its trigger through `aria-labelledby`, and a submenu by its s
 | <kbd>ArrowLeft</kbd>  | Closes the current submenu and moves focus to the parent submenu trigger.                      |
 | <kbd>Home</kbd>       | Moves focus to the first menu item.                                                            |
 | <kbd>End</kbd>        | Moves focus to the last menu item.                                                             |
+| A character           | Moves focus to the next item whose visible text starts with the characters typed.              |
+| <kbd>Space</kbd>      | Activates the focused menu item, or continues a search started by typing.                      |
 
 ### Focus Management
 
