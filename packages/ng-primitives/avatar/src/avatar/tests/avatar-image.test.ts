@@ -1,5 +1,10 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/angular';
-import { NgpAvatar, NgpAvatarImage, NgpAvatarStatus } from 'ng-primitives/avatar';
+import {
+  NgpAvatar,
+  NgpAvatarFallback,
+  NgpAvatarImage,
+  NgpAvatarStatus,
+} from 'ng-primitives/avatar';
 import { describe, expect, it } from 'vitest';
 
 // A valid 1x1 transparent GIF that loads synchronously in the browser.
@@ -107,6 +112,54 @@ describe('NgpAvatarImage', () => {
 
       const avatar = screen.getByTestId('avatar');
       await waitFor(() => expect(avatar).toHaveAttribute('data-status', NgpAvatarStatus.Loaded));
+    });
+  });
+
+  describe('image removal', () => {
+    const template = `<div ngpAvatar data-testid="avatar">
+      @if (showImage) {
+        <img ngpAvatarImage data-testid="avatar-image" [src]="src" alt="Avatar" />
+      }
+      <span ngpAvatarFallback data-testid="avatar-fallback">AB</span>
+    </div>`;
+
+    it('should reset the avatar to idle and show the fallback when a loaded image is removed', async () => {
+      const { fixture, rerender } = await render(template, {
+        imports: [NgpAvatar, NgpAvatarImage, NgpAvatarFallback],
+        componentProperties: { src: VALID_IMAGE_SRC, showImage: true },
+      });
+
+      const avatar = screen.getByTestId('avatar');
+      const fallback = screen.getByTestId('avatar-fallback');
+      fireEvent.load(screen.getByTestId('avatar-image'));
+      await fixture.whenStable();
+      expect(avatar).toHaveAttribute('data-status', NgpAvatarStatus.Loaded);
+      await waitFor(() => expect(fallback).toHaveStyle({ display: 'none' }));
+
+      await rerender({ componentProperties: { src: VALID_IMAGE_SRC, showImage: false } });
+      await fixture.whenStable();
+
+      expect(screen.queryByTestId('avatar-image')).not.toBeInTheDocument();
+      expect(avatar).toHaveAttribute('data-status', NgpAvatarStatus.Idle);
+      expect(fallback).not.toHaveStyle({ display: 'none' });
+    });
+
+    it('should report loaded again when an image is added back after removal', async () => {
+      const { fixture, rerender } = await render(template, {
+        imports: [NgpAvatar, NgpAvatarImage, NgpAvatarFallback],
+        componentProperties: { src: VALID_IMAGE_SRC, showImage: true },
+      });
+
+      const avatar = screen.getByTestId('avatar');
+      fireEvent.load(screen.getByTestId('avatar-image'));
+      await rerender({ componentProperties: { src: VALID_IMAGE_SRC, showImage: false } });
+      await fixture.whenStable();
+      await rerender({ componentProperties: { src: VALID_IMAGE_SRC, showImage: true } });
+      await fixture.whenStable();
+
+      fireEvent.load(screen.getByTestId('avatar-image'));
+      await fixture.whenStable();
+      expect(avatar).toHaveAttribute('data-status', NgpAvatarStatus.Loaded);
     });
   });
 });
