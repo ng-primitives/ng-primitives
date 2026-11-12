@@ -78,3 +78,57 @@ describe('NgpOverlayRegistry escape key claims', () => {
     expect(hide).toHaveBeenCalledTimes(1);
   });
 });
+
+describe('NgpOverlayRegistry Escape for an overlay that takes it only inside', () => {
+  let below: HTMLElement;
+  let above: HTMLElement;
+  let hideBelow: ReturnType<typeof vi.fn>;
+  let hideAbove: ReturnType<typeof vi.fn>;
+
+  function entry(id: string, element: HTMLElement, hide: () => void): NgpOverlayEntry {
+    return {
+      id,
+      parentId: null,
+      overlay: { hide, hideImmediate: vi.fn() },
+      getElements: () => [element],
+      triggerElement: document.createElement('button'),
+      dismissPolicy: { outsidePress: false, escapeKey: true },
+    };
+  }
+
+  afterEach(() => {
+    const registry = TestBed.inject(NgpOverlayRegistry);
+    registry.deregister('below');
+    registry.deregister('above');
+    below.remove();
+    above.remove();
+  });
+
+  function setup(): void {
+    below = document.body.appendChild(document.createElement('div'));
+    above = document.body.appendChild(document.createElement('div'));
+    hideBelow = vi.fn();
+    hideAbove = vi.fn();
+    const registry = TestBed.inject(NgpOverlayRegistry);
+    registry.register(entry('below', below, hideBelow));
+    registry.register({ ...entry('above', above, hideAbove), escapeKeyInsideOnly: true });
+  }
+
+  it('passes an Escape pressed outside it to the overlay below', () => {
+    setup();
+
+    fireEvent.keyDown(below, { key: 'Escape' });
+
+    expect(hideAbove).not.toHaveBeenCalled();
+    expect(hideBelow).toHaveBeenCalledTimes(1);
+  });
+
+  it('takes an Escape pressed inside it', () => {
+    setup();
+
+    fireEvent.keyDown(above, { key: 'Escape' });
+
+    expect(hideAbove).toHaveBeenCalledTimes(1);
+    expect(hideBelow).not.toHaveBeenCalled();
+  });
+});

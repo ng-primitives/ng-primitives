@@ -130,11 +130,16 @@ export const [
           break;
         }
         case 'Tab':
-          // the dropdown is portaled to the end of the body, so close it (focusing the trigger)
-          // and let the browser tab on from the select's place in the page
-          if (!selectState().elementRef.nativeElement.contains(elementRef.nativeElement)) {
-            selectState().closeDropdown();
-          }
+          // Close right away, so a modal dropdown lifts `inert` from the page before the browser
+          // picks where focus goes. A dropdown portaled to the end of the body hands focus to the
+          // trigger first, so the browser tabs on from the select's place in the page; one
+          // rendered inside the select is already there.
+          selectState().closeDropdown({
+            immediate: true,
+            focusTrigger: !selectState().elementRef.nativeElement.contains(
+              elementRef.nativeElement,
+            ),
+          });
           break;
         case 'Escape':
           selectState().closeDropdown();

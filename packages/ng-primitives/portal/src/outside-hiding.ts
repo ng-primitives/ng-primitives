@@ -1,6 +1,10 @@
 import { DOCUMENT } from '@angular/common';
 import { Injectable, inject } from '@angular/core';
-import { NgpOverlayRegistry } from './overlay-registry';
+import {
+  NGP_MODAL_EXEMPT_ATTRIBUTE,
+  NgpOverlayEntry,
+  NgpOverlayRegistry,
+} from './overlay-registry';
 
 /**
  * How a layer hides the content outside it: `aria-hidden` from assistive technology only,
@@ -18,6 +22,19 @@ export interface NgpHidingLayer {
   getElements(): HTMLElement[];
   /** The attribute set on the content outside the layer. */
   readonly attribute: NgpHidingAttribute;
+  /**
+   * The registry entry of the overlay the layer belongs to. Overlays registered after it, such as
+   * a dialog opened from a modal popover, are above it and stay exposed.
+   */
+  readonly entryId?: string;
+}
+
+/**
+ * Something whose elements stay exposed while it leaves, see {@link NgpOutsideHiding.keepExposed}.
+ * @internal
+ */
+export interface NgpExposedSource {
+  getElements(): HTMLElement[];
 }
 
 const hiddenValues: Record<NgpHidingAttribute, string> = {
@@ -40,6 +57,9 @@ export class NgpOutsideHiding {
 
   /** The value each attribute had before it was overwritten, per element. */
   private readonly previousValues = new Map<Element, Map<NgpHidingAttribute, string | null>>();
+
+  /** Sources every layer keeps exposed, see `keepExposed()`. */
+  private readonly exposedSources = new Set<NgpExposedSource>();
 
   /**
    * Add the layer on top if it is new, then recompute every layer.
@@ -64,14 +84,47 @@ export class NgpOutsideHiding {
     }
   }
 
-  private refresh(): void {
+  /**
+   * Keep the source's elements exposed by every layer, from the next recompute until
+   * `releaseExposed()`. A dialog closing above a modal overlay has left the registry, but runs its
+   * exit animation while it still holds focus.
+   */
+  keepExposed(source: NgpExposedSource): void {
+    this.exposedSources.add(source);
+  }
+
+  /** Stop keeping the source exposed, from the next recompute. */
+  releaseExposed(source: NgpExposedSource): void {
+    this.exposedSources.delete(source);
+  }
+
+  /**
+   * Recompute the open layers, for an overlay that opened or closed while they are open: one
+   * opened from inside a layer into another container must not stay hidden.
+   */
+  refresh(): void {
+    if (this.layers.length === 0 && this.previousValues.size === 0) {
+      return;
+    }
+
     this.restore();
 
     // A layer hides what is below it, never the layers opened above it.
     this.layers.forEach((layer, index) => {
-      const exposedElements = this.layers.slice(index).flatMap(each => each.getElements());
+      const exposedElements = [
+        ...this.layers.slice(index).flatMap(each => each.getElements()),
+        ...this.getEntriesAbove(layer).flatMap(entry => entry.getElements()),
+        ...Array.from(this.exposedSources).flatMap(source => source.getElements()),
+      ];
       this.hideOutside(exposedElements, layer.attribute);
     });
+  }
+
+  /** The overlays registered after the layer's own entry. */
+  private getEntriesAbove(layer: NgpHidingLayer): readonly NgpOverlayEntry[] {
+    const entries = this.registry.getEntries();
+    const index = layer.entryId ? entries.findIndex(entry => entry.id === layer.entryId) : -1;
+    return index === -1 ? [] : entries.slice(index + 1);
   }
 
   private restore(): void {
@@ -105,17 +158,28 @@ export class NgpOutsideHiding {
     // ancestors are the other's siblings.
     const exposedPaths = new Set<Element>();
 
-    for (const exposedElement of exposedElements) {
+    const addPath = (exposedElement: Node) => {
       // A portal's root nodes can include comments (an `<ng-container>` root), so anchor the walk
       // on the nearest element.
       let current: Element | null =
-        exposedElement instanceof Element ? exposedElement : (exposedElement as Node).parentElement;
+        exposedElement instanceof Element ? exposedElement : exposedElement.parentElement;
 
       while (current && current !== body) {
         exposedPaths.add(current);
         current = current.parentElement;
       }
+    };
+
+    exposedElements.filter(element => element.isConnected).forEach(addPath);
+
+    // Nothing of the layer is in the document, so there is nothing to hide it from.
+    if (exposedPaths.size === 0) {
+      return;
     }
+
+    // `inert` applies to the whole subtree, so an exempt element nested in hidden content would
+    // be hidden with it: keep its ancestors exposed too.
+    this.document.querySelectorAll(`[${NGP_MODAL_EXEMPT_ATTRIBUTE}]`).forEach(addPath);
 
     // Hide everything sitting beside those paths.
     for (const element of exposedPaths) {

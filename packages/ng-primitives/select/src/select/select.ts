@@ -98,6 +98,17 @@ export class NgpSelect {
   });
 
   /**
+   * Whether the select dropdown is modal. While it is open the rest of the page is `inert`,
+   * so a click outside only closes the dropdown.
+   * Read each time the dropdown opens.
+   * @default false
+   */
+  readonly modal = input<boolean, BooleanInput>(this.config.modal, {
+    alias: 'ngpSelectDropdownModal',
+    transform: booleanAttribute,
+  });
+
+  /**
    * A function that will scroll the active option into view. This can be overridden
    * for cases such as virtual scrolling where we cannot scroll the option directly because
    * it may not be rendered.
@@ -125,6 +136,7 @@ export class NgpSelect {
     container: this.container,
     flip: this.flip,
     offset: this.offset,
+    modal: this.modal,
     scrollToOption: this.scrollToOption,
     allOptions: this.allOptions,
     onValueChange: value => this.valueChange.emit(value),

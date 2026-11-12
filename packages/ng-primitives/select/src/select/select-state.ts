@@ -76,6 +76,9 @@ export interface NgpSelectState<T> {
    */
   readonly offset: Signal<NgpOffset>;
 
+  /** Whether the dropdown is modal. */
+  readonly modal: Signal<boolean>;
+
   /**
    * A function that will scroll the active option into view. This can be overridden
    * for cases such as virtual scrolling where we cannot scroll the option directly because
@@ -148,9 +151,13 @@ export interface NgpSelectState<T> {
 
   /**
    * Close the dropdown.
+   * @param options.immediate - Skip the hide delay, so the dropdown leaves the page (and a modal
+   * one lifts `inert`) right away. The exit animation still runs.
+   * @param options.focusTrigger - Move focus from the search input to the trigger first. Defaults
+   * to true.
    * @internal
    */
-  closeDropdown(): void;
+  closeDropdown(options?: { immediate?: boolean; focusTrigger?: boolean }): void;
 
   /**
    * Handle the overlay being closed (e.g. via outside click or Escape).
@@ -332,6 +339,9 @@ export interface NgpSelectProps<T> {
    */
   readonly offset?: Signal<NgpOffset>;
 
+  /** Whether the dropdown is modal: the rest of the page is `inert` while it is open. */
+  readonly modal?: Signal<boolean>;
+
   /**
    * A function that will scroll the active option into view. This can be overridden
    * for cases such as virtual scrolling where we cannot scroll the option directly because
@@ -361,6 +371,7 @@ export const [NgpSelectStateToken, ngpSelect, _injectSelectState, provideSelectS
       container: _container,
       flip = signal<NgpFlip>(true),
       offset = signal<NgpOffset>(0),
+      modal = signal(false),
       scrollToOption = signal<((index: number) => void) | undefined>(undefined),
       allOptions = signal<T[] | undefined>(undefined),
       onValueChange,
@@ -536,17 +547,20 @@ export const [NgpSelectStateToken, ngpSelect, _injectSelectState, provideSelectS
        * Close the dropdown.
        * @internal
        */
-      function closeDropdown(): void {
+      function closeDropdown({
+        immediate,
+        focusTrigger = true,
+      }: { immediate?: boolean; focusTrigger?: boolean } = {}): void {
         if (!open()) {
           return;
         }
 
         // the search input is about to be removed, so don't let focus fall back to the body
-        if (document.activeElement === input()?.elementRef.nativeElement) {
+        if (focusTrigger && document.activeElement === input()?.elementRef.nativeElement) {
           focus();
         }
 
-        portal()?.hide();
+        portal()?.hide({ immediate });
       }
 
       /**
@@ -905,6 +919,11 @@ export const [NgpSelectStateToken, ngpSelect, _injectSelectState, provideSelectS
             void toggleDropdown();
             event.preventDefault();
             break;
+          case 'Tab':
+            // close right away, so a modal dropdown lifts `inert` from the page before the
+            // browser picks where focus goes next
+            closeDropdown({ immediate: true });
+            break;
         }
       }
 
@@ -961,6 +980,7 @@ export const [NgpSelectStateToken, ngpSelect, _injectSelectState, provideSelectS
         container: deprecatedSetter(container, 'setContainer', setContainer),
         flip,
         offset,
+        modal,
         scrollToOption,
         allOptions,
         portal,

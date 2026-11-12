@@ -97,6 +97,15 @@ export interface NgpPopoverTriggerState<T> {
    */
   readonly scrollBehavior: WritableSignal<'reposition' | 'block' | 'close'>;
   /**
+   * Whether the popover is modal. While it is open the rest of the page is `inert`, so a pointer
+   * press outside does not reach it: the click that ends the press closes the popover, unless
+   * `closeOnOutsideClick` says not to. A click from the keyboard or from code is left alone. The
+   * trigger, the anchor, exempt elements and overlays opened above the popover stay usable.
+   * Read each time the popover opens.
+   * @default false
+   */
+  readonly modal: Signal<boolean>;
+  /**
    * Provide context to the popover. This can be used to pass data to the popover content.
    */
   readonly context: WritableSignal<T | undefined>;
@@ -161,6 +170,8 @@ export interface NgpPopoverTriggerState<T> {
   setCloseOnEscape: (closeOnEscape: NgpDismissGuard<KeyboardEvent>) => void;
   /** Set how the popover behaves when the window is scrolled. */
   setScrollBehavior: (scrollBehavior: 'reposition' | 'block' | 'close') => void;
+  /** Set whether the popover is modal, from the next time it opens. */
+  setModal: (modal: boolean) => void;
   /** Set the context passed to the popover content. */
   setContext: (context: T | undefined) => void;
   /** Set the anchor element the popover is positioned against. */
@@ -246,6 +257,15 @@ export interface NgpPopoverTriggerProps<T> {
    */
   readonly scrollBehavior?: Signal<'reposition' | 'block' | 'close'>;
   /**
+   * Whether the popover is modal. While it is open the rest of the page is `inert`, so a pointer
+   * press outside does not reach it: the click that ends the press closes the popover, unless
+   * `closeOnOutsideClick` says not to. A click from the keyboard or from code is left alone. The
+   * trigger, the anchor, exempt elements and overlays opened above the popover stay usable.
+   * Read each time the popover opens.
+   * @default false
+   */
+  readonly modal?: Signal<boolean>;
+  /**
    * Provide context to the popover. This can be used to pass data to the popover content.
    */
   readonly context?: Signal<T | undefined>;
@@ -300,6 +320,7 @@ export const [
     closeOnOutsideClick: _closeOnOutsideClick,
     closeOnEscape: _closeOnEscape,
     scrollBehavior: _scrollBehavior,
+    modal: _modal,
     context: _context,
     anchor: _anchor,
     trackPosition: _trackPosition,
@@ -328,6 +349,7 @@ export const [
       _scrollBehavior,
       'reposition',
     );
+    const modal = controlled(_modal, false);
     const context = controlled<T | undefined>(_context, undefined);
     const anchor = controlled<HTMLElement | null>(_anchor, null);
     const trackPosition = controlled(_trackPosition, false);
@@ -393,6 +415,7 @@ export const [
         closeOnEscape: closeOnEscape(),
         restoreFocus: true,
         scrollBehaviour: scrollBehavior(),
+        modal,
         viewContainerRef: viewContainerRef,
         trackPosition: trackPosition(),
         overlayType: 'popover',
@@ -506,6 +529,10 @@ export const [
       scrollBehavior.set(behavior);
     }
 
+    function setModal(isModal: boolean): void {
+      modal.set(isModal);
+    }
+
     function setContext(newContext: T | undefined): void {
       context.set(newContext);
     }
@@ -544,6 +571,7 @@ export const [
       ),
       closeOnEscape: deprecatedSetter(closeOnEscape, 'setCloseOnEscape', setCloseOnEscape),
       scrollBehavior: deprecatedSetter(scrollBehavior, 'setScrollBehavior', setScrollBehavior),
+      modal,
       context: deprecatedSetter(context, 'setContext', setContext),
       anchor: deprecatedSetter(anchor, 'setAnchor', setAnchor),
       trackPosition: deprecatedSetter(trackPosition, 'setTrackPosition', setTrackPosition),
@@ -563,6 +591,7 @@ export const [
       setCloseOnOutsideClick,
       setCloseOnEscape,
       setScrollBehavior,
+      setModal,
       setContext,
       setAnchor,
       setTrackPosition,
