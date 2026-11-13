@@ -187,6 +187,7 @@ function categorizePrimitive(name: string): string {
       'range-slider',
       'date-picker',
       'combobox',
+      'autocomplete',
       'search',
       'form-field',
       'file-upload',

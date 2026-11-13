@@ -1,6 +1,13 @@
 import { Component } from '@angular/core';
 import { fireEvent, render } from '@testing-library/angular';
 import {
+  NgpAutocomplete,
+  NgpAutocompleteButton,
+  NgpAutocompleteDropdown,
+  NgpAutocompleteInput,
+  NgpAutocompletePortal,
+} from 'ng-primitives/autocomplete';
+import {
   NgpCombobox,
   NgpComboboxButton,
   NgpComboboxDropdown,
@@ -83,6 +90,10 @@ class TallPopoverTestComponent {}
         <div ngpSelect>
           <div ngpSelectDropdown></div>
         </div>
+        <div ngpAutocomplete>
+          <input ngpAutocompleteInput />
+          <div ngpAutocompleteDropdown></div>
+        </div>
         <div class="content"></div>
       </div>
     </ng-template>
@@ -96,6 +107,9 @@ class TallPopoverTestComponent {}
     NgpComboboxDropdown,
     NgpSelect,
     NgpSelectDropdown,
+    NgpAutocomplete,
+    NgpAutocompleteInput,
+    NgpAutocompleteDropdown,
   ],
 })
 class PopoverWithInlineDropdownsTestComponent {}
@@ -151,6 +165,33 @@ class TallComboboxTestComponent {}
 
 @Component({
   template: `
+    <div
+      class="trigger"
+      [ngpAutocompleteDropdownOffset]="0"
+      ngpAutocomplete
+      ngpAutocompleteDropdownPlacement="top"
+    >
+      <input ngpAutocompleteInput />
+      <button ngpAutocompleteButton>Open</button>
+
+      <div *ngpAutocompletePortal ngpAutocompleteDropdown>
+        <div class="content"></div>
+      </div>
+    </div>
+  `,
+  styles: cappedStyles('[ngpAutocompleteDropdown]', '--ngp-autocomplete-available-height'),
+  imports: [
+    NgpAutocomplete,
+    NgpAutocompleteInput,
+    NgpAutocompleteButton,
+    NgpAutocompletePortal,
+    NgpAutocompleteDropdown,
+  ],
+})
+class TallAutocompleteTestComponent {}
+
+@Component({
+  template: `
     <div class="trigger" [ngpSelectDropdownOffset]="0" ngpSelect ngpSelectDropdownPlacement="top">
       Open
       <div *ngpSelectPortal ngpSelectDropdown>
@@ -193,7 +234,9 @@ async function expectCappedFromFirstFrame(selector: string, open: () => void): P
 describe('overlay size', () => {
   afterEach(async () => {
     document
-      .querySelectorAll('[ngpPopover], [ngpMenu], [ngpComboboxDropdown], [ngpSelectDropdown]')
+      .querySelectorAll(
+        '[ngpPopover], [ngpMenu], [ngpComboboxDropdown], [ngpSelectDropdown], [ngpAutocompleteDropdown]',
+      )
       .forEach(el => el.remove());
     await page.viewport(414, 896);
   });
@@ -217,6 +260,15 @@ describe('overlay size', () => {
     const { getByRole } = await render(TallComboboxTestComponent);
 
     await expectCappedFromFirstFrame('[ngpComboboxDropdown]', () =>
+      fireEvent.click(getByRole('button')),
+    );
+  });
+
+  it('should position an autocomplete dropdown for the size it is capped to from its first frame', async () => {
+    await page.viewport(400, VIEWPORT_HEIGHT);
+    const { getByRole } = await render(TallAutocompleteTestComponent);
+
+    await expectCappedFromFirstFrame('[ngpAutocompleteDropdown]', () =>
       fireEvent.click(getByRole('button')),
     );
   });
