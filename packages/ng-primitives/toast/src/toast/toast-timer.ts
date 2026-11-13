@@ -7,7 +7,7 @@ class NgpToastTimer {
   constructor(
     private duration: number,
     private callback: () => void,
-    private readonly persistent = false,
+    private persistent = false,
   ) {
     this.remainingMs = duration;
   }
@@ -48,6 +48,15 @@ class NgpToastTimer {
     this.timeoutId = null;
     this.startTime = null;
     this.remainingMs = this.duration;
+  }
+
+  /**
+   * Stop the timer and give it a new duration. It does not start again until `start()`.
+   */
+  reset(duration: number, persistent: boolean): void {
+    this.duration = duration;
+    this.persistent = persistent;
+    this.stop();
   }
 }
 
