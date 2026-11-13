@@ -46,7 +46,10 @@ export class NgpToastManager {
   private readonly expanded = signal<NgpToastPlacement[]>([]);
 
   /** Show a toast notification */
-  show(toast: TemplateRef<void> | Type<unknown>, options: NgpToastOptions = {}): NgpToastRef {
+  show<T = unknown>(
+    toast: TemplateRef<void> | Type<unknown>,
+    options: NgpToastOptions<T> = {},
+  ): NgpToastRef<T> {
     // services can't access the view container directly, so this is a workaround.
     // Fall back to the caller's injector when no root component is available.
     const rootComponent = this.applicationRef.components[0];
@@ -59,6 +62,7 @@ export class NgpToastManager {
     const placement = options.placement ?? this.config.placement;
     const duration = options.duration ?? this.config.duration;
     const container = this.getOrCreateContainer(placement);
+    const context = signal(options.context as T);
 
     const portal = createPortal(
       toast,
@@ -68,7 +72,7 @@ export class NgpToastManager {
         // resolves from their subtree rather than the root injector. See #823.
         parent: options.injector ?? this.injector,
         providers: [
-          provideToastContext(options.context),
+          provideToastContext(context.asReadonly()),
           provideToastOptions({
             placement,
             duration,
@@ -84,7 +88,10 @@ export class NgpToastManager {
       {
         // Hide the toast when the dismiss method is called
         dismiss: () => this.dismiss(instance!),
-        context: options.context,
+        // A getter, so a template that reads `context` follows the signal
+        get context() {
+          return context();
+        },
       },
     );
 
@@ -95,10 +102,22 @@ export class NgpToastManager {
       throw new Error('A toast must have the NgpToast directive applied.');
     }
 
-    this.toasts.update(toasts => [{ instance: instance!, portal }, ...toasts]);
+    const record: NgpToastRecord = { instance: instance!, portal, leaving: false };
+    this.toasts.update(toasts => [record, ...toasts]);
 
     return {
       dismiss: () => this.dismiss(instance!),
+      update: changes => {
+        if (record.leaving || !this.toasts().includes(record)) {
+          return;
+        }
+
+        if ('context' in changes) {
+          context.set(changes.context as T);
+        }
+
+        record.instance.restart(changes);
+      },
     };
   }
 
@@ -107,6 +126,8 @@ export class NgpToastManager {
     const ref = this.toasts().find(t => t.instance === toast);
 
     if (ref) {
+      ref.leaving = true;
+
       // Read before the detach: removing the focused toast fires focusout in some browsers
       // only, and that clears the saved element.
       const returnTo = this.containerOf(this.document.activeElement)
@@ -386,8 +407,29 @@ export interface NgpToastOptions<T = unknown> {
 interface NgpToastRecord {
   instance: NgpToast;
   portal: NgpPortal;
+  /** Whether the toast is being dismissed. */
+  leaving: boolean;
 }
 
-export interface NgpToastRef {
+export interface NgpToastRef<T = unknown> {
+  /** Dismiss the toast. */
   dismiss(): Promise<void>;
+
+  /**
+   * Change the toast in place: it keeps its position and does not replay its enter animation.
+   * The timer restarts with the new duration, or the current one, unless the toast is persistent.
+   * Does nothing once the toast is being dismissed.
+   */
+  update(changes: NgpToastUpdate<T>): void;
+}
+
+export interface NgpToastUpdate<T = unknown> {
+  /** The new context of the toast. */
+  context?: T;
+
+  /** The new duration of the toast in milliseconds. */
+  duration?: number;
+
+  /** When true, the toast stops its timer; when false, it starts it again. */
+  persistent?: boolean;
 }
