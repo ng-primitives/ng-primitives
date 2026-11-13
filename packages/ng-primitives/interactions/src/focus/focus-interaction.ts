@@ -1,5 +1,6 @@
 import { FocusMonitor } from '@angular/cdk/a11y';
 import { ElementRef, Renderer2, Signal, inject, signal, untracked } from '@angular/core';
+import { onDestroy } from 'ng-primitives/state';
 import { safeTakeUntilDestroyed } from 'ng-primitives/utils';
 import { isFocusEnabled } from '../config/interactions-config';
 
@@ -75,6 +76,10 @@ export function ngpFocus({
         }
       }),
     );
+
+  // Unsubscribing does not remove the element from FocusMonitor's registry, so the element info
+  // and its root-node listeners have to be released explicitly, or the detached element is retained.
+  onDestroy(() => focusMonitor.stopMonitoring(elementRef));
 
   return { isFocused };
 }
