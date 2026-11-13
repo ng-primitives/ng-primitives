@@ -1,4 +1,5 @@
-import { Component, inject, Injector, TemplateRef, viewChild } from '@angular/core';
+import { Component, effect, inject, Injector, signal, TemplateRef, viewChild } from '@angular/core';
+import { TestBed } from '@angular/core/testing';
 import { render, waitFor } from '@testing-library/angular';
 import {
   injectToastContext,
@@ -39,7 +40,7 @@ class TestToast {
 class ToastHost {
   readonly manager = inject(NgpToastManager);
   readonly template = viewChild.required<TemplateRef<void>>('toast');
-  private readonly injector = inject(Injector);
+  readonly injector = inject(Injector);
 
   show(label: string, options: NgpToastOptions<ToastContext> = {}): NgpToastRef<ToastContext> {
     return this.manager.show(TestToast, { context: { label }, ...options });
@@ -288,6 +289,61 @@ describe('NgpToastRef.update()', () => {
       ref.update({ context: { label: 'B' } });
       ref.update({ duration: 1000 });
       expect(instance.restarts()).toBe(2);
+    });
+  });
+
+  describe('inside an effect', () => {
+    it('does not make an effect that calls update() follow the toasts', async () => {
+      const host = await renderHost({ persistent: true });
+      const ref = host.show('Progress 0');
+      await waitFor(() => expect(toasts()).toHaveLength(1));
+      const instance = host.manager.toasts()[0].instance;
+
+      const progress = signal(1);
+      let runs = 0;
+      effect(
+        () => {
+          runs++;
+          ref.update({ context: { label: `Progress ${progress()}` } });
+        },
+        { injector: host.injector },
+      );
+      TestBed.tick();
+      expect(runs).toBe(1);
+
+      host.show('Another toast');
+      await waitFor(() => expect(toasts()).toHaveLength(2));
+      TestBed.tick();
+
+      expect(runs).toBe(1);
+      expect(instance.restarts()).toBe(1);
+
+      progress.set(2);
+      TestBed.tick();
+      expect(runs).toBe(2);
+      await waitFor(() => expect(toastWithLabel('Progress 2')).toBeTruthy());
+    });
+
+    it('does not make an effect that calls show() follow the context of the toast', async () => {
+      const host = await renderHost({ persistent: true });
+      let ref: NgpToastRef<ToastContext> | undefined;
+      let runs = 0;
+      effect(
+        () => {
+          runs++;
+          ref = host.show('First');
+        },
+        { injector: host.injector },
+      );
+      TestBed.tick();
+      await waitFor(() => expect(toasts()).toHaveLength(1));
+
+      ref!.update({ context: { label: 'Second' } });
+      TestBed.tick();
+
+      await waitFor(() => expect(toastWithLabel('Second')).toBeTruthy());
+      expect(runs).toBe(1);
+      expect(toasts()).toHaveLength(1);
     });
   });
 

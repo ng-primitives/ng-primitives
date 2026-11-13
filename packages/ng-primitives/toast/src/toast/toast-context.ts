@@ -1,11 +1,11 @@
-import { inject, InjectionToken, Provider, Signal } from '@angular/core';
+import { inject, InjectionToken, Provider, Signal, untracked } from '@angular/core';
 
 const NgpToastContext = new InjectionToken<unknown>('NgpToastContext');
 const NgpToastContextSignal = new InjectionToken<Signal<unknown>>('NgpToastContextSignal');
 
 export function provideToastContext<T>(context: Signal<T>): Provider[] {
   return [
-    { provide: NgpToastContext, useValue: context() },
+    { provide: NgpToastContext, useValue: untracked(context) },
     { provide: NgpToastContextSignal, useValue: context },
   ];
 }

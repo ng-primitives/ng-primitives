@@ -98,7 +98,7 @@ Animate a progress bar over `--ngp-toast-duration` and pause it on `data-paused`
 
 ### Update a toast
 
-Change a toast after it is shown, for example to count uploaded files and then show the result. `show()` returns an `NgpToastRef`, whose `update()` takes a new `context`, `duration` or `persistent`. The toast keeps its place in the stack and does not replay its enter animation. Its timer restarts with the new duration, or the current one, so the new content stays long enough to read. While the toast is paused, by hover or `sequential`, the restarted timer waits for the pause to end.
+Change a toast after it is shown, for example to count uploaded files and then show the result. `show()` returns an `NgpToastRef`, whose `update()` takes a new `context`, `duration` or `persistent`. The toast keeps its place in the stack and does not replay its enter animation. Its timer restarts with the new duration, or the current one, so the new content stays long enough to read. A persistent toast keeps its timer stopped until an update sets `persistent: false`. While the toast is paused, by hover or `sequential`, the restarted timer waits for the pause to end.
 
 ```ts
 const ref = this.toastManager.show(UploadToast, {

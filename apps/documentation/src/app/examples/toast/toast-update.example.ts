@@ -1,6 +1,7 @@
 import { Component, DestroyRef, inject, signal, TemplateRef } from '@angular/core';
 import { NgpButton } from 'ng-primitives/button';
 import { NgpToast, NgpToastManager, NgpToastRef } from 'ng-primitives/toast';
+import { injectDisposables } from 'ng-primitives/utils';
 
 interface UploadContext {
   title: string;
@@ -135,9 +136,13 @@ interface UploadContext {
 })
 export default class ToastUpdateExample {
   private readonly toastManager = inject(NgpToastManager);
-  private readonly destroyRef = inject(DestroyRef);
+  private readonly disposables = injectDisposables();
   protected readonly uploading = signal(false);
   private ref: NgpToastRef<UploadContext> | null = null;
+
+  constructor() {
+    inject(DestroyRef).onDestroy(() => this.ref?.dismiss());
+  }
 
   upload(toast: TemplateRef<void>): void {
     this.uploading.set(true);
@@ -151,7 +156,7 @@ export default class ToastUpdateExample {
     this.ref = ref;
 
     let uploaded = 1;
-    const interval = setInterval(() => {
+    const stop = this.disposables.setInterval(() => {
       uploaded++;
 
       if (uploaded <= 3) {
@@ -161,7 +166,7 @@ export default class ToastUpdateExample {
         return;
       }
 
-      clearInterval(interval);
+      stop();
       this.uploading.set(false);
       ref.update({
         context: { title: 'Files uploaded', description: '3 files are ready.', done: true },
@@ -169,7 +174,5 @@ export default class ToastUpdateExample {
         duration: 5000,
       });
     }, 1200);
-
-    this.destroyRef.onDestroy(() => clearInterval(interval));
   }
 }

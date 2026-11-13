@@ -11,6 +11,7 @@ import {
   signal,
   TemplateRef,
   Type,
+  untracked,
   ViewContainerRef,
 } from '@angular/core';
 import { createPortal, NgpPortal } from 'ng-primitives/portal';
@@ -107,17 +108,18 @@ export class NgpToastManager {
 
     return {
       dismiss: () => this.dismiss(instance!),
-      update: changes => {
-        if (record.leaving || !this.toasts().includes(record)) {
-          return;
-        }
+      update: changes =>
+        untracked(() => {
+          if (record.leaving || !this.toasts().includes(record)) {
+            return;
+          }
 
-        if ('context' in changes) {
-          context.set(changes.context as T);
-        }
+          if ('context' in changes) {
+            context.set(changes.context as T);
+          }
 
-        record.instance.restart(changes);
-      },
+          record.instance.restart(changes);
+        }),
     };
   }
 
