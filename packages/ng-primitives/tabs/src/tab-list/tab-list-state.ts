@@ -1,4 +1,6 @@
+import { signal } from '@angular/core';
 import { injectElementRef } from 'ng-primitives/internal';
+import { ngpRovingFocusGroup } from 'ng-primitives/roving-focus';
 import { attrBinding, createPrimitive, dataBinding } from 'ng-primitives/state';
 import { injectTabsetState } from '../tabset/tabset-state';
 
@@ -20,6 +22,14 @@ export const [NgpTabListStateToken, ngpTabList, injectTabListState, provideTabLi
   createPrimitive('NgpTabList', ({}: NgpTabListProps) => {
     const element = injectElementRef();
     const tabsetState = injectTabsetState();
+
+    ngpRovingFocusGroup({
+      orientation: tabsetState().orientation,
+      disabled: signal(false),
+      wrap: tabsetState().wrap,
+      homeEnd: signal(true),
+      inherit: false,
+    });
 
     // Host bindings
     attrBinding(element, 'role', 'tablist');
