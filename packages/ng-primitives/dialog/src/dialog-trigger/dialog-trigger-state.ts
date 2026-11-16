@@ -1,6 +1,6 @@
 import { DestroyRef, Injector, Signal, TemplateRef, inject, signal } from '@angular/core';
 import { injectElementRef } from 'ng-primitives/internal';
-import { NgpDismissGuard } from 'ng-primitives/portal';
+import { NgpDismissGuard, NgpOverlay } from 'ng-primitives/portal';
 import {
   attrBinding,
   createPrimitive,
@@ -110,6 +110,14 @@ export const [
         onClosedChange?.(result as T);
         closed.emit(result as T);
       });
+
+      // Registered after the subscription above: destroy hooks run in order, so a trigger
+      // teardown unsubscribes it before closing the dialog, instead of emitting on a
+      // destroyed output.
+      if (config.lifetime === 'trigger') {
+        const stopFollowing = resolveTriggerLifetime(injector).onDestroy(() => dialogRef.close());
+        dialogRef.closed.subscribe(() => stopFollowing());
+      }
     }
 
     return {
@@ -121,6 +129,23 @@ export const [
     } satisfies NgpDialogTriggerState<T>;
   },
 );
+
+/**
+ * The trigger whose removal closes the dialog: this one, or for a trigger inside a menu or
+ * popover, that overlay's trigger, up to the first trigger outside any overlay or inside a
+ * dialog.
+ */
+function resolveTriggerLifetime(injector: Injector): DestroyRef {
+  const overlay = injector.get(NgpOverlay, null);
+  // An overlay reached through a dialog's injector holds the dialog's trigger, not this one.
+  const dialogRef = injector.get(NgpDialogRef, null);
+
+  if (!overlay || dialogRef?.injector?.get(NgpOverlay, null) === overlay) {
+    return injector.get(DestroyRef);
+  }
+
+  return resolveTriggerLifetime(overlay.triggerInjector);
+}
 
 export function injectDialogTriggerState<T>(
   options?: StateInjectionOptions,
