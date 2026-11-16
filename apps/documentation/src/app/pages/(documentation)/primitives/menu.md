@@ -91,7 +91,7 @@ Menu items that allow selecting one option from a group. Clicking a radio item d
 
 ### Dialog from a Menu Item
 
-A menu item can open a dialog. Setting `ngpMenuItemCloseOnSelect` to `false` keeps the menu mounted behind it, so a cancelled confirmation returns you to where you were - dismissing the dialog with Escape, a button or the backdrop closes only the dialog and restores focus to the item. With the default `closeOnSelect` the menu closes on select and the dialog outlives it.
+A menu item can open a dialog. The menu closes on select and the dialog outlives it. When the dialog closes, focus returns to the menu trigger, since the item that opened the dialog is gone. Set `ngpMenuItemCloseOnSelect` to `false` to keep the menu open behind the dialog instead; focus then returns to the item.
 
 By default overlays portal into `document.body`, so giving the menu and the dialog overlay the same `z-index` lets the one opened last paint on top, whichever way round they are nested. Point either of them at a custom container and that no longer holds - they only stack by open order while they share a stacking context.
 
