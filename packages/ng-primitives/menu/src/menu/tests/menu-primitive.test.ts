@@ -9,7 +9,7 @@ import { describe, expect, it, vi } from 'vitest';
     <button [ngpMenuTrigger]="menu" data-testid="root-trigger">Open Menu</button>
 
     <ng-template #menu>
-      <div ngpMenu ngpMenuEscapeClosesSubmenu data-testid="root-menu">
+      <div ngpMenu ngpMenuEscapeClosesOnlySubmenu data-testid="root-menu">
         <button ngpMenuItem data-testid="item-1">Item 1</button>
         <button ngpMenuItem data-testid="item-2">Item 2</button>
         <button [ngpSubmenuTrigger]="submenu" ngpMenuItem data-testid="submenu-trigger">
@@ -1047,7 +1047,7 @@ describe('NgpMenuItem', () => {
     <button [ngpMenuTrigger]="menu" data-testid="root-trigger">Open Menu</button>
 
     <ng-template #menu>
-      <div ngpMenu ngpMenuEscapeClosesSubmenu data-testid="root-menu">
+      <div ngpMenu ngpMenuEscapeClosesOnlySubmenu data-testid="root-menu">
         <button ngpMenuItem data-testid="item-1">Item 1</button>
         <button [ngpSubmenuTrigger]="submenu" ngpMenuItem data-testid="submenu-trigger">
           Open Submenu

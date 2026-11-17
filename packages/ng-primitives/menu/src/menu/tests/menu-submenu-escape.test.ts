@@ -5,12 +5,12 @@ import { NgpMenu, NgpMenuItem, NgpMenuTrigger, NgpSubmenuTrigger } from 'ng-prim
 import { afterEach, describe, expect, it } from 'vitest';
 import { userEvent } from 'vitest/browser';
 
-@Component({
-  template: `
+/** The menu with a submenu. `rootMenuAttributes` lets a fixture opt the root menu in or leave it default. */
+const menuTemplate = (rootMenuAttributes: string) => `
     <button [ngpMenuTrigger]="menu" data-testid="trigger">Actions</button>
 
     <ng-template #menu>
-      <div [ngpMenuEscapeClosesSubmenu]="escapeClosesSubmenu" ngpMenu data-testid="menu">
+      <div ${rootMenuAttributes} ngpMenu data-testid="menu">
         <button ngpMenuItem data-testid="rename">Rename</button>
         <button
           [ngpSubmenuTrigger]="submenu"
@@ -29,11 +29,13 @@ import { userEvent } from 'vitest/browser';
         <button type="button" data-testid="help">Help</button>
       </div>
     </ng-template>
-  `,
+  `;
+
+@Component({
+  template: menuTemplate(''),
   imports: [NgpMenuTrigger, NgpMenu, NgpMenuItem, NgpSubmenuTrigger],
 })
 class MenuComponent {
-  escapeClosesSubmenu = false;
   readonly shareDisabled = signal(false);
   readonly closeOrigins: FocusOrigin[] = [];
   readonly recordOrigin = (origin: FocusOrigin) => {
@@ -41,6 +43,12 @@ class MenuComponent {
     return null;
   };
 }
+
+@Component({
+  template: menuTemplate('ngpMenuEscapeClosesOnlySubmenu'),
+  imports: [NgpMenuTrigger, NgpMenu, NgpMenuItem, NgpSubmenuTrigger],
+})
+class OptedInMenuComponent extends MenuComponent {}
 
 @Component({
   template: `
@@ -63,7 +71,7 @@ class NoFinalFocusMenuComponent {}
     <button [ngpMenuTrigger]="menu" data-testid="trigger">Actions</button>
 
     <ng-template #menu>
-      <div ngpMenu ngpMenuEscapeClosesSubmenu data-testid="menu">
+      <div ngpMenu ngpMenuEscapeClosesOnlySubmenu data-testid="menu">
         <button ngpMenuItem data-testid="rename">Rename</button>
         <button [ngpSubmenuTrigger]="submenu" ngpMenuItem data-testid="share">Share</button>
       </div>
@@ -80,6 +88,26 @@ class NoFinalFocusMenuComponent {}
 class SubmenuFinalFocusComponent {
   readonly rename = () => document.querySelector<HTMLElement>('[data-testid="rename"]');
 }
+
+@Component({
+  template: `
+    <button [ngpMenuTrigger]="menu" data-testid="trigger">Actions</button>
+
+    <ng-template #menu>
+      <div ngpMenu ngpMenuEscapeClosesOnlySubmenu data-testid="menu">
+        <button [ngpSubmenuTrigger]="submenu" ngpMenuItem data-testid="share">Share</button>
+      </div>
+    </ng-template>
+
+    <ng-template #submenu>
+      <div [ngpMenuFinalFocus]="false" ngpMenu data-testid="submenu">
+        <button ngpMenuItem data-testid="email">Email</button>
+      </div>
+    </ng-template>
+  `,
+  imports: [NgpMenuTrigger, NgpMenu, NgpMenuItem, NgpSubmenuTrigger],
+})
+class SubmenuNoFinalFocusComponent {}
 
 const byId = (id: string) => screen.getByTestId(id);
 const present = (id: string) => !!screen.queryByTestId(id);
@@ -113,9 +141,7 @@ async function cleanUpFixtures(): Promise<void> {
 describe('Escape in a submenu when opted in', () => {
   afterEach(cleanUpFixtures);
 
-  /** Renders the menu with `ngpMenuEscapeClosesSubmenu` set on the root menu. */
-  const renderOptedIn = () =>
-    render(MenuComponent, { componentProperties: { escapeClosesSubmenu: true } });
+  const renderOptedIn = () => render(OptedInMenuComponent);
 
   it('closes only the submenu and focuses its trigger with a focus ring', async () => {
     await renderOptedIn();
@@ -222,6 +248,17 @@ describe('Escape in a submenu when opted in', () => {
     await submenuClosed();
     expect(open()).toEqual({ menu: true, submenu: false });
     expect(byId('share')).toHaveAttribute('aria-expanded', 'false');
+  });
+
+  it('leaves focus where the overlay puts it when the submenu final focus is false', async () => {
+    await render(SubmenuNoFinalFocusComponent);
+    await openSubmenuWithKeyboard();
+
+    await userEvent.keyboard('{Escape}');
+
+    await submenuClosed();
+    expect(open()).toEqual({ menu: true, submenu: false });
+    expect(document.activeElement).not.toBe(byId('share'));
   });
 
   it('sends focus to the final focus of the submenu', async () => {

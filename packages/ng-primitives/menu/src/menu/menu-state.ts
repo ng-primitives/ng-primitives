@@ -52,14 +52,14 @@ export interface NgpMenuProps {
   /** The menu directives' `wrap` input. Wrapping itself is set on their roving focus group. */
   readonly wrap?: Signal<boolean>;
   /** Whether Escape closes only the submenu that has focus. Read from the root menu. */
-  readonly escapeClosesSubmenu?: Signal<boolean>;
+  readonly escapeClosesOnlySubmenu?: Signal<boolean>;
 }
 
 export const [NgpMenuStateToken, ngpMenu, injectMenuState, provideMenuState] = createPrimitive(
   'NgpMenu',
   ({
     finalFocus = signal<NgpOverlayFinalFocus | null>(null),
-    escapeClosesSubmenu = signal(false),
+    escapeClosesOnlySubmenu = signal(false),
   }: NgpMenuProps) => {
     const element = injectElementRef<HTMLElement>();
     const transit = createHoverTransitTracker();
@@ -133,7 +133,11 @@ export const [NgpMenuStateToken, ngpMenu, injectMenuState, provideMenuState] = c
         if (!overlay.isClosing()) {
           menuTrigger().hide('keyboard');
         }
-        menuTrigger().focus?.('keyboard');
+        // A `false` final focus leaves focus alone. A function is not called here: the overlay
+        // calls it on close, and an extra call would report the close origin twice.
+        if (finalFocus() !== false) {
+          menuTrigger().focus?.('keyboard');
+        }
         return;
       }
 
@@ -176,7 +180,7 @@ export const [NgpMenuStateToken, ngpMenu, injectMenuState, provideMenuState] = c
     }
 
     function escapesSubmenuOnly(): boolean {
-      return parentMenu()?.escapesSubmenuOnly() ?? escapeClosesSubmenu();
+      return parentMenu()?.escapesSubmenuOnly() ?? escapeClosesOnlySubmenu();
     }
 
     return {

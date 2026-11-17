@@ -34,14 +34,14 @@ export class NgpContextMenu {
    * instead of closing the whole menu. Set it on the root menu; it applies to every submenu.
    * @default false
    */
-  readonly escapeClosesSubmenu = input<boolean, BooleanInput>(false, {
-    alias: 'ngpContextMenuEscapeClosesSubmenu',
+  readonly escapeClosesOnlySubmenu = input<boolean, BooleanInput>(false, {
+    alias: 'ngpContextMenuEscapeClosesOnlySubmenu',
     transform: booleanAttribute,
   });
 
   private readonly state = ngpMenu({
     wrap: this.wrap,
-    escapeClosesSubmenu: this.escapeClosesSubmenu,
+    escapeClosesOnlySubmenu: this.escapeClosesOnlySubmenu,
   });
 
   constructor() {

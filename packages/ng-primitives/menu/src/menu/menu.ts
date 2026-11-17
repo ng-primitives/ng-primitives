@@ -50,15 +50,15 @@ export class NgpMenu {
    * instead of closing the whole menu. Set it on the root menu; it applies to every submenu.
    * @default false
    */
-  readonly escapeClosesSubmenu = input<boolean, BooleanInput>(false, {
-    alias: 'ngpMenuEscapeClosesSubmenu',
+  readonly escapeClosesOnlySubmenu = input<boolean, BooleanInput>(false, {
+    alias: 'ngpMenuEscapeClosesOnlySubmenu',
     transform: booleanAttribute,
   });
 
   private readonly state = ngpMenu({
     wrap: this.wrap,
     finalFocus: this.finalFocus,
-    escapeClosesSubmenu: this.escapeClosesSubmenu,
+    escapeClosesOnlySubmenu: this.escapeClosesOnlySubmenu,
   });
 
   constructor() {
