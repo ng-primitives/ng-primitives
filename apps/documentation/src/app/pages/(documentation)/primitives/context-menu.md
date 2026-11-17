@@ -207,7 +207,7 @@ Adheres to the [WAI-ARIA Menu Pattern](https://www.w3.org/WAI/ARIA/apg/patterns/
 
 | Key                   | Description                                                                                    |
 | --------------------- | ---------------------------------------------------------------------------------------------- |
-| <kbd>Enter</kbd>      | Activates the focused menu item. Closes all menus unless the item is a checkbox or radio item. |
+| <kbd>Enter</kbd>      | Activates the item. Closes every menu. Checkbox and radio items stay open unless set to close. |
 | <kbd>Escape</kbd>     | Closes all open menus.                                                                         |
 | <kbd>ArrowDown</kbd>  | Moves focus to the next menu item.                                                             |
 | <kbd>ArrowUp</kbd>    | Moves focus to the previous menu item.                                                         |

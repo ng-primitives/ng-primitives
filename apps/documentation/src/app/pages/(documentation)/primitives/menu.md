@@ -79,13 +79,13 @@ The menu can contain submenus, which are nested menus that can be opened by hove
 
 ### Checkbox Items
 
-Menu items that can be toggled on and off. Toggling a checkbox item does not close the menu, unless `ngpMenuItemCheckboxCloseOnSelect` is set.
+Menu items that can be toggled on and off. Toggling a checkbox item does not close the menu, unless `ngpMenuItemCheckboxCloseOnSelect` is set to `true`.
 
 <docs-example name="menu-checkbox"></docs-example>
 
 ### Radio Items
 
-Menu items that allow selecting one option from a group. Clicking a radio item does not close the menu, unless `ngpMenuItemRadioCloseOnSelect` is set.
+Menu items that allow selecting one option from a group. Clicking a radio item does not close the menu, unless `ngpMenuItemRadioCloseOnSelect` is set to `true`.
 
 <docs-example name="menu-radio"></docs-example>
 
@@ -444,7 +444,7 @@ A menu is named by its trigger through `aria-labelledby`, and a submenu by its s
 
 | Key                   | Description                                                                                    |
 | --------------------- | ---------------------------------------------------------------------------------------------- |
-| <kbd>Enter</kbd>      | Activates the focused menu item. Closes all menus unless the item is a checkbox or radio item. |
+| <kbd>Enter</kbd>      | Activates the item. Closes every menu. Checkbox and radio items stay open unless set to close. |
 | <kbd>Escape</kbd>     | Closes all open menus and returns focus as described in Focus Management below.                |
 | <kbd>ArrowDown</kbd>  | Moves focus to the next menu item.                                                             |
 | <kbd>ArrowUp</kbd>    | Moves focus to the previous menu item.                                                         |

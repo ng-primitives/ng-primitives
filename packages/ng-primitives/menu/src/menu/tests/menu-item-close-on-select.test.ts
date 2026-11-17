@@ -16,7 +16,7 @@ import {
   NgpMenuTrigger,
   provideMenuItemCheckboxState,
 } from 'ng-primitives/menu';
-import { afterEach, describe, expect, it } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import { userEvent } from 'vitest/browser';
 
 @Component({
@@ -145,10 +145,6 @@ async function openContextMenu(): Promise<void> {
 }
 
 describe('Menu item closeOnSelect', () => {
-  afterEach(() => {
-    document.querySelectorAll('[ngpMenu], [ngpContextMenu]').forEach(el => el.remove());
-  });
-
   describe('radio item, by default', () => {
     it('keeps the menu open on a click', async () => {
       await render(MenuComponent);
