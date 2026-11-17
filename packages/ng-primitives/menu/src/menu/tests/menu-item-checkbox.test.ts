@@ -218,7 +218,7 @@ describe('NgpMenuItemCheckbox', () => {
     <button [ngpMenuTrigger]="menu" data-testid="root-trigger">Open Menu</button>
 
     <ng-template #menu>
-      <div ngpMenu data-testid="root-menu">
+      <div ngpMenu ngpMenuEscapeClosesSubmenu data-testid="root-menu">
         <button ngpMenuItem data-testid="item-1">Item 1</button>
         <button [ngpSubmenuTrigger]="submenu" ngpMenuItem data-testid="submenu-trigger">
           Open Submenu

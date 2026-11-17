@@ -352,9 +352,8 @@ export const [
       // Create config for the overlay
       // Note: restoreFocus is false because submenus should never auto-restore focus.
       // When closeAllMenus is called, the ROOT menu's overlay handles focus restoration.
-      // When closing just the submenu (Left Arrow, Escape), the caller handles focus explicitly.
-      // closeOnEscape is false because menu-state.ts handles Escape, closing only the menu
-      // that has focus.
+      // When closing just the submenu (Left Arrow, or Escape when opted in), the caller handles
+      // focus explicitly. closeOnEscape is false because menu-state.ts handles Escape.
       const config: NgpOverlayConfig<T> = {
         content: menu,
         triggerElement: element.nativeElement,

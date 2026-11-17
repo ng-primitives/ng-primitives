@@ -38,6 +38,12 @@ export interface NgpMenuState extends HoverTransitTracker {
    * @internal
    */
   readonly element: ElementRef<HTMLElement>;
+  /**
+   * Whether Escape closes only the submenu that has focus. The root menu's setting applies to
+   * the whole chain.
+   * @internal
+   */
+  escapesSubmenuOnly(): boolean;
 }
 
 export interface NgpMenuProps {
@@ -45,11 +51,16 @@ export interface NgpMenuProps {
   readonly finalFocus?: Signal<NgpOverlayFinalFocus | null>;
   /** The menu directives' `wrap` input. Wrapping itself is set on their roving focus group. */
   readonly wrap?: Signal<boolean>;
+  /** Whether Escape closes only the submenu that has focus. Read from the root menu. */
+  readonly escapeClosesSubmenu?: Signal<boolean>;
 }
 
 export const [NgpMenuStateToken, ngpMenu, injectMenuState, provideMenuState] = createPrimitive(
   'NgpMenu',
-  ({ finalFocus = signal<NgpOverlayFinalFocus | null>(null) }: NgpMenuProps) => {
+  ({
+    finalFocus = signal<NgpOverlayFinalFocus | null>(null),
+    escapeClosesSubmenu = signal(false),
+  }: NgpMenuProps) => {
     const element = injectElementRef<HTMLElement>();
     const transit = createHoverTransitTracker();
     const overlay = injectOverlay();
@@ -103,12 +114,21 @@ export const [NgpMenuStateToken, ngpMenu, injectMenuState, provideMenuState] = c
     }
 
     function onKeydown(event: KeyboardEvent): void {
-      // Escape closes the menu that has focus. The overlay registry closes a root menu before
-      // this runs; submenus turn closeOnEscape off, so they close here and return focus to
-      // their submenu trigger, as ArrowLeft does.
+      // Submenus turn closeOnEscape off, so the overlay registry never closes them and Escape
+      // is handled here.
       if (event.key === 'Escape') {
         event.preventDefault();
         event.stopPropagation();
+
+        if (!escapesSubmenuOnly()) {
+          // A second close would restore focus again once the menu, and its final focus, are gone.
+          if (!overlay.isClosing()) {
+            closeAllMenus('keyboard');
+          }
+          return;
+        }
+
+        // Opt-in: close only this menu and return focus to its submenu trigger, as ArrowLeft does.
         // A second close would restore focus again once the menu, and its final focus, are gone.
         if (!overlay.isClosing()) {
           menuTrigger().hide('keyboard');
@@ -155,10 +175,15 @@ export const [NgpMenuStateToken, ngpMenu, injectMenuState, provideMenuState] = c
       parentMenu()?.closeAllMenus(origin);
     }
 
+    function escapesSubmenuOnly(): boolean {
+      return parentMenu()?.escapesSubmenuOnly() ?? escapeClosesSubmenu();
+    }
+
     return {
       closeAllMenus,
       closeSubmenus,
       element,
+      escapesSubmenuOnly,
       ...transit,
     } satisfies NgpMenuState;
   },

@@ -14,7 +14,7 @@ import { userEvent } from 'vitest/browser';
     <div [ngpContextMenuTrigger]="menu" tabindex="0" data-testid="area">Right-click me</div>
 
     <ng-template #menu>
-      <div ngpContextMenu data-testid="menu">
+      <div ngpContextMenu ngpContextMenuEscapeClosesSubmenu data-testid="menu">
         <button [ngpContextMenuSubmenuTrigger]="submenu" ngpContextMenuItem data-testid="share">
           Share
         </button>

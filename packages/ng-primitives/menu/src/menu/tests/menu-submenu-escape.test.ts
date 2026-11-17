@@ -10,7 +10,7 @@ import { userEvent } from 'vitest/browser';
     <button [ngpMenuTrigger]="menu" data-testid="trigger">Actions</button>
 
     <ng-template #menu>
-      <div ngpMenu data-testid="menu">
+      <div [ngpMenuEscapeClosesSubmenu]="escapeClosesSubmenu" ngpMenu data-testid="menu">
         <button ngpMenuItem data-testid="rename">Rename</button>
         <button
           [ngpSubmenuTrigger]="submenu"
@@ -33,6 +33,7 @@ import { userEvent } from 'vitest/browser';
   imports: [NgpMenuTrigger, NgpMenu, NgpMenuItem, NgpSubmenuTrigger],
 })
 class MenuComponent {
+  escapeClosesSubmenu = false;
   readonly shareDisabled = signal(false);
   readonly closeOrigins: FocusOrigin[] = [];
   readonly recordOrigin = (origin: FocusOrigin) => {
@@ -62,7 +63,7 @@ class NoFinalFocusMenuComponent {}
     <button [ngpMenuTrigger]="menu" data-testid="trigger">Actions</button>
 
     <ng-template #menu>
-      <div ngpMenu data-testid="menu">
+      <div ngpMenu ngpMenuEscapeClosesSubmenu data-testid="menu">
         <button ngpMenuItem data-testid="rename">Rename</button>
         <button [ngpSubmenuTrigger]="submenu" ngpMenuItem data-testid="share">Share</button>
       </div>
@@ -99,19 +100,25 @@ async function submenuClosed(): Promise<void> {
   await new Promise(resolve => setTimeout(resolve, 50));
 }
 
-describe('Escape in a submenu', () => {
-  afterEach(async () => {
-    document.querySelectorAll('[ngpMenu]').forEach(el => el.remove());
+async function cleanUpFixtures(): Promise<void> {
+  document.querySelectorAll('[ngpMenu]').forEach(el => el.remove());
 
-    // the real pointer stays where a test left it, across files: park it away from fixtures
-    const corner = document.body.appendChild(document.createElement('div'));
-    corner.style.cssText = 'position: fixed; right: 0; bottom: 0; width: 4px; height: 4px;';
-    await userEvent.hover(corner);
-    corner.remove();
-  });
+  // the real pointer stays where a test left it, across files: park it away from fixtures
+  const corner = document.body.appendChild(document.createElement('div'));
+  corner.style.cssText = 'position: fixed; right: 0; bottom: 0; width: 4px; height: 4px;';
+  await userEvent.hover(corner);
+  corner.remove();
+}
+
+describe('Escape in a submenu when opted in', () => {
+  afterEach(cleanUpFixtures);
+
+  /** Renders the menu with `ngpMenuEscapeClosesSubmenu` set on the root menu. */
+  const renderOptedIn = () =>
+    render(MenuComponent, { componentProperties: { escapeClosesSubmenu: true } });
 
   it('closes only the submenu and focuses its trigger with a focus ring', async () => {
-    await render(MenuComponent);
+    await renderOptedIn();
     await openSubmenuWithKeyboard();
 
     await userEvent.keyboard('{Escape}');
@@ -123,7 +130,7 @@ describe('Escape in a submenu', () => {
   });
 
   it('closes the submenu with a keyboard origin', async () => {
-    const { fixture } = await render(MenuComponent);
+    const { fixture } = await renderOptedIn();
     await openSubmenuWithKeyboard();
 
     await userEvent.keyboard('{Escape}');
@@ -132,7 +139,7 @@ describe('Escape in a submenu', () => {
   });
 
   it('cancels the default action of an Escape in a submenu', async () => {
-    await render(MenuComponent);
+    await renderOptedIn();
     await openSubmenuWithKeyboard();
 
     // fireEvent returns false when a listener called preventDefault
@@ -149,7 +156,7 @@ describe('Escape in a submenu', () => {
     document.addEventListener('keydown', listener);
 
     try {
-      await render(MenuComponent);
+      await renderOptedIn();
       await openSubmenuWithKeyboard();
 
       await userEvent.keyboard('{Escape}');
@@ -163,7 +170,7 @@ describe('Escape in a submenu', () => {
   });
 
   it('closes the menu on a second Escape and returns focus to the trigger', async () => {
-    await render(MenuComponent);
+    await renderOptedIn();
     await openSubmenuWithKeyboard();
 
     await userEvent.keyboard('{Escape}');
@@ -176,7 +183,7 @@ describe('Escape in a submenu', () => {
   });
 
   it('closes only the submenu from an element inside it that is not an item', async () => {
-    await render(MenuComponent);
+    await renderOptedIn();
     await openSubmenuWithKeyboard();
     byId('help').focus();
 
@@ -188,7 +195,7 @@ describe('Escape in a submenu', () => {
   });
 
   it('closes only the submenu of a submenu opened by hovering', async () => {
-    await render(MenuComponent);
+    await renderOptedIn();
     await userEvent.click(byId('trigger'));
     await waitFor(() => expect(present('menu')).toBe(true));
     await userEvent.hover(byId('share'));
@@ -203,7 +210,7 @@ describe('Escape in a submenu', () => {
   });
 
   it('closes a submenu whose trigger was disabled while it was open', async () => {
-    const { fixture } = await render(MenuComponent);
+    const { fixture } = await renderOptedIn();
     await openSubmenuWithKeyboard();
     fixture.componentInstance.shareDisabled.set(true);
     fixture.detectChanges();
@@ -226,6 +233,34 @@ describe('Escape in a submenu', () => {
     await submenuClosed();
     expect(open()).toEqual({ menu: true, submenu: false });
     expect(document.activeElement).toBe(byId('rename'));
+  });
+});
+
+describe('Escape in a submenu by default', () => {
+  afterEach(cleanUpFixtures);
+
+  it('closes the whole menu from a submenu opened by keyboard and focuses the root trigger', async () => {
+    await render(MenuComponent);
+    await openSubmenuWithKeyboard();
+
+    await userEvent.keyboard('{Escape}');
+
+    await waitFor(() => expect(open()).toEqual({ menu: false, submenu: false }));
+    expect(document.activeElement).toBe(byId('trigger'));
+  });
+
+  it('closes the whole menu from a submenu opened by hovering and focuses the root trigger', async () => {
+    await render(MenuComponent);
+    await userEvent.click(byId('trigger'));
+    await waitFor(() => expect(present('menu')).toBe(true));
+    await userEvent.hover(byId('share'));
+    await waitFor(() => expect(present('submenu')).toBe(true));
+    byId('email').focus();
+
+    await userEvent.keyboard('{Escape}');
+
+    await waitFor(() => expect(open()).toEqual({ menu: false, submenu: false }));
+    expect(document.activeElement).toBe(byId('trigger'));
   });
 });
 

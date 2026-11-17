@@ -29,7 +29,20 @@ export class NgpContextMenu {
     transform: booleanAttribute,
   });
 
-  private readonly state = ngpMenu({ wrap: this.wrap });
+  /**
+   * Whether Escape closes only the submenu that has focus, and focuses its submenu trigger,
+   * instead of closing the whole menu. Set it on the root menu; it applies to every submenu.
+   * @default false
+   */
+  readonly escapeClosesSubmenu = input<boolean, BooleanInput>(false, {
+    alias: 'ngpContextMenuEscapeClosesSubmenu',
+    transform: booleanAttribute,
+  });
+
+  private readonly state = ngpMenu({
+    wrap: this.wrap,
+    escapeClosesSubmenu: this.escapeClosesSubmenu,
+  });
 
   constructor() {
     ngpRovingFocusGroup({ inherit: false, wrap: this.wrap });

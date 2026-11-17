@@ -8,7 +8,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
     <button [ngpMenuTrigger]="menu" data-testid="root-trigger">Open Menu</button>
 
     <ng-template #menu>
-      <div ngpMenu data-testid="root-menu">
+      <div ngpMenu ngpMenuEscapeClosesSubmenu data-testid="root-menu">
         <button [ngpSubmenuTrigger]="level1" ngpMenuItem data-testid="level1-trigger">
           Level 1
         </button>
