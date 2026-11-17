@@ -1,7 +1,6 @@
 import { BooleanInput } from '@angular/cdk/coercion';
 import { booleanAttribute, Directive, input } from '@angular/core';
 import { ngpRovingFocusItem, provideRovingFocusItemState } from 'ng-primitives/roving-focus';
-import { coerceBooleanOrUndefined } from 'ng-primitives/utils';
 import { ngpMenuItemRadio, provideMenuItemRadioState } from './menu-item-radio-state';
 
 /**
@@ -24,13 +23,10 @@ export class NgpMenuItemRadio {
     transform: booleanAttribute,
   });
 
-  /**
-   * Whether choosing the item closes the menu. By default (`undefined`) a click or Enter closes
-   * it and Space keeps it open, as React Aria does for a single choice. `null` counts as `false`.
-   */
-  readonly closeOnSelect = input<boolean | undefined, BooleanInput>(undefined, {
+  /** Whether choosing the item closes the menu */
+  readonly closeOnSelect = input<boolean, BooleanInput>(false, {
     alias: 'ngpMenuItemRadioCloseOnSelect',
-    transform: coerceBooleanOrUndefined,
+    transform: booleanAttribute,
   });
 
   constructor() {

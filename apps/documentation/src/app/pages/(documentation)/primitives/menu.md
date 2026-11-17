@@ -85,7 +85,7 @@ Menu items that can be toggled on and off. Toggling a checkbox item does not clo
 
 ### Radio Items
 
-Menu items that allow selecting one option from a group. Choosing one with a click or Enter closes the menu, and Space keeps it open, as React Aria does. Set `ngpMenuItemRadioCloseOnSelect` to `true` or `false` to always or never close it.
+Menu items that allow selecting one option from a group. Clicking a radio item does not close the menu, unless `ngpMenuItemRadioCloseOnSelect` is set.
 
 <docs-example name="menu-radio"></docs-example>
 
@@ -444,8 +444,7 @@ A menu is named by its trigger through `aria-labelledby`, and a submenu by its s
 
 | Key                   | Description                                                                                    |
 | --------------------- | ---------------------------------------------------------------------------------------------- |
-| <kbd>Enter</kbd>      | Activates the focused menu item and closes all menus unless the item is set to keep them open. |
-| <kbd>Space</kbd>      | Activates the focused menu item. Checkbox and radio items keep the menu open.                  |
+| <kbd>Enter</kbd>      | Activates the focused menu item. Closes all menus unless the item is a checkbox or radio item. |
 | <kbd>Escape</kbd>     | Closes all open menus and returns focus as described in Focus Management below.                |
 | <kbd>ArrowDown</kbd>  | Moves focus to the next menu item.                                                             |
 | <kbd>ArrowUp</kbd>    | Moves focus to the previous menu item.                                                         |

@@ -1,5 +1,5 @@
 import { Component, Directive, input } from '@angular/core';
-import { fireEvent, render, screen, waitFor } from '@testing-library/angular';
+import { render, screen, waitFor } from '@testing-library/angular';
 import {
   NgpContextMenu,
   NgpContextMenuItemCheckbox,
@@ -56,7 +56,7 @@ import { userEvent } from 'vitest/browser';
   imports: [NgpMenuTrigger, NgpMenu, NgpMenuItemRadioGroup, NgpMenuItemRadio, NgpMenuItemCheckbox],
 })
 class MenuComponent {
-  readonly radioCloseOnSelect = input<boolean | undefined>(undefined);
+  readonly radioCloseOnSelect = input(false);
   readonly checkboxCloseOnSelect = input(false);
 }
 
@@ -67,15 +67,15 @@ class MenuComponent {
     <ng-template #menu>
       <div ngpContextMenu data-testid="menu">
         <div ngpContextMenuItemRadioGroup>
-          <button ngpContextMenuItemRadio ngpContextMenuItemRadioValue="grid" data-testid="grid">
-            Grid
-          </button>
           <button
             ngpContextMenuItemRadio
-            ngpContextMenuItemRadioValue="list"
-            ngpContextMenuItemRadioCloseOnSelect="false"
-            data-testid="list"
+            ngpContextMenuItemRadioValue="grid"
+            ngpContextMenuItemRadioCloseOnSelect
+            data-testid="grid"
           >
+            Grid
+          </button>
+          <button ngpContextMenuItemRadio ngpContextMenuItemRadioValue="list" data-testid="list">
             List
           </button>
         </div>
@@ -150,23 +150,27 @@ describe('Menu item closeOnSelect', () => {
   });
 
   describe('radio item, by default', () => {
-    it('closes the menu on a click', async () => {
+    it('keeps the menu open on a click', async () => {
       await render(MenuComponent);
       await openMenu();
 
       await userEvent.click(byId('date'));
 
-      await waitFor(() => expect(present('menu')).toBe(false));
+      await settle();
+      expect(present('menu')).toBe(true);
+      expect(byId('date')).toHaveAttribute('aria-checked', 'true');
     });
 
-    it('closes the menu on Enter', async () => {
+    it('keeps the menu open on Enter', async () => {
       await render(MenuComponent);
       await openMenuWithKeyboard();
       await userEvent.keyboard('{ArrowDown}');
 
       await userEvent.keyboard('{Enter}');
 
-      await waitFor(() => expect(present('menu')).toBe(false));
+      await settle();
+      expect(present('menu')).toBe(true);
+      expect(byId('date')).toHaveAttribute('aria-checked', 'true');
     });
 
     it('keeps the menu open on Space', async () => {
@@ -180,76 +184,29 @@ describe('Menu item closeOnSelect', () => {
       expect(present('menu')).toBe(true);
       expect(byId('date')).toHaveAttribute('aria-checked', 'true');
     });
-
-    it('does not let an earlier Space decide for a later click', async () => {
-      await render(MenuComponent);
-      await openMenuWithKeyboard();
-      await userEvent.keyboard('{ArrowDown}');
-      await userEvent.keyboard(' ');
-      await settle();
-      expect(present('menu')).toBe(true);
-
-      byId('date').click();
-
-      await waitFor(() => expect(present('menu')).toBe(false));
-    });
-
-    it('closes the menu on a mouse click after a Space that clicked nothing', async () => {
-      await render(MenuComponent);
-      await openMenu();
-      fireEvent.keyDown(byId('date'), { key: ' ' });
-
-      await userEvent.click(byId('date'));
-
-      await waitFor(() => expect(present('menu')).toBe(false));
-    });
-
-    it('forgets a Space released without a click', async () => {
-      await render(MenuComponent);
-      await openMenu();
-      fireEvent.keyDown(byId('date'), { key: ' ' });
-      fireEvent.keyUp(byId('date'), { key: ' ' });
-      await settle();
-
-      byId('date').click();
-
-      await waitFor(() => expect(present('menu')).toBe(false));
-    });
-
-    it('forgets a Space once focus leaves the item', async () => {
-      await render(MenuComponent);
-      await openMenu();
-      byId('date').focus();
-      fireEvent.keyDown(byId('date'), { key: ' ' });
-      byId('name').focus();
-
-      byId('date').click();
-
-      await waitFor(() => expect(present('menu')).toBe(false));
-    });
-
-    it('closes the menu when selected from code', async () => {
-      await render(MenuComponent);
-      await openMenu();
-
-      byId('date').click();
-
-      await waitFor(() => expect(present('menu')).toBe(false));
-    });
   });
 
   describe('radio item with ngpMenuItemRadioCloseOnSelect', () => {
-    it('keeps the menu open on a click when false', async () => {
-      await render(MenuComponent, { inputs: { radioCloseOnSelect: false } });
+    it('closes the menu on a click', async () => {
+      await render(MenuComponent, { inputs: { radioCloseOnSelect: true } });
       await openMenu();
 
       await userEvent.click(byId('date'));
 
-      await settle();
-      expect(present('menu')).toBe(true);
+      await waitFor(() => expect(present('menu')).toBe(false));
     });
 
-    it('closes the menu on Space when true', async () => {
+    it('closes the menu on Enter', async () => {
+      await render(MenuComponent, { inputs: { radioCloseOnSelect: true } });
+      await openMenuWithKeyboard();
+      await userEvent.keyboard('{ArrowDown}');
+
+      await userEvent.keyboard('{Enter}');
+
+      await waitFor(() => expect(present('menu')).toBe(false));
+    });
+
+    it('closes the menu on Space', async () => {
       await render(MenuComponent, { inputs: { radioCloseOnSelect: true } });
       await openMenuWithKeyboard();
       await userEvent.keyboard('{ArrowDown}');
@@ -304,16 +261,7 @@ describe('Menu item closeOnSelect', () => {
   });
 
   describe('context menu items', () => {
-    it('closes on a radio click by default', async () => {
-      await render(ContextMenuComponent);
-      await openContextMenu();
-
-      await userEvent.click(byId('grid'));
-
-      await waitFor(() => expect(present('menu')).toBe(false));
-    });
-
-    it('keeps the menu open for a radio with ngpContextMenuItemRadioCloseOnSelect false', async () => {
+    it('keeps the menu open on a radio click by default', async () => {
       await render(ContextMenuComponent);
       await openContextMenu();
 
@@ -321,6 +269,15 @@ describe('Menu item closeOnSelect', () => {
 
       await settle();
       expect(present('menu')).toBe(true);
+    });
+
+    it('closes the menu on a radio click with ngpContextMenuItemRadioCloseOnSelect', async () => {
+      await render(ContextMenuComponent);
+      await openContextMenu();
+
+      await userEvent.click(byId('grid'));
+
+      await waitFor(() => expect(present('menu')).toBe(false));
     });
 
     it('closes for a checkbox with ngpContextMenuItemCheckboxCloseOnSelect', async () => {

@@ -3,7 +3,6 @@ import { inject, Injector, signal, Signal } from '@angular/core';
 import { ngpButton } from 'ng-primitives/button';
 import { injectElementRef } from 'ng-primitives/internal';
 import { attrBinding, createPrimitive, listener } from 'ng-primitives/state';
-import { injectDisposables } from 'ng-primitives/utils';
 import { injectMenuState } from '../menu/menu-state';
 import { NgpSubmenuTrigger } from '../submenu-trigger/submenu-trigger';
 
@@ -16,11 +15,10 @@ export interface NgpMenuItemProps {
   readonly disabled?: Signal<boolean>;
 
   /**
-   * Whether the menu should close when this item is selected. `undefined` closes it on a click
-   * or Enter and keeps it open on Space, which suits a single choice.
+   * Whether the menu should close when this item is selected.
    * @default signal(true)
    */
-  readonly closeOnSelect?: Signal<boolean | undefined>;
+  readonly closeOnSelect?: Signal<boolean>;
 
   /**
    * The ARIA role for the menu item.
@@ -40,10 +38,6 @@ export const [NgpMenuItemStateToken, ngpMenuItem, injectMenuItemState, provideMe
       const element = injectElementRef();
       const injector = inject(Injector);
       const parentMenu = injectMenuState({ optional: true });
-      const disposables = injectDisposables();
-
-      // The key that activated the item, read by the click it causes
-      let lastKey: string | null = null;
 
       ngpButton({ disabled });
 
@@ -53,10 +47,6 @@ export const [NgpMenuItemStateToken, ngpMenuItem, injectMenuItemState, provideMe
       // Event listeners
       listener(element, 'click', onClick);
       listener(element, 'keydown', handleArrowKey);
-      listener(element, 'keydown', (event: KeyboardEvent) => (lastKey = event.key));
-      // a native button clicks on Space after keyup, so forget the key once that has run
-      listener(element, 'keyup', () => disposables.setTimeout(() => (lastKey = null), 0));
-      listener(element, 'blur', () => (lastKey = null));
       listener(element, 'mouseenter', showSubmenuOnHover);
 
       // Methods
@@ -70,8 +60,10 @@ export const [NgpMenuItemStateToken, ngpMenuItem, injectMenuItemState, provideMe
         const trigger = injector.get(NgpSubmenuTrigger, null, { self: true, optional: true });
 
         const origin: FocusOrigin = event.detail === 0 ? 'keyboard' : 'mouse';
+
         // if this is a submenu trigger, we don't want to close the menu, we want to open the submenu
-        if (!trigger && (closeOnSelect() ?? !(origin === 'keyboard' && lastKey === ' '))) {
+        // if closeOnSelect is false, we don't want to close the menu (e.g., checkbox/radio items)
+        if (!trigger && closeOnSelect()) {
           parentMenu()?.closeAllMenus(origin);
         }
       }

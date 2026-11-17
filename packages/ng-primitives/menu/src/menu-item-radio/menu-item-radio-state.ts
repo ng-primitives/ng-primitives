@@ -23,10 +23,10 @@ export interface NgpMenuItemRadioProps {
   readonly disabled?: Signal<boolean>;
 
   /**
-   * Whether choosing the item closes the menu. `undefined` closes it on a click or Enter and keeps
-   * it open on Space.
+   * Whether choosing the radio item closes the menu.
+   * @default signal(false)
    */
-  readonly closeOnSelect?: Signal<boolean | undefined>;
+  readonly closeOnSelect?: Signal<boolean>;
 }
 
 export const [
@@ -39,7 +39,7 @@ export const [
   ({
     value,
     disabled = signal(false),
-    closeOnSelect = signal(undefined),
+    closeOnSelect = signal(false),
   }: NgpMenuItemRadioProps): NgpMenuItemRadioState => {
     const element = injectElementRef();
     const radioGroup = injectMenuItemRadioGroupState();
