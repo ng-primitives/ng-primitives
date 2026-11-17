@@ -21,7 +21,12 @@ import {
 } from 'ng-primitives/dialog';
 import { NgpMenu, NgpMenuItem, NgpMenuTrigger, NgpSubmenuTrigger } from 'ng-primitives/menu';
 import { NgpPopover, NgpPopoverTrigger } from 'ng-primitives/popover';
-import { createOverlay, NgpDismissGuard, NgpOverlayTemplateContext } from 'ng-primitives/portal';
+import {
+  createOverlay,
+  NgpDismissGuard,
+  NgpOverlayConfig,
+  NgpOverlayTemplateContext,
+} from 'ng-primitives/portal';
 import { NgpTooltip, NgpTooltipTrigger } from 'ng-primitives/tooltip';
 import { firstValueFrom } from 'rxjs';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
@@ -439,13 +444,16 @@ describe('NgpDialogOverlay backdrop click with an overlay open in the dialog', (
     <ng-template #dialog>
       <div ngpDialogOverlay style="position: fixed; inset: 0" data-testid="overlay">
         <div ngpDialog style="width: 200px; margin: 200px auto" data-testid="dialog">
+          <button data-testid="other">Other</button>
           <button data-testid="custom-trigger">Custom</button>
         </div>
       </div>
     </ng-template>
 
     <ng-template #custom>
-      <div data-testid="custom-overlay">Custom</div>
+      <div data-testid="custom-overlay">
+        <button data-testid="custom-action">Action</button>
+      </div>
     </ng-template>
   `,
   imports: [NgpDialogTrigger, NgpDialog, NgpDialogOverlay],
@@ -485,5 +493,68 @@ describe('NgpDialogOverlay backdrop click with a custom overlay typed as a toolt
 
     await waitFor(() => expect(screen.queryByTestId('custom-overlay')).toBeNull());
     expect(TestBed.inject(NgpDialogManager).openDialogs.length).toBe(1);
+  });
+});
+
+describe('NgpDialogOverlay backdrop click with a custom overlay', () => {
+  afterEach(async () => {
+    TestBed.inject(NgpDialogManager).closeAll();
+    await waitFor(() => expect(document.querySelector('[ngpDialogOverlay]')).toBeNull());
+  });
+
+  /** Opens the dialog, then shows a custom overlay from a trigger inside it. */
+  async function showCustomOverlay(
+    options: Pick<NgpOverlayConfig, 'closeOnOutsideClick' | 'hideDelay' | 'restoreFocus'>,
+  ): Promise<void> {
+    const { fixture } = await render(CustomOverlayHost);
+    fireEvent.click(screen.getByTestId('open-dialog'));
+    await screen.findByTestId('dialog');
+
+    const host = fixture.componentInstance;
+    const overlay = TestBed.runInInjectionContext(() =>
+      createOverlay({
+        content: host.custom,
+        triggerElement: screen.getByTestId('custom-trigger'),
+        injector: host.injector,
+        viewContainerRef: host.viewContainerRef,
+        ...options,
+      }),
+    );
+    await overlay.show();
+    await screen.findByTestId('custom-overlay');
+  }
+
+  /** A real click on the backdrop corner, away from the dialog and its overlays. */
+  async function clickBackdrop(): Promise<void> {
+    await userEvent.click(screen.getByTestId('overlay'), { position: { x: 5, y: 5 } });
+  }
+
+  it('should return focus to the trigger when an async guard lets a child that does not restore focus close', async () => {
+    await showCustomOverlay({
+      closeOnOutsideClick: () =>
+        new Promise<boolean>(resolve => setTimeout(() => resolve(true), 50)),
+      restoreFocus: false,
+    });
+    const trigger = screen.getByTestId('custom-trigger');
+    screen.getByTestId('custom-action').focus();
+
+    await clickBackdrop();
+
+    await waitFor(() => expect(screen.queryByTestId('custom-overlay')).toBeNull());
+    expect(document.activeElement).toBe(trigger);
+  });
+
+  it('should keep the dialog open for presses during a delayed close, and close it on the next press', async () => {
+    await showCustomOverlay({ closeOnOutsideClick: true, hideDelay: 300 });
+
+    await clickBackdrop();
+    await clickBackdrop();
+
+    expect(TestBed.inject(NgpDialogManager).openDialogs.length).toBe(1);
+
+    await waitFor(() => expect(screen.queryByTestId('custom-overlay')).toBeNull());
+    await clickBackdrop();
+
+    expect(TestBed.inject(NgpDialogManager).openDialogs.length).toBe(0);
   });
 });

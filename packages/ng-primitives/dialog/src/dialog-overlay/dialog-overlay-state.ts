@@ -55,6 +55,9 @@ export const [
     // guard can keep a child open, and focus inside it then stays where it is.
     let pressedOverlays: NgpOverlayEntry[] = [];
     const startedClosing = new Set<string>();
+    // Set while a child the press may close is still deciding on its guard: its close returns
+    // focus to `target`, which the press saved before it went to the body.
+    let pendingFocus: { target: HTMLElement | null } | null = null;
     let closingSubscription = new Subscription();
     onDestroy(() => closingSubscription.unsubscribe());
 
@@ -78,6 +81,7 @@ export const [
       closingSubscription.unsubscribe();
       closingSubscription = new Subscription();
       startedClosing.clear();
+      pendingFocus = null;
       pressedOverlays = overlays;
 
       for (const entry of overlays) {
@@ -86,9 +90,26 @@ export const [
           startedClosing.add(entry.id);
           continue;
         }
-        closingSubscription.add(
-          entry.overlay.closing.subscribe(() => startedClosing.add(entry.id)),
-        );
+        closingSubscription.add(entry.overlay.closing.subscribe(() => onOverlayClosing(entry)));
+      }
+    }
+
+    function onOverlayClosing(entry: NgpOverlayEntry): void {
+      startedClosing.add(entry.id);
+      if (!pendingFocus) {
+        return;
+      }
+      const { target } = pendingFocus;
+      pendingFocus = null;
+      // Focus still inside the child is about to go with it, so it counts as lost too.
+      const active = getActiveElement();
+      const focusLost =
+        !active ||
+        active === active.ownerDocument.body ||
+        entry.getElements().some(overlayElement => containsComposed(overlayElement, active));
+      const element = outsideOf([entry], target);
+      if (focusLost && element?.isConnected) {
+        element.focus();
       }
     }
 
@@ -150,7 +171,7 @@ export const [
       pressClosesChildOverlay.set(false);
 
       if (!isOverlayClick || closesChildOverlay || dialogRef.disableClose) {
-        restoreFocus();
+        restoreFocus(closesChildOverlay);
         return;
       }
 
@@ -204,13 +225,26 @@ export const [
       dialogRef.close(undefined, 'mouse');
     }
 
-    function restoreFocus(): void {
+    /**
+     * `awaitingClose` is set on a click that may still close a child whose guard has not decided:
+     * the child's close then returns focus, so the watch is kept until it starts.
+     */
+    function restoreFocus(awaitingClose = false): void {
       const closing = pressedOverlays.filter(entry => startedClosing.has(entry.id));
       const element = outsideOf(closing, focusedBeforePress);
-      focusedBeforePress = null;
-      watchClosing([]);
+      const awaiting = awaitingClose && closing.length < pressedOverlays.length;
 
-      // Leave focus alone if something else (e.g. the guard) has moved it since the press.
+      if (awaiting) {
+        pendingFocus = { target: focusedBeforePress };
+      } else {
+        watchClosing([]);
+      }
+      focusedBeforePress = null;
+      returnFocus(element);
+    }
+
+    // Leave focus alone if something else (e.g. the guard) has moved it since the press.
+    function returnFocus(element: HTMLElement | null): void {
       if (element?.isConnected && getActiveElement() === element.ownerDocument.body) {
         element.focus();
       }
