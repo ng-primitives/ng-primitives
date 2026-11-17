@@ -1,4 +1,5 @@
 import { Directive } from '@angular/core';
+import { provideRovingFocusGroupState } from 'ng-primitives/roving-focus';
 import { ngpTabList, provideTabListState } from './tab-list-state';
 
 /**
@@ -7,7 +8,7 @@ import { ngpTabList, provideTabListState } from './tab-list-state';
 @Directive({
   selector: '[ngpTabList]',
   exportAs: 'ngpTabList',
-  providers: [provideTabListState()],
+  providers: [provideTabListState(), provideRovingFocusGroupState({ inherit: false })],
 })
 export class NgpTabList {
   constructor() {

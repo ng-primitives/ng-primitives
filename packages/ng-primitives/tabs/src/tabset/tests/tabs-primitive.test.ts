@@ -2,6 +2,7 @@ import { Dir } from '@angular/cdk/bidi';
 import { By } from '@angular/platform-browser';
 import { fireEvent, render } from '@testing-library/angular';
 import { NgpTabButton, NgpTabList, NgpTabPanel, NgpTabset } from 'ng-primitives/tabs';
+import { NgpToggleGroup, NgpToggleGroupItem } from 'ng-primitives/toggle-group';
 import { describe, expect, it, vi } from 'vitest';
 
 const imports = [NgpTabset, NgpTabButton, NgpTabList, NgpTabPanel];
@@ -201,6 +202,41 @@ describe('NgpTabset (primitive)', () => {
   });
 
   describe('roving focus (tabindex)', () => {
+    it('should not include nested roving-focus items', async () => {
+      const { getByRole } = await render(
+        `<div ngpTabset>
+          <div ngpTabList>
+            <button ngpTabButton ngpTabButtonValue="overview">Overview</button>
+            <button ngpTabButton ngpTabButtonValue="features">Features</button>
+          </div>
+          <div ngpTabPanel ngpTabPanelValue="overview">
+            <div ngpToggleGroup>
+              <button data-testid="toggle-1" ngpToggleGroupItem ngpToggleGroupItemValue="one">One</button>
+              <button data-testid="toggle-2" ngpToggleGroupItem ngpToggleGroupItemValue="two">Two</button>
+            </div>
+          </div>
+          <div ngpTabPanel ngpTabPanelValue="features">Features content</div>
+        </div>`,
+        {
+          imports: [...imports, NgpToggleGroup, NgpToggleGroupItem],
+        },
+      );
+
+      const overviewTab = getByRole('tab', { name: 'Overview' });
+      const featuresTab = getByRole('tab', { name: 'Features' });
+
+      expect(overviewTab).toHaveAttribute('tabindex', '0');
+      overviewTab.focus();
+      fireEvent.keyDown(overviewTab, { key: 'ArrowLeft' });
+
+      expect(featuresTab).toHaveAttribute('tabindex', '0');
+      expect(document.activeElement).toBe(featuresTab);
+      fireEvent.keyDown(featuresTab, { key: 'ArrowRight' });
+
+      expect(overviewTab).toHaveAttribute('tabindex', '0');
+      expect(document.activeElement).toBe(overviewTab);
+    });
+
     it('should place tabindex="0" on one tab and "-1" on the others', async () => {
       const { getByRole } = await render(threeTabs(), { imports });
 
