@@ -10,9 +10,6 @@ import { createPrimitive, listener, onDestroy } from 'ng-primitives/state';
 import { Subscription } from 'rxjs';
 import { injectDialogRef } from '../dialog/dialog-ref';
 
-/** Overlays opened on hover or focus, not on a press: they leave a backdrop click to the dialog. */
-const PASSIVE_OVERLAY_TYPES = new Set(['tooltip', 'preview-card']);
-
 export interface NgpDialogOverlayState {
   /**
    * Whether the dialog should close on backdrop click. A backdrop click that closes a popover,
@@ -105,9 +102,7 @@ export const [
       const closing = new Set<string>();
 
       for (const entry of descendants) {
-        const closesOnPress =
-          entry.dismissPolicy.outsidePress !== false &&
-          !PASSIVE_OVERLAY_TYPES.has(entry.overlayType ?? '');
+        const closesOnPress = entry.dismissPolicy.outsidePress !== false && !entry.passive;
         const closesWithParent =
           entry.parentId !== null && closing.has(entry.parentId) && entry.cascadeClose !== false;
 

@@ -69,6 +69,11 @@ export interface NgpOverlayEntry {
   dismissPolicy: NgpDismissPolicy;
   /** The overlay type identifier from the overlay config, e.g. `'tooltip'` */
   overlayType?: string;
+  /**
+   * If true, the overlay opens on hover or focus rather than a press, so a dialog's backdrop
+   * click closes the dialog instead of this overlay.
+   */
+  passive?: boolean;
   /** If true, clicks on the trigger element are treated as outside clicks */
   treatTriggerClickAsOutside?: boolean;
   /** Optional subject that receives pointer events that occur outside the overlay */

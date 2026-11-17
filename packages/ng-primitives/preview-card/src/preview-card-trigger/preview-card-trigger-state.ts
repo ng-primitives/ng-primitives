@@ -397,6 +397,7 @@ export const [
         scrollBehaviour: scrollBehavior(),
         viewContainerRef,
         overlayType: 'preview-card',
+        passive: true,
         cooldown: cooldown(),
         onClose: () => {
           announcedOpen = false;

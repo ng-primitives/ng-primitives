@@ -1,4 +1,11 @@
-import { Component } from '@angular/core';
+import {
+  Component,
+  Injector,
+  TemplateRef,
+  ViewContainerRef,
+  inject,
+  viewChild,
+} from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { fireEvent, render, screen, waitFor, within } from '@testing-library/angular';
 import {
@@ -14,7 +21,7 @@ import {
 } from 'ng-primitives/dialog';
 import { NgpMenu, NgpMenuItem, NgpMenuTrigger, NgpSubmenuTrigger } from 'ng-primitives/menu';
 import { NgpPopover, NgpPopoverTrigger } from 'ng-primitives/popover';
-import { NgpDismissGuard } from 'ng-primitives/portal';
+import { createOverlay, NgpDismissGuard, NgpOverlayTemplateContext } from 'ng-primitives/portal';
 import { NgpTooltip, NgpTooltipTrigger } from 'ng-primitives/tooltip';
 import { firstValueFrom } from 'rxjs';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
@@ -422,5 +429,61 @@ describe('NgpDialogOverlay backdrop click with an overlay open in the dialog', (
     await clickBackdrop();
 
     expect(TestBed.inject(NgpDialogManager).openDialogs.length).toBe(0);
+  });
+});
+
+@Component({
+  template: `
+    <button [ngpDialogTrigger]="dialog" data-testid="open-dialog">Open</button>
+
+    <ng-template #dialog>
+      <div ngpDialogOverlay style="position: fixed; inset: 0" data-testid="overlay">
+        <div ngpDialog style="width: 200px; margin: 200px auto" data-testid="dialog">
+          <button data-testid="custom-trigger">Custom</button>
+        </div>
+      </div>
+    </ng-template>
+
+    <ng-template #custom>
+      <div data-testid="custom-overlay">Custom</div>
+    </ng-template>
+  `,
+  imports: [NgpDialogTrigger, NgpDialog, NgpDialogOverlay],
+})
+class CustomOverlayHost {
+  readonly custom = viewChild.required<TemplateRef<NgpOverlayTemplateContext<unknown>>>('custom');
+  readonly injector = inject(Injector);
+  readonly viewContainerRef = inject(ViewContainerRef);
+}
+
+describe('NgpDialogOverlay backdrop click with a custom overlay typed as a tooltip', () => {
+  afterEach(async () => {
+    TestBed.inject(NgpDialogManager).closeAll();
+    await waitFor(() => expect(document.querySelector('[ngpDialogOverlay]')).toBeNull());
+  });
+
+  it('should close only the custom overlay, leaving the dialog open', async () => {
+    const { fixture } = await render(CustomOverlayHost);
+    fireEvent.click(screen.getByTestId('open-dialog'));
+    await screen.findByTestId('dialog');
+
+    const host = fixture.componentInstance;
+    const overlay = TestBed.runInInjectionContext(() =>
+      createOverlay({
+        content: host.custom,
+        triggerElement: screen.getByTestId('custom-trigger'),
+        injector: host.injector,
+        viewContainerRef: host.viewContainerRef,
+        overlayType: 'tooltip',
+        closeOnOutsideClick: true,
+      }),
+    );
+    await overlay.show();
+    await screen.findByTestId('custom-overlay');
+
+    await userEvent.click(screen.getByTestId('overlay'), { position: { x: 5, y: 5 } });
+
+    await waitFor(() => expect(screen.queryByTestId('custom-overlay')).toBeNull());
+    expect(TestBed.inject(NgpDialogManager).openDialogs.length).toBe(1);
   });
 });

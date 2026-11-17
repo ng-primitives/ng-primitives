@@ -235,11 +235,17 @@ export interface NgpOverlayConfig<T = unknown> {
 
   /**
    * Overlay type identifier. Overlays of the same type share a cooldown
-   * period, and a `'tooltip'` or `'preview-card'` leaves a dialog backdrop click to the dialog.
-   * For example, 'tooltip' ensures quickly moving between tooltips shows
+   * period. For example, 'tooltip' ensures quickly moving between tooltips shows
    * the second one immediately without the showDelay.
    */
   overlayType?: string;
+
+  /**
+   * Whether the overlay opens on hover or focus rather than a press. A dialog's backdrop click
+   * then closes the dialog instead of this overlay.
+   * @internal
+   */
+  passive?: boolean;
 
   /**
    * When true, hiding the overlay removes its content from the DOM but keeps the
@@ -1285,6 +1291,7 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
         },
         treatTriggerClickAsOutside: this.config.treatTriggerClickAsOutside,
         overlayType: this.config.overlayType,
+        passive: this.config.passive,
       },
       order,
     );
