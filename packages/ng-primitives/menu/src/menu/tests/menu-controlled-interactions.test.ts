@@ -1,4 +1,5 @@
 import { Component, signal, viewChild } from '@angular/core';
+import { ComponentFixture } from '@angular/core/testing';
 import { fireEvent, render, screen, waitFor } from '@testing-library/angular';
 import {
   NgpMenu,
@@ -218,6 +219,32 @@ class HideDelayWithSubmenuComponent {
 }
 
 /** Releases for every held exit animation, so no overlay is left mid-close for later tests. */
+@Component({
+  template: `
+    <button data-testid="page-button">Page</button>
+    <button
+      [(ngpMenuTriggerOpen)]="open"
+      [ngpMenuTrigger]="menu"
+      [ngpMenuTriggerOpenTriggers]="['click', 'hover', 'arrowkey']"
+      ngpMenuTriggerModal
+      data-testid="trigger"
+    >
+      Trigger
+    </button>
+
+    <ng-template #menu>
+      <div ngpMenu data-testid="menu">
+        <button ngpMenuItem data-testid="rename">Rename</button>
+        <button ngpMenuItem data-testid="archive">Archive</button>
+      </div>
+    </ng-template>
+  `,
+  imports: [NgpMenuTrigger, NgpMenu, NgpMenuItem],
+})
+class TwoWayModalComponent {
+  readonly open = signal(false);
+}
+
 const releases: (() => void)[] = [];
 
 /** An exit animation that settles only once released, holding the menu mid-close. */
@@ -298,6 +325,45 @@ describe('NgpMenuTrigger open binding, interactions', () => {
       fixture.detectChanges();
 
       await waitFor(() => expect(byId('rename')).toHaveAttribute('data-focus-visible'));
+    });
+  });
+
+  describe('an open the binding makes after an earlier open', () => {
+    async function closeAndParkPointer(fixture: ComponentFixture<TwoWayModalComponent>) {
+      await userEvent.keyboard('{Escape}');
+      await waitFor(() => expect(present('menu')).toBe(false));
+      expect(fixture.componentInstance.open()).toBe(false);
+      const corner = document.body.appendChild(document.createElement('div'));
+      corner.style.cssText = 'position: fixed; right: 0; bottom: 0; width: 4px; height: 4px;';
+      await userEvent.hover(corner);
+      corner.remove();
+    }
+
+    it('keeps a hover request non-modal, and makes a later open from the binding modal', async () => {
+      const { fixture } = await render(TwoWayModalComponent);
+      await userEvent.hover(byId('trigger'));
+      await screen.findByTestId('menu');
+      expect(byId('page-button').closest('[inert]')).toBeNull();
+      await closeAndParkPointer(fixture);
+
+      fixture.componentInstance.open.set(true);
+      fixture.detectChanges();
+
+      await screen.findByTestId('menu');
+      await waitFor(() => expect(byId('page-button').closest('[inert]')).not.toBeNull());
+    });
+
+    it('keeps an Up Arrow request on the last item, and opens a later one on the first', async () => {
+      const { fixture } = await render(TwoWayModalComponent);
+      byId('trigger').focus();
+      await userEvent.keyboard('{ArrowUp}');
+      await waitFor(() => expect(document.activeElement).toBe(byId('archive')));
+      await closeAndParkPointer(fixture);
+
+      fixture.componentInstance.open.set(true);
+      fixture.detectChanges();
+
+      await waitFor(() => expect(document.activeElement).toBe(byId('rename')));
     });
   });
 

@@ -340,6 +340,9 @@ export const [
     // completes, so track what has been announced rather than what was open per call.
     let announcedOpen = false;
 
+    // Set while the binding has an open request to answer, until it opens or another request comes.
+    let answeringOpenRequest = false;
+
     // Tearing the overlay down closes it, but a destroyed directive can no longer
     // emit through `openChange` (Angular NG0953), so skip the notification.
     let destroyed = false;
@@ -666,8 +669,14 @@ export const [
 
     /** Open for the binding or `defaultOpen`: no delay, nothing to report. */
     function openOverlay(): void {
-      // the binding does not say how it was set, so take the input the user last used
-      openOrigin.set(inputModality.mostRecentModality ?? 'program');
+      // An open that answers a declined request keeps how the user asked for it. Any other
+      // starts fresh: the binding does not say how it was set, so take the input last used.
+      if (!answeringOpenRequest) {
+        openOrigin.set(inputModality.mostRecentModality ?? 'program');
+        openedOnHover.set(false);
+        openFocus.set('first');
+      }
+      answeringOpenRequest = false;
 
       if (!overlay()) {
         createOverlayInstance();
@@ -684,11 +693,13 @@ export const [
      */
     function requestOpenChange(next: boolean): boolean {
       const bound = _open?.();
+      answeringOpenRequest = false;
 
       if (bound === undefined || bound === next) {
         return true;
       }
 
+      answeringOpenRequest = next;
       onOpenChange?.(next);
       return false;
     }
