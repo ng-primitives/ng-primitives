@@ -272,6 +272,8 @@ describe('NgpOverlay requestOpenChange', () => {
       overlay.hide({ outsidePressTarget: outside, immediate: true });
 
       expect(presses).toEqual([outside]);
+      // not kept past the close, so a closed overlay holds no pressed element
+      expect(overlay.closingPressTarget()).toBeNull();
     });
 
     it('reports a declined outside press when the owner commits it', async () => {
@@ -284,6 +286,7 @@ describe('NgpOverlay requestOpenChange', () => {
       overlay.hide({ immediate: true, fromOwner: true });
 
       expect(presses).toEqual([outside]);
+      expect(overlay.closingPressTarget()).toBeNull();
     });
 
     it('reports no press for a close of its own after a declined outside press', async () => {
