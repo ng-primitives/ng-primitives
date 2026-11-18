@@ -90,13 +90,16 @@ export const [
           startedClosing.add(entry.id);
           continue;
         }
-        closingSubscription.add(entry.overlay.closing.subscribe(() => onOverlayClosing(entry)));
+        const overlay = entry.overlay;
+        closingSubscription.add(overlay.closing.subscribe(() => onOverlayClosing(entry, overlay)));
       }
     }
 
-    function onOverlayClosing(entry: NgpOverlayEntry): void {
+    function onOverlayClosing(entry: NgpOverlayEntry, overlay: NgpOverlay): void {
       startedClosing.add(entry.id);
-      if (!pendingFocus) {
+      // A child that kept itself open and closes later for another reason, such as Escape,
+      // returns focus as that close does.
+      if (!pendingFocus || !answersBackdropPress(overlay)) {
         return;
       }
       const { target } = pendingFocus;
@@ -111,6 +114,11 @@ export const [
       if (focusLost && element?.isConnected) {
         element.focus();
       }
+    }
+
+    function answersBackdropPress(overlay: NgpOverlay): boolean {
+      const press = overlay.closingPressTarget();
+      return press !== null && containsComposed(elementRef.nativeElement, press);
     }
 
     /**

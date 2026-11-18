@@ -251,6 +251,53 @@ describe('NgpOverlay requestOpenChange', () => {
     expect(origins).toEqual(['program']);
   });
 
+  describe('closingPressTarget', () => {
+    async function recordPresses(requestOpenChange?: (open: boolean) => boolean) {
+      const { fixture } = await render(OverlayHost);
+      const created = fixture.componentInstance.create(requestOpenChange ?? (() => true), {
+        requestOpenChange,
+      });
+      overlay = created;
+      const presses: (Element | null)[] = [];
+      created.closing.subscribe(() => presses.push(created.closingPressTarget()));
+      await created.show();
+      const outside = document.body.appendChild(document.createElement('div'));
+      onTestFinished(() => outside.remove());
+      return { overlay: created, presses, outside };
+    }
+
+    it('reports the outside press a close answers', async () => {
+      const { overlay, presses, outside } = await recordPresses();
+
+      overlay.hide({ outsidePressTarget: outside, immediate: true });
+
+      expect(presses).toEqual([outside]);
+    });
+
+    it('reports a declined outside press when the owner commits it', async () => {
+      const owner = boundOwner(true);
+      const { overlay, presses, outside } = await recordPresses(owner.requestOpenChange);
+
+      overlay.hide({ outsidePressTarget: outside, immediate: true });
+      expect(presses).toEqual([]);
+      owner.open = false;
+      overlay.hide({ immediate: true, fromOwner: true });
+
+      expect(presses).toEqual([outside]);
+    });
+
+    it('reports no press for a close of its own after a declined outside press', async () => {
+      const owner = boundOwner(true);
+      const { overlay, presses, outside } = await recordPresses(owner.requestOpenChange);
+
+      overlay.hide({ outsidePressTarget: outside, immediate: true });
+      owner.open = false;
+      overlay.hide({ origin: 'keyboard', immediate: true });
+
+      expect(presses).toEqual([null]);
+    });
+  });
+
   it('applies a content change made during a declined close', async () => {
     const { fixture } = await render(OverlayHost);
     const owner = boundOwner(true);

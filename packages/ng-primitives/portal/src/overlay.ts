@@ -477,6 +477,9 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
    */
   readonly closing = new Subject<void>();
 
+  /** Where the outside press that the close now under way answers landed, if one did. */
+  private closingPress: Element | null = null;
+
   /**
    * Signal tracking whether the current transition is instant due to cooldown.
    * When true, CSS can skip animations using the data-instant attribute.
@@ -917,6 +920,7 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
     const canBeDeclined = !!this.config.requestOpenChange;
 
     if (!canBeDeclined) {
+      this.closingPress = options?.outsidePressTarget ?? null;
       this.closing.next();
     }
 
@@ -942,6 +946,9 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
         return;
       }
 
+      // Only the owner's close commits a declined close, and returns focus as that close would.
+      const close = options?.fromOwner ? { ...this.declinedClose, ...options } : options;
+
       if (canBeDeclined) {
         if (!this.isOpenChangeAllowed(false)) {
           this.declinedClose = options ?? {};
@@ -950,11 +957,9 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
           return;
         }
 
+        this.closingPress = close?.outsidePressTarget ?? null;
         this.closing.next();
       }
-
-      // Only the owner's close commits a declined close, and returns focus as that close would.
-      const close = options?.fromOwner ? { ...this.declinedClose, ...options } : options;
       const origin = close?.origin ?? 'program';
       this.declinedClose = null;
 
@@ -985,6 +990,15 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
       this.instantTransition.set(false);
       this.closeTimeout = this.disposables.setTimeout(dispose, delay);
     }
+  }
+
+  /**
+   * The outside press the close under way answers, read while `closing` emits. An owner's close
+   * answers the outside press it commits.
+   * @internal
+   */
+  closingPressTarget(): Element | null {
+    return this.closingPress;
   }
 
   /**
@@ -1285,6 +1299,7 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
     // `await portal.detach()`, leaving a window where it lies.
     if (this.isOpen() && this.portal() !== null) {
       // Emit closing event
+      this.closingPress = null;
       this.closing.next();
 
       // Update close origin and call callback (default to 'program' for immediate closes)
