@@ -31,8 +31,18 @@ export class NgpContextMenuItemRadio {
     transform: booleanAttribute,
   });
 
+  /** Whether choosing the item closes the menu */
+  readonly closeOnSelect = input<boolean, BooleanInput>(false, {
+    alias: 'ngpContextMenuItemRadioCloseOnSelect',
+    transform: booleanAttribute,
+  });
+
   constructor() {
-    ngpMenuItemRadio({ value: this.value, disabled: this.disabled });
+    ngpMenuItemRadio({
+      value: this.value,
+      disabled: this.disabled,
+      closeOnSelect: this.closeOnSelect,
+    });
     ngpRovingFocusItem({ disabled: this.disabled });
   }
 }

@@ -53,6 +53,11 @@ export interface NgpMenuItemCheckboxProps {
    * Callback fired when the checked state changes.
    */
   readonly onCheckedChange?: (checked: boolean) => void;
+
+  /**
+   * Whether toggling the item closes the menu.
+   */
+  readonly closeOnSelect?: Signal<boolean>;
 }
 
 export const [
@@ -67,6 +72,7 @@ export const [
     defaultChecked: _defaultChecked,
     disabled = signal(false),
     onCheckedChange,
+    closeOnSelect = signal(false),
   }: NgpMenuItemCheckboxProps): NgpMenuItemCheckboxState => {
     const element = injectElementRef();
     const defaultChecked = controlled(_defaultChecked, false);
@@ -76,8 +82,7 @@ export const [
       onChange: onCheckedChange,
     });
 
-    // Use base menu item behavior but don't close on select
-    ngpMenuItem({ disabled, closeOnSelect: signal(false), role: 'menuitemcheckbox' });
+    ngpMenuItem({ disabled, closeOnSelect, role: 'menuitemcheckbox' });
 
     // Host bindings
     attrBinding(element, 'aria-checked', checked);

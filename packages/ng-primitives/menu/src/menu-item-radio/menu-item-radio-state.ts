@@ -21,6 +21,12 @@ export interface NgpMenuItemRadioProps {
    * Whether the radio item is disabled.
    */
   readonly disabled?: Signal<boolean>;
+
+  /**
+   * Whether choosing the radio item closes the menu.
+   * @default signal(false)
+   */
+  readonly closeOnSelect?: Signal<boolean>;
 }
 
 export const [
@@ -30,12 +36,15 @@ export const [
   provideMenuItemRadioState,
 ] = createPrimitive(
   'NgpMenuItemRadio',
-  ({ value, disabled = signal(false) }: NgpMenuItemRadioProps): NgpMenuItemRadioState => {
+  ({
+    value,
+    disabled = signal(false),
+    closeOnSelect = signal(false),
+  }: NgpMenuItemRadioProps): NgpMenuItemRadioState => {
     const element = injectElementRef();
     const radioGroup = injectMenuItemRadioGroupState();
 
-    // Use base menu item behavior but don't close on select
-    ngpMenuItem({ disabled, closeOnSelect: signal(false), role: 'menuitemradio' });
+    ngpMenuItem({ disabled, closeOnSelect, role: 'menuitemradio' });
 
     // Computed checked state
     const checked = computed(() => radioGroup()?.value() === value());
