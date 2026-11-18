@@ -133,7 +133,7 @@ export class NgpTooltipTrigger<T = null> {
    * An input only reaches this directive on the next change detection pass, which a press
    * can outrun - use `setAnchor()` instead when the anchor is claimed during one.
    */
-  readonly anchor = input<HTMLElement | null>(null, { alias: 'ngpTooltipTriggerAnchor' });
+  readonly anchor = input<Element | null>(null, { alias: 'ngpTooltipTriggerAnchor' });
 
   /**
    * Provide context to the tooltip. This can be used to pass data to the tooltip content.
@@ -246,7 +246,7 @@ export class NgpTooltipTrigger<T = null> {
    * it. Writing the anchor here is visible to that check straight away.
    * @param anchor - The new anchor element
    */
-  setAnchor(anchor: HTMLElement | null): void {
+  setAnchor(anchor: Element | null): void {
     this.state.setAnchor(anchor);
   }
 

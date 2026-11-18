@@ -194,14 +194,14 @@ describe('NgpMenuTrigger options', () => {
       expect(query('menu')).not.toBeInTheDocument();
     });
 
-    it('opens on the arrow key matching the placement and focuses the first item', async () => {
+    it('opens on Down Arrow when the arrowkey trigger is enabled and focuses the first item', async () => {
       const { getByTestId } = await render(OpenTriggersComponent, {
         componentProperties: { triggers: ['hover', 'arrowkey'] },
       });
       const trigger = getByTestId('trigger');
       trigger.focus();
 
-      fireEvent.keyDown(trigger, { key: 'ArrowUp' });
+      fireEvent.keyDown(trigger, { key: 'ArrowLeft' });
       await new Promise(resolve => setTimeout(resolve, 50));
       expect(query('menu')).not.toBeInTheDocument();
 

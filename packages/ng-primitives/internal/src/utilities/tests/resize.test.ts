@@ -226,6 +226,108 @@ describe('fromResizeEvent', () => {
     expect(emissions).toEqual([borderBox]);
   });
 
+  describe('svg elements', () => {
+    let host: HTMLElement;
+
+    beforeEach(() => {
+      host = document.createElement('div');
+      document.body.appendChild(host);
+    });
+
+    afterEach(() => host.remove());
+
+    it('should measure an svg root, which clips its overflow but has no offset size', async () => {
+      const emissions: { width: number; height: number }[] = [];
+      host.innerHTML = '<svg width="120" height="40"></svg>';
+
+      fromResizeEvent(host.firstElementChild!, { injector }).subscribe(dimensions =>
+        emissions.push(dimensions),
+      );
+      await Promise.resolve();
+
+      expect(emissions).toEqual([{ width: 120, height: 40 }]);
+    });
+
+    it.each([
+      { name: 'shape', markup: '<circle cx="20" cy="10" r="8" />' },
+      {
+        name: 'nested svg',
+        markup: '<svg x="10" y="2" width="16" height="16"><rect width="16" height="16" /></svg>',
+      },
+    ])('should measure an svg $name on screen, scaled by the viewBox', async ({ markup }) => {
+      const emissions: { width: number; height: number }[] = [];
+      host.innerHTML = `<svg width="120" height="40" viewBox="0 0 60 20">${markup}</svg>`;
+      const target = host.querySelector('svg')!.firstElementChild!;
+
+      fromResizeEvent(target, { injector }).subscribe(dimensions => emissions.push(dimensions));
+      await Promise.resolve();
+
+      // The observer reports the box in user units, before the viewBox scales it.
+      MockResizeObserver.instances[0].trigger([
+        { borderBoxSize: [{ inlineSize: 16, blockSize: 16 }] },
+      ]);
+
+      expect(emissions).toEqual([{ width: 32, height: 32 }]);
+    });
+
+    it('should remeasure an svg shape when the outermost svg is resized', async () => {
+      const emissions: { width: number; height: number }[] = [];
+      host.innerHTML = `
+        <svg width="120" height="40" viewBox="0 0 60 20">
+          <svg width="60" height="20"><circle cx="20" cy="10" r="8" /></svg>
+        </svg>`;
+      const outer = host.querySelector('svg')!;
+      const circle = host.querySelector('circle')!;
+
+      fromResizeEvent(circle, { injector }).subscribe(dimensions => emissions.push(dimensions));
+      await Promise.resolve();
+
+      const observer = MockResizeObserver.instances[0];
+      expect(observer.observedElements).toEqual([circle, outer]);
+
+      outer.setAttribute('width', '240');
+      outer.setAttribute('height', '80');
+      observer.trigger([{ borderBoxSize: [{ inlineSize: 240, blockSize: 80 }] }]);
+
+      expect(emissions).toEqual([
+        { width: 32, height: 32 },
+        { width: 64, height: 64 },
+      ]);
+    });
+
+    it('should watch the outermost svg of a shape attached after subscribing', async () => {
+      const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+      const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+
+      // `@for` creates the element before inserting it into the page.
+      fromResizeEvent(circle, { injector }).subscribe();
+      svg.appendChild(circle);
+      host.appendChild(svg);
+      await Promise.resolve();
+
+      expect(MockResizeObserver.instances[0].observedElements).toEqual([circle, svg]);
+    });
+
+    it('should measure an svg shape from another window on screen', async () => {
+      const emissions: { width: number; height: number }[] = [];
+      const iframe = document.createElement('iframe');
+      host.appendChild(iframe);
+      const frameDocument = iframe.contentDocument!;
+      frameDocument.body.innerHTML =
+        '<svg width="120" height="40" viewBox="0 0 60 20"><circle cx="20" cy="10" r="8" /></svg>';
+      const circle = frameDocument.querySelector('circle')!;
+
+      fromResizeEvent(circle, { injector }).subscribe(dimensions => emissions.push(dimensions));
+      await Promise.resolve();
+
+      MockResizeObserver.instances[0].trigger([
+        { borderBoxSize: [{ inlineSize: 16, blockSize: 16 }] },
+      ]);
+
+      expect(emissions).toEqual([{ width: 32, height: 32 }]);
+    });
+  });
+
   it('should not measure a percentage size as pixels', async () => {
     const emissions: { width: number; height: number }[] = [];
     element.style.display = 'none';
