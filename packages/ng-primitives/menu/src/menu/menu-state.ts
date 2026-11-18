@@ -10,6 +10,7 @@ import {
   labelledByTrigger,
 } from 'ng-primitives/internal';
 import { injectOverlay, NgpOverlayFinalFocus } from 'ng-primitives/portal';
+import { injectRovingFocusGroupState } from 'ng-primitives/roving-focus';
 import {
   attrBinding,
   createPrimitive,
@@ -50,7 +51,10 @@ export interface NgpMenuState extends HoverTransitTracker {
 export interface NgpMenuProps {
   /** Where focus goes when the menu closes. */
   readonly finalFocus?: Signal<NgpOverlayFinalFocus | null>;
-  /** The menu directives' `wrap` input. Wrapping itself is set on their roving focus group. */
+  /**
+   * @deprecated Has no effect: wrapping is set on the menu's roving focus group, through the
+   * `ngpMenuWrap` or `ngpContextMenuWrap` input.
+   */
   readonly wrap?: Signal<boolean>;
 }
 
@@ -67,8 +71,12 @@ export const [NgpMenuStateToken, ngpMenu, injectMenuState, provideMenuState] = c
     // Always trap focus in menus per WAI-ARIA guidelines (Tab should not navigate within menus)
     // Pass the open origin so focus trap uses the correct origin for :focus-visible styling
     const openOrigin = computed(() => menuTrigger()?.openOrigin() ?? 'program');
+    const rovingFocusGroup = injectRovingFocusGroupState();
     ngpFocusTrap({
       focusOrigin: openOrigin,
+      // after an Up Arrow on the trigger, the menu opens on its last item
+      initialFocus: () =>
+        menuTrigger()?.openFocus?.() === 'last' ? rovingFocusGroup().lastEnabledElement() : null,
     });
 
     // Register this element as the overlay outlet so floating-ui positions it correctly,

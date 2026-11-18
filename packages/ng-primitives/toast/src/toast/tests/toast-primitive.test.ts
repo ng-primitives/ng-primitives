@@ -23,9 +23,11 @@ async function renderToast(overrides: Partial<NgpToastOptions> = {}) {
   // eslint-disable-next-line @angular-eslint/no-uncalled-signals
   const expanded = overrides.expanded ?? signal(false);
   const dismiss = vi.fn();
+  const dismissBySwipe = vi.fn();
   const managerStub = {
     toasts: signal<{ instance: NgpToast }[]>([]),
     dismiss,
+    dismissBySwipe,
   };
 
   const options: NgpToastOptions = {
@@ -49,7 +51,7 @@ async function renderToast(overrides: Partial<NgpToastOptions> = {}) {
   });
 
   const element = view.getByTestId('toast');
-  return { ...view, element, dismiss, expanded, managerStub };
+  return { ...view, element, dismiss, dismissBySwipe, expanded, managerStub };
 }
 
 describe('NgpToast', () => {
@@ -219,7 +221,7 @@ describe('NgpToast', () => {
     });
 
     it('dismisses the toast once swiped past the threshold', async () => {
-      const { element, dismiss, fixture } = await renderToast();
+      const { element, dismissBySwipe, fixture } = await renderToast();
       element.setPointerCapture = vi.fn();
 
       fireEvent(
@@ -234,7 +236,7 @@ describe('NgpToast', () => {
 
       // dismissal is scheduled via afterNextRender; flush it
       await fixture.whenStable();
-      expect(dismiss).toHaveBeenCalledTimes(1);
+      expect(dismissBySwipe).toHaveBeenCalledTimes(1);
     });
   });
 

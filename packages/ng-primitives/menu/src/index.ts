@@ -68,3 +68,11 @@ export {
   type NgpMenuTriggerGroupState,
   type NgpMenuTriggerGroupProps,
 } from './menu-trigger-group/menu-trigger-group-state';
+export { NgpMenuItemShortcut } from './menu-item-shortcut/menu-item-shortcut';
+export {
+  ngpMenuItemShortcut,
+  injectMenuItemShortcutState,
+  provideMenuItemShortcutState,
+  type NgpMenuItemShortcutState,
+  type NgpMenuItemShortcutProps,
+} from './menu-item-shortcut/menu-item-shortcut-state';
