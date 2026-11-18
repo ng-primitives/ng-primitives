@@ -19,7 +19,7 @@ export type NgpHidingAttribute = 'aria-hidden' | 'inert';
  */
 export interface NgpHidingLayer {
   /** The elements that stay exposed. */
-  getElements(): HTMLElement[];
+  getElements(): Element[];
   /** The attribute set on the content outside the layer. */
   readonly attribute: NgpHidingAttribute;
   /**
@@ -34,7 +34,7 @@ export interface NgpHidingLayer {
  * @internal
  */
 export interface NgpExposedSource {
-  getElements(): HTMLElement[];
+  getElements(): Element[];
 }
 
 const hiddenValues: Record<NgpHidingAttribute, string> = {
@@ -141,7 +141,7 @@ export class NgpOutsideHiding {
     this.previousValues.clear();
   }
 
-  private hideOutside(exposedElements: HTMLElement[], attribute: NgpHidingAttribute): void {
+  private hideOutside(exposedElements: Element[], attribute: NgpHidingAttribute): void {
     // Overlays opened from inside the layer (a popover, a select) render outside it but are part
     // of it. Entries are in open order, so a submenu's parent is collected before the submenu.
     for (const entry of this.registry.getEntries()) {
