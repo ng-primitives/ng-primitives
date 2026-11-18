@@ -10,7 +10,7 @@ import { describe, expect, it, vi } from 'vitest';
 
 @Component({
   template: `
-    <div ngpListbox data-testid="listbox">
+    <div [ngpListboxDisabled]="disabled()" ngpListbox data-testid="listbox">
       @for (item of items(); track item) {
         <div [ngpListboxOptionValue]="item" [attr.data-testid]="'option-' + item" ngpListboxOption>
           {{ item }}
@@ -22,6 +22,7 @@ import { describe, expect, it, vi } from 'vitest';
 })
 class TestListboxDynamicOptionsComponent {
   readonly items = signal(['One', 'Two', 'Three']);
+  readonly disabled = signal(false);
 
   addItem(value: string): void {
     this.items.update(items => [...items, value]);
@@ -279,6 +280,23 @@ describe('NgpListbox', () => {
       // repeating "a" wraps back to Apple
       fireEvent.keyDown(listbox, { key: 'a' });
       await waitFor(() => expect(container.getByTestId('opt-a')).toHaveAttribute('data-active'));
+    });
+
+    it('should keep the active option when no option matches the typed character', async () => {
+      const container = await render(
+        `<div ngpListbox data-testid="listbox">
+          <div ngpListboxOption ngpListboxOptionValue="a" data-testid="opt-a">Apple</div>
+          <div ngpListboxOption ngpListboxOptionValue="b" data-testid="opt-b">Banana</div>
+        </div>`,
+        { imports },
+      );
+      const listbox = container.getByTestId('listbox');
+      fireEvent.focusIn(listbox);
+      await waitFor(() => expect(container.getByTestId('opt-a')).toHaveAttribute('data-active'));
+
+      fireEvent.keyDown(listbox, { key: 'z' });
+
+      expect(container.getByTestId('opt-a')).toHaveAttribute('data-active');
     });
 
     it('should skip disabled options during typeahead', async () => {
@@ -661,6 +679,95 @@ describe('NgpListbox', () => {
 
       await waitFor(() => expect(optionThree).toHaveAttribute('data-active'));
       expect(listbox.getAttribute('aria-activedescendant')).toBe(activeId);
+    });
+
+    it('should navigate in DOM order after options are filtered out and re-created', async () => {
+      const { getByTestId, fixture } = await render(TestListboxDynamicOptionsComponent);
+      const all = ['Alpha', 'Bravo', 'Charlie', 'Delta'];
+      fixture.componentInstance.items.set(all);
+      fixture.detectChanges();
+
+      const listbox = getByTestId('listbox');
+      fireEvent.focusIn(listbox);
+      await waitFor(() => expect(getByTestId('option-Alpha')).toHaveAttribute('data-active'));
+
+      // Charlie is the only option left and becomes active, then the others are re-created
+      fixture.componentInstance.items.set(['Charlie']);
+      fixture.detectChanges();
+      await waitFor(() => expect(getByTestId('option-Charlie')).toHaveAttribute('data-active'));
+
+      fixture.componentInstance.items.set(all);
+      fixture.detectChanges();
+      await waitFor(() => expect(getByTestId('option-Alpha')).toBeInTheDocument());
+      await waitFor(() => expect(getByTestId('option-Charlie')).toHaveAttribute('data-active'));
+
+      fireEvent.keyDown(listbox, arrowDown);
+      await waitFor(() => expect(getByTestId('option-Delta')).toHaveAttribute('data-active'));
+
+      fireEvent.keyDown(listbox, arrowUp);
+      await waitFor(() => expect(getByTestId('option-Charlie')).toHaveAttribute('data-active'));
+      expect(listbox.getAttribute('aria-activedescendant')).toBe(
+        getByTestId('option-Charlie').getAttribute('id'),
+      );
+    });
+
+    it('should move to the first rendered option with Home after options are re-created', async () => {
+      const { getByTestId, fixture } = await render(TestListboxDynamicOptionsComponent);
+
+      fixture.componentInstance.items.set(['Three']);
+      fixture.detectChanges();
+      fixture.componentInstance.items.set(['One', 'Two', 'Three']);
+      fixture.detectChanges();
+      await waitFor(() => expect(getByTestId('option-One')).toBeInTheDocument());
+
+      const listbox = getByTestId('listbox');
+      fireEvent.focusIn(listbox);
+      fireEvent.keyDown(listbox, { key: 'Home', code: 'Home' });
+      await waitFor(() => expect(getByTestId('option-One')).toHaveAttribute('data-active'));
+
+      fireEvent.keyDown(listbox, arrowDown);
+      await waitFor(() => expect(getByTestId('option-Two')).toHaveAttribute('data-active'));
+    });
+
+    it('should keep the active option when an earlier option is removed', async () => {
+      const { getByTestId, fixture } = await render(TestListboxDynamicOptionsComponent);
+
+      const listbox = getByTestId('listbox');
+      fireEvent.focusIn(listbox);
+      fireEvent.keyDown(listbox, arrowDown);
+      fireEvent.keyDown(listbox, arrowDown);
+      await waitFor(() => expect(getByTestId('option-Three')).toHaveAttribute('data-active'));
+
+      fixture.componentInstance.items.set(['Two', 'Three']);
+      fixture.detectChanges();
+
+      await waitFor(() => expect(getByTestId('option-Three')).toHaveAttribute('data-active'));
+      expect(listbox.getAttribute('aria-activedescendant')).toBe(
+        getByTestId('option-Three').getAttribute('id'),
+      );
+    });
+
+    it('should keep the active option when options change while the listbox is disabled', async () => {
+      const { getByTestId, fixture } = await render(TestListboxDynamicOptionsComponent);
+
+      const listbox = getByTestId('listbox');
+      fireEvent.focusIn(listbox);
+      fireEvent.keyDown(listbox, arrowDown);
+      await waitFor(() => expect(getByTestId('option-Two')).toHaveAttribute('data-active'));
+
+      fixture.componentInstance.disabled.set(true);
+      fixture.detectChanges();
+      fixture.componentInstance.items.set(['Zero', 'One', 'Two', 'Three']);
+      fixture.detectChanges();
+      await waitFor(() => expect(getByTestId('option-Zero')).toBeInTheDocument());
+
+      fixture.componentInstance.disabled.set(false);
+      fixture.detectChanges();
+
+      await waitFor(() => expect(getByTestId('option-Two')).toHaveAttribute('data-active'));
+      expect(listbox.getAttribute('aria-activedescendant')).toBe(
+        getByTestId('option-Two').getAttribute('id'),
+      );
     });
   });
 

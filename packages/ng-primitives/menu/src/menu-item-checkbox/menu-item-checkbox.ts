@@ -2,6 +2,7 @@ import { BooleanInput } from '@angular/cdk/coercion';
 import { booleanAttribute, Directive, input, output } from '@angular/core';
 import { ngpRovingFocusItem, provideRovingFocusItemState } from 'ng-primitives/roving-focus';
 import { coerceBooleanOrUndefined } from 'ng-primitives/utils';
+import { provideMenuItemState } from '../menu-item/menu-item-state';
 import { ngpMenuItemCheckbox, provideMenuItemCheckboxState } from './menu-item-checkbox-state';
 
 /**
@@ -10,7 +11,11 @@ import { ngpMenuItemCheckbox, provideMenuItemCheckboxState } from './menu-item-c
 @Directive({
   selector: '[ngpMenuItemCheckbox]',
   exportAs: 'ngpMenuItemCheckbox',
-  providers: [provideMenuItemCheckboxState(), provideRovingFocusItemState()],
+  providers: [
+    provideMenuItemCheckboxState(),
+    provideMenuItemState({ inherit: false }),
+    provideRovingFocusItemState(),
+  ],
 })
 export class NgpMenuItemCheckbox {
   /** Whether the checkbox is checked. When defined the checkbox is controlled. */

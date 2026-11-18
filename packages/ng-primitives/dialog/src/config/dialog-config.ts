@@ -4,6 +4,15 @@ import { NgpDismissGuard, ScrollStrategy } from 'ng-primitives/portal';
 /** Valid ARIA roles for a dialog. */
 export type NgpDialogRole = 'dialog' | 'alertdialog';
 
+/**
+ * How long a dialog opened by `ngpDialogTrigger` stays open.
+ * - `application`: until it is closed or (by default) the route changes, even if its trigger is
+ *   removed.
+ * - `trigger`: also closes when its trigger is removed. A trigger inside a menu or popover
+ *   defers to that overlay's trigger, so the dialog outlives the menu closing.
+ */
+export type NgpDialogLifetime = 'application' | 'trigger';
+
 export interface NgpDialogConfig<T = any> {
   /** The view container to attach the dialog to. */
   viewContainerRef?: ViewContainerRef;
@@ -23,7 +32,12 @@ export interface NgpDialogConfig<T = any> {
   /** The role of the dialog. */
   role?: NgpDialogRole;
 
-  /** Whether this is a modal dialog. Used to set the `aria-modal` attribute. */
+  /**
+   * Whether the dialog is modal, read when it opens. A modal dialog hides the page from screen
+   * readers, applies the `scrollStrategy` (which blocks the page scroll by default) and traps
+   * focus. A non-modal one leaves the page usable, and
+   * applies `closeOnEscape` only to an Escape pressed inside it.
+   */
   modal?: boolean;
 
   /**
@@ -52,6 +66,13 @@ export interface NgpDialogConfig<T = any> {
    */
   closeOnClick?: boolean;
 
+  /**
+   * How long a dialog opened by `ngpDialogTrigger` stays open. Has no effect on
+   * `NgpDialogManager.open()`.
+   * @default 'application'
+   */
+  lifetime?: NgpDialogLifetime;
+
   /** Scroll strategy to be used for the dialog. */
   scrollStrategy?: ScrollStrategy;
 
@@ -65,6 +86,7 @@ export const defaultDialogConfig: NgpDialogConfig = {
   closeOnNavigation: true,
   closeOnEscape: true,
   closeOnClick: true,
+  lifetime: 'application',
 };
 
 export const NgpDialogConfigToken = new InjectionToken<NgpDialogConfig>('NgpDialogConfigToken');

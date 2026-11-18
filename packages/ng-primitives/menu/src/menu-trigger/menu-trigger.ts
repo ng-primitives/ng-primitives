@@ -128,7 +128,7 @@ export class NgpMenuTrigger<T = unknown> {
    * An input only reaches this directive on the next change detection pass, which a press
    * can outrun - use `setAnchor()` instead when the anchor is claimed during one.
    */
-  readonly anchor = input<HTMLElement | null>(null, {
+  readonly anchor = input<Element | null>(null, {
     alias: 'ngpMenuTriggerAnchor',
   });
 
@@ -159,6 +159,17 @@ export class NgpMenuTrigger<T = unknown> {
   });
 
   /**
+   * Whether the menu is modal. While it is open the rest of the page is `inert`, so a click
+   * outside only closes the menu. A menu opened on hover, or from a trigger group, is never modal.
+   * Read each time the menu opens.
+   * @default false
+   */
+  readonly modal = input<boolean, BooleanInput>(this.config.modal, {
+    alias: 'ngpMenuTriggerModal',
+    transform: booleanAttribute,
+  });
+
+  /**
    * The menu trigger state.
    */
   private readonly state = ngpMenuTrigger<T>({
@@ -176,6 +187,7 @@ export class NgpMenuTrigger<T = unknown> {
     triggers: this.triggers,
     showDelay: this.showDelay,
     hideDelay: this.hideDelay,
+    modal: this.modal,
   });
 
   /**
@@ -213,7 +225,7 @@ export class NgpMenuTrigger<T = unknown> {
    * it. Writing the anchor here is visible to that check straight away.
    * @param anchor - The new anchor element
    */
-  setAnchor(anchor: HTMLElement | null): void {
+  setAnchor(anchor: Element | null): void {
     this.state.setAnchor(anchor);
   }
 }

@@ -32,7 +32,7 @@ import {
 Assemble the context menu directives in your template.
 
 ```html
-<div [ngpContextMenuTrigger]="menu">Right-click me</div>
+<div [ngpContextMenuTrigger]="menu" tabindex="0">Right-click me</div>
 
 <ng-template #menu>
   <div ngpContextMenu>
@@ -58,6 +58,10 @@ Here are some additional examples of how to use the Context Menu primitives.
 The context menu can contain submenus, which are nested menus that can be opened by hovering on a menu item.
 
 <docs-example name="context-menu-submenu"></docs-example>
+
+### Keyboard Shortcuts
+
+Show an item's shortcut with `ngpMenuItemShortcut` from `ng-primitives/menu`. It works the same as in the [menu](/primitives/menu#keyboard-shortcuts): screen readers announce it as the item's description, and `ngpMenuItemShortcutKeys` sets the item's `aria-keyshortcuts`.
 
 ## API Reference
 
@@ -208,7 +212,6 @@ Adheres to the [WAI-ARIA Menu Pattern](https://www.w3.org/WAI/ARIA/apg/patterns/
 | Key                   | Description                                                                                                                                                                                                                                                                               |
 | --------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | <kbd>Enter</kbd>      | Activates the item. Regular items close the menu unless `ngpContextMenuItemCloseOnSelect` is `false`; checkbox and radio items stay open unless their close-on-select input is `true`. A submenu trigger opens its submenu and never closes the menu, whatever its close-on-select input. |
-| <kbd>Space</kbd>      | Activates a `<button>` item, with the same close rules as Enter. A link item (`<a href>`) is activated by Enter only, as a native link is.                                                                                                                                                |
 | <kbd>Escape</kbd>     | Closes all open menus.                                                                                                                                                                                                                                                                    |
 | <kbd>ArrowDown</kbd>  | Moves focus to the next menu item.                                                                                                                                                                                                                                                        |
 | <kbd>ArrowUp</kbd>    | Moves focus to the previous menu item.                                                                                                                                                                                                                                                    |
@@ -216,3 +219,11 @@ Adheres to the [WAI-ARIA Menu Pattern](https://www.w3.org/WAI/ARIA/apg/patterns/
 | <kbd>ArrowLeft</kbd>  | Closes the current submenu and moves focus to the parent submenu trigger.                                                                                                                                                                                                                 |
 | <kbd>Home</kbd>       | Moves focus to the first menu item.                                                                                                                                                                                                                                                       |
 | <kbd>End</kbd>        | Moves focus to the last menu item.                                                                                                                                                                                                                                                        |
+| A character           | Moves focus to the next item whose visible text starts with the characters typed.                                                                                                                                                                                                         |
+| <kbd>Space</kbd>      | Activates a `<button>` item, with the same close rules as Enter, or continues a search started by typing. A link item (`<a href>`) is activated by Enter only, as a native link is.                                                                                                       |
+
+### Focus Management
+
+- The <kbd>Menu</kbd> key, and <kbd>Shift</kbd> + <kbd>F10</kbd> on Windows and Linux, open the menu from a focused trigger area, and its first item then shows the focus ring. Give the area `tabindex="0"` so keyboard users can reach it.
+- Closing the menu returns focus to the element that was focused when it opened: the trigger area, or the control inside it that was right-clicked, when they can take focus. An outside click on another control leaves focus on that control.
+- Set `ngpContextMenuFinalFocus` on `ngpContextMenu` to send focus elsewhere on close: an element, `false` to leave focus where it is, `null` (the default) or `true` for the default restoration, or a function that receives the close origin and returns one of these.
