@@ -113,7 +113,7 @@ export interface NgpPopoverTriggerState<T> {
    * Define an anchor element for positioning the popover.
    * If provided, the popover will be positioned relative to this element instead of the trigger.
    */
-  readonly anchor: WritableSignal<HTMLElement | null>;
+  readonly anchor: WritableSignal<Element | null>;
   /**
    * Define whether to track the trigger element position on every animation frame.
    * Useful for moving elements like slider thumbs.
@@ -175,7 +175,7 @@ export interface NgpPopoverTriggerState<T> {
   /** Set the context passed to the popover content. */
   setContext: (context: T | undefined) => void;
   /** Set the anchor element the popover is positioned against. */
-  setAnchor: (anchor: HTMLElement | null) => void;
+  setAnchor: (anchor: Element | null) => void;
   /** Set whether the trigger position is tracked on every animation frame. */
   setTrackPosition: (trackPosition: boolean) => void;
   /** Set the cooldown duration in milliseconds. */
@@ -273,7 +273,7 @@ export interface NgpPopoverTriggerProps<T> {
    * Define an anchor element for positioning the popover.
    * If provided, the popover will be positioned relative to this element instead of the trigger.
    */
-  readonly anchor?: Signal<HTMLElement | null>;
+  readonly anchor?: Signal<Element | null>;
   /**
    * Define whether to track the trigger element position on every animation frame.
    * Useful for moving elements like slider thumbs.
@@ -351,7 +351,7 @@ export const [
     );
     const modal = controlled(_modal, false);
     const context = controlled<T | undefined>(_context, undefined);
-    const anchor = controlled<HTMLElement | null>(_anchor, null);
+    const anchor = controlled<Element | null>(_anchor, null);
     const trackPosition = controlled(_trackPosition, false);
     const cooldown = controlled(_cooldown, 0);
     const keepMounted = controlled(_keepMounted, false);
@@ -537,7 +537,7 @@ export const [
       context.set(newContext);
     }
 
-    function setAnchor(newAnchor: HTMLElement | null): void {
+    function setAnchor(newAnchor: Element | null): void {
       anchor.set(newAnchor);
     }
 

@@ -2,6 +2,7 @@ import { BooleanInput } from '@angular/cdk/coercion';
 import { booleanAttribute, Directive, input, output } from '@angular/core';
 import { SetterOptions } from 'ng-primitives/state';
 import { coerceBooleanOrUndefined, uniqueId } from 'ng-primitives/utils';
+import { injectSwitchConfig } from '../config/switch-config';
 import { ngpSwitch, provideSwitchState } from './switch-state';
 
 /**
@@ -13,6 +14,11 @@ import { ngpSwitch, provideSwitchState } from './switch-state';
   providers: [provideSwitchState({ inherit: false })],
 })
 export class NgpSwitch {
+  /**
+   * Access the global configuration.
+   */
+  private readonly config = injectSwitchConfig();
+
   /**
    * The id of the switch. If not provided, a unique id will be generated.
    */
@@ -61,6 +67,15 @@ export class NgpSwitch {
   });
 
   /**
+   * Whether the Enter key toggles the switch. Space always toggles it.
+   * @default true
+   */
+  readonly toggleOnEnter = input<boolean, BooleanInput>(this.config.toggleOnEnter, {
+    alias: 'ngpSwitchToggleOnEnter',
+    transform: booleanAttribute,
+  });
+
+  /**
    * The switch state.
    * @internal
    */
@@ -70,6 +85,7 @@ export class NgpSwitch {
     defaultChecked: this.defaultChecked,
     disabled: this.disabled,
     required: this.required,
+    toggleOnEnter: this.toggleOnEnter,
     onCheckedChange: value => this.checkedChange.emit(value),
   });
 
