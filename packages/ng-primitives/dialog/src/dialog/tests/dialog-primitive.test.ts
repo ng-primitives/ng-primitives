@@ -700,7 +700,7 @@ describe('NgpDialog', () => {
       );
       const popoverEntry = registry.getEntries().find(e => e.id === popoverId);
 
-      // The injector chain reaches the menu through the dialog trigger's injector.
+      // The dialog's injector provides no overlay, so the parent comes from the DOM.
       expect(popoverEntry!.parentId).toBe(dialogManager.openDialogs[0].id);
 
       // Closing the menu leaves the dialog, and the popover it holds, open.

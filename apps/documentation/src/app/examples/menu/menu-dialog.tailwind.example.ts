@@ -53,7 +53,6 @@ import { NgpMenu, NgpMenuItem, NgpMenuTrigger } from 'ng-primitives/menu';
         <button
           class="min-w-[160px] cursor-pointer rounded-md border-none bg-transparent px-3 py-1.5 text-start text-sm font-[510] tracking-[-0.006em] text-zinc-900 outline-hidden transition-colors duration-150 data-focus-visible:bg-zinc-100 data-hover:bg-zinc-100 data-press:bg-zinc-200 dark:text-zinc-100 dark:data-focus-visible:bg-zinc-900 dark:data-hover:bg-zinc-900 dark:data-press:bg-zinc-800"
           [ngpDialogTrigger]="confirm"
-          [ngpMenuItemCloseOnSelect]="false"
           ngpMenuItem
         >
           Delete...
