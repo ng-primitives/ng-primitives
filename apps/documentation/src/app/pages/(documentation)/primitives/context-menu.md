@@ -215,3 +215,5 @@ Adheres to the [WAI-ARIA Menu Pattern](https://www.w3.org/WAI/ARIA/apg/patterns/
 | <kbd>ArrowLeft</kbd>  | Closes the current submenu and moves focus to the parent submenu trigger.                      |
 | <kbd>Home</kbd>       | Moves focus to the first menu item.                                                            |
 | <kbd>End</kbd>        | Moves focus to the last menu item.                                                             |
+| A character           | Moves focus to the next item whose visible text starts with the characters typed.              |
+| <kbd>Space</kbd>      | Activates the focused menu item, or continues a search started by typing.                      |
