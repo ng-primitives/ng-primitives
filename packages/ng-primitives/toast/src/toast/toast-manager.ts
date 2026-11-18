@@ -1,4 +1,4 @@
-import { DOCUMENT } from '@angular/common';
+import { DOCUMENT, isPlatformBrowser } from '@angular/common';
 import {
   ApplicationRef,
   computed,
@@ -7,10 +7,12 @@ import {
   Injectable,
   Injector,
   NgZone,
+  PLATFORM_ID,
   RendererFactory2,
   signal,
   TemplateRef,
   Type,
+  untracked,
   ViewContainerRef,
 } from '@angular/core';
 import { createPortal, NgpPortal } from 'ng-primitives/portal';
@@ -31,6 +33,7 @@ export class NgpToastManager {
   private readonly document = inject(DOCUMENT);
   private readonly ngZone = inject(NgZone);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
   // Map to store containers by placement
   private readonly containers = new Map<string, HTMLElement>();
 
@@ -42,14 +45,33 @@ export class NgpToastManager {
 
   readonly toasts = signal<NgpToastRecord[]>([]);
 
-  /** The toasts playing their exit animation, which can no longer take focus. */
+  /** The toasts playing their exit animation, which can no longer take focus or be updated. */
   private readonly dismissing = new Set<NgpToastRecord>();
 
   /** Signal that tracks which placements are expanded */
   private readonly expanded = signal<NgpToastPlacement[]>([]);
 
+  constructor() {
+    this.createContainers();
+
+    this.destroyRef.onDestroy(() => {
+      // Toast views are created in the root view container, so they would outlive the manager.
+      // `finishDetach()` ends a close already under way, which `destroyView()` alone would race.
+      this.toasts().forEach(({ portal }) => {
+        portal.finishDetach();
+        portal.destroyView();
+      });
+      this.toasts.set([]);
+      this.containers.forEach(container => container.remove());
+      this.containers.clear();
+    });
+  }
+
   /** Show a toast notification */
-  show(toast: TemplateRef<void> | Type<unknown>, options: NgpToastOptions = {}): NgpToastRef {
+  show<T = unknown>(
+    toast: TemplateRef<void> | Type<unknown>,
+    options: NgpToastOptions<T> = {},
+  ): NgpToastRef<T> {
     // services can't access the view container directly, so this is a workaround.
     // Fall back to the caller's injector when no root component is available.
     const rootComponent = this.applicationRef.components[0];
@@ -61,7 +83,9 @@ export class NgpToastManager {
     let instance: NgpToast | null = null;
     const placement = options.placement ?? this.config.placement;
     const duration = options.duration ?? this.config.duration;
+    this.createContainers();
     const container = this.getOrCreateContainer(placement);
+    const context = signal(options.context as T);
 
     const portal = createPortal(
       toast,
@@ -71,7 +95,7 @@ export class NgpToastManager {
         // resolves from their subtree rather than the root injector. See #823.
         parent: options.injector ?? this.injector,
         providers: [
-          provideToastContext(options.context),
+          provideToastContext(context.asReadonly()),
           provideToastOptions({
             placement,
             duration,
@@ -87,7 +111,10 @@ export class NgpToastManager {
       {
         // Hide the toast when the dismiss method is called
         dismiss: () => this.dismiss(instance!),
-        context: options.context,
+        // A getter, so a template that reads `context` follows the signal
+        get context() {
+          return context();
+        },
       },
     );
 
@@ -98,10 +125,23 @@ export class NgpToastManager {
       throw new Error('A toast must have the NgpToast directive applied.');
     }
 
-    this.toasts.update(toasts => [{ instance: instance!, portal }, ...toasts]);
+    const record: NgpToastRecord = { instance: instance!, portal };
+    this.toasts.update(toasts => [record, ...toasts]);
 
     return {
       dismiss: () => this.dismiss(instance!),
+      update: changes =>
+        untracked(() => {
+          if (this.dismissing.has(record) || !this.toasts().includes(record)) {
+            return;
+          }
+
+          if ('context' in changes) {
+            context.set(changes.context as T);
+          }
+
+          record.instance.restart(changes);
+        }),
     };
   }
 
@@ -187,6 +227,21 @@ export class NgpToastManager {
     // `toasts` lists the newest first: walk to the older toasts, then back to the newer ones
     const candidates = [...siblings.slice(index + 1), ...siblings.slice(0, index).reverse()];
     return candidates.find(t => !this.dismissing.has(t))?.instance.element ?? null;
+  }
+
+  /**
+   * A container is a live region, and a live region must be in the page before the content it
+   * announces, or screen readers may skip the first toast. So every placement gets one up front,
+   * once the page has a body: a manager injected from a script in the `<head>` adds them on the
+   * first `show()`. The configured placement comes first so that
+   * `querySelector('[data-ngp-toast-container]')` still finds the container default toasts use.
+   */
+  private createContainers(): void {
+    if (!this.isBrowser || !this.document.body || this.containers.size > 0) {
+      return;
+    }
+    const placements = new Set([this.config.placement, ...TOAST_PLACEMENTS]);
+    placements.forEach(placement => this.getOrCreateContainer(placement));
   }
 
   /**
@@ -406,10 +461,19 @@ export class NgpToastManager {
         throw new Error(`Unknown toast placement: ${placement}`);
     }
 
-    this.renderer.appendChild(document.body, container);
+    this.renderer.appendChild(this.document.body, container);
     return container;
   }
 }
+
+const TOAST_PLACEMENTS = Object.keys({
+  'top-start': true,
+  'top-center': true,
+  'top-end': true,
+  'bottom-start': true,
+  'bottom-center': true,
+  'bottom-end': true,
+} satisfies Record<NgpToastPlacement, true>) as NgpToastPlacement[];
 
 export interface NgpToastOptions<T = unknown> {
   /** The position of the toast */
@@ -445,8 +509,27 @@ interface NgpToastRecord {
   portal: NgpPortal;
 }
 
-export interface NgpToastRef {
+export interface NgpToastRef<T = unknown> {
+  /** Dismiss the toast. */
   dismiss(): Promise<void>;
+
+  /**
+   * Change the toast in place: it keeps its position and does not replay its enter animation.
+   * The timer restarts with the new duration, or the current one, unless the toast is persistent.
+   * Does nothing once the toast is being dismissed.
+   */
+  update(changes: NgpToastUpdate<T>): void;
+}
+
+export interface NgpToastUpdate<T = unknown> {
+  /** The new context of the toast. */
+  context?: T;
+
+  /** The new duration of the toast in milliseconds. */
+  duration?: number;
+
+  /** When true, the toast stops its timer; when false, it starts it again. */
+  persistent?: boolean;
 }
 
 /**

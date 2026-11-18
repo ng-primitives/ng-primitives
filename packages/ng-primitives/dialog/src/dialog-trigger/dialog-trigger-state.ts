@@ -1,6 +1,6 @@
 import { DestroyRef, Injector, Signal, TemplateRef, inject, signal } from '@angular/core';
 import { injectElementRef } from 'ng-primitives/internal';
-import { NgpDismissGuard } from 'ng-primitives/portal';
+import { NgpDismissGuard, NgpOverlay } from 'ng-primitives/portal';
 import {
   attrBinding,
   createPrimitive,
@@ -32,6 +32,10 @@ export interface NgpDialogTriggerState<T> {
    * dialog configuration, `null` renders into the body.
    */
   readonly container?: Signal<HTMLElement | string | null | undefined>;
+  /**
+   * Whether the dialog is modal. `undefined` uses `modal` from the dialog configuration.
+   */
+  readonly modal?: Signal<boolean | undefined>;
   /** The event that is fired when the closed state changes. */
   readonly closedChange: Observable<T>;
 }
@@ -54,6 +58,10 @@ export interface NgpDialogTriggerProps<T> {
    * dialog configuration, `null` renders into the body.
    */
   readonly container?: Signal<HTMLElement | string | null | undefined>;
+  /**
+   * Whether the dialog is modal. `undefined` uses `modal` from the dialog configuration.
+   */
+  readonly modal?: Signal<boolean | undefined>;
   readonly onClosedChange?: (value: T) => void;
 }
 
@@ -69,6 +77,7 @@ export const [
     closeOnEscape = signal<NgpDismissGuard<KeyboardEvent>>(true),
     closeOnOutsideClick = signal<NgpDismissGuard<Element>>(true),
     container = signal<HTMLElement | string | null | undefined>(undefined),
+    modal = signal<boolean | undefined>(undefined),
     onClosedChange,
   }: NgpDialogTriggerProps<T>) => {
     const config = injectDialogConfig();
@@ -91,6 +100,15 @@ export const [
     listener(elementRef, 'click', handleClick);
 
     function handleClick(): void {
+      // A non-modal dialog leaves its trigger usable: a second click closes it.
+      const current = openDialog();
+      if (current && current.config.modal === false) {
+        if (!current.disableClose) {
+          current.close();
+        }
+        return;
+      }
+
       const dialogRef = dialogManager.open(template(), {
         injector,
         triggerElement: elementRef.nativeElement,
@@ -98,6 +116,7 @@ export const [
         closeOnOutsideClick: closeOnOutsideClick(),
         // resolve `undefined` here, the manager only sees the root configuration
         container: container() === undefined ? config.container : container(),
+        modal: modal() ?? config.modal,
       });
 
       openDialog.set(dialogRef);
@@ -110,6 +129,14 @@ export const [
         onClosedChange?.(result as T);
         closed.emit(result as T);
       });
+
+      // Registered after the subscription above: destroy hooks run in order, so a trigger
+      // teardown unsubscribes it before closing the dialog, instead of emitting on a
+      // destroyed output.
+      if (config.lifetime === 'trigger') {
+        const stopFollowing = resolveTriggerLifetime(injector).onDestroy(() => dialogRef.close());
+        dialogRef.closed.subscribe(() => stopFollowing());
+      }
     }
 
     return {
@@ -117,10 +144,28 @@ export const [
       closeOnEscape,
       closeOnOutsideClick,
       container,
+      modal,
       closedChange: closed.asObservable(),
     } satisfies NgpDialogTriggerState<T>;
   },
 );
+
+/**
+ * The trigger whose removal closes the dialog: this one, or for a trigger inside a menu or
+ * popover, that overlay's trigger, up to the first trigger outside any overlay or inside a
+ * dialog.
+ */
+function resolveTriggerLifetime(injector: Injector): DestroyRef {
+  const overlay = injector.get(NgpOverlay, null);
+  // An overlay reached through a dialog's injector holds the dialog's trigger, not this one.
+  const dialogRef = injector.get(NgpDialogRef, null);
+
+  if (!overlay || dialogRef?.injector?.get(NgpOverlay, null) === overlay) {
+    return injector.get(DestroyRef);
+  }
+
+  return resolveTriggerLifetime(overlay.triggerInjector);
+}
 
 export function injectDialogTriggerState<T>(
   options?: StateInjectionOptions,

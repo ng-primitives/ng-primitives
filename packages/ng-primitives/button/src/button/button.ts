@@ -17,9 +17,19 @@ export class NgpButton {
   });
 
   /**
+   * Whether the button is pending, e.g. while the request it started runs. A pending
+   * button stays focusable, ignores clicks, does not submit its form, and announces
+   * its name when pending starts and ends if it has focus.
+   */
+  readonly pending = input<boolean, BooleanInput>(false, {
+    alias: 'ngpButtonPending',
+    transform: booleanAttribute,
+  });
+
+  /**
    * The button state.
    */
-  protected readonly state = ngpButton({ disabled: this.disabled });
+  protected readonly state = ngpButton({ disabled: this.disabled, pending: this.pending });
 
   /**
    * Set the disabled state of the button.
@@ -27,6 +37,14 @@ export class NgpButton {
    */
   setDisabled(value: boolean | 'soft'): void {
     this.state.setDisabled(value);
+  }
+
+  /**
+   * Set the pending state of the button.
+   * @param value The pending state.
+   */
+  setPending(value: boolean): void {
+    this.state.setPending(value);
   }
 
   /** @internal */
