@@ -46,6 +46,11 @@ export interface NgpRovingFocusGroupState {
    */
   setTabStop(id: string | null): void;
   /**
+   * The element of the last item that is not disabled.
+   * @internal
+   */
+  lastEnabledElement(): HTMLElement | null;
+  /**
    * Register an item with the roving focus group.
    * @param item The item to register
    */
@@ -186,13 +191,20 @@ export const [
      * @param origin The origin of the focus change
      */
     function activateLastItem(origin: FocusOrigin): void {
-      // find the last item that is not disabled
-      const item = [...getSortedItems()].reverse().find(i => !i.disabled()) ?? null;
+      const item = lastEnabledItem();
 
       // set the last item as the active item
       if (item) {
         setActiveItem(item.id(), origin);
       }
+    }
+
+    function lastEnabledElement(): HTMLElement | null {
+      return lastEnabledItem()?.element.nativeElement ?? null;
+    }
+
+    function lastEnabledItem(): NgpRovingFocusItemState | undefined {
+      return [...getSortedItems()].reverse().find(i => !i.disabled());
     }
 
     /**
@@ -405,6 +417,7 @@ export const [
       activeItem,
       setActiveItem,
       setTabStop,
+      lastEnabledElement,
       setOrientation,
       onKeydown,
       register,
