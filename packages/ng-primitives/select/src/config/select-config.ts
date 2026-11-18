@@ -28,6 +28,13 @@ export interface NgpSelectConfig {
    * @default 0
    */
   offset: NgpOffset;
+
+  /**
+   * Whether the select dropdown is modal. While it is open the rest of the page is `inert`,
+   * so a click outside only closes the dropdown.
+   * @default false
+   */
+  modal: boolean;
 }
 
 export const defaultSelectConfig: NgpSelectConfig = {
@@ -35,6 +42,7 @@ export const defaultSelectConfig: NgpSelectConfig = {
   container: 'body',
   flip: true,
   offset: 0,
+  modal: false,
 };
 
 export const NgpSelectConfigToken = new InjectionToken<NgpSelectConfig>('NgpSelectConfigToken');

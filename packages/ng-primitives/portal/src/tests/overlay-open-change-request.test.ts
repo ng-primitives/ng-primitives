@@ -15,6 +15,7 @@ import { createOverlay, NgpOverlay, NgpOverlayConfig } from '../overlay';
 @Component({
   template: `
     <button #trigger>Trigger</button>
+    <button #other>Other</button>
 
     <ng-template #content>
       <div data-testid="overlay">Content</div>
@@ -23,6 +24,7 @@ import { createOverlay, NgpOverlay, NgpOverlayConfig } from '../overlay';
 })
 class OverlayHost {
   readonly trigger = viewChild.required<ElementRef<HTMLElement>>('trigger');
+  readonly other = viewChild.required<ElementRef<HTMLElement>>('other');
   readonly content = viewChild.required<TemplateRef<unknown>>('content');
 
   private readonly injector = inject(Injector);
@@ -78,6 +80,14 @@ function boundOwner(initial: boolean) {
     },
   };
   return owner;
+}
+
+/** A pointer press: a primary `pointerdown`, then the `click` that ends it. */
+function press(target: HTMLElement): void {
+  target.dispatchEvent(
+    new PointerEvent('pointerdown', { bubbles: true, cancelable: true, isPrimary: true }),
+  );
+  target.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, detail: 1 }));
 }
 
 const wait = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
@@ -411,6 +421,52 @@ describe('NgpOverlay requestOpenChange', () => {
 
     await waitFor(() => expect(overlay!.isOpen()).toBe(false));
     expect(document.activeElement).toBe(fixture.componentInstance.trigger().nativeElement);
+  });
+
+  it('returns focus to the control a declined press landed on when the owner commits the open', async () => {
+    const { fixture } = await render(OverlayHost);
+    const owner = boundOwner(false);
+    overlay = fixture.componentInstance.create(owner.requestOpenChange);
+    const other = fixture.componentInstance.other().nativeElement;
+    (document.activeElement as HTMLElement | null)?.blur();
+
+    await overlay.show({ pressTarget: other });
+    owner.open = true;
+    await overlay.show({ immediate: true });
+
+    owner.open = false;
+    overlay.hide({ origin: 'mouse', immediate: true });
+
+    await waitFor(() => expect(overlay!.isOpen()).toBe(false));
+    expect(document.activeElement).toBe(other);
+  });
+
+  it('asks before a modal overlay closes on an outside press, and keeps the page inert', async () => {
+    const { fixture } = await render(OverlayHost);
+    const owner = boundOwner(true);
+    overlay = fixture.componentInstance.create(owner.requestOpenChange, {
+      modal: true,
+      closeOnOutsideClick: true,
+    });
+    const other = fixture.componentInstance.other().nativeElement;
+    (document.activeElement as HTMLElement | null)?.blur();
+    await overlay.show();
+    owner.requests = [];
+    expect(other.closest('[inert]')).not.toBeNull();
+
+    press(other);
+
+    await waitFor(() => expect(owner.requests).toEqual([false]));
+    expect(overlay.isOpen()).toBe(true);
+    expect(other.closest('[inert]')).not.toBeNull();
+
+    // The swallowed press focused nothing, so the owner's close still returns focus
+    owner.open = false;
+    overlay.hide({ immediate: true, fromOwner: true });
+
+    await waitFor(() => expect(overlay!.isOpen()).toBe(false));
+    expect(document.activeElement).toBe(fixture.componentInstance.trigger().nativeElement);
+    expect(other.closest('[inert]')).toBeNull();
   });
 
   it('does not ask before a close it cannot refuse', async () => {

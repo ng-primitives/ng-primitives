@@ -503,6 +503,25 @@
       "contributions": [
         "code"
       ]
+    },
+    {
+      "login": "anton-lebodkin",
+      "name": "anton-lebodkin",
+      "avatar_url": "https://avatars.githubusercontent.com/u/48487334?v=4",
+      "profile": "https://github.com/anton-lebodkin",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "ajitzero",
+      "name": "Ajit Panigrahi",
+      "avatar_url": "https://avatars.githubusercontent.com/u/19947758?v=4",
+      "profile": "https://ajitpanigrahi.com",
+      "contributions": [
+        "code",
+        "doc"
+      ]
     }
   ],
   "contributorsPerLine": 7,

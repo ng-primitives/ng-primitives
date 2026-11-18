@@ -1,10 +1,24 @@
-import { Component, signal } from '@angular/core';
+import { FocusMonitor } from '@angular/cdk/a11y';
+import { Component, ElementRef, signal } from '@angular/core';
+import { TestBed } from '@angular/core/testing';
 import { fireEvent, render } from '@testing-library/angular';
 import { NgpFocus, provideInteractionsConfig } from 'ng-primitives/interactions';
 import { describe, expect, it, vi } from 'vitest';
 import { blurSynchronouslyOnDisable, collectUncaughtErrors } from '../../tests/uncaught-errors';
 
 describe('NgpFocus', () => {
+  it('should stop monitoring the element when destroyed', async () => {
+    const container = await render(`<div data-testid="trigger" ngpFocus></div>`, {
+      imports: [NgpFocus],
+    });
+    const stopMonitoring = vi.spyOn(TestBed.inject(FocusMonitor), 'stopMonitoring');
+    const trigger = container.getByTestId('trigger');
+
+    container.fixture.destroy();
+
+    expect(stopMonitoring).toHaveBeenCalledWith(new ElementRef(trigger));
+  });
+
   it('should apply the data-focus attribute', async () => {
     const container = await render(`<div data-testid="trigger" ngpFocus></div>`, {
       imports: [NgpFocus],

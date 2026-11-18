@@ -168,6 +168,19 @@ export class NgpPopoverTrigger<T = null> {
   });
 
   /**
+   * Whether the popover is modal. While it is open the rest of the page is `inert`, so a pointer
+   * press outside does not reach it: the click that ends the press closes the popover, unless
+   * `closeOnOutsideClick` says not to. A click from the keyboard or from code is left alone. The
+   * trigger, the anchor, exempt elements and overlays opened above the popover stay usable.
+   * Read each time the popover opens.
+   * @default false
+   */
+  readonly modal = input<boolean, BooleanInput>(this.config.modal, {
+    alias: 'ngpPopoverTriggerModal',
+    transform: booleanAttribute,
+  });
+
+  /**
    * Provide context to the popover. This can be used to pass data to the popover content.
    */
   readonly context = input<T>(undefined, {
@@ -183,7 +196,7 @@ export class NgpPopoverTrigger<T = null> {
    * An input only reaches this directive on the next change detection pass, which a press
    * can outrun - use `setAnchor()` instead when the anchor is claimed during one.
    */
-  readonly anchor = input<HTMLElement | null>(null, {
+  readonly anchor = input<Element | null>(null, {
     alias: 'ngpPopoverTriggerAnchor',
   });
 
@@ -247,6 +260,7 @@ export class NgpPopoverTrigger<T = null> {
     closeOnOutsideClick: this.closeOnOutsideClick,
     closeOnEscape: this.closeOnEscape,
     scrollBehavior: this.scrollBehavior,
+    modal: this.modal,
     context: this.context,
     anchor: this.anchor,
     trackPosition: this.trackPosition,
@@ -283,7 +297,7 @@ export class NgpPopoverTrigger<T = null> {
    * it. Writing the anchor here is visible to that check straight away.
    * @param anchor - The new anchor element
    */
-  setAnchor(anchor: HTMLElement | null): void {
+  setAnchor(anchor: Element | null): void {
     this.state.setAnchor(anchor);
   }
 }
