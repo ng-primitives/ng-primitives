@@ -121,7 +121,7 @@ export class NgpPreviewCardTrigger<T = null> {
    * Define an anchor element for positioning the preview card.
    * If provided, the preview card will be positioned relative to this element instead of the trigger.
    */
-  readonly anchor = input<HTMLElement | null>(null, {
+  readonly anchor = input<Element | null>(null, {
     alias: 'ngpPreviewCardTriggerAnchor',
   });
 

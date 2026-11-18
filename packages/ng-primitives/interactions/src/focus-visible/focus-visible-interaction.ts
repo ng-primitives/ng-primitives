@@ -1,5 +1,6 @@
 import { FocusMonitor, FocusOrigin } from '@angular/cdk/a11y';
 import { ElementRef, inject, Renderer2, Signal, signal, untracked } from '@angular/core';
+import { onDestroy } from 'ng-primitives/state';
 import { onBooleanChange, safeTakeUntilDestroyed } from 'ng-primitives/utils';
 import { isFocusVisibleEnabled } from '../config/interactions-config';
 
@@ -47,6 +48,10 @@ export function ngpFocusVisible({
         origin === null ? onBlur() : onFocus(origin),
       ),
     );
+
+  // Unsubscribing does not remove the element from FocusMonitor's registry, so the element info
+  // and its root-node listeners have to be released explicitly, or the detached element is retained.
+  onDestroy(() => focusMonitor.stopMonitoring(elementRef.nativeElement));
 
   // if the component becomes disabled and it is focused, hide the focus
   onBooleanChange(disabled, () => focus(false));

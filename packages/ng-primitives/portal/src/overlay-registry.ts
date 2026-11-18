@@ -64,11 +64,23 @@ export interface NgpOverlayEntry {
    * Optional anchor element. Pass a signal when the anchor can change while the overlay
    * is open - an entry is registered once per open and is not re-registered on a change.
    */
-  anchorElement?: HTMLElement | null | Signal<HTMLElement | null | undefined>;
+  anchorElement?: Element | null | Signal<Element | null | undefined>;
   /** Per-instance dismiss configuration */
   dismissPolicy: NgpDismissPolicy;
+  /** The overlay type identifier from the overlay config, e.g. `'tooltip'` */
+  overlayType?: string;
+  /**
+   * If true, the overlay opens on hover or focus rather than a press, so a dialog's backdrop
+   * click closes the dialog instead of this overlay.
+   */
+  passive?: boolean;
   /** If true, clicks on the trigger element are treated as outside clicks */
   treatTriggerClickAsOutside?: boolean;
+  /**
+   * If true, the overlay takes Escape only when it is pressed inside it; otherwise Escape goes to
+   * the overlay below. For an overlay that leaves the page usable, such as a non-modal dialog.
+   */
+  escapeKeyInsideOnly?: boolean;
   /** Optional subject that receives pointer events that occur outside the overlay */
   outsidePointerEvents$?: Subject<MouseEvent>;
   /**
@@ -492,20 +504,21 @@ export class NgpOverlayRegistry {
   }
 
   /**
-   * Escape-key dismiss: only the topmost overlay responds.
+   * Escape-key dismiss: only the topmost overlay that takes the Escape responds (see
+   * `escapeKeyInsideOnly`).
    */
   private handleEscapeKey(event: KeyboardEvent): void {
     if (event.key !== 'Escape' || event.isComposing) {
       return;
     }
 
-    const topmost = this.getTopmost();
+    const path = event.composedPath();
+    const topmost = this.findEscapeKeyTarget(path);
     if (!topmost || this.pendingGuardIds.has(topmost.id)) {
       return;
     }
 
     // a control inside the overlay will handle this Escape itself
-    const path = event.composedPath();
     if (
       topmost.getElements().some(el => path.includes(el)) &&
       this.escapeKeyClaims.isClaimed(event)
@@ -516,6 +529,19 @@ export class NgpOverlayRegistry {
     this.evaluateGuardAndDismiss(topmost.id, topmost.dismissPolicy.escapeKey, event, () =>
       this.ngZone.run(() => topmost.overlay.hide({ origin: 'keyboard', immediate: true })),
     );
+  }
+
+  /** The topmost overlay that takes an Escape pressed at the given path. */
+  private findEscapeKeyTarget(path: EventTarget[]): NgpOverlayEntry | null {
+    for (let i = this.entries.length - 1; i >= 0; i--) {
+      const entry = this.entries[i];
+
+      if (!entry.escapeKeyInsideOnly || entry.getElements().some(el => path.includes(el))) {
+        return entry;
+      }
+    }
+
+    return null;
   }
 
   /**

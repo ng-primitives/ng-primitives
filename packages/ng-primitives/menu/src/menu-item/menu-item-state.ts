@@ -1,4 +1,4 @@
-import { FocusOrigin } from '@angular/cdk/a11y';
+import { FocusMonitor, FocusOrigin } from '@angular/cdk/a11y';
 import { computed, inject, Injector, signal, Signal } from '@angular/core';
 import { ngpButton } from 'ng-primitives/button';
 import { fromMutationObserver, injectElementRef } from 'ng-primitives/internal';
@@ -54,6 +54,7 @@ export const [NgpMenuItemStateToken, ngpMenuItem, injectMenuItemState, provideMe
       const element = injectElementRef();
       const injector = inject(Injector);
       const parentMenu = injectMenuState({ optional: true });
+      const focusMonitor = inject(FocusMonitor);
 
       ngpButton({ disabled });
 
@@ -69,6 +70,7 @@ export const [NgpMenuItemStateToken, ngpMenuItem, injectMenuItemState, provideMe
       listener(element, 'click', onClick);
       listener(element, 'keydown', handleArrowKey);
       listener(element, 'mouseenter', showSubmenuOnHover);
+      listener(element, 'pointermove', focusOnHover);
 
       // Methods
       function onClick(event: MouseEvent): void {
@@ -121,6 +123,28 @@ export const [NgpMenuItemStateToken, ngpMenuItem, injectMenuItemState, provideMe
             trigger.focus('keyboard');
           }
         }
+      }
+
+      // A mouse moving over an item gives it focus, so the arrow keys move on from it, as in React
+      // Aria. A pointer at rest does not: a keyboard user scrolling the menu under it keeps focus.
+      function focusOnHover(event: PointerEvent): void {
+        const focused = document.activeElement;
+
+        if (
+          event.pointerType === 'touch' ||
+          (event.movementX === 0 && event.movementY === 0) ||
+          disabled() ||
+          focused === element.nativeElement ||
+          // an open submenu keeps focus, and so does a field the user is typing in
+          element.nativeElement.getAttribute('aria-expanded') === 'true' ||
+          isTextField(focused) ||
+          // the pointer is crossing this item on its way to a sibling's submenu
+          parentMenu()?.isTransitBlocked(element.nativeElement)
+        ) {
+          return;
+        }
+
+        focusMonitor.focusVia(element, 'mouse', { preventScroll: true });
       }
 
       function showSubmenuOnHover(): void {
@@ -201,4 +225,15 @@ function addTokens(element: HTMLElement, attr: string, tokens: Signal<string[]>)
         update();
       }
     });
+}
+
+function isTextField(element: Element | null): boolean {
+  return (
+    element instanceof HTMLTextAreaElement ||
+    (element instanceof HTMLInputElement &&
+      !['button', 'checkbox', 'radio', 'submit', 'reset', 'image', 'range', 'color'].includes(
+        element.type,
+      )) ||
+    (element instanceof HTMLElement && element.isContentEditable)
+  );
 }
