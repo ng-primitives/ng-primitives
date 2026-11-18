@@ -922,6 +922,7 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
     if (!canBeDeclined) {
       this.closingPress = options?.outsidePressTarget ?? null;
       this.closing.next();
+      this.closingPress = null;
     }
 
     // Check cooldown BEFORE recording, then record for the next overlay
@@ -959,6 +960,7 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
 
         this.closingPress = close?.outsidePressTarget ?? null;
         this.closing.next();
+        this.closingPress = null;
       }
       const origin = close?.origin ?? 'program';
       this.declinedClose = null;
@@ -1296,7 +1298,6 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
     // `await portal.detach()`, leaving a window where it lies.
     if (this.isOpen() && this.portal() !== null) {
       // Emit closing event
-      this.closingPress = null;
       this.closing.next();
 
       // Update close origin and call callback (default to 'program' for immediate closes)
