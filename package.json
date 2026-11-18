@@ -114,7 +114,8 @@
     "@docsearch/js": "^3.6.0",
     "@floating-ui/dom": "^1.6.5",
     "@fontsource-variable/inter": "^5.2.5",
-    "@modelcontextprotocol/sdk": "^1.24.3",
+    "@modelcontextprotocol/client": "^2.4.0",
+    "@modelcontextprotocol/server": "^2.4.0",
     "@ng-icons/bootstrap-icons": "^32.0.0",
     "@ng-icons/core": "^32.0.0",
     "@ng-icons/heroicons": "^32.0.0",
@@ -138,7 +139,7 @@
     "rxjs": "~7.8.1",
     "shiki": "^1.29.2",
     "tslib": "^2.6.3",
-    "zod": "^4.1.0",
+    "zod": "^4.2.0",
     "zone.js": "0.15.0"
   },
   "resolutions": {
