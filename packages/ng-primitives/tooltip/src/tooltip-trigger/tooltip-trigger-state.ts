@@ -95,7 +95,7 @@ export interface NgpTooltipTriggerState<T> {
    * Define an anchor element for positioning the tooltip.
    * If provided, the tooltip will be positioned relative to this element instead of the trigger.
    */
-  readonly anchor: WritableSignal<HTMLElement | null>;
+  readonly anchor: WritableSignal<Element | null>;
   /**
    * Provide context to the tooltip. This can be used to pass data to the tooltip content.
    */
@@ -196,7 +196,7 @@ export interface NgpTooltipTriggerState<T> {
   /** Set whether the tooltip only shows when the trigger element overflows. */
   setShowOnOverflow: (showOnOverflow: boolean) => void;
   /** Set the anchor element the tooltip is positioned against. */
-  setAnchor: (anchor: HTMLElement | null) => void;
+  setAnchor: (anchor: Element | null) => void;
   /** Set the context passed to the tooltip content. */
   setContext: (context: T | undefined) => void;
   /** Set whether the trigger's text content is used as the tooltip content. */
@@ -278,7 +278,7 @@ export interface NgpTooltipTriggerProps<T> {
    * Define an anchor element for positioning the tooltip.
    * If provided, the tooltip will be positioned relative to this element instead of the trigger.
    */
-  readonly anchor?: Signal<HTMLElement | null>;
+  readonly anchor?: Signal<Element | null>;
   /**
    * Provide context to the tooltip. This can be used to pass data to the tooltip content.
    */
@@ -367,7 +367,7 @@ export const [
     const shift = controlled<NgpShift>(_shift, undefined);
     const container = controlled<HTMLElement | string | null>(_container, 'body');
     const showOnOverflow = controlled(_showOnOverflow, false);
-    const anchor = controlled<HTMLElement | null>(_anchor, null);
+    const anchor = controlled<Element | null>(_anchor, null);
     const context = controlled<T | undefined>(_context, undefined);
     const useTextContent = controlled(_useTextContent, true);
     const trackPosition = controlled(_trackPosition, false);
@@ -547,7 +547,7 @@ export const [
       showOnOverflow.set(shouldShowOnOverflow);
     }
 
-    function setAnchor(newAnchor: HTMLElement | null): void {
+    function setAnchor(newAnchor: Element | null): void {
       anchor.set(newAnchor);
     }
 
