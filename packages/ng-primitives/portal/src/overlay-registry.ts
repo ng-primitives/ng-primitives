@@ -70,9 +70,16 @@ export interface NgpOverlayEntry {
    * Optional anchor element. Pass a signal when the anchor can change while the overlay
    * is open - an entry is registered once per open and is not re-registered on a change.
    */
-  anchorElement?: HTMLElement | null | Signal<HTMLElement | null | undefined>;
+  anchorElement?: Element | null | Signal<Element | null | undefined>;
   /** Per-instance dismiss configuration */
   dismissPolicy: NgpDismissPolicy;
+  /** The overlay type identifier from the overlay config, e.g. `'tooltip'` */
+  overlayType?: string;
+  /**
+   * If true, the overlay opens on hover or focus rather than a press, so a dialog's backdrop
+   * click closes the dialog instead of this overlay.
+   */
+  passive?: boolean;
   /** If true, clicks on the trigger element are treated as outside clicks */
   treatTriggerClickAsOutside?: boolean;
   /**
