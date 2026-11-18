@@ -361,4 +361,18 @@ describe('NgpToastRef.update()', () => {
     expect(toast.isConnected).toBe(false);
     expect(() => ref.update({ context: { label: 'C' } })).not.toThrow();
   });
+
+  it('does nothing once the toast is being swiped away', async () => {
+    const host = await renderHost({ persistent: true });
+    const ref = host.show('A');
+    const toast = await waitFor(() => toastWithLabel('A'));
+    const instance = host.manager.toasts()[0].instance;
+
+    const dismissed = host.manager.dismissBySwipe(instance);
+    ref.update({ context: { label: 'B' }, persistent: false, duration: 1 });
+
+    expect(instance.restarts()).toBe(0);
+    await dismissed;
+    expect(toast.isConnected).toBe(false);
+  });
 });
