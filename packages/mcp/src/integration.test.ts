@@ -1,7 +1,8 @@
 import { Client } from '@modelcontextprotocol/client';
-import { InMemoryTransport, McpServer } from '@modelcontextprotocol/server';
+import { InMemoryTransport, type McpServer } from '@modelcontextprotocol/server';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
-import { clearCache, registerTools } from './tools.js';
+import { createServer } from './server.js';
+import { clearCache } from './tools.js';
 
 /**
  * Integration tests for ngp-mcp server using InMemoryTransport
@@ -16,19 +17,7 @@ describe('ngp-mcp Integration Tests', () => {
   beforeEach(async () => {
     [clientTransport, serverTransport] = InMemoryTransport.createLinkedPair();
 
-    server = new McpServer(
-      {
-        name: 'ngp-mcp',
-        version: '0.1.0',
-      },
-      {
-        capabilities: {
-          tools: {},
-        },
-      },
-    );
-
-    registerTools(server);
+    server = createServer();
 
     client = new Client({
       name: 'test-client',
