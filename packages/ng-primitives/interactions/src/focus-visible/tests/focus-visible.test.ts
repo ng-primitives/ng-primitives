@@ -7,6 +7,18 @@ import { describe, expect, it, vi } from 'vitest';
 import { blurSynchronouslyOnDisable, collectUncaughtErrors } from '../../tests/uncaught-errors';
 
 describe('NgpFocusVisible', () => {
+  it('should stop monitoring the element when destroyed', async () => {
+    const container = await render(`<button data-testid="trigger" ngpFocusVisible></button>`, {
+      imports: [NgpFocusVisible],
+    });
+    const stopMonitoring = vi.spyOn(TestBed.inject(FocusMonitor), 'stopMonitoring');
+    const trigger = container.getByTestId('trigger');
+
+    container.fixture.destroy();
+
+    expect(stopMonitoring).toHaveBeenCalledWith(trigger);
+  });
+
   it('should not set data-focus-visible to true when mouse focused', async () => {
     const focusChange = vi.fn();
     const container = await render(

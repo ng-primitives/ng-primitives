@@ -75,6 +75,8 @@ Here are some additional examples of how to use the Menu primitives.
 
 The menu can contain submenus, which are nested menus that can be opened by hovering on a menu item.
 
+Clicking or tapping a submenu trigger opens its submenu. Clicking it with a mouse or pen while the submenu is open keeps it open and moves focus into it, so a click after hovering the trigger does not close the submenu. A second tap on a touch screen, or pressing <kbd>Enter</kbd> or <kbd>Space</kbd>, toggles the submenu.
+
 <docs-example name="submenu"></docs-example>
 
 ### Checkbox Items
@@ -91,7 +93,7 @@ Menu items that allow selecting one option from a group. Clicking a radio item d
 
 ### Dialog from a Menu Item
 
-A menu item can open a dialog. Setting `ngpMenuItemCloseOnSelect` to `false` keeps the menu mounted behind it, so a cancelled confirmation returns you to where you were - dismissing the dialog with Escape, a button or the backdrop closes only the dialog and restores focus to the item. With the default `closeOnSelect` the menu closes on select and the dialog outlives it.
+A menu item can open a dialog. The menu closes on select and the dialog outlives it. When the dialog closes, focus returns to the menu trigger, since the item that opened the dialog is gone. Set `ngpMenuItemCloseOnSelect` to `false` to keep the menu open behind the dialog instead; focus then returns to the item.
 
 By default overlays portal into `document.body`, so giving the menu and the dialog overlay the same `z-index` lets the one opened last paint on top, whichever way round they are nested. Point either of them at a custom container and that no longer holds - they only stack by open order while they share a stacking context.
 
@@ -247,9 +249,8 @@ Enable keyboard triggers to allow users to open menus using Enter or arrow keys:
 
 **Arrow Keys:**
 
-- Placement-aware: Only responds to arrows matching menu direction
-  - `bottom-*` placement: ArrowDown opens
-  - `top-*` placement: ArrowUp opens
+- Placement-aware:
+  - `bottom-*` and `top-*` placements: ArrowDown opens on the first item, ArrowUp on the last
   - `right-*` placement: ArrowRight opens (ArrowLeft in RTL)
   - `left-*` placement: ArrowLeft opens (ArrowRight in RTL)
 - Automatically respects RTL text direction
@@ -448,15 +449,18 @@ A menu is named by its trigger through `aria-labelledby`, and a submenu by its s
 | <kbd>Escape</kbd>     | Closes all open menus and returns focus as described in Focus Management below.                |
 | <kbd>ArrowDown</kbd>  | Moves focus to the next menu item.                                                             |
 | <kbd>ArrowUp</kbd>    | Moves focus to the previous menu item.                                                         |
-| <kbd>ArrowRight</kbd> | Opens a submenu when focused on a submenu trigger.                                             |
-| <kbd>ArrowLeft</kbd>  | Closes the current submenu and moves focus to the parent submenu trigger.                      |
+| <kbd>ArrowRight</kbd> | Opens a submenu when focused on a submenu trigger and moves focus into it (ArrowLeft in RTL).  |
+| <kbd>ArrowLeft</kbd>  | Closes the current submenu and moves focus to the parent submenu trigger (ArrowRight in RTL).  |
 | <kbd>Home</kbd>       | Moves focus to the first menu item.                                                            |
 | <kbd>End</kbd>        | Moves focus to the last menu item.                                                             |
+| A character           | Moves focus to the next item whose visible text starts with the characters typed.              |
+| <kbd>Space</kbd>      | Activates the focused menu item, or continues a search started by typing.                      |
 
 ### Focus Management
 
 - Focus is always trapped within the menu when open (Tab key does not leave the menu).
-- When a menu is opened via keyboard, the first menu item receives visible focus (`:focus-visible`).
+- When a menu is opened via keyboard, the first menu item receives visible focus (`:focus-visible`), or the last one when ArrowUp opened it. An element with `autofocus` in the menu takes focus instead. When the last item cannot take focus, focus goes where ArrowDown would put it.
 - When a menu is opened via mouse, focus moves into the menu but without the visible focus ring until arrow keys are used.
+- Moving the mouse over an item gives it focus, without the focus ring, so the arrow keys move on from it. A pointer at rest does not, and focus stays in an open submenu or in a text field of the menu.
 - Closing all menus (via Escape, item selection or a click on empty space) returns focus to the element that was focused when the menu opened, usually the root menu trigger, whether the menu was used with the keyboard or the mouse. A menu opened on hover leaves focus where it was before the hover. An outside click on another control leaves focus on that control.
 - Set `ngpMenuFinalFocus` on `ngpMenu` to send focus elsewhere on close: an element, `false` to leave focus where it is, `null` (the default) or `true` for the default restoration, or a function that receives the close origin and returns one of these.

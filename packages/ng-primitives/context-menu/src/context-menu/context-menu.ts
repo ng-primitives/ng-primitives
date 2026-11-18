@@ -1,6 +1,6 @@
 import { FocusOrigin } from '@angular/cdk/a11y';
 import { BooleanInput } from '@angular/cdk/coercion';
-import { booleanAttribute, Directive, input } from '@angular/core';
+import { booleanAttribute, Directive, input, signal } from '@angular/core';
 import { provideFocusTrapState } from 'ng-primitives/focus-trap';
 import { ngpMenu, provideMenuState } from 'ng-primitives/menu';
 import { NgpOverlayFinalFocus, provideControlContainerIsolation } from 'ng-primitives/portal';
@@ -39,10 +39,10 @@ export class NgpContextMenu {
     alias: 'ngpContextMenuFinalFocus',
   });
 
-  private readonly state = ngpMenu({ wrap: this.wrap, finalFocus: this.finalFocus });
+  private readonly state = ngpMenu({ finalFocus: this.finalFocus });
 
   constructor() {
-    ngpRovingFocusGroup({ inherit: false, wrap: this.wrap });
+    ngpRovingFocusGroup({ inherit: false, wrap: this.wrap, typeahead: signal(true) });
   }
 
   /** @internal Close the menu and any parent menus */
