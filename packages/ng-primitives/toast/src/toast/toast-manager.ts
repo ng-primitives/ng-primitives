@@ -1,4 +1,4 @@
-import { DOCUMENT } from '@angular/common';
+import { DOCUMENT, isPlatformBrowser } from '@angular/common';
 import {
   ApplicationRef,
   computed,
@@ -7,6 +7,7 @@ import {
   Injectable,
   Injector,
   NgZone,
+  PLATFORM_ID,
   RendererFactory2,
   signal,
   TemplateRef,
@@ -31,6 +32,7 @@ export class NgpToastManager {
   private readonly document = inject(DOCUMENT);
   private readonly ngZone = inject(NgZone);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
   // Map to store containers by placement
   private readonly containers = new Map<string, HTMLElement>();
 
@@ -45,6 +47,22 @@ export class NgpToastManager {
   /** Signal that tracks which placements are expanded */
   private readonly expanded = signal<NgpToastPlacement[]>([]);
 
+  constructor() {
+    this.createContainers();
+
+    this.destroyRef.onDestroy(() => {
+      // Toast views are created in the root view container, so they would outlive the manager.
+      // `finishDetach()` ends a close already under way, which `destroyView()` alone would race.
+      this.toasts().forEach(({ portal }) => {
+        portal.finishDetach();
+        portal.destroyView();
+      });
+      this.toasts.set([]);
+      this.containers.forEach(container => container.remove());
+      this.containers.clear();
+    });
+  }
+
   /** Show a toast notification */
   show(toast: TemplateRef<void> | Type<unknown>, options: NgpToastOptions = {}): NgpToastRef {
     // services can't access the view container directly, so this is a workaround.
@@ -58,6 +76,7 @@ export class NgpToastManager {
     let instance: NgpToast | null = null;
     const placement = options.placement ?? this.config.placement;
     const duration = options.duration ?? this.config.duration;
+    this.createContainers();
     const container = this.getOrCreateContainer(placement);
 
     const portal = createPortal(
@@ -137,6 +156,21 @@ export class NgpToastManager {
         this.moveFocusTo(returnTo);
       }
     }
+  }
+
+  /**
+   * A container is a live region, and a live region must be in the page before the content it
+   * announces, or screen readers may skip the first toast. So every placement gets one up front,
+   * once the page has a body: a manager injected from a script in the `<head>` adds them on the
+   * first `show()`. The configured placement comes first so that
+   * `querySelector('[data-ngp-toast-container]')` still finds the container default toasts use.
+   */
+  private createContainers(): void {
+    if (!this.isBrowser || !this.document.body || this.containers.size > 0) {
+      return;
+    }
+    const placements = new Set([this.config.placement, ...TOAST_PLACEMENTS]);
+    placements.forEach(placement => this.getOrCreateContainer(placement));
   }
 
   /**
@@ -349,10 +383,19 @@ export class NgpToastManager {
         throw new Error(`Unknown toast placement: ${placement}`);
     }
 
-    this.renderer.appendChild(document.body, container);
+    this.renderer.appendChild(this.document.body, container);
     return container;
   }
 }
+
+const TOAST_PLACEMENTS = Object.keys({
+  'top-start': true,
+  'top-center': true,
+  'top-end': true,
+  'bottom-start': true,
+  'bottom-center': true,
+  'bottom-end': true,
+} satisfies Record<NgpToastPlacement, true>) as NgpToastPlacement[];
 
 export interface NgpToastOptions<T = unknown> {
   /** The position of the toast */
