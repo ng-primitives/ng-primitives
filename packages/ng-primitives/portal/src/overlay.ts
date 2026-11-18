@@ -234,12 +234,18 @@ export interface NgpOverlayConfig<T = unknown> {
   treatTriggerClickAsOutside?: boolean;
 
   /**
-   * Overlay type identifier for cooldown grouping.
-   * When set, overlays of the same type share a cooldown period.
-   * For example, 'tooltip' ensures quickly moving between tooltips shows
+   * Overlay type identifier. Overlays of the same type share a cooldown
+   * period. For example, 'tooltip' ensures quickly moving between tooltips shows
    * the second one immediately without the showDelay.
    */
   overlayType?: string;
+
+  /**
+   * Whether the overlay opens on hover or focus rather than a press. A dialog's backdrop click
+   * then closes the dialog instead of this overlay.
+   * @internal
+   */
+  passive?: boolean;
 
   /**
    * When true, hiding the overlay removes its content from the DOM but keeps the
@@ -1289,6 +1295,8 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
           escapeKey: this.config.closeOnEscape ?? false,
         },
         treatTriggerClickAsOutside: this.config.treatTriggerClickAsOutside,
+        overlayType: this.config.overlayType,
+        passive: this.config.passive,
       },
       order,
     );

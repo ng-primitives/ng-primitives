@@ -67,6 +67,13 @@ export interface NgpOverlayEntry {
   anchorElement?: Element | null | Signal<Element | null | undefined>;
   /** Per-instance dismiss configuration */
   dismissPolicy: NgpDismissPolicy;
+  /** The overlay type identifier from the overlay config, e.g. `'tooltip'` */
+  overlayType?: string;
+  /**
+   * If true, the overlay opens on hover or focus rather than a press, so a dialog's backdrop
+   * click closes the dialog instead of this overlay.
+   */
+  passive?: boolean;
   /** If true, clicks on the trigger element are treated as outside clicks */
   treatTriggerClickAsOutside?: boolean;
   /**

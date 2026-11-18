@@ -728,6 +728,7 @@ export const [
         position: position,
         scrollBehaviour: scrollBehavior(),
         overlayType: 'tooltip',
+        passive: true,
         cooldown: cooldown(),
       };
 
