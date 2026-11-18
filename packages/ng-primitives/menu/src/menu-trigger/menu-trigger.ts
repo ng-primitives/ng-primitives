@@ -159,6 +159,17 @@ export class NgpMenuTrigger<T = unknown> {
   });
 
   /**
+   * Whether the menu is modal. While it is open the rest of the page is `inert`, so a click
+   * outside only closes the menu. A menu opened on hover, or from a trigger group, is never modal.
+   * Read each time the menu opens.
+   * @default false
+   */
+  readonly modal = input<boolean, BooleanInput>(this.config.modal, {
+    alias: 'ngpMenuTriggerModal',
+    transform: booleanAttribute,
+  });
+
+  /**
    * The menu trigger state.
    */
   private readonly state = ngpMenuTrigger<T>({
@@ -176,6 +187,7 @@ export class NgpMenuTrigger<T = unknown> {
     triggers: this.triggers,
     showDelay: this.showDelay,
     hideDelay: this.hideDelay,
+    modal: this.modal,
   });
 
   /**
