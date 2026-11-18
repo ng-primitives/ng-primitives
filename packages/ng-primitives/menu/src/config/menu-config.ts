@@ -74,6 +74,13 @@ export interface NgpMenuConfig {
    * @default 0
    */
   hideDelay: number;
+
+  /**
+   * Whether the menu is modal. While it is open the rest of the page is `inert`, so a click
+   * outside only closes the menu. A menu opened on hover, or from a trigger group, is never modal.
+   * @default false
+   */
+  modal: boolean;
 }
 
 export const defaultMenuConfig: NgpMenuConfig = {
@@ -88,6 +95,7 @@ export const defaultMenuConfig: NgpMenuConfig = {
   triggers: ['click'],
   showDelay: 0,
   hideDelay: 0,
+  modal: false,
 };
 
 export const NgpMenuConfigToken = new InjectionToken<NgpMenuConfig>('NgpMenuConfigToken');

@@ -81,13 +81,20 @@ export interface NgpMenuTriggerState<T = unknown> {
    * Define an anchor element for positioning the menu.
    * If provided, the menu will be positioned relative to this element instead of the trigger.
    */
-  readonly anchor: WritableSignal<HTMLElement | null>;
+  readonly anchor: WritableSignal<Element | null>;
 
   /**
    * The focus origin that was used to open the menu.
    * @internal
    */
   readonly openOrigin: Signal<FocusOrigin>;
+
+  /**
+   * The item the menu focuses when it opens: the last one after an Up Arrow on the trigger.
+   * Only the menu trigger has it, not the triggers that share this state.
+   * @internal
+   */
+  readonly openFocus?: Signal<'first' | 'last'>;
 
   /**
    * Set whether the trigger is disabled.
@@ -129,7 +136,7 @@ export interface NgpMenuTriggerState<T = unknown> {
    * was meant to move the menu dismisses it instead.
    * @param anchor - The new anchor element
    */
-  setAnchor(anchor: HTMLElement | null): void;
+  setAnchor(anchor: Element | null): void;
 
   /**
    * Set the container in which the menu should be attached. Takes effect the
@@ -218,7 +225,7 @@ export interface NgpMenuTriggerProps<T = unknown> {
    * Define an anchor element for positioning the menu.
    * If provided, the menu will be positioned relative to this element instead of the trigger.
    */
-  readonly anchor?: Signal<HTMLElement | null>;
+  readonly anchor?: Signal<Element | null>;
   /**
    * Cooldown duration in milliseconds.
    */
@@ -238,6 +245,11 @@ export interface NgpMenuTriggerProps<T = unknown> {
    * The delay before hiding the menu.
    */
   readonly hideDelay?: Signal<number>;
+
+  /**
+   * Whether the menu is modal. A menu opened on hover, or from a trigger group, is never modal.
+   */
+  readonly modal?: Signal<boolean>;
 }
 
 export const [
@@ -262,6 +274,7 @@ export const [
     triggers = signal(['click'] as NgpMenuTriggerType[]),
     showDelay = signal(0),
     hideDelay = signal(0),
+    modal = signal(false),
   }: NgpMenuTriggerProps<T>) => {
     const element = injectElementRef();
     const injector = inject(Injector);
@@ -277,7 +290,7 @@ export const [
     const shift = controlled(_shift);
     const offset = controlled(_offset);
     const context = controlled(_context);
-    const anchor = controlled<HTMLElement | null>(_anchor, null);
+    const anchor = controlled<Element | null>(_anchor, null);
     const container = controlled(_container, 'body');
 
     // Internal state
@@ -285,6 +298,8 @@ export const [
     const open = computed(() => overlay()?.isOpen() ?? false);
     const expanded = computed(() => open() && !overlay()?.isClosing());
     const openOrigin = signal<FocusOrigin>('program');
+    const openedOnHover = signal(false);
+    const openFocus = signal<'first' | 'last'>('first');
 
     // Track whether pointer is over trigger or content (for hover triggers)
     const pointerOverTrigger = signal(false);
@@ -317,7 +332,7 @@ export const [
     const declineHoverDuringTransit = createHoverTransitDecline({
       isBlocked: () => triggerGroup()?.isTransitBlocked(element.nativeElement) ?? false,
       isPointerOverTrigger: pointerOverTrigger,
-      show: () => show('mouse'),
+      show: showOnHover,
     });
 
     // Reset pointer tracking when menu closes
@@ -374,6 +389,8 @@ export const [
       // trigger, so any in-progress hover bridge is no longer needed.
       if (open()) {
         hoverBridge.clear();
+        // A menu brought back on hover during its exit animation is a hover menu
+        openedOnHover.set(true);
         overlay()?.cancelPendingClose();
         return;
       }
@@ -382,7 +399,7 @@ export const [
         return;
       }
 
-      show('mouse');
+      showOnHover();
     }
 
     function onPointerLeave(event: PointerEvent): void {
@@ -502,14 +519,13 @@ export const [
       // Get RTL direction
       const isRtl = directionality.value === 'rtl';
 
-      // Check if arrow direction matches placement
+      // Up and Down open a menu above or below the trigger on its last or first item (WAI-ARIA
+      // menu button); a menu to the side opens on the arrow that points at it.
       const currentPlacement = placement();
       let shouldOpen = false;
 
-      if (currentPlacement.startsWith('bottom') && event.key === 'ArrowDown') {
-        shouldOpen = true;
-      } else if (currentPlacement.startsWith('top') && event.key === 'ArrowUp') {
-        shouldOpen = true;
+      if (currentPlacement.startsWith('bottom') || currentPlacement.startsWith('top')) {
+        shouldOpen = event.key === 'ArrowDown' || event.key === 'ArrowUp';
       } else if (currentPlacement.startsWith('right')) {
         const isRightArrow = event.key === 'ArrowRight';
         const isLeftArrow = event.key === 'ArrowLeft';
@@ -522,7 +538,7 @@ export const [
 
       if (shouldOpen && !open()) {
         event.preventDefault();
-        show('keyboard');
+        show('keyboard', false, event.key === 'ArrowUp' ? 'last' : 'first');
       }
     }
 
@@ -538,9 +554,28 @@ export const [
       }
     }
 
-    function show(origin: FocusOrigin = 'program', fromTriggerPress = false): void {
+    function show(
+      origin: FocusOrigin = 'program',
+      fromTriggerPress = false,
+      focus: 'first' | 'last' = 'first',
+    ): void {
+      openedOnHover.set(false);
+      showMenu(origin, fromTriggerPress, focus);
+    }
+
+    function showOnHover(): void {
+      openedOnHover.set(true);
+      showMenu('mouse');
+    }
+
+    function showMenu(
+      origin: FocusOrigin,
+      fromTriggerPress = false,
+      focus: 'first' | 'last' = 'first',
+    ): void {
       // Store the origin used to open the menu
       openOrigin.set(origin);
+      openFocus.set(focus);
 
       // Create the overlay if it doesn't exist yet
       if (!overlay()) {
@@ -589,6 +624,9 @@ export const [
         cooldown: cooldown?.(),
         showDelay: showDelay(),
         hideDelay: hideDelay(),
+        // The pointer leaves a menu opened on hover, and a trigger group switches between its
+        // menus, so neither can make the rest of the page inert.
+        modal: computed(() => modal() && !openedOnHover() && !triggerGroup()),
       };
 
       overlay.set(createOverlay(config));
@@ -622,7 +660,7 @@ export const [
       context.set(newContext);
     }
 
-    function setAnchor(newAnchor: HTMLElement | null): void {
+    function setAnchor(newAnchor: Element | null): void {
       anchor.set(newAnchor);
     }
 
@@ -663,6 +701,7 @@ export const [
       anchor: deprecatedSetter(anchor, 'setAnchor', setAnchor),
       open,
       openOrigin,
+      openFocus,
       show,
       hide,
       toggle,

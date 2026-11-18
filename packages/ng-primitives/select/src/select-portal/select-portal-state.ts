@@ -18,9 +18,11 @@ export interface NgpSelectPortalState {
 
   /**
    * Hide the portal.
+   * @param options.immediate - Skip the hide delay, so the dropdown leaves the page (and a modal
+   * one lifts `inert`) right away. The exit animation still runs.
    * @internal
    */
-  hide(): void;
+  hide(options?: { immediate?: boolean }): void;
 
   /**
    * Destroy the overlay. The directive class calls this from ngOnDestroy so
@@ -59,8 +61,8 @@ export const [
     return overlay()?.show();
   }
 
-  function hide(): void {
-    overlay()?.hide();
+  function hide(options?: { immediate?: boolean }): void {
+    overlay()?.hide(options);
   }
 
   function destroy(): void {
@@ -81,6 +83,7 @@ export const [
       closeOnEscape: true,
       restoreFocus: true,
       scrollBehaviour: 'reposition',
+      modal: selectState().modal,
       onClose: () => selectState().onOverlayClose(),
     };
 
