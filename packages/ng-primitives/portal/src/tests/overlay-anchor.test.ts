@@ -265,3 +265,92 @@ describe('overlay anchorElement via updateConfig', () => {
     });
   });
 });
+
+@Component({
+  template: `
+    <svg
+      data-testid="chart"
+      width="200"
+      height="120"
+      viewBox="0 0 100 60"
+      style="position: absolute; top: 100px; left: 40px;"
+    >
+      <circle data-testid="point" cx="75" cy="30" r="8" />
+      <svg data-testid="inset" x="10" y="10" width="20" height="10">
+        <rect width="20" height="10" />
+      </svg>
+    </svg>
+    <button data-testid="trigger" type="button" style="position: absolute; top: 500px; left: 40px;">
+      Trigger
+    </button>
+
+    <ng-template #content>
+      <div data-testid="overlay" style="position: absolute; width: 80px; height: 40px;">
+        Overlay
+      </div>
+    </ng-template>
+  `,
+})
+class SvgAnchorHostComponent {
+  readonly content = viewChild.required<TemplateRef<NgpOverlayTemplateContext<unknown>>>('content');
+  readonly viewContainerRef = inject(ViewContainerRef);
+  readonly injector = inject(Injector);
+}
+
+// The viewBox scales the chart 2x, so a shape's on-screen size differs from its user units.
+describe('overlay anchored to an svg element', () => {
+  let overlay: NgpOverlay<unknown> | null = null;
+
+  afterEach(() => {
+    overlay?.destroy();
+    overlay = null;
+    document.querySelectorAll('[data-testid="overlay"]').forEach(el => el.remove());
+  });
+
+  async function openAnchoredTo(testId: 'chart' | 'point' | 'inset') {
+    const { fixture, getByTestId } = await render(SvgAnchorHostComponent);
+    fixture.autoDetectChanges(true);
+
+    const host = fixture.componentInstance;
+    const query = (id: string) =>
+      (fixture.nativeElement as HTMLElement).querySelector<SVGElement>(`[data-testid="${id}"]`)!;
+    const anchor = query(testId);
+
+    overlay = TestBed.runInInjectionContext(() =>
+      createOverlay({
+        content: host.content,
+        triggerElement: getByTestId('trigger'),
+        injector: host.injector,
+        viewContainerRef: host.viewContainerRef,
+        anchorElement: anchor,
+        placement: signal('bottom'),
+      }),
+    );
+
+    await overlay.show();
+    await waitFor(() => expect(overlay!.position().y).toBeDefined());
+
+    return { rect: anchor.getBoundingClientRect(), chart: query('chart') };
+  }
+
+  it.each([
+    { anchor: 'point', width: 32 },
+    { anchor: 'chart', width: 200 },
+    { anchor: 'inset', width: 40 },
+  ] as const)('should position below the svg $anchor and measure it', async ({ anchor, width }) => {
+    const { rect } = await openAnchoredTo(anchor);
+
+    expect(overlay!.position().y).toBeCloseTo(rect.bottom, 0);
+    await waitFor(() => expect(overlay!.triggerWidth()).toBe(width));
+  });
+
+  it('should remeasure an svg shape when its svg is resized', async () => {
+    const { chart } = await openAnchoredTo('point');
+    await waitFor(() => expect(overlay!.triggerWidth()).toBe(32));
+
+    chart.setAttribute('width', '400');
+    chart.setAttribute('height', '240');
+
+    await waitFor(() => expect(overlay!.triggerWidth()).toBe(64));
+  });
+});

@@ -441,6 +441,59 @@ describe('createOverlay imperative usage', () => {
     expect(document.querySelector('[data-testid="overlay"]')).not.toBeInTheDocument();
   });
 
+  describe('modal', () => {
+    function pressOutside(target: Element): void {
+      target.dispatchEvent(
+        new PointerEvent('pointerdown', {
+          bubbles: true,
+          cancelable: true,
+          composed: true,
+          isPrimary: true,
+        }),
+      );
+      target.dispatchEvent(
+        new MouseEvent('click', { bubbles: true, cancelable: true, composed: true, detail: 1 }),
+      );
+    }
+
+    it('returns focus to the trigger after an outside press, whatever restoreFocus says', async () => {
+      const { overlay, getByTestId } = await setup(() => ({
+        modal: true,
+        restoreFocus: false,
+        closeOnOutsideClick: true,
+      }));
+      await overlay.show();
+
+      pressOutside(getByTestId('outside'));
+
+      await waitFor(() => expect(overlay.isOpen()).toBe(false));
+      expect(document.activeElement).toBe(getByTestId('trigger'));
+    });
+
+    it('exposes a new anchor set while it is open', async () => {
+      const anchor = signal<HTMLElement | null>(null);
+      const { overlay, getByTestId } = await setup(() => ({ modal: true, anchorElement: anchor }));
+      await overlay.show();
+      expect(getByTestId('anchor').closest('[inert]')).not.toBeNull();
+
+      anchor.set(getByTestId('anchor'));
+
+      await waitFor(() => expect(getByTestId('anchor').closest('[inert]')).toBeNull());
+    });
+
+    it('keeps the anchor exposed, like the trigger', async () => {
+      const { overlay, getByTestId } = await setup(byTestId => ({
+        modal: true,
+        anchorElement: byTestId('anchor'),
+      }));
+      await overlay.show();
+
+      expect(getByTestId('anchor').closest('[inert]')).toBeNull();
+      expect(getByTestId('trigger').closest('[inert]')).toBeNull();
+      expect(getByTestId('outside').closest('[inert]')).not.toBeNull();
+    });
+  });
+
   it('keeps the newest position when an older positioning pass resolves last', async () => {
     const placement = signal<NgpPlacement>('bottom');
     let holdNextPass = false;

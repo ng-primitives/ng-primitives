@@ -179,4 +179,35 @@ describe('toastTimer', () => {
 
     expect(callback).not.toHaveBeenCalled();
   });
+
+  it('should run the new duration in full after reset', () => {
+    const callback = vi.fn();
+    const timer = toastTimer(3000, callback);
+
+    timer.start();
+    vi.advanceTimersByTime(2000);
+    timer.reset(1000, false);
+    vi.advanceTimersByTime(5000);
+    expect(callback).not.toHaveBeenCalled();
+
+    timer.start();
+    expect(timer.remaining()).toBe(1000);
+    vi.advanceTimersByTime(1000);
+    expect(callback).toHaveBeenCalledTimes(1);
+  });
+
+  it('should become inert after a reset to persistent, and run again after a reset back', () => {
+    const callback = vi.fn();
+    const timer = toastTimer(3000, callback);
+
+    timer.reset(3000, true);
+    timer.start();
+    vi.advanceTimersByTime(10_000);
+    expect(callback).not.toHaveBeenCalled();
+
+    timer.reset(500, false);
+    timer.start();
+    vi.advanceTimersByTime(500);
+    expect(callback).toHaveBeenCalledTimes(1);
+  });
 });
