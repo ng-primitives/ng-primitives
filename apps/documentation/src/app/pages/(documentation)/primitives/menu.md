@@ -75,6 +75,8 @@ Here are some additional examples of how to use the Menu primitives.
 
 The menu can contain submenus, which are nested menus that can be opened by hovering on a menu item.
 
+Clicking or tapping a submenu trigger opens its submenu. Clicking it with a mouse or pen while the submenu is open keeps it open and moves focus into it, so a click after hovering the trigger does not close the submenu. A second tap on a touch screen, or pressing <kbd>Enter</kbd> or <kbd>Space</kbd>, toggles the submenu.
+
 <docs-example name="submenu"></docs-example>
 
 ### Checkbox Items
@@ -448,8 +450,8 @@ A menu is named by its trigger through `aria-labelledby`, and a submenu by its s
 | <kbd>Escape</kbd>     | Closes all open menus and returns focus as described in Focus Management below.                |
 | <kbd>ArrowDown</kbd>  | Moves focus to the next menu item.                                                             |
 | <kbd>ArrowUp</kbd>    | Moves focus to the previous menu item.                                                         |
-| <kbd>ArrowRight</kbd> | Opens a submenu when focused on a submenu trigger.                                             |
-| <kbd>ArrowLeft</kbd>  | Closes the current submenu and moves focus to the parent submenu trigger.                      |
+| <kbd>ArrowRight</kbd> | Opens a submenu when focused on a submenu trigger and moves focus into it (ArrowLeft in RTL).  |
+| <kbd>ArrowLeft</kbd>  | Closes the current submenu and moves focus to the parent submenu trigger (ArrowRight in RTL).  |
 | <kbd>Home</kbd>       | Moves focus to the first menu item.                                                            |
 | <kbd>End</kbd>        | Moves focus to the last menu item.                                                             |
 
