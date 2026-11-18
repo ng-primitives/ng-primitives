@@ -1,4 +1,4 @@
-import { FocusOrigin } from '@angular/cdk/a11y';
+import { FocusOrigin, InputModalityDetector } from '@angular/cdk/a11y';
 import {
   computed,
   inject,
@@ -143,6 +143,7 @@ export const [
     const element = injectElementRef();
     const injector = inject(Injector);
     const viewContainerRef = inject(ViewContainerRef);
+    const inputModality = inject(InputModalityDetector);
 
     // Controlled properties
     const menu = controlled(_menu);
@@ -170,6 +171,7 @@ export const [
     let longPressStartX = 0;
     let longPressStartY = 0;
     let longPressTriggered = false;
+    let longPressTarget: Element | undefined;
 
     // Event listeners
     listener(element, 'contextmenu', onContextMenu);
@@ -192,13 +194,15 @@ export const [
       }
 
       cursorPosition.set({ x: event.clientX, y: event.clientY });
-      openOrigin.set('mouse');
+      // The Menu key and Shift+F10 fire contextmenu too, and browsers do not mark it as keyboard
+      // input the same way (Chromium sends pointerType "mouse"), so go by the last input.
+      openOrigin.set(inputModality.mostRecentModality ?? 'mouse');
 
       if (open()) {
         // Already open - reposition by updating cursor position and triggering reposition
         overlay()?.updatePosition();
       } else {
-        showMenu();
+        showMenu(event.target as Element);
       }
     }
 
@@ -210,12 +214,13 @@ export const [
       longPressTriggered = false;
       longPressStartX = event.clientX;
       longPressStartY = event.clientY;
+      longPressTarget = event.target as Element;
 
       longPressTimer = setTimeout(() => {
         longPressTriggered = true;
         cursorPosition.set({ x: longPressStartX, y: longPressStartY });
         openOrigin.set('touch');
-        showMenu();
+        showMenu(longPressTarget);
       }, LONG_PRESS_DURATION);
     }
 
@@ -255,11 +260,11 @@ export const [
 
     onDestroy(() => cancelLongPress());
 
-    function showMenu(): void {
+    function showMenu(pressTarget?: Element): void {
       if (!overlay()) {
         createOverlayInstance();
       }
-      overlay()?.show();
+      overlay()?.show({ pressTarget });
     }
 
     function show(origin: FocusOrigin = 'program'): void {
@@ -296,7 +301,7 @@ export const [
         closeOnOutsideClick: true,
         closeOnEscape: true,
         treatTriggerClickAsOutside: true,
-        restoreFocus: false,
+        restoreFocus: true,
         scrollBehaviour: scrollBehavior?.() ?? 'close',
         overlayType: 'menu',
         position: cursorPosition,
