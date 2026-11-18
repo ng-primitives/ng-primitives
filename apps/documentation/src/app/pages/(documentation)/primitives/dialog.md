@@ -253,6 +253,17 @@ micro-frontend root or an element carrying your theme class. It can be overridde
 through `NgpDialogTrigger`'s `ngpDialogTriggerContainer` input, or through the `container` option
 passed to `NgpDialogManager.open()`.
 
+A dialog opened by `NgpDialogTrigger` stays open when its trigger is removed, for example by an
+`@if`. Set `lifetime: 'trigger'` to close it along with its trigger. A trigger inside a menu or
+popover follows that overlay's trigger instead, so a dialog opened from a menu item stays open
+when the menu closes. With `lifetime: 'trigger'`, a dialog opened from inside another dialog
+closes when that dialog closes, since its trigger goes with it. Dialogs opened with
+`NgpDialogManager.open()` are not affected.
+
+```ts
+provideDialogConfig({ lifetime: 'trigger' });
+```
+
 ### NgpDialogConfig
 
 <api-reference-config name="NgpDialogConfig"></api-reference-config>
@@ -262,6 +273,8 @@ passed to `NgpDialogManager.open()`.
 Adheres to the [WAI-ARIA design pattern](https://www.w3.org/WAI/ARIA/apg/patterns/dialog-modal/examples/dialog/).
 
 Add `autofocus` to one or more usable elements to focus the first one when the dialog opens; otherwise the first tabbable element is focused, or the dialog itself if there is none. If focus is already inside the dialog when it opens, it stays there and `autofocus` is ignored.
+
+When a dialog closes, focus returns to the element that opened it. If that element is gone, for example a menu item whose menu closed on select, focus goes to the trigger of the menu or popover it was in.
 
 ### Keyboard Interactions
 
