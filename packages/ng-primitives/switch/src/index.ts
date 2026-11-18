@@ -14,3 +14,4 @@ export {
   NgpSwitchState,
   provideSwitchState,
 } from './switch/switch-state';
+export { NgpSwitchConfig, provideSwitchConfig } from './config/switch-config';

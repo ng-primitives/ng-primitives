@@ -105,12 +105,18 @@ export interface NgpFocusTrapProps {
    * If not provided, falls back to the FocusMonitor's last known origin.
    */
   readonly focusOrigin?: Signal<FocusOrigin>;
+
+  /**
+   * The element to focus when the trap activates, if no `[autofocus]` element takes focus first.
+   * When it returns nothing, the first tabbable element is focused.
+   */
+  readonly initialFocus?: () => HTMLElement | null | undefined;
 }
 
 export const [NgpFocusTrapStateToken, ngpFocusTrap, injectFocusTrapState, provideFocusTrapState] =
   createPrimitive(
     'NgpFocusTrap',
-    ({ disabled = signal(false), focusOrigin }: NgpFocusTrapProps) => {
+    ({ disabled = signal(false), focusOrigin, initialFocus }: NgpFocusTrapProps) => {
       const element = injectElementRef();
       const overlay = inject(NgpOverlay, { optional: true });
       const injector = inject(Injector);
@@ -168,7 +174,7 @@ export const [NgpFocusTrapStateToken, ngpFocusTrap, injectFocusTrapState, provid
           afterNextRender(
             {
               write: () => {
-                if (!focusAutofocusElement()) {
+                if (!focusAutofocusElement() && !focusInitialElement()) {
                   focusFirst();
                 }
 
@@ -308,7 +314,7 @@ export const [NgpFocusTrapStateToken, ngpFocusTrap, injectFocusTrapState, provid
         }
 
         const container = event.currentTarget as HTMLElement;
-        const [first, last] = getTabbableEdges(container);
+        const [first, last] = getTabbableEdges(container, focusedElement);
 
         if (!first || !last) {
           if (container.contains(focusedElement)) {
@@ -331,20 +337,35 @@ export const [NgpFocusTrapStateToken, ngpFocusTrap, injectFocusTrapState, provid
       }
 
       /**
-       * Returns the first and last visible tabbable elements inside a container.
+       * Returns the first and last tabbable elements in a container, skipping those that can't take
+       * focus.
        */
-      function getTabbableEdges(container: HTMLElement) {
+      function getTabbableEdges(container: HTMLElement, focusedElement: Element) {
         const candidates = getTabbableCandidates(container);
-        const isVisible = (candidate: HTMLElement) => interactivityChecker.isVisible(candidate);
-        const firstIndex = candidates.findIndex(isVisible);
+        // While modals are open, everything outside the topmost one is inert, so focus is inside
+        // it. Reading it from focus, unlike a document query, also finds one in a shadow root. The
+        // nearest modal around focus is taken as the topmost, which misreads a modal shown after
+        // one nested inside it.
+        const activeModal = getModalDialogAncestor(focusedElement);
+        // `isTabbable()` checks neither `disabled` nor `inert`, accepts a link without an `href`
+        // that Tab skips, and `isVisible()` misses collapsed content, such as a closed `<details>`,
+        // which `checkVisibility()` catches. The visibility checks read layout, so the scan stops
+        // at the first match from each end. Unlike `[disabled]`, `:disabled` also matches a
+        // control in a disabled `<fieldset>`.
+        const canTakeFocus = (candidate: HTMLElement) =>
+          !candidate.matches(':disabled, a:not([href]):not([tabindex])') &&
+          !isInert(candidate, activeModal) &&
+          interactivityChecker.isVisible(candidate) &&
+          candidate.checkVisibility?.() !== false;
+        const firstIndex = candidates.findIndex(canTakeFocus);
 
         if (firstIndex === -1) {
           return [undefined, undefined] as const;
         }
 
-        // Scan back only down to the first visible one, so each candidate is checked once at most.
+        // Scan back only down to the first edge, so each candidate is checked once at most.
         let lastIndex = candidates.length - 1;
-        while (lastIndex > firstIndex && !isVisible(candidates[lastIndex])) {
+        while (lastIndex > firstIndex && !canTakeFocus(candidates[lastIndex])) {
           lastIndex--;
         }
 
@@ -411,6 +432,62 @@ export const [NgpFocusTrapStateToken, ngpFocusTrap, injectFocusTrapState, provid
         return nodes;
       }
 
+      /**
+       * Whether `candidate` is inert. Walks the flat tree: the nearest `inert` ancestor wins
+       * unless the active modal `<dialog>` sits in between, and while a modal is active,
+       * everything outside it is inert. Slots inside a closed shadow root can't be seen.
+       */
+      function isInert(candidate: Element, activeModal: HTMLDialogElement | null): boolean {
+        for (let node: Element | null = candidate; node; node = getFlatTreeParent(node)) {
+          if (node instanceof HTMLElement && node.inert) {
+            return true;
+          }
+          if (node === activeModal) {
+            return false;
+          }
+        }
+        return activeModal !== null;
+      }
+
+      /**
+       * Returns the nearest modal `<dialog>` in the flat tree that holds `element` or is it.
+       */
+      function getModalDialogAncestor(element: Element): HTMLDialogElement | null {
+        for (let node: Element | null = element; node; node = getFlatTreeParent(node)) {
+          if (isModalDialog(node)) {
+            return node;
+          }
+        }
+        return null;
+      }
+
+      /**
+       * Whether `node` is a `<dialog>` opened with `showModal()`.
+       */
+      function isModalDialog(node: Element): node is HTMLDialogElement {
+        if (!(node instanceof HTMLDialogElement) || !node.open) {
+          return false;
+        }
+        try {
+          return node.matches(':modal');
+        } catch {
+          // jsdom before v27 rejects `:modal`, and has no `showModal()` either.
+          return false;
+        }
+      }
+
+      /**
+       * Returns the parent in the flat tree: the slot a node is assigned to, else its parent,
+       * else the host of the shadow root it sits in.
+       */
+      function getFlatTreeParent(node: Element): Element | null {
+        if (node.assignedSlot) {
+          return node.assignedSlot;
+        }
+        const parent = node.parentNode;
+        return parent instanceof ShadowRoot ? parent.host : node.parentElement;
+      }
+
       function focus(element: HTMLElement | null): void {
         if (!element) {
           return;
@@ -447,6 +524,14 @@ export const [NgpFocusTrapStateToken, ngpFocusTrap, injectFocusTrapState, provid
         }
 
         return false;
+      }
+
+      /** Focuses the element `initialFocus` names. Returns whether it received focus. */
+      function focusInitialElement(): boolean {
+        const target = initialFocus?.();
+        focus(target ?? null);
+        // a host that delegates focus hands it to a control in its own shadow root
+        return !!target && (getFocusedElement() === target || !!target.shadowRoot?.activeElement);
       }
 
       function focusFirst(): void {
