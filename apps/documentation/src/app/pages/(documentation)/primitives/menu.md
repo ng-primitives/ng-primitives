@@ -481,7 +481,7 @@ A modal menu makes the rest of the page `inert`, so screen readers only reach th
 | Key                   | Description                                                                                    |
 | --------------------- | ---------------------------------------------------------------------------------------------- |
 | <kbd>Enter</kbd>      | Activates the focused menu item. Closes all menus unless the item is a checkbox or radio item. |
-| <kbd>Escape</kbd>     | Closes all open menus and returns focus as described in Focus Management below.                |
+| <kbd>Escape</kbd>     | Closes all menus, or just the focused submenu with `ngpMenuEscapeClosesOnlySubmenu`.           |
 | <kbd>ArrowDown</kbd>  | Moves focus to the next menu item.                                                             |
 | <kbd>ArrowUp</kbd>    | Moves focus to the previous menu item.                                                         |
 | <kbd>ArrowRight</kbd> | Opens a submenu when focused on a submenu trigger and moves focus into it (ArrowLeft in RTL).  |
@@ -498,4 +498,5 @@ A modal menu makes the rest of the page `inert`, so screen readers only reach th
 - When a menu is opened via mouse, focus moves into the menu but without the visible focus ring until arrow keys are used.
 - Moving the mouse over an item gives it focus, without the focus ring, so the arrow keys move on from it. A pointer at rest does not, and focus stays in an open submenu or in a text field of the menu.
 - Closing all menus (via Escape, item selection or a click on empty space) returns focus to the element that was focused when the menu opened, usually the root menu trigger, whether the menu was used with the keyboard or the mouse. A menu opened on hover leaves focus where it was before the hover. An outside click on another control leaves focus on that control.
+- Left Arrow in a submenu closes only that submenu and focuses its submenu trigger. Set `ngpMenuEscapeClosesOnlySubmenu` on the root menu to make Escape do the same in every submenu. The submenu's `ngpMenuFinalFocus` still applies: `false` leaves focus where it is, and an element receives focus.
 - Set `ngpMenuFinalFocus` on `ngpMenu` to send focus elsewhere on close: an element, `false` to leave focus where it is, `null` (the default) or `true` for the default restoration, or a function that receives the close origin and returns one of these.

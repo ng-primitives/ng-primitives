@@ -39,6 +39,12 @@ export interface NgpMenuState extends HoverTransitTracker {
    * @internal
    */
   readonly element: ElementRef<HTMLElement>;
+  /**
+   * Whether Escape closes only the submenu that has focus. The root menu's setting applies to
+   * the whole chain.
+   * @internal
+   */
+  escapesSubmenuOnly(): boolean;
 }
 
 export interface NgpMenuProps {
@@ -49,11 +55,16 @@ export interface NgpMenuProps {
    * `ngpMenuWrap` or `ngpContextMenuWrap` input.
    */
   readonly wrap?: Signal<boolean>;
+  /** Whether Escape closes only the submenu that has focus. Read from the root menu. */
+  readonly escapeClosesOnlySubmenu?: Signal<boolean>;
 }
 
 export const [NgpMenuStateToken, ngpMenu, injectMenuState, provideMenuState] = createPrimitive(
   'NgpMenu',
-  ({ finalFocus = signal<NgpOverlayFinalFocus | null>(null) }: NgpMenuProps) => {
+  ({
+    finalFocus = signal<NgpOverlayFinalFocus | null>(null),
+    escapeClosesOnlySubmenu = signal(false),
+  }: NgpMenuProps) => {
     const element = injectElementRef<HTMLElement>();
     const transit = createHoverTransitTracker();
     const overlay = injectOverlay();
@@ -77,7 +88,14 @@ export const [NgpMenuStateToken, ngpMenu, injectMenuState, provideMenuState] = c
     overlay.registerOutletElement(element.nativeElement);
     overlay.registerAvailableSizePrefix('--ngp-menu');
 
-    onChange(finalFocus, value => overlay.setFinalFocus(value));
+    // Set by an opted-in Escape, and read by the overlay's single call of a function final focus.
+    let escapeClosesThisMenu = false;
+
+    onChange(finalFocus, value =>
+      overlay.setFinalFocus(
+        typeof value === 'function' ? origin => resolveFinalFocus(value, origin) : value,
+      ),
+    );
     onDestroy(() => overlay.removeFinalFocus());
 
     // Host bindings
@@ -111,13 +129,32 @@ export const [NgpMenuStateToken, ngpMenu, injectMenuState, provideMenuState] = c
     }
 
     function onKeydown(event: KeyboardEvent): void {
-      // Handle Escape key - close all menus and restore focus to root trigger
-      // We handle this here instead of using overlay's closeOnEscape to ensure
-      // proper focus restoration through the closeAllMenus chain
+      // Submenus turn closeOnEscape off, so the overlay registry never closes them and Escape
+      // is handled here.
       if (event.key === 'Escape') {
         event.preventDefault();
         event.stopPropagation();
-        closeAllMenus('keyboard');
+
+        if (!escapesSubmenuOnly()) {
+          // A second close would restore focus again once the menu, and its final focus, are gone.
+          if (!overlay.isClosing()) {
+            closeAllMenus('keyboard');
+          }
+          return;
+        }
+
+        // Opt-in: close only this menu and return focus to its submenu trigger, as ArrowLeft does.
+        // A second close would restore focus again once the menu, and its final focus, are gone.
+        escapeClosesThisMenu = true;
+        if (!overlay.isClosing()) {
+          menuTrigger().hide('keyboard');
+        }
+        // A `false` final focus leaves focus alone. A function is left to `resolveFinalFocus`,
+        // as calling it here too would report the close origin twice.
+        const value = finalFocus();
+        if (value !== false && typeof value !== 'function') {
+          menuTrigger().focus?.('keyboard');
+        }
         return;
       }
 
@@ -159,10 +196,28 @@ export const [NgpMenuStateToken, ngpMenu, injectMenuState, provideMenuState] = c
       parentMenu()?.closeAllMenus(origin);
     }
 
+    // On an opted-in Escape, the trigger takes focus unless the function returns `false`.
+    function resolveFinalFocus(
+      value: (origin: FocusOrigin) => HTMLElement | boolean | null,
+      origin: FocusOrigin,
+    ): HTMLElement | boolean | null {
+      const result = value(origin);
+      if (escapeClosesThisMenu && result !== false) {
+        menuTrigger().focus?.(origin);
+      }
+      escapeClosesThisMenu = false;
+      return result;
+    }
+
+    function escapesSubmenuOnly(): boolean {
+      return parentMenu()?.escapesSubmenuOnly() ?? escapeClosesOnlySubmenu();
+    }
+
     return {
       closeAllMenus,
       closeSubmenus,
       element,
+      escapesSubmenuOnly,
       ...transit,
     } satisfies NgpMenuState;
   },
