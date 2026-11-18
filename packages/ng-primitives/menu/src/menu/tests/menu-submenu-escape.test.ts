@@ -1,5 +1,7 @@
 import { FocusOrigin } from '@angular/cdk/a11y';
-import { Component, signal } from '@angular/core';
+import { Component, signal, Type } from '@angular/core';
+import { ComponentFixture } from '@angular/core/testing';
+import { By } from '@angular/platform-browser';
 import { fireEvent, render, screen, waitFor } from '@testing-library/angular';
 import { NgpMenu, NgpMenuItem, NgpMenuTrigger, NgpSubmenuTrigger } from 'ng-primitives/menu';
 import { afterEach, describe, expect, it } from 'vitest';
@@ -38,9 +40,10 @@ const menuTemplate = (rootMenuAttributes: string) => `
 class MenuComponent {
   readonly shareDisabled = signal(false);
   readonly closeOrigins: FocusOrigin[] = [];
+  finalFocusResult: HTMLElement | boolean | null = null;
   readonly recordOrigin = (origin: FocusOrigin) => {
     this.closeOrigins.push(origin);
-    return null;
+    return this.finalFocusResult;
   };
 }
 
@@ -128,8 +131,23 @@ async function submenuClosed(): Promise<void> {
   await new Promise(resolve => setTimeout(resolve, 50));
 }
 
+let renderedFixture: ComponentFixture<unknown> | undefined;
+
+async function renderMenu<T>(component: Type<T>) {
+  const result = await render(component);
+  renderedFixture = result.fixture;
+  return result;
+}
+
+/** Closes the menus through their trigger first: they render outside the fixture. */
 async function cleanUpFixtures(): Promise<void> {
-  document.querySelectorAll('[ngpMenu]').forEach(el => el.remove());
+  if (renderedFixture) {
+    const trigger = renderedFixture.debugElement.query(By.directive(NgpMenuTrigger));
+    trigger.injector.get(NgpMenuTrigger).hide();
+    await waitFor(() => expect(document.querySelector('[ngpMenu]')).toBeNull());
+    renderedFixture.destroy();
+    renderedFixture = undefined;
+  }
 
   // the real pointer stays where a test left it, across files: park it away from fixtures
   const corner = document.body.appendChild(document.createElement('div'));
@@ -138,10 +156,10 @@ async function cleanUpFixtures(): Promise<void> {
   corner.remove();
 }
 
-describe('Escape in a submenu when opted in', () => {
-  afterEach(cleanUpFixtures);
+afterEach(cleanUpFixtures);
 
-  const renderOptedIn = () => render(OptedInMenuComponent);
+describe('Escape in a submenu when opted in', () => {
+  const renderOptedIn = () => renderMenu(OptedInMenuComponent);
 
   it('closes only the submenu and focuses its trigger with a focus ring', async () => {
     await renderOptedIn();
@@ -251,7 +269,7 @@ describe('Escape in a submenu when opted in', () => {
   });
 
   it('leaves focus where the overlay puts it when the submenu final focus is false', async () => {
-    await render(SubmenuNoFinalFocusComponent);
+    await renderMenu(SubmenuNoFinalFocusComponent);
     await openSubmenuWithKeyboard();
 
     await userEvent.keyboard('{Escape}');
@@ -261,8 +279,21 @@ describe('Escape in a submenu when opted in', () => {
     expect(document.activeElement).not.toBe(byId('share'));
   });
 
+  it('leaves focus where the overlay puts it when the submenu final focus returns false', async () => {
+    const { fixture } = await renderOptedIn();
+    fixture.componentInstance.finalFocusResult = false;
+    await openSubmenuWithKeyboard();
+
+    await userEvent.keyboard('{Escape}');
+
+    await submenuClosed();
+    expect(open()).toEqual({ menu: true, submenu: false });
+    expect(document.activeElement).not.toBe(byId('share'));
+    expect(fixture.componentInstance.closeOrigins).toEqual(['keyboard']);
+  });
+
   it('sends focus to the final focus of the submenu', async () => {
-    await render(SubmenuFinalFocusComponent);
+    await renderMenu(SubmenuFinalFocusComponent);
     await openSubmenuWithKeyboard();
 
     await userEvent.keyboard('{Escape}');
@@ -274,10 +305,8 @@ describe('Escape in a submenu when opted in', () => {
 });
 
 describe('Escape in a submenu by default', () => {
-  afterEach(cleanUpFixtures);
-
   it('closes the whole menu from a submenu opened by keyboard and focuses the root trigger', async () => {
-    await render(MenuComponent);
+    await renderMenu(MenuComponent);
     await openSubmenuWithKeyboard();
 
     await userEvent.keyboard('{Escape}');
@@ -287,7 +316,7 @@ describe('Escape in a submenu by default', () => {
   });
 
   it('closes the whole menu from a submenu opened by hovering and focuses the root trigger', async () => {
-    await render(MenuComponent);
+    await renderMenu(MenuComponent);
     await userEvent.click(byId('trigger'));
     await waitFor(() => expect(present('menu')).toBe(true));
     await userEvent.hover(byId('share'));
@@ -303,7 +332,7 @@ describe('Escape in a submenu by default', () => {
 
 describe('Escape in a root menu', () => {
   it('leaves focus alone when the final focus of the menu is false', async () => {
-    await render(NoFinalFocusMenuComponent);
+    await renderMenu(NoFinalFocusMenuComponent);
     byId('trigger').focus();
     await userEvent.keyboard('{Enter}');
     await waitFor(() => expect(document.activeElement).toBe(byId('rename')));

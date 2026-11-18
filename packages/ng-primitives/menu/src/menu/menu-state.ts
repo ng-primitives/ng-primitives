@@ -80,7 +80,14 @@ export const [NgpMenuStateToken, ngpMenu, injectMenuState, provideMenuState] = c
     overlay.registerOutletElement(element.nativeElement);
     overlay.registerAvailableSizePrefix('--ngp-menu');
 
-    onChange(finalFocus, value => overlay.setFinalFocus(value));
+    // Set by an opted-in Escape, and read by the overlay's single call of a function final focus.
+    let escapeClosesThisMenu = false;
+
+    onChange(finalFocus, value =>
+      overlay.setFinalFocus(
+        typeof value === 'function' ? origin => resolveFinalFocus(value, origin) : value,
+      ),
+    );
     onDestroy(() => overlay.removeFinalFocus());
 
     // Host bindings
@@ -130,12 +137,14 @@ export const [NgpMenuStateToken, ngpMenu, injectMenuState, provideMenuState] = c
 
         // Opt-in: close only this menu and return focus to its submenu trigger, as ArrowLeft does.
         // A second close would restore focus again once the menu, and its final focus, are gone.
+        escapeClosesThisMenu = true;
         if (!overlay.isClosing()) {
           menuTrigger().hide('keyboard');
         }
-        // A `false` final focus leaves focus alone. A function is not called here: the overlay
-        // calls it on close, and an extra call would report the close origin twice.
-        if (finalFocus() !== false) {
+        // A `false` final focus leaves focus alone. A function is left to `resolveFinalFocus`,
+        // as calling it here too would report the close origin twice.
+        const value = finalFocus();
+        if (value !== false && typeof value !== 'function') {
           menuTrigger().focus?.('keyboard');
         }
         return;
@@ -177,6 +186,19 @@ export const [NgpMenuStateToken, ngpMenu, injectMenuState, provideMenuState] = c
     function closeAllMenus(origin: FocusOrigin): void {
       menuTrigger().hide(origin);
       parentMenu()?.closeAllMenus(origin);
+    }
+
+    // On an opted-in Escape, the trigger takes focus unless the function returns `false`.
+    function resolveFinalFocus(
+      value: (origin: FocusOrigin) => HTMLElement | boolean | null,
+      origin: FocusOrigin,
+    ): HTMLElement | boolean | null {
+      const result = value(origin);
+      if (escapeClosesThisMenu && result !== false) {
+        menuTrigger().focus?.(origin);
+      }
+      escapeClosesThisMenu = false;
+      return result;
     }
 
     function escapesSubmenuOnly(): boolean {
