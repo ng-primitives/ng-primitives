@@ -1,5 +1,5 @@
 import { FocusOrigin } from '@angular/cdk/a11y';
-import { computed, effect, signal, Signal } from '@angular/core';
+import { computed, effect, ElementRef, signal, Signal } from '@angular/core';
 import { ngpInteractions } from 'ng-primitives/interactions';
 import { injectElementRef, onDomRemoval, scrollIntoViewIfNeeded } from 'ng-primitives/internal';
 import {
@@ -13,6 +13,11 @@ import { uniqueId } from 'ng-primitives/utils';
 import { injectListboxState } from '../listbox/listbox-state';
 
 export interface NgpListboxOptionState<T> {
+  /**
+   * @internal
+   * The option element, used to order the options as they are rendered.
+   */
+  readonly elementRef: ElementRef<HTMLElement>;
   /**
    * The id of the option.
    */
@@ -75,7 +80,7 @@ export const [
     value,
     disabled: _disabled = signal<boolean>(false),
   }: NgpListboxOptionProps<T>) => {
-    const elementRef = injectElementRef();
+    const elementRef = injectElementRef<HTMLElement>();
     const listboxState = injectListboxState<T>();
 
     const selected = computed(() => listboxState()?.isSelected(value()));
@@ -137,6 +142,7 @@ export const [
     }
 
     const state = {
+      elementRef,
       id,
       value,
       selected,
