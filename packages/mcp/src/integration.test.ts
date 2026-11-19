@@ -1,9 +1,8 @@
-import { Client } from '@modelcontextprotocol/sdk/client/index.js';
-import { InMemoryTransport } from '@modelcontextprotocol/sdk/inMemory.js';
-import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
-import { CallToolResultSchema, ListToolsResultSchema } from '@modelcontextprotocol/sdk/types.js';
+import { Client } from '@modelcontextprotocol/client';
+import { InMemoryTransport, type McpServer } from '@modelcontextprotocol/server';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
-import { clearCache, registerTools } from './tools.js';
+import { createServer } from './server.js';
+import { clearCache } from './tools.js';
 
 /**
  * Integration tests for ngp-mcp server using InMemoryTransport
@@ -18,19 +17,7 @@ describe('ngp-mcp Integration Tests', () => {
   beforeEach(async () => {
     [clientTransport, serverTransport] = InMemoryTransport.createLinkedPair();
 
-    server = new McpServer(
-      {
-        name: 'ngp-mcp',
-        version: '0.1.0',
-      },
-      {
-        capabilities: {
-          tools: {},
-        },
-      },
-    );
-
-    registerTools(server);
+    server = createServer();
 
     client = new Client({
       name: 'test-client',
@@ -48,7 +35,7 @@ describe('ngp-mcp Integration Tests', () => {
 
   describe('list_primitives tool', () => {
     it('should list all available tools', async () => {
-      const result = await client.request({ method: 'tools/list' }, ListToolsResultSchema);
+      const result = await client.request({ method: 'tools/list' });
 
       expect(result.tools).toBeDefined();
       expect(result.tools.length).toBe(6);
@@ -63,13 +50,10 @@ describe('ngp-mcp Integration Tests', () => {
     });
 
     it('should return all primitives when called with no arguments', async () => {
-      const result = await client.callTool(
-        {
-          name: 'list_primitives',
-          arguments: {},
-        },
-        CallToolResultSchema,
-      );
+      const result = await client.callTool({
+        name: 'list_primitives',
+        arguments: {},
+      });
 
       expect(result.content).toHaveLength(1);
       expect((result as any).content[0].type).toBe('text');
@@ -82,26 +66,20 @@ describe('ngp-mcp Integration Tests', () => {
     });
 
     it('should filter primitives by category', async () => {
-      const result = await client.callTool(
-        {
-          name: 'list_primitives',
-          arguments: { category: 'form' },
-        },
-        CallToolResultSchema,
-      );
+      const result = await client.callTool({
+        name: 'list_primitives',
+        arguments: { category: 'form' },
+      });
 
       const data = JSON.parse((result as any).content[0].text);
       expect(data.primitives.every((p: any) => p.category === 'form')).toBe(true);
     });
 
     it('should filter primitives by search term', async () => {
-      const result = await client.callTool(
-        {
-          name: 'list_primitives',
-          arguments: { search: 'button' },
-        },
-        CallToolResultSchema,
-      );
+      const result = await client.callTool({
+        name: 'list_primitives',
+        arguments: { search: 'button' },
+      });
 
       const data = JSON.parse((result as any).content[0].text);
       expect(
@@ -116,13 +94,10 @@ describe('ngp-mcp Integration Tests', () => {
 
   describe('get_primitive_details tool', () => {
     it('should return detailed information for a valid primitive', async () => {
-      const result = await client.callTool(
-        {
-          name: 'get_primitive_details',
-          arguments: { name: 'button' },
-        },
-        CallToolResultSchema,
-      );
+      const result = await client.callTool({
+        name: 'get_primitive_details',
+        arguments: { name: 'button' },
+      });
 
       const data = JSON.parse((result as any).content[0].text);
       expect(data.name).toBe('button');
@@ -135,13 +110,10 @@ describe('ngp-mcp Integration Tests', () => {
     });
 
     it('should include API details when available', async () => {
-      const result = await client.callTool(
-        {
-          name: 'get_primitive_details',
-          arguments: { name: 'button' },
-        },
-        CallToolResultSchema,
-      );
+      const result = await client.callTool({
+        name: 'get_primitive_details',
+        arguments: { name: 'button' },
+      });
 
       const data = JSON.parse((result as any).content[0].text);
       if (data.apiDetails) {
@@ -150,13 +122,10 @@ describe('ngp-mcp Integration Tests', () => {
     });
 
     it('should return error message for non-existent primitive', async () => {
-      const result = await client.callTool(
-        {
-          name: 'get_primitive_details',
-          arguments: { name: 'nonexistent' },
-        },
-        CallToolResultSchema,
-      );
+      const result = await client.callTool({
+        name: 'get_primitive_details',
+        arguments: { name: 'nonexistent' },
+      });
 
       expect((result as any).content[0].text).toContain('not found');
       expect((result as any).content[0].text).toContain('Available primitives');
@@ -165,13 +134,10 @@ describe('ngp-mcp Integration Tests', () => {
 
   describe('get_install_command tool', () => {
     it('should generate install command for valid primitives', async () => {
-      const result = await client.callTool(
-        {
-          name: 'get_install_command',
-          arguments: { primitives: ['button', 'checkbox'] },
-        },
-        CallToolResultSchema,
-      );
+      const result = await client.callTool({
+        name: 'get_install_command',
+        arguments: { primitives: ['button', 'checkbox'] },
+      });
 
       const data = JSON.parse((result as any).content[0].text);
       expect(data.installCommand).toBe('npm install ng-primitives');
@@ -181,13 +147,10 @@ describe('ngp-mcp Integration Tests', () => {
     });
 
     it('should report invalid primitive names', async () => {
-      const result = await client.callTool(
-        {
-          name: 'get_install_command',
-          arguments: { primitives: ['button', 'invalid', 'nonexistent'] },
-        },
-        CallToolResultSchema,
-      );
+      const result = await client.callTool({
+        name: 'get_install_command',
+        arguments: { primitives: ['button', 'invalid', 'nonexistent'] },
+      });
 
       expect((result as any).content[0].text).toContain('Invalid primitives');
       expect((result as any).content[0].text).toContain('invalid');
@@ -197,13 +160,10 @@ describe('ngp-mcp Integration Tests', () => {
 
   describe('list_reusable_components tool', () => {
     it('should list all reusable components', async () => {
-      const result = await client.callTool(
-        {
-          name: 'list_reusable_components',
-          arguments: {},
-        },
-        CallToolResultSchema,
-      );
+      const result = await client.callTool({
+        name: 'list_reusable_components',
+        arguments: {},
+      });
 
       const components = JSON.parse((result as any).content[0].text);
       expect(Array.isArray(components)).toBe(true);
@@ -219,24 +179,18 @@ describe('ngp-mcp Integration Tests', () => {
 
   describe('get_reusable_component tool', () => {
     it('should return component code for valid component', async () => {
-      const listResult = await client.callTool(
-        {
-          name: 'list_reusable_components',
-          arguments: {},
-        },
-        CallToolResultSchema,
-      );
+      const listResult = await client.callTool({
+        name: 'list_reusable_components',
+        arguments: {},
+      });
 
       const components = JSON.parse((listResult as any).content[0].text);
       const firstComponent = components[0];
 
-      const result = await client.callTool(
-        {
-          name: 'get_reusable_component',
-          arguments: { name: firstComponent.name },
-        },
-        CallToolResultSchema,
-      );
+      const result = await client.callTool({
+        name: 'get_reusable_component',
+        arguments: { name: firstComponent.name },
+      });
 
       const data = JSON.parse((result as any).content[0].text);
       expect(data.name).toBe(firstComponent.name);
@@ -245,13 +199,10 @@ describe('ngp-mcp Integration Tests', () => {
     });
 
     it('should return error for non-existent component', async () => {
-      const result = await client.callTool(
-        {
-          name: 'get_reusable_component',
-          arguments: { name: 'nonexistent' },
-        },
-        CallToolResultSchema,
-      );
+      const result = await client.callTool({
+        name: 'get_reusable_component',
+        arguments: { name: 'nonexistent' },
+      });
 
       expect((result as any).content[0].text).toContain('not found');
     });
@@ -259,13 +210,10 @@ describe('ngp-mcp Integration Tests', () => {
 
   describe('get_setup_guide tool', () => {
     it('should return setup guide with steps and resources', async () => {
-      const result = await client.callTool(
-        {
-          name: 'get_setup_guide',
-          arguments: {},
-        },
-        CallToolResultSchema,
-      );
+      const result = await client.callTool({
+        name: 'get_setup_guide',
+        arguments: {},
+      });
 
       const guide = JSON.parse((result as any).content[0].text);
       expect(guide.title).toBe('Angular Primitives Setup Guide');

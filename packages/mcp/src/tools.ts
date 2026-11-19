@@ -1,4 +1,4 @@
-import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
+import type { McpServer } from '@modelcontextprotocol/server';
 import { z } from 'zod';
 import {
   generateUsageExample,
@@ -40,10 +40,10 @@ export function registerTools(server: McpServer): void {
     {
       title: 'List Angular Primitives',
       description: 'List available Angular Primitives with optional filtering',
-      inputSchema: {
+      inputSchema: z.object({
         category: z.string().optional().describe('Filter primitives by category'),
         search: z.string().optional().describe('Search primitives by name or description'),
-      },
+      }),
     },
     async ({ category, search }: { category?: string; search?: string }) => {
       const allPrimitives = getPrimitivesRegistry();
@@ -94,9 +94,9 @@ export function registerTools(server: McpServer): void {
     {
       title: 'Get Primitive Details',
       description: 'Get detailed information about a specific primitive',
-      inputSchema: {
+      inputSchema: z.object({
         name: z.string().describe('The name of the primitive'),
-      },
+      }),
     },
     async ({ name }: { name: string }) => {
       const allPrimitives = getPrimitivesRegistry();
@@ -146,9 +146,9 @@ export function registerTools(server: McpServer): void {
     {
       title: 'Get Install Command',
       description: 'Generate npm install command for Angular Primitives',
-      inputSchema: {
+      inputSchema: z.object({
         primitives: z.array(z.string()).describe('Array of primitive names to install'),
-      },
+      }),
     },
     async ({ primitives }: { primitives: string[] }) => {
       const allPrimitives = getPrimitivesRegistry();
@@ -202,7 +202,7 @@ export function registerTools(server: McpServer): void {
       title: 'List Reusable Components',
       description:
         'List available reusable component implementations with variants and size support information',
-      inputSchema: {},
+      inputSchema: z.object({}),
     },
     async () => {
       const components = getReusableComponents();
@@ -232,9 +232,9 @@ export function registerTools(server: McpServer): void {
     {
       title: 'Get Reusable Component Code',
       description: 'Get the full source code for a reusable component implementation',
-      inputSchema: {
+      inputSchema: z.object({
         name: z.string().describe('The name of the reusable component'),
-      },
+      }),
     },
     async ({ name }: { name: string }) => {
       const components = getReusableComponents();
@@ -277,7 +277,7 @@ export function registerTools(server: McpServer): void {
     {
       title: 'Get Setup Guide',
       description: 'Get setup instructions for Angular Primitives',
-      inputSchema: {},
+      inputSchema: z.object({}),
     },
     async () => {
       const setupGuide = {
