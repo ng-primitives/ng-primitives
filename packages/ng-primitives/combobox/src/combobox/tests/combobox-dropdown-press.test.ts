@@ -1,6 +1,6 @@
 import { Component, input, signal } from '@angular/core';
 import { render, screen, waitFor } from '@testing-library/angular';
-import { afterEach, describe, expect, it } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import { userEvent } from 'vitest/browser';
 import { NgpComboboxButton } from '../../combobox-button/combobox-button';
 import { NgpComboboxDropdown } from '../../combobox-dropdown/combobox-dropdown';
@@ -101,14 +101,6 @@ async function expectOpenAfterASettle(): Promise<void> {
 }
 
 describe('NgpCombobox press inside the dropdown', () => {
-  afterEach(async () => {
-    // the real pointer stays where a test left it, across files: park it away from fixtures
-    const corner = document.body.appendChild(document.createElement('div'));
-    corner.style.cssText = 'position: fixed; right: 0; bottom: 0; width: 4px; height: 4px;';
-    await userEvent.hover(corner);
-    corner.remove();
-  });
-
   it('stays open and keeps focus on the input when non-focusable content is pressed', async () => {
     await render(ComboboxHost);
     const comboboxInput = await open();

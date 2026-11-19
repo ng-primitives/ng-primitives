@@ -1,6 +1,6 @@
 import { Component, signal } from '@angular/core';
 import { render, screen, waitFor } from '@testing-library/angular';
-import { afterEach, describe, expect, it } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import { userEvent } from 'vitest/browser';
 import {
   NgpSelect,
@@ -152,14 +152,6 @@ async function pressBetweenToolbarButtons(): Promise<void> {
 }
 
 describe('NgpSelect press inside the dropdown', () => {
-  afterEach(async () => {
-    // the real pointer stays where a test left it, across files: park it away from fixtures
-    const corner = document.body.appendChild(document.createElement('div'));
-    corner.style.cssText = 'position: fixed; right: 0; bottom: 0; width: 4px; height: 4px;';
-    await userEvent.hover(corner);
-    corner.remove();
-  });
-
   describe('without an input', () => {
     it('stays open and keeps focus on the select when non-focusable content is pressed', async () => {
       await render(SelectHost);
