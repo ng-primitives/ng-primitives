@@ -2734,3 +2734,129 @@ describe('NgpSelect container', () => {
     });
   });
 });
+
+describe('NgpSelect active option when options change', () => {
+  // each call creates new objects, so only a compareWith on id matches them
+  const fruits = (ids: string[]) => ids.map(id => ({ id }));
+
+  @Component({
+    template: `
+      <div [ngpSelectDisabled]="disabled()" ngpSelect data-testid="select">
+        <div *ngpSelectPortal ngpSelectDropdown>
+          @for (option of options(); track option) {
+            <div [ngpSelectOptionValue]="option" ngpSelectOption>{{ option }}</div>
+          }
+        </div>
+      </div>
+    `,
+    imports: [NgpSelect, NgpSelectDropdown, NgpSelectOption, NgpSelectPortal],
+  })
+  class RenderedOptionsComponent {
+    readonly options = signal(['Apple', 'Banana', 'Cherry', 'Date']);
+    readonly disabled = signal(false);
+  }
+
+  @Component({
+    template: `
+      <div
+        [ngpSelectOptions]="options()"
+        [ngpSelectCompareWith]="compareWith"
+        ngpSelect
+        data-testid="select"
+      >
+        <div *ngpSelectPortal ngpSelectDropdown>
+          @for (option of options(); track option.id; let i = $index) {
+            <div [ngpSelectOptionValue]="option" [ngpSelectOptionIndex]="i" ngpSelectOption>
+              {{ option.id }}
+            </div>
+          }
+        </div>
+      </div>
+    `,
+    imports: [NgpSelect, NgpSelectDropdown, NgpSelectOption, NgpSelectPortal],
+  })
+  class VirtualOptionsComponent {
+    readonly options = signal(fruits(['Apple', 'Banana', 'Cherry', 'Date']));
+    readonly compareWith = (a?: { id: string }, b?: { id: string }) => a?.id === b?.id;
+  }
+
+  const activeOption = () =>
+    document.querySelector('[ngpSelectOption][data-active]')?.textContent?.trim();
+
+  async function openOnCherry(): Promise<HTMLElement> {
+    const select = screen.getByTestId('select');
+    select.focus();
+    fireEvent.keyDown(select, { key: 'ArrowUp' });
+    await waitFor(() => expect(activeOption()).toBe('Date'));
+    fireEvent.keyDown(select, { key: 'ArrowUp' });
+    await waitFor(() => expect(activeOption()).toBe('Cherry'));
+    return select;
+  }
+
+  it('should keep the active option when an option before it is removed', async () => {
+    const { fixture } = await render(RenderedOptionsComponent);
+    const select = await openOnCherry();
+
+    fixture.componentInstance.options.set(['Banana', 'Cherry', 'Date']);
+    fixture.detectChanges();
+
+    await waitFor(() => expect(screen.queryByText('Apple')).toBeNull());
+    await waitFor(() => expect(activeOption()).toBe('Cherry'));
+    expect(select.getAttribute('aria-activedescendant')).toBe(screen.getByText('Cherry').id);
+  });
+
+  it('should keep the active option when an option is inserted before it', async () => {
+    const { fixture } = await render(RenderedOptionsComponent);
+    await openOnCherry();
+
+    fixture.componentInstance.options.set(['Apricot', 'Apple', 'Banana', 'Cherry', 'Date']);
+    fixture.detectChanges();
+
+    await waitFor(() => expect(screen.getByText('Apricot')).toBeInTheDocument());
+    await waitFor(() => expect(activeOption()).toBe('Cherry'));
+  });
+
+  it('should keep the active option when options change while the select is disabled', async () => {
+    const { fixture } = await render(RenderedOptionsComponent);
+    await openOnCherry();
+
+    fixture.componentInstance.disabled.set(true);
+    fixture.detectChanges();
+    fixture.componentInstance.options.set(['Banana', 'Cherry', 'Date']);
+    fixture.detectChanges();
+    await waitFor(() => expect(screen.queryByText('Apple')).toBeNull());
+
+    fixture.componentInstance.disabled.set(false);
+    fixture.detectChanges();
+
+    await waitFor(() => expect(activeOption()).toBe('Cherry'));
+  });
+
+  it('should activate the first option when options load after opening empty', async () => {
+    const { fixture } = await render(RenderedOptionsComponent);
+    fixture.componentInstance.options.set([]);
+    fixture.detectChanges();
+
+    const select = screen.getByTestId('select');
+    select.focus();
+    fireEvent.keyDown(select, { key: 'ArrowDown' });
+    await waitFor(() => expect(select).toHaveAttribute('aria-expanded', 'true'));
+
+    fixture.componentInstance.options.set(['Apple', 'Banana']);
+    fixture.detectChanges();
+
+    await waitFor(() => expect(activeOption()).toBe('Apple'));
+  });
+
+  it('should keep the active virtual option when an option before it is removed', async () => {
+    const { fixture } = await render(VirtualOptionsComponent);
+    await openOnCherry();
+
+    // new objects, so the active option can only be found through compareWith
+    fixture.componentInstance.options.set(fruits(['Banana', 'Cherry', 'Date']));
+    fixture.detectChanges();
+
+    await waitFor(() => expect(screen.queryByText('Apple')).toBeNull());
+    await waitFor(() => expect(activeOption()).toBe('Cherry'));
+  });
+});
