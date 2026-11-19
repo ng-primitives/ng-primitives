@@ -1,5 +1,5 @@
 import { Component, input, signal } from '@angular/core';
-import { render, screen, waitFor } from '@testing-library/angular';
+import { fireEvent, render, screen, waitFor } from '@testing-library/angular';
 import { describe, expect, it } from 'vitest';
 import { userEvent } from 'vitest/browser';
 import { NgpComboboxButton } from '../../combobox-button/combobox-button';
@@ -180,6 +180,17 @@ describe('NgpCombobox press inside the dropdown', () => {
 
     await expectOpenAfterASettle();
     expect(comboboxInput).toHaveFocus();
+  });
+
+  it('leaves the keys of a text field to the field when rendered inside the combobox', async () => {
+    await render(ComboboxHost, { inputs: { inPlace: true } });
+    await open();
+    const field = byId('field');
+    await userEvent.click(field);
+
+    // Home moves the caret, which macOS can't show, so check the key isn't taken over instead
+    expect(fireEvent.keyDown(field, { key: 'Home' })).toBe(true);
+    await expectOpenAfterASettle();
   });
 
   it('stays open and keeps focus on the combobox without an input', async () => {

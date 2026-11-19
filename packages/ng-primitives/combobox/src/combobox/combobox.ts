@@ -15,7 +15,7 @@ import {
 } from '@angular/core';
 import { activeDescendantManager } from 'ng-primitives/a11y';
 import { ngpInteractions } from 'ng-primitives/interactions';
-import { domSort, injectElementRef } from 'ng-primitives/internal';
+import { domSort, injectElementRef, isFocusField } from 'ng-primitives/internal';
 import {
   coerceFlip,
   coerceOffset,
@@ -733,8 +733,13 @@ export class NgpCombobox {
    */
   @HostListener('keydown', ['$event'])
   protected handleKeydown(event: KeyboardEvent): void {
-    // If the event originated from the input element, let the input handle it
-    if (this.input() && event.target === this.input()?.elementRef.nativeElement) {
+    // a key pressed in the input, or in another field of the dropdown, belongs to that field
+    if (
+      event.target === this.input()?.elementRef.nativeElement ||
+      (event.target instanceof Element &&
+        isFocusField(event.target) &&
+        !!this.dropdown()?.elementRef.nativeElement.contains(event.target))
+    ) {
       return;
     }
 

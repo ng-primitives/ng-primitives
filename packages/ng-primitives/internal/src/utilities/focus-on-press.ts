@@ -10,15 +10,17 @@ const FIELD_SELECTOR =
  * owns the popup closes it on blur, and Safari blurs it even on a press on a button.
  */
 export function preventFocusLossOnPress(event: MouseEvent): void {
-  // the composed path reaches into shadow trees, so a field inside a web component still counts
+  // the composed path reaches into open shadow trees, so a field inside a web component with an
+  // open shadow root still counts. A closed one hides its field, and the press is prevented.
   const target = event.composedPath()[0];
 
-  if (target instanceof Element && !isField(target)) {
+  if (target instanceof Element && !isFocusField(target)) {
     event.preventDefault();
   }
 }
 
-function isField(element: Element): boolean {
+/** Whether the element is, or sits in, a field that needs focus and its own keys to work. */
+export function isFocusField(element: Element): boolean {
   return (
     (element instanceof HTMLElement && element.isContentEditable) ||
     element.closest(FIELD_SELECTOR) !== null

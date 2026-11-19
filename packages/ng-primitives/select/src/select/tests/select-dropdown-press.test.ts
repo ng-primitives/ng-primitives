@@ -98,6 +98,7 @@ class SelectWithInputHost {
 
       <div *ngpSelectPortal ngpSelectDropdown data-testid="dropdown">
         <p data-testid="note">Pick a fruit</p>
+        <input data-testid="field" aria-label="City" />
         @for (option of options; track option) {
           <div
             [ngpSelectOptionValue]="option"
@@ -296,6 +297,18 @@ describe('NgpSelect press inside the dropdown', () => {
 
       await waitFor(() => expect(screen.queryByTestId('dropdown')).not.toBeInTheDocument());
       expect(fixture.componentInstance.value()).toBe('Banana');
+    });
+
+    it('leaves the keys of a text field to the field', async () => {
+      await render(SelectInPlaceHost);
+      await open();
+      const field = byId('field') as HTMLInputElement;
+
+      await userEvent.click(field);
+      await userEvent.keyboard('New York');
+
+      await expectOpenAfterASettle();
+      expect(field.value).toBe('New York');
     });
   });
 });
