@@ -85,20 +85,6 @@ export const [
     listener(elementRef, 'keydown', handleKeydown);
     listener(elementRef, 'blur', onBlur);
 
-    // options are focusable, so a click in the list would pull focus out of the search field
-    const dropdown = selectState().dropdown();
-    if (dropdown) {
-      listener(dropdown.elementRef, 'mousedown', event => {
-        if (
-          selectState()
-            .list()
-            ?.elementRef.nativeElement.contains(event.target as Node)
-        ) {
-          event.preventDefault();
-        }
-      });
-    }
-
     /** The input only exists while the dropdown is open, so no key here needs to open it. */
     function handleKeydown(event: KeyboardEvent): void {
       switch (event.key) {

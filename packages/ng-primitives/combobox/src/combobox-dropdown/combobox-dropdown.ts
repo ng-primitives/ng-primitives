@@ -1,5 +1,5 @@
 import { Directive, input } from '@angular/core';
-import { injectElementRef, observeResize } from 'ng-primitives/internal';
+import { injectElementRef, observeResize, preventFocusLossOnPress } from 'ng-primitives/internal';
 import { provideControlContainerIsolation } from 'ng-primitives/portal';
 import { uniqueId } from 'ng-primitives/utils';
 import { injectComboboxState } from '../combobox/combobox-state';
@@ -21,6 +21,8 @@ import { injectComboboxState } from '../combobox/combobox-state';
     '[style.--ngp-combobox-width.px]': 'comboboxDimensions().width',
     '[style.--ngp-combobox-input-width.px]': 'inputDimensions().width',
     '[style.--ngp-combobox-button-width.px]': 'buttonDimensions().width',
+    // the combobox, or its input, closes the dropdown when it loses focus
+    '(mousedown)': 'keepFocusOnPress($event)',
   },
 })
 export class NgpComboboxDropdown {
@@ -56,5 +58,9 @@ export class NgpComboboxDropdown {
     // The combobox's own overlay, not one injected: a dropdown rendered in place would find an
     // enclosing overlay and replace that overlay's properties.
     this.state().overlay()?.registerAvailableSizePrefix('--ngp-combobox');
+  }
+
+  protected keepFocusOnPress(event: MouseEvent): void {
+    preventFocusLossOnPress(event);
   }
 }

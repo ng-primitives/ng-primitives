@@ -480,9 +480,12 @@ export const [NgpSelectStateToken, ngpSelect, _injectSelectState, provideSelectS
       listener(elementRef, 'blur', onBlur);
 
       function onClick(event: MouseEvent): void {
-        // if the click originated from the input, let the input keep focus. the event only
-        // reaches us when the dropdown is rendered into a container inside the select element.
-        if (event.target === input()?.elementRef.nativeElement) {
+        // a click in the dropdown (the input included) belongs to the dropdown. it only reaches
+        // us when the dropdown is rendered into a container inside the select element.
+        if (
+          event.target === input()?.elementRef.nativeElement ||
+          dropdown()?.elementRef.nativeElement.contains(event.target as Node)
+        ) {
           return;
         }
 

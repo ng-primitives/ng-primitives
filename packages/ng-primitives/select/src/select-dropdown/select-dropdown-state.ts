@@ -1,9 +1,10 @@
 import { ElementRef, Signal, signal } from '@angular/core';
-import { injectElementRef, observeResize } from 'ng-primitives/internal';
+import { injectElementRef, observeResize, preventFocusLossOnPress } from 'ng-primitives/internal';
 import {
   attrBinding,
   createPrimitive,
   dataBinding,
+  listener,
   StateInjectionOptions,
   styleBinding,
 } from 'ng-primitives/state';
@@ -72,6 +73,10 @@ export const [
       () => selectState().overlay()?.availableHeight() ?? null,
     );
     styleBinding(elementRef, '--ngp-select-width.px', () => selectDimensions().width ?? null);
+
+    // Event listeners
+    // the trigger or search input closes the dropdown when it loses focus
+    listener(elementRef, 'mousedown', preventFocusLossOnPress);
 
     const state = {
       elementRef,
