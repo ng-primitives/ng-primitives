@@ -10,7 +10,7 @@ import {
 import { activeDescendantManager } from 'ng-primitives/a11y';
 import { ngpFormControl } from 'ng-primitives/form-field';
 import { ngpInteractions } from 'ng-primitives/interactions';
-import { domSort, injectElementRef } from 'ng-primitives/internal';
+import { domSort, injectElementRef, isFocusField } from 'ng-primitives/internal';
 import { NgpPlacement } from 'ng-primitives/portal';
 import type { NgpFlip, NgpOffset, NgpOverlay } from 'ng-primitives/portal';
 import {
@@ -480,9 +480,12 @@ export const [NgpSelectStateToken, ngpSelect, _injectSelectState, provideSelectS
       listener(elementRef, 'blur', onBlur);
 
       function onClick(event: MouseEvent): void {
-        // if the click originated from the input, let the input keep focus. the event only
-        // reaches us when the dropdown is rendered into a container inside the select element.
-        if (event.target === input()?.elementRef.nativeElement) {
+        // a click in the dropdown (the input included) belongs to the dropdown. it only reaches
+        // us when the dropdown is rendered into a container inside the select element.
+        if (
+          event.target === input()?.elementRef.nativeElement ||
+          dropdown()?.elementRef.nativeElement.contains(event.target as Node)
+        ) {
           return;
         }
 
@@ -867,9 +870,14 @@ export const [NgpSelectStateToken, ngpSelect, _injectSelectState, provideSelectS
 
       /** Handle keydown events for accessibility. */
       function handleKeydown(event: KeyboardEvent): void {
-        // if the event originated from the input element, let the input handle it. the event only
-        // bubbles here when the dropdown is rendered into a container inside the select element.
-        if (event.target === input()?.elementRef.nativeElement) {
+        // a key pressed in the input, or in another field of the dropdown, belongs to that field.
+        // it only bubbles here when the dropdown is rendered into a container inside the select.
+        if (
+          event.target === input()?.elementRef.nativeElement ||
+          (event.target instanceof Element &&
+            isFocusField(event.target) &&
+            !!dropdown()?.elementRef.nativeElement.contains(event.target))
+        ) {
           return;
         }
 
