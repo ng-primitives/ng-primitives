@@ -199,6 +199,7 @@ function inferCategory(primitiveName: string): string {
       'switch',
       'slider',
       'combobox',
+      'autocomplete',
       'listbox',
       'file-upload',
       'input-otp',

@@ -55,7 +55,7 @@ afterEach(async () => {
   await Promise.resolve();
   document
     .querySelectorAll(
-      '[data-overlay], [ngpPopover], [ngpTooltip], [ngpMenu], [ngpSelectDropdown], [ngpComboboxDropdown]',
+      '[data-overlay], [ngpPopover], [ngpTooltip], [ngpMenu], [ngpSelectDropdown], [ngpComboboxDropdown], [ngpAutocompleteDropdown]',
     )
     .forEach(el => el.remove());
 });
