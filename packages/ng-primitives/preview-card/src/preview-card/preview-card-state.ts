@@ -53,11 +53,12 @@ export const [
     triggerState().setPointerOverCard(false);
   });
 
-  // The card is portalled outside the trigger, so focus leaving it never reaches the
-  // trigger's own focusout listener and has to be forwarded.
+  // The card is portalled outside the trigger, so focus leaving it and Tab at its edges
+  // never reach the trigger's own listeners and have to be forwarded.
   listener(elementRef, 'focusout', (event: FocusEvent) =>
     triggerState().onCardFocusOut(event.relatedTarget),
   );
+  listener(elementRef, 'keydown', (event: KeyboardEvent) => triggerState().onCardKeydown(event));
 
   // Seed the id with the overlay's generated unique id so the card always has a
   // valid id when none is provided. `controlled` returns a linkedSignal, so this is

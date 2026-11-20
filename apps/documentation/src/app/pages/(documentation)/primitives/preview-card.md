@@ -36,7 +36,7 @@ Assemble the directives in your template. The trigger should be a link, or anoth
 
 ## Preview Card vs Tooltip vs Popover
 
-A tooltip labels a control with a short piece of text. A popover holds content the user works with: it opens on click and traps focus. A preview card opens on hover or keyboard focus like a tooltip, holds rich content like a popover, and leaves focus on the trigger.
+A tooltip labels a control with a short piece of text. A popover holds content the user works with: it opens on click and traps focus. A preview card opens on hover or keyboard focus like a tooltip, holds rich content like a popover, and does not move focus when it opens: the user tabs from the trigger into it.
 
 A preview card is not exposed to assistive technology and cannot be opened on touch, so use a popover if the content matters.
 
@@ -191,11 +191,14 @@ The card is deliberately not exposed to assistive technology: the content carrie
 That constrains how it can be used:
 
 - **The trigger must work without the card.** Use a link, or another independently useful control.
-- **Never put unique content or actions in the card.** Screen reader and touch users will not see them.
+- **Never put unique content or actions in the card.** Touch users cannot open it, and a screen reader does not announce it: a keyboard user who tabs into it reaches its controls without hearing that a card opened.
 - **Mark the trigger with more than colour**, such as an underline, to satisfy [WCAG 1.4.1 Use of Color](https://www.w3.org/WAI/WCAG22/Understanding/use-of-color.html).
 
 ### Keyboard Interactions
 
-- <kbd>Tab</kbd>: Moves focus to the trigger, which opens the card. Focus is not moved into the card, and the card is rendered outside the trigger, so tabbing again continues through the page rather than into the card.
-- <kbd>Esc</kbd>: Closes the card.
+- <kbd>Tab</kbd>: Moves focus to the trigger, which opens the card. While the card is open, the next <kbd>Tab</kbd> moves focus to the first focusable element in the card, and <kbd>Tab</kbd> from its last one continues to the element after the trigger. A card with nothing focusable is skipped.
+- <kbd>Shift</kbd> + <kbd>Tab</kbd>: From the first focusable element in the card, moves focus back to the trigger.
+- <kbd>Esc</kbd>: Closes the card. If focus is in the card, it returns to the trigger.
 - <kbd>Enter</kbd>: Activates the trigger.
+
+Tab follows the card's DOM order. Positive `tabindex` values, content inside a shadow root, and a preview card nested in another one are not supported.
