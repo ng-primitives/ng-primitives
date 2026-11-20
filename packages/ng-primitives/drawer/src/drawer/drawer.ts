@@ -306,10 +306,10 @@ export class NgpDrawer {
         const currentSnapPoint = this.snapPoint();
         // Base UI resets the active point to the resolved default on every close
         // (DrawerRoot.tsx:160-169) — safely, because its useControlled setter is a no-op in
-        // controlled mode. ng's linkedSignal always writes and its emission round-trips, so two
-        // guards stay on top: an explicit `null` is the consumer's "no active snap point"
-        // (plan 009) and a swipe close's clear must survive the close (plan 012) — collapsing
-        // either into the default would silently discard it.
+        // controlled mode. This linkedSignal always writes and its emission round-trips, so two
+        // guards stay on top: an explicit `null` is the consumer's "no active snap point" and a
+        // swipe close's clear must survive the close — collapsing either into the default would
+        // silently discard it.
         if (currentSnapPoint !== null && currentSnapPoint !== resetPoint) {
           this.requestSnapPoint(resetPoint, reason, nativeEvent, trigger);
         }

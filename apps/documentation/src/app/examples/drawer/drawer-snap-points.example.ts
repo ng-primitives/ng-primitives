@@ -177,8 +177,8 @@ import {
 
     .sheet[data-ending-style],
     .backdrop[data-ending-style] {
-      /* Plan 004 publishes a velocity-matched release scalar; the fallback covers a close
-         with no gesture at all, where ng leaves the variable unset. */
+      /* A swipe sets the strength from its release velocity; a close without a gesture
+         leaves it unset, so fall back to 1. */
       transition-duration: calc(var(--ngp-drawer-swipe-strength, 1) * 400ms);
     }
 

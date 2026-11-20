@@ -228,8 +228,8 @@ describe('Drawer snap point integration', () => {
   });
 
   it('resolves a negative snap point to the shortest declared point', async () => {
-    // Base UI clamps a negative to height 0, so the nearest declared point is '100px' (offset 300).
-    // ng used to reject the value outright and fall back to the tallest point.
+    // Base UI clamps a negative to height 0, so the nearest declared point is '100px' (offset 300)
+    // rather than the tallest point.
     fixture.componentInstance.active.set(-1);
     fixture.detectChanges();
     const { viewport, popup } = await openDrawer();
@@ -401,7 +401,7 @@ describe('Drawer snap point integration', () => {
 
   it('closes rather than projecting a downward flick across points', async () => {
     const { viewport } = await openDrawer();
-    // 25px in 41ms ≈ 0.61px/ms. ng used to project this onto '100px' and stay open.
+    // 25px in 41ms ≈ 0.61px/ms: fast enough to close, not a projection onto '100px'.
     swipe(viewport, 0, 25, 2, 0, 42);
     fixture.detectChanges();
 
@@ -525,7 +525,7 @@ describe('Drawer snap point integration', () => {
     fixture.detectChanges();
     const { viewport } = await openDrawer();
     // From offset 200, 250px of travel lands at the closed edge (400), nearer than the lowest
-    // point's offset of 300. ng used to step down to '100px' and stay open.
+    // point's offset of 300, so the drawer closes instead of stepping down to '100px'.
     swipe(viewport, 0, 250, 4, 0, 400);
     fixture.detectChanges();
 
@@ -594,7 +594,7 @@ describe('Drawer snap point integration', () => {
     expect(fixture.componentInstance.root().open()).toBe(true);
     expect(fixture.componentInstance.active()).toBe('100px');
     // The clear and the restore are both synchronous, so the render effect never sees the drawer
-    // give up ownership of the height variable to nested visuals (plan 008).
+    // give up ownership of the height variable to nested visuals.
     expect(popup.style.getPropertyValue('--ngp-drawer-height')).toBe('100px');
   });
 
@@ -691,7 +691,7 @@ describe('Drawer snap point integration', () => {
     fixture.componentInstance.root().hide();
     fixture.detectChanges();
     // Base UI resets the active point to the resolved default on close
-    // (DrawerRoot.tsx:160-169); ng emits the reset so a bound consumer round-trips it.
+    // (DrawerRoot.tsx:160-169); the reset is emitted so a bound consumer round-trips it.
     expect(fixture.componentInstance.active()).toBe('300px');
   });
 
@@ -824,7 +824,7 @@ describe('Drawer snap point uncontrolled swipe', () => {
     // useControlled reads the default once — and warns that changing an uncontrolled
     // default is unsupported (useControlled.ts:57-70). Angular inputs land after
     // construction, so a once-only seed would latch a pre-binding null; the linkedSignal
-    // reseeds whenever the resolved default's value actually changes instead (plan 016).
+    // reseeds whenever the resolved default's value actually changes instead.
     expect(fixture.componentInstance.root().snapPoint()).toBe('300px');
     expect(popup.style.getPropertyValue('--ngp-drawer-height')).toBe('300px');
   });
@@ -841,9 +841,8 @@ describe('Drawer snap point uncontrolled swipe', () => {
     expect(fixture.componentInstance.root().open()).toBe(false);
 
     const reopened = await openDrawer();
-    // The swipe's null survives the close (plan 012) and resolves back to the default
-    // (plan 015). `expanded` must consume the same resolution: before plan 016 it mapped
-    // only `undefined`, so the popup rendered full-height with data-expanded absent.
+    // The swipe's null survives the close and resolves back to the default. `expanded` must
+    // consume the same resolution, or the popup renders full-height without data-expanded.
     expect(reopened.popup).toHaveAttribute('data-expanded');
   });
 
