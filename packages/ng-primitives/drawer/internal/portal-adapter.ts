@@ -73,7 +73,7 @@ export class DrawerPortalAdapter {
   destroy(): void {
     // The exit transition has already been awaited by the portal directive, so detach
     // immediately - this destroys the embedded view synchronously.
-    void this.portal?.detach(true);
+    void this.portal?.detach({ immediate: true });
     this.portal = null;
     this.ownedHost?.remove();
     this.ownedHost = null;

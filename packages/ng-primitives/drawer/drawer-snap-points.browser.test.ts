@@ -306,6 +306,9 @@ describe('Drawer snap point integration', () => {
     fixture.componentInstance.active.set('100px');
     fixture.detectChanges();
     const { viewport, popup } = await openDrawer();
+    // The popup opens by transitioning to the compact offset. Swiping before it settles releases
+    // onto an offset of 0 that the transform is still at, so there is nothing left to animate.
+    await Promise.all(popup.getAnimations().map(animation => animation.finished));
 
     swipe(viewport, 0, -175, 81, 0, 1000);
     fixture.detectChanges();
