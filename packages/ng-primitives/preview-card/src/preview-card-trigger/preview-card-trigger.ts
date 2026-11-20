@@ -12,6 +12,7 @@ import {
   NgpShift,
   NgpShiftInput,
 } from 'ng-primitives/portal';
+import { coerceBooleanOrUndefined } from 'ng-primitives/utils';
 import { injectPreviewCardConfig } from '../config/preview-card-config';
 import {
   NgpPreviewCardPlacement,
@@ -42,6 +43,26 @@ export class NgpPreviewCardTrigger<T = null> {
    */
   readonly previewCard = input<NgpOverlayContent<T> | undefined>(undefined, {
     alias: 'ngpPreviewCardTrigger',
+  });
+
+  /**
+   * Whether the preview card is open. Bind it to control the card: hovering, focusing, leaving
+   * or pressing Escape then emits `ngpPreviewCardTriggerOpenChange` and the card waits for the
+   * binding to change, so `[(ngpPreviewCardTriggerOpen)]` keeps both in step. Leave unset to let
+   * the trigger manage it.
+   */
+  readonly open = input<boolean | undefined, BooleanInput>(undefined, {
+    alias: 'ngpPreviewCardTriggerOpen',
+    transform: coerceBooleanOrUndefined,
+  });
+
+  /**
+   * Whether the preview card opens on first render when `ngpPreviewCardTriggerOpen` is unset.
+   * @default false
+   */
+  readonly defaultOpen = input<boolean, BooleanInput>(false, {
+    alias: 'ngpPreviewCardTriggerDefaultOpen',
+    transform: booleanAttribute,
   });
 
   /**
@@ -152,7 +173,8 @@ export class NgpPreviewCardTrigger<T = null> {
   });
 
   /**
-   * Emits when the open state of the preview card changes.
+   * Emits when the preview card opens or closes. While `ngpPreviewCardTriggerOpen` is bound, it
+   * emits when the card asks to open or close instead, and not for changes the binding made.
    */
   readonly openChange = output<boolean>({
     alias: 'ngpPreviewCardTriggerOpenChange',
@@ -160,6 +182,8 @@ export class NgpPreviewCardTrigger<T = null> {
 
   protected readonly state = ngpPreviewCardTrigger({
     previewCard: this.previewCard,
+    open: this.open,
+    defaultOpen: this.defaultOpen,
     disabled: this.disabled,
     placement: this.placement,
     offset: this.offset,

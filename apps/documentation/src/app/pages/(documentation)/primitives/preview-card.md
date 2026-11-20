@@ -77,6 +77,16 @@ Add `ngpPreviewCardArrow` inside the card to point back at the trigger.
 
 <docs-example name="preview-card-arrow"></docs-example>
 
+### Controlled
+
+Bind `ngpPreviewCardTriggerOpen` to own the open state. Here the card can be pinned: while it is pinned, requests to close are ignored.
+
+<docs-example name="preview-card-controlled"></docs-example>
+
+While it is bound, the binding decides. Hovering, keyboard focus, the pointer or focus leaving, and Escape emit `ngpPreviewCardTriggerOpenChange` once their delay has passed, and the card waits for the binding to change. A change you make to the binding opens or closes the card straight away, without the delays, and is not emitted back. A few closes cannot wait for the binding - the trigger being hidden, another preview card taking over, the content being cleared - and are emitted as they happen.
+
+Use `ngpPreviewCardTriggerDefaultOpen` instead to open an unbound card on first render.
+
 ## API Reference
 
 The following directives are available to import from the `ng-primitives/preview-card` package:
