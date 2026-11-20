@@ -79,6 +79,7 @@ import {
       color: var(--ngp-text-secondary);
       font-size: 0.875rem;
       text-align: center;
+      letter-spacing: -0.006em;
     }
 
     .swipe-area {
@@ -87,9 +88,9 @@ import {
       inset-inline-end: 0;
       z-index: 2;
       width: 2.5rem;
-      border-inline-start: 2px dashed var(--ngp-primary);
-      background: color-mix(in srgb, var(--ngp-primary) 10%, transparent);
-      color: var(--ngp-primary);
+      border-inline-start: 1px dashed var(--ngp-border-secondary);
+      background: var(--ngp-background-hover);
+      color: var(--ngp-text-tertiary);
       touch-action: none;
     }
 
@@ -99,10 +100,10 @@ import {
       inset-inline-end: -1.5rem;
       width: 5rem;
       transform: translateY(-50%) rotate(-90deg);
-      font-size: 0.6875rem;
-      font-weight: 600;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
+      font-size: 0.75rem;
+      font-weight: 510;
+      letter-spacing: -0.011em;
+      text-align: center;
     }
 
     [ngpButton] {
@@ -112,9 +113,14 @@ import {
       border-radius: 0.5rem;
       color: var(--ngp-text-primary);
       background: var(--ngp-background);
-      box-shadow: inset 0 0 0 1px var(--ngp-border);
+      box-shadow:
+        inset 0 0 0 1px var(--ngp-border),
+        0 1px 2px 0 rgb(0 0 0 / 4%);
       font-size: 0.875rem;
       outline: none;
+      font-weight: 510;
+      letter-spacing: -0.006em;
+      transition: background-color 150ms cubic-bezier(0.4, 0, 0.2, 1);
     }
 
     [ngpButton][data-hover] {
@@ -183,6 +189,9 @@ import {
     h2 {
       margin: 0 0 0.25rem;
       font-size: 1.125rem;
+      color: var(--ngp-text-primary);
+      font-weight: 590;
+      letter-spacing: -0.014em;
     }
 
     [ngpDrawerContent] p {
@@ -190,6 +199,7 @@ import {
       color: var(--ngp-text-secondary);
       font-size: 0.875rem;
       line-height: 1.5;
+      letter-spacing: -0.006em;
     }
   `,
 })

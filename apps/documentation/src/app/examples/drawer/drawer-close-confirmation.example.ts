@@ -57,7 +57,7 @@ import {
                 ></textarea>
                 <div class="actions">
                   <button ngpButton ngpDrawerClose type="button">Cancel</button>
-                  <button ngpButton type="submit">Publish</button>
+                  <button class="primary" ngpButton type="submit">Publish</button>
                 </div>
               </form>
             </div>
@@ -80,7 +80,7 @@ import {
                 <button (click)="goBack(postTextarea)" ngpButton cdkFocusInitial type="button">
                   Keep editing
                 </button>
-                <button (click)="discard()" ngpButton type="button">Discard</button>
+                <button class="primary" (click)="discard()" ngpButton type="button">Discard</button>
               </div>
             </section>
           }
@@ -102,9 +102,14 @@ import {
       border-radius: 0.5rem;
       color: var(--ngp-text-primary);
       background: var(--ngp-background);
-      box-shadow: inset 0 0 0 1px var(--ngp-border);
+      box-shadow:
+        inset 0 0 0 1px var(--ngp-border),
+        0 1px 2px 0 rgb(0 0 0 / 4%);
       font-size: 0.875rem;
       outline: none;
+      font-weight: 510;
+      letter-spacing: -0.006em;
+      transition: background-color 150ms cubic-bezier(0.4, 0, 0.2, 1);
     }
 
     [ngpButton][data-hover] {
@@ -113,6 +118,22 @@ import {
 
     [ngpButton][data-press] {
       background: var(--ngp-background-active);
+    }
+
+    [ngpButton].primary {
+      color: var(--ngp-primary-text);
+      background: var(--ngp-primary);
+      box-shadow:
+        inset 0 1px 0 0 rgb(255 255 255 / 20%),
+        0 1px 2px 0 rgb(0 0 0 / 8%);
+    }
+
+    [ngpButton].primary[data-hover] {
+      background: var(--ngp-primary-hover);
+    }
+
+    [ngpButton].primary[data-press] {
+      background: var(--ngp-primary-active);
     }
 
     [ngpButton][data-focus-visible] {
@@ -191,6 +212,9 @@ import {
 
     h2 {
       font-size: 1.125rem;
+      color: var(--ngp-text-primary);
+      font-weight: 590;
+      letter-spacing: -0.014em;
     }
 
     form {
@@ -211,6 +235,7 @@ import {
       font: inherit;
       font-size: 0.875rem;
       outline: none;
+      letter-spacing: -0.006em;
     }
 
     textarea:focus-visible {

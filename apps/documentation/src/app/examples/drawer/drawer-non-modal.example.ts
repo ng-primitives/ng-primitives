@@ -63,9 +63,14 @@ import {
       border-radius: 0.5rem;
       color: var(--ngp-text-primary);
       background: var(--ngp-background);
-      box-shadow: inset 0 0 0 1px var(--ngp-border);
+      box-shadow:
+        inset 0 0 0 1px var(--ngp-border),
+        0 1px 2px 0 rgb(0 0 0 / 4%);
       font-size: 0.875rem;
       outline: none;
+      font-weight: 510;
+      letter-spacing: -0.006em;
+      transition: background-color 150ms cubic-bezier(0.4, 0, 0.2, 1);
     }
 
     [ngpButton][data-hover] {
@@ -121,6 +126,9 @@ import {
     h2 {
       margin: 0 0 0.25rem;
       font-size: 1.125rem;
+      color: var(--ngp-text-primary);
+      font-weight: 590;
+      letter-spacing: -0.014em;
     }
 
     p {
@@ -128,6 +136,7 @@ import {
       color: var(--ngp-text-secondary);
       font-size: 0.875rem;
       line-height: 1.5;
+      letter-spacing: -0.006em;
     }
 
     ul {

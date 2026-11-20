@@ -68,11 +68,17 @@ import {
       border: 0;
       font: inherit;
       font-size: 0.875rem;
+      letter-spacing: -0.006em;
       outline: none;
+      transition: background-color 150ms cubic-bezier(0.4, 0, 0.2, 1);
     }
 
     button:hover {
       background: var(--ngp-background-hover);
+    }
+
+    button:active {
+      background: var(--ngp-background-active);
     }
 
     button:focus-visible {
@@ -83,7 +89,12 @@ import {
     .trigger {
       min-height: 2.125rem;
       border-radius: 0.5rem;
-      box-shadow: inset 0 0 0 1px var(--ngp-border);
+      box-shadow:
+        inset 0 0 0 1px var(--ngp-border),
+        0 1px 2px 0 rgb(0 0 0 / 4%);
+      font-weight: 510;
+      letter-spacing: -0.006em;
+      transition: background-color 150ms cubic-bezier(0.4, 0, 0.2, 1);
     }
 
     .trigger[data-hover] {

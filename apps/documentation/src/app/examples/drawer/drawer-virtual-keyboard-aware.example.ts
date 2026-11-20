@@ -39,7 +39,7 @@ import {
               <header>
                 <button ngpButton ngpDrawerClose>Cancel</button>
                 <h2 ngpDrawerTitle>Delivery details</h2>
-                <button ngpButton ngpDrawerClose>Save</button>
+                <button class="primary" ngpButton ngpDrawerClose>Save</button>
               </header>
               <div class="content" ngpDrawerContent>
                 @for (field of fields; track field.label) {
@@ -79,9 +79,14 @@ import {
       border-radius: 0.5rem;
       color: var(--ngp-text-primary);
       background: var(--ngp-background);
-      box-shadow: inset 0 0 0 1px var(--ngp-border);
+      box-shadow:
+        inset 0 0 0 1px var(--ngp-border),
+        0 1px 2px 0 rgb(0 0 0 / 4%);
       font-size: 0.875rem;
       outline: none;
+      font-weight: 510;
+      letter-spacing: -0.006em;
+      transition: background-color 150ms cubic-bezier(0.4, 0, 0.2, 1);
     }
 
     [ngpButton][data-hover] {
@@ -90,6 +95,22 @@ import {
 
     [ngpButton][data-press] {
       background: var(--ngp-background-active);
+    }
+
+    [ngpButton].primary {
+      color: var(--ngp-primary-text);
+      background: var(--ngp-primary);
+      box-shadow:
+        inset 0 1px 0 0 rgb(255 255 255 / 20%),
+        0 1px 2px 0 rgb(0 0 0 / 8%);
+    }
+
+    [ngpButton].primary[data-hover] {
+      background: var(--ngp-primary-hover);
+    }
+
+    [ngpButton].primary[data-press] {
+      background: var(--ngp-primary-active);
     }
 
     [ngpButton][data-focus-visible] {
@@ -172,6 +193,9 @@ import {
       margin: 0;
       font-size: 1rem;
       text-align: center;
+      color: var(--ngp-text-primary);
+      font-weight: 590;
+      letter-spacing: -0.014em;
     }
 
     .content {
@@ -194,6 +218,7 @@ import {
       color: var(--ngp-text-secondary);
       font-size: 0.8125rem;
       font-weight: 590;
+      letter-spacing: -0.014em;
     }
 
     input,
@@ -210,6 +235,7 @@ import {
       font-size: max(0.875rem, 16px);
       font-weight: 400;
       outline: none;
+      letter-spacing: -0.006em;
     }
 
     input {
