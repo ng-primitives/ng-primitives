@@ -61,10 +61,13 @@ import {
 
     .stage {
       position: relative;
-      display: grid;
+      /* Flex rather than grid: the drawer portal appends its host here, and a grid would give it a
+         row of its own and shift the centred text when the drawer opens. */
+      display: flex;
+      align-items: center;
+      justify-content: center;
       min-height: 20rem;
       overflow: hidden;
-      place-items: center;
       color: var(--ngp-text-primary);
       background: var(--ngp-background);
       border: 1px solid var(--ngp-border);
