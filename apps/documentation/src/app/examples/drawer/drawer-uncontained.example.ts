@@ -103,9 +103,9 @@ import {
       position: fixed;
       inset: 0;
       z-index: 1000;
-      background: rgb(0 0 0 / 50%);
+      background: var(--ngp-backdrop);
       opacity: calc(1 - var(--ngp-drawer-swipe-progress));
-      transition: opacity 400ms cubic-bezier(0.32, 0.72, 0, 1);
+      transition: opacity 450ms cubic-bezier(0.32, 0.72, 0, 1);
     }
 
     .viewport {
@@ -126,7 +126,8 @@ import {
       pointer-events: none;
       outline: none;
       transform: translateY(var(--ngp-drawer-swipe-movement-y));
-      transition: transform 400ms cubic-bezier(0.32, 0.72, 0, 1);
+      transition: transform 450ms cubic-bezier(0.32, 0.72, 0, 1);
+      will-change: transform;
     }
 
     .sheet[data-starting-style],

@@ -52,6 +52,8 @@
 
   --ngp-focus-ring: rgb(59 130 246);
 
+  --ngp-backdrop: rgb(0 0 0 / 20%);
+
   --ngp-avatar-background: #bae6fd;
   --ngp-avatar-border: #fff;
 
@@ -73,6 +75,8 @@
   --ngp-primary: #ff4651;
   --ngp-primary-hover: #ff5d67;
   --ngp-primary-active: #f0303c;
+
+  --ngp-backdrop: rgb(0 0 0 / 70%);
 
   --ngp-border: var(--ngp-gray-800);
   --ngp-border-secondary: var(--ngp-gray-700);

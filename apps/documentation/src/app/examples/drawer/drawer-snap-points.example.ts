@@ -92,7 +92,7 @@ import {
       position: fixed;
       inset: 0;
       z-index: 1000;
-      background: rgb(0 0 0 / 45%);
+      background: var(--ngp-backdrop);
       opacity: calc(1 - var(--ngp-drawer-swipe-progress));
       transition: opacity 450ms cubic-bezier(0.32, 0.72, 0, 1);
     }

@@ -104,7 +104,8 @@ import {
       box-shadow: var(--ngp-shadow);
       outline: none;
       transform: translateX(var(--ngp-drawer-swipe-movement-x));
-      transition: transform 400ms cubic-bezier(0.32, 0.72, 0, 1);
+      transition: transform 450ms cubic-bezier(0.32, 0.72, 0, 1);
+      will-change: transform;
     }
 
     .drawer[data-starting-style],

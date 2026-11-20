@@ -93,9 +93,9 @@ import {
       position: fixed;
       inset: 0;
       z-index: 1000;
-      background: rgb(0 0 0 / 45%);
+      background: var(--ngp-backdrop);
       opacity: calc(1 - var(--ngp-drawer-swipe-progress));
-      transition: opacity 400ms cubic-bezier(0.32, 0.72, 0, 1);
+      transition: opacity 450ms cubic-bezier(0.32, 0.72, 0, 1);
     }
 
     .backdrop[data-starting-style],
@@ -128,7 +128,9 @@ import {
       box-shadow: var(--ngp-shadow);
       outline: none;
       transform: translateX(var(--ngp-drawer-swipe-movement-x));
-      transition: transform 400ms cubic-bezier(0.32, 0.72, 0, 1);
+      transition: transform 450ms cubic-bezier(0.32, 0.72, 0, 1);
+      /* Promote the panel up front so the first frame of the slide doesn't pay for the layer. */
+      will-change: transform;
     }
 
     .drawer[data-starting-style],

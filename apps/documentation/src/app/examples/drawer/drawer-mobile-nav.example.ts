@@ -132,6 +132,7 @@ interface NavigationItem {
       outline: none;
       transform: translateY(var(--ngp-drawer-swipe-movement-y));
       transition: transform 500ms cubic-bezier(0.32, 0.72, 0, 1);
+      will-change: transform;
     }
 
     .menu[data-starting-style],

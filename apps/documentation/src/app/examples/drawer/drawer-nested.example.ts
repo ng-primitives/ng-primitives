@@ -135,9 +135,9 @@ import {
       position: fixed;
       inset: 0;
       z-index: 1000;
-      background: rgb(0 0 0 / 45%);
+      background: var(--ngp-backdrop);
       opacity: calc(1 - var(--ngp-drawer-swipe-progress));
-      transition: opacity 400ms cubic-bezier(0.32, 0.72, 0, 1);
+      transition: opacity 450ms cubic-bezier(0.32, 0.72, 0, 1);
     }
 
     .backdrop[data-starting-style],
@@ -202,9 +202,10 @@ import {
         scale(var(--stack-scale));
       transform-origin: center calc(100% - var(--bleed));
       transition:
-        transform 400ms cubic-bezier(0.32, 0.72, 0, 1),
-        height 400ms cubic-bezier(0.32, 0.72, 0, 1),
-        opacity 400ms cubic-bezier(0.32, 0.72, 0, 1);
+        transform 450ms cubic-bezier(0.32, 0.72, 0, 1),
+        height 450ms cubic-bezier(0.32, 0.72, 0, 1),
+        opacity 450ms cubic-bezier(0.32, 0.72, 0, 1);
+      will-change: transform;
     }
 
     .sheet[data-starting-style],
