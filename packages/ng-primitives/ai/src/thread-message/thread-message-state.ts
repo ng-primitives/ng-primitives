@@ -1,6 +1,8 @@
 import { fromMutationObserver, injectElementRef } from 'ng-primitives/internal';
 import { createPrimitive, onDestroy } from 'ng-primitives/state';
 import { safeTakeUntilDestroyed } from 'ng-primitives/utils';
+import { animationFrameScheduler } from 'rxjs';
+import { auditTime } from 'rxjs/operators';
 import { injectThreadState } from '../thread/thread-state';
 
 export interface NgpThreadMessageState {}
@@ -25,11 +27,12 @@ export const [
     characterData: true, // Watch for text content changes in text nodes
     attributes: false, // We don't care about attribute changes for content streaming
   })
-    .pipe(safeTakeUntilDestroyed())
+    .pipe(auditTime(0, animationFrameScheduler), safeTakeUntilDestroyed())
     .subscribe(() => {
-      // if this is the last message, scroll to bottom
+      // follow the stream only while the user is still at the bottom, so it does not pull
+      // them away from an earlier message they are reading
       if (thread().isLastMessage(state)) {
-        thread().scrollToBottom('smooth');
+        thread().scrollToBottomIfNeeded('instant');
       }
     });
 

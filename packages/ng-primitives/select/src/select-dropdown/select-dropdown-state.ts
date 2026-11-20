@@ -3,6 +3,7 @@ import { injectElementRef, observeResize } from 'ng-primitives/internal';
 import {
   attrBinding,
   createPrimitive,
+  dataBinding,
   StateInjectionOptions,
   styleBinding,
 } from 'ng-primitives/state';
@@ -36,9 +37,23 @@ export const [
     const selectState = injectSelectState();
 
     const selectDimensions = observeResize(() => selectState().elementRef.nativeElement);
+    // The select's own overlay, not one injected: a dropdown rendered in place would find an
+    // enclosing overlay and replace that overlay's properties.
+    selectState().overlay()?.registerAvailableSizePrefix('--ngp-select');
     // Host bindings
-    attrBinding(elementRef, 'role', 'listbox');
+    // When a dedicated ngpSelectList owns the options, the dropdown becomes a dialog
+    // wrapping the input + listbox; otherwise the dropdown is itself the listbox.
+    attrBinding(elementRef, 'role', () => (selectState().list() ? 'dialog' : 'listbox'));
     attrBinding(elementRef, 'id', _id);
+    // aria-multiselectable is not allowed on a dialog, so ngpSelectList carries it instead
+    attrBinding(elementRef, 'aria-multiselectable', () =>
+      selectState().list() ? null : selectState().multiple(),
+    );
+    dataBinding(
+      elementRef,
+      'data-reference-hidden',
+      () => selectState().overlay()?.referenceHidden() ?? false,
+    );
     styleBinding(elementRef, 'left.px', () => selectState().overlay()?.position()?.x ?? null);
     styleBinding(elementRef, 'top.px', () => selectState().overlay()?.position()?.y ?? null);
     styleBinding(

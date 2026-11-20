@@ -1,7 +1,9 @@
 import { By } from '@angular/platform-browser';
 import { fireEvent, render } from '@testing-library/angular';
-import { NgpSwitch } from 'ng-primitives/switch';
+import { userEvent } from '@testing-library/user-event';
+import { NgpSwitch, provideSwitchConfig } from 'ng-primitives/switch';
 import { describe, expect, it, vi } from 'vitest';
+import { userEvent as browserUserEvent } from 'vitest/browser';
 
 describe('NgpSwitch', () => {
   describe('roles & attributes', () => {
@@ -116,6 +118,187 @@ describe('NgpSwitch', () => {
 
       expect(checkedChange).toHaveBeenCalledWith(true);
       expect(switchDiv).toHaveAttribute('aria-checked', 'true');
+    });
+
+    it('should toggle on the Enter key when the element is not a button', async () => {
+      const checkedChange = vi.fn();
+      const { getByRole } = await render(
+        `<div ngpSwitch tabindex="0" (ngpSwitchCheckedChange)="checkedChange($event)"></div>`,
+        { imports: [NgpSwitch], componentProperties: { checkedChange } },
+      );
+
+      const switchDiv = getByRole('switch');
+      fireEvent.keyDown(switchDiv, { key: 'Enter' });
+
+      expect(checkedChange).toHaveBeenCalledWith(true);
+      expect(switchDiv).toHaveAttribute('aria-checked', 'true');
+    });
+
+    it('should toggle once on the Space key when the element is a button', async () => {
+      const checkedChange = vi.fn();
+      const { getByRole } = await render(
+        `<button ngpSwitch (ngpSwitchCheckedChange)="checkedChange($event)"></button>`,
+        { imports: [NgpSwitch], componentProperties: { checkedChange } },
+      );
+
+      const button = getByRole('switch');
+      button.focus();
+      // a real key press, so the browser's native button activation applies
+      await userEvent.keyboard(' ');
+
+      expect(checkedChange).toHaveBeenCalledTimes(1);
+      expect(checkedChange).toHaveBeenCalledWith(true);
+      expect(button).toHaveAttribute('aria-checked', 'true');
+    });
+
+    it('should toggle once on the Enter key when the element is a button', async () => {
+      const checkedChange = vi.fn();
+      const { getByRole } = await render(
+        `<button ngpSwitch (ngpSwitchCheckedChange)="checkedChange($event)"></button>`,
+        { imports: [NgpSwitch], componentProperties: { checkedChange } },
+      );
+
+      const button = getByRole('switch');
+      button.focus();
+      await userEvent.keyboard('{Enter}');
+
+      expect(checkedChange).toHaveBeenCalledTimes(1);
+      expect(button).toHaveAttribute('aria-checked', 'true');
+    });
+
+    it('should not toggle repeatedly while Space is held on a non-button', async () => {
+      const checkedChange = vi.fn();
+      const { getByRole } = await render(
+        `<div ngpSwitch tabindex="0" (ngpSwitchCheckedChange)="checkedChange($event)"></div>`,
+        { imports: [NgpSwitch], componentProperties: { checkedChange } },
+      );
+
+      const switchDiv = getByRole('switch');
+      fireEvent.keyDown(switchDiv, { key: ' ' });
+      const notPrevented = fireEvent.keyDown(switchDiv, { key: ' ', repeat: true });
+
+      // a native button activates on keyup, so a held Space toggles once
+      expect(checkedChange).toHaveBeenCalledTimes(1);
+      expect(switchDiv).toHaveAttribute('aria-checked', 'true');
+      // still prevented, otherwise a held Space scrolls the page
+      expect(notPrevented).toBe(false);
+    });
+
+    it('should toggle on every repeat while Enter is held on a non-button', async () => {
+      const checkedChange = vi.fn();
+      const { getByRole } = await render(
+        `<div ngpSwitch tabindex="0" (ngpSwitchCheckedChange)="checkedChange($event)"></div>`,
+        { imports: [NgpSwitch], componentProperties: { checkedChange } },
+      );
+
+      const switchDiv = getByRole('switch');
+      fireEvent.keyDown(switchDiv, { key: 'Enter' });
+      fireEvent.keyDown(switchDiv, { key: 'Enter', repeat: true });
+      fireEvent.keyDown(switchDiv, { key: 'Enter', repeat: true });
+
+      // a native button clicks on every Enter keydown, autorepeat included
+      expect(checkedChange).toHaveBeenCalledTimes(3);
+      expect(switchDiv).toHaveAttribute('aria-checked', 'true');
+    });
+
+    it('should not toggle on activation keys when a non-button is disabled', async () => {
+      const checkedChange = vi.fn();
+      const { getByRole } = await render(
+        `<div ngpSwitch ngpSwitchDisabled tabindex="0" (ngpSwitchCheckedChange)="checkedChange($event)"></div>`,
+        { imports: [NgpSwitch], componentProperties: { checkedChange } },
+      );
+
+      const switchDiv = getByRole('switch');
+      fireEvent.keyDown(switchDiv, { key: ' ' });
+      fireEvent.keyDown(switchDiv, { key: 'Enter' });
+
+      expect(checkedChange).not.toHaveBeenCalled();
+      expect(switchDiv).toHaveAttribute('aria-checked', 'false');
+    });
+
+    it('should not toggle on unrelated keys', async () => {
+      const checkedChange = vi.fn();
+      const { getByRole } = await render(
+        `<div ngpSwitch tabindex="0" (ngpSwitchCheckedChange)="checkedChange($event)"></div>`,
+        { imports: [NgpSwitch], componentProperties: { checkedChange } },
+      );
+
+      fireEvent.keyDown(getByRole('switch'), { key: 'Tab' });
+      expect(checkedChange).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('toggleOnEnter', () => {
+    it('should not toggle on Enter but still toggle on Space on a non-button when toggleOnEnter is false', async () => {
+      const checkedChange = vi.fn();
+      const { getByRole } = await render(
+        `<div ngpSwitch tabindex="0" ngpSwitchToggleOnEnter="false" (ngpSwitchCheckedChange)="checkedChange($event)"></div>`,
+        { imports: [NgpSwitch], componentProperties: { checkedChange } },
+      );
+
+      const switchDiv = getByRole('switch');
+      const notPrevented = fireEvent.keyDown(switchDiv, { key: 'Enter' });
+
+      expect(notPrevented).toBe(false);
+      expect(checkedChange).not.toHaveBeenCalled();
+      expect(switchDiv).toHaveAttribute('aria-checked', 'false');
+
+      fireEvent.keyDown(switchDiv, { key: ' ' });
+      expect(checkedChange).toHaveBeenCalledWith(true);
+    });
+
+    it('should block the native Enter activation but keep Space on a button when toggleOnEnter is false', async () => {
+      const checkedChange = vi.fn();
+      const { getByRole } = await render(
+        `<button ngpSwitch [ngpSwitchToggleOnEnter]="false" (ngpSwitchCheckedChange)="checkedChange($event)"></button>`,
+        { imports: [NgpSwitch], componentProperties: { checkedChange } },
+      );
+
+      const button = getByRole('switch');
+      button.focus();
+      // a trusted key press, so the browser's own Enter activation is what gets blocked
+      await browserUserEvent.keyboard('{Enter}');
+
+      expect(checkedChange).not.toHaveBeenCalled();
+      expect(button).toHaveAttribute('aria-checked', 'false');
+
+      await browserUserEvent.keyboard(' ');
+      expect(checkedChange).toHaveBeenCalledTimes(1);
+      expect(button).toHaveAttribute('aria-checked', 'true');
+    });
+
+    it('should not toggle on Enter when toggleOnEnter is false in the global config', async () => {
+      const checkedChange = vi.fn();
+      const { getByRole } = await render(
+        `<button ngpSwitch (ngpSwitchCheckedChange)="checkedChange($event)"></button>`,
+        {
+          imports: [NgpSwitch],
+          providers: [provideSwitchConfig({ toggleOnEnter: false })],
+          componentProperties: { checkedChange },
+        },
+      );
+
+      const button = getByRole('switch');
+      button.focus();
+      await browserUserEvent.keyboard('{Enter}');
+
+      expect(checkedChange).not.toHaveBeenCalled();
+    });
+
+    it('should let the input override the global config', async () => {
+      const checkedChange = vi.fn();
+      const { getByRole } = await render(
+        `<div ngpSwitch tabindex="0" ngpSwitchToggleOnEnter (ngpSwitchCheckedChange)="checkedChange($event)"></div>`,
+        {
+          imports: [NgpSwitch],
+          providers: [provideSwitchConfig({ toggleOnEnter: false })],
+          componentProperties: { checkedChange },
+        },
+      );
+
+      fireEvent.keyDown(getByRole('switch'), { key: 'Enter' });
+
+      expect(checkedChange).toHaveBeenCalledWith(true);
     });
   });
 

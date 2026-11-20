@@ -20,6 +20,8 @@ import {
   NgpSelectDropdown,
   NgpSelectPortal,
   NgpSelectOption,
+  NgpSelectInput,
+  NgpSelectList,
 } from 'ng-primitives/select';
 ```
 
@@ -112,6 +114,27 @@ Options without a value do not perform any selection by default. You can use thi
 
 <docs-example name="select-custom-option"></docs-example>
 
+### Searchable Select
+
+Add `ngpSelectInput` inside the dropdown to provide a search field. Filtering is left to the consumer. Wrap the options in `ngpSelectList` to keep the accessibility tree valid.
+
+<docs-example name="select-input"></docs-example>
+
+### Modal
+
+By default a click outside the open dropdown closes it and also reaches what is underneath: a button fires, a link navigates. Set `ngpSelectDropdownModal` to make the rest of the page `inert` while the dropdown is open, so a click outside only closes the dropdown.
+
+```html
+<div ngpSelect ngpSelectDropdownModal>...</div>
+```
+
+- The select stays usable, so clicking it again closes the dropdown.
+- An outside click closes the topmost modal overlay only, one layer at a time. A click fired from code, such as `element.click()` or a test's `fireEvent.click`, does not close it.
+- The document still scrolls. Any other scroll container, such as the `<main>` of an app shell, is `inert` and does not scroll with the wheel.
+- Toasts stay usable. Add the `data-ngp-modal-exempt` attribute to any other element that must stay usable, such as the container of a third-party overlay library.
+
+End-to-end tests that click something outside an open modal select have to close it first: the target is `inert`, so a Playwright click waits for it to take pointer events and times out.
+
 ## API Reference
 
 The following directives are available to import from the `ng-primitives/select` package:
@@ -127,6 +150,10 @@ The following directives are available to import from the `ng-primitives/select`
 <api-docs name="NgpSelectDropdown"></api-docs>
 
 <api-reference-props name="NgpSelectDropdown"></api-reference-props>
+
+<api-reference-attributes>
+  <api-attribute name="data-reference-hidden" description="Applied while the element the dropdown is positioned against is scrolled or clipped out of view." />
+</api-reference-attributes>
 
 <api-reference-css-vars>
   <api-css-var name="--ngp-select-transform-origin" description="The transform origin of the select dropdown for animations." />
@@ -145,6 +172,18 @@ The following directives are available to import from the `ng-primitives/select`
 <api-docs name="NgpSelectOption"></api-docs>
 
 <api-reference-props name="NgpSelectOption"></api-reference-props>
+
+### NgpSelectInput
+
+<api-docs name="NgpSelectInput"></api-docs>
+
+<api-reference-props name="NgpSelectInput"></api-reference-props>
+
+### NgpSelectList
+
+<api-docs name="NgpSelectList"></api-docs>
+
+<api-reference-props name="NgpSelectList"></api-reference-props>
 
 ### NgpNativeSelect
 
@@ -172,6 +211,7 @@ bootstrapApplication(AppComponent, {
       container: document.body,
       flip: true,
       offset: 4,
+      modal: false,
     }),
   ],
 });
@@ -183,7 +223,11 @@ bootstrapApplication(AppComponent, {
 
 ## Accessibility
 
-The select primitive follows the [WAI-ARIA Combobox pattern](https://www.w3.org/WAI/ARIA/apg/patterns/combobox/). The trigger uses `role="combobox"` with `aria-expanded` and `aria-controls`. The dropdown uses `role="listbox"` and options use `role="option"` with `aria-selected`. Focus is managed using `aria-activedescendant`.
+The select primitive follows the [WAI-ARIA Combobox pattern](https://www.w3.org/WAI/ARIA/apg/patterns/combobox/). The trigger uses `role="combobox"` with `aria-expanded` and `aria-controls`. The dropdown uses `role="listbox"` (with `aria-multiselectable` reflecting `ngpSelectMultiple`) and options use `role="option"` with `aria-selected`. Focus is managed using `aria-activedescendant`.
+
+When a search input (`ngpSelectInput`) is used, the combobox semantics move to the input, which receives focus when the dropdown opens. The dropdown becomes a `dialog` wrapping the input and an `ngpSelectList` (`role="listbox"`), and the input drives the options via `aria-activedescendant` and `aria-controls`. Naming is left to the consumer, so add an `aria-label` (or `aria-labelledby`) to both the dropdown dialog and the list.
+
+A modal select makes the rest of the page `inert` while the dropdown is open, so screen readers only reach the select and its dropdown. Elements with `data-ngp-modal-exempt`, such as the toast region, and `aria-live` regions placed directly in `<body>` stay reachable. A live region nested in the page, such as a form error, is `inert` too while the dropdown is open.
 
 ### Keyboard Interactions
 
@@ -193,3 +237,5 @@ The select primitive follows the [WAI-ARIA Combobox pattern](https://www.w3.org/
 - <kbd>ArrowUp</kbd>: Open the dropdown or move to the previous option.
 - <kbd>Home</kbd>: Move to the first option.
 - <kbd>End</kbd>: Move to the last option.
+
+When a search input (`ngpSelectInput`) has focus, <kbd>Home</kbd> and <kbd>End</kbd> keep their text editing behaviour and move the caret within the search term. <kbd>Space</kbd> types a space rather than toggling the dropdown.

@@ -125,6 +125,7 @@ The dropdown panel displayed when a trigger is activated.
 <api-reference-attributes>
   <api-attribute name="data-open" description="Applied when the content is visible" />
   <api-attribute name="data-placement" description="The final rendered placement of the content" />
+  <api-attribute name="data-reference-hidden" description="Applied while the trigger the content is positioned against is scrolled or clipped out of view" />
 </api-reference-attributes>
 
 ### NgpNavigationMenuLink

@@ -10,6 +10,26 @@ export const HOVER_BRIDGE_TIMEOUT_MS = 150;
  */
 export const HOVER_BRIDGE_DIRECTION_TOLERANCE_PX = 2;
 
+/**
+ * Idle timeout (ms) applied while the pointer is resting over one of the
+ * trigger's siblings instead of the open gap. The corridor holds the sibling
+ * container inert for its whole lifetime, so a pointer that has stopped there
+ * is waiting on the corridor to end, and gets a much shorter benefit of the
+ * doubt than the gap does. Movement still resets the timer either way - only a
+ * pointer that has genuinely settled over a sibling closes early.
+ */
+export const HOVER_BRIDGE_SIBLING_TIMEOUT_MS = 80;
+
+/**
+ * The band around a row a hand can cross without meaning to - a thin gap
+ * between two of them, the padding they sit in. Space that close to a row is
+ * treated as the row's surroundings rather than as leaving. Kept deliberately
+ * small: past it the pointer is on open ground the user can see they are on
+ * (the empty middle of a rail with rows at its top and bottom), and resting
+ * there closes on the usual timers.
+ */
+export const HOVER_BRIDGE_ROW_GRACE_PX = 8;
+
 export interface HoverBridgePoint {
   x: number;
   y: number;

@@ -1,10 +1,24 @@
 import { FocusMonitor } from '@angular/cdk/a11y';
+import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { fireEvent, render } from '@testing-library/angular';
 import { NgpFocusVisible, provideInteractionsConfig } from 'ng-primitives/interactions';
 import { describe, expect, it, vi } from 'vitest';
+import { blurSynchronouslyOnDisable, collectUncaughtErrors } from '../../tests/uncaught-errors';
 
 describe('NgpFocusVisible', () => {
+  it('should stop monitoring the element when destroyed', async () => {
+    const container = await render(`<button data-testid="trigger" ngpFocusVisible></button>`, {
+      imports: [NgpFocusVisible],
+    });
+    const stopMonitoring = vi.spyOn(TestBed.inject(FocusMonitor), 'stopMonitoring');
+    const trigger = container.getByTestId('trigger');
+
+    container.fixture.destroy();
+
+    expect(stopMonitoring).toHaveBeenCalledWith(trigger);
+  });
+
   it('should not set data-focus-visible to true when mouse focused', async () => {
     const focusChange = vi.fn();
     const container = await render(
@@ -229,6 +243,48 @@ describe('NgpFocusVisible', () => {
     expect(trigger).toHaveAttribute('data-focus-visible');
 
     await container.rerender({ componentProperties: { focusChange, disabled: true } });
+    expect(trigger).not.toHaveAttribute('data-focus-visible');
+  });
+
+  it('should report the blur when a binding disables the focused element', async () => {
+    // A binding that disables a focused element blurs it, mid-render in older Chromium.
+    @Component({
+      selector: 'ngp-test',
+      imports: [NgpFocusVisible],
+      template: `
+        <input
+          [disabled]="disabled()"
+          (ngpFocusVisible)="focusChange($event)"
+          data-testid="trigger"
+          ngpFocusVisible
+        />
+      `,
+    })
+    class NgpTest {
+      readonly disabled = signal(false);
+      readonly focusChange = vi.fn();
+    }
+
+    const container = await render(NgpTest);
+    const trigger = container.getByTestId('trigger') as HTMLInputElement;
+    const { disabled, focusChange } = container.fixture.componentInstance;
+
+    TestBed.inject(FocusMonitor).focusVia(trigger, 'keyboard');
+    container.detectChanges();
+    expect(focusChange).toHaveBeenLastCalledWith(true);
+    expect(trigger).toHaveAttribute('data-focus-visible');
+
+    blurSynchronouslyOnDisable(trigger);
+
+    const uncaught = await collectUncaughtErrors(() => {
+      disabled.set(true);
+      container.detectChanges();
+    });
+
+    expect(uncaught).toBe('');
+    expect(trigger.disabled).toBe(true);
+    expect(document.activeElement).not.toBe(trigger);
+    expect(focusChange).toHaveBeenLastCalledWith(false);
     expect(trigger).not.toHaveAttribute('data-focus-visible');
   });
 

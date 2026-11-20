@@ -86,7 +86,7 @@ The following directives are available to import from the `ng-primitives/toggle-
 <api-reference-props name="NgpToggleGroupItem"></api-reference-props>
 
 <api-reference-attributes>
-  <api-attribute name="data-disabled" description="Applied when the toggle group item is disabled." />
+  <api-attribute name="data-disabled" description="Applied when the toggle group item is disabled, or the toggle group is disabled." />
   <api-attribute name="data-selected" description="Applied when the toggle group item is selected." />
 </api-reference-attributes>
 

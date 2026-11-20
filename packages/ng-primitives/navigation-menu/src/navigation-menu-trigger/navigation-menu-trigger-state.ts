@@ -451,7 +451,7 @@ export const [
         triggerElement: element.nativeElement,
         injector,
         viewContainerRef,
-        container: container(),
+        container,
         placement,
         offset: offset(),
         flip: flip(),

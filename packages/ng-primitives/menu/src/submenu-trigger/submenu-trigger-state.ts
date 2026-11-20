@@ -1,4 +1,4 @@
-import { FocusMonitor, FocusOrigin } from '@angular/cdk/a11y';
+import { FocusMonitor, FocusOrigin, InteractivityChecker } from '@angular/cdk/a11y';
 import {
   computed,
   effect,
@@ -9,7 +9,11 @@ import {
   ViewContainerRef,
   WritableSignal,
 } from '@angular/core';
-import { createHoverBridge, injectElementRef } from 'ng-primitives/internal';
+import {
+  createHoverBridge,
+  createHoverTransitDecline,
+  injectElementRef,
+} from 'ng-primitives/internal';
 import {
   createOverlay,
   NgpFlip,
@@ -27,7 +31,7 @@ import {
   deprecatedSetter,
   listener,
 } from 'ng-primitives/state';
-import { injectDisposables, safeTakeUntilDestroyed } from 'ng-primitives/utils';
+import { injectDisposables, safeTakeUntilDestroyed, uniqueId } from 'ng-primitives/utils';
 import { injectMenuState } from '../menu/menu-state';
 
 export interface NgpSubmenuTriggerState {
@@ -142,6 +146,12 @@ export interface NgpSubmenuTriggerState {
    * @internal
    */
   setPointerOverContent(isOver: boolean): void;
+
+  /**
+   * The id of the trigger element, which names the menu.
+   * @internal
+   */
+  triggerId(): string | null;
 }
 
 export interface NgpSubmenuTriggerProps<T = unknown> {
@@ -191,6 +201,7 @@ export const [
     const viewContainerRef = inject(ViewContainerRef);
     const parentMenu = injectMenuState({ optional: true });
     const focusMonitor = inject(FocusMonitor);
+    const interactivityChecker = inject(InteractivityChecker);
     const disposables = injectDisposables();
 
     // Controlled properties
@@ -203,12 +214,17 @@ export const [
 
     const overlay = signal<NgpOverlay<T> | null>(null);
     const open = computed(() => overlay()?.isOpen() ?? false);
+    const expanded = computed(() => open() && !overlay()?.isClosing());
     const openOrigin = signal<FocusOrigin>('program');
 
     // Track pointer presence for the safe-polygon hover bridge.
     const pointerOverTrigger = signal(false);
     const pointerOverContent = signal(false);
     const isPointerOverSubmenu = computed(() => pointerOverTrigger() || pointerOverContent());
+
+    // The pointer type of a primary-button press on the trigger, kept until its click. Clicks
+    // without one (keyboard, screen readers) see null.
+    let lastPointerType: string | null = null;
 
     // Safe-polygon hover intent: while the pointer travels inside a corridor from
     // the submenu trigger toward the open submenu, sibling hover events are
@@ -217,6 +233,21 @@ export const [
       isPointerInAnchor: isPointerOverSubmenu,
       close: () => hide('mouse'),
       requireForwardMovement: true,
+      siblingContainer: () => parentMenu()?.element.nativeElement ?? null,
+      onSuppressionChange: active =>
+        active
+          ? parentMenu()?.setTransitSource(element.nativeElement)
+          : parentMenu()?.clearTransitSource(element.nativeElement),
+    });
+
+    /**
+     * A sibling's corridor can't withhold an enter the browser resolved before
+     * pointer-events applied, so the sibling has to decline it itself.
+     */
+    const declineHoverDuringTransit = createHoverTransitDecline({
+      isBlocked: () => parentMenu()?.isTransitBlocked(element.nativeElement) ?? false,
+      isPointerOverTrigger: pointerOverTrigger,
+      show: () => show('mouse'),
     });
 
     // Tear down any hover bridge whenever the submenu closes - including close
@@ -253,22 +284,75 @@ export const [
       });
 
     // Host bindings
+    // the submenu is named by its trigger, so the trigger needs an id; the consumer's own is kept
+    const fallbackId = uniqueId('ngp-submenu-trigger');
+    attrBinding(element, 'id', () => element.nativeElement.id || fallbackId);
     attrBinding(element, 'aria-haspopup', 'true');
-    attrBinding(element, 'aria-expanded', open);
+    attrBinding(element, 'aria-expanded', expanded);
     dataBinding(element, 'data-open', open);
 
     // Event listeners
+    listener(element, 'pointerdown', onPointerDown);
+    listener(element, 'pointercancel', clearPointerType);
     listener(element, 'click', onClick);
     listener(element, 'keydown', handleArrowKey);
     listener(element, 'pointerenter', showSubmenuOnHover);
     listener(element, 'pointerleave', onPointerLeave);
 
     // Methods
+    function onPointerDown(event: PointerEvent): void {
+      lastPointerType = event.button === 0 ? event.pointerType : null;
+    }
+
+    // Not cleared on pointerup: it fires before the click that needs the pointer type.
+    function clearPointerType(): void {
+      lastPointerType = null;
+    }
+
     function onClick(event: MouseEvent): void {
+      const pointerType = lastPointerType;
+      clearPointerType();
+
       if (disabled?.()) {
         return;
       }
+
+      // a mouse or pen click on the trigger of an open submenu keeps it open: hovering the
+      // trigger already opened it, so the click that follows must not close it again.
+      // Touch taps, keyboard and screen reader activation still toggle the submenu.
+      if (expanded() && event.detail !== 0 && pointerType !== null && pointerType !== 'touch') {
+        // The mousedown focused the trigger, and the item's roving focus refocuses it on this
+        // click, before or after this listener depending on directive order. Hand focus back
+        // to the submenu once the click has been dispatched.
+        disposables.setTimeout(() => {
+          if (expanded()) {
+            focusContent('mouse');
+          }
+        }, 0);
+        return;
+      }
+
       toggle(event);
+    }
+
+    // Focuses the open submenu's first tabbable element (its roving tab stop), as its focus
+    // trap does when it opens.
+    function focusContent(origin: FocusOrigin): void {
+      const content = overlay()?.getElements()[0];
+
+      if (!content) {
+        return;
+      }
+
+      const walker = document.createTreeWalker(content, NodeFilter.SHOW_ELEMENT, {
+        acceptNode: node =>
+          interactivityChecker.isTabbable(node as HTMLElement)
+            ? NodeFilter.FILTER_ACCEPT
+            : NodeFilter.FILTER_SKIP,
+      });
+      const target = (walker.nextNode() as HTMLElement | null) ?? content;
+
+      focusMonitor.focusVia(target, origin, { preventScroll: true });
     }
 
     function toggle(event: MouseEvent): void {
@@ -331,7 +415,7 @@ export const [
         content: menu,
         triggerElement: element.nativeElement,
         injector,
-        container: container(),
+        container,
         placement,
         offset: offset(),
         flip: flip(),
@@ -357,7 +441,12 @@ export const [
 
       if ((isRightArrow && !isRtl) || (isLeftArrow && isRtl)) {
         event.preventDefault();
-        show('keyboard');
+
+        if (expanded()) {
+          focusContent('keyboard');
+        } else {
+          show('keyboard');
+        }
       }
     }
 
@@ -376,11 +465,24 @@ export const [
       // The pointer is back on the trigger - drop any in-progress hover bridge.
       hoverBridge.clear();
 
+      if (declineHoverDuringTransit()) {
+        return;
+      }
+
       show('mouse');
     }
 
     function onPointerLeave(event: Event): void {
-      if (event instanceof PointerEvent === false || event.pointerType === 'touch') {
+      if (event instanceof PointerEvent === false) {
+        return;
+      }
+
+      // a press dragged off the trigger never clicks it
+      if (event.buttons !== 0) {
+        clearPointerType();
+      }
+
+      if (event.pointerType === 'touch') {
         return;
       }
 
@@ -474,6 +576,7 @@ export const [
       setContainer,
       focus,
       setPointerOverContent,
+      triggerId: () => element.nativeElement.id,
       container: deprecatedSetter(container, 'setContainer', setContainer),
     } satisfies NgpSubmenuTriggerState;
   },

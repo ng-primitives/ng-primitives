@@ -1,17 +1,27 @@
+export { claimEscapeKey, NgpEscapeKeyClaim } from 'ng-primitives/internal';
 export { provideControlContainerIsolation } from './control-container';
 export { coerceFlip, NgpFlip, NgpFlipInput, NgpFlipOptions } from './flip';
 export { coerceOffset, NgpOffset, NgpOffsetInput, NgpOffsetOptions } from './offset';
+export {
+  NgpExposedSource,
+  NgpHidingAttribute,
+  NgpHidingLayer,
+  NgpOutsideHiding,
+} from './outside-hiding';
 export {
   createOverlay,
   injectOverlay,
   NgpOverlay,
   NgpOverlayConfig,
   NgpOverlayContent,
+  NgpOverlayFinalFocus,
   NgpOverlayTemplateContext,
+  OverlayHideImmediateOptions,
 } from './overlay';
 export { NgpOverlayCooldownManager } from './overlay-cooldown';
 export {
   dismissGuardAttribute,
+  NGP_MODAL_EXEMPT_ATTRIBUTE,
   NgpDismissGuard,
   NgpDismissGuardInput,
   NgpDismissPolicy,
@@ -28,13 +38,21 @@ export {
   provideOverlayArrowState,
 } from './overlay-arrow-state';
 export { injectOverlayContext, provideOverlayContext } from './overlay-token';
-export { createPortal, NgpComponentPortal, NgpPortal, NgpTemplatePortal } from './portal';
+export {
+  createPortal,
+  NgpComponentPortal,
+  NgpPortal,
+  NgpPortalAttachOptions,
+  NgpPortalDetachOptions,
+  NgpTemplatePortal,
+} from './portal';
 export { NgpPosition } from './position';
 export {
   NgpBoundary,
   NgpMiddleware,
   NgpPlacement,
   NgpPositioningStrategy,
+  NgpRect,
   NgpRootBoundary,
 } from './positioning';
 export {

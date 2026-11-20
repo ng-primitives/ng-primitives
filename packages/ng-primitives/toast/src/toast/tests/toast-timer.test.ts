@@ -114,6 +114,37 @@ describe('toastTimer', () => {
     expect(callback).toHaveBeenCalledTimes(1);
   });
 
+  it('should report the time remaining, frozen while paused', () => {
+    const timer = toastTimer(3000, vi.fn());
+    expect(timer.remaining()).toBe(3000);
+
+    timer.start();
+    vi.advanceTimersByTime(1000);
+    expect(timer.remaining()).toBe(2000);
+
+    timer.pause();
+    vi.advanceTimersByTime(5000);
+    expect(timer.remaining()).toBe(2000);
+
+    timer.start();
+    vi.advanceTimersByTime(2000);
+    expect(timer.remaining()).toBe(0);
+
+    timer.stop();
+    expect(timer.remaining()).toBe(3000);
+  });
+
+  it('should not report negative time when paused after the deadline', () => {
+    const timer = toastTimer(3000, vi.fn());
+
+    timer.start();
+    // move the clock past the deadline without firing the timeout, as a main-thread stall would
+    vi.setSystemTime(Date.now() + 5000);
+    timer.pause();
+
+    expect(timer.remaining()).toBe(0);
+  });
+
   it('should not call callback when persistent', () => {
     const callback = vi.fn();
     const timer = toastTimer(3000, callback, { persistent: true });
@@ -147,5 +178,36 @@ describe('toastTimer', () => {
     vi.advanceTimersByTime(10_000);
 
     expect(callback).not.toHaveBeenCalled();
+  });
+
+  it('should run the new duration in full after reset', () => {
+    const callback = vi.fn();
+    const timer = toastTimer(3000, callback);
+
+    timer.start();
+    vi.advanceTimersByTime(2000);
+    timer.reset(1000, false);
+    vi.advanceTimersByTime(5000);
+    expect(callback).not.toHaveBeenCalled();
+
+    timer.start();
+    expect(timer.remaining()).toBe(1000);
+    vi.advanceTimersByTime(1000);
+    expect(callback).toHaveBeenCalledTimes(1);
+  });
+
+  it('should become inert after a reset to persistent, and run again after a reset back', () => {
+    const callback = vi.fn();
+    const timer = toastTimer(3000, callback);
+
+    timer.reset(3000, true);
+    timer.start();
+    vi.advanceTimersByTime(10_000);
+    expect(callback).not.toHaveBeenCalled();
+
+    timer.reset(500, false);
+    timer.start();
+    vi.advanceTimersByTime(500);
+    expect(callback).toHaveBeenCalledTimes(1);
   });
 });

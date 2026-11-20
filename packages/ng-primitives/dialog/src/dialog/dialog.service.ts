@@ -14,9 +14,12 @@ import {
   isDevMode,
 } from '@angular/core';
 import { NavigationStart, Router } from '@angular/router';
-import { NgpExitAnimationManager } from 'ng-primitives/internal';
+import { NgpExitAnimationManager, NgpFocusRestoration } from 'ng-primitives/internal';
 import {
   BlockScrollStrategy,
+  NgpHidingLayer,
+  NgpOutsideHiding,
+  NgpOverlay,
   NgpOverlayRegistry,
   ScrollStrategy,
   createPortal,
@@ -40,8 +43,10 @@ export class NgpDialogManager implements OnDestroy {
   private readonly injector = inject(Injector);
   private readonly document = inject<Document>(DOCUMENT);
   private readonly focusMonitor = inject(FocusMonitor);
+  private readonly focusRestoration = inject(NgpFocusRestoration);
   private readonly viewportRuler = inject(ViewportRuler);
   private readonly registry = inject(NgpOverlayRegistry);
+  private readonly outsideHiding = inject(NgpOutsideHiding);
   private readonly defaultOptions = injectDialogConfig();
   private readonly parentDialogManager = inject(NgpDialogManager, {
     optional: true,
@@ -52,7 +57,15 @@ export class NgpDialogManager implements OnDestroy {
   private openDialogsAtThisLevel: NgpDialogRef[] = [];
   private readonly afterAllClosedAtThisLevel = new Subject<void>();
   private readonly afterOpenedAtThisLevel = new Subject<NgpDialogRef>();
-  private ariaHiddenElements = new Map<Element, string | null>();
+  private readonly hidingLayerAtThisLevel: NgpHidingLayer = {
+    attribute: 'aria-hidden',
+    // A closing dialog keeps focus until it detaches, so it stays exposed alongside the open ones.
+    getElements: () =>
+      [...this.exposedOpenDialogs(), ...this.closingDialogs].flatMap(dialog =>
+        dialog.getElements(),
+      ),
+  };
+  private readonly closingDialogsAtThisLevel = new Set<NgpDialogRef>();
   private routerSubscription: Subscription | undefined;
 
   /** Scroll blocking strategy — shared across all dialogs. */
@@ -63,6 +76,39 @@ export class NgpDialogManager implements OnDestroy {
     return this.parentDialogManager
       ? this.parentDialogManager.openDialogs
       : this.openDialogsAtThisLevel;
+  }
+
+  /**
+   * One hiding layer for all the open dialogs, shared with the parent since nested managers act on
+   * the same list of open dialogs.
+   */
+  private get hidingLayer(): NgpHidingLayer {
+    return this.parentDialogManager
+      ? this.parentDialogManager.hidingLayer
+      : this.hidingLayerAtThisLevel;
+  }
+
+  /**
+   * Dialogs that were exposed when they closed and are still in the DOM, running their exit
+   * animation.
+   */
+  private get closingDialogs(): Set<NgpDialogRef> {
+    return this.parentDialogManager
+      ? this.parentDialogManager.closingDialogs
+      : this.closingDialogsAtThisLevel;
+  }
+
+  /** Stacked modal dialogs all stay exposed, a non-modal one only above the top modal dialog. */
+  private exposedOpenDialogs(): NgpDialogRef[] {
+    let topModalIndex = -1;
+    this.openDialogs.forEach((dialog, index) => {
+      if (isModal(dialog.config)) {
+        topModalIndex = index;
+      }
+    });
+    return this.openDialogs.filter(
+      (dialog, index) => isModal(dialog.config) || index > topModalIndex,
+    );
   }
 
   /** Stream that emits when a dialog has been opened. */
@@ -126,6 +172,15 @@ export class NgpDialogManager implements OnDestroy {
     config = { ...defaults, viewContainerRef, ...config };
     config.id = config.id ?? uniqueId('ngp-dialog');
 
+    // A spread `undefined` would override the global container; `null` still means the body.
+    if (config.container === undefined) {
+      config.container = defaults.container;
+    }
+
+    if (config.modal === undefined) {
+      config.modal = defaults.modal;
+    }
+
     if (config.id && this.getDialogById(config.id) && isDevMode()) {
       throw Error(`Dialog with id "${config.id}" exists already. The dialog id must be unique.`);
     }
@@ -149,66 +204,86 @@ export class NgpDialogManager implements OnDestroy {
       context,
     );
 
-    // Attach the portal to document.body
-    portal.attach(this.document.body);
+    portal.attach(this.resolveContainer(config.container));
 
     // Store the portal reference on the dialog ref for element access and cleanup
     dialogRef.portal = portal;
 
-    // If this is the first dialog that we're opening, hide all the non-overlay content
-    // and enable scroll blocking.
-    if (!this.openDialogs.length) {
-      this.hideNonDialogContentFromAssistiveTechnology(portal.getElements());
+    // If this is the first modal dialog that we're opening, enable scroll blocking.
+    if (isModal(config) && !this.hasModalDialog()) {
       this.enableScrollBlocking(config);
     }
 
-    // Auto-detect parent overlay: if the trigger element lives inside an existing overlay
-    // (e.g. a dialog opened from a popover), register as its child so that clicks inside
-    // the dialog don't dismiss the parent overlay.
-    // Only inherit parentId from other dialogs — non-dialog overlays (menus, popovers)
-    // may close after triggering the dialog open, which would cascade-close the dialog.
-    let parentId =
-      activeElement instanceof HTMLElement
-        ? this.registry.findContainingOverlay(activeElement)
-        : null;
+    // A programmatic open() has no trigger and falls back to whatever held focus.
+    const originElement =
+      config.triggerElement ?? (activeElement instanceof HTMLElement ? activeElement : null);
 
-    if (parentId !== null && !this.openDialogs.some(d => d.id === parentId)) {
-      parentId = null;
-    }
+    // Register under the overlay the dialog was opened from, so clicks inside it don't read
+    // as an outside press on that parent. `cascadeClose: false` below stops the inverse: a
+    // menu that closes on select must not take the dialog with it.
+    const parentId = originElement ? this.registry.findContainingOverlay(originElement) : null;
+
+    // Read now: a menu that closes on select is gone from the registry by the time the dialog
+    // closes, and with it the item that opened the dialog.
+    const focusTargets = [originElement, ...this.getContainingTriggers(parentId)];
 
     // Register with the overlay registry for centralized escape-key routing.
     // outsidePress is false because the NgpDialogOverlay directive handles its own backdrop clicks.
     this.registry.register({
       id: dialogRef.id,
       parentId,
+      cascadeClose: false,
       overlay: dialogRef,
       getElements: () => dialogRef.getElements(),
-      triggerElement: (activeElement as HTMLElement) ?? this.document.body,
+      triggerElement: originElement ?? this.document.body,
       dismissPolicy: {
         outsidePress: false,
         escapeKey: config.closeOnEscape ?? true,
       },
+      // A non-modal dialog leaves the page usable, so an Escape pressed on the page is not for it.
+      escapeKeyInsideOnly: !isModal(config),
       outsidePointerEvents$: dialogRef.outsidePointerEvents$,
     });
 
     (this.openDialogs as NgpDialogRef[]).push(dialogRef as NgpDialogRef<any, any>);
+    this.refreshAssistiveTechnologyHiding();
     this.afterOpened.next(dialogRef as NgpDialogRef<any, any>);
     this.subscribeToRouterEvents();
 
+    // Beside a non-modal dialog the page stays usable: focus the user moved there stays put.
+    let restoreFocus = true;
+
     dialogRef.closed.subscribe(() => {
+      restoreFocus = isModal(config) || this.isFocusInDialog(dialogRef);
       // Deregister from the overlay registry immediately so stacking order is updated.
       this.registry.deregister(dialogRef.id);
-      this.removeOpenDialog(dialogRef as NgpDialogRef<any, any>, true);
+      if (this.exposedOpenDialogs().includes(dialogRef as NgpDialogRef)) {
+        this.closingDialogs.add(dialogRef);
+        // A modal overlay below must not make the dialog `inert` while it still holds focus.
+        this.outsideHiding.keepExposed(dialogRef);
+      }
+      this.removeOpenDialog(dialogRef as NgpDialogRef<any, any>);
     });
 
     dialogRef.afterClosed$.subscribe(({ focusOrigin }) => {
-      // Focus the trigger element after exit animations complete.
-      if (activeElement instanceof HTMLElement && this.document.body.contains(activeElement)) {
+      // Recompute only now: until its exit animation ends the closing dialog is still in the DOM
+      // and holds focus, and hiding it would put focus inside an `aria-hidden` subtree.
+      this.closingDialogs.delete(dialogRef);
+      this.outsideHiding.releaseExposed(dialogRef);
+      this.refreshAssistiveTechnologyHiding();
+
+      // Focus the trigger element after exit animations complete, or, if it is gone, the
+      // trigger of the nearest menu or popover it sat in that is still in the page.
+      const focusTarget = focusTargets.find(element => element?.isConnected);
+
+      if (restoreFocus && focusTarget) {
         // Its not great that we are relying on an internal API here, but we need to in order to
         // try and best determine the focus origin when it is programmatically closed by the user.
-        this.focusMonitor.focusVia(
-          activeElement,
-          focusOrigin ?? (this.focusMonitor as any)._lastFocusOrigin,
+        this.focusRestoration.restore(focusTarget, () =>
+          this.focusMonitor.focusVia(
+            focusTarget,
+            focusOrigin ?? (this.focusMonitor as any)._lastFocusOrigin,
+          ),
         );
       }
     });
@@ -256,17 +331,6 @@ export class NgpDialogManager implements OnDestroy {
   }
 
   ngOnDestroy(): void {
-    // Make one pass over all the dialogs that need to be untracked, but should not be closed. We
-    // want to stop tracking the open dialog even if it hasn't been closed, because the tracking
-    // determines when `aria-hidden` is removed from elements outside the dialog.
-    reverseForEach(this.openDialogsAtThisLevel, dialog => {
-      // Check for `false` specifically since we want `undefined` to be interpreted as `true`.
-      this.removeOpenDialog(dialog, false);
-    });
-
-    // Make a second pass and close the remaining dialogs. We do this second pass in order to
-    // correctly dispatch the `afterAllClosed` event in case we have a mixed array of dialogs
-    // that should be closed and dialogs that should not.
     reverseForEach(this.openDialogsAtThisLevel, dialog => dialog.close());
 
     this.afterAllClosedAtThisLevel.complete();
@@ -286,10 +350,20 @@ export class NgpDialogManager implements OnDestroy {
     const userInjector = config.injector || config.viewContainerRef?.injector;
     const providers: StaticProvider[] = [
       { provide: NgpDialogRef, useValue: dialogRef },
-      // expose the merged per-dialog config so NgpDialog honours role/modal/closeOn*
-      // passed to open(), not just the global config
-      { provide: NgpDialogConfigToken, useValue: config },
+      // expose the merged per-dialog config so NgpDialog honours role/closeOn* passed to open(),
+      // not just the global config. `modal` belongs to this dialog only: a trigger inside it
+      // starts from the configuration where this dialog was opened.
+      {
+        provide: NgpDialogConfigToken,
+        useValue: {
+          ...config,
+          modal: (userInjector?.get(NgpDialogConfigToken, null) ?? this.defaultOptions).modal,
+        },
+      },
       { provide: NgpExitAnimationManager, useClass: NgpExitAnimationManager },
+      // Keeps a dialog opened from a menu or popover from inheriting that overlay: its focus trap
+      // tears down when that overlay closes.
+      { provide: NgpOverlay, useValue: null },
     ];
 
     // Fall back to the service's own injector (root injector) to ensure
@@ -300,29 +374,22 @@ export class NgpDialogManager implements OnDestroy {
   /**
    * Removes a dialog from the array of open dialogs.
    */
-  private removeOpenDialog(dialogRef: NgpDialogRef, emitEvent: boolean) {
+  private removeOpenDialog(dialogRef: NgpDialogRef) {
     const index = this.openDialogs.indexOf(dialogRef);
 
     if (index > -1) {
       (this.openDialogs as NgpDialogRef[]).splice(index, 1);
 
-      // If all the dialogs were closed, remove/restore the `aria-hidden`
-      // to a the siblings and emit to the `afterAllClosed` stream.
-      if (!this.openDialogs.length) {
-        this.ariaHiddenElements.forEach((previousValue, element) => {
-          if (previousValue) {
-            element.setAttribute('aria-hidden', previousValue);
-          } else {
-            element.removeAttribute('aria-hidden');
-          }
-        });
-
-        this.ariaHiddenElements.clear();
+      // If all the modal dialogs were closed, restore the `aria-hidden` of the siblings and
+      // release the scroll block. Otherwise the hidden set is recomputed once the dialog has left
+      // the DOM.
+      if (!this.hasModalDialog()) {
+        this.outsideHiding.remove(this.hidingLayer);
         this.disableScrollBlocking();
+      }
 
-        if (emitEvent) {
-          this.getAfterAllClosed().next();
-        }
+      if (!this.openDialogs.length) {
+        this.getAfterAllClosed().next();
       }
     }
   }
@@ -331,6 +398,12 @@ export class NgpDialogManager implements OnDestroy {
    * Enable scroll blocking when the first dialog opens.
    */
   private enableScrollBlocking(config?: NgpDialogConfig): void {
+    // Nested managers share the open dialogs, so the root one owns the scroll block.
+    if (this.parentDialogManager) {
+      this.parentDialogManager.enableScrollBlocking(config);
+      return;
+    }
+
     if (!this.scrollStrategy) {
       this.scrollStrategy =
         config?.scrollStrategy ?? new BlockScrollStrategy(this.viewportRuler, this.document);
@@ -342,36 +415,101 @@ export class NgpDialogManager implements OnDestroy {
    * Disable scroll blocking when the last dialog closes.
    */
   private disableScrollBlocking(): void {
+    if (this.parentDialogManager) {
+      this.parentDialogManager.disableScrollBlocking();
+      return;
+    }
+
     this.scrollStrategy?.disable();
     this.scrollStrategy = null;
   }
 
   /**
-   * Hides all of the content that isn't a dialog portal from assistive technology.
+   * The triggers of the overlay with the given id and of its ancestors, nearest first, up to the
+   * first dialog: a trigger outside that dialog is behind its focus trap.
    */
-  private hideNonDialogContentFromAssistiveTechnology(portalElements: HTMLElement[]) {
-    const body = this.document.body;
-    const bodyChildren = body.children;
+  private getContainingTriggers(id: string | null): HTMLElement[] {
+    const entries = this.registry.getEntries();
+    const triggers: HTMLElement[] = [];
+    let entry = entries.find(e => e.id === id);
 
-    for (let i = bodyChildren.length - 1; i > -1; i--) {
-      const sibling = bodyChildren[i];
+    while (entry && !(entry.overlay instanceof NgpDialogRef)) {
+      triggers.push(entry.triggerElement);
+      const parentId = entry.parentId;
+      entry = entries.find(e => e.id === parentId);
+    }
 
+    return triggers;
+  }
+
+  /**
+   * Resolve the container element the dialog should be rendered into.
+   */
+  private resolveContainer(container: NgpDialogConfig['container']): HTMLElement {
+    if (!container) {
+      return this.document.body;
+    }
+
+    if (typeof container === 'string') {
+      const element = this.document.querySelector<HTMLElement>(container);
+
+      if (!element) {
+        console.warn(
+          `NgPrimitives: Container element with selector "${container}" not found. Falling back to document.body.`,
+        );
+        return this.document.body;
+      }
+
+      return element;
+    }
+
+    return container;
+  }
+
+  /**
+   * Recompute what is hidden from assistive technology for the currently open dialogs.
+   */
+  private refreshAssistiveTechnologyHiding(): void {
+    if (this.hasModalDialog()) {
+      this.outsideHiding.update(this.hidingLayer);
+    } else {
+      this.outsideHiding.remove(this.hidingLayer);
+      // A non-modal dialog opened from inside a hiding layer must not stay hidden.
+      this.outsideHiding.refresh();
+    }
+  }
+
+  /** Whether focus is in the dialog, or in an overlay opened from it that closes along with it. */
+  private isFocusInDialog(dialogRef: NgpDialogRef): boolean {
+    const elements = [...dialogRef.getElements()];
+
+    // Entries are in open order, so a submenu's parent is collected before the submenu. A nested
+    // dialog does not close with this one, so focus in it stays where it is.
+    for (const entry of this.registry.getEntries()) {
       if (
-        !portalElements.includes(sibling as HTMLElement) &&
-        sibling.nodeName !== 'SCRIPT' &&
-        sibling.nodeName !== 'STYLE' &&
-        !sibling.hasAttribute('aria-live')
+        entry.cascadeClose !== false &&
+        elements.some(element => element.contains(entry.triggerElement))
       ) {
-        this.ariaHiddenElements.set(sibling, sibling.getAttribute('aria-hidden'));
-        sibling.setAttribute('aria-hidden', 'true');
+        elements.push(...entry.getElements());
       }
     }
+
+    const focused = this.document.activeElement;
+    return elements.some(element => element.contains(focused));
+  }
+
+  private hasModalDialog(): boolean {
+    return this.openDialogs.some(dialog => isModal(dialog.config));
   }
 
   private getAfterAllClosed(): Subject<void> {
     const parent = this.parentDialogManager;
     return parent ? parent.getAfterAllClosed() : this.afterAllClosedAtThisLevel;
   }
+}
+
+function isModal(config: NgpDialogConfig): boolean {
+  return config.modal !== false;
 }
 
 /**

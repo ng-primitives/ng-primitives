@@ -1,8 +1,24 @@
+import { FocusMonitor } from '@angular/cdk/a11y';
+import { Component, ElementRef, signal } from '@angular/core';
+import { TestBed } from '@angular/core/testing';
 import { fireEvent, render } from '@testing-library/angular';
 import { NgpFocus, provideInteractionsConfig } from 'ng-primitives/interactions';
 import { describe, expect, it, vi } from 'vitest';
+import { blurSynchronouslyOnDisable, collectUncaughtErrors } from '../../tests/uncaught-errors';
 
 describe('NgpFocus', () => {
+  it('should stop monitoring the element when destroyed', async () => {
+    const container = await render(`<div data-testid="trigger" ngpFocus></div>`, {
+      imports: [NgpFocus],
+    });
+    const stopMonitoring = vi.spyOn(TestBed.inject(FocusMonitor), 'stopMonitoring');
+    const trigger = container.getByTestId('trigger');
+
+    container.fixture.destroy();
+
+    expect(stopMonitoring).toHaveBeenCalledWith(new ElementRef(trigger));
+  });
+
   it('should apply the data-focus attribute', async () => {
     const container = await render(`<div data-testid="trigger" ngpFocus></div>`, {
       imports: [NgpFocus],
@@ -51,6 +67,48 @@ describe('NgpFocus', () => {
 
     fireEvent.focus(trigger);
     expect(stateChange).not.toHaveBeenCalled();
+  });
+
+  // A binding that disables a focused element blurs it, mid-render in older Chromium.
+  it('should report the blur when a binding disables the focused element', async () => {
+    @Component({
+      selector: 'ngp-test',
+      imports: [NgpFocus],
+      template: `
+        <input
+          [disabled]="disabled()"
+          (ngpFocus)="stateChange($event)"
+          data-testid="trigger"
+          ngpFocus
+        />
+      `,
+    })
+    class NgpTest {
+      readonly disabled = signal(false);
+      readonly stateChange = vi.fn();
+    }
+
+    const container = await render(NgpTest);
+    const trigger = container.getByTestId('trigger') as HTMLInputElement;
+    const { disabled, stateChange } = container.fixture.componentInstance;
+
+    trigger.focus();
+    expect(document.activeElement).toBe(trigger);
+    expect(stateChange).toHaveBeenLastCalledWith(true);
+    expect(trigger).toHaveAttribute('data-focus');
+
+    blurSynchronouslyOnDisable(trigger);
+
+    const uncaught = await collectUncaughtErrors(() => {
+      disabled.set(true);
+      container.detectChanges();
+    });
+
+    expect(uncaught).toBe('');
+    expect(trigger.disabled).toBe(true);
+    expect(document.activeElement).not.toBe(trigger);
+    expect(stateChange).toHaveBeenLastCalledWith(false);
+    expect(trigger).not.toHaveAttribute('data-focus');
   });
 
   describe('global configuration', () => {

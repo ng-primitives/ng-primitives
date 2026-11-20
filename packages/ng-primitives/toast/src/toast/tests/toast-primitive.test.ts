@@ -23,9 +23,11 @@ async function renderToast(overrides: Partial<NgpToastOptions> = {}) {
   // eslint-disable-next-line @angular-eslint/no-uncalled-signals
   const expanded = overrides.expanded ?? signal(false);
   const dismiss = vi.fn();
+  const dismissBySwipe = vi.fn();
   const managerStub = {
     toasts: signal<{ instance: NgpToast }[]>([]),
     dismiss,
+    dismissBySwipe,
   };
 
   const options: NgpToastOptions = {
@@ -49,7 +51,7 @@ async function renderToast(overrides: Partial<NgpToastOptions> = {}) {
   });
 
   const element = view.getByTestId('toast');
-  return { ...view, element, dismiss, expanded, managerStub };
+  return { ...view, element, dismiss, dismissBySwipe, expanded, managerStub };
 }
 
 describe('NgpToast', () => {
@@ -95,6 +97,44 @@ describe('NgpToast', () => {
       // host bindings apply via afterRenderEffect; wait for it to flush
       await fixture.whenStable();
       expect(element).toHaveAttribute('data-expanded', 'true');
+    });
+
+    it('exposes the duration as a custom property', async () => {
+      const { element } = await renderToast({ duration: 4000 });
+      expect(element.style.getPropertyValue('--ngp-toast-duration')).toBe('4000ms');
+    });
+
+    it('sets data-paused while expanded', async () => {
+      const expanded = signal(false);
+      const { element, fixture } = await renderToast({ expanded, persistent: false });
+      expect(element).not.toHaveAttribute('data-paused');
+
+      expanded.set(true);
+      await fixture.whenStable();
+      expect(element).toHaveAttribute('data-paused');
+    });
+
+    it('sets data-paused on persistent toasts', async () => {
+      const { element } = await renderToast({ persistent: true });
+      expect(element).toHaveAttribute('data-paused');
+    });
+
+    it('sets data-paused on background toasts in sequential mode', async () => {
+      const { element, fixture, managerStub } = await renderToast({
+        sequential: true,
+        persistent: false,
+      });
+      expect(element).not.toHaveAttribute('data-paused');
+
+      const toast = fixture.debugElement.children[0].injector.get(NgpToast);
+
+      const front = {
+        options: { placement: 'top-end' },
+        dimensions: () => ({ height: 0 }),
+      } as unknown as NgpToast;
+      managerStub.toasts.set([{ instance: front }, { instance: toast }]);
+      await fixture.whenStable();
+      expect(element).toHaveAttribute('data-paused');
     });
 
     it('exposes the configured gap as a custom property', async () => {
@@ -181,7 +221,7 @@ describe('NgpToast', () => {
     });
 
     it('dismisses the toast once swiped past the threshold', async () => {
-      const { element, dismiss, fixture } = await renderToast();
+      const { element, dismissBySwipe, fixture } = await renderToast();
       element.setPointerCapture = vi.fn();
 
       fireEvent(
@@ -196,7 +236,7 @@ describe('NgpToast', () => {
 
       // dismissal is scheduled via afterNextRender; flush it
       await fixture.whenStable();
-      expect(dismiss).toHaveBeenCalledTimes(1);
+      expect(dismissBySwipe).toHaveBeenCalledTimes(1);
     });
   });
 
@@ -224,6 +264,15 @@ describe('NgpToast', () => {
       // collapsing resumes the timer
       expanded.set(false);
       await waitFor(() => expect(dismiss).toHaveBeenCalledTimes(1));
+    });
+
+    it('reports the time remaining', async () => {
+      const { fixture } = await renderToast({ duration: 3000, persistent: false });
+      const toast = fixture.debugElement.children[0].injector.get(NgpToast);
+
+      const before = toast.remaining();
+      await new Promise(resolve => setTimeout(resolve, 50));
+      expect(toast.remaining()).toBeLessThan(before);
     });
 
     it('pauses the timer while the user is interacting via pointer', async () => {

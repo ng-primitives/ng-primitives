@@ -59,3 +59,20 @@ export {
   NgpSubmenuTriggerState,
   provideSubmenuTriggerState,
 } from './submenu-trigger/submenu-trigger-state';
+export { NgpMenuTriggerGroup } from './menu-trigger-group/menu-trigger-group';
+export {
+  NgpMenuTriggerGroupStateToken,
+  ngpMenuTriggerGroup,
+  injectMenuTriggerGroupState,
+  provideMenuTriggerGroupState,
+  type NgpMenuTriggerGroupState,
+  type NgpMenuTriggerGroupProps,
+} from './menu-trigger-group/menu-trigger-group-state';
+export { NgpMenuItemShortcut } from './menu-item-shortcut/menu-item-shortcut';
+export {
+  ngpMenuItemShortcut,
+  injectMenuItemShortcutState,
+  provideMenuItemShortcutState,
+  type NgpMenuItemShortcutState,
+  type NgpMenuItemShortcutProps,
+} from './menu-item-shortcut/menu-item-shortcut-state';

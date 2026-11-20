@@ -40,6 +40,7 @@ import { RouterLink, RouterOutlet } from '@angular/router';
       <a routerLink="/reusable-components/select">Select</a>
       <a routerLink="/reusable-components/native-select">Native Select</a>
       <a routerLink="/reusable-components/input-otp">Input Otp</a>
+      <a routerLink="/reusable-components/preview-card">Preview Card</a>
     </nav>
     <main>
       <router-outlet />

@@ -19,11 +19,13 @@ import {
   NgpMenu,
   NgpMenuItem,
   NgpMenuTrigger,
+  NgpMenuTriggerGroup,
   NgpSubmenuTrigger,
   NgpMenuItemCheckbox,
   NgpMenuItemRadioGroup,
   NgpMenuItemRadio,
   NgpMenuItemIndicator,
+  NgpMenuItemShortcut,
 } from 'ng-primitives/menu';
 ```
 
@@ -74,6 +76,8 @@ Here are some additional examples of how to use the Menu primitives.
 
 The menu can contain submenus, which are nested menus that can be opened by hovering on a menu item.
 
+Clicking or tapping a submenu trigger opens its submenu. Clicking it with a mouse or pen while the submenu is open keeps it open and moves focus into it, so a click after hovering the trigger does not close the submenu. A second tap on a touch screen, or pressing <kbd>Enter</kbd> or <kbd>Space</kbd>, toggles the submenu.
+
 <docs-example name="submenu"></docs-example>
 
 ### Checkbox Items
@@ -87,6 +91,20 @@ Menu items that can be toggled on and off. Clicking a checkbox item does not clo
 Menu items that allow selecting one option from a group. Clicking a radio item does not close the menu.
 
 <docs-example name="menu-radio"></docs-example>
+
+### Keyboard Shortcuts
+
+Show the shortcut of an item with `ngpMenuItemShortcut`. Screen readers announce it as the item's description, not as part of its name. Set `ngpMenuItemShortcutKeys` to the keys in the `aria-keyshortcuts` format, such as `Meta+D`, to expose them on the item too. The menu does not handle the shortcut itself; bind it where the action lives.
+
+<docs-example name="menu-item-shortcut"></docs-example>
+
+### Dialog from a Menu Item
+
+A menu item can open a dialog. The menu closes on select and the dialog outlives it. When the dialog closes, focus returns to the menu trigger, since the item that opened the dialog is gone. Set `ngpMenuItemCloseOnSelect` to `false` to keep the menu open behind the dialog instead; focus then returns to the item.
+
+By default overlays portal into `document.body`, so giving the menu and the dialog overlay the same `z-index` lets the one opened last paint on top, whichever way round they are nested. Point either of them at a custom container and that no longer holds - they only stack by open order while they share a stacking context.
+
+<docs-example name="menu-dialog"></docs-example>
 
 ### Custom Offset
 
@@ -159,6 +177,48 @@ By default, the menu is kept within the viewport and its clipping ancestors. Pas
 
 The `--ngp-menu-available-width` and `--ngp-menu-available-height` custom properties are measured against the flip boundary, or the shift boundary when flip does not set one.
 
+### Custom Anchor
+
+You can provide a separate anchor element using `ngpMenuTriggerAnchor` to control where the menu appears while keeping the full trigger area interactive. Clicks on the anchor are treated as inside the menu, so they do not dismiss it.
+
+<docs-example name="menu-custom-anchor"></docs-example>
+
+The anchor also becomes the element `--ngp-menu-trigger-width` measures, so a menu sized to that property matches the anchor - which is rarely what you want when the anchor is a small icon.
+
+The anchor is live: rebinding it moves an already-open menu to the new element, and the new element is the one that counts as inside for dismissal. A single menu can therefore be pointed at whichever of many elements was interacted with, instead of giving each one its own trigger.
+
+#### Serving many targets from one menu
+
+When one menu serves many targets, re-anchor it with `setAnchor` on `pointerdown` rather than by rebinding `ngpMenuTriggerAnchor`:
+
+<docs-example name="menu-dynamic-anchor"></docs-example>
+
+```html
+<button #trigger="ngpMenuTrigger" [ngpMenuTrigger]="menu">Actions</button>
+
+<button
+  #token
+  type="button"
+  (pointerdown)="trigger.setAnchor(token)"
+  (click)="trigger.setAnchor(token)"
+>
+  {{ label }}
+</button>
+```
+
+Two things have to line up, and the input binding only gives you the first:
+
+- **Order.** Outside-press dismissal is decided on a capture-phase `mouseup`, which runs before a bubbling `click`, so an anchor claimed on `click` is claimed too late and the press dismisses the menu you meant to move. `pointerdown` is early enough, and covers mouse, pen and touch alike - `mousedown` works too.
+- **Timing.** `ngpMenuTriggerAnchor` is an input, so a new value only reaches the trigger on the next change detection pass. A press held for a few milliseconds gets one; a fast tap, or a frame the browser is busy rendering hundreds of targets, does not - and the dismissal check then still sees the old anchor. `setAnchor` writes the value the check reads, so there is no pass to wait for.
+
+Keep the `click` handler as well, so the targets work without a pointer: keyboard activation raises `click` with no preceding `pointerdown`. Note that it claims the anchor rather than moving an open menu - activating anything outside an open menu closes it - so from the keyboard the interaction is two steps, claim then open. Targets have to be focusable for any of this to mean anything, so use a native `button` rather than a `span`.
+
+Rebinding `ngpMenuTriggerAnchor` remains the right choice when the anchor changes outside a press - from a selection, a route, or a resize - where nothing is racing the binding.
+
+Guard the re-anchor if pressing the current anchor again should close the menu, since setting it to the element it already points at leaves the menu open.
+
+An anchor that is removed from the DOM closes the menu, so a target recycled out of a virtualized list does not leave the menu stranded at a stale position.
+
 ### Keyboard Triggers
 
 Enable keyboard triggers to allow users to open menus using Enter or arrow keys:
@@ -196,14 +256,48 @@ Enable keyboard triggers to allow users to open menus using Enter or arrow keys:
 
 **Arrow Keys:**
 
-- Placement-aware: Only responds to arrows matching menu direction
-  - `bottom-*` placement: ArrowDown opens
-  - `top-*` placement: ArrowUp opens
+- Placement-aware:
+  - `bottom-*` and `top-*` placements: ArrowDown opens on the first item, ArrowUp on the last
   - `right-*` placement: ArrowRight opens (ArrowLeft in RTL)
   - `left-*` placement: ArrowLeft opens (ArrowRight in RTL)
 - Automatically respects RTL text direction
 - Only works when trigger is focused
 - Perfect for sidebar/navigation menus
+
+### Grouping Root Triggers
+
+In a vertical navigation menu, each top-level item is often its own `NgpMenuTrigger` that opens a menu to the side on hover. Moving the pointer from the trigger toward that menu can pass over a sibling trigger on the way, since diagonal mouse movement rarely follows a straight line - without protection, that sibling would open its own menu and steal focus from the one you were heading toward.
+
+Nested `NgpSubmenuTrigger`s inside an already-open menu are protected from this automatically. Root-level triggers are not, since they may have no shared parent at all - wrap them in `NgpMenuTriggerGroup` to opt in:
+
+<docs-example name="menu-trigger-group"></docs-example>
+
+Moving between siblings closes one menu and opens another in quick succession, so the example also sets `ngpMenuTriggerCooldown`. Within that window, the swap is treated as a single movement: the outgoing menu is dropped rather than animating out behind its replacement, and the incoming one is marked `data-instant` so its own animation can be skipped.
+
+The coordination only earns its keep while the siblings actually sit between a trigger and its menu. In a collapsible navigation, that stops being true once the rail collapses to icons - the pointer reaches the panel without crossing anything, so all the group does is hold the siblings inert a moment longer than they need to be. Bind `ngpMenuTriggerGroupSiblingTracking` to turn it off for as long as that is the case:
+
+```html
+<nav ngpMenuTriggerGroup [ngpMenuTriggerGroupSiblingTracking]="!collapsed()">
+  <!-- triggers -->
+</nav>
+```
+
+### Modal
+
+By default a click outside the menu closes it and also reaches what is underneath: a button fires, a link navigates. Set `ngpMenuTriggerModal` to make the rest of the page `inert` while the menu is open, so a click outside only closes the menu.
+
+```html
+<button [ngpMenuTrigger]="menu" ngpMenuTriggerModal>Options</button>
+```
+
+- The trigger stays usable, so clicking it again closes the menu. So does the anchor, when one is set.
+- Submenus follow their root menu: a click outside both closes them together.
+- A menu opened on hover is never modal, since the pointer moves on to the page. Neither is a menu opened from an `NgpMenuTriggerGroup`, so the group can switch between its menus.
+- An outside click closes the topmost modal overlay only, one layer at a time. A click fired from code, such as `element.click()` or a test's `fireEvent.click`, does not close it.
+- The document still scrolls unless the menu blocks it, which `ngpMenuTriggerScrollBehavior` does by default. Any other scroll container, such as the `<main>` of an app shell, is `inert` and does not scroll with the wheel.
+- Toasts stay usable. Add the `data-ngp-modal-exempt` attribute to any other element that must stay usable, such as the container of a third-party overlay library.
+
+End-to-end tests that click something outside an open modal menu have to close it first: the target is `inert`, so a Playwright click waits for it to take pointer events and times out.
 
 ## API Reference
 
@@ -219,6 +313,12 @@ The following directives are available to import from the `ng-primitives/menu` p
   <api-attribute name="data-open" description="Applied when the menu is open." />
 </api-reference-attributes>
 
+### NgpMenuTriggerGroup
+
+<api-docs name="NgpMenuTriggerGroup"></api-docs>
+
+<api-reference-props name="NgpMenuTriggerGroup"></api-reference-props>
+
 ### NgpMenu
 
 <api-docs name="NgpMenu"></api-docs>
@@ -229,6 +329,7 @@ The following directives are available to import from the `ng-primitives/menu` p
   <api-attribute name="data-enter" description="Applied when the menu is being added to the DOM. This can be used to trigger animations." />
   <api-attribute name="data-exit" description="Applied when the menu is being removed from the DOM. This can be used to trigger animations." />
   <api-attribute name="data-placement" description="The final rendered placement of the menu." />
+  <api-attribute name="data-reference-hidden" description="Applied while the element the menu is positioned against is scrolled or clipped out of view." />
   <api-attribute name="data-instant" description="Applied when switching menus within the cooldown period. Use this to skip animations for instant transitions between menu changes." />
 </api-reference-attributes>
 
@@ -297,6 +398,12 @@ The following directives are available to import from the `ng-primitives/menu` p
   <api-attribute name="data-checked" description="Applied when the parent checkbox or radio is checked." />
 </api-reference-attributes>
 
+### NgpMenuItemShortcut
+
+<api-docs name="NgpMenuItemShortcut"></api-docs>
+
+<api-reference-props name="NgpMenuItemShortcut"></api-reference-props>
+
 ## Styling
 
 For the menu to be positioned correctly relative to the trigger element, it should use fixed positioning. For example, you can use the following CSS:
@@ -326,11 +433,12 @@ The `ngpMenu` will also add the `data-enter` and `data-exit` attributes to the e
 When using the `cooldown` option to allow quick switching between menus, the `data-instant` attribute is applied. Use this to skip animations for instant transitions:
 
 ```css
-:host[data-instant][data-enter],
-:host[data-instant][data-exit] {
+:host[data-instant][data-enter] {
   animation: none;
 }
 ```
+
+`data-instant` comes off as the menu switches to its exit state, so the rule only ever needs the enter state - the exit animation is never suppressed by it.
 
 ## Global Configuration
 
@@ -348,6 +456,7 @@ bootstrapApplication(AppComponent, {
       container: document.body,
       scrollBehavior: 'reposition',
       cooldown: 0,
+      modal: false,
     }),
   ],
 });
@@ -361,22 +470,32 @@ bootstrapApplication(AppComponent, {
 
 Adheres to the [WAI-ARIA Menu Button Pattern](https://www.w3.org/WAI/ARIA/apg/patterns/menu-button/).
 
+An item with a `ngpMenuItemShortcut` is described by it through `aria-describedby`, and the shortcut is hidden from the item's name. Its `ngpMenuItemShortcutKeys` become the item's `aria-keyshortcuts`.
+
+A menu is named by its trigger through `aria-labelledby`, and a submenu by its submenu trigger, unless an `aria-label` or `aria-labelledby` is present when the overlay renders; labels added later do not override the trigger name. A context menu has no trigger to take a name from, so give it an `aria-label`.
+
+A modal menu makes the rest of the page `inert`, so screen readers only reach the menu, its submenus and its trigger. Elements with `data-ngp-modal-exempt`, such as the toast region, and `aria-live` regions placed directly in `<body>` stay reachable. A live region nested in the page, such as a form error, is `inert` too while the menu is open.
+
 ### Keyboard Interactions
 
 | Key                   | Description                                                                                    |
 | --------------------- | ---------------------------------------------------------------------------------------------- |
 | <kbd>Enter</kbd>      | Activates the focused menu item. Closes all menus unless the item is a checkbox or radio item. |
-| <kbd>Escape</kbd>     | Closes all open menus and returns focus to the root menu trigger.                              |
+| <kbd>Escape</kbd>     | Closes all open menus and returns focus as described in Focus Management below.                |
 | <kbd>ArrowDown</kbd>  | Moves focus to the next menu item.                                                             |
 | <kbd>ArrowUp</kbd>    | Moves focus to the previous menu item.                                                         |
-| <kbd>ArrowRight</kbd> | Opens a submenu when focused on a submenu trigger.                                             |
-| <kbd>ArrowLeft</kbd>  | Closes the current submenu and moves focus to the parent submenu trigger.                      |
+| <kbd>ArrowRight</kbd> | Opens a submenu when focused on a submenu trigger and moves focus into it (ArrowLeft in RTL).  |
+| <kbd>ArrowLeft</kbd>  | Closes the current submenu and moves focus to the parent submenu trigger (ArrowRight in RTL).  |
 | <kbd>Home</kbd>       | Moves focus to the first menu item.                                                            |
 | <kbd>End</kbd>        | Moves focus to the last menu item.                                                             |
+| A character           | Moves focus to the next item whose visible text starts with the characters typed.              |
+| <kbd>Space</kbd>      | Activates the focused menu item, or continues a search started by typing.                      |
 
 ### Focus Management
 
 - Focus is always trapped within the menu when open (Tab key does not leave the menu).
-- When a menu is opened via keyboard, the first menu item receives visible focus (`:focus-visible`).
+- When a menu is opened via keyboard, the first menu item receives visible focus (`:focus-visible`), or the last one when ArrowUp opened it. An element with `autofocus` in the menu takes focus instead. When the last item cannot take focus, focus goes where ArrowDown would put it.
 - When a menu is opened via mouse, focus moves into the menu but without the visible focus ring until arrow keys are used.
-- Closing all menus (via Escape or item selection) returns focus to the root menu trigger.
+- Moving the mouse over an item gives it focus, without the focus ring, so the arrow keys move on from it. A pointer at rest does not, and focus stays in an open submenu or in a text field of the menu.
+- Closing all menus (via Escape, item selection or a click on empty space) returns focus to the element that was focused when the menu opened, usually the root menu trigger, whether the menu was used with the keyboard or the mouse. A menu opened on hover leaves focus where it was before the hover. An outside click on another control leaves focus on that control.
+- Set `ngpMenuFinalFocus` on `ngpMenu` to send focus elsewhere on close: an element, `false` to leave focus where it is, `null` (the default) or `true` for the default restoration, or a function that receives the close origin and returns one of these.

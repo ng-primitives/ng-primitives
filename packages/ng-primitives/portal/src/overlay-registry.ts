@@ -1,6 +1,7 @@
 import { FocusOrigin } from '@angular/cdk/a11y';
 import { DOCUMENT } from '@angular/common';
-import { inject, Injectable, NgZone } from '@angular/core';
+import { inject, Injectable, isSignal, NgZone, Signal } from '@angular/core';
+import { NgpEscapeKeyClaims } from 'ng-primitives/internal';
 import { Subject } from 'rxjs';
 
 /**
@@ -33,6 +34,12 @@ export function dismissGuardAttribute<T>(value: NgpDismissGuardInput<T>): NgpDis
 }
 
 /**
+ * Marks an element that stays usable while a modal overlay or dialog is open, such as a toast
+ * region or a third-party portal container.
+ */
+export const NGP_MODAL_EXEMPT_ATTRIBUTE = 'data-ngp-modal-exempt';
+
+/**
  * Dismiss policy for an overlay entry.
  * Determines how the overlay responds to outside clicks and escape key presses.
  * @internal
@@ -59,14 +66,40 @@ export interface NgpOverlayEntry {
   getElements: () => HTMLElement[];
   /** The trigger element */
   triggerElement: HTMLElement;
-  /** Optional anchor element */
-  anchorElement?: HTMLElement | null;
+  /**
+   * Optional anchor element. Pass a signal when the anchor can change while the overlay
+   * is open - an entry is registered once per open and is not re-registered on a change.
+   */
+  anchorElement?: Element | null | Signal<Element | null | undefined>;
   /** Per-instance dismiss configuration */
   dismissPolicy: NgpDismissPolicy;
+  /** The overlay type identifier from the overlay config, e.g. `'tooltip'` */
+  overlayType?: string;
+  /**
+   * If true, the overlay opens on hover or focus rather than a press, so a dialog's backdrop
+   * click closes the dialog instead of this overlay.
+   */
+  passive?: boolean;
   /** If true, clicks on the trigger element are treated as outside clicks */
   treatTriggerClickAsOutside?: boolean;
+  /**
+   * If true, the overlay takes Escape only when it is pressed inside it; otherwise Escape goes to
+   * the overlay below. For an overlay that leaves the page usable, such as a non-modal dialog.
+   */
+  escapeKeyInsideOnly?: boolean;
+  /**
+   * If true, a press outside the overlay only closes it: the click is swallowed, so the topmost
+   * modal overlay closes and nothing underneath reacts.
+   */
+  modal?: boolean;
   /** Optional subject that receives pointer events that occur outside the overlay */
   outsidePointerEvents$?: Subject<MouseEvent>;
+  /**
+   * Whether closing the parent overlay also closes this one. Defaults to true.
+   * Set it false for an overlay that does not depend on its parent for position - a
+   * dialog is positioned against the viewport, an anchored overlay loses its anchor.
+   */
+  cascadeClose?: boolean;
 }
 
 /**
@@ -75,7 +108,12 @@ export interface NgpOverlayEntry {
  * @internal
  */
 export interface NgpOverlayRef {
-  hide(options?: { immediate?: boolean; origin?: FocusOrigin }): void;
+  hide(options?: {
+    immediate?: boolean;
+    origin?: FocusOrigin;
+    outsidePressTarget?: Element;
+    restoreFocus?: boolean;
+  }): void;
   hideImmediate(): void;
 }
 
@@ -91,6 +129,7 @@ export interface NgpOverlayRef {
 export class NgpOverlayRegistry {
   private readonly document = inject(DOCUMENT);
   private readonly ngZone = inject(NgZone);
+  private readonly escapeKeyClaims = inject(NgpEscapeKeyClaims);
 
   /** Ordered list of visible overlay entries (oldest first, newest/topmost last) */
   private readonly entries: NgpOverlayEntry[] = [];
@@ -106,22 +145,45 @@ export class NgpOverlayRegistry {
   /** Tracks the pointerdown target for CDK-compatible outside pointer event dispatch */
   private pointerDownTarget: EventTarget | null = null;
 
+  /** Composed path of the last pointerdown, so a press that starts inside an overlay keeps it open */
+  private pressPath: EventTarget[] | null = null;
+
   /**
-   * Register an overlay as visible. The entry is appended to the end of the list
-   * (making it the topmost overlay). Attaches document listeners if this is the
-   * first entry.
+   * Whether the current primary press started outside the topmost modal overlay, or null when
+   * there is no press or no modal overlay. Consumed by the click that ends the press.
    */
-  register(entry: NgpOverlayEntry): void {
+  private pressOutsideModal: boolean | null = null;
+
+  /** Open order of each entry, parallel to `entries`, which stays sorted by it. */
+  private readonly orders = new Map<string, number>();
+
+  /** The order the next freshly opened entry receives. */
+  private nextOrder = 0;
+
+  /**
+   * Register an overlay as visible. Attaches document listeners if this is the first entry.
+   * @param order The value a previous `register()` returned, to put the entry back where it
+   * was in the stack. Omit it to register the entry as the topmost overlay.
+   * @returns The entry's open order.
+   */
+  register(entry: NgpOverlayEntry, order?: number): number {
     // Avoid double-registration
-    if (this.entries.some(e => e.id === entry.id)) {
-      return;
+    const existing = this.orders.get(entry.id);
+    if (existing !== undefined) {
+      return existing;
     }
-    this.entries.push(entry);
+
+    const entryOrder = order ?? this.nextOrder++;
+    const index = this.entries.findIndex(e => this.orders.get(e.id)! > entryOrder);
+    this.entries.splice(index === -1 ? this.entries.length : index, 0, entry);
+    this.orders.set(entry.id, entryOrder);
 
     // Attach listeners when the first overlay registers
     if (this.entries.length === 1) {
       this.attachListeners();
     }
+
+    return entryOrder;
   }
 
   /**
@@ -132,6 +194,7 @@ export class NgpOverlayRegistry {
     const index = this.entries.findIndex(e => e.id === id);
     if (index !== -1) {
       this.entries.splice(index, 1);
+      this.orders.delete(id);
       this.pendingGuardIds.delete(id);
     }
 
@@ -146,11 +209,67 @@ export class NgpOverlayRegistry {
    * Called by NgpOverlay when it hides to cascade the close to children.
    */
   closeDescendants(id: string): void {
-    const descendants = this.getDescendants(id);
+    const descendants = this.getCascadingDescendants(id);
     // Close deepest first to avoid re-entrant issues
     for (let i = descendants.length - 1; i >= 0; i--) {
       descendants[i].overlay.hideImmediate();
     }
+  }
+
+  /**
+   * Whether overlay `id` closes along with `ancestorId`: nested in it, with no overlay that
+   * opted out of cascading in between.
+   */
+  closesWith(id: string, ancestorId: string): boolean {
+    return this.getCascadingDescendants(ancestorId).some(entry => entry.id === id);
+  }
+
+  /**
+   * Descendants of `id` that close along with it. The walk stops at an entry that opted
+   * out, leaving its own subtree open too.
+   */
+  private getCascadingDescendants(id: string): NgpOverlayEntry[] {
+    return this.collectDescendants(id, entry => entry.cascadeClose !== false);
+  }
+
+  /**
+   * Breadth-first walk of `id`'s subtree, so the result is parent-before-child whatever
+   * order `entries` is in. `include` prunes an entry and its subtree.
+   */
+  private collectDescendants(
+    id: string,
+    include: (entry: NgpOverlayEntry) => boolean = () => true,
+  ): NgpOverlayEntry[] {
+    const childrenByParent = new Map<string, NgpOverlayEntry[]>();
+
+    for (const entry of this.entries) {
+      if (entry.parentId === null) {
+        continue;
+      }
+      const siblings = childrenByParent.get(entry.parentId);
+      if (siblings) {
+        siblings.push(entry);
+      } else {
+        childrenByParent.set(entry.parentId, [entry]);
+      }
+    }
+
+    const descendants: NgpOverlayEntry[] = [];
+    const queue = [id];
+    const seen = new Set<string>([id]);
+
+    while (queue.length > 0) {
+      for (const child of childrenByParent.get(queue.shift()!) ?? []) {
+        if (seen.has(child.id) || !include(child)) {
+          continue;
+        }
+        seen.add(child.id);
+        descendants.push(child);
+        queue.push(child.id);
+      }
+    }
+
+    return descendants;
   }
 
   /**
@@ -209,19 +328,7 @@ export class NgpOverlayRegistry {
    * by walking parentId chains of all entries.
    */
   getDescendants(id: string): NgpOverlayEntry[] {
-    const descendants: NgpOverlayEntry[] = [];
-    const ancestorIds = new Set<string>([id]);
-
-    // Walk the list and collect entries whose parentId is in the ancestor set.
-    // Because entries are ordered by open time, a child always appears after its parent.
-    for (const entry of this.entries) {
-      if (entry.parentId !== null && ancestorIds.has(entry.parentId)) {
-        descendants.push(entry);
-        ancestorIds.add(entry.id);
-      }
-    }
-
-    return descendants;
+    return this.collectDescendants(id);
   }
 
   /**
@@ -247,20 +354,42 @@ export class NgpOverlayRegistry {
       // to entries that have an outsidePointerEvents$ subject.
       const onPointerDown = (event: PointerEvent) => {
         this.pointerDownTarget = this.getComposedTarget(event);
+        this.pressPath = event.composedPath();
+        this.handleModalPointerDown(event);
+      };
+
+      // A cancelled press (e.g. a touch that turns into a scroll) gets no mouseup to consume it
+      const onPointerCancel = () => {
+        this.pressPath = null;
+        this.pressOutsideModal = null;
+      };
+
+      const onClick = (event: MouseEvent) => {
+        if (!this.handleModalClick(event)) {
+          this.handleOutsidePointerEvent(event);
+        }
       };
 
       const onPointerEvent = (event: MouseEvent) => this.handleOutsidePointerEvent(event);
 
+      // A press that opens a context menu (a macOS Ctrl+click) ends without a click
+      const onContextMenu = (event: MouseEvent) => {
+        this.pressOutsideModal = null;
+        this.handleOutsidePointerEvent(event);
+      };
+
       this.document.addEventListener('pointerdown', onPointerDown, true);
-      this.document.addEventListener('click', onPointerEvent, true);
+      this.document.addEventListener('pointercancel', onPointerCancel, true);
+      this.document.addEventListener('click', onClick, true);
       this.document.addEventListener('auxclick', onPointerEvent, true);
-      this.document.addEventListener('contextmenu', onPointerEvent, true);
+      this.document.addEventListener('contextmenu', onContextMenu, true);
 
       this.removeOutsidePointerListeners = () => {
         this.document.removeEventListener('pointerdown', onPointerDown, true);
-        this.document.removeEventListener('click', onPointerEvent, true);
+        this.document.removeEventListener('pointercancel', onPointerCancel, true);
+        this.document.removeEventListener('click', onClick, true);
         this.document.removeEventListener('auxclick', onPointerEvent, true);
-        this.document.removeEventListener('contextmenu', onPointerEvent, true);
+        this.document.removeEventListener('contextmenu', onContextMenu, true);
       };
     });
   }
@@ -276,6 +405,105 @@ export class NgpOverlayRegistry {
     this.removeOutsidePointerListeners?.();
     this.removeOutsidePointerListeners = undefined;
     this.pointerDownTarget = null;
+    this.pressPath = null;
+    this.pressOutsideModal = null;
+  }
+
+  /**
+   * The topmost modal overlay when the event path is outside it, or null. Inside covers the
+   * overlays opened above it, its trigger and anchor, and exempt elements.
+   */
+  private findBlockingModal(path: EventTarget[]): NgpOverlayEntry | null {
+    const index = this.getTopmostModalIndex();
+
+    if (index === -1) {
+      return null;
+    }
+
+    const isInside =
+      this.entries.slice(index).some(entry => !this.isClickOutsideEntry(entry, path)) ||
+      path.some(node => node instanceof Element && node.hasAttribute(NGP_MODAL_EXEMPT_ATTRIBUTE));
+
+    return isInside ? null : this.entries[index];
+  }
+
+  private getTopmostModalIndex(): number {
+    for (let i = this.entries.length - 1; i >= 0; i--) {
+      if (this.entries[i].modal) {
+        return i;
+      }
+    }
+    return -1;
+  }
+
+  /**
+   * Stop a primary press outside the topmost modal overlay from reaching the page. Cancelling
+   * `pointerdown` also suppresses the `mousedown` and `mouseup` that follow it, so the modal
+   * overlay closes on the `click` instead.
+   */
+  private handleModalPointerDown(event: PointerEvent): void {
+    // A second finger on a touch screen does not end the press the first one started.
+    if (!event.isPrimary) {
+      return;
+    }
+
+    if (event.button !== 0 || this.getTopmostModalIndex() === -1 || this.isOnScrollbar(event)) {
+      this.pressOutsideModal = null;
+      return;
+    }
+
+    this.pressOutsideModal = this.findBlockingModal(event.composedPath()) !== null;
+
+    if (this.pressOutsideModal) {
+      event.preventDefault();
+      event.stopPropagation();
+    }
+  }
+
+  /**
+   * Swallow the click that ends a press outside the topmost modal overlay, and close it. A click
+   * with no such press - from the keyboard, or fired by code like a test's `fireEvent.click` or a
+   * download link's `a.click()` - is left alone.
+   * @returns Whether the click was swallowed.
+   */
+  private handleModalClick(event: MouseEvent): boolean {
+    const pressOutsideModal = this.pressOutsideModal;
+    this.pressOutsideModal = null;
+
+    // A click from the keyboard or from code has a `detail` of 0: it does not end the press.
+    if (!pressOutsideModal || event.detail === 0) {
+      return false;
+    }
+
+    event.preventDefault();
+    event.stopImmediatePropagation();
+    this.pointerDownTarget = null;
+
+    const path = event.composedPath();
+    const modal = this.findBlockingModal(path);
+
+    if (modal && !this.pendingGuardIds.has(modal.id)) {
+      const target =
+        (path.find((node): node is Element => node instanceof Element) as Element) ??
+        this.document.documentElement;
+
+      this.evaluateGuardAndDismiss(modal.id, modal.dismissPolicy.outsidePress, target, () =>
+        // The swallowed press focused nothing, so focus would otherwise fall to the body
+        this.ngZone.run(() => modal.overlay.hide({ origin: 'mouse', restoreFocus: true })),
+      );
+    }
+
+    return true;
+  }
+
+  /** Whether the event landed on a scrollbar, outside the viewport's client area. */
+  private isOnScrollbar(event: MouseEvent): boolean {
+    const { clientWidth, clientHeight } = this.document.documentElement;
+    return (
+      clientWidth > 0 &&
+      clientHeight > 0 &&
+      (event.clientX >= clientWidth || event.clientY >= clientHeight)
+    );
   }
 
   /**
@@ -286,6 +514,12 @@ export class NgpOverlayRegistry {
    * topmost but other overlays (e.g. a popover) should still be dismissed.
    */
   private handleOutsideClick(event: MouseEvent): void {
+    const pressPath = this.pressPath;
+    // While other buttons are still held (chording), the press that set the path is not over yet
+    if (event.buttons === 0) {
+      this.pressPath = null;
+    }
+
     if (this.entries.length === 0) {
       return;
     }
@@ -299,21 +533,24 @@ export class NgpOverlayRegistry {
     }
 
     // Ignore scrollbar clicks — the click lands outside the viewport's client area.
-    const { clientWidth, clientHeight } = this.document.documentElement;
-    if (
-      clientWidth > 0 &&
-      clientHeight > 0 &&
-      (event.clientX >= clientWidth || event.clientY >= clientHeight)
-    ) {
+    if (this.isOnScrollbar(event)) {
       return;
     }
 
+    // Overlays below a modal overlay can't be reached, and the modal overlay itself closes on the
+    // click, so only the overlays above it are candidates.
+    const lowestCandidate = this.getTopmostModalIndex() + 1;
+
     const path = event.composedPath();
 
-    // Step 1: Build a set of overlay IDs where the click is "inside"
+    // Step 1: Build a set of overlay IDs where the press started or ended "inside",
+    // so dragging out of an overlay (e.g. selecting text) does not dismiss it
     const insideIds = new Set<string>();
     for (const entry of this.entries) {
-      if (!this.isClickOutsideEntry(entry, path)) {
+      if (
+        !this.isClickOutsideEntry(entry, path) ||
+        (pressPath && !this.isClickOutsideEntry(entry, pressPath))
+      ) {
         insideIds.add(entry.id);
       }
     }
@@ -335,7 +572,7 @@ export class NgpOverlayRegistry {
     const coveredIds = new Set<string>(); // entries covered by an ancestor we'll dismiss
 
     // Walk from topmost to oldest
-    for (let i = this.entries.length - 1; i >= 0; i--) {
+    for (let i = this.entries.length - 1; i >= lowestCandidate; i--) {
       const entry = this.entries[i];
 
       // Skip entries where the click was inside
@@ -352,6 +589,7 @@ export class NgpOverlayRegistry {
       while (currentId !== null) {
         const parent = this.entries.find(e => e.id === currentId);
         if (!parent) break;
+        if (this.entries.indexOf(parent) < lowestCandidate) break;
         if (insideIds.has(parent.id)) break;
         if (parent.dismissPolicy.outsidePress === false) break;
         if (this.pendingGuardIds.has(parent.id)) break;
@@ -373,10 +611,15 @@ export class NgpOverlayRegistry {
       (path.find((node): node is Element => node instanceof Element) as Element) ??
       this.document.documentElement;
 
+    // The element the press started on, which `restoreFocus` uses to hand focus to the
+    // control the user pressed
+    const pressTarget =
+      (pressPath?.find((node): node is Element => node instanceof Element) as Element) ?? target;
+
     // Step 4: Dismiss each root
     for (const [id, entry] of toDismiss) {
       this.evaluateGuardAndDismiss(id, entry.dismissPolicy.outsidePress, target, () =>
-        this.ngZone.run(() => entry.overlay.hide()),
+        this.ngZone.run(() => entry.overlay.hide({ outsidePressTarget: pressTarget })),
       );
     }
   }
@@ -389,26 +632,52 @@ export class NgpOverlayRegistry {
     const isInsideElements = entry.getElements().some(el => path.includes(el));
     const isInsideTrigger =
       !entry.treatTriggerClickAsOutside && path.includes(entry.triggerElement);
-    const isInsideAnchor = entry.anchorElement ? path.includes(entry.anchorElement) : false;
+    const anchorElement = isSignal(entry.anchorElement)
+      ? entry.anchorElement()
+      : entry.anchorElement;
+    const isInsideAnchor = anchorElement ? path.includes(anchorElement) : false;
     return !(isInsideElements || isInsideTrigger || isInsideAnchor);
   }
 
   /**
-   * Escape-key dismiss: only the topmost overlay responds.
+   * Escape-key dismiss: only the topmost overlay that takes the Escape responds (see
+   * `escapeKeyInsideOnly`).
    */
   private handleEscapeKey(event: KeyboardEvent): void {
     if (event.key !== 'Escape' || event.isComposing) {
       return;
     }
 
-    const topmost = this.getTopmost();
+    const path = event.composedPath();
+    const topmost = this.findEscapeKeyTarget(path);
     if (!topmost || this.pendingGuardIds.has(topmost.id)) {
+      return;
+    }
+
+    // a control inside the overlay will handle this Escape itself
+    if (
+      topmost.getElements().some(el => path.includes(el)) &&
+      this.escapeKeyClaims.isClaimed(event)
+    ) {
       return;
     }
 
     this.evaluateGuardAndDismiss(topmost.id, topmost.dismissPolicy.escapeKey, event, () =>
       this.ngZone.run(() => topmost.overlay.hide({ origin: 'keyboard', immediate: true })),
     );
+  }
+
+  /** The topmost overlay that takes an Escape pressed at the given path. */
+  private findEscapeKeyTarget(path: EventTarget[]): NgpOverlayEntry | null {
+    for (let i = this.entries.length - 1; i >= 0; i--) {
+      const entry = this.entries[i];
+
+      if (!entry.escapeKeyInsideOnly || entry.getElements().some(el => path.includes(el))) {
+        return entry;
+      }
+    }
+
+    return null;
   }
 
   /**

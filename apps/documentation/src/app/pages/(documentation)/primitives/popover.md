@@ -138,11 +138,76 @@ The popover can be anchored to a different element than the trigger.
 
 <docs-example name="popover-anchor"></docs-example>
 
+The anchor is live - rebinding it moves an already-open popover to the new element, and it is the new element that counts as inside for dismissal.
+
 ### Dismiss Guard
 
 Use dismiss guards to prevent a popover from closing when there are unsaved changes. The `closeOnOutsideClick` and `closeOnEscape` options accept a guard function that returns a boolean or a `Promise<boolean>`.
 
 <docs-example name="popover-dismiss-guard"></docs-example>
+
+### Handling Escape inside the popover
+
+Overlays handle Escape before the controls inside them, so stopping the event in a control is too late. A control that uses Escape itself, such as an inline-edit field that reverts its value, claims the key with `claimEscapeKey` from `ng-primitives/portal`. Call it in an injection context; the claim is released when that context is destroyed. A claimed Escape pressed inside the topmost overlay leaves it open. Compare against `event.composedPath()[0]` rather than `event.target`, which is retargeted to the shadow host when the overlay renders inside a shadow root.
+
+```ts
+import { ElementRef, signal, viewChild } from '@angular/core';
+import { claimEscapeKey } from 'ng-primitives/portal';
+
+export class InlineEdit {
+  private readonly field = viewChild<ElementRef<HTMLInputElement>>('field');
+  // true while the value is being edited; Escape then reverts it instead of closing the popover
+  readonly editing = signal(false);
+
+  constructor() {
+    claimEscapeKey(
+      event => this.editing() && event.composedPath()[0] === this.field()?.nativeElement,
+    );
+  }
+}
+```
+
+### Keeping Content Mounted
+
+By default, the popover content is destroyed when the popover closes and created again on the next open, so any one-time setup runs every time. Set `ngpPopoverTriggerKeepMounted` to keep the content instance alive between opens instead.
+
+<docs-example name="popover-keep-mounted"></docs-example>
+
+The content is still removed from the DOM while the popover is closed, so nothing is left rendered behind the scenes. What survives is the component instance and its DOM nodes: the content is not re-instantiated, so one-time work (such as a network request) is not repeated and unsaved state (such as a partly filled form or a scroll position) is preserved.
+
+Two things to weigh before enabling it:
+
+- The kept-alive view stays attached to change detection while the popover is hidden, so its bindings continue to be checked.
+- The instance lives until the trigger itself is destroyed, or until the `ngpPopoverTrigger` content changes, so anything expensive it holds on to stays in memory.
+
+### Modal
+
+By default a click outside the popover closes it and also reaches what is underneath: a button fires, a link navigates. Set `ngpPopoverTriggerModal` to make the rest of the page `inert` while the popover is open, so a click outside only closes the popover.
+
+```html
+<button [ngpPopoverTrigger]="popover" ngpPopoverTriggerModal>Open</button>
+```
+
+- The trigger stays usable, so clicking it again closes the popover. The anchor, when one is set, stays usable too.
+- An outside click closes the topmost modal popover only, one layer at a time. A click fired from code, such as `element.click()` or a test's `fireEvent.click`, does not close it.
+- The document still scrolls: use `ngpPopoverTriggerScrollBehavior="block"` to block it. Other scroll containers, such as the `<main>` of an app shell, are `inert` and do not scroll with the wheel, unless they hold the trigger or the anchor.
+- Toasts stay usable. Add the `data-ngp-modal-exempt` attribute to any other element that must stay usable, such as the container of a third-party overlay library.
+- A `closeOnOutsideClick` guard receives the nearest element that is not `inert`, often `<body>`, rather than the element under the pointer.
+
+End-to-end tests that click something outside an open modal popover have to close it first: the target is `inert`, so a Playwright click waits for it to take pointer events and times out.
+
+### Final focus
+
+When the popover closes, focus returns to the element that was focused when it opened, usually its trigger. Set `ngpPopoverFinalFocus` to choose another element, to `false` to leave focus where it is, or to a function that receives the close origin and returns one of these.
+
+```html
+<button [ngpPopoverTrigger]="popover">Rename</button>
+<input #search />
+
+<ng-template #popover>
+  <div ngpPopover [ngpPopoverFinalFocus]="search">...</div>
+</ng-template>
+```
 
 ## API Reference
 
@@ -158,6 +223,7 @@ The following directives are available to import from the `ng-primitives/popover
   <api-attribute name="data-enter" description="Applied when the popover is being added to the DOM. This can be used to trigger animations." />
   <api-attribute name="data-exit" description="Applied when the popover is being removed from the DOM. This can be used to trigger animations." />
   <api-attribute name="data-placement" description="The final rendered placement of the popover." />
+  <api-attribute name="data-reference-hidden" description="Applied while the element the popover is positioned against is scrolled or clipped out of view." />
 </api-reference-attributes>
 
 <api-reference-css-vars>
@@ -212,6 +278,16 @@ For the popover to be positioned correctly relative to the trigger element, it m
 }
 ```
 
+With the default `reposition` scroll behavior, the popover follows its reference element (the anchor, or the trigger when no anchor is set) even once that element is scrolled out of view. `data-reference-hidden` is applied while that is the case, so you can show that the popover has lost its reference, for example by fading it:
+
+```css
+[ngpPopover][data-reference-hidden] {
+  opacity: 0.4;
+}
+```
+
+Don't hide an open popover with `visibility: hidden` or `display: none`: it still traps focus, so a keyboard user would be stuck in content they cannot see. To dismiss the popover when the page scrolls, set `ngpPopoverTriggerScrollBehavior="close"`.
+
 ## Animations
 
 The `ngpPopover` primitive adds a CSS custom property `--ngp-popover-transform-origin` to the element that can be used to animate the popover from the trigger element.
@@ -247,6 +323,8 @@ bootstrapApplication(AppComponent, {
       closeOnOutsideClick: true,
       scrollBehavior: 'reposition',
       cooldown: 0,
+      keepMounted: false,
+      modal: false,
     }),
   ],
 });
@@ -258,7 +336,11 @@ bootstrapApplication(AppComponent, {
 
 ## Accessibility
 
-The popover element is assigned `role="dialog"` and the trigger element uses `aria-expanded` to indicate the popover's open state. The trigger is linked to the popover via `aria-describedby`. Focus is trapped within the popover when open.
+The popover element is assigned `role="dialog"` and the trigger element uses `aria-expanded` to indicate the popover's open state. The trigger is linked to the popover via `aria-describedby`, and the popover is named by its trigger through `aria-labelledby` unless an `aria-label` or `aria-labelledby` is present when the overlay renders; labels added later do not override the trigger name. Focus is trapped within the popover when open. When it closes, focus returns to the element that was focused when it opened, usually the trigger. An outside click on another control moves focus to that control, and focus the user already moved elsewhere stays there. `ngpPopoverFinalFocus` can choose another target, or `false` to leave focus where it is.
+
+Add `autofocus` to one or more usable elements to focus the first one when the popover opens; otherwise the first tabbable element is focused, or the popover itself if there is none. If focus is already inside the popover when it opens, it stays there and `autofocus` is ignored.
+
+A modal popover makes the rest of the page `inert`, so screen readers only reach the popover and its trigger. An outside click reaches no control, so focus returns to the trigger. Elements with `data-ngp-modal-exempt`, such as the toast region, and `aria-live` regions placed directly in `<body>` stay reachable. A live region nested in the page, such as a form error, is `inert` too while the popover is open.
 
 ### Keyboard Interactions
 

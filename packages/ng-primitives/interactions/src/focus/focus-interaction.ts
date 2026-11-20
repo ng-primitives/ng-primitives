@@ -1,5 +1,6 @@
 import { FocusMonitor } from '@angular/cdk/a11y';
-import { ElementRef, Renderer2, Signal, inject, signal } from '@angular/core';
+import { ElementRef, Renderer2, Signal, inject, signal, untracked } from '@angular/core';
+import { onDestroy } from 'ng-primitives/state';
 import { safeTakeUntilDestroyed } from 'ng-primitives/utils';
 import { isFocusEnabled } from '../config/interactions-config';
 
@@ -48,27 +49,37 @@ export function ngpFocus({
    */
   const isFocused = signal<boolean>(false);
 
+  // A browser can dispatch focus or blur synchronously while Angular renders - a binding
+  // writing the DOM `disabled` property of a focused element blurs it there - so the
+  // subscriber would inherit the render pass's reactive consumer and the `isFocused` write
+  // would throw NG0600. `listener` wraps DOM handlers the same way.
   focusMonitor
     .monitor(elementRef, focusWithin)
     .pipe(safeTakeUntilDestroyed())
-    .subscribe(focusOrigin => {
-      if (disabled()) {
-        return;
-      }
+    .subscribe(focusOrigin =>
+      untracked(() => {
+        if (disabled()) {
+          return;
+        }
 
-      isFocused.set(focusOrigin !== null);
-      if (focusOrigin !== null) {
-        if (onFocus) {
-          onFocus();
+        isFocused.set(focusOrigin !== null);
+        if (focusOrigin !== null) {
+          if (onFocus) {
+            onFocus();
+          }
+          renderer.setAttribute(elementRef.nativeElement, 'data-focus', '');
+        } else {
+          if (onBlur) {
+            onBlur();
+          }
+          renderer.removeAttribute(elementRef.nativeElement, 'data-focus');
         }
-        renderer.setAttribute(elementRef.nativeElement, 'data-focus', '');
-      } else {
-        if (onBlur) {
-          onBlur();
-        }
-        renderer.removeAttribute(elementRef.nativeElement, 'data-focus');
-      }
-    });
+      }),
+    );
+
+  // Unsubscribing does not remove the element from FocusMonitor's registry, so the element info
+  // and its root-node listeners have to be released explicitly, or the detached element is retained.
+  onDestroy(() => focusMonitor.stopMonitoring(elementRef));
 
   return { isFocused };
 }

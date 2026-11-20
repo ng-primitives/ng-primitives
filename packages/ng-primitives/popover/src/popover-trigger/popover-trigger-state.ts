@@ -28,8 +28,10 @@ import {
   dataBinding,
   deprecatedSetter,
   listener,
+  onDestroy,
   StateInjectionOptions,
 } from 'ng-primitives/state';
+import { uniqueId } from 'ng-primitives/utils';
 
 export interface NgpPopoverTriggerState<T> {
   /** Access the trigger element. */
@@ -40,40 +42,40 @@ export interface NgpPopoverTriggerState<T> {
    * Define if the trigger should be disabled.
    * @default false
    */
-  readonly disabled: Signal<boolean>;
+  readonly disabled: WritableSignal<boolean>;
   /**
    * Define the placement of the popover relative to the trigger.
-   * @default 'top'
+   * @default 'bottom'
    */
-  readonly placement: Signal<NgpPlacement>;
+  readonly placement: WritableSignal<NgpPlacement>;
   /**
    * Define the offset of the popover relative to the trigger.
    * Can be a number (applies to mainAxis) or an object with mainAxis, crossAxis, and alignmentAxis.
-   * @default 0
+   * @default 4
    */
-  readonly offset: Signal<NgpOffset>;
+  readonly offset: WritableSignal<NgpOffset>;
   /**
    * Define the delay before the popover is displayed.
    * @default 0
    */
-  readonly showDelay: Signal<number>;
+  readonly showDelay: WritableSignal<number>;
   /**
    * Define the delay before the popover is hidden.
    * @default 0
    */
-  readonly hideDelay: Signal<number>;
+  readonly hideDelay: WritableSignal<number>;
   /**
    * Define whether the popover should flip when there is not enough space for the popover.
    * Can be a boolean to enable/disable, or an object with padding and fallbackPlacements options.
    * @default true
    */
-  readonly flip: Signal<NgpFlip>;
+  readonly flip: WritableSignal<NgpFlip>;
   /**
    * Configure shift behavior to keep the popover in view.
    * Can be a boolean to enable/disable, or an object with padding and limiter options.
    * @default undefined (enabled by default in overlay)
    */
-  readonly shift: Signal<NgpShift>;
+  readonly shift: WritableSignal<NgpShift>;
   /**
    * Define the container in which the popover should be attached.
    * @default document.body
@@ -83,39 +85,57 @@ export interface NgpPopoverTriggerState<T> {
    * Define whether the popover should close when clicking outside of it, or a guard function.
    * @default true
    */
-  readonly closeOnOutsideClick: Signal<NgpDismissGuard<Element>>;
+  readonly closeOnOutsideClick: WritableSignal<NgpDismissGuard<Element>>;
   /**
    * Define whether the popover should close when the escape key is pressed, or a guard function.
    * @default true
    */
-  readonly closeOnEscape: Signal<NgpDismissGuard<KeyboardEvent>>;
+  readonly closeOnEscape: WritableSignal<NgpDismissGuard<KeyboardEvent>>;
   /**
    * Defines how the popover behaves when the window is scrolled.
    * @default 'reposition'
    */
-  readonly scrollBehavior: Signal<'reposition' | 'block' | 'close'>;
+  readonly scrollBehavior: WritableSignal<'reposition' | 'block' | 'close'>;
+  /**
+   * Whether the popover is modal. While it is open the rest of the page is `inert`, so a pointer
+   * press outside does not reach it: the click that ends the press closes the popover, unless
+   * `closeOnOutsideClick` says not to. A click from the keyboard or from code is left alone. The
+   * trigger, the anchor, exempt elements and overlays opened above the popover stay usable.
+   * Read each time the popover opens.
+   * @default false
+   */
+  readonly modal: Signal<boolean>;
   /**
    * Provide context to the popover. This can be used to pass data to the popover content.
    */
-  readonly context: Signal<T | undefined>;
+  readonly context: WritableSignal<T | undefined>;
   /**
    * Define an anchor element for positioning the popover.
    * If provided, the popover will be positioned relative to this element instead of the trigger.
    */
-  readonly anchor: Signal<HTMLElement | null>;
+  readonly anchor: WritableSignal<Element | null>;
   /**
    * Define whether to track the trigger element position on every animation frame.
    * Useful for moving elements like slider thumbs.
    * @default false
    */
-  readonly trackPosition: Signal<boolean>;
+  readonly trackPosition: WritableSignal<boolean>;
   /**
    * Define the cooldown duration in milliseconds.
    * When moving from one popover to another within this duration,
    * the showDelay is skipped for the new popover.
    * @default 0
    */
-  readonly cooldown: Signal<number>;
+  readonly cooldown: WritableSignal<number>;
+  /**
+   * When true, hiding the popover removes its content from the DOM but keeps the
+   * underlying component/view instance alive in memory instead of destroying it - a
+   * later show reuses the same instance rather than creating a new one, so the content
+   * is not re-instantiated and any one-time setup (e.g. a network fetch) is not repeated.
+   * The kept-alive view stays attached to change detection while it is hidden.
+   * @default false
+   */
+  readonly keepMounted: Signal<boolean>;
   /**
    * The overlay that manages the popover
    * @internal
@@ -126,15 +146,42 @@ export interface NgpPopoverTriggerState<T> {
    * @internal
    */
   readonly open: Signal<boolean>;
-  /** @internal onDestroy callback */
-  destroy: () => void;
-  /**
-   * Set the container in which the popover should be attached. Takes effect the
-   * next time the popover is opened; it does not move a popover that is already
-   * open.
-   * @param container - The new container
-   */
+  /** Set the popover content. */
+  setPopover: (popover: NgpOverlayContent<T> | undefined) => void;
+  /** Set whether the trigger is disabled. */
+  setDisabled: (disabled: boolean) => void;
+  /** Set the placement of the popover relative to the trigger. */
+  setPlacement: (placement: NgpPlacement) => void;
+  /** Set the offset of the popover relative to the trigger. */
+  setOffset: (offset: NgpOffset) => void;
+  /** Set the delay before the popover is displayed. */
+  setShowDelay: (showDelay: number) => void;
+  /** Set the delay before the popover is hidden. */
+  setHideDelay: (hideDelay: number) => void;
+  /** Set the flip behaviour. */
+  setFlip: (flip: NgpFlip) => void;
+  /** Set the shift behaviour. */
+  setShift: (shift: NgpShift) => void;
+  /** Set the container in which the popover should be attached. */
   setContainer: (container: HTMLElement | string | null) => void;
+  /** Set whether the popover closes when clicking outside of it, or a guard function. */
+  setCloseOnOutsideClick: (closeOnOutsideClick: NgpDismissGuard<Element>) => void;
+  /** Set whether the popover closes when the escape key is pressed, or a guard function. */
+  setCloseOnEscape: (closeOnEscape: NgpDismissGuard<KeyboardEvent>) => void;
+  /** Set how the popover behaves when the window is scrolled. */
+  setScrollBehavior: (scrollBehavior: 'reposition' | 'block' | 'close') => void;
+  /** Set whether the popover is modal, from the next time it opens. */
+  setModal: (modal: boolean) => void;
+  /** Set the context passed to the popover content. */
+  setContext: (context: T | undefined) => void;
+  /** Set the anchor element the popover is positioned against. */
+  setAnchor: (anchor: Element | null) => void;
+  /** Set whether the trigger position is tracked on every animation frame. */
+  setTrackPosition: (trackPosition: boolean) => void;
+  /** Set the cooldown duration in milliseconds. */
+  setCooldown: (cooldown: number) => void;
+  /** Set whether hiding the popover keeps its content mounted instead of destroying it. */
+  setKeepMounted: (keepMounted: boolean) => void;
   /**
    * Show the popover.
    * @returns A promise that resolves when the popover has been shown
@@ -145,7 +192,7 @@ export interface NgpPopoverTriggerState<T> {
    * Hide the popover.
    * @returns A promise that resolves when the popover has been hidden
    */
-  hide: (origin: FocusOrigin) => Promise<void>;
+  hide: (origin?: FocusOrigin) => Promise<void>;
 }
 
 export interface NgpPopoverTriggerProps<T> {
@@ -158,13 +205,13 @@ export interface NgpPopoverTriggerProps<T> {
   readonly disabled?: Signal<boolean>;
   /**
    * Define the placement of the popover relative to the trigger.
-   * @default 'top'
+   * @default 'bottom'
    */
   readonly placement?: Signal<NgpPlacement>;
   /**
    * Define the offset of the popover relative to the trigger.
    * Can be a number (applies to mainAxis) or an object with mainAxis, crossAxis, and alignmentAxis.
-   * @default 0
+   * @default 4
    */
   readonly offset?: Signal<NgpOffset>;
   /**
@@ -210,6 +257,15 @@ export interface NgpPopoverTriggerProps<T> {
    */
   readonly scrollBehavior?: Signal<'reposition' | 'block' | 'close'>;
   /**
+   * Whether the popover is modal. While it is open the rest of the page is `inert`, so a pointer
+   * press outside does not reach it: the click that ends the press closes the popover, unless
+   * `closeOnOutsideClick` says not to. A click from the keyboard or from code is left alone. The
+   * trigger, the anchor, exempt elements and overlays opened above the popover stay usable.
+   * Read each time the popover opens.
+   * @default false
+   */
+  readonly modal?: Signal<boolean>;
+  /**
    * Provide context to the popover. This can be used to pass data to the popover content.
    */
   readonly context?: Signal<T | undefined>;
@@ -217,7 +273,7 @@ export interface NgpPopoverTriggerProps<T> {
    * Define an anchor element for positioning the popover.
    * If provided, the popover will be positioned relative to this element instead of the trigger.
    */
-  readonly anchor?: Signal<HTMLElement | null>;
+  readonly anchor?: Signal<Element | null>;
   /**
    * Define whether to track the trigger element position on every animation frame.
    * Useful for moving elements like slider thumbs.
@@ -231,6 +287,15 @@ export interface NgpPopoverTriggerProps<T> {
    * @default 0
    */
   readonly cooldown?: Signal<number>;
+  /**
+   * When true, hiding the popover removes its content from the DOM but keeps the
+   * underlying component/view instance alive in memory instead of destroying it - a
+   * later show reuses the same instance rather than creating a new one, so the content
+   * is not re-instantiated and any one-time setup (e.g. a network fetch) is not repeated.
+   * The kept-alive view stays attached to change detection while it is hidden.
+   * @default false
+   */
+  readonly keepMounted?: Signal<boolean>;
   /** Callback fired when the open state changes.  */
   readonly onOpenChange?: (value: boolean) => void;
 }
@@ -243,36 +308,67 @@ export const [
 ] = createPrimitive(
   'NgpPopoverTrigger',
   <T>({
-    popover: _popover = signal<NgpOverlayContent<T> | undefined>(undefined),
-    disabled = signal<boolean>(false),
-    placement = signal<NgpPlacement>('bottom'),
-    offset = signal<NgpOffset>(4),
-    showDelay = signal<number>(0),
-    hideDelay = signal<number>(0),
-    flip = signal<NgpFlip>(true),
-    shift = signal<NgpShift>(undefined),
+    popover: _popover,
+    disabled: _disabled,
+    placement: _placement,
+    offset: _offset,
+    showDelay: _showDelay,
+    hideDelay: _hideDelay,
+    flip: _flip,
+    shift: _shift,
     container: _container,
-    closeOnOutsideClick = signal<NgpDismissGuard<Element>>(true),
-    closeOnEscape = signal<NgpDismissGuard<KeyboardEvent>>(true),
-    scrollBehavior = signal<'reposition' | 'block' | 'close'>('reposition'),
-    context = signal<T | undefined>(undefined),
-    anchor = signal<HTMLElement | null>(null),
-    trackPosition = signal<boolean>(false),
-    cooldown = signal<number>(0),
+    closeOnOutsideClick: _closeOnOutsideClick,
+    closeOnEscape: _closeOnEscape,
+    scrollBehavior: _scrollBehavior,
+    modal: _modal,
+    context: _context,
+    anchor: _anchor,
+    trackPosition: _trackPosition,
+    cooldown: _cooldown,
+    keepMounted: _keepMounted,
     onOpenChange,
   }: NgpPopoverTriggerProps<T>): NgpPopoverTriggerState<T> => {
     const elementRef = injectElementRef<HTMLElement>();
     const viewContainerRef = inject(ViewContainerRef);
     const injector = inject(Injector);
 
-    const popover = controlled(_popover);
-    const container = controlled(_container, 'body');
+    // Every input is wrapped so the state can expose a setter for it - see the
+    // setter block at the bottom of the factory.
+    const popover = controlled<NgpOverlayContent<T> | undefined>(_popover, undefined);
+    const disabled = controlled(_disabled, false);
+    const placement = controlled<NgpPlacement>(_placement, 'bottom');
+    const offset = controlled<NgpOffset>(_offset, 4);
+    const showDelay = controlled(_showDelay, 0);
+    const hideDelay = controlled(_hideDelay, 0);
+    const flip = controlled<NgpFlip>(_flip, true);
+    const shift = controlled<NgpShift>(_shift, undefined);
+    const container = controlled<HTMLElement | string | null>(_container, 'body');
+    const closeOnOutsideClick = controlled<NgpDismissGuard<Element>>(_closeOnOutsideClick, true);
+    const closeOnEscape = controlled<NgpDismissGuard<KeyboardEvent>>(_closeOnEscape, true);
+    const scrollBehavior = controlled<'reposition' | 'block' | 'close'>(
+      _scrollBehavior,
+      'reposition',
+    );
+    const modal = controlled(_modal, false);
+    const context = controlled<T | undefined>(_context, undefined);
+    const anchor = controlled<Element | null>(_anchor, null);
+    const trackPosition = controlled(_trackPosition, false);
+    const cooldown = controlled(_cooldown, 0);
+    const keepMounted = controlled(_keepMounted, false);
 
     const overlay = signal<NgpOverlay<T> | null>(null);
     const open = computed(() => overlay()?.isOpen() ?? false);
+    const expanded = computed(() => open() && !overlay()?.isClosing());
+
+    // Two show() calls inside the show delay both settle when that single open
+    // completes, so track what has been announced rather than what was open per call.
+    let announcedOpen = false;
 
     // Host binding
-    attrBinding(elementRef, 'aria-expanded', () => (open() ? 'true' : 'false'));
+    // the popover is named by its trigger, so the trigger needs an id; the consumer's own is kept
+    const fallbackId = uniqueId('ngp-popover-trigger');
+    attrBinding(elementRef, 'id', () => elementRef.nativeElement.id || fallbackId);
+    attrBinding(elementRef, 'aria-expanded', () => (expanded() ? 'true' : 'false'));
     // the popover is a focus-trapped, dialog-like overlay, so advertise the popup type
     attrBinding(elementRef, 'aria-haspopup', 'dialog');
     attrBinding(elementRef, 'aria-describedby', () => overlay()?.ariaDescribedBy());
@@ -285,9 +381,14 @@ export const [
     // Event listener
     listener(elementRef, 'click', toggle);
 
-    function destroy(): void {
+    // Tearing the overlay down closes it, but a destroyed directive can no longer
+    // emit through `openChange` (Angular NG0953), so skip the notification.
+    let destroyed = false;
+
+    onDestroy(() => {
+      destroyed = true;
       overlay()?.destroy();
-    }
+    });
 
     function createOverlayInstance(): void {
       const popoverInstance = popover();
@@ -300,10 +401,10 @@ export const [
       const config: NgpOverlayConfig<T> = {
         content: popover,
         triggerElement: elementRef.nativeElement,
-        anchorElement: anchor(),
+        anchorElement: anchor,
         injector: injector,
         context: context,
-        container: container(),
+        container,
         placement: placement,
         offset: offset(),
         flip: flip(),
@@ -314,11 +415,18 @@ export const [
         closeOnEscape: closeOnEscape(),
         restoreFocus: true,
         scrollBehaviour: scrollBehavior(),
+        modal,
         viewContainerRef: viewContainerRef,
         trackPosition: trackPosition(),
         overlayType: 'popover',
         cooldown: cooldown(),
-        onClose: () => onOpenChange?.(false),
+        keepMounted: keepMounted,
+        onClose: () => {
+          announcedOpen = false;
+          if (!destroyed) {
+            onOpenChange?.(false);
+          }
+        },
       };
 
       overlay.set(createOverlay(config));
@@ -337,11 +445,11 @@ export const [
       if (open()) {
         hide(origin);
       } else {
-        show();
+        show(true);
       }
     }
 
-    async function show(): Promise<void> {
+    async function show(fromTriggerPress = false): Promise<void> {
       // If the trigger is disabled, don't show the popover
       if (disabled()) {
         return;
@@ -353,14 +461,17 @@ export const [
       }
 
       // Show the overlay
-      await overlay()?.show();
+      await overlay()?.show({ fromTriggerPress });
 
-      if (open()) {
+      // Only announce an actual transition - show() also resolves when the popover was
+      // already open, or when a concurrent call opened it first.
+      if (open() && !announcedOpen) {
+        announcedOpen = true;
         onOpenChange?.(true);
       }
     }
 
-    async function hide(origin: FocusOrigin): Promise<void> {
+    async function hide(origin: FocusOrigin = 'program'): Promise<void> {
       // If the trigger is disabled or the popover is not open, do nothing
       if (disabled() || !open()) {
         return;
@@ -370,32 +481,122 @@ export const [
       await overlay()?.hide({ origin });
     }
 
+    function setPopover(newPopover: NgpOverlayContent<T> | undefined): void {
+      popover.set(newPopover);
+    }
+
+    function setDisabled(isDisabled: boolean): void {
+      disabled.set(isDisabled);
+    }
+
+    function setPlacement(newPlacement: NgpPlacement): void {
+      placement.set(newPlacement);
+    }
+
+    function setOffset(newOffset: NgpOffset): void {
+      offset.set(newOffset);
+    }
+
+    function setShowDelay(delay: number): void {
+      showDelay.set(delay);
+    }
+
+    function setHideDelay(delay: number): void {
+      hideDelay.set(delay);
+    }
+
+    function setFlip(shouldFlip: NgpFlip): void {
+      flip.set(shouldFlip);
+    }
+
+    function setShift(shouldShift: NgpShift): void {
+      shift.set(shouldShift);
+    }
+
     function setContainer(newContainer: HTMLElement | string | null): void {
       container.set(newContainer);
     }
 
+    function setCloseOnOutsideClick(guard: NgpDismissGuard<Element>): void {
+      closeOnOutsideClick.set(guard);
+    }
+
+    function setCloseOnEscape(guard: NgpDismissGuard<KeyboardEvent>): void {
+      closeOnEscape.set(guard);
+    }
+
+    function setScrollBehavior(behavior: 'reposition' | 'block' | 'close'): void {
+      scrollBehavior.set(behavior);
+    }
+
+    function setModal(isModal: boolean): void {
+      modal.set(isModal);
+    }
+
+    function setContext(newContext: T | undefined): void {
+      context.set(newContext);
+    }
+
+    function setAnchor(newAnchor: Element | null): void {
+      anchor.set(newAnchor);
+    }
+
+    function setTrackPosition(shouldTrack: boolean): void {
+      trackPosition.set(shouldTrack);
+    }
+
+    function setCooldown(duration: number): void {
+      cooldown.set(duration);
+    }
+
+    function setKeepMounted(shouldKeepMounted: boolean): void {
+      keepMounted.set(shouldKeepMounted);
+    }
+
     return {
       elementRef,
-      popover,
-      disabled,
-      placement,
-      offset,
-      showDelay,
-      hideDelay,
-      flip,
-      shift,
+      popover: deprecatedSetter(popover, 'setPopover', setPopover),
+      disabled: deprecatedSetter(disabled, 'setDisabled', setDisabled),
+      placement: deprecatedSetter(placement, 'setPlacement', setPlacement),
+      offset: deprecatedSetter(offset, 'setOffset', setOffset),
+      showDelay: deprecatedSetter(showDelay, 'setShowDelay', setShowDelay),
+      hideDelay: deprecatedSetter(hideDelay, 'setHideDelay', setHideDelay),
+      flip: deprecatedSetter(flip, 'setFlip', setFlip),
+      shift: deprecatedSetter(shift, 'setShift', setShift),
       container: deprecatedSetter(container, 'setContainer', setContainer),
-      closeOnOutsideClick,
-      closeOnEscape,
-      scrollBehavior,
-      context,
-      anchor,
-      trackPosition,
-      cooldown,
+      closeOnOutsideClick: deprecatedSetter(
+        closeOnOutsideClick,
+        'setCloseOnOutsideClick',
+        setCloseOnOutsideClick,
+      ),
+      closeOnEscape: deprecatedSetter(closeOnEscape, 'setCloseOnEscape', setCloseOnEscape),
+      scrollBehavior: deprecatedSetter(scrollBehavior, 'setScrollBehavior', setScrollBehavior),
+      modal,
+      context: deprecatedSetter(context, 'setContext', setContext),
+      anchor: deprecatedSetter(anchor, 'setAnchor', setAnchor),
+      trackPosition: deprecatedSetter(trackPosition, 'setTrackPosition', setTrackPosition),
+      cooldown: deprecatedSetter(cooldown, 'setCooldown', setCooldown),
+      keepMounted,
       overlay,
       open,
-      destroy,
+      setPopover,
+      setDisabled,
+      setPlacement,
+      setOffset,
+      setShowDelay,
+      setHideDelay,
+      setFlip,
+      setShift,
       setContainer,
+      setCloseOnOutsideClick,
+      setCloseOnEscape,
+      setScrollBehavior,
+      setModal,
+      setContext,
+      setAnchor,
+      setTrackPosition,
+      setCooldown,
+      setKeepMounted,
       show,
       hide,
     } satisfies NgpPopoverTriggerState<T>;

@@ -93,6 +93,7 @@ export const [
 
     // Try to get overlay - may not exist if content isn't in a portal
     const overlay = inject(NgpOverlay, { optional: true });
+    overlay?.registerAvailableSizePrefix('--ngp-navigation-menu');
 
     const id = uniqueId('navigation-menu-content');
     const open = computed(() => navigationMenuItemState?.()?.active() ?? false);
@@ -105,6 +106,7 @@ export const [
     attrBinding(element, 'aria-labelledby', () => triggerState?.()?.id ?? null);
     dataBinding(element, 'data-open', open);
     dataBinding(element, 'data-placement', () => overlay?.finalPlacement() ?? null);
+    dataBinding(element, 'data-reference-hidden', () => overlay?.referenceHidden() ?? false);
     dataBinding(element, 'data-orientation', orientation);
     dataBinding(element, 'data-instant', () => overlay?.instantTransition() ?? false);
 

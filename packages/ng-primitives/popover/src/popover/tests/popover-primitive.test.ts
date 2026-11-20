@@ -1,11 +1,54 @@
-import { Component, Directive, OnInit, signal } from '@angular/core';
+import {
+  Component,
+  Directive,
+  OnDestroy,
+  OnInit,
+  TemplateRef,
+  ViewEncapsulation,
+  signal,
+  viewChild,
+} from '@angular/core';
 import { FormControl, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { By } from '@angular/platform-browser';
 import { fireEvent, render, waitFor } from '@testing-library/angular';
-import { injectPopoverTriggerState, NgpPopover, NgpPopoverTrigger } from 'ng-primitives/popover';
-import { NgpPlacement } from 'ng-primitives/portal';
+import {
+  injectPopoverTriggerState,
+  NgpPopover,
+  NgpPopoverTrigger,
+  NgpPopoverTriggerState,
+} from 'ng-primitives/popover';
+import { injectOverlay, NgpOverlay, NgpPlacement, NgpTemplatePortal } from 'ng-primitives/portal';
 import { NgpTooltip, NgpTooltipTrigger, provideTooltipConfig } from 'ng-primitives/tooltip';
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+
+/**
+ * Hold `detach()` open the way a pending exit animation would, so a test can act while
+ * a close is still in flight. `release()` lets the real detach proceed.
+ */
+function gateDetach(): {
+  release: () => void;
+  settled: () => Promise<unknown>;
+  restore: () => void;
+} {
+  const realDetach = NgpTemplatePortal.prototype.detach;
+  let release!: () => void;
+  const gate = new Promise<void>(resolve => (release = resolve));
+  const pending: Promise<void>[] = [];
+  const spy = vi.spyOn(NgpTemplatePortal.prototype, 'detach').mockImplementation(function (
+    this: NgpTemplatePortal<unknown>,
+    options,
+  ) {
+    const detach = gate.then(() => realDetach.call(this, options));
+    pending.push(detach);
+    return detach;
+  });
+
+  return {
+    release,
+    settled: () => Promise.allSettled(pending),
+    restore: () => spy.mockRestore(),
+  };
+}
 
 @Component({
   template: `
@@ -18,6 +61,32 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
   imports: [NgpPopoverTrigger, NgpPopover],
 })
 class PopoverTestComponent {}
+
+@Component({
+  template: `
+    <button [ngpPopoverTrigger]="content">Open Popover</button>
+
+    <ng-template #content>
+      <div ngpPopover>Popover content</div>
+    </ng-template>
+  `,
+  styles: `
+    /* !important and a more specific selector override test-setup's global 0s duration */
+    [ngpPopover][data-exit] {
+      animation: popover-exit 400ms linear;
+      animation-duration: 400ms !important;
+    }
+
+    @keyframes popover-exit {
+      to {
+        opacity: 0;
+      }
+    }
+  `,
+  imports: [NgpPopoverTrigger, NgpPopover],
+  encapsulation: ViewEncapsulation.None,
+})
+class ExitAnimationPopoverComponent {}
 
 @Component({
   template: `
@@ -35,6 +104,99 @@ class PopoverTestComponent {}
 })
 class OpenChangeTestComponent {
   readonly onOpenChange = vi.fn();
+}
+
+@Component({
+  template: `
+    <button [ngpPopoverTrigger]="content">Open Popover</button>
+
+    <ng-template #content>
+      <div ngpPopover>
+        <button>First</button>
+        <!-- eslint-disable-next-line @angular-eslint/template/no-autofocus -->
+        <button autofocus>Autofocus</button>
+      </div>
+    </ng-template>
+  `,
+  imports: [NgpPopoverTrigger, NgpPopover],
+})
+class AutofocusTestComponent {}
+
+@Component({
+  selector: 'test-keep-mounted-content',
+  template: `
+    Content instance {{ id }}
+    <input data-testid="keep-mounted-input" />
+  `,
+})
+class KeepMountedContentComponent implements OnInit, OnDestroy {
+  static instanceCount = 0;
+  static readonly onInitSpy = vi.fn();
+  static readonly onDestroySpy = vi.fn();
+
+  readonly id = ++KeepMountedContentComponent.instanceCount;
+
+  ngOnInit(): void {
+    KeepMountedContentComponent.onInitSpy(this.id);
+  }
+
+  ngOnDestroy(): void {
+    KeepMountedContentComponent.onDestroySpy(this.id);
+  }
+}
+
+/** Hands the overlay instance to a test, which can only reach it from inside the content. */
+@Directive({
+  selector: '[testCaptureOverlay]',
+})
+class CaptureOverlayDirective {
+  static overlay: NgpOverlay<unknown> | null = null;
+
+  constructor() {
+    CaptureOverlayDirective.overlay = injectOverlay();
+  }
+}
+
+@Component({
+  template: `
+    <button [ngpPopoverTrigger]="content" [ngpPopoverTriggerKeepMounted]="keepMounted()">
+      Open Popover
+    </button>
+
+    <ng-template #content>
+      <div ngpPopover testCaptureOverlay>
+        <test-keep-mounted-content />
+      </div>
+    </ng-template>
+  `,
+  imports: [NgpPopoverTrigger, NgpPopover, KeepMountedContentComponent, CaptureOverlayDirective],
+})
+class KeepMountedTestComponent {
+  readonly keepMounted = signal(false);
+}
+
+@Component({
+  template: `
+    <button [ngpPopoverTrigger]="content()" [ngpPopoverTriggerKeepMounted]="true">
+      Open Popover
+    </button>
+
+    <ng-template #first>
+      <div ngpPopover data-which="first">
+        <test-keep-mounted-content />
+      </div>
+    </ng-template>
+
+    <ng-template #second>
+      <div ngpPopover data-which="second">Second content</div>
+    </ng-template>
+  `,
+  imports: [NgpPopoverTrigger, NgpPopover, KeepMountedContentComponent],
+})
+class KeepMountedSwapTestComponent {
+  readonly first = viewChild.required<TemplateRef<unknown>>('first');
+  readonly second = viewChild.required<TemplateRef<unknown>>('second');
+  readonly content = signal<TemplateRef<unknown> | undefined>(undefined);
 }
 
 describe('NgpPopover', () => {
@@ -249,6 +411,18 @@ describe('NgpPopover', () => {
       });
     });
 
+    it('should focus the element with the autofocus attribute when opened', async () => {
+      const { getByRole } = await render(AutofocusTestComponent);
+      const trigger = getByRole('button', { name: 'Open Popover' });
+      trigger.focus();
+
+      fireEvent.click(trigger);
+
+      await waitFor(() => {
+        expect(document.querySelector('[ngpPopover] [autofocus]')).toHaveFocus();
+      });
+    });
+
     it('should return focus to the trigger when closed via Escape', async () => {
       const { getByRole } = await render(OpenChangeTestComponent);
       const trigger = getByRole('button', { name: 'Open Popover' });
@@ -289,6 +463,53 @@ describe('NgpPopover', () => {
         expect(document.querySelector('[ngpPopover]')).not.toBeInTheDocument();
         expect(trigger).toHaveAttribute('aria-expanded', 'false');
       });
+    });
+
+    it('should set aria-expanded="false" as soon as closing starts, before the exit animation ends', async () => {
+      const { getByRole } = await render(PopoverTestComponent);
+      const trigger = getByRole('button');
+
+      fireEvent.click(trigger);
+      await waitFor(() => expect(trigger).toHaveAttribute('aria-expanded', 'true'));
+
+      const detach = gateDetach();
+      try {
+        fireEvent.keyDown(document.activeElement ?? document.body, { key: 'Escape' });
+        await waitFor(() => expect(trigger).toHaveAttribute('aria-expanded', 'false'));
+        // the exit is still in flight: the popover is on screen and the trigger still styled open
+        expect(document.querySelector('[ngpPopover]')).toBeInTheDocument();
+        expect(trigger).toHaveAttribute('data-open');
+      } finally {
+        detach.release();
+        await detach.settled();
+        detach.restore();
+      }
+
+      await waitFor(() => expect(document.querySelector('[ngpPopover]')).not.toBeInTheDocument());
+      expect(trigger).toHaveAttribute('aria-expanded', 'false');
+    });
+
+    it('should set aria-expanded back to "true" when reopened during the exit animation', async () => {
+      const { fixture, getByRole } = await render(ExitAnimationPopoverComponent);
+      const trigger = getByRole('button');
+      const popoverTrigger = fixture.debugElement
+        .query(By.directive(NgpPopoverTrigger))
+        .injector.get(NgpPopoverTrigger);
+
+      fireEvent.click(trigger);
+      await waitFor(() => expect(trigger).toHaveAttribute('aria-expanded', 'true'));
+
+      fireEvent.click(trigger); // close - the exit animation keeps the popover on screen
+      await waitFor(() => expect(trigger).toHaveAttribute('aria-expanded', 'false'));
+      expect(document.querySelector('[ngpPopover]')).toHaveAttribute('data-exit');
+
+      popoverTrigger.show(); // reopen before the exit finishes
+      await waitFor(() => expect(trigger).toHaveAttribute('aria-expanded', 'true'));
+
+      // outlive the cancelled exit animation, which must not remove the popover
+      await new Promise(resolve => setTimeout(resolve, 500));
+      expect(document.querySelector('[ngpPopover]')).toBeInTheDocument();
+      expect(trigger).toHaveAttribute('aria-expanded', 'true');
     });
 
     it('should link the trigger to the popover via aria-describedby and a matching id', async () => {
@@ -442,7 +663,7 @@ describe('NgpPopover', () => {
       });
     });
 
-    it('should emit openChange false when destroyed while open', async () => {
+    it('should tear the overlay down, without emitting, when destroyed while open', async () => {
       const { fixture, getByRole } = await render(OpenChangeTestComponent);
       const component = fixture.componentInstance;
 
@@ -455,10 +676,14 @@ describe('NgpPopover', () => {
 
       component.onOpenChange.mockClear();
 
-      // Destroy while open — should emit false
+      // Teardown runs from the state's onDestroy, by which point Angular has already
+      // destroyed the `openChange` OutputRef - emitting there throws NG0953.
       fixture.destroy();
-      expect(component.onOpenChange).toHaveBeenCalledWith(false);
-      expect(component.onOpenChange).toHaveBeenCalledTimes(1);
+
+      await waitFor(() => {
+        expect(document.querySelector('[ngpPopover]')).not.toBeInTheDocument();
+      });
+      expect(component.onOpenChange).not.toHaveBeenCalled();
     });
 
     it('should not emit openChange on destroy when already closed', async () => {
@@ -502,6 +727,336 @@ describe('NgpPopover', () => {
       await waitFor(() => {
         expect(document.querySelector('[ngpPopover]')).not.toBeInTheDocument();
       });
+    });
+  });
+
+  describe('keepMounted', () => {
+    // Cleared at the start (not end) of each test: `@testing-library/angular`'s own
+    // automatic fixture cleanup runs *after* this describe block's own afterEach in
+    // vitest's hook ordering, so a leftover fixture teardown from the previous test
+    // (destroying a still-open/kept-mounted component) can call these spies after an
+    // afterEach-based clear already ran, leaking a stray call into the next test.
+    beforeEach(() => {
+      KeepMountedContentComponent.onInitSpy.mockClear();
+      KeepMountedContentComponent.onDestroySpy.mockClear();
+      KeepMountedContentComponent.instanceCount = 0;
+      CaptureOverlayDirective.overlay = null;
+    });
+
+    it('should destroy and recreate the content on every close/reopen by default', async () => {
+      const { getByRole } = await render(KeepMountedTestComponent);
+      const trigger = getByRole('button');
+
+      fireEvent.click(trigger);
+      await waitFor(() => {
+        expect(document.querySelector('[ngpPopover]')).toBeInTheDocument();
+      });
+      expect(KeepMountedContentComponent.onInitSpy).toHaveBeenCalledTimes(1);
+
+      fireEvent.click(trigger); // close
+      await waitFor(() => {
+        expect(document.querySelector('[ngpPopover]')).not.toBeInTheDocument();
+      });
+      expect(KeepMountedContentComponent.onDestroySpy).toHaveBeenCalledTimes(1);
+
+      fireEvent.click(trigger); // reopen
+      await waitFor(() => {
+        expect(document.querySelector('[ngpPopover]')).toBeInTheDocument();
+      });
+      expect(KeepMountedContentComponent.onInitSpy).toHaveBeenCalledTimes(2);
+    });
+
+    it('should preserve the content component instance across repeated close and reopen when true', async () => {
+      const { fixture, getByRole } = await render(KeepMountedTestComponent);
+      fixture.componentInstance.keepMounted.set(true);
+      fixture.detectChanges();
+      const trigger = getByRole('button');
+
+      fireEvent.click(trigger);
+      await waitFor(() => {
+        expect(document.querySelector('[ngpPopover]')).toBeInTheDocument();
+      });
+      expect(KeepMountedContentComponent.onInitSpy).toHaveBeenCalledTimes(1);
+      expect(KeepMountedContentComponent.onInitSpy).toHaveBeenCalledWith(1);
+
+      // Three close/reopen cycles - the portal must be handed back for reuse on every
+      // hide, not just the first.
+      for (let cycle = 0; cycle < 3; cycle++) {
+        fireEvent.click(trigger); // close
+        await waitFor(() => {
+          // Absent from the document entirely while hidden, not hidden in place via CSS.
+          expect(document.querySelector('[ngpPopover]')).not.toBeInTheDocument();
+        });
+
+        // Not destroyed on hide - the instance is kept alive in memory.
+        expect(KeepMountedContentComponent.onDestroySpy).not.toHaveBeenCalled();
+
+        fireEvent.click(trigger); // reopen
+        await waitFor(() => {
+          expect(document.querySelector('[ngpPopover]')).toBeInTheDocument();
+        });
+
+        // Still only initialized once - the same instance was reused, not recreated.
+        expect(KeepMountedContentComponent.onInitSpy).toHaveBeenCalledTimes(1);
+      }
+    });
+
+    it('should preserve live DOM state in the content across close and reopen when true', async () => {
+      // The popover content is portalled to the body, so it has to be queried from the
+      // document rather than the fixture.
+      const queryInput = () =>
+        document.querySelector<HTMLInputElement>('[data-testid="keep-mounted-input"]');
+
+      const { fixture, getByRole } = await render(KeepMountedTestComponent);
+      fixture.componentInstance.keepMounted.set(true);
+      fixture.detectChanges();
+      const trigger = getByRole('button');
+
+      fireEvent.click(trigger);
+      await waitFor(() => {
+        expect(document.querySelector('[ngpPopover]')).toBeInTheDocument();
+      });
+
+      const input = queryInput()!;
+      fireEvent.input(input, { target: { value: 'typed while open' } });
+
+      fireEvent.click(trigger); // close
+      await waitFor(() => {
+        expect(document.querySelector('[ngpPopover]')).not.toBeInTheDocument();
+      });
+
+      fireEvent.click(trigger); // reopen
+      await waitFor(() => {
+        expect(document.querySelector('[ngpPopover]')).toBeInTheDocument();
+      });
+
+      // The very same DOM node comes back, with whatever the user left in it.
+      const reopened = queryInput();
+      expect(reopened).toBe(input);
+      expect(reopened?.value).toBe('typed while open');
+    });
+
+    it('should trap focus again when a kept-mounted popover is reopened', async () => {
+      const { fixture, getByRole } = await render(KeepMountedTestComponent);
+      fixture.componentInstance.keepMounted.set(true);
+      fixture.detectChanges();
+      const trigger = getByRole('button');
+
+      fireEvent.click(trigger);
+      await waitFor(() => {
+        expect(document.querySelector('[ngpPopover]')).toBeInTheDocument();
+      });
+
+      fireEvent.click(trigger); // close
+      await waitFor(() => {
+        expect(document.querySelector('[ngpPopover]')).not.toBeInTheDocument();
+      });
+
+      fireEvent.click(trigger); // reopen - the reused view does not re-run ngOnInit
+      await waitFor(() => {
+        expect(document.querySelector('[ngpPopover]')).toBeInTheDocument();
+      });
+
+      const popover = document.querySelector('[ngpPopover]');
+
+      // Focus is moved into the reopened popover...
+      await waitFor(() => {
+        expect(popover?.contains(document.activeElement)).toBe(true);
+      });
+
+      // ...and is still trapped there.
+      const outside = document.createElement('button');
+      document.body.appendChild(outside);
+
+      try {
+        outside.focus();
+        await waitFor(() => {
+          expect(popover?.contains(document.activeElement)).toBe(true);
+        });
+      } finally {
+        outside.remove();
+      }
+    });
+
+    it('should not re-insert kept-mounted content still marked as exiting', async () => {
+      const { fixture, getByRole } = await render(KeepMountedTestComponent);
+      fixture.componentInstance.keepMounted.set(true);
+      fixture.detectChanges();
+      const trigger = getByRole('button');
+
+      fireEvent.click(trigger);
+      await waitFor(() => {
+        expect(document.querySelector('[ngpPopover]')).toBeInTheDocument();
+      });
+
+      fireEvent.click(trigger); // close - leaves the element marked data-exit
+      await waitFor(() => {
+        expect(document.querySelector('[ngpPopover]')).not.toBeInTheDocument();
+      });
+
+      // Capture the attributes at the moment the element is put back in the document. A
+      // re-inserted element restarts its CSS animations, so arriving still marked
+      // `data-exit` would replay the exit animation over the reopened popover.
+      let attributesOnInsertion: string[] | null = null;
+      const observer = new MutationObserver(records => {
+        for (const record of records) {
+          for (const node of Array.from(record.addedNodes)) {
+            if (node instanceof HTMLElement && node.hasAttribute('ngpPopover')) {
+              attributesOnInsertion ??= node.getAttributeNames();
+            }
+          }
+        }
+      });
+      observer.observe(document.body, { childList: true, subtree: true });
+
+      try {
+        fireEvent.click(trigger); // reopen
+        await waitFor(() => {
+          expect(attributesOnInsertion).not.toBeNull();
+        });
+      } finally {
+        observer.disconnect();
+      }
+
+      expect(attributesOnInsertion).not.toContain('data-exit');
+    });
+
+    it('should discard the kept-mounted content when the content changes while hidden', async () => {
+      const { fixture, getByRole } = await render(KeepMountedSwapTestComponent);
+      const host = fixture.componentInstance;
+      host.content.set(host.first());
+      fixture.detectChanges();
+      const trigger = getByRole('button');
+
+      fireEvent.click(trigger);
+      await waitFor(() => {
+        expect(document.querySelector('[ngpPopover]')).toBeInTheDocument();
+      });
+      expect(KeepMountedContentComponent.onInitSpy).toHaveBeenCalledTimes(1);
+
+      fireEvent.click(trigger); // close - the first template is kept mounted
+      await waitFor(() => {
+        expect(document.querySelector('[ngpPopover]')).not.toBeInTheDocument();
+      });
+
+      host.content.set(host.second());
+      fixture.detectChanges();
+
+      fireEvent.click(trigger);
+      await waitFor(() => {
+        expect(document.querySelector('[ngpPopover]')).toBeInTheDocument();
+      });
+
+      // The kept-mounted view can no longer be reused, so it is destroyed rather than
+      // leaked, and only the new content is in the DOM.
+      expect(document.querySelector('[ngpPopover]')?.getAttribute('data-which')).toBe('second');
+      expect(document.querySelectorAll('[ngpPopover]')).toHaveLength(1);
+      expect(KeepMountedContentComponent.onDestroySpy).toHaveBeenCalledTimes(1);
+    });
+
+    it('should destroy the kept-mounted view via the portal when the trigger is destroyed', async () => {
+      // Spying on the portal is what makes this test meaningful: the content view lives in
+      // the trigger's ViewContainerRef, so Angular would destroy it on teardown regardless.
+      // Only the overlay's own force-destroy path routes through `destroyView()`.
+      const destroyView = vi.spyOn(NgpTemplatePortal.prototype, 'destroyView');
+
+      try {
+        const { fixture, getByRole } = await render(KeepMountedTestComponent);
+        fixture.componentInstance.keepMounted.set(true);
+        fixture.detectChanges();
+        const trigger = getByRole('button');
+
+        fireEvent.click(trigger);
+        await waitFor(() => {
+          expect(document.querySelector('[ngpPopover]')).toBeInTheDocument();
+        });
+
+        fireEvent.click(trigger); // close (kept mounted, not destroyed)
+        await waitFor(() => {
+          expect(document.querySelector('[ngpPopover]')).not.toBeInTheDocument();
+        });
+        expect(KeepMountedContentComponent.onDestroySpy).not.toHaveBeenCalled();
+        expect(destroyView).not.toHaveBeenCalled();
+
+        fixture.destroy();
+
+        await waitFor(() => {
+          expect(KeepMountedContentComponent.onDestroySpy).toHaveBeenCalledTimes(1);
+        });
+        expect(destroyView).toHaveBeenCalledTimes(1);
+      } finally {
+        destroyView.mockRestore();
+      }
+    });
+
+    it('should destroy the kept-mounted view when the trigger is destroyed mid-close', async () => {
+      // Teardown happens while the detach is still in flight - the pending detach must not
+      // hand its view back for reuse.
+      const gate = gateDetach();
+      const destroyView = vi.spyOn(NgpTemplatePortal.prototype, 'destroyView');
+
+      try {
+        const { fixture, getByRole } = await render(KeepMountedTestComponent);
+        fixture.componentInstance.keepMounted.set(true);
+        fixture.detectChanges();
+        const trigger = getByRole('button');
+
+        fireEvent.click(trigger);
+        await waitFor(() => {
+          expect(document.querySelector('[ngpPopover]')).toBeInTheDocument();
+        });
+
+        fireEvent.click(trigger); // close - blocks inside detach()
+        fixture.destroy();
+
+        // The close finishes on its own clock, and must release the view rather than keeping
+        // it mounted for a reuse that can never happen.
+        gate.release();
+        await waitFor(() => {
+          expect(destroyView).toHaveBeenCalledTimes(1);
+        });
+        expect(document.querySelector('[ngpPopover]')).not.toBeInTheDocument();
+      } finally {
+        gate.restore();
+        destroyView.mockRestore();
+      }
+    });
+
+    it('should not revive a kept-mounted overlay shown after it was destroyed mid-close', async () => {
+      const gate = gateDetach();
+      const destroyView = vi.spyOn(NgpTemplatePortal.prototype, 'destroyView');
+
+      try {
+        const { fixture, getByRole } = await render(KeepMountedTestComponent);
+        fixture.componentInstance.keepMounted.set(true);
+        fixture.detectChanges();
+        const trigger = getByRole('button');
+
+        fireEvent.click(trigger);
+        await waitFor(() => {
+          expect(document.querySelector('[ngpPopover]')).toBeInTheDocument();
+        });
+        const overlay = CaptureOverlayDirective.overlay;
+        expect(overlay).toBeTruthy();
+
+        fireEvent.click(trigger); // close - blocks inside detach()
+        fixture.destroy();
+
+        // A show() landing between the teardown and the detach settling must not resurrect
+        // the overlay, which would leave its view mounted with no trigger left to own it.
+        const shown = overlay?.show();
+
+        gate.release();
+        await shown;
+        await waitFor(() => {
+          expect(destroyView).toHaveBeenCalledTimes(1);
+        });
+        expect(overlay?.isOpen()).toBe(false);
+        expect(document.querySelector('[ngpPopover]')).not.toBeInTheDocument();
+      } finally {
+        gate.restore();
+        destroyView.mockRestore();
+      }
     });
   });
 
@@ -570,7 +1125,13 @@ describe('NgpPopover', () => {
           </button>
 
           <ng-template #content>
-            <div ngpPopover>Popover content</div>
+            <div
+              ngpPopover
+              data-testid="anchored"
+              style="position: fixed; width: 120px; height: 60px;"
+            >
+              Popover content
+            </div>
           </ng-template>
         `,
         imports: [NgpPopoverTrigger, NgpPopover],
@@ -580,14 +1141,22 @@ describe('NgpPopover', () => {
       const { getByRole } = await render(AnchorTestComponent);
       fireEvent.click(getByRole('button'));
 
+      // The popover should be positioned relative to the anchor (top 100px, left 200px) rather
+      // than the trigger (top 300px, left 400px).
+      //
+      // Two things have to be true for that to be observable at all, and neither was: the panel
+      // needs an explicit size and position, because Floating UI writes `top`/`left` which a
+      // static element ignores; and the assertion has to wait for the position, because
+      // `computePosition` resolves a task after the element is in the document. Without both,
+      // the popover measures 0,0 and "left is less than 300" holds vacuously.
       await waitFor(() => {
-        expect(document.querySelector('[ngpPopover]')).toBeInTheDocument();
-      });
+        const rect = document.querySelector('[data-testid="anchored"]')!.getBoundingClientRect();
 
-      // The popover should be positioned relative to the anchor (left 200px) rather than
-      // the trigger (left 400px).
-      const popover = document.querySelector('[ngpPopover]') as HTMLElement;
-      expect(popover.getBoundingClientRect().left).toBeLessThan(300);
+        expect(rect.left).toBeGreaterThan(100);
+        expect(rect.left).toBeLessThan(300);
+        expect(rect.top).toBeGreaterThanOrEqual(130);
+        expect(rect.top).toBeLessThan(300);
+      });
     });
 
     it('should fall back to the trigger element when the anchor is null', async () => {
@@ -614,6 +1183,91 @@ describe('NgpPopover', () => {
 
       await waitFor(() => {
         expect(document.querySelector('[ngpPopover]')).toBeInTheDocument();
+      });
+    });
+
+    it('should move an open popover to a rebound anchor and treat it as inside', async () => {
+      @Component({
+        template: `
+          <div
+            #anchorA
+            data-testid="anchor-a"
+            style="position: absolute; top: 100px; left: 200px; width: 50px; height: 30px;"
+          >
+            Anchor A
+          </div>
+          <div
+            #anchorB
+            data-testid="anchor-b"
+            style="position: absolute; top: 400px; left: 200px; width: 50px; height: 30px;"
+          >
+            Anchor B
+          </div>
+          <button
+            [ngpPopoverTrigger]="content"
+            [ngpPopoverTriggerAnchor]="useB ? anchorB : anchorA"
+            style="position: absolute; top: 700px; left: 400px;"
+          >
+            Trigger
+          </button>
+
+          <ng-template #content>
+            <div
+              ngpPopover
+              data-testid="moving"
+              style="position: fixed; width: 120px; height: 60px;"
+            >
+              Popover content
+            </div>
+          </ng-template>
+        `,
+        imports: [NgpPopoverTrigger, NgpPopover],
+      })
+      class MovingAnchorTestComponent {
+        useB = false;
+      }
+
+      const { fixture, getByRole, getByTestId } = await render(MovingAnchorTestComponent);
+      fireEvent.click(getByRole('button'));
+
+      const anchorA = getByTestId('anchor-a');
+      const anchorB = getByTestId('anchor-b');
+      const popover = () => document.querySelector('[data-testid="moving"]');
+      const popoverRect = () => popover()!.getBoundingClientRect();
+
+      // Default placement is `bottom`, so the popover sits just below whichever element it
+      // follows, and the two anchors are far enough apart that only one can be true. `left`
+      // is the settle gate - it is the same for both anchors, and an unpositioned panel
+      // reads 0 while `computePosition` is still resolving.
+      await waitFor(() => {
+        expect(popover()).toBeInTheDocument();
+        expect(popoverRect().left).toBeGreaterThan(100);
+        expect(popoverRect().top).toBeGreaterThanOrEqual(anchorA.getBoundingClientRect().bottom);
+        expect(popoverRect().top).toBeLessThan(anchorB.getBoundingClientRect().top);
+      });
+
+      const popoverBefore = popover();
+
+      fixture.componentInstance.useB = true;
+      fixture.detectChanges();
+
+      await waitFor(() => {
+        expect(popoverRect().top).toBeGreaterThanOrEqual(anchorB.getBoundingClientRect().bottom);
+      });
+
+      // It moved rather than closing and reopening somewhere else.
+      expect(popover()).toBe(popoverBefore);
+
+      // The element the popover now follows counts as inside for outside-press dismissal.
+      fireEvent.mouseUp(anchorB);
+      await waitFor(() => {
+        expect(popover()).toBeInTheDocument();
+      });
+
+      // ...and the one it left behind does not.
+      fireEvent.mouseUp(anchorA);
+      await waitFor(() => {
+        expect(popover()).not.toBeInTheDocument();
       });
     });
   });
@@ -1035,7 +1689,427 @@ describe('NgpPopover', () => {
         expect(container?.querySelector('[ngpPopover]')).toBeInTheDocument();
       });
     });
+
+    it('should render popover into updated container when [ngpPopoverTriggerContainer] changes between opens', async () => {
+      @Component({
+        template: `
+          <div id="popover-container-a"></div>
+          <div id="popover-container-b"></div>
+
+          <button [ngpPopoverTrigger]="content" [ngpPopoverTriggerContainer]="container()">
+            Open Popover
+          </button>
+
+          <ng-template #content>
+            <div ngpPopover data-testid="ngp-popover">Popover content</div>
+          </ng-template>
+        `,
+        imports: [NgpPopoverTrigger, NgpPopover],
+      })
+      class DynamicContainerComponent {
+        readonly container = signal<string>('#popover-container-a');
+      }
+
+      const { fixture, getByRole } = await render(DynamicContainerComponent);
+      const trigger = getByRole('button');
+
+      fireEvent.click(trigger);
+      await waitFor(() => {
+        const containerA = document.querySelector('#popover-container-a');
+        expect(containerA?.querySelector('[ngpPopover]')).toBeInTheDocument();
+      });
+
+      fireEvent.click(trigger);
+      await waitFor(() => {
+        expect(document.querySelector('[ngpPopover]')).not.toBeInTheDocument();
+      });
+
+      fixture.componentInstance.container.set('#popover-container-b');
+      fixture.detectChanges();
+
+      fireEvent.click(trigger);
+      await waitFor(() => {
+        const containerB = document.querySelector('#popover-container-b');
+        expect(containerB?.querySelector('[ngpPopover]')).toBeInTheDocument();
+      });
+    });
   });
+
+  describe('injected state setters', () => {
+    // Every input on NgpPopoverTrigger has a matching setter on the state, so a
+    // wrapper component can configure the trigger it hosts.
+    @Directive({ selector: '[popoverState]' })
+    class PopoverStateDirective {
+      readonly trigger = injectPopoverTriggerState();
+    }
+
+    // The panel needs an explicit size and position for the positioning assertions
+    // below - Floating UI writes `top`/`left`, which a static element ignores.
+    const template = `
+      <button [ngpPopoverTrigger]="content" popoverState>Open Popover</button>
+
+      <ng-template #content>
+        <div ngpPopover style="position: fixed; width: 120px; height: 60px;">Popover content</div>
+      </ng-template>
+    `;
+
+    async function renderWithState() {
+      const result = await render(template, {
+        imports: [NgpPopoverTrigger, NgpPopover, PopoverStateDirective],
+      });
+
+      const state = result.fixture.debugElement
+        .query(By.directive(PopoverStateDirective))
+        .injector.get(PopoverStateDirective).trigger;
+
+      return { ...result, state, trigger: result.getByRole('button') };
+    }
+
+    type PopoverState = NgpPopoverTriggerState<unknown>;
+
+    const anchorElement = document.createElement('div');
+    const guard = () => false;
+
+    const cases: Array<{
+      setter: string;
+      set: (state: PopoverState) => void;
+      read: (state: PopoverState) => unknown;
+      expected: unknown;
+    }> = [
+      {
+        setter: 'setPopover',
+        set: state => state.setPopover(undefined),
+        read: state => state.popover(),
+        expected: undefined,
+      },
+      {
+        setter: 'setDisabled',
+        set: state => state.setDisabled(true),
+        read: state => state.disabled(),
+        expected: true,
+      },
+      {
+        setter: 'setPlacement',
+        set: state => state.setPlacement('right'),
+        read: state => state.placement(),
+        expected: 'right',
+      },
+      {
+        setter: 'setOffset',
+        set: state => state.setOffset(12),
+        read: state => state.offset(),
+        expected: 12,
+      },
+      {
+        setter: 'setShowDelay',
+        set: state => state.setShowDelay(50),
+        read: state => state.showDelay(),
+        expected: 50,
+      },
+      {
+        setter: 'setHideDelay',
+        set: state => state.setHideDelay(75),
+        read: state => state.hideDelay(),
+        expected: 75,
+      },
+      {
+        setter: 'setFlip',
+        set: state => state.setFlip(false),
+        read: state => state.flip(),
+        expected: false,
+      },
+      {
+        setter: 'setShift',
+        set: state => state.setShift(false),
+        read: state => state.shift(),
+        expected: false,
+      },
+      {
+        setter: 'setContainer',
+        set: state => state.setContainer('#host'),
+        read: state => state.container(),
+        expected: '#host',
+      },
+      {
+        setter: 'setCloseOnOutsideClick',
+        set: state => state.setCloseOnOutsideClick(guard),
+        read: state => state.closeOnOutsideClick(),
+        expected: guard,
+      },
+      {
+        setter: 'setCloseOnEscape',
+        set: state => state.setCloseOnEscape(guard),
+        read: state => state.closeOnEscape(),
+        expected: guard,
+      },
+      {
+        setter: 'setScrollBehavior',
+        set: state => state.setScrollBehavior('close'),
+        read: state => state.scrollBehavior(),
+        expected: 'close',
+      },
+      {
+        setter: 'setContext',
+        set: state => state.setContext('ctx'),
+        read: state => state.context(),
+        expected: 'ctx',
+      },
+      {
+        setter: 'setAnchor',
+        set: state => state.setAnchor(anchorElement),
+        read: state => state.anchor(),
+        expected: anchorElement,
+      },
+      {
+        setter: 'setTrackPosition',
+        set: state => state.setTrackPosition(true),
+        read: state => state.trackPosition(),
+        expected: true,
+      },
+      {
+        setter: 'setCooldown',
+        set: state => state.setCooldown(250),
+        read: state => state.cooldown(),
+        expected: 250,
+      },
+    ];
+
+    it.each(cases)('should update the state through $setter', async ({ set, read, expected }) => {
+      const { state } = await renderWithState();
+
+      set(state());
+
+      expect(read(state())).toBe(expected);
+    });
+
+    it('should warn but still apply when a state signal is written directly', async () => {
+      const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+      const { state } = await renderWithState();
+
+      state().offset.set(16);
+
+      expect(state().offset()).toBe(16);
+      expect(warn).toHaveBeenCalledWith(expect.stringContaining('setOffset'));
+      warn.mockRestore();
+    });
+
+    it('should render the content passed to setPopover', async () => {
+      @Component({
+        template: `
+          <div ngpPopover>Replacement popover</div>
+        `,
+        imports: [NgpPopover],
+      })
+      class ReplacementPopover {}
+
+      const { fixture, state, trigger } = await renderWithState();
+
+      state().setPopover(ReplacementPopover);
+      fixture.detectChanges();
+
+      fireEvent.click(trigger);
+
+      await waitFor(() => {
+        expect(document.querySelector('[ngpPopover]')?.textContent?.trim()).toBe(
+          'Replacement popover',
+        );
+      });
+    });
+
+    it('should reflect setPlacement on the trigger and the open popover', async () => {
+      const { fixture, state, trigger } = await renderWithState();
+
+      state().setPlacement('right');
+      fixture.detectChanges();
+
+      expect(trigger).toHaveAttribute('data-placement', 'right');
+
+      fireEvent.click(trigger);
+
+      await waitFor(() => {
+        expect(document.querySelector('[ngpPopover]')).toHaveAttribute('data-placement', 'right');
+      });
+    });
+
+    it('should not open once disabled through setDisabled', async () => {
+      const { fixture, state, trigger } = await renderWithState();
+
+      state().setDisabled(true);
+      fixture.detectChanges();
+
+      expect(trigger).toHaveAttribute('data-disabled', '');
+
+      fireEvent.click(trigger);
+
+      // Give the overlay a chance to appear so the assertion is not trivially true.
+      await new Promise(resolve => setTimeout(resolve, 100));
+
+      expect(document.querySelector('[ngpPopover]')).not.toBeInTheDocument();
+    });
+
+    it('should delay opening by the value passed to setShowDelay', async () => {
+      const { state, trigger } = await renderWithState();
+
+      state().setShowDelay(150);
+      fireEvent.click(trigger);
+
+      expect(document.querySelector('[ngpPopover]')).not.toBeInTheDocument();
+
+      await waitFor(() => {
+        expect(document.querySelector('[ngpPopover]')).toBeInTheDocument();
+      });
+    });
+
+    it('should delay closing by the value passed to setHideDelay', async () => {
+      const { state, trigger } = await renderWithState();
+
+      state().setHideDelay(150);
+      fireEvent.click(trigger);
+
+      await waitFor(() => {
+        expect(document.querySelector('[ngpPopover]')).toBeInTheDocument();
+      });
+
+      fireEvent.click(trigger);
+
+      expect(document.querySelector('[ngpPopover]')).toBeInTheDocument();
+
+      await waitFor(() => {
+        expect(document.querySelector('[ngpPopover]')).not.toBeInTheDocument();
+      });
+    });
+
+    it('should offset the popover by the value passed to setOffset', async () => {
+      const { state, trigger } = await renderWithState();
+
+      state().setPlacement('bottom');
+      state().setOffset(60);
+      state().setFlip(false);
+      state().setShift(false);
+      fireEvent.click(trigger);
+
+      // Floating UI positions asynchronously, so poll rather than measuring once.
+      await waitFor(() => {
+        const gap =
+          document.querySelector('[ngpPopover]')!.getBoundingClientRect().top -
+          trigger.getBoundingClientRect().bottom;
+
+        expect(gap).toBeCloseTo(60, 0);
+      });
+    });
+
+    it('should keep the popover open when setCloseOnOutsideClick refuses', async () => {
+      const { state, trigger } = await renderWithState();
+
+      state().setCloseOnOutsideClick(false);
+      fireEvent.click(trigger);
+
+      await waitFor(() => {
+        expect(document.querySelector('[ngpPopover]')).toBeInTheDocument();
+      });
+
+      fireEvent.mouseUp(document.body);
+
+      // Dismissal is async, so settle before asserting the guard held.
+      await new Promise(resolve => setTimeout(resolve, 100));
+
+      expect(document.querySelector('[ngpPopover]')).toBeInTheDocument();
+    });
+
+    it('should keep the popover open when setCloseOnEscape refuses', async () => {
+      const { state, trigger } = await renderWithState();
+
+      state().setCloseOnEscape(false);
+      fireEvent.click(trigger);
+
+      await waitFor(() => {
+        expect(document.querySelector('[ngpPopover]')).toBeInTheDocument();
+      });
+
+      fireEvent.keyDown(document.querySelector('[ngpPopover]')!, { key: 'Escape' });
+
+      // Dismissal is async, so settle before asserting the guard held.
+      await new Promise(resolve => setTimeout(resolve, 100));
+
+      expect(document.querySelector('[ngpPopover]')).toBeInTheDocument();
+    });
+
+    it('should position the popover against the element passed to setAnchor', async () => {
+      const { state, trigger } = await renderWithState();
+
+      const anchor = document.createElement('div');
+      anchor.style.cssText = 'position:fixed;top:400px;left:40px;width:80px;height:20px;';
+      document.body.appendChild(anchor);
+
+      state().setAnchor(anchor);
+      state().setPlacement('bottom');
+      state().setOffset(0);
+      state().setFlip(false);
+      state().setShift(false);
+
+      fireEvent.click(trigger);
+
+      await waitFor(() => {
+        const popoverTop = document.querySelector('[ngpPopover]')!.getBoundingClientRect().top;
+
+        expect(popoverTop).toBeCloseTo(anchor.getBoundingClientRect().bottom, 0);
+      });
+
+      anchor.remove();
+    });
+
+    it('should position the popover against an svg element passed to the directive setAnchor', async () => {
+      const { fixture, getByRole } = await render(
+        `
+          <svg width="200" height="120" viewBox="0 0 100 60" style="position: fixed; top: 300px; left: 40px;">
+            <circle cx="50" cy="30" r="8" />
+          </svg>
+          <button
+            [ngpPopoverTrigger]="content"
+            ngpPopoverTriggerPlacement="bottom"
+            [ngpPopoverTriggerOffset]="0"
+            [ngpPopoverTriggerFlip]="false"
+            [ngpPopoverTriggerShift]="false"
+          >
+            Open
+          </button>
+          <ng-template #content>
+            <div ngpPopover style="position: fixed; width: 120px; height: 60px;">Popover content</div>
+          </ng-template>
+        `,
+        { imports: [NgpPopoverTrigger, NgpPopover] },
+      );
+      const circle = (fixture.nativeElement as HTMLElement).querySelector('circle')!;
+      const trigger = fixture.debugElement.query(By.directive(NgpPopoverTrigger));
+
+      trigger.injector.get(NgpPopoverTrigger).setAnchor(circle);
+      fireEvent.click(getByRole('button'));
+
+      await waitFor(() => {
+        const popoverTop = document.querySelector('[ngpPopover]')!.getBoundingClientRect().top;
+
+        expect(popoverTop).toBeCloseTo(circle.getBoundingClientRect().bottom, 0);
+      });
+    });
+
+    it('should attach the popover to the element passed to setContainer', async () => {
+      const host = document.createElement('div');
+      host.id = 'setter-popover-host';
+      document.body.appendChild(host);
+
+      const { state, trigger } = await renderWithState();
+
+      state().setContainer(host);
+      fireEvent.click(trigger);
+
+      await waitFor(() => {
+        expect(host.querySelector('[ngpPopover]')).toBeInTheDocument();
+      });
+
+      host.remove();
+    });
+  });
+
   describe('dynamic content', () => {
     const template = `
       <button [ngpPopoverTrigger]="useFirst ? first : second">Open Popover</button>

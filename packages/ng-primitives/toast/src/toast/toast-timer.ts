@@ -1,15 +1,15 @@
 class NgpToastTimer {
   private startTime: number | null = null;
-  private remaining: number;
+  private remainingMs: number;
   private timeoutId: ReturnType<typeof setTimeout> | null = null;
   private isRunning = false;
 
   constructor(
     private duration: number,
     private callback: () => void,
-    private readonly persistent = false,
+    private persistent = false,
   ) {
-    this.remaining = duration;
+    this.remainingMs = duration;
   }
 
   start(): void {
@@ -22,7 +22,7 @@ class NgpToastTimer {
     this.timeoutId = setTimeout(() => {
       this.isRunning = false;
       this.callback();
-    }, this.remaining);
+    }, this.remainingMs);
   }
 
   pause(): void {
@@ -32,9 +32,14 @@ class NgpToastTimer {
     clearTimeout(this.timeoutId!);
 
     const elapsed = Date.now() - this.startTime;
-    this.remaining -= elapsed;
+    this.remainingMs = Math.max(0, this.remainingMs - elapsed);
     this.startTime = null;
     this.timeoutId = null;
+  }
+
+  remaining(): number {
+    if (this.startTime === null) return this.remainingMs;
+    return Math.max(0, this.remainingMs - (Date.now() - this.startTime));
   }
 
   stop(): void {
@@ -42,7 +47,16 @@ class NgpToastTimer {
     clearTimeout(this.timeoutId!);
     this.timeoutId = null;
     this.startTime = null;
-    this.remaining = this.duration;
+    this.remainingMs = this.duration;
+  }
+
+  /**
+   * Stop the timer and give it a new duration. It does not start again until `start()`.
+   */
+  reset(duration: number, persistent: boolean): void {
+    this.duration = duration;
+    this.persistent = persistent;
+    this.stop();
   }
 }
 

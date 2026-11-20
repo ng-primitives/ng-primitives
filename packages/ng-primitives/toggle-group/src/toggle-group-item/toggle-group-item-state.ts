@@ -21,7 +21,8 @@ export interface NgpToggleGroupItemProps<T = string> {
   value: Signal<T>;
 
   /**
-   * Whether the toggle group item is disabled.
+   * Whether the toggle group item is disabled, either in its own right or because the
+   * group it belongs to is disabled.
    */
   disabled?: Signal<boolean>;
 }
@@ -35,7 +36,7 @@ export const [
   'NgpToggleGroupItem',
   <T = string>({
     value,
-    disabled = signal(false),
+    disabled: _disabled = signal(false),
   }: NgpToggleGroupItemProps<T>): NgpToggleGroupItemState => {
     const element = injectElementRef();
     const toggleGroup = injectToggleGroupState<T>();
@@ -45,6 +46,9 @@ export const [
 
     // Whether the item belongs to a multiple-select toggle group.
     const multiple = computed(() => toggleGroup()?.type() === 'multiple');
+
+    // A disabled group disables everything in it, so the item reflects both.
+    const disabled = computed(() => _disabled() || toggleGroup()?.disabled() || false);
 
     // Host bindings
     // In a single-select group the items behave like radio buttons, while in a

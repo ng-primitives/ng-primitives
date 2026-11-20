@@ -1,5 +1,11 @@
-import { BooleanInput, coerceStringArray } from '@angular/cdk/coercion';
-import { booleanAttribute, Directive, input, output } from '@angular/core';
+import { BooleanInput, coerceStringArray, NumberInput } from '@angular/cdk/coercion';
+import { booleanAttribute, Directive, input, numberAttribute, output } from '@angular/core';
+import { injectFileUploadConfig } from '../config/file-upload-config';
+import {
+  coercePasteTarget,
+  NgpFilePasteTarget,
+  NgpFileRejection,
+} from '../file-dropzone/file-drop-filter';
 import { ngpFileUpload, provideFileUploadState } from './file-upload-state';
 
 /**
@@ -12,10 +18,15 @@ import { ngpFileUpload, provideFileUploadState } from './file-upload-state';
 })
 export class NgpFileUpload {
   /**
+   * Access the global file upload configuration.
+   */
+  private readonly config = injectFileUploadConfig();
+
+  /**
    * The accepted file types. This can be an array of strings or a comma-separated string.
    * Accepted types can either be file extensions (e.g. `.jpg`) or MIME types (e.g. `image/jpeg`).
    */
-  readonly fileTypes = input<string[], string | string[]>(undefined, {
+  readonly fileTypes = input<string[] | undefined, string | string[]>(this.config.fileTypes, {
     alias: 'ngpFileUploadFileTypes',
     transform: types => coerceStringArray(types, ','),
   });
@@ -23,7 +34,7 @@ export class NgpFileUpload {
   /**
    * Whether to allow multiple files to be selected.
    */
-  readonly multiple = input<boolean, BooleanInput>(false, {
+  readonly multiple = input<boolean, BooleanInput>(this.config.multiple, {
     alias: 'ngpFileUploadMultiple',
     transform: booleanAttribute,
   });
@@ -31,7 +42,7 @@ export class NgpFileUpload {
   /**
    * Whether to allow the user to select directories.
    */
-  readonly directory = input<boolean, BooleanInput>(false, {
+  readonly directory = input<boolean, BooleanInput>(this.config.directory, {
     alias: 'ngpFileUploadDirectory',
     transform: booleanAttribute,
   });
@@ -39,15 +50,35 @@ export class NgpFileUpload {
   /**
    * Whether drag-and-drop is enabled.
    */
-  readonly dragAndDrop = input<boolean, BooleanInput>(true, {
+  readonly dragAndDrop = input<boolean, BooleanInput>(this.config.dragAndDrop, {
     alias: 'ngpFileUploadDragDrop',
     transform: booleanAttribute,
   });
 
   /**
+   * The maximum size of each file in bytes. Larger files are rejected.
+   */
+  readonly maxFileSize = input<number | undefined, NumberInput>(this.config.maxFileSize, {
+    alias: 'ngpFileUploadMaxFileSize',
+    transform: numberAttribute,
+  });
+
+  /**
+   * Where pasted files are captured: `'host'` (or the bare attribute) while the element is focused,
+   * `'document'` anywhere on the page, or `false` to ignore pastes.
+   */
+  readonly paste = input<NgpFilePasteTarget, BooleanInput | NgpFilePasteTarget>(
+    this.config.paste ?? false,
+    {
+      alias: 'ngpFileUploadPaste',
+      transform: coercePasteTarget,
+    },
+  );
+
+  /**
    * Whether the file upload is disabled.
    */
-  readonly disabled = input<boolean, BooleanInput>(false, {
+  readonly disabled = input<boolean, BooleanInput>(this.config.disabled, {
     alias: 'ngpFileUploadDisabled',
     transform: booleanAttribute,
   });
@@ -67,10 +98,17 @@ export class NgpFileUpload {
   });
 
   /**
-   * Emits when uploaded files are rejected because they do not match the allowed {@link fileTypes}.
+   * Emits when no files are selected because every file failed validation.
    */
   readonly rejected = output<void>({
     alias: 'ngpFileUploadRejected',
+  });
+
+  /**
+   * Emits every file that failed validation and why, including when other files were accepted.
+   */
+  readonly rejectedFiles = output<NgpFileRejection[]>({
+    alias: 'ngpFileUploadRejectedFiles',
   });
 
   /**
@@ -84,11 +122,14 @@ export class NgpFileUpload {
     fileTypes: this.fileTypes,
     multiple: this.multiple,
     directory: this.directory,
+    maxFileSize: this.maxFileSize,
+    paste: this.paste,
     dragAndDrop: this.dragAndDrop,
     disabled: this.disabled,
     onSelected: files => this.selected.emit(files),
     onCanceled: () => this.canceled.emit(),
     onRejected: () => this.rejected.emit(),
+    onRejectedFiles: rejections => this.rejectedFiles.emit(rejections),
     onDragOver: isDragOver => this.dragOver.emit(isDragOver),
   });
 

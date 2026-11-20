@@ -87,7 +87,7 @@ The following directives are available to import from the `ng-primitives/radio` 
 
 <api-reference-attributes>
   <api-attribute name="data-checked" description="Applied when the radio item is checked." />
-  <api-attribute name="data-disabled" description="Applied when the radio item is disabled." />
+  <api-attribute name="data-disabled" description="Applied when the radio item is disabled, or the radio group is disabled." />
   <api-attribute name="data-hover" description="Applied when the radio item is hovered." />
   <api-attribute name="data-focus-visible" description="Applied when the radio item is focused." />
   <api-attribute name="data-press" description="Applied when the radio item is pressed." />
@@ -101,7 +101,7 @@ The following directives are available to import from the `ng-primitives/radio` 
 
 <api-reference-attributes>
   <api-attribute name="data-checked" description="Applied when the radio item is checked." />
-  <api-attribute name="data-disabled" description="Applied when the radio item is disabled." />
+  <api-attribute name="data-disabled" description="Applied when the radio item is disabled, or the radio group is disabled." />
 </api-reference-attributes>
 
 ## Accessibility
@@ -110,7 +110,7 @@ Adheres to the [Radio Group WAI-ARIA design pattern](https://www.w3.org/WAI/ARIA
 
 ### Keyboard Interaction
 
-- <kbd>Tab</kbd> - Moves focus to the first radio button.
+- <kbd>Tab</kbd> - Moves focus to the checked radio button, or the first enabled radio button when none is checked. Clearing the value leaves the tab stop where it was, so focus returns to the radio button that held it.
 - <kbd>Arrow Down</kbd> - Moves focus to the next radio button (vertical orientation).
 - <kbd>Arrow Up</kbd> - Moves focus to the previous radio button (vertical orientation).
 - <kbd>Arrow Right</kbd> - Moves focus to the next radio button (horizontal orientation).

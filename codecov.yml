@@ -1,0 +1,13 @@
+coverage:
+  status:
+    # Report the delta, don't block the merge on it.
+    project:
+      default:
+        informational: true
+    patch:
+      default:
+        informational: true
+
+comment:
+  layout: 'condensed_header, diff, files'
+  require_changes: false

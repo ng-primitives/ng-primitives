@@ -3,8 +3,14 @@ import { setupTestBed } from '@analogjs/vitest-angular/setup-testbed';
 import '@angular/compiler';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import '@testing-library/jest-dom/vitest';
-import { afterEach, vi } from 'vitest';
-import { installVitestDomPolyfills } from './test-dom-polyfills';
+import { afterEach } from 'vitest';
+import { commands } from 'vitest/browser';
+
+declare module 'vitest/browser' {
+  interface BrowserCommands {
+    parkPointer: () => Promise<void>;
+  }
+}
 
 setupTestBed({
   browserMode: true,
@@ -32,8 +38,6 @@ ComponentFixture.prototype.detectChanges = function (
   return result;
 };
 
-installVitestDomPolyfills(() => vi.fn());
-
 // Disable CSS transitions and animations so overlay enter/exit states resolve instantly
 const style = document.createElement('style');
 style.textContent =
@@ -47,6 +51,7 @@ document.head.appendChild(style);
 // bare content directives), so also target the overlay-content selectors directly to stop
 // a popover/tooltip/menu from leaking into the next test.
 afterEach(async () => {
+  await commands.parkPointer();
   await Promise.resolve();
   document
     .querySelectorAll(

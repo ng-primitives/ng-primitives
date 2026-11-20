@@ -27,8 +27,18 @@ import {
 import { uniqueId } from 'ng-primitives/utils';
 import { Observable } from 'rxjs';
 import type { NgpSelectDropdownState } from '../select-dropdown/select-dropdown-state';
+import type { NgpSelectInputState } from '../select-input/select-input-state';
+import type { NgpSelectListState } from '../select-list/select-list-state';
 import type { NgpSelectOptionState } from '../select-option/select-option-state';
 import { NgpSelectPortalState } from '../select-portal/select-portal-state';
+
+export interface NgpSelectOpenOptions {
+  /**
+   * Which option to activate once the dropdown has opened and its options have registered.
+   * A selected option always wins over this preference. Defaults to `'first'`.
+   */
+  readonly activate?: 'first' | 'last';
+}
 
 export interface NgpSelectState<T> {
   /**
@@ -66,6 +76,9 @@ export interface NgpSelectState<T> {
    */
   readonly offset: Signal<NgpOffset>;
 
+  /** Whether the dropdown is modal. */
+  readonly modal: Signal<boolean>;
+
   /**
    * A function that will scroll the active option into view. This can be overridden
    * for cases such as virtual scrolling where we cannot scroll the option directly because
@@ -92,6 +105,13 @@ export interface NgpSelectState<T> {
    * @internal
    */
   readonly dropdown: WritableSignal<NgpSelectDropdownState | undefined>;
+
+  /**
+   * Store the select list, when a dedicated listbox wraps the options
+   * (e.g. when the popup also contains a filter input).
+   * @internal
+   */
+  readonly list: Signal<NgpSelectListState | undefined>;
 
   /**
    * Store the select options.
@@ -127,13 +147,17 @@ export interface NgpSelectState<T> {
    * Open the dropdown.
    * @internal
    */
-  openDropdown(): Promise<void>;
+  openDropdown(options?: NgpSelectOpenOptions): Promise<void>;
 
   /**
    * Close the dropdown.
+   * @param options.immediate - Skip the hide delay, so the dropdown leaves the page (and a modal
+   * one lifts `inert`) right away. The exit animation still runs.
+   * @param options.focusTrigger - Move focus from the search input to the trigger first. Defaults
+   * to true.
    * @internal
    */
-  closeDropdown(): void;
+  closeDropdown(options?: { immediate?: boolean; focusTrigger?: boolean }): void;
 
   /**
    * Handle the overlay being closed (e.g. via outside click or Escape).
@@ -202,6 +226,34 @@ export interface NgpSelectState<T> {
    * @internal
    */
   registerDropdown(dropdown: NgpSelectDropdownState): void;
+
+  /**
+   * Register the input with the select.
+   * @param input The input to register.
+   * @internal
+   */
+  registerInput(input: NgpSelectInputState): void;
+
+  /**
+   * Unregister the input from the select.
+   * @param input The input to unregister.
+   * @internal
+   */
+  unregisterInput(input: NgpSelectInputState): void;
+
+  /**
+   * Register the list with the select.
+   * @param list The list to register.
+   * @internal
+   */
+  registerList(list: NgpSelectListState): void;
+
+  /**
+   * Unregister the list from the select.
+   * @param list The list to unregister.
+   * @internal
+   */
+  unregisterList(list: NgpSelectListState): void;
 
   /**
    * Register an option with the select.
@@ -287,6 +339,9 @@ export interface NgpSelectProps<T> {
    */
   readonly offset?: Signal<NgpOffset>;
 
+  /** Whether the dropdown is modal: the rest of the page is `inert` while it is open. */
+  readonly modal?: Signal<boolean>;
+
   /**
    * A function that will scroll the active option into view. This can be overridden
    * for cases such as virtual scrolling where we cannot scroll the option directly because
@@ -316,6 +371,7 @@ export const [NgpSelectStateToken, ngpSelect, _injectSelectState, provideSelectS
       container: _container,
       flip = signal<NgpFlip>(true),
       offset = signal<NgpOffset>(0),
+      modal = signal(false),
       scrollToOption = signal<((index: number) => void) | undefined>(undefined),
       allOptions = signal<T[] | undefined>(undefined),
       onValueChange,
@@ -355,10 +411,13 @@ export const [NgpSelectStateToken, ngpSelect, _injectSelectState, provideSelectS
 
       const portal = signal<NgpSelectPortalState | undefined>(undefined);
       const dropdown = signal<NgpSelectDropdownState | undefined>(undefined);
+      const input = signal<NgpSelectInputState | undefined>(undefined);
+      const list = signal<NgpSelectListState | undefined>(undefined);
       const options = signal<NgpSelectOptionState[]>([]);
 
       const overlay = computed(() => portal()?.overlay());
       const open = computed(() => overlay()?.isOpen() ?? false);
+      const expanded = computed(() => open() && !overlay()?.isClosing());
 
       const sortedOptions = computed(() =>
         domSort(
@@ -398,34 +457,51 @@ export const [NgpSelectStateToken, ngpSelect, _injectSelectState, provideSelectS
       });
 
       // Host bindings
-      attrBinding(elementRef, 'role', 'combobox');
+      attrBinding(elementRef, 'role', () => (input() ? null : 'combobox'));
       attrBinding(elementRef, 'id', id);
-      attrBinding(elementRef, 'aria-expanded', open);
-      attrBinding(elementRef, 'aria-controls', () => (open() ? dropdown()?.id() : undefined));
-      attrBinding(elementRef, 'aria-activedescendant', () =>
-        open() ? activeDescendantManagerInstance.id() : undefined,
+      attrBinding(elementRef, 'aria-expanded', () => (input() ? undefined : expanded()));
+      attrBinding(elementRef, 'aria-controls', () =>
+        input() ? undefined : open() ? (list()?.id() ?? dropdown()?.id()) : undefined,
       );
-      attrBinding(elementRef, 'tabindex', () => (disabled() ? -1 : 0));
+      attrBinding(elementRef, 'aria-activedescendant', () =>
+        input() ? undefined : open() ? activeDescendantManagerInstance.id() : undefined,
+      );
+      attrBinding(elementRef, 'tabindex', () => {
+        if (input() || disabled()) return -1;
+        return 0;
+      });
       dataBinding(elementRef, 'data-open', () => (open() ? '' : null));
       dataBinding(elementRef, 'data-disabled', () => (disabled() ? '' : null));
       dataBinding(elementRef, 'data-multiple', () => (multiple() ? '' : null));
 
       // Event listeners
-      listener(elementRef, 'click', () => void toggleDropdown());
+      listener(elementRef, 'click', onClick);
       listener(elementRef, 'keydown', handleKeydown);
       listener(elementRef, 'blur', onBlur);
+
+      function onClick(event: MouseEvent): void {
+        // if the click originated from the input, let the input keep focus. the event only
+        // reaches us when the dropdown is rendered into a container inside the select element.
+        if (event.target === input()?.elementRef.nativeElement) {
+          return;
+        }
+
+        void toggleDropdown();
+      }
 
       /**
        * Open the dropdown.
        * @internal
        */
-      async function openDropdown(): Promise<void> {
+      async function openDropdown(options?: NgpSelectOpenOptions): Promise<void> {
         if (disabled() || open()) {
           return;
         }
 
         onOpenChange?.(true);
         await portal()?.show();
+
+        input()?.focus();
 
         let selectedOptionIdx = -1;
 
@@ -448,7 +524,22 @@ export const [NgpSelectStateToken, ngpSelect, _injectSelectState, provideSelectS
           return;
         }
 
-        // activate the selected option or the first option
+        // handled here, not by the caller, because options only register after the portal resolves
+        if (options?.activate === 'last') {
+          // reset so the index stays -1, not 0, when there is nothing to activate
+          activeDescendantManagerInstance.reset();
+          activeDescendantManagerInstance.last();
+
+          const activeIndex = activeDescendantManagerInstance.index();
+
+          // the manager's own scroll is skipped until the overlay is positioned
+          if (activeIndex !== -1) {
+            scrollTo(activeIndex);
+          }
+
+          return;
+        }
+
         activeDescendantManagerInstance.first();
       }
 
@@ -456,12 +547,20 @@ export const [NgpSelectStateToken, ngpSelect, _injectSelectState, provideSelectS
        * Close the dropdown.
        * @internal
        */
-      function closeDropdown(): void {
+      function closeDropdown({
+        immediate,
+        focusTrigger = true,
+      }: { immediate?: boolean; focusTrigger?: boolean } = {}): void {
         if (!open()) {
           return;
         }
 
-        portal()?.hide();
+        // the search input is about to be removed, so don't let focus fall back to the body
+        if (focusTrigger && document.activeElement === input()?.elementRef.nativeElement) {
+          focus();
+        }
+
+        portal()?.hide({ immediate });
       }
 
       /**
@@ -701,6 +800,46 @@ export const [NgpSelectStateToken, ngpSelect, _injectSelectState, provideSelectS
       }
 
       /**
+       * Register the input with the select.
+       * @param inputInstance The input to register.
+       * @internal
+       */
+      function registerInput(inputInstance: NgpSelectInputState): void {
+        input.set(inputInstance);
+      }
+
+      /**
+       * Unregister the input from the select.
+       * @param inputInstance The input to unregister.
+       * @internal
+       */
+      function unregisterInput(inputInstance: NgpSelectInputState): void {
+        if (input() === inputInstance) {
+          input.set(undefined);
+        }
+      }
+
+      /**
+       * Register the list with the select.
+       * @param listInstance The list to register.
+       * @internal
+       */
+      function registerList(listInstance: NgpSelectListState): void {
+        list.set(listInstance);
+      }
+
+      /**
+       * Unregister the list from the select.
+       * @param listInstance The list to unregister.
+       * @internal
+       */
+      function unregisterList(listInstance: NgpSelectListState): void {
+        if (list() === listInstance) {
+          list.set(undefined);
+        }
+      }
+
+      /**
        * Register an option with the select.
        * @param option The option to register.
        * @internal
@@ -728,6 +867,12 @@ export const [NgpSelectStateToken, ngpSelect, _injectSelectState, provideSelectS
 
       /** Handle keydown events for accessibility. */
       function handleKeydown(event: KeyboardEvent): void {
+        // if the event originated from the input element, let the input handle it. the event only
+        // bubbles here when the dropdown is rendered into a container inside the select element.
+        if (event.target === input()?.elementRef.nativeElement) {
+          return;
+        }
+
         switch (event.key) {
           case 'ArrowDown':
             if (open()) {
@@ -741,8 +886,7 @@ export const [NgpSelectStateToken, ngpSelect, _injectSelectState, provideSelectS
             if (open()) {
               activatePreviousOption();
             } else {
-              void openDropdown();
-              activeDescendantManagerInstance.last();
+              void openDropdown({ activate: 'last' });
             }
             event.preventDefault();
             break;
@@ -775,6 +919,11 @@ export const [NgpSelectStateToken, ngpSelect, _injectSelectState, provideSelectS
             void toggleDropdown();
             event.preventDefault();
             break;
+          case 'Tab':
+            // close right away, so a modal dropdown lifts `inert` from the page before the
+            // browser picks where focus goes next
+            closeDropdown({ immediate: true });
+            break;
         }
       }
 
@@ -783,6 +932,12 @@ export const [NgpSelectStateToken, ngpSelect, _injectSelectState, provideSelectS
 
         // if the blur was caused by focus moving to the dropdown, don't close
         if (relatedTarget && dropdown()?.elementRef.nativeElement.contains(relatedTarget)) {
+          return;
+        }
+
+        // if the blur was caused by focus moving to the input, don't close. opening the
+        // dropdown moves focus from the trigger to the input, which blurs the trigger.
+        if (relatedTarget === input()?.elementRef.nativeElement) {
           return;
         }
 
@@ -825,10 +980,12 @@ export const [NgpSelectStateToken, ngpSelect, _injectSelectState, provideSelectS
         container: deprecatedSetter(container, 'setContainer', setContainer),
         flip,
         offset,
+        modal,
         scrollToOption,
         allOptions,
         portal,
         dropdown,
+        list: list.asReadonly(),
         options,
         overlay,
         open,
@@ -850,6 +1007,10 @@ export const [NgpSelectStateToken, ngpSelect, _injectSelectState, provideSelectS
         valueChange: valueChangeEmitter.asObservable(),
         registerPortal,
         registerDropdown,
+        registerInput,
+        unregisterInput,
+        registerList,
+        unregisterList,
         registerOption,
         unregisterOption,
         focus,

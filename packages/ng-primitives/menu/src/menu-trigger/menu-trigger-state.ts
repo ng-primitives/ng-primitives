@@ -10,7 +10,11 @@ import {
   ViewContainerRef,
   WritableSignal,
 } from '@angular/core';
-import { createHoverBridge, injectElementRef } from 'ng-primitives/internal';
+import {
+  createHoverBridge,
+  createHoverTransitDecline,
+  injectElementRef,
+} from 'ng-primitives/internal';
 import {
   createOverlay,
   NgpFlip,
@@ -30,8 +34,9 @@ import {
   listener,
   StateInjectionOptions,
 } from 'ng-primitives/state';
-import { injectDisposables } from 'ng-primitives/utils';
+import { injectDisposables, uniqueId } from 'ng-primitives/utils';
 import { NgpMenuTriggerType } from '../config/menu-config';
+import { injectMenuTriggerGroupState } from '../menu-trigger-group/menu-trigger-group-state';
 
 export interface NgpMenuTriggerState<T = unknown> {
   /**
@@ -73,10 +78,23 @@ export interface NgpMenuTriggerState<T = unknown> {
   readonly context: WritableSignal<T>;
 
   /**
+   * Define an anchor element for positioning the menu.
+   * If provided, the menu will be positioned relative to this element instead of the trigger.
+   */
+  readonly anchor: WritableSignal<Element | null>;
+
+  /**
    * The focus origin that was used to open the menu.
    * @internal
    */
   readonly openOrigin: Signal<FocusOrigin>;
+
+  /**
+   * The item the menu focuses when it opens: the last one after an Up Arrow on the trigger.
+   * Only the menu trigger has it, not the triggers that share this state.
+   * @internal
+   */
+  readonly openFocus?: Signal<'first' | 'last'>;
 
   /**
    * Set whether the trigger is disabled.
@@ -107,6 +125,18 @@ export interface NgpMenuTriggerState<T = unknown> {
    * @param context - The new context
    */
   setContext(context: T): void;
+
+  /**
+   * Set the anchor element the menu is positioned against. An open menu moves to the
+   * new anchor.
+   *
+   * When re-anchoring in response to a press, do it on `pointerdown` rather than `click`:
+   * outside-press dismissal is decided on a capture-phase `mouseup`, which runs before
+   * a bubbling `click`, so an anchor claimed there arrives too late and the press that
+   * was meant to move the menu dismisses it instead.
+   * @param anchor - The new anchor element
+   */
+  setAnchor(anchor: Element | null): void;
 
   /**
    * Set the container in which the menu should be attached. Takes effect the
@@ -144,6 +174,12 @@ export interface NgpMenuTriggerState<T = unknown> {
    * @internal
    */
   setPointerOverContent(isOver: boolean): void;
+
+  /**
+   * The id of the trigger element, which names the menu.
+   * @internal
+   */
+  triggerId(): string | null;
 }
 
 export interface NgpMenuTriggerProps<T = unknown> {
@@ -186,6 +222,11 @@ export interface NgpMenuTriggerProps<T = unknown> {
    */
   readonly context?: Signal<T>;
   /**
+   * Define an anchor element for positioning the menu.
+   * If provided, the menu will be positioned relative to this element instead of the trigger.
+   */
+  readonly anchor?: Signal<Element | null>;
+  /**
    * Cooldown duration in milliseconds.
    */
   readonly cooldown?: Signal<number>;
@@ -204,6 +245,11 @@ export interface NgpMenuTriggerProps<T = unknown> {
    * The delay before hiding the menu.
    */
   readonly hideDelay?: Signal<number>;
+
+  /**
+   * Whether the menu is modal. A menu opened on hover, or from a trigger group, is never modal.
+   */
+  readonly modal?: Signal<boolean>;
 }
 
 export const [
@@ -221,12 +267,14 @@ export const [
     flip: _flip = signal(true),
     shift: _shift = signal(undefined),
     context: _context = signal<T>(undefined as T),
+    anchor: _anchor,
     container: _container,
     scrollBehavior,
     cooldown,
     triggers = signal(['click'] as NgpMenuTriggerType[]),
     showDelay = signal(0),
     hideDelay = signal(0),
+    modal = signal(false),
   }: NgpMenuTriggerProps<T>) => {
     const element = injectElementRef();
     const injector = inject(Injector);
@@ -242,18 +290,26 @@ export const [
     const shift = controlled(_shift);
     const offset = controlled(_offset);
     const context = controlled(_context);
+    const anchor = controlled<Element | null>(_anchor, null);
     const container = controlled(_container, 'body');
 
     // Internal state
     const overlay = signal<NgpOverlay<T> | null>(null);
     const open = computed(() => overlay()?.isOpen() ?? false);
+    const expanded = computed(() => open() && !overlay()?.isClosing());
     const openOrigin = signal<FocusOrigin>('program');
-    const closeOrigin = signal<FocusOrigin>('program');
+    const openedOnHover = signal(false);
+    const openFocus = signal<'first' | 'last'>('first');
 
     // Track whether pointer is over trigger or content (for hover triggers)
     const pointerOverTrigger = signal(false);
     const pointerOverContent = signal(false);
     const isPointerOverMenuArea = computed(() => pointerOverTrigger() || pointerOverContent());
+
+    // Siblings only have a shared container to protect when the consumer opted
+    // in by wrapping this trigger and its siblings in NgpMenuTriggerGroup - a
+    // lone trigger has no group and the bridge is a no-op there.
+    const triggerGroup = injectMenuTriggerGroupState({ optional: true });
 
     // Safe-polygon hover intent: while the pointer travels inside a corridor from
     // the trigger exit point toward the open menu, the menu stays open. Reversing
@@ -262,6 +318,21 @@ export const [
       isPointerInAnchor: isPointerOverMenuArea,
       close: () => hide(),
       requireForwardMovement: true,
+      siblingContainer: () => triggerGroup()?.siblingContainer() ?? null,
+      onSuppressionChange: active =>
+        active
+          ? triggerGroup()?.setTransitSource(element.nativeElement)
+          : triggerGroup()?.clearTransitSource(element.nativeElement),
+    });
+
+    /**
+     * A sibling's corridor can't withhold an enter the browser resolved before
+     * pointer-events applied, so the sibling has to decline it itself.
+     */
+    const declineHoverDuringTransit = createHoverTransitDecline({
+      isBlocked: () => triggerGroup()?.isTransitBlocked(element.nativeElement) ?? false,
+      isPointerOverTrigger: pointerOverTrigger,
+      show: showOnHover,
     });
 
     // Reset pointer tracking when menu closes
@@ -277,15 +348,12 @@ export const [
       }
     });
 
-    // Computed signal to determine if focus should be restored
-    // Only restore if opened via keyboard OR closed via keyboard
-    const shouldRestoreFocus = computed(
-      () => openOrigin() === 'keyboard' || closeOrigin() === 'keyboard',
-    );
-
     // Host bindings
+    // the menu is named by its trigger, so the trigger needs an id; the consumer's own is kept
+    const fallbackId = uniqueId('ngp-menu-trigger');
+    attrBinding(element, 'id', () => element.nativeElement.id || fallbackId);
     attrBinding(element, 'aria-haspopup', 'true');
-    attrBinding(element, 'aria-expanded', open);
+    attrBinding(element, 'aria-expanded', expanded);
     dataBinding(element, 'data-open', open);
     dataBinding(element, 'data-placement', placement);
 
@@ -321,11 +389,17 @@ export const [
       // trigger, so any in-progress hover bridge is no longer needed.
       if (open()) {
         hoverBridge.clear();
+        // A menu brought back on hover during its exit animation is a hover menu
+        openedOnHover.set(true);
         overlay()?.cancelPendingClose();
         return;
       }
 
-      show('mouse');
+      if (declineHoverDuringTransit()) {
+        return;
+      }
+
+      showOnHover();
     }
 
     function onPointerLeave(event: PointerEvent): void {
@@ -445,14 +519,13 @@ export const [
       // Get RTL direction
       const isRtl = directionality.value === 'rtl';
 
-      // Check if arrow direction matches placement
+      // Up and Down open a menu above or below the trigger on its last or first item (WAI-ARIA
+      // menu button); a menu to the side opens on the arrow that points at it.
       const currentPlacement = placement();
       let shouldOpen = false;
 
-      if (currentPlacement.startsWith('bottom') && event.key === 'ArrowDown') {
-        shouldOpen = true;
-      } else if (currentPlacement.startsWith('top') && event.key === 'ArrowUp') {
-        shouldOpen = true;
+      if (currentPlacement.startsWith('bottom') || currentPlacement.startsWith('top')) {
+        shouldOpen = event.key === 'ArrowDown' || event.key === 'ArrowUp';
       } else if (currentPlacement.startsWith('right')) {
         const isRightArrow = event.key === 'ArrowRight';
         const isLeftArrow = event.key === 'ArrowLeft';
@@ -465,7 +538,7 @@ export const [
 
       if (shouldOpen && !open()) {
         event.preventDefault();
-        show('keyboard');
+        show('keyboard', false, event.key === 'ArrowUp' ? 'last' : 'first');
       }
     }
 
@@ -477,13 +550,32 @@ export const [
       if (open()) {
         hide(origin);
       } else {
-        show(origin);
+        show(origin, true);
       }
     }
 
-    function show(origin: FocusOrigin = 'program'): void {
+    function show(
+      origin: FocusOrigin = 'program',
+      fromTriggerPress = false,
+      focus: 'first' | 'last' = 'first',
+    ): void {
+      openedOnHover.set(false);
+      showMenu(origin, fromTriggerPress, focus);
+    }
+
+    function showOnHover(): void {
+      openedOnHover.set(true);
+      showMenu('mouse');
+    }
+
+    function showMenu(
+      origin: FocusOrigin,
+      fromTriggerPress = false,
+      focus: 'first' | 'last' = 'first',
+    ): void {
       // Store the origin used to open the menu
       openOrigin.set(origin);
+      openFocus.set(focus);
 
       // Create the overlay if it doesn't exist yet
       if (!overlay()) {
@@ -491,7 +583,7 @@ export const [
       }
 
       // Show the overlay
-      overlay()?.show();
+      overlay()?.show({ fromTriggerPress });
     }
 
     function hide(origin: FocusOrigin = 'program'): void {
@@ -500,7 +592,7 @@ export const [
         return;
       }
 
-      // Hide the overlay (this will trigger onClose callback which updates closeOrigin)
+      // Hide the overlay
       currentOverlay.hide({ origin });
     }
 
@@ -515,23 +607,26 @@ export const [
       const config: NgpOverlayConfig<T> = {
         content: menu,
         triggerElement: element.nativeElement,
+        anchorElement: anchor,
         viewContainerRef,
         injector,
         context,
-        container: container(),
+        container,
         placement: placement,
         offset: offset(),
         flip: flip(),
         shift: shift(),
         closeOnOutsideClick: true,
         closeOnEscape: true,
-        restoreFocus: shouldRestoreFocus,
-        onClose: (origin: FocusOrigin) => closeOrigin.set(origin),
+        restoreFocus: true,
         scrollBehaviour: scrollBehavior?.() ?? 'block',
         overlayType: 'menu',
         cooldown: cooldown?.(),
         showDelay: showDelay(),
         hideDelay: hideDelay(),
+        // The pointer leaves a menu opened on hover, and a trigger group switches between its
+        // menus, so neither can make the rest of the page inert.
+        modal: computed(() => modal() && !openedOnHover() && !triggerGroup()),
       };
 
       overlay.set(createOverlay(config));
@@ -563,6 +658,10 @@ export const [
 
     function setContext(newContext: T): void {
       context.set(newContext);
+    }
+
+    function setAnchor(newAnchor: Element | null): void {
+      anchor.set(newAnchor);
     }
 
     function setContainer(newContainer: HTMLElement | string | null): void {
@@ -599,8 +698,10 @@ export const [
       offset: deprecatedSetter(offset, 'setOffset', setOffset),
       disabled: deprecatedSetter(disabled, 'setDisabled', setDisabled),
       context: deprecatedSetter(context, 'setContext', setContext),
+      anchor: deprecatedSetter(anchor, 'setAnchor', setAnchor),
       open,
       openOrigin,
+      openFocus,
       show,
       hide,
       toggle,
@@ -610,8 +711,10 @@ export const [
       setPlacement,
       setOffset,
       setContext,
+      setAnchor,
       setContainer,
       setPointerOverContent,
+      triggerId: () => element.nativeElement.id,
       flip,
       container: deprecatedSetter(container, 'setContainer', setContainer),
     } satisfies NgpMenuTriggerState<T>;

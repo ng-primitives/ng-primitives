@@ -1,16 +1,15 @@
-import { Injectable, WritableSignal } from '@angular/core';
+import { Injectable, WritableSignal, inject } from '@angular/core';
+import { NgpOverlayRegistry } from './overlay-registry';
 
 /** Interface for overlays that can be closed immediately */
 export interface CooldownOverlay {
-  hideImmediate(): void;
+  /** The registry id, which is how ancestry between overlays is resolved. */
+  id(): string;
+  hideImmediate(options?: { skipExitAnimation?: boolean }): void;
+  /** Take over where the replaced overlay was going to return focus. */
+  takeOverFocusReturn?(replaced: CooldownOverlay): void;
   /** Optional signal to mark the transition as instant due to cooldown */
   instantTransition?: WritableSignal<boolean>;
-  /**
-   * Optional check for whether this overlay is a descendant of the given overlay
-   * (i.e. its trigger is rendered within the other overlay's content). Used to
-   * keep an ancestor open when a nested overlay of the same type is activated.
-   */
-  isDescendantOf?(other: CooldownOverlay): boolean;
 }
 
 /**
@@ -22,6 +21,7 @@ export interface CooldownOverlay {
  */
 @Injectable({ providedIn: 'root' })
 export class NgpOverlayCooldownManager {
+  private readonly registry = inject(NgpOverlayRegistry);
   private readonly lastCloseTimestamps = new Map<string, number>();
   /**
    * Active overlays per type, stored as a stack ordered oldest-first / topmost-last.
@@ -62,7 +62,7 @@ export class NgpOverlayCooldownManager {
    * overlay being registered. A nested overlay (its trigger rendered inside an
    * ancestor overlay's content) is stacked on top of its ancestor instead of
    * evicting it, allowing legitimate nesting to coexist while sibling overlays
-   * still replace one another.
+   * still replace one another. Ancestry comes from NgpOverlayRegistry.
    *
    * @param overlayType The type identifier for the overlay group
    * @param overlay The overlay instance
@@ -80,21 +80,26 @@ export class NgpOverlayCooldownManager {
     // nested same-type overlays can coexist; peers are closed immediately.
     while (stack.length > 0) {
       const top = stack[stack.length - 1];
-      if (overlay.isDescendantOf?.(top)) {
+      if (this.isDescendant(overlay, top)) {
         break;
       }
-      if (top.isDescendantOf?.(overlay)) {
-        const firstDescendantIndex = stack.findIndex(entry => entry.isDescendantOf?.(overlay));
+      if (this.isDescendant(top, overlay)) {
+        const firstDescendantIndex = stack.findIndex(entry => this.isDescendant(entry, overlay));
         stack.splice(firstDescendantIndex, 0, overlay);
         this.activeOverlays.set(overlayType, stack);
         return;
       }
       stack.pop();
-      // Enable instant transition only if cooldown is active
-      if (cooldown > 0) {
+      overlay.takeOverFocusReturn?.(top);
+      // Enable instant transition only if cooldown is active. The same condition
+      // decides whether an overlay already animating out is cut short: within a
+      // cooldown the swap should read as one movement, without one the outgoing
+      // overlay keeps the exit animation it was given.
+      const isInstant = cooldown > 0;
+      if (isInstant) {
         top.instantTransition?.set(true);
       }
-      top.hideImmediate();
+      top.hideImmediate({ skipExitAnimation: isInstant });
     }
 
     // Push as the topmost active overlay, avoiding a duplicate entry if it is
@@ -125,6 +130,11 @@ export class NgpOverlayCooldownManager {
     if (stack.length === 0) {
       this.activeOverlays.delete(overlayType);
     }
+  }
+
+  /** Whether `overlay` sits inside `ancestor`, according to the registry. */
+  private isDescendant(overlay: CooldownOverlay, ancestor: CooldownOverlay): boolean {
+    return this.registry.isAncestorOf(ancestor.id(), overlay.id());
   }
 
   /**

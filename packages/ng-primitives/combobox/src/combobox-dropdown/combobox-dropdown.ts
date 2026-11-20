@@ -11,6 +11,8 @@ import { injectComboboxState } from '../combobox/combobox-state';
   host: {
     role: 'listbox',
     '[id]': 'id()',
+    '[attr.aria-multiselectable]': 'state().multiple()',
+    '[attr.data-reference-hidden]': 'state().overlay()?.referenceHidden() ? "" : null',
     '[style.left.px]': 'state().overlay()?.position()?.x',
     '[style.top.px]': 'state().overlay()?.position()?.y',
     '[style.--ngp-combobox-transform-origin]': 'state().overlay()?.transformOrigin()',
@@ -51,5 +53,8 @@ export class NgpComboboxDropdown {
 
   constructor() {
     this.state().registerDropdown(this);
+    // The combobox's own overlay, not one injected: a dropdown rendered in place would find an
+    // enclosing overlay and replace that overlay's properties.
+    this.state().overlay()?.registerAvailableSizePrefix('--ngp-combobox');
   }
 }

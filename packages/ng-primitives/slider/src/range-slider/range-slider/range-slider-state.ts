@@ -243,7 +243,7 @@ export const [
     // Host bindings
     attrBinding(element, 'id', id);
     dataBinding(element, 'data-orientation', orientation);
-    dataBinding(element, 'data-disabled', status().disabled);
+    dataBinding(element, 'data-disabled', () => status().disabled);
 
     function setLowValue(value: number, options?: SetterOptions): void {
       const clampedValue = Math.max(min(), Math.min(value, high()));

@@ -249,6 +249,29 @@ describe('RadioGroup (reusable component) — reactive forms', () => {
     expect(getByRole('radio', { name: 'One' })).not.toHaveAttribute('data-checked');
   });
 
+  it('gives the tab stop to the item writeValue checked', async () => {
+    const formControl = new FormControl<string | null>('2');
+    const { getByRole, fixture } = await render(
+      `
+      <app-radio-group [formControl]="formControl">
+        <app-radio-item value="1">One</app-radio-item>
+        <app-radio-item value="2">Two</app-radio-item>
+        <app-radio-item value="3">Three</app-radio-item>
+      </app-radio-group>
+      `,
+      {
+        imports: [RadioGroup, RadioItemFixture, ReactiveFormsModule],
+        componentProperties: { formControl },
+      },
+    );
+
+    await fixture.whenStable();
+
+    expect(getByRole('radio', { name: 'Two' })).toHaveAttribute('tabindex', '0');
+    expect(getByRole('radio', { name: 'One' })).toHaveAttribute('tabindex', '-1');
+    expect(getByRole('radio', { name: 'Three' })).toHaveAttribute('tabindex', '-1');
+  });
+
   it('does not loop writeValue back through onChange (regression)', async () => {
     const formControl = new FormControl<string | null>(null);
     const { fixture } = await render(

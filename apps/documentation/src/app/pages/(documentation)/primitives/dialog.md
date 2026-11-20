@@ -78,6 +78,10 @@ Use dismiss guards to prevent a dialog from closing when there are unsaved chang
 
 <docs-example name="dialog-dismiss-guard"></docs-example>
 
+### Handling Escape inside the dialog
+
+A control inside the dialog that uses Escape itself, such as an inline-edit field that reverts its value, claims the key with `claimEscapeKey` from `ng-primitives/portal` so the dialog stays open. A claim only applies to Escape pressed inside the topmost overlay and skips `closeOnEscape` guards. The [Popover](/primitives/popover) page has an example; it works the same for every overlay.
+
 ### Dialog with external data
 
 Data can be passed to the dialog using the `NgpDialogManager`.
@@ -89,6 +93,29 @@ Data can be passed to the dialog using the `NgpDialogManager`.
 A drawer is a type of dialog that slides in from the side of the screen.
 
 <docs-example name="dialog-drawer"></docs-example>
+
+### Non-modal drawer
+
+A drawer that acts on the page beside it, such as view settings or filters next to a table, should leave that page usable. Set `ngpDialogTriggerModal` to `false` (or pass `modal: false` to `NgpDialogManager.open()` or `provideDialogConfig`). While a non-modal dialog is open:
+
+- the page stays scrollable, clickable and readable by screen readers, unless a modal dialog below it still covers the page;
+- focus moves to the dialog element on open, unless an element inside it already took focus. It is not trapped. On close it returns to the trigger only if it was still inside the dialog, or in an overlay opened from it;
+- a second click on the trigger closes the dialog, unless `disableClose` is set;
+- `closeOnEscape` applies only to an Escape pressed inside the dialog. Elsewhere, Escape goes to the overlay below;
+- an outside click does not close it. Leave out `ngpDialogOverlay`, so nothing covers the page.
+
+```html
+<button [ngpDialogTrigger]="settings" ngpDialogTriggerModal="false">View settings</button>
+
+<ng-template #settings let-close="close">
+  <div ngpDialog>
+    <h2 ngpDialogTitle>View settings</h2>
+    <button (click)="close()">Done</button>
+  </div>
+</ng-template>
+```
+
+`modal` is read when the dialog opens. `ngpDialogModal` on the dialog only sets `aria-modal`. Inside the dialog, `injectDialogRef().config.modal` tells whether it is modal.
 
 ## API Reference
 
@@ -202,12 +229,55 @@ Reference returned by `NgpDialogManager.open()`. Provides methods to interact wi
   Updates the position of the dialog. Currently a no-op as dialogs are CSS-centered.
 </prop-details>
 
+## Global Configuration
+
+You can configure the default options for all dialogs in your application by using the `provideDialogConfig` function in a providers array.
+
+```ts
+import { provideDialogConfig } from 'ng-primitives/dialog';
+
+bootstrapApplication(AppComponent, {
+  providers: [
+    provideDialogConfig({
+      container: '#app-root',
+      role: 'dialog',
+      modal: true,
+    }),
+  ],
+});
+```
+
+By default dialogs render into `document.body`. The `container` option accepts an element or a
+selector, which is useful when the dialog must live inside a specific subtree - for example a
+micro-frontend root or an element carrying your theme class. It can be overridden per dialog
+through `NgpDialogTrigger`'s `ngpDialogTriggerContainer` input, or through the `container` option
+passed to `NgpDialogManager.open()`.
+
+A dialog opened by `NgpDialogTrigger` stays open when its trigger is removed, for example by an
+`@if`. Set `lifetime: 'trigger'` to close it along with its trigger. A trigger inside a menu or
+popover follows that overlay's trigger instead, so a dialog opened from a menu item stays open
+when the menu closes. With `lifetime: 'trigger'`, a dialog opened from inside another dialog
+closes when that dialog closes, since its trigger goes with it. Dialogs opened with
+`NgpDialogManager.open()` are not affected.
+
+```ts
+provideDialogConfig({ lifetime: 'trigger' });
+```
+
+### NgpDialogConfig
+
+<api-reference-config name="NgpDialogConfig"></api-reference-config>
+
 ## Accessibility
 
 Adheres to the [WAI-ARIA design pattern](https://www.w3.org/WAI/ARIA/apg/patterns/dialog-modal/examples/dialog/).
 
+Add `autofocus` to one or more usable elements to focus the first one when the dialog opens; otherwise the first tabbable element is focused, or the dialog itself if there is none. If focus is already inside the dialog when it opens, it stays there and `autofocus` is ignored.
+
+When a dialog closes, focus returns to the element that opened it. If that element is gone, for example a menu item whose menu closed on select, focus goes to the trigger of the menu or popover it was in.
+
 ### Keyboard Interactions
 
-- <kbd>Esc</kbd>: Close the dialog.
-- <kbd>Tab</kbd>: Navigate through focusable elements within the dialog.
-- <kbd>Shift</kbd> + <kbd>Tab</kbd>: Navigate backwards through focusable elements within the dialog.
+- <kbd>Esc</kbd>: Close the dialog, as set by `closeOnEscape`. A non-modal dialog only takes an Escape pressed inside it.
+- <kbd>Tab</kbd>: Navigate through focusable elements within the dialog. In a non-modal dialog, focus can move on to the page.
+- <kbd>Shift</kbd> + <kbd>Tab</kbd>: Navigate backwards through focusable elements within the dialog. In a non-modal dialog, focus can move on to the page.

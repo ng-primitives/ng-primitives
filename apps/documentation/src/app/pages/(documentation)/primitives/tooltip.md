@@ -90,6 +90,8 @@ You can provide a separate anchor element using `ngpTooltipTriggerAnchor` to con
 
 <docs-example name="tooltip-custom-anchor"></docs-example>
 
+The anchor is live - rebinding it moves a tooltip that is already showing to the new element.
+
 ### Custom Shift
 
 You can customize the shift behavior to control how the tooltip stays within the viewport:
@@ -146,7 +148,7 @@ By default, the tooltip is kept within the viewport and its clipping ancestors. 
 
 The `--ngp-tooltip-available-width` and `--ngp-tooltip-available-height` custom properties are measured against the flip boundary, or the shift boundary when flip does not set one.
 
-## Using Text Content as Tooltip
+### Using Text Content as Tooltip
 
 The `useTextContent` input (enabled by default) allows the tooltip to automatically use the text content of the trigger element as the tooltip content. This is particularly useful for displaying full text when content is truncated with ellipsis.
 
@@ -160,7 +162,7 @@ The `useTextContent` input (enabled by default) allows the tooltip to automatica
 <button [ngpTooltipTrigger]="myToolip">This won't show a tooltip unless content is provided</button>
 ```
 
-### Important: Global Styles Required
+#### Important: Global Styles Required
 
 When using the `useTextContent` feature or string values, the tooltip styles **must be global** and not encapsulated to the component. This is because the tooltip content is rendered in a portal outside of your component's scope.
 
@@ -183,9 +185,11 @@ When using the `useTextContent` feature or string values, the tooltip styles **m
 
 If you need component-scoped styles, use template-based or component-based tooltips instead of `useTextContent`.
 
-## Conditional Tooltips
+### Show on Overflow
 
 The `showOnOverflow` input allows you to show tooltips only when the trigger element has overflowing content. This is particularly useful for text that might be truncated with ellipsis.
+
+<docs-example name="tooltip-show-on-overflow"></docs-example>
 
 ```html
 <div
@@ -197,7 +201,9 @@ The `showOnOverflow` input allows you to show tooltips only when the trigger ele
 </div>
 ```
 
-## Hoverable Tooltip Content
+Overflow is measured each time the tooltip is about to show, so a trigger whose content changes without the element resizing is handled correctly.
+
+### Hoverable Tooltip Content
 
 Tooltips keep strict tooltip semantics (`role="tooltip"`) while supporting pointer movement from trigger to tooltip content.
 
@@ -231,6 +237,7 @@ The following directives are available to import from the `ng-primitives/tooltip
   <api-attribute name="data-enter" description="Applied when the tooltip is being added to the DOM. This can be used to trigger animations." />
   <api-attribute name="data-exit" description="Applied when the tooltip is being removed from the DOM. This can be used to trigger animations." />
   <api-attribute name="data-placement" description="The final rendered placement of the tooltip." />
+  <api-attribute name="data-reference-hidden" description="Applied while the element the tooltip is positioned against is scrolled or clipped out of view." />
 </api-reference-attributes>
 
 <api-reference-css-vars>
@@ -333,7 +340,7 @@ bootstrapApplication(AppComponent, {
 
 ## Accessibility
 
-The tooltip primitive follows the [WAI-ARIA Tooltip pattern](https://www.w3.org/WAI/ARIA/apg/patterns/tooltip/). The tooltip element is assigned `role="tooltip"` and the trigger element is linked to the tooltip via `aria-describedby`.
+The tooltip primitive follows the [WAI-ARIA Tooltip pattern](https://www.w3.org/WAI/ARIA/apg/patterns/tooltip/). The tooltip element is assigned `role="tooltip"` and the trigger element is linked to the tooltip via `aria-describedby`. Focus opens the tooltip, including focus a screen reader moves, except focus from a pointer (hover covers it) and focus an overlay or dialog hands back to the trigger when it closes.
 
 ### Keyboard Interactions
 

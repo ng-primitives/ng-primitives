@@ -1,9 +1,10 @@
-import { signal, Signal } from '@angular/core';
+import { DOCUMENT } from '@angular/common';
+import { afterNextRender, Injector, inject, signal, Signal } from '@angular/core';
+import { ngpFocusTrap } from 'ng-primitives/focus-trap';
 import { injectElementRef } from 'ng-primitives/internal';
 import {
   attrBinding,
   createPrimitive,
-  listener,
   onDestroy,
   StateInjectionOptions,
 } from 'ng-primitives/state';
@@ -48,6 +49,18 @@ export const [NgpDialogStateToken, ngpDialog, _injectDialogState, provideDialogS
     }: NgpDialogProps) => {
       const elementRef = injectElementRef();
       const dialogRef = injectDialogRef<T, R>();
+      const injector = inject(Injector);
+      const document = inject(DOCUMENT);
+
+      // A non-modal dialog leaves the page usable, so focus can leave it. It joins no trap, which
+      // would otherwise deactivate the trap of a modal dialog below it.
+      if (dialogRef.config.modal !== false) {
+        ngpFocusTrap({});
+      } else {
+        const focusOnRender = afterNextRender({ write: focusOnOpen }, { injector });
+        // A dialog closed before it rendered must not take focus during its exit animation.
+        dialogRef.closed.subscribe(() => focusOnRender.destroy());
+      }
 
       const labelledBy = signal<string[]>([]);
       const describedBy = signal<string[]>([]);
@@ -60,18 +73,17 @@ export const [NgpDialogStateToken, ngpDialog, _injectDialogState, provideDialogS
       attrBinding(elementRef, 'aria-labelledby', () => labelledBy().join(' ') || null);
       attrBinding(elementRef, 'aria-describedby', () => describedBy().join(' ') || null);
 
-      // Listener
-      listener(elementRef, 'click', handleOnClick);
-
       // Close the dialog when the directive is destroyed.
       onDestroy(() => close());
 
-      function close(result?: R): void {
-        dialogRef.close(result);
+      function focusOnOpen(): void {
+        if (!elementRef.nativeElement.contains(document.activeElement)) {
+          elementRef.nativeElement.focus({ preventScroll: true });
+        }
       }
 
-      function handleOnClick(event: Event): void {
-        event.stopPropagation();
+      function close(result?: R): void {
+        dialogRef.close(result);
       }
 
       function setLabelledBy(id: string): void {

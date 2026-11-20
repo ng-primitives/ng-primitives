@@ -61,6 +61,34 @@ The file dropzone primitive allows you to create a dropzone for files. This func
 
 <docs-example name="file-dropzone"></docs-example>
 
+### Validating Files
+
+Limit what can be selected with `fileTypes`, `maxFileSize` (in bytes) and `multiple`. Every source is validated the same way, including files chosen in the dialog, where `accept` is only a hint the user can bypass.
+
+Valid files are emitted through `selected`. Every file that fails is emitted through `rejectedFiles` along with the reasons it failed (`'type'`, `'size'` or `'count'` for files beyond the first when `multiple` is off), even when other files were accepted. `rejected` only fires when no file was accepted.
+
+```html
+<button
+  ngpFileUpload
+  ngpFileUploadFileTypes="image/*,.pdf"
+  ngpFileUploadMaxFileSize="5242880"
+  (ngpFileUploadSelected)="upload($event)"
+  (ngpFileUploadRejectedFiles)="showErrors($event)"
+>
+  Upload
+</button>
+```
+
+### Pasting Files
+
+Pasting is opt-in. Set `paste` to `'host'` (or add the bare attribute) to accept files pasted while the element is focused, or to `'document'` to accept files pasted anywhere on the page. Pasted files go through the same validation as dropped files, and pastes that contain no files, or that land in a text field, are left alone.
+
+Document mode pairs well with a dialog: the dropzone, and its paste listener, only exist while the dialog is open, so users can paste without focusing anything first.
+
+<docs-example name="file-dropzone-paste"></docs-example>
+
+In host mode an element that is not already focusable gets `tabindex="0"`, as a paste only reaches the focused element. Document-mode instances ignore a paste aimed at another focused file upload or dropzone, whatever that one's `paste` setting, unless it sits inside them (such as a browse button in the dropzone), in which case the document-mode instance still handles it. With several document-mode instances and none focused, the order they receive a paste in is not guaranteed, so keep to one per page.
+
 ## API Reference
 
 The following directives are available to import from the `ng-primitives/file-upload` package:
@@ -91,6 +119,38 @@ The following directives are available to import from the `ng-primitives/file-up
   <api-attribute name="data-disabled" description="Applied when the element is disabled." />
 </api-reference-attributes>
 
+## Global Configuration
+
+You can configure the default options for all file uploads and file dropzones in your application by using the `provideFileUploadConfig` and `provideFileDropzoneConfig` functions in a providers array.
+
+```ts
+import { provideFileDropzoneConfig, provideFileUploadConfig } from 'ng-primitives/file-upload';
+
+bootstrapApplication(AppComponent, {
+  providers: [
+    provideFileUploadConfig({
+      fileTypes: ['image/png', '.jpg'],
+      multiple: true,
+      dragAndDrop: false,
+    }),
+    provideFileDropzoneConfig({
+      fileTypes: ['image/png', '.jpg'],
+      multiple: true,
+    }),
+  ],
+});
+```
+
+Any input set on a primitive takes precedence over the configured default.
+
+### NgpFileUploadConfig
+
+<api-reference-config name="NgpFileUploadConfig"></api-reference-config>
+
+### NgpFileDropzoneConfig
+
+<api-reference-config name="NgpFileDropzoneConfig"></api-reference-config>
+
 ## Accessibility
 
 The file upload primitive should be applied to a `<button>` element or another interactive element for keyboard accessibility. The file dropzone is a drag-and-drop target and is not keyboard accessible by default — ensure an alternative method (such as the file upload trigger) is always available.
@@ -98,3 +158,4 @@ The file upload primitive should be applied to a `<button>` element or another i
 ### Keyboard Interactions
 
 - <kbd>Enter</kbd> / <kbd>Space</kbd>: Open the file selection dialog (when applied to a button).
+- <kbd>Ctrl</kbd> / <kbd>Cmd</kbd> + <kbd>V</kbd>: Select files from the clipboard (when `paste` is enabled).

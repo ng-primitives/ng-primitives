@@ -7,6 +7,7 @@ import {
   inject,
   Injector,
   signal,
+  untracked,
 } from '@angular/core';
 import { explicitEffect, injectDimensions } from 'ng-primitives/internal';
 import { listener } from 'ng-primitives/state';
@@ -26,6 +27,8 @@ import { toastTimer } from './toast-timer';
     '[attr.data-swiping]': 'swiping()',
     '[attr.data-swipe-direction]': 'swipeOutDirection()',
     '[attr.data-expanded]': 'options.expanded()',
+    '[attr.data-paused]': 'paused() ? "" : null',
+    '[style.--ngp-toast-duration.ms]': 'duration()',
     '[style.--ngp-toast-gap.px]': 'config.gap',
     '[style.--ngp-toast-z-index]': 'zIndex()',
     '[style.--ngp-toasts-before]': 'index()',
@@ -43,11 +46,22 @@ export class NgpToast {
   private readonly manager = inject(NgpToastManager);
   private readonly injector = inject(Injector);
   private readonly elementRef = inject<ElementRef<HTMLElement>>(ElementRef);
+  /** @internal */
+  readonly element = this.elementRef.nativeElement;
   protected readonly config = injectToastConfig();
   /** @internal */
   readonly options = injectToastOptions();
   private readonly interactivityChecker = inject(InteractivityChecker);
   private readonly isInteracting = signal(false);
+  protected readonly duration = signal(this.options.duration);
+  private readonly persistent = signal(this.options.persistent);
+  private readonly timerRestarts = signal(0);
+
+  /**
+   * How many times `NgpToastRef.update()` has restarted the timer. Key an element on it to restart
+   * a CSS animation that follows the timer, such as a progress bar.
+   */
+  readonly restarts = this.timerRestarts.asReadonly();
 
   private pointerStartRef: { x: number; y: number } | null = null;
   private dragStartTime: Date | null = null;
@@ -124,6 +138,17 @@ export class NgpToast {
   protected readonly zIndex = computed(() => this.toasts().length - this.index());
 
   /**
+   * Whether the auto-dismiss timer is paused.
+   */
+  protected readonly paused = computed(
+    () =>
+      this.persistent() ||
+      this.options.expanded() ||
+      this.isInteracting() ||
+      (this.options.sequential && this.index() > 0),
+  );
+
+  /**
    * The height of the toast in pixels.
    */
   protected readonly dimensions = injectDimensions();
@@ -162,20 +187,35 @@ export class NgpToast {
     // Start the timer when the toast is created
     this.timer.start();
 
-    // Pause the timer when the toast is expanded or when the user is interacting with it
-    // Also pause when in sequential mode and this toast is not at the front
-    explicitEffect(
-      [this.options.expanded, this.isInteracting, this.index, () => this.options.sequential],
-      ([expanded, interacting, index, sequential]) => {
-        // If the toast is expanded, or if the user is interacting with it, pause the timer
-        // In sequential mode, also pause if this toast is not at the front
-        if (expanded || interacting || (sequential && index > 0)) {
-          this.timer.pause();
-        } else {
-          this.timer.start();
-        }
-      },
-    );
+    explicitEffect([this.paused], ([paused]) => {
+      if (paused) {
+        this.timer.pause();
+      } else {
+        this.timer.start();
+      }
+    });
+  }
+
+  /**
+   * Restart the timer with a new duration, or stop it when the toast becomes persistent.
+   * @internal
+   */
+  restart({ duration, persistent }: { duration?: number; persistent?: boolean }): void {
+    this.duration.set(duration ?? this.duration());
+    this.persistent.set(persistent ?? this.persistent());
+    this.timer.reset(this.duration(), this.persistent());
+    this.timerRestarts.update(count => count + 1);
+
+    if (!untracked(this.paused)) {
+      this.timer.start();
+    }
+  }
+
+  /**
+   * The milliseconds left before the toast auto-dismisses. Not reactive.
+   */
+  remaining(): number {
+    return this.timer.remaining();
   }
 
   private onPointerDown(event: PointerEvent): void {
@@ -289,7 +329,10 @@ export class NgpToast {
     const velocity = Math.abs(swipeAmount) / timeTaken;
 
     if (Math.abs(swipeAmount) >= this.config.swipeThreshold || velocity > 0.11) {
-      afterNextRender({ write: () => this.manager.dismiss(this) }, { injector: this.injector });
+      afterNextRender(
+        { write: () => this.manager.dismissBySwipe(this) },
+        { injector: this.injector },
+      );
       return;
     } else {
       this.swipeAmount.set({ x: 0, y: 0 });

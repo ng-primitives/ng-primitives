@@ -1,5 +1,6 @@
 import { Component, TemplateRef, viewChild } from '@angular/core';
 import { fireEvent, render, waitFor } from '@testing-library/angular';
+import { HOVER_BRIDGE_SIBLING_TIMEOUT_MS, HOVER_BRIDGE_TIMEOUT_MS } from 'ng-primitives/internal';
 import { NgpMenu, NgpMenuItem, NgpMenuTrigger, NgpSubmenuTrigger } from 'ng-primitives/menu';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
@@ -353,5 +354,104 @@ describe('NgpMenuTrigger safe-polygon hover bridge', () => {
     await waitFor(() =>
       expect(document.querySelector('[data-testid="menu"]')).not.toBeInTheDocument(),
     );
+  });
+
+  /**
+   * Opens the submenu and pins real menu proportions: the trigger spans the full
+   * width of the parent menu, with the submenu just off its right edge. The
+   * pointer leaves through the trigger's bottom edge, so the sibling rows below
+   * it sit between the pointer and the panel. Time is frozen first, so anything
+   * the corridor decides afterwards is the pointermove path, never the fallback.
+   */
+  async function leaveSubmenuTriggerDownward(): Promise<void> {
+    const { fixture } = await render(SubmenuComponent);
+    const rootTrigger = fixture.debugElement.nativeElement.querySelector(
+      '[data-testid="root-trigger"]',
+    ) as HTMLElement;
+
+    fireEvent.click(rootTrigger);
+    await waitFor(() =>
+      expect(document.querySelector('[data-testid="submenu-trigger"]')).toBeInTheDocument(),
+    );
+
+    const submenuTrigger = document.querySelector('[data-testid="submenu-trigger"]') as HTMLElement;
+    fireEvent.pointerEnter(submenuTrigger, { pointerType: 'mouse' });
+    await waitFor(() =>
+      expect(document.querySelector('[data-testid="submenu"]')).toBeInTheDocument(),
+    );
+
+    const submenu = document.querySelector('[data-testid="submenu"]') as HTMLElement;
+    const rootMenu = document.querySelector('[data-testid="root-menu"]') as HTMLElement;
+    vi.spyOn(submenuTrigger, 'getBoundingClientRect').mockReturnValue(new DOMRect(0, 0, 200, 32));
+    vi.spyOn(submenu, 'getBoundingClientRect').mockReturnValue(new DOMRect(204, 0, 180, 240));
+    // The sibling container the corridor suppresses, and the ground a diagonal
+    // approach to a lower row of the submenu has to cross.
+    vi.spyOn(rootMenu, 'getBoundingClientRect').mockReturnValue(new DOMRect(0, 0, 200, 120));
+
+    vi.useFakeTimers();
+    fireEvent.pointerLeave(submenuTrigger, { pointerType: 'mouse', clientX: 100, clientY: 32 });
+  }
+
+  it('closes the submenu once the pointer settles over a sibling row', async () => {
+    await leaveSubmenuTriggerDownward();
+
+    // Still inside the corridor, and over the sibling rows - which a real
+    // approach crosses - so it is the pointer settling there, not the position,
+    // that ends the corridor.
+    fireEvent.pointerMove(document, { clientX: 140, clientY: 90 });
+
+    await vi.advanceTimersByTimeAsync(HOVER_BRIDGE_SIBLING_TIMEOUT_MS - 1);
+    expect(document.querySelector('[data-testid="submenu"]')).toBeInTheDocument();
+
+    // Well short of the gap timeout, so it is the sibling window that ended it.
+    await vi.advanceTimersByTimeAsync(20);
+    expect(document.querySelector('[data-testid="submenu"]')).not.toBeInTheDocument();
+  });
+
+  it('keeps the submenu open while the pointer crosses the sibling rows toward the panel', async () => {
+    await leaveSubmenuTriggerDownward();
+
+    // The same sibling rows, but tracking toward the panel - a diagonal approach
+    // has to cross them, so this must not read as leaving.
+    fireEvent.pointerMove(document, { clientX: 160, clientY: 60 });
+
+    await vi.advanceTimersByTimeAsync(0);
+
+    expect(document.querySelector('[data-testid="submenu"]')).toBeInTheDocument();
+  });
+
+  /**
+   * The panel lays its rows out with padding around them, so a submenu's
+   * corridor has to tell the strip beside a row apart from the open panel
+   * beyond it. Placing the sibling row explicitly is what makes "beside" and
+   * "well clear of" mean something in these coordinates.
+   */
+  function placeSiblingRow(): void {
+    const siblingRow = document.querySelector('[data-testid="item-1"]') as HTMLElement;
+    vi.spyOn(siblingRow, 'getBoundingClientRect').mockReturnValue(new DOMRect(0, 32, 200, 40));
+  }
+
+  it('keeps the submenu open while the pointer rests on the padding beside a row', async () => {
+    await leaveSubmenuTriggerDownward();
+    placeSiblingRow();
+
+    // The panel's own padding under the last row: inert space the pointer is
+    // resting on, not a sibling waiting to take the hover over.
+    fireEvent.pointerMove(document, { clientX: 140, clientY: 76 });
+
+    await vi.advanceTimersByTimeAsync(HOVER_BRIDGE_TIMEOUT_MS * 4);
+    expect(document.querySelector('[data-testid="submenu"]')).toBeInTheDocument();
+  });
+
+  it('closes once the pointer parks on the panel well clear of its rows', async () => {
+    await leaveSubmenuTriggerDownward();
+    placeSiblingRow();
+
+    // Far enough past the rows to be open ground rather than the gap between
+    // them - the grace around a row is a few pixels, not the whole container.
+    fireEvent.pointerMove(document, { clientX: 140, clientY: 110 });
+
+    await vi.advanceTimersByTimeAsync(HOVER_BRIDGE_TIMEOUT_MS);
+    expect(document.querySelector('[data-testid="submenu"]')).not.toBeInTheDocument();
   });
 });

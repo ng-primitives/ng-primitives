@@ -120,6 +120,19 @@ export class NgpMenuTrigger<T = unknown> {
   });
 
   /**
+   * Define an anchor element for positioning the menu.
+   * If provided, the menu will be positioned relative to this element instead of the trigger.
+   *
+   * The anchor is live, so rebinding it moves an open menu.
+   *
+   * An input only reaches this directive on the next change detection pass, which a press
+   * can outrun - use `setAnchor()` instead when the anchor is claimed during one.
+   */
+  readonly anchor = input<Element | null>(null, {
+    alias: 'ngpMenuTriggerAnchor',
+  });
+
+  /**
    * Define which trigger types are enabled for the menu.
    * @default ['click']
    */
@@ -146,6 +159,17 @@ export class NgpMenuTrigger<T = unknown> {
   });
 
   /**
+   * Whether the menu is modal. While it is open the rest of the page is `inert`, so a click
+   * outside only closes the menu. A menu opened on hover, or from a trigger group, is never modal.
+   * Read each time the menu opens.
+   * @default false
+   */
+  readonly modal = input<boolean, BooleanInput>(this.config.modal, {
+    alias: 'ngpMenuTriggerModal',
+    transform: booleanAttribute,
+  });
+
+  /**
    * The menu trigger state.
    */
   private readonly state = ngpMenuTrigger<T>({
@@ -159,9 +183,11 @@ export class NgpMenuTrigger<T = unknown> {
     scrollBehavior: this.scrollBehavior,
     cooldown: this.cooldown,
     context: this.context as Signal<T>,
+    anchor: this.anchor,
     triggers: this.triggers,
     showDelay: this.showDelay,
     hideDelay: this.hideDelay,
+    modal: this.modal,
   });
 
   /**
@@ -186,6 +212,21 @@ export class NgpMenuTrigger<T = unknown> {
    */
   toggle(event: MouseEvent): void {
     this.state.toggle(event);
+  }
+
+  /**
+   * Set the anchor the menu is positioned against, taking effect immediately rather than
+   * on the next change detection pass.
+   *
+   * Reach for this over `ngpMenuTriggerAnchor` when the anchor is claimed during a press.
+   * Outside-press dismissal is decided on a capture-phase `mouseup`, which a fast tap can
+   * deliver in the same frame as the `pointerdown` that claimed the anchor - before the
+   * binding has reached this directive, so the press dismisses the menu instead of moving
+   * it. Writing the anchor here is visible to that check straight away.
+   * @param anchor - The new anchor element
+   */
+  setAnchor(anchor: Element | null): void {
+    this.state.setAnchor(anchor);
   }
 }
 

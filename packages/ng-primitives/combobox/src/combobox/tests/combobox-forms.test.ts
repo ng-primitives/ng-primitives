@@ -181,6 +181,29 @@ describe('Combobox (reusable component) — reactive forms', () => {
     expect(formControl.value).toBeFalsy();
   });
 
+  it('does not mark the control dirty when opened and closed without a change', async () => {
+    const formControl = new FormControl<string | null>(null);
+    const { fixture } = await render(
+      `<app-combobox [options]="options" [formControl]="formControl"></app-combobox>`,
+      {
+        imports: [ComboboxFixture, ReactiveFormsModule],
+        componentProperties: { options, formControl },
+      },
+    );
+    await fixture.whenStable();
+
+    const spy = vi.fn();
+    formControl.valueChanges.subscribe(spy);
+
+    await userEvent.click(screen.getByTestId('combobox-button'));
+    await userEvent.click(document.body);
+    await fixture.whenStable();
+
+    expect(spy).not.toHaveBeenCalled();
+    expect(formControl.dirty).toBe(false);
+    expect(formControl.value).toBeNull();
+  });
+
   it('does not loop writeValue back through onChange (regression)', async () => {
     const formControl = new FormControl<string | undefined>(undefined);
     const { fixture } = await render(

@@ -1,16 +1,21 @@
+import { DOCUMENT, isPlatformBrowser } from '@angular/common';
 import {
   ApplicationRef,
   computed,
+  DestroyRef,
   inject,
   Injectable,
   Injector,
+  NgZone,
+  PLATFORM_ID,
   RendererFactory2,
   signal,
   TemplateRef,
   Type,
+  untracked,
   ViewContainerRef,
 } from '@angular/core';
-import { createPortal, NgpPortal } from 'ng-primitives/portal';
+import { createPortal, NGP_MODAL_EXEMPT_ATTRIBUTE, NgpPortal } from 'ng-primitives/portal';
 import { injectToastConfig } from '../config/toast-config';
 import { NgpToast, NgpToastPlacement, NgpToastSwipeDirection } from './toast';
 import { provideToastContext } from './toast-context';
@@ -25,16 +30,48 @@ export class NgpToastManager {
   private readonly rendererFactory = inject(RendererFactory2);
   private readonly renderer = this.rendererFactory.createRenderer(null, null);
   private readonly injector = inject(Injector);
+  private readonly document = inject(DOCUMENT);
+  private readonly ngZone = inject(NgZone);
+  private readonly destroyRef = inject(DestroyRef);
+  private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
   // Map to store containers by placement
   private readonly containers = new Map<string, HTMLElement>();
 
+  /** The element focused before focus entered the toasts, where it returns once they are gone. */
+  private focusBeforeToasts: HTMLElement | null = null;
+  /** Whether F6 moved focus to the toasts, so that F6 again or Escape takes it back. */
+  private enteredWithF6 = false;
+  private listeningForKeys = false;
+
   readonly toasts = signal<NgpToastRecord[]>([]);
+
+  /** The toasts playing their exit animation, which can no longer take focus or be updated. */
+  private readonly dismissing = new Set<NgpToastRecord>();
 
   /** Signal that tracks which placements are expanded */
   private readonly expanded = signal<NgpToastPlacement[]>([]);
 
+  constructor() {
+    this.createContainers();
+
+    this.destroyRef.onDestroy(() => {
+      // Toast views are created in the root view container, so they would outlive the manager.
+      // `finishDetach()` ends a close already under way, which `destroyView()` alone would race.
+      this.toasts().forEach(({ portal }) => {
+        portal.finishDetach();
+        portal.destroyView();
+      });
+      this.toasts.set([]);
+      this.containers.forEach(container => container.remove());
+      this.containers.clear();
+    });
+  }
+
   /** Show a toast notification */
-  show(toast: TemplateRef<void> | Type<unknown>, options: NgpToastOptions = {}): NgpToastRef {
+  show<T = unknown>(
+    toast: TemplateRef<void> | Type<unknown>,
+    options: NgpToastOptions<T> = {},
+  ): NgpToastRef<T> {
     // services can't access the view container directly, so this is a workaround.
     // Fall back to the caller's injector when no root component is available.
     const rootComponent = this.applicationRef.components[0];
@@ -46,7 +83,9 @@ export class NgpToastManager {
     let instance: NgpToast | null = null;
     const placement = options.placement ?? this.config.placement;
     const duration = options.duration ?? this.config.duration;
+    this.createContainers();
     const container = this.getOrCreateContainer(placement);
+    const context = signal(options.context as T);
 
     const portal = createPortal(
       toast,
@@ -56,7 +95,7 @@ export class NgpToastManager {
         // resolves from their subtree rather than the root injector. See #823.
         parent: options.injector ?? this.injector,
         providers: [
-          provideToastContext(options.context),
+          provideToastContext(context.asReadonly()),
           provideToastOptions({
             placement,
             duration,
@@ -72,7 +111,10 @@ export class NgpToastManager {
       {
         // Hide the toast when the dismiss method is called
         dismiss: () => this.dismiss(instance!),
-        context: options.context,
+        // A getter, so a template that reads `context` follows the signal
+        get context() {
+          return context();
+        },
       },
     );
 
@@ -83,20 +125,50 @@ export class NgpToastManager {
       throw new Error('A toast must have the NgpToast directive applied.');
     }
 
-    this.toasts.update(toasts => [{ instance: instance!, portal }, ...toasts]);
+    const record: NgpToastRecord = { instance: instance!, portal };
+    this.toasts.update(toasts => [record, ...toasts]);
 
     return {
       dismiss: () => this.dismiss(instance!),
+      update: changes =>
+        untracked(() => {
+          if (this.dismissing.has(record) || !this.toasts().includes(record)) {
+            return;
+          }
+
+          if ('context' in changes) {
+            context.set(changes.context as T);
+          }
+
+          record.instance.restart(changes);
+        }),
     };
   }
 
   /** Hide a toast notification */
-  async dismiss(toast: NgpToast): Promise<void> {
+  dismiss(toast: NgpToast): Promise<void> {
+    return this.hide(toast, false);
+  }
+
+  /** @internal */
+  dismissBySwipe(toast: NgpToast): Promise<void> {
+    // a swipe is a pointer close: focus goes back to the page
+    return this.hide(toast, true);
+  }
+
+  private async hide(toast: NgpToast, bySwipe: boolean): Promise<void> {
     const ref = this.toasts().find(t => t.instance === toast);
 
     if (ref) {
-      // Detach the portal from the container
-      await ref.portal.detach();
+      this.dismissing.add(ref);
+      this.moveFocusOutOf(ref, bySwipe);
+
+      try {
+        // Detach the portal from the container
+        await ref.portal.detach();
+      } finally {
+        this.dismissing.delete(ref);
+      }
 
       // Remove the toast from the list of toasts
       this.toasts.update(toasts => toasts.filter(t => t !== ref));
@@ -109,6 +181,70 @@ export class NgpToastManager {
   }
 
   /**
+   * A toast that holds focus as it starts to close hands focus on before its exit animation:
+   * to the next toast for a keyboard user, otherwise back to where focus was before it
+   * entered the toasts. Waiting for the removal would depend on how the toast animates out.
+   */
+  private moveFocusOutOf(ref: NgpToastRecord, bySwipe: boolean): void {
+    const active = this.document.activeElement;
+
+    if (!active) {
+      return;
+    }
+
+    // Focus on a region itself (after F6, or a click on a toast's text) stays while toasts
+    // remain, so F6 can go on to them, and goes back to the page with the last one.
+    if ([...this.containers.values()].includes(active as HTMLElement)) {
+      if (!this.toasts().some(t => t !== ref && !this.dismissing.has(t))) {
+        this.returnFocus();
+      }
+      return;
+    }
+
+    if (!ref.instance.element.contains(active)) {
+      return;
+    }
+
+    // After a pointer close, focus goes back to the page rather than to a toast the user
+    // never moved to.
+    const neighbour = !bySwipe && active.matches(':focus-visible') ? this.neighbourOf(ref) : null;
+
+    if (neighbour) {
+      focusToast(neighbour);
+    } else {
+      this.returnFocus();
+    }
+  }
+
+  /**
+   * The toast that takes focus when the given one leaves: the next older toast at the same
+   * placement, or the next newer one when it was the oldest.
+   */
+  private neighbourOf(ref: NgpToastRecord): HTMLElement | null {
+    const placement = ref.instance.options.placement;
+    const siblings = this.toasts().filter(t => t.instance.options.placement === placement);
+    const index = siblings.indexOf(ref);
+    // `toasts` lists the newest first: walk to the older toasts, then back to the newer ones
+    const candidates = [...siblings.slice(index + 1), ...siblings.slice(0, index).reverse()];
+    return candidates.find(t => !this.dismissing.has(t))?.instance.element ?? null;
+  }
+
+  /**
+   * A container is a live region, and a live region must be in the page before the content it
+   * announces, or screen readers may skip the first toast. So every placement gets one up front,
+   * once the page has a body: a manager injected from a script in the `<head>` adds them on the
+   * first `show()`. The configured placement comes first so that
+   * `querySelector('[data-ngp-toast-container]')` still finds the container default toasts use.
+   */
+  private createContainers(): void {
+    if (!this.isBrowser || !this.document.body || this.containers.size > 0) {
+      return;
+    }
+    const placements = new Set([this.config.placement, ...TOAST_PLACEMENTS]);
+    placements.forEach(placement => this.getOrCreateContainer(placement));
+  }
+
+  /**
    * Lazily create or get a container for a given placement.
    */
   private getOrCreateContainer(placement: string): HTMLElement {
@@ -117,7 +253,145 @@ export class NgpToastManager {
     }
     const container = this.createContainer(placement);
     this.containers.set(placement, container);
+    this.listenForKeys();
     return container;
+  }
+
+  /**
+   * F6 moves focus to the newest toast's region and back, so toasts stay reachable from the
+   * keyboard even while a dialog traps focus.
+   */
+  private listenForKeys(): void {
+    const view = this.document.defaultView;
+
+    if (this.listeningForKeys || !view) {
+      return;
+    }
+
+    this.listeningForKeys = true;
+
+    const onF6 = (event: KeyboardEvent) => {
+      if (event.key !== 'F6' || event.defaultPrevented) {
+        return;
+      }
+
+      const focused = this.containerOf(this.document.activeElement);
+
+      // Back out only from a region that still shows toasts, and only after an F6 entry.
+      // After a Tab entry, F6 is left to the browser.
+      if (focused && this.hasToasts(focused)) {
+        if (this.enteredWithF6) {
+          event.preventDefault();
+          this.returnFocus();
+        }
+        return;
+      }
+
+      const newest = this.toasts()[0];
+      const container = newest && this.containers.get(newest.instance.options.placement);
+
+      if (!container?.isConnected) {
+        return;
+      }
+
+      event.preventDefault();
+      container.focus({ preventScroll: true });
+      // after focus(): its focusin records an entry that is not an F6 one. From nothing focused it
+      // has no related target to record, so keep the body: F6 again then leaves the toasts.
+      if (!focused) {
+        this.focusBeforeToasts ??= this.document.body;
+      }
+      this.enteredWithF6 = this.focusBeforeToasts !== null;
+    };
+
+    // Capture on the window runs before the overlay registry's capture listener on the
+    // document, so an open dialog never sees the Escape that leaves the toasts.
+    const onEscape = (event: KeyboardEvent) => {
+      if (
+        event.key !== 'Escape' ||
+        event.isComposing ||
+        !this.enteredWithF6 ||
+        !this.containerOf(this.document.activeElement)
+      ) {
+        return;
+      }
+
+      event.preventDefault();
+      event.stopPropagation();
+      this.returnFocus();
+    };
+
+    // Focus entering the toasts by any way (Tab, a click, F6) records where it came from. Focus
+    // coming back from another window has no related target and keeps what was recorded.
+    const onFocusIn = (event: FocusEvent) => {
+      // Focus anywhere else ends the round trip, even when the matching focusout was skipped
+      // because the window was in the background.
+      if (!this.containerOf(event.target as Node | null)) {
+        this.focusBeforeToasts = null;
+        this.enteredWithF6 = false;
+        return;
+      }
+
+      if (
+        event.relatedTarget &&
+        this.containerOf(event.target as Node | null) &&
+        !this.containerOf(event.relatedTarget as Node | null)
+      ) {
+        this.focusBeforeToasts =
+          event.relatedTarget instanceof HTMLElement ? event.relatedTarget : null;
+        this.enteredWithF6 = false;
+      }
+    };
+
+    // Focus leaving the toasts forgets where it came from. Switching to another window does not:
+    // focus comes back to the toasts.
+    const onFocusOut = (event: FocusEvent) => {
+      if (
+        this.document.hasFocus() &&
+        this.containerOf(event.target as Node | null) &&
+        !this.containerOf(event.relatedTarget as Node | null)
+      ) {
+        this.focusBeforeToasts = null;
+        this.enteredWithF6 = false;
+      }
+    };
+
+    this.ngZone.runOutsideAngular(() => {
+      view.addEventListener('keydown', onF6);
+      view.addEventListener('keydown', onEscape, { capture: true });
+      view.addEventListener('focusin', onFocusIn);
+      view.addEventListener('focusout', onFocusOut);
+    });
+
+    this.destroyRef.onDestroy(() => {
+      view.removeEventListener('keydown', onF6);
+      view.removeEventListener('keydown', onEscape, { capture: true });
+      view.removeEventListener('focusin', onFocusIn);
+      view.removeEventListener('focusout', onFocusOut);
+    });
+  }
+
+  private containerOf(node: Node | null): HTMLElement | undefined {
+    return [...this.containers.values()].find(container => container.contains(node));
+  }
+
+  private hasToasts(container: HTMLElement): boolean {
+    return this.toasts().some(
+      toast => this.containers.get(toast.instance.options.placement) === container,
+    );
+  }
+
+  private returnFocus(): void {
+    const target = this.focusBeforeToasts;
+    this.focusBeforeToasts = null;
+    this.enteredWithF6 = false;
+
+    // Nothing had focus before: `body.focus()` would leave focus where it is, so blur instead.
+    if (target === this.document.body) {
+      (this.document.activeElement as HTMLElement | null)?.blur();
+    } else if (target?.isConnected) {
+      target.focus({ preventScroll: true });
+    }
   }
 
   /**
@@ -136,6 +410,7 @@ export class NgpToastManager {
     this.renderer.setAttribute(container, 'aria-atomic', 'false');
     this.renderer.setAttribute(container, 'tabindex', '-1');
     this.renderer.setAttribute(container, 'data-ngp-toast-container', placement);
+    this.renderer.setAttribute(container, NGP_MODAL_EXEMPT_ATTRIBUTE, '');
     container.style.setProperty('position', 'fixed');
     container.style.setProperty('z-index', `${this.config.zIndex}`);
     container.style.setProperty('--ngp-toast-offset-top', `${this.config.offsetTop}px`);
@@ -187,10 +462,19 @@ export class NgpToastManager {
         throw new Error(`Unknown toast placement: ${placement}`);
     }
 
-    this.renderer.appendChild(document.body, container);
+    this.renderer.appendChild(this.document.body, container);
     return container;
   }
 }
+
+const TOAST_PLACEMENTS = Object.keys({
+  'top-start': true,
+  'top-center': true,
+  'top-end': true,
+  'bottom-start': true,
+  'bottom-center': true,
+  'bottom-end': true,
+} satisfies Record<NgpToastPlacement, true>) as NgpToastPlacement[];
 
 export interface NgpToastOptions<T = unknown> {
   /** The position of the toast */
@@ -226,6 +510,47 @@ interface NgpToastRecord {
   portal: NgpPortal;
 }
 
-export interface NgpToastRef {
+export interface NgpToastRef<T = unknown> {
+  /** Dismiss the toast. */
   dismiss(): Promise<void>;
+
+  /**
+   * Change the toast in place: it keeps its position and does not replay its enter animation.
+   * The timer restarts with the new duration, or the current one, unless the toast is persistent.
+   * Does nothing once the toast is being dismissed.
+   */
+  update(changes: NgpToastUpdate<T>): void;
+}
+
+export interface NgpToastUpdate<T = unknown> {
+  /** The new context of the toast. */
+  context?: T;
+
+  /** The new duration of the toast in milliseconds. */
+  duration?: number;
+
+  /** When true, the toast stops its timer; when false, it starts it again. */
+  persistent?: boolean;
+}
+
+/**
+ * Focus a toast, which is not focusable by itself. It holds a tabindex only while focused, so
+ * a click on a toast never focuses it.
+ */
+function focusToast(element: HTMLElement): void {
+  if (!element.hasAttribute('tabindex')) {
+    element.setAttribute('tabindex', '-1');
+
+    const onBlur = () => {
+      // The window losing focus blurs the toast but keeps it active, to refocus on return.
+      if (element.ownerDocument.activeElement === element) {
+        return;
+      }
+      element.removeAttribute('tabindex');
+      element.removeEventListener('blur', onBlur);
+    };
+
+    element.addEventListener('blur', onBlur);
+  }
+  element.focus({ preventScroll: true });
 }

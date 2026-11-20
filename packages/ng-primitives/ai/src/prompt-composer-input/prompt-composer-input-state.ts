@@ -18,7 +18,7 @@ export const [
   providePromptComposerInputState,
 ] = createPrimitive('NgpPromptComposerInput', (): NgpPromptComposerInputState => {
   const element = injectElementRef<HTMLInputElement | HTMLTextAreaElement>();
-  const thread = injectThreadState();
+  const thread = injectThreadState({ optional: true });
   const composer = injectPromptComposerState();
 
   // set the initial state
@@ -62,8 +62,8 @@ export const [
   const state = { setPrompt } satisfies NgpPromptComposerInputState;
 
   // the thread routes suggestions to the input that is currently registered
-  thread().setPromptInput(state);
-  onDestroy(() => thread().removePromptInput(state));
+  thread()?.setPromptInput(state);
+  onDestroy(() => thread()?.removePromptInput(state));
 
   return state;
 });

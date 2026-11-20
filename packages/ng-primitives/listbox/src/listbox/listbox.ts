@@ -59,6 +59,16 @@ export class NgpListbox<T> {
     alias: 'ngpListboxCompareWith',
   });
 
+  /**
+   * Whether selecting an option closes the enclosing popover. Only applies in single selection
+   * mode; a multiple selection listbox never closes it.
+   * @default true
+   */
+  readonly closeOnSelect = input<boolean, BooleanInput>(true, {
+    alias: 'ngpListboxCloseOnSelect',
+    transform: booleanAttribute,
+  });
+
   constructor() {
     ngpListbox({
       id: this.id,
@@ -67,6 +77,7 @@ export class NgpListbox<T> {
       defaultValue: this.defaultValue,
       disabled: this.disabled,
       compareWith: this.compareWith,
+      closeOnSelect: this.closeOnSelect,
       onValueChange: (value: T[]) => this.valueChange.emit(value),
     });
   }

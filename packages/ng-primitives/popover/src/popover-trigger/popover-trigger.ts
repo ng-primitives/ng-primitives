@@ -1,13 +1,6 @@
 import { FocusOrigin } from '@angular/cdk/a11y';
 import { BooleanInput, NumberInput } from '@angular/cdk/coercion';
-import {
-  booleanAttribute,
-  Directive,
-  input,
-  numberAttribute,
-  OnDestroy,
-  output,
-} from '@angular/core';
+import { booleanAttribute, Directive, input, numberAttribute, output } from '@angular/core';
 import {
   coerceFlip,
   dismissGuardAttribute,
@@ -35,7 +28,7 @@ import { ngpPopoverTrigger, providePopoverTriggerState } from './popover-trigger
   exportAs: 'ngpPopoverTrigger',
   providers: [providePopoverTriggerState({ inherit: false })],
 })
-export class NgpPopoverTrigger<T = null> implements OnDestroy {
+export class NgpPopoverTrigger<T = null> {
   /**
    * Access the global popover configuration.
    */
@@ -154,6 +147,19 @@ export class NgpPopoverTrigger<T = null> implements OnDestroy {
   });
 
   /**
+   * Whether the popover is modal. While it is open the rest of the page is `inert`, so a pointer
+   * press outside does not reach it: the click that ends the press closes the popover, unless
+   * `closeOnOutsideClick` says not to. A click from the keyboard or from code is left alone. The
+   * trigger, the anchor, exempt elements and overlays opened above the popover stay usable.
+   * Read each time the popover opens.
+   * @default false
+   */
+  readonly modal = input<boolean, BooleanInput>(this.config.modal, {
+    alias: 'ngpPopoverTriggerModal',
+    transform: booleanAttribute,
+  });
+
+  /**
    * Provide context to the popover. This can be used to pass data to the popover content.
    */
   readonly context = input<T>(undefined, {
@@ -163,8 +169,13 @@ export class NgpPopoverTrigger<T = null> implements OnDestroy {
   /**
    * Define an anchor element for positioning the popover.
    * If provided, the popover will be positioned relative to this element instead of the trigger.
+   *
+   * The anchor is live, so rebinding it moves an open popover.
+   *
+   * An input only reaches this directive on the next change detection pass, which a press
+   * can outrun - use `setAnchor()` instead when the anchor is claimed during one.
    */
-  readonly anchor = input<HTMLElement | null>(null, {
+  readonly anchor = input<Element | null>(null, {
     alias: 'ngpPopoverTriggerAnchor',
   });
 
@@ -190,6 +201,19 @@ export class NgpPopoverTrigger<T = null> implements OnDestroy {
   });
 
   /**
+   * When true, hiding the popover removes its content from the DOM but keeps the
+   * underlying component/view instance alive in memory instead of destroying it - a
+   * later show reuses the same instance rather than creating a new one, so the content
+   * is not re-instantiated and any one-time setup (e.g. a network fetch) is not repeated.
+   * The kept-alive view stays attached to change detection while it is hidden.
+   * @default false
+   */
+  readonly keepMounted = input<boolean, BooleanInput>(this.config.keepMounted, {
+    alias: 'ngpPopoverTriggerKeepMounted',
+    transform: booleanAttribute,
+  });
+
+  /**
    * Event emitted when the popover open state changes.
    */
   readonly openChange = output<boolean>({
@@ -212,16 +236,14 @@ export class NgpPopoverTrigger<T = null> implements OnDestroy {
     closeOnOutsideClick: this.closeOnOutsideClick,
     closeOnEscape: this.closeOnEscape,
     scrollBehavior: this.scrollBehavior,
+    modal: this.modal,
     context: this.context,
     anchor: this.anchor,
     trackPosition: this.trackPosition,
     cooldown: this.cooldown,
+    keepMounted: this.keepMounted,
     onOpenChange: (value: boolean) => this.openChange.emit(value),
   });
-
-  ngOnDestroy(): void {
-    this.state.destroy();
-  }
 
   /**
    * Show the popover.
@@ -238,5 +260,20 @@ export class NgpPopoverTrigger<T = null> implements OnDestroy {
    */
   hide(origin: FocusOrigin = 'program'): Promise<void> {
     return this.state.hide(origin);
+  }
+
+  /**
+   * Set the anchor the popover is positioned against, taking effect immediately rather than
+   * on the next change detection pass.
+   *
+   * Reach for this over `ngpPopoverTriggerAnchor` when the anchor is claimed during a press.
+   * Outside-press dismissal is decided on a capture-phase `mouseup`, which a fast tap can
+   * deliver in the same frame as the `pointerdown` that claimed the anchor - before the
+   * binding has reached this directive, so the press dismisses the popover instead of moving
+   * it. Writing the anchor here is visible to that check straight away.
+   * @param anchor - The new anchor element
+   */
+  setAnchor(anchor: Element | null): void {
+    this.state.setAnchor(anchor);
   }
 }

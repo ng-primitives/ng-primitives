@@ -1,5 +1,5 @@
-import { computed, inject, Injector, signal, Signal } from '@angular/core';
-import { injectElementRef } from 'ng-primitives/internal';
+import { afterEveryRender, computed, inject, Injector, signal, Signal } from '@angular/core';
+import { claimEscapeKey, injectElementRef } from 'ng-primitives/internal';
 import { createPrimitive, dataBinding, listener } from 'ng-primitives/state';
 
 export interface NgpSearchState {
@@ -8,6 +8,11 @@ export interface NgpSearchState {
    * @internal
    */
   readonly empty: Signal<boolean>;
+  /**
+   * Whether the search field cannot be cleared, because the input is disabled or read-only.
+   * @internal
+   */
+  readonly disabled: Signal<boolean>;
 
   /**
    * Clear the search field.
@@ -35,6 +40,8 @@ export const [NgpSearchStateToken, ngpSearch, injectSearchState, provideSearchSt
     /** Whether the input field is empty. */
     const empty = computed(() => value() === '');
 
+    const disabled = signal<boolean>(false);
+
     // Reflect the empty state on the host.
     dataBinding(element, 'data-empty', empty);
 
@@ -46,11 +53,38 @@ export const [NgpSearchStateToken, ngpSearch, injectSearchState, provideSearchSt
       }
     });
 
+    // An Escape that clears text should not also close a surrounding overlay
+    claimEscapeKey(
+      event => element.nativeElement.contains(event.target as Node | null) && canClear(),
+    );
+
+    // Bindings, forms and signal forms write the input's properties without an
+    // event, so re-read them after each render.
+    afterEveryRender({
+      read: () => {
+        const el = input();
+        if (el) {
+          value.set(el.value);
+          disabled.set(isLocked(el));
+        }
+      },
+    });
+
+    function isLocked(el: HTMLInputElement): boolean {
+      return el.disabled || el.readOnly;
+    }
+
+    // only clear what the user could clear by hand, and skip the input event
+    // when there is nothing to clear (it would mark a pristine form dirty)
+    function canClear(): boolean {
+      const el = input();
+      return !!el && !isLocked(el) && el.value !== '';
+    }
+
     function clear(): void {
       const el = input();
 
-      // a disabled input must not be clearable (via Escape or the clear button)
-      if (!el || el.disabled) {
+      if (!el || !canClear()) {
         return;
       }
 
@@ -67,5 +101,5 @@ export const [NgpSearchStateToken, ngpSearch, injectSearchState, provideSearchSt
       listener(el, 'input', () => value.set(el.value), { injector });
     }
 
-    return { empty, clear, registerInput } satisfies NgpSearchState;
+    return { empty, disabled, clear, registerInput } satisfies NgpSearchState;
   });

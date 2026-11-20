@@ -1,4 +1,4 @@
-import { Component, Directive, OnInit } from '@angular/core';
+import { Component, Directive, OnInit, signal } from '@angular/core';
 import { fireEvent, render, screen, waitFor } from '@testing-library/angular';
 import { NgpMenu, NgpMenuItem, NgpMenuTrigger, injectMenuTriggerState } from 'ng-primitives/menu';
 import { NgpTooltip, NgpTooltipTrigger } from 'ng-primitives/tooltip';
@@ -146,6 +146,106 @@ describe('NgpMenuTrigger', () => {
       await waitFor(() => {
         const container = document.querySelector('#menu-host');
         expect(container?.querySelector('[ngpMenu]')).toBeInTheDocument();
+      });
+    });
+
+    it('should honour setContainer() called after the menu has already been opened (fixes #928)', async () => {
+      @Directive({
+        selector: '[captureMenuTrigger]',
+      })
+      class CaptureMenuTriggerDirective {
+        static state: ReturnType<typeof injectMenuTriggerState> | null = null;
+
+        constructor() {
+          CaptureMenuTriggerDirective.state = injectMenuTriggerState();
+        }
+      }
+
+      await render(
+        `
+          <div id="menu-host-a"></div>
+          <div id="menu-host-b"></div>
+
+          <button [ngpMenuTrigger]="menu" ngpMenuTriggerContainer="#menu-host-a" captureMenuTrigger>
+            Open Menu
+          </button>
+
+          <ng-template #menu>
+            <div ngpMenu data-testid="ngp-menu">
+              <button ngpMenuItem>Item 1</button>
+            </div>
+          </ng-template>
+        `,
+        {
+          imports: [NgpMenuTrigger, NgpMenu, NgpMenuItem, CaptureMenuTriggerDirective],
+        },
+      );
+
+      const trigger = screen.getByText('Open Menu');
+
+      fireEvent.click(trigger);
+      await waitFor(() => {
+        const hostA = document.querySelector('#menu-host-a');
+        expect(hostA?.querySelector('[ngpMenu]')).toBeInTheDocument();
+      });
+
+      fireEvent.click(trigger);
+      await waitFor(() => {
+        expect(screen.queryByTestId('ngp-menu')).not.toBeInTheDocument();
+      });
+
+      CaptureMenuTriggerDirective.state!().setContainer(
+        document.querySelector('#menu-host-b') as HTMLElement,
+      );
+
+      fireEvent.click(trigger);
+      await waitFor(() => {
+        const hostB = document.querySelector('#menu-host-b');
+        expect(hostB?.querySelector('[ngpMenu]')).toBeInTheDocument();
+      });
+    });
+
+    it('should render menu into updated container when [ngpMenuTriggerContainer] changes between opens', async () => {
+      @Component({
+        template: `
+          <div id="menu-container-a"></div>
+          <div id="menu-container-b"></div>
+
+          <button [ngpMenuTrigger]="menu" [ngpMenuTriggerContainer]="container()">Open Menu</button>
+
+          <ng-template #menu>
+            <div ngpMenu data-testid="ngp-menu">
+              <button ngpMenuItem>Item 1</button>
+            </div>
+          </ng-template>
+        `,
+        imports: [NgpMenuTrigger, NgpMenu, NgpMenuItem],
+      })
+      class DynamicContainerComponent {
+        readonly container = signal<string>('#menu-container-a');
+      }
+
+      const { fixture, getByText } = await render(DynamicContainerComponent);
+      const trigger = getByText('Open Menu');
+
+      fireEvent.click(trigger);
+      await waitFor(() => {
+        const containerA = document.querySelector('#menu-container-a');
+        expect(containerA?.querySelector('[ngpMenu]')).toBeInTheDocument();
+      });
+
+      fireEvent.click(trigger);
+      await waitFor(() => {
+        expect(screen.queryByTestId('ngp-menu')).not.toBeInTheDocument();
+      });
+
+      fixture.componentInstance.container.set('#menu-container-b');
+      fixture.detectChanges();
+
+      fireEvent.click(trigger);
+      await waitFor(() => {
+        const containerB = document.querySelector('#menu-container-b');
+        expect(containerB?.querySelector('[ngpMenu]')).toBeInTheDocument();
       });
     });
   });

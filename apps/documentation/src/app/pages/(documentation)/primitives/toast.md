@@ -90,6 +90,32 @@ Pass `persistent: true` when calling `show`, or set it globally via `provideToas
 
 <docs-example name="toast-persistent"></docs-example>
 
+### Progress Indicator
+
+Animate a progress bar over `--ngp-toast-duration` and pause it on `data-paused` to keep it in step with the timer. To read the time left in code, call `remaining()` on the `NgpToast` instance.
+
+<docs-example name="toast-progress"></docs-example>
+
+### Update a toast
+
+Change a toast after it is shown, for example to count uploaded files and then show the result. `show()` returns an `NgpToastRef`, whose `update()` takes a new `context`, `duration` or `persistent`. The toast keeps its place in the stack and does not replay its enter animation. Its timer restarts with the new duration, or the current one, so the new content stays long enough to read. A persistent toast keeps its timer stopped until an update sets `persistent: false`. While the toast is paused, by hover or `sequential`, the restarted timer waits for the pause to end.
+
+```ts
+const ref = this.toastManager.show(UploadToast, {
+  persistent: true,
+  context: { label: 'Uploading 1 of 3' },
+});
+
+ref.update({ context: { label: 'Uploading 2 of 3' } });
+ref.update({ context: { label: 'Files uploaded' }, persistent: false, duration: 5000 });
+```
+
+A template reads the new context through `let-context="context"`. A component reads it with `injectToastContextSignal()`; `injectToastContext()` keeps the value passed to `show()`.
+
+The toast keeps its element, so the container's polite live region reads the changed text. A progress bar that animates over `--ngp-toast-duration` does not restart on its own: render it inside a block keyed on the toast's `restarts()`, as below.
+
+<docs-example name="toast-update"></docs-example>
+
 ## API Reference
 
 The following directives are available to import from the `ng-primitives/toast` package:
@@ -108,9 +134,11 @@ The following directives are available to import from the `ng-primitives/toast` 
   <api-attribute name="data-swiping" description="Whether the toast is currently being swiped." value="true, false" />
   <api-attribute name="data-swipe-direction" description="The direction of the swipe gesture." value="left, right, up, down" />
   <api-attribute name="data-expanded" description="Whether the toast is currently expanded. This can be used to collapse or expand stacked toasts." value="true, false" />
+  <api-attribute name="data-paused" description="Applied while the auto-dismiss timer is paused." />
 </api-reference-attributes>
 
 <api-reference-css-vars>
+  <api-css-var name="--ngp-toast-duration" description="The auto-dismiss duration of the toast." />
   <api-css-var name="--ngp-toast-gap" description="The gap between each toast." />
   <api-css-var name="--ngp-toast-z-index" description="The z-index of the toast." />
   <api-css-var name="--ngp-toasts-before" description="The number of toasts before this one." />
@@ -159,3 +187,12 @@ bootstrapApplication(AppComponent, {
 ## Accessibility
 
 For screen reader announcements, ensure your toast container includes `role="status"` or `role="alert"` with `aria-live="polite"` so that new toasts are announced to assistive technology users.
+
+In the browser, `NgpToastManager` adds an empty live region for every placement when it is first injected, once the page has a `<body>` (before that, they are added with the first toast). Screen readers can skip a toast added in the same task as its live region, so inject the manager before the first toast is due, for example in the root component, rather than right where the toast is shown.
+
+### Keyboard Interactions
+
+- <kbd>F6</kbd>: Move focus to the region holding the newest toast, even while a dialog traps focus. Pressed again, return focus to where <kbd>F6</kbd> brought it from, or leave the toasts if nothing was focused; when focus came another way, the browser handles it.
+- <kbd>Esc</kbd>: After <kbd>F6</kbd> moves focus to the toasts, return it to where it was without closing an open dialog.
+
+When the toast that holds keyboard focus closes, focus moves to the next older toast at the same placement, or the newer one if it was the oldest. With no other toast at that placement, or after a pointer interaction, focus returns to the element focused before it entered the toasts.

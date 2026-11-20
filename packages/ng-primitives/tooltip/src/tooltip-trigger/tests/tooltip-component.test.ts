@@ -7,6 +7,7 @@ import {
   NgpTooltipTrigger,
 } from 'ng-primitives/tooltip';
 import { afterEach, describe, expect, it } from 'vitest';
+import { userEvent } from 'vitest/browser';
 
 /**
  * Inline fixture mirroring the reusable tooltip component in
@@ -49,11 +50,11 @@ class TooltipTrigger {
   readonly content = input.required<string>({ alias: 'appTooltipTrigger' });
 
   constructor() {
-    this.tooltipTrigger().tooltip.set(TooltipContent);
+    this.tooltipTrigger().setTooltip(TooltipContent);
   }
 }
 
-describe('Tooltip (reusable component) — standalone', () => {
+describe('Tooltip (reusable component) - standalone', () => {
   afterEach(() => {
     // NgpTooltip is applied as a host directive on <app-tooltip>, so the tooltip
     // renders as an <app-tooltip role="tooltip"> element rather than an
@@ -83,7 +84,8 @@ describe('Tooltip (reusable component) — standalone', () => {
       { imports: [TooltipTrigger] },
     );
 
-    fireEvent.focus(getByRole('button'));
+    await userEvent.keyboard('{Tab}');
+    expect(getByRole('button')).toHaveFocus();
 
     await waitFor(() => {
       const tooltip = document.querySelector('[role="tooltip"]') as HTMLElement;

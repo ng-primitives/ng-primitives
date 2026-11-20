@@ -715,6 +715,62 @@ describe('NgpToggleGroup', () => {
     });
   });
 
+  describe('disabled items', () => {
+    it('should mark every item disabled when the group is disabled', async () => {
+      const { getByTestId } = await render(
+        `<div ngpToggleGroup ngpToggleGroupDisabled="true">
+          <div data-testid="toggle-item-1" ngpToggleGroupItem ngpToggleGroupItemValue="option-1"></div>
+          <div data-testid="toggle-item-2" ngpToggleGroupItem ngpToggleGroupItemValue="option-2"></div>
+        </div>`,
+        { imports: [NgpToggleGroup, NgpToggleGroupItem] },
+      );
+
+      for (const testId of ['toggle-item-1', 'toggle-item-2']) {
+        expect(getByTestId(testId)).toHaveAttribute('data-disabled', '');
+        expect(getByTestId(testId)).toHaveAttribute('aria-disabled', 'true');
+      }
+    });
+
+    it('should follow the group disabled state as it changes', async () => {
+      const { getByTestId, fixture, detectChanges } = await render(
+        `<div ngpToggleGroup [ngpToggleGroupDisabled]="disabled">
+          <div data-testid="toggle-item-1" ngpToggleGroupItem ngpToggleGroupItemValue="option-1"></div>
+        </div>`,
+        {
+          imports: [NgpToggleGroup, NgpToggleGroupItem],
+          componentProperties: { disabled: false },
+        },
+      );
+
+      const item1 = getByTestId('toggle-item-1');
+      expect(item1).not.toHaveAttribute('data-disabled');
+
+      fixture.componentInstance.disabled = true;
+      detectChanges();
+
+      expect(item1).toHaveAttribute('data-disabled', '');
+      expect(item1).toHaveAttribute('aria-disabled', 'true');
+    });
+
+    it('should keep an item disabled when only the item is disabled', async () => {
+      const { getByTestId } = await render(
+        `<div ngpToggleGroup>
+          <div data-testid="toggle-item-1" ngpToggleGroupItem ngpToggleGroupItemValue="option-1"></div>
+          <div
+            data-testid="toggle-item-2"
+            ngpToggleGroupItem
+            ngpToggleGroupItemValue="option-2"
+            ngpToggleGroupItemDisabled="true"
+          ></div>
+        </div>`,
+        { imports: [NgpToggleGroup, NgpToggleGroupItem] },
+      );
+
+      expect(getByTestId('toggle-item-1')).not.toHaveAttribute('data-disabled');
+      expect(getByTestId('toggle-item-2')).toHaveAttribute('data-disabled', '');
+    });
+  });
+
   describe('state hoisting with projected content', () => {
     @Component({
       selector: 'app-hoisted-toggle-group',

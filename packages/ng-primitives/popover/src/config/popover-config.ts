@@ -59,6 +59,15 @@ export interface NgpPopoverConfig {
   scrollBehavior: 'reposition' | 'block' | 'close';
 
   /**
+   * Whether the popover is modal. While it is open the rest of the page is `inert`, so a pointer
+   * press outside does not reach it: the click that ends the press closes the popover, unless
+   * `closeOnOutsideClick` says not to. A click from the keyboard or from code is left alone. The
+   * trigger, the anchor, exempt elements and overlays opened above the popover stay usable.
+   * @default false
+   */
+  modal: boolean;
+
+  /**
    * Configure shift behavior to keep the popover in view.
    * Can be a boolean to enable/disable, or an object with padding and limiter options.
    * @default undefined (enabled by default in overlay)
@@ -79,6 +88,16 @@ export interface NgpPopoverConfig {
    * @default 0
    */
   cooldown: number;
+
+  /**
+   * When true, hiding the popover removes its content from the DOM but keeps the
+   * underlying component/view instance alive in memory instead of destroying it - a
+   * later show reuses the same instance rather than creating a new one, so the content
+   * is not re-instantiated and any one-time setup (e.g. a network fetch) is not repeated.
+   * The kept-alive view stays attached to change detection while it is hidden.
+   * @default false
+   */
+  keepMounted: boolean;
 }
 
 export const defaultPopoverConfig: NgpPopoverConfig = {
@@ -91,9 +110,11 @@ export const defaultPopoverConfig: NgpPopoverConfig = {
   closeOnOutsideClick: true,
   closeOnEscape: true,
   scrollBehavior: 'reposition',
+  modal: false,
   shift: undefined,
   trackPosition: false,
   cooldown: 0,
+  keepMounted: false,
 };
 
 export const NgpPopoverConfigToken = new InjectionToken<NgpPopoverConfig>('NgpPopoverConfigToken');

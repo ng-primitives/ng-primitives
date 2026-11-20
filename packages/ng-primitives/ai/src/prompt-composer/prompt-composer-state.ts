@@ -53,7 +53,7 @@ export const [
   'NgpPromptComposer',
   ({ onSubmit }: NgpPromptComposerProps): NgpPromptComposerState => {
     const element = injectElementRef<HTMLElement>();
-    const thread = injectThreadState();
+    const thread = injectThreadState({ optional: true });
 
     /** Store the current prompt text. */
     const prompt = signal<string>('');
@@ -89,7 +89,7 @@ export const [
 
       onSubmit?.(prompt());
       prompt.set('');
-      thread().scrollToBottom('smooth');
+      thread()?.scrollToBottom('smooth');
     }
 
     return {

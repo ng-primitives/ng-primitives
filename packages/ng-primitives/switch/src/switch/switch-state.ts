@@ -78,6 +78,10 @@ export interface NgpSwitchProps {
    */
   readonly required?: Signal<boolean>;
   /**
+   * Whether the Enter key toggles the switch. Space always toggles it.
+   */
+  readonly toggleOnEnter?: Signal<boolean>;
+  /**
    * Callback fired when the checked state changes.
    */
   readonly onCheckedChange?: (checked: boolean) => void;
@@ -92,6 +96,7 @@ export const [NgpSwitchStateToken, ngpSwitch, injectSwitchState, provideSwitchSt
       defaultChecked: _defaultChecked,
       disabled: _disabled = signal(false),
       required: _required = signal(false),
+      toggleOnEnter = signal(true),
       onCheckedChange,
     }: NgpSwitchProps): NgpSwitchState => {
       const element = injectElementRef<HTMLElement>();
@@ -126,9 +131,20 @@ export const [NgpSwitchStateToken, ngpSwitch, injectSwitchState, provideSwitchSt
       // Listeners
       listener(element, 'click', event => toggle(event));
       listener(element, 'keydown', (event: KeyboardEvent) => {
-        if (event.key === ' ' || event.key === 'Space') {
+        if (event.key === 'Enter' && !toggleOnEnter()) {
+          // also stops a native button from turning Enter into a click
           event.preventDefault();
-          if (!isButton) {
+          return;
+        }
+
+        const isActivationKey = event.key === ' ' || event.key === 'Enter';
+        if (isActivationKey && !isButton) {
+          // prevented on every repeat too, otherwise a held Space scrolls the page
+          event.preventDefault();
+
+          // mirror a native button's toggle count: Enter activates on every keydown, Space only
+          // once per press (native does that on keyup; we ignore the autorepeat instead)
+          if (event.key === 'Enter' || !event.repeat) {
             toggle(event);
           }
         }

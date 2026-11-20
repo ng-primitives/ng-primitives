@@ -1,6 +1,18 @@
 import { BooleanInput } from '@angular/cdk/coercion';
-import { booleanAttribute, Directive, input, OnInit, Signal } from '@angular/core';
-import { ngpRovingFocusItem, provideRovingFocusItemState } from 'ng-primitives/roving-focus';
+import {
+  booleanAttribute,
+  Directive,
+  effect,
+  input,
+  OnInit,
+  Signal,
+  untracked,
+} from '@angular/core';
+import {
+  injectRovingFocusGroupState,
+  ngpRovingFocusItem,
+  provideRovingFocusItemState,
+} from 'ng-primitives/roving-focus';
 import { ngpRadioItem, provideRadioItemState } from './radio-item-state';
 
 /**
@@ -27,11 +39,26 @@ export class NgpRadioItem<T> implements OnInit {
   });
 
   constructor() {
-    ngpRadioItem({
+    const state = ngpRadioItem({
       value: this.value as Signal<T>,
       disabled: this.disabled,
     });
-    ngpRovingFocusItem({ disabled: this.disabled });
+    const rovingItem = ngpRovingFocusItem({ disabled: this.disabled });
+    const group = injectRovingFocusGroupState();
+
+    // the checked radio holds the roving tab stop so Tab enters the group on it rather than
+    // on the first item - which, because a radio group selects on focus, would otherwise
+    // change the value. setTabStop claims it without stealing focus; roving focus takes over
+    // on keyboard nav.
+    effect(() => {
+      const groupState = group();
+
+      if (!groupState || !state.checked() || this.disabled()) {
+        return;
+      }
+
+      untracked(() => groupState.setTabStop(rovingItem.id()));
+    });
   }
 
   ngOnInit(): void {

@@ -1,14 +1,28 @@
 import { FocusOrigin } from '@angular/cdk/a11y';
 import { Directionality } from '@angular/cdk/bidi';
-import { computed, inject } from '@angular/core';
+import { computed, ElementRef, inject, Signal, signal } from '@angular/core';
 import { ngpFocusTrap } from 'ng-primitives/focus-trap';
-import { injectElementRef } from 'ng-primitives/internal';
-import { injectOverlay } from 'ng-primitives/portal';
-import { attrBinding, createPrimitive, listener, styleBinding } from 'ng-primitives/state';
+import {
+  createHoverTransitTracker,
+  HoverTransitTracker,
+  injectElementRef,
+  labelledByTrigger,
+} from 'ng-primitives/internal';
+import { injectOverlay, NgpOverlayFinalFocus } from 'ng-primitives/portal';
+import { injectRovingFocusGroupState } from 'ng-primitives/roving-focus';
+import {
+  attrBinding,
+  createPrimitive,
+  dataBinding,
+  listener,
+  onDestroy,
+  styleBinding,
+} from 'ng-primitives/state';
+import { onChange } from 'ng-primitives/utils';
 import { Subject } from 'rxjs';
 import { injectMenuTriggerState } from '../menu-trigger/menu-trigger-state';
 
-export interface NgpMenuState {
+export interface NgpMenuState extends HoverTransitTracker {
   /**
    * Close the menu and any parent menus.
    * @param origin - The focus origin
@@ -19,14 +33,29 @@ export interface NgpMenuState {
    * @internal
    */
   readonly closeSubmenus: Subject<HTMLElement>;
+  /**
+   * The panel's host element - the shared container a submenu trigger
+   * suppresses pointer-events on while a sibling's hover-bridge is active.
+   * @internal
+   */
+  readonly element: ElementRef<HTMLElement>;
 }
 
-export interface NgpMenuProps {}
+export interface NgpMenuProps {
+  /** Where focus goes when the menu closes. */
+  readonly finalFocus?: Signal<NgpOverlayFinalFocus | null>;
+  /**
+   * @deprecated Has no effect: wrapping is set on the menu's roving focus group, through the
+   * `ngpMenuWrap` or `ngpContextMenuWrap` input.
+   */
+  readonly wrap?: Signal<boolean>;
+}
 
 export const [NgpMenuStateToken, ngpMenu, injectMenuState, provideMenuState] = createPrimitive(
   'NgpMenu',
-  ({}: NgpMenuProps) => {
-    const element = injectElementRef();
+  ({ finalFocus = signal<NgpOverlayFinalFocus | null>(null) }: NgpMenuProps) => {
+    const element = injectElementRef<HTMLElement>();
+    const transit = createHoverTransitTracker();
     const overlay = injectOverlay();
     const directionality = inject(Directionality, { optional: true });
     const menuTrigger = injectMenuTriggerState();
@@ -35,17 +64,27 @@ export const [NgpMenuStateToken, ngpMenu, injectMenuState, provideMenuState] = c
     // Always trap focus in menus per WAI-ARIA guidelines (Tab should not navigate within menus)
     // Pass the open origin so focus trap uses the correct origin for :focus-visible styling
     const openOrigin = computed(() => menuTrigger()?.openOrigin() ?? 'program');
+    const rovingFocusGroup = injectRovingFocusGroupState();
     ngpFocusTrap({
       focusOrigin: openOrigin,
+      // after an Up Arrow on the trigger, the menu opens on its last item
+      initialFocus: () =>
+        menuTrigger()?.openFocus?.() === 'last' ? rovingFocusGroup().lastEnabledElement() : null,
     });
 
     // Register this element as the overlay outlet so floating-ui positions it correctly,
     // even when this directive is on a nested child component rather than the portal root.
     overlay.registerOutletElement(element.nativeElement);
+    overlay.registerAvailableSizePrefix('--ngp-menu');
+
+    onChange(finalFocus, value => overlay.setFinalFocus(value));
+    onDestroy(() => overlay.removeFinalFocus());
 
     // Host bindings
     attrBinding(element, 'role', 'menu');
+    labelledByTrigger(element, () => menuTrigger()?.triggerId());
     attrBinding(element, 'data-placement', overlay.finalPlacement);
+    dataBinding(element, 'data-reference-hidden', overlay.referenceHidden);
     attrBinding(element, 'data-overlay', '');
     styleBinding(element, 'left.px', () => overlay.position().x ?? null);
     styleBinding(element, 'top.px', () => overlay.position().y ?? null);
@@ -123,6 +162,8 @@ export const [NgpMenuStateToken, ngpMenu, injectMenuState, provideMenuState] = c
     return {
       closeAllMenus,
       closeSubmenus,
+      element,
+      ...transit,
     } satisfies NgpMenuState;
   },
 );

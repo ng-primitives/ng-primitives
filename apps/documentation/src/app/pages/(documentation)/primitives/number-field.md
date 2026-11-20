@@ -35,6 +35,17 @@ Assemble the number field directives in your template.
 </div>
 ```
 
+By default, committed values are snapped to the nearest step. Set `ngpNumberFieldSnap` to
+`false` to preserve off-grid values while still clamping them to `min` and `max`.
+
+```html
+<div ngpNumberField [ngpNumberFieldSnap]="false">
+  <button ngpNumberFieldDecrement>−</button>
+  <input ngpNumberFieldInput />
+  <button ngpNumberFieldIncrement>+</button>
+</div>
+```
+
 ## Reusable Component
 
 <docs-snippet name="number-field"></docs-snippet>
@@ -126,7 +137,7 @@ Pressing and holding the increment or decrement button will repeatedly change th
 
 ### Input Validation
 
-Invalid characters are rejected as you type. Only digits, a single decimal point, and a leading minus sign (when `min < 0`) are allowed. On blur, the value is clamped to the min/max range and snapped to the nearest step.
+Invalid characters are rejected as you type. Only digits, a single decimal point, and a leading minus sign (when `min < 0`) are allowed. On blur, the value is clamped to the min/max range and, by default, snapped to the nearest step. Set `ngpNumberFieldSnap` to `false` to disable step snapping.
 
 ### Floating Point Precision
 

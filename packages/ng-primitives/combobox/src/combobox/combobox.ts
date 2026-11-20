@@ -1,5 +1,6 @@
 import { BooleanInput } from '@angular/cdk/coercion';
 import {
+  afterNextRender,
   booleanAttribute,
   computed,
   Directive,
@@ -193,10 +194,17 @@ export class NgpCombobox {
   readonly overlay = computed(() => this.portal()?.overlay());
 
   /**
-   * The open state of the combobox.
+   * Whether the dropdown has been dismissed and is only playing its exit animation.
+   * The overlay keeps reporting itself open until that animation ends.
+   */
+  private readonly closing = signal(false);
+
+  /**
+   * The open state of the combobox. A dropdown that is closing counts as closed, so
+   * input that arrives during its exit animation opens it again.
    * @internal
    */
-  readonly open = computed(() => this.overlay()?.isOpen() ?? false);
+  readonly open = computed(() => !this.closing() && (this.overlay()?.isOpen() ?? false));
 
   /**
    * The options sorted by their index or DOM position.
@@ -263,6 +271,14 @@ export class NgpCombobox {
       }
     });
 
+    // The exit animation has ended once the overlay stops reporting itself open, so the
+    // next open starts from a fully closed dropdown.
+    effect(() => {
+      if (!this.overlay()?.isOpen()) {
+        untracked(() => this.closing.set(false));
+      }
+    });
+
     ngpInteractions({
       focus: true,
       focusWithin: true,
@@ -276,13 +292,28 @@ export class NgpCombobox {
    * Open the dropdown.
    * @internal
    */
-  async openDropdown(): Promise<void> {
+  async openDropdown(options?: NgpComboboxOpenOptions): Promise<void> {
     if (this.state.disabled() || this.open()) {
       return;
     }
 
+    // A closing dropdown is brought back by show(), which cancels its exit animation.
+    const wasClosing = this.closing();
+    this.closing.set(false);
+
+    // Reopened from an openChange(false) handler, the overlay has not started its exit yet,
+    // so show() would find it open and do nothing. The exit starts once that notification
+    // returns, so show it again after that.
+    if (wasClosing) {
+      await Promise.resolve();
+    }
+
     this.openChange.emit(true);
     await this.portal()?.show();
+
+    if (!this.open()) {
+      return;
+    }
 
     let selectedOptionIdx = -1;
 
@@ -305,7 +336,15 @@ export class NgpCombobox {
     if (selectedOptionIdx !== -1) {
       // scroll to and activate the selected option
       this.scrollTo(selectedOptionIdx);
-      this.activeDescendantManager.activateByIndex(selectedOptionIdx);
+      this.activeDescendantManager.activateByIndex(selectedOptionIdx, { scroll: false });
+      return;
+    }
+
+    if (options?.activate === 'last') {
+      this.activeDescendantManager.reset();
+      this.activeDescendantManager.last({ scroll: false });
+      const activeIndex = this.activeDescendantManager.index();
+      this.deferScrollTo(activeIndex);
       return;
     }
 
@@ -330,6 +369,7 @@ export class NgpCombobox {
    * @internal
    */
   onOverlayClosed(): void {
+    this.closing.set(true);
     this.openChange.emit(false);
     // clear the active descendant
     this.activeDescendantManager.reset();
@@ -711,9 +751,7 @@ export class NgpCombobox {
         if (this.open()) {
           this.activatePreviousOption();
         } else {
-          this.openDropdown();
-          // Use setTimeout to ensure dropdown is rendered before selecting last item
-          setTimeout(() => this.activeDescendantManager.last());
+          this.openDropdown({ activate: 'last' });
         }
         event.preventDefault();
         break;
@@ -811,6 +849,23 @@ export class NgpCombobox {
 
     return this.sortedOptions()[index];
   }
+
+  private deferScrollTo(index: number): void {
+    if (index === -1) {
+      return;
+    }
+
+    afterNextRender(
+      {
+        write: () => {
+          if (this.open()) {
+            this.scrollTo(index);
+          }
+        },
+      },
+      { injector: this.injector },
+    );
+  }
 }
 
 /**
@@ -819,6 +874,14 @@ export class NgpCombobox {
  * Will be removed in a future major.
  */
 export type NgpComboboxPlacement = NgpPlacement;
+
+export interface NgpComboboxOpenOptions {
+  /**
+   * Which option to activate once the dropdown has opened and its options have registered.
+   * A selected option always wins over this preference. Defaults to `'first'`.
+   */
+  readonly activate?: 'first' | 'last';
+}
 
 function isOption(value: any): value is NgpComboboxOption {
   return (

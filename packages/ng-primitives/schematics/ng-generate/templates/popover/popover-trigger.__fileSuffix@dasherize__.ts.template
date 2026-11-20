@@ -34,6 +34,6 @@ export class PopoverTrigger {
   });
 
   constructor() {
-    this.popoverTrigger().popover.set(Popover<%= componentSuffix %>);
+    this.popoverTrigger().setPopover(Popover<%= componentSuffix %>);
   }
 }

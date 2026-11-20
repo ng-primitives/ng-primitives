@@ -47,7 +47,7 @@ export const [
     const inputMode = computed(() => {
       const minVal = numberField().min();
       const stepVal = numberField().step();
-      const allowsNegative = !isFinite(minVal) || minVal < 0;
+      const allowsNegative = !Number.isFinite(minVal) || minVal < 0;
       const hasDecimals = stepVal % 1 !== 0;
 
       // Some mobile keyboards can't show both minus sign and decimal point
@@ -65,11 +65,11 @@ export const [
     attrBinding(elementRef, 'spellcheck', 'false');
     attrBinding(elementRef, 'aria-valuemin', () => {
       const min = numberField().min();
-      return isFinite(min) ? min.toString() : null;
+      return Number.isFinite(min) ? min.toString() : null;
     });
     attrBinding(elementRef, 'aria-valuemax', () => {
       const max = numberField().max();
-      return isFinite(max) ? max.toString() : null;
+      return Number.isFinite(max) ? max.toString() : null;
     });
     attrBinding(elementRef, 'aria-valuenow', () => numberField().value()?.toString() ?? null);
     attrBinding(elementRef, 'tabindex', () => tabindex().toString());
@@ -93,7 +93,7 @@ export const [
         numberField().setValue(null);
       } else {
         const parsed = parseFloat(trimmed);
-        if (!isNaN(parsed)) {
+        if (!Number.isNaN(parsed)) {
           numberField().setValue(parsed);
         }
       }
@@ -118,8 +118,8 @@ export const [
 
     // Sync input display value when the number field value changes
     // (programmatically, via stepping, or on commit)
-    explicitEffect([() => numberField().value()], ([value]) => {
-      elementRef.nativeElement.value = value !== null ? String(value) : '';
+    explicitEffect([() => numberField().value()], () => {
+      elementRef.nativeElement.value = formatDisplayValue();
     });
 
     listener(elementRef, 'focus', () => {
@@ -149,7 +149,7 @@ export const [
       const proposed = current.slice(0, selStart) + event.data + current.slice(selEnd);
 
       const minVal = numberField().min();
-      const allowsNegative = !isFinite(minVal) || minVal < 0;
+      const allowsNegative = !Number.isFinite(minVal) || minVal < 0;
 
       // Build a regex for valid partial number input
       const pattern = allowsNegative ? /^-?(\d+\.?\d*|\.\d*)?$/ : /^(\d+\.?\d*|\.\d*)?$/;
@@ -167,7 +167,8 @@ export const [
 
       function getLargeStepMultiplier(): number {
         const s = numberField().step();
-        if (!isFinite(s) || s <= 0) return 1;
+        // `step` is normalised to a finite value; guard only against dividing by zero
+        if (s <= 0) return 1;
         return numberField().largeStep() / s;
       }
 
@@ -193,14 +194,14 @@ export const [
           elementRef.nativeElement.value = formatDisplayValue();
           break;
         case 'Home':
-          if (isFinite(numberField().min())) {
+          if (Number.isFinite(numberField().min())) {
             event.preventDefault();
             numberField().setValue(numberField().min());
             elementRef.nativeElement.value = formatDisplayValue();
           }
           break;
         case 'End':
-          if (isFinite(numberField().max())) {
+          if (Number.isFinite(numberField().max())) {
             event.preventDefault();
             numberField().setValue(numberField().max());
             elementRef.nativeElement.value = formatDisplayValue();
