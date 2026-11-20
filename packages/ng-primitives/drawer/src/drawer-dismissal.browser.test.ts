@@ -91,9 +91,7 @@ describe('Drawer dismissal', () => {
     await createDismissalFixture();
     const popup = await openDrawer();
     const inside = popup.querySelector<HTMLElement>('[data-test-inside]')!;
-    const outside = (fixture!.nativeElement as HTMLElement).querySelector<HTMLElement>(
-      '[data-test-outside]',
-    )!;
+    const outside = outsideButton(fixture!);
 
     dispatchPointer(inside, 'pointerdown', 1);
     dispatchPointer(outside, 'pointerup', 1);
@@ -116,9 +114,7 @@ describe('Drawer dismissal', () => {
     await createDismissalFixture();
     const popup = await openDrawer();
     const inside = popup.querySelector<HTMLElement>('[data-test-inside]')!;
-    const outside = (fixture!.nativeElement as HTMLElement).querySelector<HTMLElement>(
-      '[data-test-outside]',
-    )!;
+    const outside = outsideButton(fixture!);
 
     dispatchPointer(outside, 'pointerdown', 4, 0, 0, 'touch');
     dispatchPointer(outside, 'pointerup', 4, 0, 0, 'touch');
@@ -209,9 +205,7 @@ describe('Drawer dismissal', () => {
     await openDrawer();
     fixture!.componentInstance.disablePointerDismissal.set(true);
     fixture!.detectChanges();
-    const outside = (fixture!.nativeElement as HTMLElement).querySelector<HTMLElement>(
-      '[data-test-outside]',
-    )!;
+    const outside = outsideButton(fixture!);
     const backdrop = document.querySelector<HTMLElement>('[data-test-backdrop]')!;
 
     dispatchPointer(outside, 'pointerdown', 1);
@@ -231,9 +225,7 @@ describe('Drawer dismissal', () => {
   it('dismisses a non-modal drawer on focus-out without stealing focus back', async () => {
     await createDismissalFixture();
     await openDrawer();
-    const outside = (fixture!.nativeElement as HTMLElement).querySelector<HTMLElement>(
-      '[data-test-outside]',
-    )!;
+    const outside = outsideButton(fixture!);
 
     outside.focus();
     fixture!.detectChanges();
@@ -252,9 +244,7 @@ describe('Drawer dismissal', () => {
     second.show();
     stackFixture.detectChanges();
     await waitForElement('[data-test-popup-b]');
-    const outside = (stackFixture.nativeElement as HTMLElement).querySelector<HTMLElement>(
-      '[data-test-outside]',
-    )!;
+    const outside = outsideButton(stackFixture);
 
     dispatchPointer(outside, 'pointerdown', 1);
     dispatchPointer(outside, 'pointerup', 1);
@@ -273,9 +263,7 @@ describe('Drawer dismissal', () => {
     const registry = TestBed.inject(NgpOverlayRegistry);
     expect(registry.getTopmost()?.getElements()).toContain(popup);
 
-    const outside = (fixture!.nativeElement as HTMLElement).querySelector<HTMLElement>(
-      '[data-test-outside]',
-    )!;
+    const outside = outsideButton(fixture!);
     const dropdown = document.createElement('div');
     document.body.append(dropdown);
     const registerDropdown = (dismissPolicy: NgpDismissPolicy) =>
@@ -396,4 +384,8 @@ function dispatchPointer(
 async function waitForElement(selector: string): Promise<HTMLElement> {
   await vi.waitFor(() => expect(document.querySelector(selector)).not.toBeNull());
   return document.querySelector<HTMLElement>(selector)!;
+}
+
+function outsideButton(fixture: ComponentFixture<unknown>): HTMLElement {
+  return (fixture.nativeElement as HTMLElement).querySelector<HTMLElement>('[data-test-outside]')!;
 }

@@ -491,6 +491,7 @@ describe('Drawer snap point integration', () => {
 
     expect(popup.style.getPropertyValue('--ngp-drawer-swipe-movement-y')).toBe('-50px');
     expect(Number(popup.style.getPropertyValue('--ngp-drawer-swipe-progress'))).toBeCloseTo(0.25);
+    // A context menu cancels the active gesture, so the drawer is not left mid-swipe.
     viewport.dispatchEvent(new MouseEvent('contextmenu', { bubbles: true }));
   });
 
@@ -506,6 +507,7 @@ describe('Drawer snap point integration', () => {
     dispatchPointer(viewport, 'pointermove', 50, 1, 24, 100);
 
     expect(Number(popup.style.getPropertyValue('--ngp-drawer-swipe-progress'))).toBe(0);
+    // A context menu cancels the active gesture, so the drawer is not left mid-swipe.
     viewport.dispatchEvent(new MouseEvent('contextmenu', { bubbles: true }));
   });
 
@@ -940,7 +942,13 @@ function rect(height: number): DOMRect {
 
 async function expectRunningTransformAnimation(element: HTMLElement): Promise<void> {
   await vi.waitFor(() => {
-    const animation = element.getAnimations().find(candidate => candidate.playState === 'running');
+    const animation = element
+      .getAnimations()
+      .find(
+        candidate =>
+          candidate.playState === 'running' &&
+          (candidate as CSSTransition).transitionProperty === 'transform',
+      );
     expect(animation).toBeDefined();
   });
 }
