@@ -386,6 +386,45 @@ describe('Drawer accessibility', () => {
     expect(document.activeElement).not.toBe(trigger);
   });
 
+  it('restores focus to the trigger when a non-modal drawer closes with no focus owner', async () => {
+    await createAccessibilityFixture();
+    fixture!.componentInstance.modal.set(false);
+    const trigger = (fixture!.nativeElement as HTMLElement).querySelector<HTMLElement>(
+      '[data-test-trigger]',
+    )!;
+    trigger.click();
+    fixture!.detectChanges();
+    const popup = await waitForElement('[data-test-popup]');
+    await vi.waitFor(() => expect(popup.contains(document.activeElement)).toBe(true));
+
+    (document.activeElement as HTMLElement).blur();
+    expect(document.activeElement).toBe(document.body);
+    fixture!.componentInstance.root().hide();
+    fixture!.detectChanges();
+
+    await vi.waitFor(() => expect(document.activeElement).toBe(trigger));
+  });
+
+  it('leaves focus where the user moved it outside a non-modal drawer', async () => {
+    await createAccessibilityFixture();
+    fixture!.componentInstance.modal.set(false);
+    const outside = appendOutsideElement();
+    const trigger = (fixture!.nativeElement as HTMLElement).querySelector<HTMLElement>(
+      '[data-test-trigger]',
+    )!;
+    trigger.click();
+    fixture!.detectChanges();
+    const popup = await waitForElement('[data-test-popup]');
+    await vi.waitFor(() => expect(popup.contains(document.activeElement)).toBe(true));
+
+    outside.focus();
+    fixture!.componentInstance.root().hide();
+    fixture!.detectChanges();
+    await nextFrame();
+
+    expect(document.activeElement).toBe(outside);
+  });
+
   it('preserves consumer isolation state and excludes live regions', async () => {
     await createAccessibilityFixture();
     const outside = appendOutsideElement();

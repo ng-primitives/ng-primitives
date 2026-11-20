@@ -99,8 +99,15 @@ export class DrawerFocusManager {
       return;
     }
 
+    // A non-modal drawer respects focus the user moved elsewhere. `body` is not such a move: it is
+    // where focus falls when nothing owns it, so restoration still applies.
     const activeElement = this.activeElement();
-    if (mode === false && activeElement && !this.popup.contains(activeElement)) {
+    if (
+      mode === false &&
+      activeElement &&
+      activeElement !== this.document.body &&
+      !this.popup.contains(activeElement)
+    ) {
       return;
     }
 
