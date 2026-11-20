@@ -185,7 +185,8 @@ export class NgpAutocomplete {
 
   /**
    * Place the dropdown at a viewport position, or at the autocomplete element with `null`. A
-   * function is measured again whenever the page scrolls or resizes, as a caret moves with its text.
+   * function is measured as the dropdown opens and again whenever the page scrolls or resizes
+   * while it is open, as a caret moves with its text.
    */
   setPosition(position: NgpPosition | (() => NgpPosition | null) | null): void {
     this.state.setPosition(position);

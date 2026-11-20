@@ -103,6 +103,9 @@ export const [
     let completion: Completion | null = null;
     let fragment: NgpAutocompleteFragment | null = null;
 
+    // The fragment start and text the dropdown was last placed for.
+    let positionedAt: { start: number; text: string } | null = null;
+
     const focused = signal(false);
     const composing = signal(false);
 
@@ -281,9 +284,22 @@ export const [
         return;
       }
 
-      // a function, as the fragment's caret moves on screen when the page or the textarea scrolls
       const start = fragment?.start;
-      state().setPosition(start === undefined ? null : () => getCaretPosition(element, start));
+
+      if (start === undefined) {
+        positionedAt = null;
+        state().setPosition(null);
+        return;
+      }
+
+      // a caret move over the same text leaves the fragment where it is on screen
+      if (positionedAt?.start === start && positionedAt.text === element.value) {
+        return;
+      }
+
+      positionedAt = { start, text: element.value };
+      // a function, as the fragment's caret moves on screen when the page or the textarea scrolls
+      state().setPosition(() => getCaretPosition(element, start));
     }
 
     function updateCompletion(text: string | undefined): void {

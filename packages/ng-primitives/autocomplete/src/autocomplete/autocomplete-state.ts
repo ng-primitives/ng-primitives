@@ -6,6 +6,7 @@ import {
   ElementRef,
   inject,
   Injector,
+  NgZone,
   Signal,
   signal,
   untracked,
@@ -20,13 +21,7 @@ import type {
   NgpPlacement,
   NgpPosition,
 } from 'ng-primitives/portal';
-import {
-  createPrimitive,
-  dataBinding,
-  listener,
-  onDestroy,
-  StateInjectionOptions,
-} from 'ng-primitives/state';
+import { createPrimitive, dataBinding, listener, StateInjectionOptions } from 'ng-primitives/state';
 import type { NgpAutocompleteButtonState } from '../autocomplete-button/autocomplete-button-state';
 import type { NgpAutocompleteDropdownState } from '../autocomplete-dropdown/autocomplete-dropdown-state';
 import type { NgpAutocompleteInputState } from '../autocomplete-input/autocomplete-input-state';
@@ -97,12 +92,6 @@ export interface NgpAutocompleteState<T> {
   /** The id of the active option, for `aria-activedescendant`. */
   readonly activeOptionId: Signal<string | undefined>;
 
-  /**
-   * The option the active descendant points at.
-   * @internal
-   */
-  readonly activeOption: Signal<NgpAutocompleteOptionState | undefined>;
-
   /** The viewport position the dropdown is placed at instead of the autocomplete element. */
   readonly position: Signal<NgpPosition | null>;
 
@@ -136,7 +125,8 @@ export interface NgpAutocompleteState<T> {
 
   /**
    * Place the dropdown at a viewport position, or at the autocomplete element with `null`. A
-   * function is measured again whenever the page scrolls or resizes, as a caret moves with its text.
+   * function is measured as the dropdown opens and again whenever the page scrolls or resizes
+   * while it is open, as a caret moves with its text.
    */
   setPosition(position: NgpPosition | (() => NgpPosition | null) | null): void;
 
@@ -274,14 +264,23 @@ export const [
     const elementRef = injectElementRef<HTMLElement>();
     const injector = inject(Injector);
     const document = inject(DOCUMENT);
+    const ngZone = inject(NgZone);
 
     const portal = signal<NgpAutocompletePortalState | undefined>(undefined);
     const dropdown = signal<NgpAutocompleteDropdownState | undefined>(undefined);
     const input = signal<NgpAutocompleteInputState | undefined>(undefined);
     const button = signal<NgpAutocompleteButtonState | undefined>(undefined);
-    const options = signal<NgpAutocompleteOptionState[]>([]);
     const position = signal<NgpPosition | null>(null);
-    let measurePosition: (() => NgpPosition | null) | null = null;
+    const measurePosition = signal<(() => NgpPosition | null) | null>(null);
+
+    // A Set and a version keep registering N options O(N): the list is built once per read,
+    // not copied on every registration.
+    const optionSet = new Set<NgpAutocompleteOptionState>();
+    const optionsVersion = signal(0);
+    const options = computed(() => {
+      optionsVersion();
+      return Array.from(optionSet);
+    });
 
     const overlay = computed(() => portal()?.overlay());
 
@@ -405,10 +404,29 @@ export const [
       closeDropdown();
     });
 
-    // a measured position moves on screen with the page, so it is measured again
-    listener(document, 'scroll', refreshPosition, { config: { capture: true, passive: true } });
-    document.defaultView?.addEventListener('resize', refreshPosition, { passive: true });
-    onDestroy(() => document.defaultView?.removeEventListener('resize', refreshPosition));
+    // a boolean, so a new measure function on every keystroke doesn't re-add the listeners
+    const isMeasured = computed(() => measurePosition() !== null);
+
+    // A measured position moves on screen with the page, so it is measured again. Only while it
+    // is shown, so a closed or element-anchored autocomplete holds no page-wide listener.
+    effect(onCleanup => {
+      if (!open() || !isMeasured()) {
+        return;
+      }
+
+      const view = document.defaultView;
+      const scrollOptions = { capture: true, passive: true };
+
+      ngZone.runOutsideAngular(() => {
+        document.addEventListener('scroll', refreshPosition, scrollOptions);
+        view?.addEventListener('resize', refreshPosition, { passive: true });
+      });
+
+      onCleanup(() => {
+        document.removeEventListener('scroll', refreshPosition, scrollOptions);
+        view?.removeEventListener('resize', refreshPosition);
+      });
+    });
 
     async function openDropdown(openOptions?: NgpAutocompleteOpenOptions): Promise<void> {
       if (disabled() || open()) {
@@ -430,8 +448,9 @@ export const [
       activeDescendantManagerInstance.reset();
 
       // the page may have scrolled while the dropdown was closed
-      if (measurePosition) {
-        position.set(measurePosition());
+      const measure = measurePosition();
+      if (measure) {
+        position.set(measure());
       }
 
       onOpenChange?.(true);
@@ -522,17 +541,21 @@ export const [
 
     function setPosition(newPosition: NgpPosition | (() => NgpPosition | null) | null): void {
       if (typeof newPosition === 'function') {
-        measurePosition = newPosition;
-        position.set(newPosition());
+        measurePosition.set(newPosition);
+        // openDropdown measures as it opens, so a closed dropdown skips the work
+        if (open()) {
+          position.set(newPosition());
+        }
       } else {
-        measurePosition = null;
+        measurePosition.set(null);
         position.set(newPosition);
       }
     }
 
     function refreshPosition(): void {
-      if (measurePosition && open()) {
-        position.set(measurePosition());
+      const measure = measurePosition();
+      if (measure && open()) {
+        position.set(measure());
       }
     }
 
@@ -698,11 +721,14 @@ export const [
     }
 
     function registerOption(option: NgpAutocompleteOptionState): void {
-      options.update(current => [...current, option]);
+      optionSet.add(option);
+      optionsVersion.update(version => version + 1);
     }
 
     function unregisterOption(option: NgpAutocompleteOptionState): void {
-      options.update(current => current.filter(o => o !== option));
+      if (optionSet.delete(option)) {
+        optionsVersion.update(version => version + 1);
+      }
     }
 
     function scrollTo(index: number): void {
@@ -752,7 +778,6 @@ export const [
       open,
       dropdownId,
       activeOptionId: activeDescendantManagerInstance.id,
-      activeOption,
       position: position.asReadonly(),
       activeDescendantManager: activeDescendantManagerInstance,
       openDropdown,

@@ -55,6 +55,9 @@ export const [
 
     // Event listeners
     listener(elementRef, 'click', toggleDropdown);
+    // focus, and the caret, stay in the element that drives the list, even one of the consumer's
+    // own that the button cannot focus back
+    listener(elementRef, 'mousedown', event => event.preventDefault());
 
     async function toggleDropdown(): Promise<void> {
       await state().toggleDropdown({ activate: 'selected' });

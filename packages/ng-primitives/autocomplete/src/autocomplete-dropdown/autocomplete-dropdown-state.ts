@@ -1,6 +1,12 @@
 import { ElementRef, Signal, signal } from '@angular/core';
-import { injectElementRef, observeResize } from 'ng-primitives/internal';
-import { attrBinding, createPrimitive, onDestroy, styleBinding } from 'ng-primitives/state';
+import { injectElementRef, observeResize, preventFocusLossOnPress } from 'ng-primitives/internal';
+import {
+  attrBinding,
+  createPrimitive,
+  listener,
+  onDestroy,
+  styleBinding,
+} from 'ng-primitives/state';
 import { uniqueId } from 'ng-primitives/utils';
 import { injectAutocompleteState } from '../autocomplete/autocomplete-state';
 
@@ -63,6 +69,11 @@ export const [
     styleBinding(elementRef, '--ngp-autocomplete-width.px', () => autocompleteDimensions().width);
     styleBinding(elementRef, '--ngp-autocomplete-input-width.px', () => inputDimensions().width);
     styleBinding(elementRef, '--ngp-autocomplete-button-width.px', () => buttonDimensions().width);
+
+    // Event listeners
+    // focus leaving the autocomplete closes the dropdown, and a press on padding or plain text
+    // would send it to the body
+    listener(elementRef, 'mousedown', preventFocusLossOnPress);
 
     const dropdownState = {
       elementRef,

@@ -1334,11 +1334,18 @@ describe('NgpAutocomplete inside NgpDialog', () => {
     return { fixture, component };
   }
 
+  // fireEvent rather than userEvent.type, which races the dialog's ApplicationRef portal (NG0101).
+  // The inputType makes it count as typing, which is what opens the dropdown.
+  function typeInDialog(input: HTMLInputElement, value: string): void {
+    input.focus();
+    fireEvent.input(input, { target: { value }, inputType: 'insertText' });
+  }
+
   it('should keep focus on the input when its dropdown opens outside the dialog', async () => {
     await openDialogWithAutocomplete();
 
     const input = (await screen.findByTestId('dialog-autocomplete-input')) as HTMLInputElement;
-    await userEvent.type(input, 'a');
+    typeInDialog(input, 'a');
 
     await waitFor(() => expect(screen.getByRole('listbox')).toBeInTheDocument());
     expect(document.activeElement).toBe(input);
@@ -1348,7 +1355,7 @@ describe('NgpAutocomplete inside NgpDialog', () => {
     await openDialogWithAutocomplete();
 
     const input = (await screen.findByTestId('dialog-autocomplete-input')) as HTMLInputElement;
-    await userEvent.type(input, 'App');
+    typeInDialog(input, 'App');
 
     expect(input.value).toBe('App');
     await waitFor(() => expect(screen.getByText('Apple')).toBeInTheDocument());

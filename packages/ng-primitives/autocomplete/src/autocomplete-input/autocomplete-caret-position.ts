@@ -48,6 +48,9 @@ export function getCaretPosition(
   const document = element.ownerDocument;
   const style = getComputedStyle(element);
   const isInput = element.nodeName === 'INPUT';
+  // read before the mirror is added, so only the mirror's offsets force a layout
+  const rect = element.getBoundingClientRect();
+  const { scrollLeft, scrollTop } = element;
   const mirror = document.createElement('div');
 
   for (const property of mirroredProperties) {
@@ -85,11 +88,9 @@ export function getCaretPosition(
   const left = parseFloat(style.borderLeftWidth) + marker.offsetLeft;
   mirror.remove();
 
-  const rect = element.getBoundingClientRect();
-
   return {
-    x: rect.left + left - element.scrollLeft,
+    x: rect.left + left - scrollLeft,
     // an input centres its single line, so its bottom edge is the line's bottom
-    y: isInput ? rect.bottom : rect.top + top - element.scrollTop,
+    y: isInput ? rect.bottom : rect.top + top - scrollTop,
   };
 }

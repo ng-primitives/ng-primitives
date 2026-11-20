@@ -1,7 +1,7 @@
 import { Component, computed, signal } from '@angular/core';
 import { render, screen, waitFor } from '@testing-library/angular';
 import { userEvent } from '@testing-library/user-event';
-import { afterEach, describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { NgpAutocompleteDropdown } from '../../autocomplete-dropdown/autocomplete-dropdown';
 import { getCaretPosition } from '../../autocomplete-input/autocomplete-caret-position';
 import {
@@ -319,5 +319,29 @@ describe('NgpAutocomplete fragments', () => {
 
     // back at the top, the fragment's line sits further down, below the visible rows
     expect(scrolledUp).toBeGreaterThan(scrolledDown);
+  });
+
+  it('should measure the fragment once per keystroke while open, and not while closed', async () => {
+    await render(MentionComponent);
+    const textarea = screen.getByTestId('message');
+    // the caret is measured by laying the text out again in a hidden mirror
+    const appendChild = vi.spyOn(document.body, 'appendChild');
+    const measures = () =>
+      appendChild.mock.calls.filter(
+        ([node]) => node instanceof HTMLDivElement && node.style.visibility === 'hidden',
+      ).length;
+
+    // the trigger alone is below the minimum length, so the dropdown stays closed
+    await userEvent.type(textarea, 'Hi @');
+    expect(measures()).toBe(0);
+
+    await userEvent.type(textarea, 'm');
+    await screen.findByRole('listbox');
+    expect(measures()).toBe(1);
+
+    await userEvent.type(textarea, 'a');
+    expect(measures()).toBe(2);
+
+    appendChild.mockRestore();
   });
 });

@@ -211,6 +211,19 @@ describe('NgpAutocomplete driven by an element of your own', () => {
     expect(editor).toHaveFocus();
   });
 
+  it('should keep focus in the editor when the button is pressed', async () => {
+    const { autocomplete, editor } = await setup();
+
+    await userEvent.click(screen.getByTestId('inside'));
+    await screen.findByRole('listbox');
+    expect(editor).toHaveFocus();
+
+    await userEvent.click(screen.getByTestId('inside'));
+    await expectClosed();
+    expect(autocomplete.open()).toBe(false);
+    expect(editor).toHaveFocus();
+  });
+
   it('should stay open on a press inside the editor', async () => {
     const { fixture, autocomplete, editor } = await setup();
 
