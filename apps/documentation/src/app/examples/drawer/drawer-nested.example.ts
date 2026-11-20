@@ -78,7 +78,9 @@ import {
                                         Notes
                                         <textarea rows="3">Rotate recovery codes.</textarea>
                                       </label>
-                                      <button ngpButton ngpDrawerClose>Done</button>
+                                      <div class="actions actions-end">
+                                        <button ngpButton ngpDrawerClose>Done</button>
+                                      </div>
                                     </div>
                                   </section>
                                 </div>
@@ -275,6 +277,10 @@ import {
       justify-content: space-between;
       gap: 0.75rem;
       margin-block-start: 1.5rem;
+    }
+
+    .actions-end {
+      justify-content: flex-end;
     }
 
     label {
