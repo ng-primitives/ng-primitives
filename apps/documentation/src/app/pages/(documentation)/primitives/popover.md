@@ -146,6 +146,16 @@ Use dismiss guards to prevent a popover from closing when there are unsaved chan
 
 <docs-example name="popover-dismiss-guard"></docs-example>
 
+### Controlled
+
+Bind `ngpPopoverTriggerOpen` to own the open state - to open the popover from somewhere else, restore it from the URL, or keep it open while work it started is in flight. With `[(ngpPopoverTriggerOpen)]` the binding follows every open and close.
+
+<docs-example name="popover-controlled"></docs-example>
+
+While it is bound, the binding decides. A click on the trigger, Escape or an outside press emits `ngpPopoverTriggerOpenChange` and the popover waits for the binding to change, so a value you do not update keeps it as it is. A change you make to the binding opens or closes it with the usual animations, skips the show and hide delays, and is not emitted back. Calls to `show()` and `hide()`, and a listbox closing its popover on select, are requests too. A few closes cannot wait for the binding - the trigger being hidden, the content being cleared, a parent overlay closing - and are emitted as they happen, so a binding you do not update from `ngpPopoverTriggerOpenChange` can be left `true` on a closed popover.
+
+Use `ngpPopoverTriggerDefaultOpen` instead to open an unbound popover on first render.
+
 ### Handling Escape inside the popover
 
 Overlays handle Escape before the controls inside them, so stopping the event in a control is too late. A control that uses Escape itself, such as an inline-edit field that reverts its value, claims the key with `claimEscapeKey` from `ng-primitives/portal`. Call it in an injection context; the claim is released when that context is destroyed. A claimed Escape pressed inside the topmost overlay leaves it open. Compare against `event.composedPath()[0]` rather than `event.target`, which is retargeted to the shadow host when the overlay renders inside a shadow root.
