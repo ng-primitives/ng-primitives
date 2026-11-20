@@ -82,6 +82,31 @@ class SwipeAreaHost {
   }
 }
 
+@Component({
+  imports: [NgpDrawerPopup, NgpDrawerPortal, NgpDrawer, NgpDrawerSwipeArea, NgpDrawerViewport],
+  template: `
+    <ng-container [modal]="false" ngpDrawer swipeDirection="down">
+      <div data-test-motion-area ngpDrawerSwipeArea></div>
+      <ng-template ngpDrawerPortal>
+        <div ngpDrawerViewport>
+          <section data-test-motion-popup ngpDrawerPopup></section>
+        </div>
+      </ng-template>
+    </ng-container>
+  `,
+  styles: `
+    [data-test-motion-popup] {
+      height: 200px;
+      transform: translateY(var(--ngp-drawer-swipe-movement-y, 0px));
+      transition: transform 300ms linear;
+    }
+    [data-test-motion-popup][data-swiping] {
+      transition-duration: 0ms;
+    }
+  `,
+})
+class SwipeAreaMotionHost {}
+
 describe('Drawer SwipeArea', () => {
   let fixture: ComponentFixture<SwipeAreaHost>;
 
@@ -556,6 +581,41 @@ describe('Drawer SwipeArea', () => {
   function getPopup(): HTMLElement {
     return document.querySelector<HTMLElement>('[data-test-area-popup]')!;
   }
+});
+
+describe('Drawer SwipeArea release motion', () => {
+  let fixture: ComponentFixture<SwipeAreaMotionHost>;
+
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({ imports: [SwipeAreaMotionHost] }).compileComponents();
+    fixture = TestBed.createComponent(SwipeAreaMotionHost);
+    fixture.detectChanges();
+  });
+
+  afterEach(() => {
+    fixture.destroy();
+  });
+
+  it('animates the popup open from where the finger released it', async () => {
+    const area = (fixture.nativeElement as HTMLElement).querySelector<HTMLElement>(
+      '[data-test-motion-area]',
+    )!;
+    dispatch(area, 'pointerdown', { buttons: 1, pointerId: 30, time: 0, y: 180 });
+    dispatch(area, 'pointermove', { buttons: 1, pointerId: 30, time: 100, y: 60 });
+    fixture.detectChanges();
+    await vi.waitFor(() =>
+      expect(document.querySelector('[data-test-motion-popup]')).not.toBeNull(),
+    );
+    await animationFrame();
+    const popup = document.querySelector<HTMLElement>('[data-test-motion-popup]')!;
+    expect(new DOMMatrixReadOnly(getComputedStyle(popup).transform).m42).toBe(80);
+
+    dispatch(area, 'pointerup', { buttons: 0, pointerId: 30, time: 101, y: 60 });
+
+    // No change detection yet: a browser frame can resolve styles before Angular's bindings
+    // drop `data-swiping`, and the consumer's zero-duration swiping rule must not apply then.
+    expect(popup.getAnimations().map(animation => animation.playState)).toEqual(['running']);
+  });
 });
 
 interface PointerOptions {

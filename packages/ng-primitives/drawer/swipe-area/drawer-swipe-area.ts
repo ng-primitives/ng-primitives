@@ -12,6 +12,7 @@ import {
 } from '@angular/core';
 import { injectElementRef } from 'ng-primitives/internal';
 import { dataBinding } from 'ng-primitives/state';
+import { NGP_DRAWER_DATA_ATTRIBUTES } from '../drawer.constants';
 import { NgpDrawerSwipeDirection } from '../drawer.types';
 import { DrawerStackService } from '../internal/drawer-stack.service';
 import { injectDrawerState, requireDrawerState } from '../internal/drawer-state';
@@ -542,8 +543,19 @@ export class NgpDrawerSwipeArea {
   }
 
   private restoreVisuals(): void {
+    if (this.visualSnapshots.size === 0) {
+      return;
+    }
     for (const [element, snapshot] of this.visualSnapshots) {
       element.style.transition = snapshot.transition;
+      // The state binding drops `data-swiping` asynchronously; until then a consumer's
+      // `[data-swiping]` zero-duration rule would turn the settle into a jump.
+      element.removeAttribute(NGP_DRAWER_DATA_ATTRIBUTES.swiping);
+    }
+    // Resolve the released position under the restored transition before the movement resets,
+    // so the browser has a start point to animate from.
+    void this.state.popup()?.offsetWidth;
+    for (const [element, snapshot] of this.visualSnapshots) {
       this.restoreProperty(element, '--ngp-drawer-swipe-movement-x', snapshot.movementX);
       this.restoreProperty(element, '--ngp-drawer-swipe-movement-y', snapshot.movementY);
       this.restoreProperty(element, '--ngp-drawer-swipe-progress', snapshot.progress);
