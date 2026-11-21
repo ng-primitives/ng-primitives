@@ -135,34 +135,24 @@ export class DrawerSwipeEngine {
       return null;
     }
     const raw = { x: input.x - start.x, y: input.y - start.y };
-    const directionalDisplacement = getSwipeDisplacement(this.options.direction(), raw);
-    const displacement = Math.max(0, directionalDisplacement);
-    const primary = this.options.allowOppositeDirection?.()
-      ? Math.abs(directionalDisplacement)
-      : displacement;
-    const cross = Math.abs(getCrossAxisDisplacement(this.options.direction(), raw));
+    const displacement = Math.max(0, getSwipeDisplacement(this.options.direction(), raw));
     if (!this.axisLocked) {
-      const axisSlop = this.readAxisSlop();
-      // Hand the gesture to the platform only once the cross axis has clearly won: it must pass the
-      // slop AND beat the drawer axis by the bias, so a real finger's pixel of sideways jitter does
-      // not kill the gesture. A single-direction gesture is never cancelled; progress is withheld
-      // until the intended axis dominates.
-      if (cross >= AXIS_LOCK_SLOP && cross > primary + AXIS_LOCK_BIAS) {
+      const attribution = this.attributeAxis(raw);
+      if (attribution === 'cross') {
         this.cancel(input.nativeEvent);
         return null;
       }
-      if (primary >= axisSlop) {
-        this.axisLocked = true;
-      } else {
+      if (attribution === 'pending') {
         // Neither axis is attributed yet. Keep the sample so a single fast move that later crosses
         // the slop still carries its velocity, but emit nothing: callers must not `preventDefault()`
         // or open anything on an unattributed gesture.
         this.velocity.add(input);
         if (input.buttons === 0) {
-          this.release(input);
+          this.cancel(input.nativeEvent);
         }
         return null;
       }
+      this.axisLocked = true;
     }
     this.maximumDisplacement = Math.max(this.maximumDisplacement, displacement);
     this.velocity.add(input);
@@ -179,8 +169,15 @@ export class DrawerSwipeEngine {
     if (!start || this.released) {
       return null;
     }
-    this.released = true;
     const raw = { x: input.x - start.x, y: input.y - start.y };
+    // A gesture that never earned the drawer axis is a press, not a swipe. Its velocity can still
+    // read as a fling (a drag away from the dismissal direction that flicks back), so it must not
+    // reach `onRelease`, where it could dismiss or change the snap point.
+    if (!this.axisLocked && this.attributeAxis(raw) !== 'drawer') {
+      this.cancel(input.nativeEvent);
+      return null;
+    }
+    this.released = true;
     const update = this.createUpdate(raw);
     const velocity = this.velocity.read(input);
     const direction = this.options.direction();
@@ -208,6 +205,22 @@ export class DrawerSwipeEngine {
 
   destroy(): void {
     this.cancel();
+  }
+
+  private attributeAxis(raw: DrawerSwipeVector): 'drawer' | 'cross' | 'pending' {
+    const directionalDisplacement = getSwipeDisplacement(this.options.direction(), raw);
+    const primary = this.options.allowOppositeDirection?.()
+      ? Math.abs(directionalDisplacement)
+      : Math.max(0, directionalDisplacement);
+    const cross = Math.abs(getCrossAxisDisplacement(this.options.direction(), raw));
+    // Hand the gesture to the platform only once the cross axis has clearly won: it must pass the
+    // slop AND beat the drawer axis by the bias, so a real finger's pixel of sideways jitter does
+    // not kill the gesture. A single-direction gesture is never cancelled; progress is withheld
+    // until the intended axis dominates.
+    if (cross >= AXIS_LOCK_SLOP && cross > primary + AXIS_LOCK_BIAS) {
+      return 'cross';
+    }
+    return primary >= this.readAxisSlop() ? 'drawer' : 'pending';
   }
 
   private createUpdate(raw: DrawerSwipeVector): DrawerSwipeUpdate {

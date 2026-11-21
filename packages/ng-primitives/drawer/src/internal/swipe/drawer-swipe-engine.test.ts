@@ -143,8 +143,46 @@ describe('DrawerSwipeEngine', () => {
     expect(release.mock.calls[0][0].dismissed).toBe(true);
   });
 
+  it('cancels instead of releasing a gesture that never earned the drawer axis', () => {
+    const release = vi.fn();
+    const cancel = vi.fn();
+    const engine = new DrawerSwipeEngine({
+      direction: () => 'down',
+      size: () => 200,
+      onRelease: release,
+      onCancel: cancel,
+    });
+    engine.start({ x: 0, y: 0, time: 0, buttons: 1 });
+    // Away from the dismissal direction, then a fast flick back that stays short of the slop.
+    engine.move({ x: 0, y: -50, time: 100, buttons: 1 });
+    engine.move({ x: 0, y: -10, time: 116, buttons: 1 });
+
+    expect(engine.release({ x: 0, y: -10, time: 117, buttons: 0 })).toBeNull();
+    expect(release).not.toHaveBeenCalled();
+    expect(cancel).toHaveBeenCalledOnce();
+    expect(engine.active).toBe(false);
+  });
+
+  it('cancels an unattributed gesture whose button lifts mid-move', () => {
+    const release = vi.fn();
+    const cancel = vi.fn();
+    const engine = new DrawerSwipeEngine({
+      direction: () => 'down',
+      size: () => 200,
+      onRelease: release,
+      onCancel: cancel,
+    });
+    engine.start({ x: 0, y: 0, time: 0, buttons: 1 });
+    engine.move({ x: 0, y: -50, time: 100, buttons: 1 });
+
+    expect(engine.move({ x: 0, y: 5, time: 116, buttons: 0 })).toBeNull();
+    expect(release).not.toHaveBeenCalled();
+    expect(cancel).toHaveBeenCalledOnce();
+    expect(engine.active).toBe(false);
+  });
+
   it('preserves the last useful velocity through a stationary release', () => {
-    const engine = new DrawerSwipeEngine({ direction: () => 'down', size: () => 400 });
+    const engine = new DrawerSwipeEngine({ direction: () => 'up', size: () => 400 });
     engine.start({ x: 0, y: 0, time: 0, buttons: 1 });
     engine.move({ x: 0, y: -30, time: 200, buttons: 1 });
     engine.move({ x: 0, y: -80, time: 300, buttons: 1 });
