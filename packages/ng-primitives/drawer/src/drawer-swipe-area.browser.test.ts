@@ -1,6 +1,7 @@
 import { Component, signal, viewChild } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { NgpDrawerBackdrop } from './backdrop/drawer-backdrop';
+import { animationFrame, dispatchPointer, dispatchTouch, touch } from './drawer-browser.fixture';
 import { NgpDrawerOpenChangeEvent, NgpDrawerSwipeDirection } from './drawer.types';
 import { NgpDrawer } from './drawer/drawer';
 import { NgpDrawerPopup } from './popup/drawer-popup';
@@ -149,7 +150,8 @@ describe('Drawer SwipeArea', () => {
   });
 
   it('accepts a native touch by velocity below the distance threshold', () => {
-    nativeSwipe(getArea(), { x: 0, y: 150 }, { x: 0, y: 130 }, 23, 1);
+    // 10px stays under the 20px distance threshold the area uses before the popup is measured.
+    nativeSwipe(getArea(), { x: 0, y: 150 }, { x: 0, y: 140 }, 23, 1);
     fixture.detectChanges();
 
     expect(fixture.componentInstance.root().open()).toBe(true);
@@ -160,14 +162,14 @@ describe('Drawer SwipeArea', () => {
     const setPointerCapture = vi.fn();
     area.setPointerCapture = setPointerCapture;
 
-    const down = dispatch(area, 'pointerdown', {
+    const down = dispatchPointer(area, 'pointerdown', {
       buttons: 1,
       pointerId: 18,
       pointerType: 'touch',
       time: 0,
       y: 100,
     });
-    const move = dispatch(area, 'pointermove', {
+    const move = dispatchPointer(area, 'pointermove', {
       buttons: 1,
       pointerId: 18,
       pointerType: 'touch',
@@ -179,7 +181,7 @@ describe('Drawer SwipeArea', () => {
     expect(move.defaultPrevented).toBe(false);
     expect(fixture.componentInstance.root().open()).toBe(false);
 
-    dispatch(area, 'pointerdown', {
+    dispatchPointer(area, 'pointerdown', {
       buttons: 1,
       pointerId: 19,
       pointerType: 'mouse',
@@ -187,7 +189,7 @@ describe('Drawer SwipeArea', () => {
       y: 100,
     });
     expect(setPointerCapture).toHaveBeenCalledWith(19);
-    dispatch(area, 'pointercancel', {
+    dispatchPointer(area, 'pointercancel', {
       buttons: 0,
       pointerId: 19,
       pointerType: 'mouse',
@@ -285,23 +287,23 @@ describe('Drawer SwipeArea', () => {
 
   it('opens from velocity when distance remains below the halfway threshold', async () => {
     const area = getArea();
-    dispatch(area, 'pointerdown', { buttons: 1, pointerId: 5, time: 0, y: 100 });
-    dispatch(area, 'pointermove', { buttons: 1, pointerId: 5, time: 100, y: 80 });
+    dispatchPointer(area, 'pointerdown', { buttons: 1, pointerId: 5, time: 0, y: 100 });
+    dispatchPointer(area, 'pointermove', { buttons: 1, pointerId: 5, time: 100, y: 80 });
     fixture.detectChanges();
     await vi.waitFor(() => expect(document.querySelector('[data-test-area-popup]')).not.toBeNull());
-    dispatch(area, 'pointerup', { buttons: 0, pointerId: 5, time: 101, y: 80 });
+    dispatchPointer(area, 'pointerup', { buttons: 0, pointerId: 5, time: 101, y: 80 });
     fixture.detectChanges();
     expect(fixture.componentInstance.root().open()).toBe(true);
   });
 
   it('closes a gesture below both distance and velocity thresholds', async () => {
     const area = getArea();
-    dispatch(area, 'pointerdown', { buttons: 1, pointerId: 6, time: 0, y: 100 });
-    dispatch(area, 'pointermove', { buttons: 1, pointerId: 6, time: 200, y: 90 });
+    dispatchPointer(area, 'pointerdown', { buttons: 1, pointerId: 6, time: 0, y: 100 });
+    dispatchPointer(area, 'pointermove', { buttons: 1, pointerId: 6, time: 200, y: 90 });
     fixture.detectChanges();
     await vi.waitFor(() => expect(document.querySelector('[data-test-area-popup]')).not.toBeNull());
     expect(area.hasAttribute('data-swiping')).toBe(true);
-    dispatch(area, 'pointerup', { buttons: 0, pointerId: 6, time: 201, y: 90 });
+    dispatchPointer(area, 'pointerup', { buttons: 0, pointerId: 6, time: 201, y: 90 });
     fixture.detectChanges();
     expect(fixture.componentInstance.root().open()).toBe(false);
     expect(area.hasAttribute('data-swiping')).toBe(false);
@@ -318,8 +320,8 @@ describe('Drawer SwipeArea', () => {
       fixture.componentInstance.direction.set(direction);
       fixture.detectChanges();
       const area = getArea();
-      dispatch(area, 'pointerdown', { ...start, buttons: 1, pointerId: 7, time: 0 });
-      dispatch(area, 'pointermove', { ...end, buttons: 1, pointerId: 7, time: 100 });
+      dispatchPointer(area, 'pointerdown', { ...start, buttons: 1, pointerId: 7, time: 0 });
+      dispatchPointer(area, 'pointermove', { ...end, buttons: 1, pointerId: 7, time: 100 });
       fixture.detectChanges();
       await vi.waitFor(() =>
         expect(document.querySelector('[data-test-area-popup]')).not.toBeNull(),
@@ -331,7 +333,7 @@ describe('Drawer SwipeArea', () => {
       // Fully pulled out: dismissal progress is 0, so a backdrop styled `calc(1 - progress)` is
       // at full opacity.
       expect(popup.style.getPropertyValue('--ngp-drawer-swipe-progress')).toBe('0');
-      dispatch(area, 'pointercancel', { ...end, buttons: 0, pointerId: 7, time: 101 });
+      dispatchPointer(area, 'pointercancel', { ...end, buttons: 0, pointerId: 7, time: 101 });
       fixture.detectChanges();
       expect(fixture.componentInstance.root().open()).toBe(false);
       expect(area.hasAttribute('data-swiping')).toBe(false);
@@ -340,13 +342,13 @@ describe('Drawer SwipeArea', () => {
 
   it('coalesces writes and restores every changed inline value', async () => {
     const area = getArea();
-    dispatch(area, 'pointerdown', { buttons: 1, pointerId: 8, time: 0, y: 180 });
-    dispatch(area, 'pointermove', { buttons: 1, pointerId: 8, time: 100, y: 160 });
+    dispatchPointer(area, 'pointerdown', { buttons: 1, pointerId: 8, time: 0, y: 180 });
+    dispatchPointer(area, 'pointermove', { buttons: 1, pointerId: 8, time: 100, y: 160 });
     fixture.detectChanges();
     await vi.waitFor(() => expect(document.querySelector('[data-test-area-popup]')).not.toBeNull());
     const popup = getPopup();
-    dispatch(area, 'pointermove', { buttons: 1, pointerId: 8, time: 200, y: 120 });
-    dispatch(area, 'pointermove', { buttons: 1, pointerId: 8, time: 300, y: 100 });
+    dispatchPointer(area, 'pointermove', { buttons: 1, pointerId: 8, time: 200, y: 120 });
+    dispatchPointer(area, 'pointermove', { buttons: 1, pointerId: 8, time: 300, y: 100 });
     // The move that opened the drawer is applied as soon as the popup renders, rather than being
     // dropped: 200px popup, 20px of travel, so the popup sits 180px short of fully open.
     expect(popup.style.getPropertyValue('--ngp-drawer-swipe-movement-y')).toBe('180px');
@@ -369,8 +371,8 @@ describe('Drawer SwipeArea', () => {
 
   it('never paints the popup at its resting position during a swipe-open', async () => {
     const area = getArea();
-    dispatch(area, 'pointerdown', { buttons: 1, pointerId: 9, time: 0, y: 180 });
-    dispatch(area, 'pointermove', { buttons: 1, pointerId: 9, time: 100, y: 150 });
+    dispatchPointer(area, 'pointerdown', { buttons: 1, pointerId: 9, time: 0, y: 180 });
+    dispatchPointer(area, 'pointermove', { buttons: 1, pointerId: 9, time: 100, y: 150 });
     fixture.detectChanges();
     await vi.waitFor(() => expect(document.querySelector('[data-test-area-popup]')).not.toBeNull());
     const popup = getPopup();
@@ -384,14 +386,14 @@ describe('Drawer SwipeArea', () => {
 
   it('retains the gesture after the pointer leaves the area', () => {
     const area = getArea();
-    dispatch(area, 'pointerdown', { buttons: 1, pointerId: 7, time: 0, y: 150 });
-    dispatch(document.body, 'pointermove', {
+    dispatchPointer(area, 'pointerdown', { buttons: 1, pointerId: 7, time: 0, y: 150 });
+    dispatchPointer(document.body, 'pointermove', {
       buttons: 1,
       pointerId: 7,
       time: 100,
       y: 0,
     });
-    dispatch(document.body, 'pointerup', { buttons: 0, pointerId: 7, time: 101, y: 0 });
+    dispatchPointer(document.body, 'pointerup', { buttons: 0, pointerId: 7, time: 101, y: 0 });
     fixture.detectChanges();
     expect(fixture.componentInstance.root().open()).toBe(true);
   });
@@ -415,8 +417,8 @@ describe('Drawer SwipeArea', () => {
     nativeSwipe(getArea(), { x: 0, y: 150 }, { x: 0, y: 0 }, 9, 100);
     fixture.detectChanges();
     const outside = getOutside();
-    dispatch(outside, 'pointerdown', { buttons: 1, pointerId: 10, time: 1000, y: 0 });
-    dispatch(outside, 'pointerup', { buttons: 0, pointerId: 10, time: 1100, y: 0 });
+    dispatchPointer(outside, 'pointerdown', { buttons: 1, pointerId: 10, time: 1000, y: 0 });
+    dispatchPointer(outside, 'pointerup', { buttons: 0, pointerId: 10, time: 1100, y: 0 });
     const allowed = outside.dispatchEvent(
       new MouseEvent('click', { bubbles: true, cancelable: true }),
     );
@@ -428,7 +430,7 @@ describe('Drawer SwipeArea', () => {
 
   it('cleans interruption, pinch, and one-move buttons-zero gestures', () => {
     const area = getArea();
-    dispatch(area, 'pointerdown', { buttons: 1, pointerId: 11, time: 0, y: 150 });
+    dispatchPointer(area, 'pointerdown', { buttons: 1, pointerId: 11, time: 0, y: 150 });
     area.dispatchEvent(new MouseEvent('contextmenu', { bubbles: true }));
     expect(area.hasAttribute('data-swiping')).toBe(false);
 
@@ -444,9 +446,9 @@ describe('Drawer SwipeArea', () => {
     expect(fixture.componentInstance.root().open()).toBe(false);
     expect(area.hasAttribute('data-swiping')).toBe(false);
 
-    dispatch(area, 'pointerdown', { buttons: 1, pointerId: 14, time: 2000, y: 150 });
-    dispatch(area, 'pointermove', { buttons: 0, pointerId: 14, time: 2100, y: 0 });
-    dispatch(area, 'pointerup', { buttons: 0, pointerId: 14, time: 2101, y: 0 });
+    dispatchPointer(area, 'pointerdown', { buttons: 1, pointerId: 14, time: 2000, y: 150 });
+    dispatchPointer(area, 'pointermove', { buttons: 0, pointerId: 14, time: 2100, y: 0 });
+    dispatchPointer(area, 'pointerup', { buttons: 0, pointerId: 14, time: 2101, y: 0 });
     fixture.detectChanges();
     expect(fixture.componentInstance.root().open()).toBe(true);
   });
@@ -489,15 +491,15 @@ describe('Drawer SwipeArea', () => {
   it('cleans gesture visuals when the consumer cancels the rollback', async () => {
     const area = getArea();
     fixture.componentInstance.cancelRollback = true;
-    dispatch(area, 'pointerdown', { buttons: 1, pointerId: 16, time: 0, y: 180 });
-    dispatch(area, 'pointermove', { buttons: 1, pointerId: 16, time: 100, y: 100 });
+    dispatchPointer(area, 'pointerdown', { buttons: 1, pointerId: 16, time: 0, y: 180 });
+    dispatchPointer(area, 'pointermove', { buttons: 1, pointerId: 16, time: 100, y: 100 });
     fixture.detectChanges();
     await vi.waitFor(() => expect(document.querySelector('[data-test-area-popup]')).not.toBeNull());
     await animationFrame();
     const popup = getPopup();
     expect(popup.style.transition).toBe('none');
 
-    const pointerCancel = dispatch(area, 'pointercancel', {
+    const pointerCancel = dispatchPointer(area, 'pointercancel', {
       buttons: 0,
       pointerId: 16,
       time: 101,
@@ -543,8 +545,8 @@ describe('Drawer SwipeArea', () => {
 
   it('fades the backdrop in step with the swipe-open gesture', async () => {
     const area = getArea();
-    dispatch(area, 'pointerdown', { buttons: 1, pointerId: 12, time: 0, y: 200 });
-    dispatch(area, 'pointermove', { buttons: 1, pointerId: 12, time: 100, y: 150 });
+    dispatchPointer(area, 'pointerdown', { buttons: 1, pointerId: 12, time: 0, y: 200 });
+    dispatchPointer(area, 'pointermove', { buttons: 1, pointerId: 12, time: 100, y: 150 });
     fixture.detectChanges();
     await vi.waitFor(() => expect(document.querySelector('[data-test-area-popup]')).not.toBeNull());
     await animationFrame();
@@ -556,7 +558,7 @@ describe('Drawer SwipeArea', () => {
     expect(backdrop.style.transition).toBe('none');
     expect(backdrop).toHaveAttribute('data-swiping');
 
-    dispatch(area, 'pointercancel', { buttons: 0, pointerId: 12, time: 101, y: 150 });
+    dispatchPointer(area, 'pointercancel', { buttons: 0, pointerId: 12, time: 101, y: 150 });
     fixture.detectChanges();
 
     // Rolled back: the consumer's own inline value and transition are handed back.
@@ -600,8 +602,8 @@ describe('Drawer SwipeArea release motion', () => {
     const area = (fixture.nativeElement as HTMLElement).querySelector<HTMLElement>(
       '[data-test-motion-area]',
     )!;
-    dispatch(area, 'pointerdown', { buttons: 1, pointerId: 30, time: 0, y: 180 });
-    dispatch(area, 'pointermove', { buttons: 1, pointerId: 30, time: 100, y: 60 });
+    dispatchPointer(area, 'pointerdown', { buttons: 1, pointerId: 30, time: 0, y: 180 });
+    dispatchPointer(area, 'pointermove', { buttons: 1, pointerId: 30, time: 100, y: 60 });
     fixture.detectChanges();
     await vi.waitFor(() =>
       expect(document.querySelector('[data-test-motion-popup]')).not.toBeNull(),
@@ -610,23 +612,13 @@ describe('Drawer SwipeArea release motion', () => {
     const popup = document.querySelector<HTMLElement>('[data-test-motion-popup]')!;
     expect(new DOMMatrixReadOnly(getComputedStyle(popup).transform).m42).toBe(80);
 
-    dispatch(area, 'pointerup', { buttons: 0, pointerId: 30, time: 101, y: 60 });
+    dispatchPointer(area, 'pointerup', { buttons: 0, pointerId: 30, time: 101, y: 60 });
 
     // No change detection yet: a browser frame can resolve styles before Angular's bindings
     // drop `data-swiping`, and the consumer's zero-duration swiping rule must not apply then.
     expect(popup.getAnimations().map(animation => animation.playState)).toEqual(['running']);
   });
 });
-
-interface PointerOptions {
-  readonly x?: number;
-  readonly y?: number;
-  readonly buttons: number;
-  readonly isPrimary?: boolean;
-  readonly pointerId: number;
-  readonly pointerType?: string;
-  readonly time: number;
-}
 
 function swipe(
   target: EventTarget,
@@ -635,21 +627,21 @@ function swipe(
   pointerId: number,
   pointerType: string,
 ): void {
-  dispatch(target, 'pointerdown', {
+  dispatchPointer(target, 'pointerdown', {
     ...start,
     buttons: 1,
     pointerId,
     pointerType,
     time: pointerId * 1000,
   });
-  dispatch(target, 'pointermove', {
+  dispatchPointer(target, 'pointermove', {
     ...end,
     buttons: 1,
     pointerId,
     pointerType,
     time: pointerId * 1000 + 100,
   });
-  dispatch(target, 'pointerup', {
+  dispatchPointer(target, 'pointerup', {
     ...end,
     buttons: 0,
     pointerId,
@@ -670,53 +662,4 @@ function nativeSwipe(
   const endTouch = touch(target, identifier, end.x, end.y);
   dispatchTouch(document, 'touchmove', [endTouch], [endTouch], identifier * 1000 + duration);
   dispatchTouch(document, 'touchend', [], [endTouch], identifier * 1000 + duration + 1);
-}
-
-function dispatch(
-  target: EventTarget,
-  type: 'pointerdown' | 'pointermove' | 'pointerup' | 'pointercancel',
-  options: PointerOptions,
-): PointerEvent {
-  const event = new PointerEvent(type, {
-    bubbles: true,
-    button: 0,
-    buttons: options.buttons,
-    clientX: options.x ?? 0,
-    clientY: options.y ?? 0,
-    composed: true,
-    isPrimary: options.isPrimary ?? true,
-    pointerId: options.pointerId,
-    pointerType: options.pointerType ?? 'mouse',
-  });
-  Object.defineProperty(event, 'timeStamp', { configurable: true, value: options.time });
-  target.dispatchEvent(event);
-  return event;
-}
-
-function touch(target: EventTarget, identifier: number, clientX: number, clientY: number): Touch {
-  return new Touch({ clientX, clientY, identifier, target });
-}
-
-function dispatchTouch(
-  target: EventTarget,
-  type: 'touchstart' | 'touchmove' | 'touchend' | 'touchcancel',
-  touches: readonly Touch[],
-  changedTouches: readonly Touch[],
-  time: number,
-): TouchEvent {
-  const event = new TouchEvent(type, {
-    bubbles: true,
-    cancelable: true,
-    changedTouches: [...changedTouches],
-    composed: true,
-    targetTouches: [...touches],
-    touches: [...touches],
-  });
-  Object.defineProperty(event, 'timeStamp', { configurable: true, value: time });
-  target.dispatchEvent(event);
-  return event;
-}
-
-function animationFrame(): Promise<void> {
-  return new Promise(resolve => requestAnimationFrame(() => resolve()));
 }

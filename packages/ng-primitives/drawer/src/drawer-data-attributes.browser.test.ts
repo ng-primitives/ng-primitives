@@ -1,6 +1,7 @@
 import { Component, signal, viewChildren } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { NgpDrawerBackdrop } from './backdrop/drawer-backdrop';
+import { animationFrame, dispatchPointer, getElement, rect } from './drawer-browser.fixture';
 import {
   NgpDrawerOpenChangeEvent,
   NgpDrawerSnapPoint,
@@ -108,8 +109,8 @@ describe('Drawer data attribute ledger', () => {
   });
 
   it('publishes the closed, opening, open, closing, and disabled ledger by part', async () => {
-    const trigger = hostElement('[data-test-trigger]');
-    const swipeArea = hostElement('[data-test-swipe-area]');
+    const trigger = getElement('[data-test-trigger]');
+    const swipeArea = getElement('[data-test-swipe-area]');
     expectLedger(trigger, ['data-closed'], CONTROL_FORBIDDEN);
     expectLedger(swipeArea, ['data-closed', 'data-swipe-direction'], SWIPE_AREA_FORBIDDEN);
     expect(swipeArea.getAttribute('data-swipe-direction')).toBe('up');
@@ -265,7 +266,7 @@ describe('Drawer data attribute ledger', () => {
   });
 
   it('uses open and closed SwipeArea hooks while mirroring opening swipe state', async () => {
-    const area = hostElement('[data-test-swipe-area]');
+    const area = getElement('[data-test-swipe-area]');
     expectLedger(area, ['data-closed', 'data-swipe-direction'], SWIPE_AREA_FORBIDDEN);
 
     dispatchPointer(area, 'pointerdown', { buttons: 1, pointerId: 30, time: 0, y: 150 });
@@ -321,14 +322,6 @@ interface DrawerParts {
   readonly backdrop: HTMLElement;
   readonly popup: HTMLElement;
   readonly viewport: HTMLElement;
-}
-
-interface PointerOptions {
-  readonly buttons: number;
-  readonly pointerId: number;
-  readonly time: number;
-  readonly x?: number;
-  readonly y?: number;
 }
 
 function expectOpenLedger(trigger: HTMLElement, swipeArea: HTMLElement, parts: DrawerParts): void {
@@ -392,54 +385,16 @@ async function waitForParts(owner: 'parent' | 'child'): Promise<DrawerParts> {
   });
 }
 
-function hostElement(selector: string): HTMLElement {
-  return document.querySelector<HTMLElement>(selector)!;
-}
-
 function mockSize(parts: DrawerParts): void {
-  vi.spyOn(parts.viewport, 'getBoundingClientRect').mockReturnValue(rect());
-  vi.spyOn(parts.popup, 'getBoundingClientRect').mockReturnValue(rect());
+  vi.spyOn(parts.viewport, 'getBoundingClientRect').mockReturnValue(rect(200, 200));
+  vi.spyOn(parts.popup, 'getBoundingClientRect').mockReturnValue(rect(200, 200));
   window.dispatchEvent(new Event('resize'));
-}
-
-function rect(): DOMRect {
-  return {
-    bottom: 200,
-    height: 200,
-    left: 0,
-    right: 200,
-    top: 0,
-    width: 200,
-    x: 0,
-    y: 0,
-    toJSON: () => ({}),
-  };
 }
 
 function swipe(target: EventTarget, pointerId: number, y: number): void {
   dispatchPointer(target, 'pointerdown', { buttons: 1, pointerId, time: 0, y: 0 });
   dispatchPointer(target, 'pointermove', { buttons: 1, pointerId, time: 100, y });
   dispatchPointer(target, 'pointerup', { buttons: 0, pointerId, time: 101, y });
-}
-
-function dispatchPointer(
-  target: EventTarget,
-  type: 'pointerdown' | 'pointermove' | 'pointerup' | 'pointercancel',
-  options: PointerOptions,
-): void {
-  const event = new PointerEvent(type, {
-    bubbles: true,
-    button: 0,
-    buttons: options.buttons,
-    clientX: options.x ?? 0,
-    clientY: options.y ?? 0,
-    composed: true,
-    isPrimary: true,
-    pointerId: options.pointerId,
-    pointerType: 'mouse',
-  });
-  Object.defineProperty(event, 'timeStamp', { configurable: true, value: options.time });
-  target.dispatchEvent(event);
 }
 
 async function finishEnter(parts: HTMLElement[]): Promise<void> {
@@ -456,8 +411,4 @@ async function finishAnimations(parts: HTMLElement[]): Promise<void> {
   await vi.waitFor(() =>
     expect(parts.every(part => !part.hasAttribute('data-ending-style'))).toBe(true),
   );
-}
-
-function animationFrame(): Promise<void> {
-  return new Promise(resolve => requestAnimationFrame(() => resolve()));
 }

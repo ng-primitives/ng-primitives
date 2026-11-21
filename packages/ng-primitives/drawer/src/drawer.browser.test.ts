@@ -1,6 +1,7 @@
 import { Component, viewChild } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { NgpDrawerBackdrop } from './backdrop/drawer-backdrop';
+import { animationFrame } from './drawer-browser.fixture';
 import { NgpDrawer } from './drawer/drawer';
 import { NgpDrawerPopup } from './popup/drawer-popup';
 import { NgpDrawerPortal } from './portal/drawer-portal';
@@ -283,8 +284,4 @@ function findInfiniteAnimation(element: HTMLElement): Animation | undefined {
   return element
     .getAnimations()
     .find(animation => animation.effect?.getComputedTiming().endTime === Infinity);
-}
-
-function animationFrame(): Promise<void> {
-  return new Promise(resolve => requestAnimationFrame(() => resolve()));
 }

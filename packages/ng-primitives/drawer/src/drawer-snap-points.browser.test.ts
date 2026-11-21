@@ -1,6 +1,13 @@
 import { Component, signal, viewChild } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import {
+  dispatchPointer,
+  dispatchTouch,
+  mockTouchHitTesting,
+  rect,
+  touch,
+} from './drawer-browser.fixture';
+import {
   NgpDrawerOpenChangeEvent,
   NgpDrawerSnapPoint,
   NgpDrawerSnapPointChangeEvent,
@@ -183,14 +190,12 @@ class UncontrolledSwipeSnapHost {
   readonly root = viewChild.required(NgpDrawer);
 }
 
-let touchHitTarget: Element | null = null;
-
 describe('Drawer snap point integration', () => {
   let fixture: ComponentFixture<SnapHost>;
   let initialRootFontSize: string;
 
   beforeEach(async () => {
-    vi.spyOn(document, 'elementFromPoint').mockImplementation(() => touchHitTarget);
+    mockTouchHitTesting();
     await TestBed.configureTestingModule({
       imports: [SnapHost, UncontrolledSnapHost],
     }).compileComponents();
@@ -217,8 +222,8 @@ describe('Drawer snap point integration', () => {
   });
 
   it('resolves an off-list snap point to the nearest declared point', async () => {
-    // 0.25 of a 400px viewport is 100px, so the nearest declared point is '100px' (offset 300).
-    // The old fallback picked the point closest to the popup height, i.e. always the tallest.
+    // 0.25 of a 400px viewport is 100px, so the nearest declared point is '100px' (offset 300),
+    // not the point closest to the popup height.
     fixture.componentInstance.active.set(0.25);
     fixture.detectChanges();
     const { viewport, popup } = await openDrawer();
@@ -262,8 +267,8 @@ describe('Drawer snap point integration', () => {
     );
     const viewport = document.querySelector<HTMLElement>('[data-test-uncontrolled-viewport]')!;
     const popup = document.querySelector<HTMLElement>('[data-test-uncontrolled-popup]')!;
-    vi.spyOn(viewport, 'getBoundingClientRect').mockReturnValue(rect(400));
-    vi.spyOn(popup, 'getBoundingClientRect').mockReturnValue(rect(400));
+    vi.spyOn(viewport, 'getBoundingClientRect').mockReturnValue(rect(300, 400));
+    vi.spyOn(popup, 'getBoundingClientRect').mockReturnValue(rect(300, 400));
     window.dispatchEvent(new Event('resize'));
     uncontrolledFixture.detectChanges();
     await uncontrolledFixture.whenStable();
@@ -306,9 +311,7 @@ describe('Drawer snap point integration', () => {
     fixture.componentInstance.active.set('100px');
     fixture.detectChanges();
     const { viewport, popup } = await openDrawer();
-    // The popup opens by transitioning to the compact offset. Swiping before it settles releases
-    // onto an offset of 0 that the transform is still at, so there is nothing left to animate.
-    await Promise.all(popup.getAnimations().map(animation => animation.finished));
+    await settleAnimations(popup);
 
     swipe(viewport, 0, -175, 81, 0, 1000);
     fixture.detectChanges();
@@ -323,6 +326,7 @@ describe('Drawer snap point integration', () => {
     fixture.componentInstance.active.set(1);
     fixture.detectChanges();
     const { viewport, popup } = await openDrawer();
+    await settleAnimations(popup);
 
     swipe(viewport, 0, 175, 82, 0, 1000);
     fixture.detectChanges();
@@ -337,8 +341,14 @@ describe('Drawer snap point integration', () => {
     fixture.componentInstance.active.set('100px');
     fixture.detectChanges();
     const { viewport, popup } = await openDrawer();
+    await settleAnimations(popup);
 
-    swipe(viewport, 0, 40, 83, 0, 1000);
+    dispatchPointer(viewport, 'pointerdown', { y: 0, buttons: 1, pointerId: 83, time: 0 });
+    dispatchPointer(viewport, 'pointermove', { y: 40, buttons: 1, pointerId: 83, time: 999 });
+    // Resolve the dragged position as a rendered frame would, so the release starts its transition
+    // from the displaced transform rather than from the resting one.
+    expect(new DOMMatrixReadOnly(getComputedStyle(popup).transform).m42).toBe(340);
+    dispatchPointer(viewport, 'pointerup', { y: 40, buttons: 0, pointerId: 83, time: 1000 });
     fixture.detectChanges();
 
     expect(fixture.componentInstance.root().open()).toBe(true);
@@ -353,9 +363,9 @@ describe('Drawer snap point integration', () => {
     fixture.detectChanges();
     const { viewport, popup } = await openDrawer();
 
-    dispatchPointer(viewport, 'pointerdown', 0, 1, 24, 0);
-    dispatchPointer(viewport, 'pointermove', -350, 1, 24, 1000);
-    dispatchPointer(viewport, 'pointerup', -350, 0, 24, 1001);
+    dispatchPointer(viewport, 'pointerdown', { y: 0, buttons: 1, pointerId: 24, time: 0 });
+    dispatchPointer(viewport, 'pointermove', { y: -350, buttons: 1, pointerId: 24, time: 1000 });
+    dispatchPointer(viewport, 'pointerup', { y: -350, buttons: 0, pointerId: 24, time: 1001 });
 
     expect(fixture.componentInstance.active()).toBe(1);
     expect(popup.style.getPropertyValue('--ngp-drawer-snap-point-offset')).toBe('0px');
@@ -368,10 +378,10 @@ describe('Drawer snap point integration', () => {
     fixture.componentInstance.active.set('100px');
     fixture.detectChanges();
     const { viewport } = await openDrawer();
-    dispatchPointer(viewport, 'pointerdown', 0, 1, 10, 0);
-    dispatchPointer(viewport, 'pointermove', -30, 1, 10, 200);
-    dispatchPointer(viewport, 'pointermove', -80, 1, 10, 300);
-    dispatchPointer(viewport, 'pointerup', -80, 0, 10, 330);
+    dispatchPointer(viewport, 'pointerdown', { y: 0, buttons: 1, pointerId: 10, time: 0 });
+    dispatchPointer(viewport, 'pointermove', { y: -30, buttons: 1, pointerId: 10, time: 200 });
+    dispatchPointer(viewport, 'pointermove', { y: -80, buttons: 1, pointerId: 10, time: 300 });
+    dispatchPointer(viewport, 'pointerup', { y: -80, buttons: 0, pointerId: 10, time: 330 });
     fixture.detectChanges();
     expect(fixture.componentInstance.active()).toBe('300px');
   });
@@ -382,17 +392,17 @@ describe('Drawer snap point integration', () => {
     fixture.componentInstance.active.set('100px');
     fixture.detectChanges();
     const { viewport } = await openDrawer();
-    dispatchPointer(viewport, 'pointerdown', 0, 1, 11, 0);
-    dispatchPointer(viewport, 'pointermove', -80, 1, 11, 70);
-    dispatchPointer(viewport, 'pointermove', -75, 1, 11, 80);
-    dispatchPointer(viewport, 'pointerup', -75, 0, 11, 90);
+    dispatchPointer(viewport, 'pointerdown', { y: 0, buttons: 1, pointerId: 11, time: 0 });
+    dispatchPointer(viewport, 'pointermove', { y: -80, buttons: 1, pointerId: 11, time: 70 });
+    dispatchPointer(viewport, 'pointermove', { y: -75, buttons: 1, pointerId: 11, time: 80 });
+    dispatchPointer(viewport, 'pointerup', { y: -75, buttons: 0, pointerId: 11, time: 90 });
     fixture.detectChanges();
     expect(fixture.componentInstance.active()).toBe('300px');
   });
 
   it('closes from a fast downward flick instead of snapping to a lower point', async () => {
     const { viewport } = await openDrawer();
-    // 20px in 199ms is far short of any snap threshold, but 0.6px/ms is a decisive flick.
+    // 20px in 34ms is far short of any snap threshold, but 0.6px/ms is a decisive flick.
     swipe(viewport, 0, 20, 40, 0, 34);
     fixture.detectChanges();
 
@@ -413,10 +423,10 @@ describe('Drawer snap point integration', () => {
     fixture.detectChanges();
     const { viewport } = await openDrawer();
 
-    dispatchTouch(viewport, 'touchstart', [touch(viewport, 20, 0)], [], 0);
-    dispatchTouch(viewport, 'touchmove', [touch(viewport, 20, -30)], [], 100);
-    dispatchTouch(viewport, 'touchmove', [touch(viewport, 20, -155)], [], 1100);
-    dispatchTouch(viewport, 'touchend', [], [touch(viewport, 20, -155)], 1101);
+    dispatchTouch(viewport, 'touchstart', [touch(viewport, 20, 0, 0)], [], 0);
+    dispatchTouch(viewport, 'touchmove', [touch(viewport, 20, 0, -30)], [], 100);
+    dispatchTouch(viewport, 'touchmove', [touch(viewport, 20, 0, -155)], [], 1100);
+    dispatchTouch(viewport, 'touchend', [], [touch(viewport, 20, 0, -155)], 1101);
     fixture.detectChanges();
 
     expect(fixture.componentInstance.active()).toBe('200px');
@@ -432,11 +442,11 @@ describe('Drawer snap point integration', () => {
     expect(popup.style.getPropertyValue('--ngp-drawer-swipe-progress')).toBe('1');
 
     dispatchTouch(viewport, 'touchstart', [touch(viewport, 22, 0, 0)], [], 0);
-    const firstMove = dispatchTouch(viewport, 'touchmove', [touch(viewport, 22, -30, 3)], [], 100);
+    const firstMove = dispatchTouch(viewport, 'touchmove', [touch(viewport, 22, 3, -30)], [], 100);
     const secondMove = dispatchTouch(
       viewport,
       'touchmove',
-      [touch(viewport, 22, -160, 7)],
+      [touch(viewport, 22, 7, -160)],
       [],
       1100,
     );
@@ -448,7 +458,7 @@ describe('Drawer snap point integration', () => {
     expect(Number(popup.style.getPropertyValue('--ngp-drawer-swipe-progress'))).toBeCloseTo(0.35);
     expect(new DOMMatrixReadOnly(getComputedStyle(popup).transform).m42).toBeCloseTo(170);
 
-    dispatchTouch(viewport, 'touchend', [], [touch(viewport, 22, -160, 7)], 1101);
+    dispatchTouch(viewport, 'touchend', [], [touch(viewport, 22, 7, -160)], 1101);
     expect(popup.style.getPropertyValue('--ngp-drawer-swipe-progress')).toBe('0');
     fixture.detectChanges();
 
@@ -462,10 +472,10 @@ describe('Drawer snap point integration', () => {
   it('preserves the rebased displacement after the first native touch sample', async () => {
     const { viewport } = await openDrawer();
 
-    dispatchTouch(viewport, 'touchstart', [touch(viewport, 21, 0)], [], 0);
-    dispatchTouch(viewport, 'touchmove', [touch(viewport, 21, 30)], [], 100);
-    dispatchTouch(viewport, 'touchmove', [touch(viewport, 21, 160)], [], 1100);
-    dispatchTouch(viewport, 'touchend', [], [touch(viewport, 21, 160)], 1101);
+    dispatchTouch(viewport, 'touchstart', [touch(viewport, 21, 0, 0)], [], 0);
+    dispatchTouch(viewport, 'touchmove', [touch(viewport, 21, 0, 30)], [], 100);
+    dispatchTouch(viewport, 'touchmove', [touch(viewport, 21, 0, 160)], [], 1100);
+    dispatchTouch(viewport, 'touchend', [], [touch(viewport, 21, 0, 160)], 1101);
     fixture.detectChanges();
 
     // 130px over 1000ms is 0.13px/ms, well below the flick threshold, so the distance decides.
@@ -484,10 +494,10 @@ describe('Drawer snap point integration', () => {
     fixture.detectChanges();
     const { viewport, popup } = await openDrawer();
 
-    dispatchPointer(viewport, 'pointerdown', 0, 1, 23, 0);
+    dispatchPointer(viewport, 'pointerdown', { y: 0, buttons: 1, pointerId: 23, time: 0 });
     // An up drawer collapses as the pointer moves up, so upward movement - not raw positive Y -
     // advances the snap progress.
-    dispatchPointer(viewport, 'pointermove', -50, 1, 23, 100);
+    dispatchPointer(viewport, 'pointermove', { y: -50, buttons: 1, pointerId: 23, time: 100 });
 
     expect(popup.style.getPropertyValue('--ngp-drawer-swipe-movement-y')).toBe('-50px');
     expect(Number(popup.style.getPropertyValue('--ngp-drawer-swipe-progress'))).toBeCloseTo(0.25);
@@ -503,8 +513,8 @@ describe('Drawer snap point integration', () => {
     fixture.detectChanges();
     const { viewport, popup } = await openDrawer();
 
-    dispatchPointer(viewport, 'pointerdown', 0, 1, 24, 0);
-    dispatchPointer(viewport, 'pointermove', 50, 1, 24, 100);
+    dispatchPointer(viewport, 'pointerdown', { y: 0, buttons: 1, pointerId: 24, time: 0 });
+    dispatchPointer(viewport, 'pointermove', { y: 50, buttons: 1, pointerId: 24, time: 100 });
 
     expect(Number(popup.style.getPropertyValue('--ngp-drawer-swipe-progress'))).toBe(0);
     // A context menu cancels the active gesture, so the drawer is not left mid-swipe.
@@ -574,7 +584,7 @@ describe('Drawer snap point integration', () => {
     // 20px in 25ms = 0.8px/ms — a decisive flick, so the drawer closes outright. The popup is
     // 400px and rests at offset 300, so only 80px remain to travel: 80 / 0.8 = 100ms, which is
     // inside the scalar's live range. Measuring from offset 0 instead would give 380px, a 475ms
-    // duration that clamps to 360ms and a scalar of exactly 1 — the regression this pins.
+    // duration that clamps to 360ms and a scalar of exactly 1.
     swipe(viewport, 0, 20, 43, 0, 26);
     fixture.detectChanges();
 
@@ -643,9 +653,13 @@ describe('Drawer snap point integration', () => {
     expect(fixture.componentInstance.root().open()).toBe(false);
     // `null` is the consumer's explicit "no snap point", not an unset value waiting for a default.
     expect(fixture.componentInstance.active()).toBeNull();
+    await vi.waitFor(() => expect(document.querySelector('[data-test-snap-popup]')).toBeNull());
 
-    await openDrawer();
+    const { viewport, popup } = await openDrawer();
     expect(fixture.componentInstance.active()).toBeNull();
+    // A reopen that fell back to the 300px default would publish its height and offset here.
+    expect(viewport.style.getPropertyValue('--ngp-drawer-height')).toBe('');
+    expect(popup.style.getPropertyValue('--ngp-drawer-snap-point-offset')).toBe('');
   });
 
   it('leaves a controlled null snap point unresolved across a reopen', async () => {
@@ -675,12 +689,12 @@ describe('Drawer snap point integration', () => {
 
   it('integrates resistance only after crossing the open snap edge', async () => {
     const { viewport, popup } = await openDrawer();
-    dispatchPointer(viewport, 'pointerdown', 0, 1, 8, 0);
-    dispatchPointer(viewport, 'pointermove', -150, 1, 8, 200);
+    dispatchPointer(viewport, 'pointerdown', { y: 0, buttons: 1, pointerId: 8, time: 0 });
+    dispatchPointer(viewport, 'pointermove', { y: -150, buttons: 1, pointerId: 8, time: 200 });
     expect(
       Number.parseFloat(popup.style.getPropertyValue('--ngp-drawer-swipe-movement-y')),
     ).toBeCloseTo(-100 - Math.sqrt(50));
-    dispatchPointer(viewport, 'pointercancel', -150, 0, 8, 201);
+    dispatchPointer(viewport, 'pointercancel', { y: -150, buttons: 0, pointerId: 8, time: 201 });
   });
 
   it('resets a moved snap point back to the default on close', async () => {
@@ -701,8 +715,8 @@ describe('Drawer snap point integration', () => {
     await vi.waitFor(() => expect(document.querySelector('[data-test-snap-popup]')).not.toBeNull());
     const viewport = document.querySelector<HTMLElement>('[data-test-snap-viewport]')!;
     const popup = document.querySelector<HTMLElement>('[data-test-snap-popup]')!;
-    vi.spyOn(viewport, 'getBoundingClientRect').mockReturnValue(rect(400));
-    vi.spyOn(popup, 'getBoundingClientRect').mockReturnValue(rect(400));
+    vi.spyOn(viewport, 'getBoundingClientRect').mockReturnValue(rect(300, 400));
+    vi.spyOn(popup, 'getBoundingClientRect').mockReturnValue(rect(300, 400));
     window.dispatchEvent(new Event('resize'));
     fixture.detectChanges();
     return { viewport, popup };
@@ -732,8 +746,8 @@ describe('Drawer snap point height ownership', () => {
     fixture.detectChanges();
     await fixture.whenStable();
 
-    // `bindDrawerNestedVisuals` runs after the viewport's snap effect in the same write phase and
-    // used to overwrite this with the popup's full 400px height.
+    // `bindDrawerNestedVisuals` runs after the viewport's snap effect in the same write phase, so
+    // it must not overwrite this with the popup's full 400px height.
     expect(popup.style.getPropertyValue('--ngp-drawer-height')).toBe('300px');
   });
 
@@ -762,7 +776,7 @@ describe('Drawer snap point uncontrolled swipe', () => {
   let initialRootFontSize: string;
 
   beforeEach(async () => {
-    vi.spyOn(document, 'elementFromPoint').mockImplementation(() => touchHitTarget);
+    mockTouchHitTesting();
     await TestBed.configureTestingModule({
       imports: [UncontrolledSwipeSnapHost],
     }).compileComponents();
@@ -801,7 +815,7 @@ describe('Drawer snap point uncontrolled swipe', () => {
   it('does not emit snapPointChange when the drawer first opens', async () => {
     await openDrawer();
     // The seed is silent — Base UI's useControlled never fires onSnapPointChange for its
-    // default. The old imperative application emitted the default on the first open.
+    // default.
     expect(fixture.componentInstance.lastEmitted()).toBeUndefined();
 
     fixture.componentInstance.root().hide();
@@ -852,8 +866,8 @@ describe('Drawer snap point uncontrolled swipe', () => {
     await vi.waitFor(() => expect(document.querySelector('[data-test-snap-popup]')).not.toBeNull());
     const viewport = document.querySelector<HTMLElement>('[data-test-snap-viewport]')!;
     const popup = document.querySelector<HTMLElement>('[data-test-snap-popup]')!;
-    vi.spyOn(viewport, 'getBoundingClientRect').mockReturnValue(rect(400));
-    vi.spyOn(popup, 'getBoundingClientRect').mockReturnValue(rect(400));
+    vi.spyOn(viewport, 'getBoundingClientRect').mockReturnValue(rect(300, 400));
+    vi.spyOn(popup, 'getBoundingClientRect').mockReturnValue(rect(300, 400));
     window.dispatchEvent(new Event('resize'));
     fixture.detectChanges();
     return { viewport, popup };
@@ -868,75 +882,32 @@ function swipe(
   startTime: number,
   endTime: number,
 ): void {
-  dispatchPointer(target, 'pointerdown', startY, 1, pointerId, startTime);
-  dispatchPointer(target, 'pointermove', endY, 1, pointerId, endTime - 1);
-  dispatchPointer(target, 'pointerup', endY, 0, pointerId, endTime);
-}
-
-function dispatchPointer(
-  target: EventTarget,
-  type: 'pointerdown' | 'pointermove' | 'pointerup' | 'pointercancel',
-  y: number,
-  buttons: number,
-  pointerId: number,
-  timeStamp: number,
-): void {
-  const event = new PointerEvent(type, {
-    bubbles: true,
-    button: 0,
-    buttons,
-    clientY: y,
-    composed: true,
-    isPrimary: true,
-    pointerId,
-    pointerType: 'mouse',
+  dispatchPointer(target, 'pointerdown', {
+    y: startY,
+    buttons: 1,
+    pointerId: pointerId,
+    time: startTime,
   });
-  Object.defineProperty(event, 'timeStamp', { configurable: true, value: timeStamp });
-  target.dispatchEvent(event);
-}
-
-function touch(target: EventTarget, identifier: number, clientY: number, clientX = 0): Touch {
-  return new Touch({ clientX, clientY, identifier, target });
-}
-
-function dispatchTouch(
-  target: EventTarget,
-  type: 'touchstart' | 'touchmove' | 'touchend',
-  touches: readonly Touch[],
-  changedTouches: readonly Touch[],
-  timeStamp: number,
-): TouchEvent {
-  const event = new TouchEvent(type, {
-    bubbles: true,
-    cancelable: true,
-    changedTouches: [...changedTouches],
-    composed: true,
-    targetTouches: [...touches],
-    touches: [...touches],
+  dispatchPointer(target, 'pointermove', {
+    y: endY,
+    buttons: 1,
+    pointerId: pointerId,
+    time: endTime - 1,
   });
-  Object.defineProperty(event, 'timeStamp', { configurable: true, value: timeStamp });
-  const previousTarget = touchHitTarget;
-  if (type === 'touchstart') {
-    const target = touches[0]?.target;
-    touchHitTarget = target instanceof Element ? target : null;
-  }
-  target.dispatchEvent(event);
-  touchHitTarget = previousTarget;
-  return event;
+  dispatchPointer(target, 'pointerup', {
+    y: endY,
+    buttons: 0,
+    pointerId: pointerId,
+    time: endTime,
+  });
 }
 
-function rect(height: number): DOMRect {
-  return {
-    bottom: height,
-    height,
-    left: 0,
-    right: 300,
-    top: 0,
-    width: 300,
-    x: 0,
-    y: 0,
-    toJSON: () => ({}),
-  };
+/**
+ * Lets the opening transition finish, so a transform transition found after release was started by
+ * the release rather than left over from opening.
+ */
+async function settleAnimations(element: HTMLElement): Promise<void> {
+  await Promise.all(element.getAnimations().map(animation => animation.finished));
 }
 
 async function expectRunningTransformAnimation(element: HTMLElement): Promise<void> {
