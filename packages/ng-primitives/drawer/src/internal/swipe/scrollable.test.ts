@@ -134,6 +134,21 @@ describe('scrollable swipe arbitration', () => {
     },
   );
 
+  it.each([
+    // While an LTR scroller rubber-bands past its left edge Safari reports a negative scrollLeft.
+    ['right', true],
+    ['left', false],
+  ] as const)(
+    'keeps an overscrolled LTR scroller left-to-right when checking the %s edge',
+    (direction, expected) => {
+      const element = document.createElement('div');
+      element.style.overflowX = 'auto';
+      mount(element);
+      dimensions(element, { scrollLeft: -20, clientWidth: 100, scrollWidth: 200 });
+      expect(isAtDismissEdge(element, direction)).toBe(expected);
+    },
+  );
+
   it('rejects zero-size and non-overflowing scroll containers', () => {
     const element = document.createElement('div');
     element.style.overflow = 'auto';

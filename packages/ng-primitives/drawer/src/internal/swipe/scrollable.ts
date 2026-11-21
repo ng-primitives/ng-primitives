@@ -90,9 +90,8 @@ export function findTouchScrollContext(
  */
 function horizontalScrollOffset(element: HTMLElement): { offset: number; maximum: number } {
   const maximum = Math.max(0, element.scrollWidth - element.clientWidth);
-  const rtl =
-    element.ownerDocument.defaultView?.getComputedStyle(element).direction === 'rtl' ||
-    element.scrollLeft < 0;
+  // Not inferred from a negative `scrollLeft`: Safari reports one while an LTR scroller rubber-bands.
+  const rtl = element.ownerDocument.defaultView?.getComputedStyle(element).direction === 'rtl';
   return { offset: rtl ? element.scrollLeft + maximum : element.scrollLeft, maximum };
 }
 
