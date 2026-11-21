@@ -83,7 +83,9 @@ export class NgpDrawerTrigger {
   }
 
   onKeydown(event: KeyboardEvent): void {
-    if (isNativeInteractiveElement(this.elementRef.nativeElement)) {
+    const element = this.elementRef.nativeElement;
+    // Keys bubbling up from a nested control belong to that control, not the trigger.
+    if (event.target !== element || isNativeInteractiveElement(element)) {
       return;
     }
     if (event.key === 'Enter' || event.key === ' ') {

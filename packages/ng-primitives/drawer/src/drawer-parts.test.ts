@@ -30,7 +30,10 @@ import { NgpDrawerViewport } from './viewport/drawer-viewport';
     </button>
     <ng-container [handle]="handle" ngpDrawer>
       <button [ngpDrawerPayload]="{ id: 2 }" ngpDrawerTrigger>Open</button>
-      <div ngpDrawerTrigger role="button" tabindex="0">Open non-native</div>
+      <div ngpDrawerTrigger role="button" tabindex="0">
+        Open non-native
+        <input data-test-nested-input />
+      </div>
       <h2 ngpDrawerTitle>Title</h2>
       <p ngpDrawerDescription>Description</p>
       <div ngpDrawerContent><span ngpDrawerSwipeIgnore>Content</span></div>
@@ -76,6 +79,16 @@ describe('Drawer semantic parts', () => {
       .nativeElement as HTMLDivElement;
     nonNative.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }));
     expect(fixture.componentInstance.root().open()).toBe(true);
+  });
+
+  it('ignores Enter and Space from controls nested in a non-native trigger', () => {
+    const input = fixture.nativeElement.querySelector('[data-test-nested-input]') as HTMLElement;
+    for (const key of ['Enter', ' ']) {
+      const event = new KeyboardEvent('keydown', { key, bubbles: true, cancelable: true });
+      input.dispatchEvent(event);
+      expect(event.defaultPrevented).toBe(false);
+    }
+    expect(fixture.componentInstance.root().open()).toBe(false);
   });
 
   it('closes with close-press and preserves content/ignore markers', () => {
