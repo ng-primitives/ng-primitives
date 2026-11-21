@@ -212,8 +212,7 @@ describe('Drawer snap point integration', () => {
 
   it('publishes active height and snap offset variables', async () => {
     const { viewport, popup } = await openDrawer();
-    // The seed is silent, like Base UI's `useControlled` default (useControlled.ts:34):
-    // no snapPointChange fires on first open, so an uncontrolled host's bound signal
+    // The seed is silent: no snapPointChange fires on first open, so an uncontrolled host's bound signal
     // stays untouched while the drawer itself already holds the resolved default.
     expect(fixture.componentInstance.active()).toBeUndefined();
     expect(fixture.componentInstance.root().snapPoint()).toBe('300px');
@@ -233,8 +232,8 @@ describe('Drawer snap point integration', () => {
   });
 
   it('resolves a negative snap point to the shortest declared point', async () => {
-    // Base UI clamps a negative to height 0, so the nearest declared point is '100px' (offset 300)
-    // rather than the tallest point.
+    // A negative clamps to height 0, so the nearest declared point is '100px' (offset 300) rather
+    // than the tallest point.
     fixture.componentInstance.active.set(-1);
     fixture.detectChanges();
     const { viewport, popup } = await openDrawer();
@@ -668,7 +667,7 @@ describe('Drawer snap point integration', () => {
     const { popup } = await openDrawer();
 
     // A controlled `null` is the consumer's explicit "no snap point" and must survive, unlike the
-    // uncontrolled case where it falls back to the default (Base UI DrawerRoot.tsx:99-101).
+    // uncontrolled case where it falls back to the default.
     expect(fixture.componentInstance.active()).toBeNull();
     expect(popup.style.getPropertyValue('--ngp-drawer-height')).toBe('');
   });
@@ -704,8 +703,8 @@ describe('Drawer snap point integration', () => {
 
     fixture.componentInstance.root().hide();
     fixture.detectChanges();
-    // Base UI resets the active point to the resolved default on close
-    // (DrawerRoot.tsx:160-169); the reset is emitted so a bound consumer round-trips it.
+    // Closing resets the active point to the resolved default, and the reset is emitted so a bound
+    // consumer round-trips it.
     expect(fixture.componentInstance.active()).toBe('300px');
   });
 
@@ -801,21 +800,19 @@ describe('Drawer snap point uncontrolled swipe', () => {
 
     const reopened = await openDrawer();
     // An uncontrolled drawer has no consumer holding the point, so a dismissed `null` must fall
-    // back to the default rather than leaving the drawer with no snap point at all
-    // (Base UI DrawerRoot.tsx:98-115).
+    // back to the default rather than leaving the drawer with no snap point at all.
     expect(reopened.popup.style.getPropertyValue('--ngp-drawer-height')).toBe('100px');
   });
 
   it('seeds the snap point with the resolved default before the drawer opens', () => {
-    // Base UI seeds the uncontrolled value with `default: resolvedDefaultSnapPoint`
-    // (DrawerRoot.tsx:71-76), so "never set" is not a state a consumer can observe.
+    // The uncontrolled value is seeded with the resolved default, so "never set" is not a state a
+    // consumer can observe.
     expect(fixture.componentInstance.root().snapPoint()).toBe('100px');
   });
 
   it('does not emit snapPointChange when the drawer first opens', async () => {
     await openDrawer();
-    // The seed is silent — Base UI's useControlled never fires onSnapPointChange for its
-    // default.
+    // The seed is silent: seeding the default never fires snapPointChange.
     expect(fixture.componentInstance.lastEmitted()).toBeUndefined();
 
     fixture.componentInstance.root().hide();
@@ -834,11 +831,8 @@ describe('Drawer snap point uncontrolled swipe', () => {
     fixture.detectChanges();
     await fixture.whenStable();
 
-    // Deliberate deviation from Base UI, which keeps the user's point because its
-    // useControlled reads the default once — and warns that changing an uncontrolled
-    // default is unsupported (useControlled.ts:57-70). Angular inputs land after
-    // construction, so a once-only seed would latch a pre-binding null; the linkedSignal
-    // reseeds whenever the resolved default's value actually changes instead.
+    // Angular inputs land after construction, so a once-only seed would latch a pre-binding
+    // null; the linkedSignal reseeds whenever the resolved default's value actually changes.
     expect(fixture.componentInstance.root().snapPoint()).toBe('300px');
     expect(popup.style.getPropertyValue('--ngp-drawer-height')).toBe('300px');
   });

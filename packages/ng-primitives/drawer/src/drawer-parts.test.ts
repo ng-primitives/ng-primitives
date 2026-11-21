@@ -96,7 +96,6 @@ describe('Drawer semantic parts', () => {
     expect(content.hasAttribute('data-drawer-content')).toBe(true);
     expect(content.hasAttribute('data-ngp-drawer-swipe-ignore')).toBe(false);
     expect(ignore.hasAttribute('data-ngp-drawer-swipe-ignore')).toBe(true);
-    expect(ignore.hasAttribute('data-base-ui-swipe-ignore')).toBe(false);
   });
 });
 

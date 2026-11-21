@@ -242,8 +242,8 @@ describe('nested Drawer roots', () => {
     // long as the child's exit keeps it present, so the CSS transition can
     // animate smoothly instead of jumping to/from `auto`.
     expect(parent.style.getPropertyValue('--ngp-drawer-height')).toBe('200px');
-    // --ngp-drawer-frontmost-height cascades from `open()` immediately (base UI
-    // parity), so the parent starts shrinking back to its own height in
+    // --ngp-drawer-frontmost-height cascades from `open()` immediately, so the
+    // parent starts shrinking back to its own height in
     // parallel with the child's exit transition instead of waiting for it.
     expect(parent.style.getPropertyValue('--ngp-drawer-frontmost-height')).toBe('200px');
 

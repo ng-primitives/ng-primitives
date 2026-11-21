@@ -36,7 +36,7 @@ describe('DrawerSwipeEngine', () => {
     });
 
     engine.start({ x: 0, y: 0, time: 0, buttons: 1 });
-    // A real finger starts sideways: two pixels across, one along. The old rule killed this.
+    // A real finger starts sideways: two pixels across, one along. That must not kill the gesture.
     expect(engine.move({ x: 2, y: 1, time: 10, buttons: 1 })).toBeNull();
     expect(engine.move({ x: 3, y: 30, time: 20, buttons: 1 })?.displacement).toBe(30);
     expect(canceled).not.toHaveBeenCalled();
@@ -256,7 +256,7 @@ describe('DrawerSwipeEngine', () => {
 
     engine.start({ x: 0, y: 0, time: 0, buttons: 1 });
     engine.move({ x: 0, y: 60, time: 1000, buttons: 1 });
-    // 60 px is past the old fixed 40 px default but short of half a 200 px popup, and the elapsed
+    // 60 px is past a fixed 40 px threshold but short of half a 200 px popup, and the elapsed
     // time keeps the velocity below the flick shortcut.
     expect(engine.release({ x: 0, y: 60, time: 1001, buttons: 0 })?.dismissed).toBe(false);
     expect(threshold).toHaveBeenCalledOnce();
