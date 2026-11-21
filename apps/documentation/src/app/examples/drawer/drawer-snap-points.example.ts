@@ -245,6 +245,15 @@ import {
       border-radius: 0.5rem;
       background: var(--ngp-background-secondary);
     }
+
+    @media (prefers-reduced-motion: reduce) {
+      .sheet,
+      .backdrop,
+      .sheet[data-ending-style],
+      .backdrop[data-ending-style] {
+        transition-duration: 0ms;
+      }
+    }
   `,
 })
 export default class DrawerSnapPointsExample {

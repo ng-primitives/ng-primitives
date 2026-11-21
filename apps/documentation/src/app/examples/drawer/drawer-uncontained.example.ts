@@ -1,4 +1,4 @@
-import { Component, signal } from '@angular/core';
+import { Component } from '@angular/core';
 import { NgpButton } from 'ng-primitives/button';
 import {
   NgpDrawerBackdrop,
@@ -29,7 +29,7 @@ import {
     NgpDrawerViewport,
   ],
   template: `
-    <ng-container [open]="open()" (openChange)="open.set($event)" ngpDrawer>
+    <ng-container ngpDrawer>
       <button class="trigger" ngpButton ngpDrawerTrigger>Open action sheet</button>
       <ng-template ngpDrawerPortal>
         <div class="backdrop" ngpDrawerBackdrop></div>
@@ -39,11 +39,11 @@ import {
               <h2 class="visually-hidden" ngpDrawerTitle>Profile actions</h2>
               <p class="visually-hidden" ngpDrawerDescription>Choose an action for this user.</p>
               @for (action of actions; track action) {
-                <button (click)="open.set(false)" type="button">{{ action }}</button>
+                <button ngpDrawerClose type="button">{{ action }}</button>
               }
             </div>
-            <div class="action-group danger-group">
-              <button (click)="open.set(false)" type="button">Block user</button>
+            <div class="action-group">
+              <button class="destructive" ngpDrawerClose type="button">Block user</button>
             </div>
             <div class="action-group">
               <button class="cancel" ngpDrawerClose type="button">Cancel</button>
@@ -133,8 +133,12 @@ import {
       display: grid;
       width: min(22rem, 100%);
       gap: 0.75rem;
+      max-height: 100dvh;
       padding: 1rem 1rem max(1rem, env(safe-area-inset-bottom));
+      overflow-y: auto;
+      overscroll-behavior: contain;
       pointer-events: none;
+      touch-action: auto;
       outline: none;
       transform: translateY(var(--ngp-drawer-swipe-movement-y));
       transition: transform 450ms cubic-bezier(0.32, 0.72, 0, 1);
@@ -170,8 +174,20 @@ import {
       border-block-start: 1px solid var(--ngp-border);
     }
 
+    .destructive {
+      color: var(--ngp-primary);
+      font-weight: 510;
+    }
+
     .cancel {
       font-weight: 590;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .sheet,
+      .backdrop {
+        transition-duration: 0ms;
+      }
     }
 
     .visually-hidden {
@@ -187,6 +203,5 @@ import {
   `,
 })
 export default class DrawerUncontainedExample {
-  readonly open = signal(false);
   readonly actions = ['Unfollow', 'Mute', 'Add to favorites', 'Restrict'] as const;
 }

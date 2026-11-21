@@ -264,6 +264,14 @@ import {
       width: min(100%, 32rem);
       margin-inline: auto;
     }
+
+    @media (prefers-reduced-motion: reduce) {
+      .sheet,
+      .backdrop,
+      footer {
+        transition-duration: 0ms;
+      }
+    }
   `,
 })
 export default class DrawerVirtualKeyboardAwareExample {
