@@ -1,5 +1,9 @@
 export type NgpDrawerModal = boolean | 'trap-focus';
 export type NgpDrawerSwipeDirection = 'up' | 'down' | 'left' | 'right';
+/**
+ * A drawer height. A number `<= 1` is a fraction of the viewport height, a number `> 1` is
+ * pixels, and a string is a `px` or `rem` length.
+ */
 export type NgpDrawerSnapPoint = number | `${number}px` | `${number}rem`;
 export type NgpDrawerChangeReason =
   | 'backdrop-press'

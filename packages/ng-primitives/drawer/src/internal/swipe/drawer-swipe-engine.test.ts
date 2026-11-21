@@ -219,13 +219,28 @@ describe('DrawerSwipeEngine', () => {
     expect(size).toHaveBeenCalledOnce();
   });
 
-  it('does not rebase an inactive or released gesture', () => {
+  it('does not rebase an inactive or post-release gesture', () => {
     const engine = new DrawerSwipeEngine({ direction: () => 'down', size: () => 100 });
 
     expect(engine.rebase({ x: 0, y: 10, time: 10 })).toBe(false);
     engine.start({ x: 0, y: 0, time: 0 });
     engine.release({ x: 0, y: 50, time: 100 });
     expect(engine.rebase({ x: 0, y: 60, time: 110 })).toBe(false);
+  });
+
+  it('does not rebase from inside the release callback', () => {
+    let rebased: boolean | undefined;
+    // The gesture is still active while `onRelease` runs, so only the `released` guard stops it.
+    const engine: DrawerSwipeEngine = new DrawerSwipeEngine({
+      direction: () => 'down',
+      size: () => 100,
+      onRelease: () => (rebased = engine.rebase({ x: 0, y: 60, time: 110 })),
+    });
+
+    engine.start({ x: 0, y: 0, time: 0 });
+    engine.release({ x: 0, y: 50, time: 100 });
+
+    expect(rebased).toBe(false);
   });
 
   it('reads fresh size after cancellation and destruction', () => {
