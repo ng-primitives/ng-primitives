@@ -144,6 +144,35 @@ describe('NgpDrawerPortal', () => {
     });
   });
 
+  it('moves a reopened kept-mounted host in front of later overlays', async () => {
+    fixture.componentInstance.keepMounted.set(true);
+    fixture.componentInstance.root().show();
+    fixture.detectChanges();
+    await vi.waitFor(() =>
+      expect(document.querySelector('[data-test-popup]')?.getAttribute('data-open')).toBe(''),
+    );
+    const host = document.querySelector<HTMLElement>('[data-ngp-drawer-overlay-host]')!;
+    const popup = document.querySelector('[data-test-popup]');
+
+    fixture.componentInstance.root().hide();
+    fixture.detectChanges();
+    await vi.waitFor(() => expect(host.hidden).toBe(true));
+
+    const laterOverlay = document.createElement('div');
+    document.body.append(laterOverlay);
+    try {
+      fixture.componentInstance.root().show();
+      fixture.detectChanges();
+      await vi.waitFor(() => expect(host.hidden).toBe(false));
+
+      expect(document.body.lastElementChild).toBe(host);
+      expect(document.querySelectorAll('[data-ngp-drawer-overlay-host]')).toHaveLength(1);
+      expect(document.querySelector('[data-test-popup]')).toBe(popup);
+    } finally {
+      laterOverlay.remove();
+    }
+  });
+
   it('authoritatively unmounts an open modal and releases its stack effects', async () => {
     const completed: boolean[] = [];
     fixture.componentInstance.root().openChangeComplete.subscribe(value => completed.push(value));

@@ -15,6 +15,7 @@ export class DrawerPortalAdapter {
 
   attach(): void {
     if (this.hasAttached()) {
+      this.bringDefaultHostToFront();
       this.show();
       return;
     }
@@ -67,6 +68,15 @@ export class DrawerPortalAdapter {
       host.hidden = true;
       host.inert = true;
       host.setAttribute('aria-hidden', 'true');
+    }
+  }
+
+  private bringDefaultHostToFront(): void {
+    const host = this.ownedHost;
+    // Every default host shares one z-index, so DOM order decides which drawer paints on top: a
+    // reopened kept-mounted host must move past whatever the body gained since it first opened.
+    if (!this.container && host && host !== this.document.body.lastElementChild) {
+      this.document.body.append(host);
     }
   }
 
