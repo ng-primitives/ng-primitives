@@ -90,9 +90,8 @@ export function findTouchScrollContext(
  */
 function horizontalScrollOffset(element: HTMLElement): { offset: number; maximum: number } {
   const maximum = Math.max(0, element.scrollWidth - element.clientWidth);
-  const rtl =
-    element.ownerDocument.defaultView?.getComputedStyle(element).direction === 'rtl' ||
-    element.scrollLeft < 0;
+  // Not inferred from a negative `scrollLeft`: Safari reports one while an LTR scroller rubber-bands.
+  const rtl = element.ownerDocument.defaultView?.getComputedStyle(element).direction === 'rtl';
   return { offset: rtl ? element.scrollLeft + maximum : element.scrollLeft, maximum };
 }
 
@@ -155,14 +154,6 @@ export function isAtDismissEdge(element: HTMLElement, direction: NgpDrawerSwipeD
       return maximum - offset <= 1;
     }
   }
-}
-
-export function shouldTransferToDrawer(
-  element: HTMLElement,
-  direction: NgpDrawerSwipeDirection,
-  delta: number,
-): boolean {
-  return isTouchDeltaTowardDismissal(direction, delta) && isAtDismissEdge(element, direction);
 }
 
 export function canTransferTouchToDrawer(

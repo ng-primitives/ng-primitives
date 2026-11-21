@@ -30,6 +30,19 @@ describe('Drawer snap points', () => {
     expect(points.map(point => point.value)).toEqual(['100.5px', '102px']);
   });
 
+  it('merges a value into any kept point within one pixel, not only the first', () => {
+    const points = resolveDrawerSnapPoints(['100px', '101.5px', '100.6px'], 800, 700, 16);
+    expect(points).toHaveLength(1);
+    expect(points[0].height).toBe(100.6);
+    expect(points[0].values).toEqual(['100px', '101.5px', '100.6px']);
+  });
+
+  it('measures the one-pixel tolerance from the kept point, so a chain does not collapse', () => {
+    const points = resolveDrawerSnapPoints(['100px', '101px', '102px'], 800, 700, 16);
+    expect(points.map(point => point.height)).toEqual([100, 102]);
+    expect(points.map(point => point.values)).toEqual([['100px'], ['101px', '102px']]);
+  });
+
   it('chooses the closest point and preserves the first on a tie', () => {
     const points = resolveDrawerSnapPoints([100, 300], 800, 700, 16);
     expect(closestDrawerSnapPoint(points, 200)?.value).toBe(100);
