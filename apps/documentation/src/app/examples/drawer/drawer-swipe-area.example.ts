@@ -10,6 +10,7 @@ import {
   NgpDrawer,
   NgpDrawerSwipeArea,
   NgpDrawerTitle,
+  NgpDrawerTrigger,
   NgpDrawerViewport,
 } from 'ng-primitives/drawer';
 
@@ -26,6 +27,7 @@ import {
     NgpDrawer,
     NgpDrawerSwipeArea,
     NgpDrawerTitle,
+    NgpDrawerTrigger,
     NgpDrawerViewport,
   ],
   template: `
@@ -34,7 +36,11 @@ import {
         <div class="swipe-area" ngpDrawerSwipeArea>
           <span>Swipe here</span>
         </div>
-        <p>Swipe from the right edge to open the drawer.</p>
+        <div class="intro">
+          <p>Swipe from the right edge to open the drawer.</p>
+          <!-- The swipe area only responds to pointers, so keyboard users need a trigger too. -->
+          <button ngpButton ngpDrawerTrigger>Open library</button>
+        </div>
 
         <ng-template [container]="portalContainer" ngpDrawerPortal>
           <div class="backdrop" ngpDrawerBackdrop></div>
@@ -43,7 +49,7 @@ import {
               <div ngpDrawerContent>
                 <h2 ngpDrawerTitle>Library</h2>
                 <p ngpDrawerDescription>
-                  Edge swipe areas can open a drawer without a visible trigger.
+                  An edge swipe area adds a gesture for opening the drawer next to its trigger.
                 </p>
                 <button ngpButton ngpDrawerClose>Close</button>
               </div>
@@ -74,8 +80,15 @@ import {
       border-radius: 0.75rem;
     }
 
-    .stage > p {
+    .intro {
+      display: grid;
+      justify-items: center;
+      gap: 0.75rem;
+    }
+
+    .intro p {
       max-width: 14rem;
+      margin: 0;
       color: var(--ngp-text-secondary);
       font-size: 0.875rem;
       text-align: center;
@@ -200,6 +213,13 @@ import {
       font-size: 0.875rem;
       line-height: 1.5;
       letter-spacing: -0.006em;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .drawer,
+      .backdrop {
+        transition-duration: 0ms;
+      }
     }
   `,
 })

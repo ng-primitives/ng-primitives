@@ -1,5 +1,5 @@
 import { A11yModule } from '@angular/cdk/a11y';
-import { Component, signal } from '@angular/core';
+import { Component, ElementRef, signal, viewChild } from '@angular/core';
 import { NgpButton } from 'ng-primitives/button';
 import {
   NgpDrawerBackdrop,
@@ -77,7 +77,7 @@ import {
                 <p id="discard-description">Your changes will be lost.</p>
               </div>
               <div class="actions">
-                <button (click)="goBack(postTextarea)" ngpButton cdkFocusInitial type="button">
+                <button (click)="keepEditing()" ngpButton cdkFocusInitial type="button">
                   Keep editing
                 </button>
                 <button class="primary" (click)="discard()" ngpButton type="button">Discard</button>
@@ -272,6 +272,14 @@ import {
       color: var(--ngp-text-secondary);
       font-size: 0.875rem;
     }
+
+    @media (prefers-reduced-motion: reduce) {
+      .drawer,
+      .drawer::after,
+      .backdrop {
+        transition-duration: 0ms;
+      }
+    }
   `,
 })
 export default class DrawerCloseConfirmationExample {
@@ -279,7 +287,18 @@ export default class DrawerCloseConfirmationExample {
   readonly confirmationOpen = signal(false);
   readonly draft = signal('');
 
+  private readonly postTextarea = viewChild<ElementRef<HTMLTextAreaElement>>('postTextarea');
+
   onBeforeOpenChange(event: NgpDrawerOpenChangeEvent): void {
+    // While the alert dialog is up, Escape dismisses it rather than the drawer behind it.
+    if (!event.nextOpen && this.confirmationOpen()) {
+      event.cancel();
+      if (event.reason === 'escape-key') {
+        this.keepEditing();
+      }
+      return;
+    }
+
     if (!event.nextOpen && this.draft()) {
       event.cancel();
       this.confirmationOpen.set(true);
@@ -300,9 +319,9 @@ export default class DrawerCloseConfirmationExample {
     this.drawerOpen.set(false);
   }
 
-  goBack(textarea: HTMLTextAreaElement): void {
+  keepEditing(): void {
     this.confirmationOpen.set(false);
-    requestAnimationFrame(() => textarea.focus());
+    requestAnimationFrame(() => this.postTextarea()?.nativeElement.focus());
   }
 
   discard(): void {

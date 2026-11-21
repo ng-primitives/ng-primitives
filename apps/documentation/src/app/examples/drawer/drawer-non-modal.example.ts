@@ -153,6 +153,12 @@ import {
       background: var(--ngp-background-secondary);
       font-size: 0.875rem;
     }
+
+    @media (prefers-reduced-motion: reduce) {
+      .drawer {
+        transition-duration: 0ms;
+      }
+    }
   `,
 })
 export default class DrawerNonModalExample {}

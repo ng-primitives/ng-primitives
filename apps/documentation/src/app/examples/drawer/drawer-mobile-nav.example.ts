@@ -53,7 +53,7 @@ interface NavigationItem {
                 <ul>
                   @for (item of items; track item.label) {
                     <li>
-                      <a [href]="item.href" (click)="$event.preventDefault()" ngpDrawerClose>
+                      <a [href]="item.href" ngpDrawerClose>
                         {{ item.label }}
                       </a>
                     </li>
@@ -225,28 +225,37 @@ interface NavigationItem {
       outline: 2px solid var(--ngp-focus-ring);
       outline-offset: 2px;
     }
+
+    @media (prefers-reduced-motion: reduce) {
+      .menu,
+      .backdrop {
+        transition-duration: 0ms;
+      }
+    }
   `,
 })
 export default class DrawerMobileNavExample {
   readonly items: readonly NavigationItem[] = [
-    'Overview',
-    'Accordion',
-    'Button',
-    'Checkbox',
-    'Collapsible',
-    'Combobox',
-    'Dialog',
-    'Drawer',
-    'Menu',
-    'Navigation Menu',
-    'Popover',
-    'Select',
-    'Slider',
-    'Tabs',
-    'Toast',
-    'Tooltip',
-  ].map(label => ({
-    label,
-    href: `/primitives/${label.toLowerCase().replaceAll(' ', '-')}`,
-  }));
+    { label: 'Overview', href: '/getting-started/introduction' },
+    ...[
+      'Accordion',
+      'Button',
+      'Checkbox',
+      'Collapsible',
+      'Combobox',
+      'Dialog',
+      'Drawer',
+      'Menu',
+      'Navigation Menu',
+      'Popover',
+      'Select',
+      'Slider',
+      'Tabs',
+      'Toast',
+      'Tooltip',
+    ].map(label => ({
+      label,
+      href: `/primitives/${label.toLowerCase().replaceAll(' ', '-')}`,
+    })),
+  ];
 }

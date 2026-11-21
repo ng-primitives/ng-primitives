@@ -167,6 +167,13 @@ import {
       font-size: 0.875rem;
       letter-spacing: -0.006em;
     }
+
+    @media (prefers-reduced-motion: reduce) {
+      .sheet,
+      .backdrop {
+        transition-duration: 0ms;
+      }
+    }
   `,
 })
 export default class DrawerPositionExample {}

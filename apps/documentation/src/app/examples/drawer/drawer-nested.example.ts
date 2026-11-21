@@ -342,6 +342,13 @@ import {
       outline: 2px solid var(--ngp-focus-ring);
       outline-offset: 2px;
     }
+
+    @media (prefers-reduced-motion: reduce) {
+      .sheet,
+      .backdrop {
+        transition-duration: 0ms;
+      }
+    }
   `,
 })
 export default class DrawerNestedExample {}
