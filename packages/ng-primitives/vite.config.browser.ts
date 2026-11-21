@@ -8,8 +8,8 @@ import { defineConfig } from 'vite';
  * Runs tests that require native browser APIs and real CSS motion.
  *
  * Keep these tests separate from `vite.config.ts`: its shared setup deliberately
- * disables animation and replaces browser observers to keep ordinary component
- * tests deterministic.
+ * disables CSS transitions and animations to keep ordinary component tests
+ * deterministic.
  */
 export default defineConfig({
   root: __dirname,
@@ -35,6 +35,8 @@ export default defineConfig({
       '@angular/cdk/a11y',
       '@angular/cdk/overlay',
       '@angular/cdk/portal',
+      '@angular/cdk/scrolling',
+      '@floating-ui/dom',
     ],
   },
   test: {
