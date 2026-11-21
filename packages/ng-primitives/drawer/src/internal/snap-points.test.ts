@@ -18,7 +18,7 @@ describe('Drawer snap points', () => {
     expect(points.map(point => point.height)).toEqual([0, 500]);
   });
 
-  it('keeps a negative declared value as a zero-height point, the way Base UI clamps it', () => {
+  it('keeps a negative declared value as a zero-height point', () => {
     const points = resolveDrawerSnapPoints([-1, '-5px', '300px'], 800, 600, 16);
     // -1 and '-5px' both clamp to height 0 and dedup into one point (within 1px of each other).
     expect(points.map(point => point.height)).toEqual([0, 300]);
@@ -53,7 +53,7 @@ describe('Drawer snap points', () => {
   it('closes a sequential release from any point once the target passes the last one', () => {
     const points = resolveDrawerSnapPoints([100, 200, 300], 800, 700, 16);
     // offsets 600/500/400, popupHeight 700. From offset 500 a 300px drag lands at the closed edge,
-    // which is nearer than the lowest point's 600 — Base UI closes rather than stepping down.
+    // which is nearer than the lowest point's 600, so it closes rather than stepping down.
     expect(projectDrawerSnapPoint(points, points[1], 300, 0, true)).toBeNull();
     expect(projectDrawerSnapPoint(points, points[0], 300, 0, true)).toBeNull();
   });
@@ -116,7 +116,7 @@ describe('Drawer snap points', () => {
 
   it('leaves the sequential path without a flick shortcut', () => {
     const points = resolveDrawerSnapPoints([100, 200, 300], 400, 400, 16);
-    // Base UI applies the shortcut only to non-sequential releases.
+    // The shortcut applies only to non-sequential releases.
     expect(projectDrawerSnapPoint(points, points[2], 5, 0.6, true)).not.toBeNull();
   });
 

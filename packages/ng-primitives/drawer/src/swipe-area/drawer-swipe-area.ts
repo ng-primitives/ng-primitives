@@ -439,8 +439,8 @@ export class NgpDrawerSwipeArea {
     if (!popup || !this.pendingVisual || !this.engine.active) {
       return;
     }
-    // Base UI re-asserts the swipe movement on every commit the swipe area takes part in
-    // (DrawerSwipeArea.tsx:380-387) because the commit that opens the drawer resets the movement
+    // The swipe movement is re-asserted on every commit the swipe area takes part in, because the
+    // commit that opens the drawer resets the movement
     // custom properties. Writing here, in the render write phase, lands the value before paint.
     this.writeVisuals();
   }
@@ -464,8 +464,7 @@ export class NgpDrawerSwipeArea {
     const update = this.resolveOpeningVisual(pendingVisual, size);
     // `--ngp-drawer-swipe-progress` is dismissal progress everywhere else in the drawer — 0 is
     // fully open, 1 is gone — which is why every example fades its backdrop with
-    // `calc(1 - progress)`. A swipe that *opens* the drawer therefore has to count down. Base UI
-    // publishes the same inverted value (DrawerSwipeArea.tsx:225-245).
+    // `calc(1 - progress)`. A swipe that *opens* the drawer therefore has to count down.
     const progress = 1 - update.progress;
     this.state.visualStore.set({
       movementX: update.movement.x,

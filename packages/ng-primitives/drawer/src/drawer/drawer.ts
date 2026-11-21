@@ -51,8 +51,7 @@ export class NgpDrawer {
   });
 
   /**
-   * Base UI's `resolvedDefaultSnapPoint` (DrawerRoot.tsx:67-68): an explicit `defaultSnapPoint`
-   * wins even when it is `null`; otherwise the first declared point; otherwise `null`. This is the
+   * The resolved default: an explicit `defaultSnapPoint` wins even when it is `null`; otherwise the first declared point; otherwise `null`. This is the
    * single derivation of the default — the seed, the close reset and the null resolution below all
    * consume it.
    */
@@ -62,13 +61,11 @@ export class NgpDrawer {
   });
 
   /**
-   * Base UI seeds the uncontrolled snap point with the resolved default (DrawerRoot.tsx:71-76), so
-   * "never set" does not exist as a runtime state and the default is never applied imperatively on
-   * open. Angular's inputs land after construction, so the seed cannot be read once — the
-   * linkedSignal re-seeds whenever the resolved default's value changes, which Base UI's
-   * useControlled instead flags as an unsupported use of an uncontrolled component
-   * (useControlled.ts:57-70). A bound `[snapPoint]` always wins, so controlled mode is untouched by
-   * the seed.
+   * The uncontrolled snap point is seeded with the resolved default, so "never set" does not exist
+   * as a runtime state and the default is never applied imperatively on open. Angular's inputs land
+   * after construction, so the seed cannot be read once — the linkedSignal re-seeds whenever the
+   * resolved default's value changes. A bound `[snapPoint]` always wins, so controlled mode is
+   * untouched by the seed.
    */
   readonly snapPoint = linkedSignal<NgpDrawerSnapPoint | null>(() => {
     const bound = this.snapPointInput();
@@ -77,14 +74,14 @@ export class NgpDrawer {
   readonly snapPointChange = output<NgpDrawerSnapPoint | null>();
 
   /**
-   * Base UI keeps the raw active point in state but publishes a *resolved* one to every consumer
-   * (DrawerRoot.tsx:98-115, :179). An uncontrolled drawer that was dismissed from a snap point
+   * The raw active point stays in state, but every consumer reads a *resolved* one. An
+   * uncontrolled drawer that was dismissed from a snap point
    * holds `null`, and rendering that literally would reopen it at full height instead of its
    * default. A controlled `null` is the consumer's explicit choice and is passed through untouched.
    */
   private readonly resolvedSnapPoint = computed<NgpDrawerSnapPoint | null>(() => {
     const current = this.snapPoint();
-    // `snapPointInput() !== undefined` is Base UI's `isSnapPointControlled`.
+    // A bound `[snapPoint]` makes the drawer controlled.
     if (this.snapPointInput() !== undefined) {
       return current;
     }
@@ -304,10 +301,8 @@ export class NgpDrawer {
       if (points && points.length > 0) {
         const resetPoint = this.resolvedDefaultSnapPoint();
         const currentSnapPoint = this.snapPoint();
-        // Base UI resets the active point to the resolved default on every close
-        // (DrawerRoot.tsx:160-169) — safely, because its useControlled setter is a no-op in
-        // controlled mode. This linkedSignal always writes and its emission round-trips, so two
-        // guards stay on top: an explicit `null` is the consumer's "no active snap point" and a
+        // Every close resets the active point to the resolved default. This linkedSignal always
+        // writes and its emission round-trips, so two guards stay on top: an explicit `null` is the consumer's "no active snap point" and a
         // swipe close's clear must survive the close — collapsing either into the default would
         // silently discard it.
         if (currentSnapPoint !== null && currentSnapPoint !== resetPoint) {

@@ -12,13 +12,12 @@ export const DEFAULT_SWIPE_THRESHOLD = 40;
 export const REVERSE_CANCEL_THRESHOLD = 10;
 export const MIN_DRAG_THRESHOLD = 1;
 /**
- * Distance an axis must travel before the gesture is attributed to it. Mirrors Base UI's
- * `AXIS_LOCK_SLOP`.
+ * Distance an axis must travel before the gesture is attributed to it.
  */
 export const AXIS_LOCK_SLOP = 6;
 /**
  * Extra distance the cross axis must beat the drawer axis by before the gesture is handed to the
- * platform. Mirrors Base UI's `AXIS_LOCK_BIAS`.
+ * platform.
  */
 export const AXIS_LOCK_BIAS = 2;
 
@@ -143,10 +142,9 @@ export class DrawerSwipeEngine {
     if (!this.axisLocked) {
       const axisSlop = this.readAxisSlop();
       // Hand the gesture to the platform only once the cross axis has clearly won: it must pass the
-      // slop AND beat the drawer axis by the bias. A bare `cross > primary` comparison at one pixel
-      // killed gestures that a real finger starts with a pixel of sideways jitter, with no way to
-      // recover for the rest of the sequence. Base UI never cancels a single-direction gesture at
-      // all; it just withholds progress until the intended axis dominates (useSwipeDismiss.ts).
+      // slop AND beat the drawer axis by the bias, so a real finger's pixel of sideways jitter does
+      // not kill the gesture. A single-direction gesture is never cancelled; progress is withheld
+      // until the intended axis dominates.
       if (cross >= AXIS_LOCK_SLOP && cross > primary + AXIS_LOCK_BIAS) {
         this.cancel(input.nativeEvent);
         return null;

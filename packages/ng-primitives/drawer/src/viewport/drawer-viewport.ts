@@ -141,10 +141,9 @@ export class NgpDrawerViewport {
     allowOppositeDirection: () => this.hasVerticalSnapGesture(),
     size: () => this.primarySize(),
     // A drawer must travel half its own length before distance alone dismisses it; a fixed pixel
-    // threshold made a tall sheet close after a nudge. A fast flick still dismisses through the
-    // engine's velocity shortcut. Mirrors Base UI's `getBaseSwipeThreshold`. Derives from the size
-    // the engine already measured for this gesture — re-measuring the popup here would double its
-    // `getBoundingClientRect()` reads per gesture.
+    // threshold would close a tall sheet after a nudge. A fast flick still dismisses through the
+    // engine's velocity shortcut. Derives from the size the engine already measured for this
+    // gesture — re-measuring the popup here would double its `getBoundingClientRect()` reads.
     threshold: size => Math.max(size * 0.5, MIN_SWIPE_THRESHOLD),
     onStart: () => this.beginGesture(),
     onMove: update => this.writeVisuals(update),
@@ -950,13 +949,11 @@ export class NgpDrawerViewport {
         this.state.requestSnapPoint(target.value, 'swipe', { nativeEvent: release.nativeEvent });
         settleAtSnapPoint = true;
       } else {
-        // Base UI records the active point, clears it, and only then starts the exit, so a
-        // dismissed drawer never reports a snap point it is not resting on
-        // (DrawerViewport.tsx:507-512). If the consumer vetoes the close, the recorded point goes
-        // back (:599-609).
+        // Record the active point, clear it, and only then start the exit, so a dismissed drawer
+        // never reports a snap point it is not resting on. If the consumer vetoes the close, the
+        // recorded point goes back.
         const previousSnapPoint = this.state.snapPoint();
         // Captured before the clear: `applyReleaseStrength` needs the distance already travelled,
-        // and Base UI reads it from a render closure that its own clear does not update.
         releaseSnapOffset = active.offset;
         this.state.requestSnapPoint(null, 'swipe', { nativeEvent: release.nativeEvent });
         this.state.swipeDismiss.set(this.state.swipeDirection());
@@ -992,7 +989,6 @@ export class NgpDrawerViewport {
     // A drawer resting on a snap point has already travelled that offset toward dismissal, so the
     // distance still to cover is shorter than the popup's full length. A swipe close clears the
     // active point before we get here, so the caller passes the offset it captured beforehand;
-    // Base UI reads the same pre-clear value out of its render closure (DrawerViewport.tsx:245-249).
     const snapOffset =
       snapOffsetOverride ??
       (this.isVertical() && points.length > 0
@@ -1050,7 +1046,7 @@ export class NgpDrawerViewport {
   }
 
   /**
-   * Leaves a snap gesture in the same two visual states Base UI exposes: first the dragged
+   * Leaves a snap gesture in two visual states: first the dragged
    * transform with the consumer transition restored, then the target offset with zero movement.
    * Applying both states while the inline `transition: none` from `beginVisuals` is active makes
    * the browser see only a jump. The layout read is deliberately limited to release time and uses
@@ -1259,12 +1255,9 @@ export class NgpDrawerViewport {
       return exact;
     }
     // The value is not one of the declared points. Resolve it to a height and take the nearest
-    // declared point, the way Base UI does (useDrawerSnapPoints.ts:163-186). The previous fallback
-    // asked for the point closest to the popup height, which is always the tallest one — so an
-    // off-list value silently opened the drawer nearly full height.
-    // Geometry not measured yet: keep the pre-013 fallback rather than reporting "no snap point"
-    // on a frame where we simply have not measured. `snapGeometry` starts at viewportHeight 0.
-    // Base UI cannot reach this state — it recomputes from live values instead of caching.
+    // declared point; the point closest to the popup height would always be the tallest one.
+    // Geometry not measured yet: fall back to the closest point rather than reporting "no snap
+    // point" on a frame where we simply have not measured. `snapGeometry` starts at viewportHeight 0.
     if (popupHeight <= 0 || this.snapGeometry.viewportHeight <= 0) {
       return closestDrawerSnapPoint(points, popupHeight);
     }
@@ -1274,8 +1267,8 @@ export class NgpDrawerViewport {
       popupHeight,
       this.snapGeometry.rootFontSize,
     );
-    // The value itself cannot resolve — non-finite, or a unit we do not accept. Base UI reports no
-    // active snap point rather than guessing (useDrawerSnapPoints.ts:176-179).
+    // The value itself cannot resolve — non-finite, or a unit we do not accept. Report no active
+    // snap point rather than guessing.
     if (resolvedHeight === null) {
       return null;
     }

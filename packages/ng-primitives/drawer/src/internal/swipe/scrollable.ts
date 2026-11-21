@@ -193,12 +193,7 @@ export function shouldIgnoreSwipeTarget(target: EventTarget | null, pointerType:
   if (!element) {
     return true;
   }
-  if (
-    closestComposed(
-      element,
-      '[data-ngp-drawer-swipe-ignore], [data-base-ui-swipe-ignore], input[type="range"]',
-    )
-  ) {
+  if (closestComposed(element, '[data-ngp-drawer-swipe-ignore], input[type="range"]')) {
     return true;
   }
   if (

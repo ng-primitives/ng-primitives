@@ -86,13 +86,13 @@ Wrap related roots with `ngpDrawerProvider`. Apply `ngpDrawerIndent` and `ngpDra
 
 ### Edge swipe area
 
-Use `ngpDrawerSwipeArea` to open a closed drawer by swiping from an edge. This is useful for navigation drawers without a persistent trigger.
+Use `ngpDrawerSwipeArea` to open a closed drawer by swiping from an edge. A swipe area only responds to pointer and touch gestures, so pair it with an `ngpDrawerTrigger` to keep the drawer reachable from the keyboard.
 
 <docs-example name="drawer-swipe-area"></docs-example>
 
 ### Close confirmation
 
-Listen to `beforeOpenChange` to inspect and cancel a close request. The event exposes `cancel()` and `preventUnmount()` for guarded workflows.
+Listen to `beforeOpenChange` to inspect and cancel a close request. The event exposes `cancel()` and `preventUnmountOnClose()` for guarded workflows.
 
 <docs-example name="drawer-close-confirmation"></docs-example>
 
@@ -265,6 +265,7 @@ State attributes are distributed across the relevant trigger, backdrop, viewport
   <api-attribute name="data-disabled" description="Applied when an interactive part is disabled." />
   <api-attribute name="data-active" description="Applied to provider indentation parts while a drawer is active." />
   <api-attribute name="data-inactive" description="Applied to provider indentation parts when no drawer is active." />
+  <api-attribute name="data-drawer-content" description="Applied to the drawer content element." />
   <api-attribute name="data-ngp-drawer-swipe-ignore" description="Marks an element whose pointer movement should be ignored by swipe handling." />
 </api-reference-attributes>
 

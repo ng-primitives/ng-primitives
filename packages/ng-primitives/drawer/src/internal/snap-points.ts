@@ -67,7 +67,7 @@ export function closestDrawerSnapPoint(
 
 /**
  * Release speed, in pixels per millisecond toward dismissal, at which a flick closes the drawer
- * outright rather than resolving to a snap point. Mirrors Base UI's `FAST_SWIPE_VELOCITY`.
+ * outright rather than resolving to a snap point.
  */
 export const FAST_SWIPE_VELOCITY = 0.5;
 
@@ -93,7 +93,7 @@ function projectFreeformSnapPoint(
   dismissVelocity: number,
 ): ResolvedDrawerSnapPoint | null {
   // A decisive flick toward dismissal closes the drawer outright, without asking which snap point
-  // the projection lands nearest (Base UI DrawerViewport.tsx:563-565).
+  // the projection lands nearest.
   if (dismissVelocity >= FAST_SWIPE_VELOCITY && directionalDisplacement > 0) {
     return null;
   }
@@ -109,9 +109,8 @@ function projectFreeformSnapPoint(
 }
 
 /**
- * Ported from Base UI's `snapToSequentialPoints` branch (DrawerViewport.tsx:514-561). Works in
- * offset space, where `0` is fully open and `popupHeight` is fully closed, because that is the
- * space Base UI's three rules are expressed in.
+ * Resolves a sequential release. Works in offset space, where `0` is fully open and `popupHeight`
+ * is fully closed, because that is the space its three rules are expressed in.
  */
 function projectSequentialSnapPoint(
   points: readonly ResolvedDrawerSnapPoint[],
@@ -170,8 +169,7 @@ function closestOffsetIndex(points: readonly ResolvedDrawerSnapPoint[], offset: 
   let closestDistance = Infinity;
   for (let index = 0; index < points.length; index += 1) {
     const distance = Math.abs(points[index].offset - offset);
-    // Strict `<` keeps the first of equally-distant points, matching Base UI's
-    // `closestSnapPointIndex` (useDrawerSnapPoints.ts:69-82).
+    // Strict `<` keeps the first of equally-distant points.
     if (distance < closestDistance) {
       closestDistance = distance;
       closestIndex = index;
@@ -220,8 +218,7 @@ function resolveHeight(
     if (!Number.isFinite(value)) {
       return null;
     }
-    // A fraction is clamped into [0, 1] rather than rejected, matching Base UI's
-    // `clamp(snapPoint, 0, 1) * viewportHeight` (useDrawerSnapPoints.ts:44-46). `Math.min(1, …)`
+    // A fraction is clamped into [0, 1] rather than rejected. `Math.min(1, …)`
     // would be inert inside this branch, so only the lower bound is applied.
     return value <= 1 ? Math.max(0, value) * viewportHeight : value;
   }
@@ -235,6 +232,6 @@ function resolveHeight(
     return null;
   }
   // A negative length is returned as-is. Both callers clamp with `Math.max(0, …)`, which is how
-  // Base UI turns `'-5px'` into height 0 (useDrawerSnapPoints.ts:53-56 plus its caller's clamp).
+  // `'-5px'` becomes height 0.
   return match[2] === 'rem' ? amount * rootFontSize : amount;
 }

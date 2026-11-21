@@ -159,7 +159,7 @@ export function createDrawerState(props: DrawerStateProps): DrawerState {
     nestedVisualStore,
     nestedCount: computed(() => {
       nestedVersion();
-      // Mirrors base UI's `nestedOpenDrawerCount`: driven purely by `open()` so the
+      // Driven purely by `open()` so the
       // parent's scale-down transform starts returning to its resting size in
       // parallel with the child's own exit transition, instead of waiting for
       // `mounted()` to flip once the exit animation (and unmount) fully completes.
@@ -183,7 +183,7 @@ export function createDrawerState(props: DrawerStateProps): DrawerState {
     }),
     frontmostHeight: computed(() => {
       nestedVersion();
-      // Mirrors base UI: the reported frontmost height cascades based on `open()`
+      // The reported frontmost height cascades based on `open()`
       // only, so an ancestor starts shrinking back towards its own height in
       // parallel with a closing descendant's exit transition. `nestedPresent()`
       // (below) is what keeps `--ngp-drawer-height` pinned to a fixed pixel value for
