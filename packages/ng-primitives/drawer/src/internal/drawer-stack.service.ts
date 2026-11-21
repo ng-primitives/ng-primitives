@@ -287,7 +287,12 @@ export class DrawerStackService {
     if (!state || this.hasBlockingOverlayAbove(state, 'escapeKey')) {
       return;
     }
-    state.requestOpen(false, 'escape-key', { nativeEvent: event });
+    const closed = state.requestOpen(false, 'escape-key', { nativeEvent: event });
+    // A cancelled close leaves Escape to other handlers, unless the armed CloseWatcher would
+    // turn the same key press into a second close request and a second `beforeOpenChange`.
+    if (closed || this.closeWatcher) {
+      event.preventDefault();
+    }
   }
 
   private onFocusIn(event: FocusEvent): void {
