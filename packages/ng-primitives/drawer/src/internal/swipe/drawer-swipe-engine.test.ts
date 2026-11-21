@@ -116,7 +116,17 @@ describe('DrawerSwipeEngine', () => {
     engine.start({ x: 0, y: 0, time: 0, buttons: 1 });
     engine.move({ x: 0, y: 70, time: 100, buttons: 1 });
     engine.move({ x: 0, y: 55, time: 200, buttons: 1 });
-    expect(engine.release({ x: 0, y: 55, time: 210, buttons: 0 })?.dismissed).toBe(false);
+    const release = engine.release({ x: 0, y: 55, time: 210, buttons: 0 });
+    expect(release?.reversed).toBe(true);
+    expect(release?.dismissed).toBe(false);
+  });
+
+  it('does not report a pull-back under ten pixels as a reversal', () => {
+    const engine = new DrawerSwipeEngine({ direction: () => 'down', size: () => 100 });
+    engine.start({ x: 0, y: 0, time: 0, buttons: 1 });
+    engine.move({ x: 0, y: 70, time: 100, buttons: 1 });
+    engine.move({ x: 0, y: 65, time: 200, buttons: 1 });
+    expect(engine.release({ x: 0, y: 65, time: 210, buttons: 0 })?.reversed).toBe(false);
   });
 
   it('commits a one-move buttons-zero flick once', () => {

@@ -57,7 +57,10 @@ export class DrawerStackService {
   private readonly handleKeydown = (event: KeyboardEvent): void => this.onKeydown(event);
   private readonly handleFocusIn = (event: FocusEvent): void => this.onFocusIn(event);
   private readonly handleClick = (event: MouseEvent): void => {
-    if (this.suppressClick) {
+    // The guard is for the click a pointer gesture trails behind it, which browsers do not always
+    // send. `detail` is 0 for keyboard and programmatic activation: those are never that click, and
+    // with no pointerdown to disarm the guard first they would be swallowed.
+    if (this.suppressClick && event.detail !== 0) {
       this.suppressClick = false;
       this.pendingTouchDismissal = null;
       event.preventDefault();

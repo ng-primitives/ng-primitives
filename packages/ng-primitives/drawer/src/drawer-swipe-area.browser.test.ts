@@ -45,6 +45,8 @@ import { NgpDrawerViewport } from './viewport/drawer-viewport';
         ></div>
         <div ngpDrawerViewport>
           <section
+            [style.width.px]="popupWidth()"
+            [style.writing-mode]="popupWritingMode()"
             data-test-area-popup
             ngpDrawerPopup
             style="
@@ -71,6 +73,8 @@ class SwipeAreaHost {
   readonly disabled = signal(false);
   readonly direction = signal<NgpDrawerSwipeDirection | undefined>(undefined);
   readonly outsideClicks = signal(0);
+  readonly popupWidth = signal(200);
+  readonly popupWritingMode = signal('horizontal-tb');
   readonly root = viewChild.required(NgpDrawer);
   readonly openChanges: NgpDrawerOpenChangeEvent[] = [];
   cancelRollback = false;
@@ -150,7 +154,7 @@ describe('Drawer SwipeArea', () => {
   });
 
   it('accepts a native touch by velocity below the distance threshold', () => {
-    // 10px stays under the 20px distance threshold the area uses before the popup is measured.
+    // 10px stays under the 40px distance threshold the area uses before the popup is measured.
     nativeSwipe(getArea(), { x: 0, y: 150 }, { x: 0, y: 140 }, 23, 1);
     fixture.detectChanges();
 
@@ -412,13 +416,27 @@ describe('Drawer SwipeArea', () => {
     nativeSwipe(getArea(), { x: 0, y: 150 }, { x: 0, y: 0 }, 8, 100);
     fixture.detectChanges();
     const outside = getOutside();
-    const first = outside.dispatchEvent(
-      new MouseEvent('click', { bubbles: true, cancelable: true }),
-    );
+    const first = outside.dispatchEvent(pointerClick());
     fixture.detectChanges();
     expect(first).toBe(false);
     expect(fixture.componentInstance.outsideClicks()).toBe(0);
-    outside.click();
+    outside.dispatchEvent(pointerClick());
+    fixture.detectChanges();
+    expect(fixture.componentInstance.outsideClicks()).toBe(1);
+  });
+
+  it('lets a keyboard click through while the trailing click guard is armed', () => {
+    nativeSwipe(getArea(), { x: 0, y: 150 }, { x: 0, y: 0 }, 26, 100);
+    fixture.detectChanges();
+    const outside = getOutside();
+
+    // Enter or Space on a button: a click with no pointer behind it, so `detail` is 0.
+    const keyboard = new MouseEvent('click', { bubbles: true, cancelable: true, detail: 0 });
+    expect(outside.dispatchEvent(keyboard)).toBe(true);
+    fixture.detectChanges();
+    expect(fixture.componentInstance.outsideClicks()).toBe(1);
+
+    expect(outside.dispatchEvent(pointerClick())).toBe(false);
     fixture.detectChanges();
     expect(fixture.componentInstance.outsideClicks()).toBe(1);
   });
@@ -429,9 +447,7 @@ describe('Drawer SwipeArea', () => {
     const outside = getOutside();
     dispatchPointer(outside, 'pointerdown', { buttons: 1, pointerId: 10, time: 1000, y: 0 });
     dispatchPointer(outside, 'pointerup', { buttons: 0, pointerId: 10, time: 1100, y: 0 });
-    const allowed = outside.dispatchEvent(
-      new MouseEvent('click', { bubbles: true, cancelable: true }),
-    );
+    const allowed = outside.dispatchEvent(pointerClick());
     fixture.detectChanges();
     expect(allowed).toBe(true);
     expect(fixture.componentInstance.outsideClicks()).toBe(1);
@@ -578,6 +594,87 @@ describe('Drawer SwipeArea', () => {
     expect(backdrop.style.getPropertyValue('--ngp-drawer-swipe-movement-y')).toBe('0px');
   });
 
+  it('keeps the active pointer when a second primary pointer presses the area', () => {
+    const area = getArea();
+    dispatchPointer(area, 'pointerdown', { buttons: 1, pointerId: 31, time: 0, y: 150 });
+    // A mouse and a pen are each the primary pointer of their own type.
+    const pen = dispatchPointer(area, 'pointerdown', {
+      buttons: 1,
+      pointerId: 32,
+      pointerType: 'pen',
+      time: 10,
+      y: 150,
+    });
+    expect(pen.defaultPrevented).toBe(false);
+
+    dispatchPointer(area, 'pointermove', { buttons: 1, pointerId: 31, time: 100, y: 0 });
+    dispatchPointer(area, 'pointerup', { buttons: 0, pointerId: 31, time: 101, y: 0 });
+    fixture.detectChanges();
+
+    expect(fixture.componentInstance.root().open()).toBe(true);
+    expect(area.hasAttribute('data-swiping')).toBe(false);
+  });
+
+  it('closes a slow pull released before the popup could be measured', () => {
+    // 30px is past half of the 40px minimum drawer size, but not past the unmeasured threshold.
+    nativeSwipe(getArea(), { x: 0, y: 150 }, { x: 0, y: 120 }, 27, 2000);
+    fixture.detectChanges();
+
+    expect(fixture.componentInstance.root().open()).toBe(false);
+  });
+
+  it('measures a resized popup on the physical swipe axis in a vertical writing mode', async () => {
+    fixture.componentInstance.popupWidth.set(100);
+    fixture.componentInstance.popupWritingMode.set('vertical-rl');
+    fixture.detectChanges();
+    const area = getArea();
+    dispatchPointer(area, 'pointerdown', { buttons: 1, pointerId: 33, time: 0, y: 200 });
+    dispatchPointer(area, 'pointermove', { buttons: 1, pointerId: 33, time: 100, y: 190 });
+    fixture.detectChanges();
+    await vi.waitFor(() => expect(document.querySelector('[data-test-area-popup]')).not.toBeNull());
+    // The resize observer reports after the frame's layout, so give it a full frame to deliver.
+    await animationFrame();
+    await animationFrame();
+
+    // 60px of a 200px-tall popup. Its block size is the 100px width here, which would halve the
+    // threshold to 50px and let this pull through.
+    dispatchPointer(area, 'pointermove', { buttons: 1, pointerId: 33, time: 2000, y: 140 });
+    dispatchPointer(area, 'pointerup', { buttons: 0, pointerId: 33, time: 2001, y: 140 });
+    fixture.detectChanges();
+
+    expect(fixture.componentInstance.root().open()).toBe(false);
+  });
+
+  it('does not open from velocity once the gesture has reversed', async () => {
+    const area = getArea();
+    dispatchPointer(area, 'pointerdown', { buttons: 1, pointerId: 34, time: 0, y: 200 });
+    dispatchPointer(area, 'pointermove', { buttons: 1, pointerId: 34, time: 100, y: 140 });
+    fixture.detectChanges();
+    await vi.waitFor(() => expect(document.querySelector('[data-test-area-popup]')).not.toBeNull());
+
+    // Back 20px to 40px of a 200px popup. Averaged over the whole gesture that is still faster
+    // than the fling threshold.
+    dispatchPointer(area, 'pointermove', { buttons: 1, pointerId: 34, time: 300, y: 160 });
+    dispatchPointer(area, 'pointerup', { buttons: 0, pointerId: 34, time: 301, y: 160 });
+    fixture.detectChanges();
+
+    expect(fixture.componentInstance.root().open()).toBe(false);
+  });
+
+  it('opens a reversed gesture released past the halfway distance', async () => {
+    const area = getArea();
+    dispatchPointer(area, 'pointerdown', { buttons: 1, pointerId: 35, time: 0, y: 200 });
+    dispatchPointer(area, 'pointermove', { buttons: 1, pointerId: 35, time: 100, y: 40 });
+    fixture.detectChanges();
+    await vi.waitFor(() => expect(document.querySelector('[data-test-area-popup]')).not.toBeNull());
+
+    dispatchPointer(area, 'pointermove', { buttons: 1, pointerId: 35, time: 300, y: 60 });
+    dispatchPointer(area, 'pointerup', { buttons: 0, pointerId: 35, time: 301, y: 60 });
+    fixture.detectChanges();
+
+    expect(fixture.componentInstance.root().open()).toBe(true);
+  });
+
   function getArea(): HTMLElement {
     return (fixture.nativeElement as HTMLElement).querySelector<HTMLElement>(
       '[data-test-swipe-area]',
@@ -629,6 +726,11 @@ describe('Drawer SwipeArea release motion', () => {
     expect(popup.getAnimations().map(animation => animation.playState)).toEqual(['running']);
   });
 });
+
+/** The click a pointer press trails behind it: unlike a keyboard click, it carries a click count. */
+function pointerClick(): MouseEvent {
+  return new MouseEvent('click', { bubbles: true, cancelable: true, detail: 1 });
+}
 
 function swipe(
   target: EventTarget,

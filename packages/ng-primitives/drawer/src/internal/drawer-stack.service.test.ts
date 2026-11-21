@@ -63,7 +63,12 @@ describe('DrawerStackService', () => {
     stack.deactivate(state);
     expect(stackRemovals(removeEventListener)).toEqual([]);
 
-    const click = new MouseEvent('click', { cancelable: true });
+    const keyboardClick = new MouseEvent('click', { cancelable: true, detail: 0 });
+    document.dispatchEvent(keyboardClick);
+    expect(keyboardClick.defaultPrevented).toBe(false);
+    expect(stackRemovals(removeEventListener)).toEqual([]);
+
+    const click = new MouseEvent('click', { cancelable: true, detail: 1 });
     document.dispatchEvent(click);
 
     expect(click.defaultPrevented).toBe(true);

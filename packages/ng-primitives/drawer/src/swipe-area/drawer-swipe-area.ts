@@ -41,6 +41,8 @@ interface SwipeAreaVisualSnapshot {
 }
 
 const SWIPE_AREA_OPEN_RATIO = 0.5;
+/** Distance that opens the drawer when the popup has not rendered yet and cannot be measured. */
+const SWIPE_AREA_FALLBACK_OPEN_THRESHOLD = 40;
 const SWIPE_AREA_VELOCITY_THRESHOLD = 0.1;
 
 @Directive({ selector: '[ngpDrawerSwipeArea]', standalone: true })
@@ -116,6 +118,9 @@ export class NgpDrawerSwipeArea {
       return;
     }
     if (
+      // A mouse and a pen are each primary for their own type, so a second press can land while a
+      // gesture is live. Taking it over would orphan the first pointer's gesture.
+      this.engine.active ||
       this.state.open() ||
       this.disabled() ||
       event.button !== 0 ||
@@ -492,14 +497,17 @@ export class NgpDrawerSwipeArea {
   }
 
   private onRelease(release: DrawerSwipeRelease): void {
-    const velocity = Math.max(
-      getSwipeDisplacement(this.resolvedDirection(), release.velocity.recent),
-      getSwipeDisplacement(this.resolvedDirection(), release.velocity.total),
-    );
+    const direction = this.resolvedDirection();
+    // A gesture that backed off from its furthest point is a change of mind, not a fling, and its
+    // whole-gesture average stays positive through the reversal. Only distance may still open it.
+    const flung =
+      !release.reversed &&
+      Math.max(
+        getSwipeDisplacement(direction, release.velocity.recent),
+        getSwipeDisplacement(direction, release.velocity.total),
+      ) >= SWIPE_AREA_VELOCITY_THRESHOLD;
     const accepted =
-      this.ownsProvisionalOpen &&
-      (release.displacement >= (this.gestureSize ?? 40) * SWIPE_AREA_OPEN_RATIO ||
-        velocity >= SWIPE_AREA_VELOCITY_THRESHOLD);
+      this.ownsProvisionalOpen && (release.displacement >= this.openThreshold() || flung);
     if (accepted) {
       this.stack.suppressNextClick();
       this.resetGesture();
@@ -507,6 +515,13 @@ export class NgpDrawerSwipeArea {
     }
 
     this.rollbackProvisionalOpen(release.nativeEvent);
+  }
+
+  private openThreshold(): number {
+    // A release can beat the first visual write, which is what measures the popup.
+    const popup = this.state.popup();
+    const size = this.gestureSize ?? (popup ? this.drawerSize(popup) : null);
+    return size === null ? SWIPE_AREA_FALLBACK_OPEN_THRESHOLD : size * SWIPE_AREA_OPEN_RATIO;
   }
 
   private rollbackProvisionalOpen(nativeEvent?: Event): void {
@@ -734,19 +749,14 @@ export class NgpDrawerSwipeArea {
       return;
     }
     this.gestureResizeObserver?.disconnect();
-    this.gestureResizeObserver = new ResizeObserverConstructor(entries => {
-      const entry = entries.find(candidate => candidate.target === popup);
-      if (!entry || !this.engine.active) {
+    this.gestureResizeObserver = new ResizeObserverConstructor(() => {
+      if (!this.engine.active) {
         return;
       }
-      const borderSize = Array.isArray(entry.borderBoxSize)
-        ? entry.borderBoxSize[0]
-        : entry.borderBoxSize;
+      // The entry's box sizes are logical, so a vertical writing mode swaps them against the
+      // physical swipe axis. Offset sizes are physical, and layout is already clean here.
       const horizontal = getSwipeAxis(this.resolvedDirection()) === 'x';
-      const measured = horizontal
-        ? (borderSize?.inlineSize ?? entry.contentRect.width)
-        : (borderSize?.blockSize ?? entry.contentRect.height);
-      const nextSize = Math.max(40, measured);
+      const nextSize = Math.max(40, horizontal ? popup.offsetWidth : popup.offsetHeight);
       if (nextSize === this.gestureSize) {
         return;
       }

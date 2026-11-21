@@ -43,6 +43,8 @@ export interface DrawerSwipeUpdate {
 
 export interface DrawerSwipeRelease extends DrawerSwipeUpdate {
   velocity: DrawerSwipeVelocity;
+  /** Whether the gesture ended `REVERSE_CANCEL_THRESHOLD` or more back from its furthest point. */
+  reversed: boolean;
   dismissed: boolean;
   nativeEvent?: Event;
 }
@@ -190,7 +192,7 @@ export class DrawerSwipeEngine {
     const threshold =
       this.gestureThreshold ?? this.readThreshold(this.gestureSize ?? this.readSize());
     const dismissed = !reversed && (update.displacement >= threshold || projectedVelocity >= 0.5);
-    const result = { ...update, velocity, dismissed, nativeEvent: input.nativeEvent };
+    const result = { ...update, velocity, reversed, dismissed, nativeEvent: input.nativeEvent };
     this.options.onRelease?.(result);
     this.reset();
     return result;
