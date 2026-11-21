@@ -1,12 +1,18 @@
+// SVG and MathML roots are isolated too, and only `HTMLElement` carries the `inert` property, so
+// isolation goes through the attribute.
+type IsolatableElement = Element & ElementCSSInlineStyle;
+
 interface IsolatedElementRecord {
   ariaHidden: string | null;
   count: number;
-  inert: boolean;
   inertAttribute: string | null;
   pointerEvents: string;
 }
 
-const isolatedElements = new WeakMap<HTMLElement, IsolatedElementRecord>();
+const LIVE_CONTENT_SELECTOR = '.cdk-focus-trap-anchor, [aria-live], [data-cdk-live-announcer]';
+const OVERLAY_CONTAINER_SELECTOR = '.cdk-overlay-container';
+
+const isolatedElements = new WeakMap<IsolatableElement, IsolatedElementRecord>();
 
 export function isolateDrawerModal(
   document: Document,
@@ -17,7 +23,9 @@ export function isolateDrawerModal(
   if (backdrop) {
     allowedElements.add(backdrop);
   }
-  const isolated: HTMLElement[] = [];
+  // Each entry keeps the record it joined: once a portal host releases that record, this
+  // disposer must not restore the one a later modal created for the same element.
+  const isolated = new Map<IsolatableElement, IsolatedElementRecord>();
   let current: Node | null = popup;
 
   while (current && current !== document.body) {
@@ -26,7 +34,7 @@ export function isolateDrawerModal(
       break;
     }
     for (const sibling of Array.from(parent.childNodes)) {
-      if (sibling !== current && isHtmlElement(sibling)) {
+      if (sibling !== current && isIsolatable(sibling)) {
         isolateOutsideTree(sibling, allowedElements, isolated);
       }
     }
@@ -34,9 +42,10 @@ export function isolateDrawerModal(
   }
 
   return () => {
-    for (const element of isolated) {
-      restoreElement(element);
+    for (const [element, record] of isolated) {
+      restoreElement(element, record);
     }
+    isolated.clear();
   };
 }
 
@@ -48,32 +57,32 @@ export function releaseDrawerIsolation(element: HTMLElement): void {
   const record = isolatedElements.get(element);
   if (record) {
     record.count = 1;
-    restoreElement(element);
+    restoreElement(element, record);
   }
 }
 
-function isolateElement(element: HTMLElement): void {
+function isolateElement(element: IsolatableElement): IsolatedElementRecord {
   const existing = isolatedElements.get(element);
   if (existing) {
     existing.count += 1;
-    return;
+    return existing;
   }
 
-  isolatedElements.set(element, {
+  const record: IsolatedElementRecord = {
     ariaHidden: element.getAttribute('aria-hidden'),
     count: 1,
-    inert: element.inert,
     inertAttribute: element.getAttribute('inert'),
     pointerEvents: element.style.pointerEvents,
-  });
+  };
+  isolatedElements.set(element, record);
   element.setAttribute('aria-hidden', 'true');
-  element.inert = true;
+  element.setAttribute('inert', '');
   element.style.pointerEvents = 'none';
+  return record;
 }
 
-function restoreElement(element: HTMLElement): void {
-  const record = isolatedElements.get(element);
-  if (!record) {
+function restoreElement(element: IsolatableElement, record: IsolatedElementRecord): void {
+  if (isolatedElements.get(element) !== record) {
     return;
   }
   record.count -= 1;
@@ -86,7 +95,6 @@ function restoreElement(element: HTMLElement): void {
   } else {
     element.setAttribute('aria-hidden', record.ariaHidden);
   }
-  element.inert = record.inert;
   if (record.inertAttribute === null) {
     element.removeAttribute('inert');
   } else {
@@ -97,50 +105,56 @@ function restoreElement(element: HTMLElement): void {
 }
 
 function isolateOutsideTree(
-  element: HTMLElement,
+  element: IsolatableElement,
   allowedElements: Set<HTMLElement>,
-  isolated: HTMLElement[],
+  isolated: Map<IsolatableElement, IsolatedElementRecord>,
 ): void {
   if (isProtectedElement(element, allowedElements)) {
     return;
   }
-  if (containsProtectedElement(element, allowedElements)) {
+  // The shared CDK root itself stays live, so an overlay opened from inside the drawer lands in an
+  // interactive container. The panes already in it sit behind the modal like any other content.
+  if (
+    element.matches(OVERLAY_CONTAINER_SELECTOR) ||
+    containsProtectedElement(element, allowedElements)
+  ) {
     for (const child of Array.from(element.children)) {
-      if (isHtmlElement(child)) {
+      if (isIsolatable(child)) {
         isolateOutsideTree(child, allowedElements, isolated);
       }
     }
     return;
   }
-  isolateElement(element);
-  isolated.push(element);
+  // One disposer can reach an element once only, so it never holds two counts on a record.
+  if (!isolated.has(element)) {
+    isolated.set(element, isolateElement(element));
+  }
 }
 
-function isProtectedElement(element: HTMLElement, allowedElements: Set<HTMLElement>): boolean {
+function isProtectedElement(
+  element: IsolatableElement,
+  allowedElements: Set<HTMLElement>,
+): boolean {
   return (
-    allowedElements.has(element) ||
-    ['LINK', 'SCRIPT', 'STYLE'].includes(element.tagName) ||
-    element.matches(
-      '.cdk-focus-trap-anchor, .cdk-overlay-container, [aria-live], [data-cdk-live-announcer]',
-    ) ||
+    (allowedElements as Set<Element>).has(element) ||
+    ['LINK', 'SCRIPT', 'STYLE'].includes(element.tagName.toUpperCase()) ||
+    element.matches(LIVE_CONTENT_SELECTOR) ||
     matchesOpenPopover(element)
   );
 }
 
 function containsProtectedElement(
-  element: HTMLElement,
+  element: IsolatableElement,
   allowedElements: Set<HTMLElement>,
 ): boolean {
   return (
     [...allowedElements].some(allowed => element.contains(allowed)) ||
-    element.querySelector(
-      '.cdk-focus-trap-anchor, .cdk-overlay-container, [aria-live], [data-cdk-live-announcer]',
-    ) !== null ||
+    element.querySelector(`${LIVE_CONTENT_SELECTOR}, ${OVERLAY_CONTAINER_SELECTOR}`) !== null ||
     containsOpenPopover(element)
   );
 }
 
-function matchesOpenPopover(element: HTMLElement): boolean {
+function matchesOpenPopover(element: IsolatableElement): boolean {
   try {
     return !element.classList.contains('cdk-overlay-popover') && element.matches(':popover-open');
   } catch {
@@ -148,7 +162,7 @@ function matchesOpenPopover(element: HTMLElement): boolean {
   }
 }
 
-function containsOpenPopover(element: HTMLElement): boolean {
+function containsOpenPopover(element: IsolatableElement): boolean {
   try {
     return element.querySelector(':popover-open') !== null;
   } catch {
@@ -156,8 +170,8 @@ function containsOpenPopover(element: HTMLElement): boolean {
   }
 }
 
-function isHtmlElement(node: Node): node is HTMLElement {
-  return node.nodeType === Node.ELEMENT_NODE && 'inert' in node;
+function isIsolatable(node: Node): node is IsolatableElement {
+  return node.nodeType === Node.ELEMENT_NODE && 'style' in node;
 }
 
 function isShadowRoot(node: Node): node is ShadowRoot {
