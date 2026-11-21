@@ -157,14 +157,6 @@ export function isAtDismissEdge(element: HTMLElement, direction: NgpDrawerSwipeD
   }
 }
 
-export function shouldTransferToDrawer(
-  element: HTMLElement,
-  direction: NgpDrawerSwipeDirection,
-  delta: number,
-): boolean {
-  return isTouchDeltaTowardDismissal(direction, delta) && isAtDismissEdge(element, direction);
-}
-
 export function canTransferTouchToDrawer(
   start: EventTarget | null,
   boundary: HTMLElement,

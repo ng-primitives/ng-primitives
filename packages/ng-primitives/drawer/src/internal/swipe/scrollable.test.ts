@@ -8,7 +8,6 @@ import {
   isAtDismissEdge,
   isTouchDeltaTowardDismissal,
   shouldIgnoreSwipeTarget,
-  shouldTransferToDrawer,
 } from './scrollable';
 
 const mounted: Element[] = [];
@@ -135,19 +134,6 @@ describe('scrollable swipe arbitration', () => {
     },
   );
 
-  it.each([
-    ['right', -100, 20, true],
-    ['right', -99, 20, false],
-    ['left', 0, -20, true],
-    ['left', -20, -20, false],
-  ] as const)(
-    'transfers %s from the physical edge of an RTL scroller at %d',
-    (direction, scrollLeft, delta, expected) => {
-      const element = rtlScroller(scrollLeft);
-      expect(shouldTransferToDrawer(element, direction, delta)).toBe(expected);
-    },
-  );
-
   it('rejects zero-size and non-overflowing scroll containers', () => {
     const element = document.createElement('div');
     element.style.overflow = 'auto';
@@ -163,17 +149,17 @@ describe('scrollable swipe arbitration', () => {
   });
 
   it.each([
-    ['down', 0, 20, true],
-    ['down', 1, 20, false],
-    ['up', 100, -20, true],
-    ['up', 98, -20, false],
-    ['right', 0, 20, true],
-    ['right', 1, 20, false],
-    ['left', 100, -20, true],
-    ['left', 98, -20, false],
+    ['down', 0, true],
+    ['down', 1, false],
+    ['up', 100, true],
+    ['up', 98, false],
+    ['right', 0, true],
+    ['right', 1, false],
+    ['left', 100, true],
+    ['left', 98, false],
   ] as const)(
-    'transfers %s only from its exact dismissal edge',
-    (direction, offset, delta, expected) => {
+    'detects the %s dismiss edge only at its exact offset',
+    (direction, offset, expected) => {
       const element = document.createElement('div');
       dimensions(element, {
         scrollTop: offset,
@@ -183,7 +169,7 @@ describe('scrollable swipe arbitration', () => {
         clientWidth: 100,
         scrollWidth: 200,
       });
-      expect(shouldTransferToDrawer(element, direction, delta)).toBe(expected);
+      expect(isAtDismissEdge(element, direction)).toBe(expected);
     },
   );
 
