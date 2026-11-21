@@ -6,6 +6,7 @@ import {
   signal,
   untracked,
 } from '@angular/core';
+import { NGP_DRAWER_CSS_VARIABLES, NGP_DRAWER_DATA_ATTRIBUTES } from '../drawer.constants';
 import { DrawerProviderState } from './provider-state';
 
 interface IndentSnapshot {
@@ -64,7 +65,10 @@ export function bindDrawerIndentVisuals(
         applyRenderState(element, state);
         const syncProgress = (): void => {
           const progress = provider?.getVisualSnapshot().swipeProgress ?? 0;
-          element.style.setProperty('--ngp-drawer-swipe-progress', String(Math.max(0, progress)));
+          element.style.setProperty(
+            NGP_DRAWER_CSS_VARIABLES.swipeProgress,
+            String(Math.max(0, progress)),
+          );
         };
         syncProgress();
         unsubscribe ??= provider?.subscribeVisual(syncProgress);
@@ -76,43 +80,43 @@ export function bindDrawerIndentVisuals(
     unsubscribe?.();
     const snapshot = untracked(snapshotState);
     if (snapshot) {
-      restoreAttribute(element, 'data-active', snapshot.active);
-      restoreAttribute(element, 'data-inactive', snapshot.inactive);
-      restoreProperty(element, '--ngp-drawer-nested-drawers', snapshot.nestedDrawers);
-      restoreProperty(element, '--ngp-drawer-height', snapshot.height);
-      restoreProperty(element, '--ngp-drawer-frontmost-height', snapshot.frontmostHeight);
-      restoreProperty(element, '--ngp-drawer-swipe-progress', snapshot.swipeProgress);
+      restoreAttribute(element, NGP_DRAWER_DATA_ATTRIBUTES.active, snapshot.active);
+      restoreAttribute(element, NGP_DRAWER_DATA_ATTRIBUTES.inactive, snapshot.inactive);
+      restoreProperty(element, NGP_DRAWER_CSS_VARIABLES.nestedDrawers, snapshot.nestedDrawers);
+      restoreProperty(element, NGP_DRAWER_CSS_VARIABLES.height, snapshot.height);
+      restoreProperty(element, NGP_DRAWER_CSS_VARIABLES.frontmostHeight, snapshot.frontmostHeight);
+      restoreProperty(element, NGP_DRAWER_CSS_VARIABLES.swipeProgress, snapshot.swipeProgress);
     }
   });
 }
 
 function captureSnapshot(element: HTMLElement): IndentSnapshot {
   return {
-    active: element.getAttribute('data-active'),
-    inactive: element.getAttribute('data-inactive'),
-    nestedDrawers: element.style.getPropertyValue('--ngp-drawer-nested-drawers'),
-    height: element.style.getPropertyValue('--ngp-drawer-height'),
-    frontmostHeight: element.style.getPropertyValue('--ngp-drawer-frontmost-height'),
-    swipeProgress: element.style.getPropertyValue('--ngp-drawer-swipe-progress'),
+    active: element.getAttribute(NGP_DRAWER_DATA_ATTRIBUTES.active),
+    inactive: element.getAttribute(NGP_DRAWER_DATA_ATTRIBUTES.inactive),
+    nestedDrawers: element.style.getPropertyValue(NGP_DRAWER_CSS_VARIABLES.nestedDrawers),
+    height: element.style.getPropertyValue(NGP_DRAWER_CSS_VARIABLES.height),
+    frontmostHeight: element.style.getPropertyValue(NGP_DRAWER_CSS_VARIABLES.frontmostHeight),
+    swipeProgress: element.style.getPropertyValue(NGP_DRAWER_CSS_VARIABLES.swipeProgress),
   };
 }
 
 function applyRenderState(element: HTMLElement, renderState: IndentRenderState): void {
-  toggleAttribute(element, 'data-active', renderState.active);
-  toggleAttribute(element, 'data-inactive', !renderState.active);
+  toggleAttribute(element, NGP_DRAWER_DATA_ATTRIBUTES.active, renderState.active);
+  toggleAttribute(element, NGP_DRAWER_DATA_ATTRIBUTES.inactive, !renderState.active);
   writeProperty(
     element,
-    '--ngp-drawer-nested-drawers',
+    NGP_DRAWER_CSS_VARIABLES.nestedDrawers,
     renderState.count > 0 ? String(renderState.count) : '',
   );
   writeProperty(
     element,
-    '--ngp-drawer-height',
+    NGP_DRAWER_CSS_VARIABLES.height,
     renderState.height > 0 ? `${renderState.height}px` : '',
   );
   writeProperty(
     element,
-    '--ngp-drawer-frontmost-height',
+    NGP_DRAWER_CSS_VARIABLES.frontmostHeight,
     renderState.height > 0 ? `${renderState.height}px` : '',
   );
 }

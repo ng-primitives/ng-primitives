@@ -12,6 +12,7 @@ import {
 } from '@angular/core';
 import { injectElementRef } from 'ng-primitives/internal';
 import { attrBinding, dataBinding } from 'ng-primitives/state';
+import { NGP_DRAWER_DATA_ATTRIBUTES } from '../drawer.constants';
 import { NgpDrawerFocusTarget, NgpDrawerModal } from '../drawer.types';
 import { createDrawerId } from '../internal/dom';
 import { DrawerStackService } from '../internal/drawer-stack.service';
@@ -78,19 +79,33 @@ export class NgpDrawerPopup {
       'aria-describedby',
       () => this.state.descriptionIds().join(' ') || null,
     );
-    dataBinding(this.elementRef, 'data-open', () => this.state.open());
-    dataBinding(this.elementRef, 'data-closed', () => !this.state.open());
+    dataBinding(this.elementRef, NGP_DRAWER_DATA_ATTRIBUTES.open, () => this.state.open());
+    dataBinding(this.elementRef, NGP_DRAWER_DATA_ATTRIBUTES.closed, () => !this.state.open());
     if (this.state.startingStyle()) {
-      this.elementRef.nativeElement.setAttribute('data-starting-style', '');
+      this.elementRef.nativeElement.setAttribute(NGP_DRAWER_DATA_ATTRIBUTES.startingStyle, '');
     }
-    dataBinding(this.elementRef, 'data-starting-style', () => this.state.startingStyle());
-    dataBinding(this.elementRef, 'data-ending-style', () => this.state.endingStyle());
-    dataBinding(this.elementRef, 'data-expanded', () => this.state.expanded());
-    dataBinding(this.elementRef, 'data-nested-drawer-open', () => this.state.nestedOpen());
-    dataBinding(this.elementRef, 'data-nested-drawer-swiping', () => this.state.nestedSwiping());
-    dataBinding(this.elementRef, 'data-swipe-dismiss', () => this.state.swipeDismiss() !== null);
-    dataBinding(this.elementRef, 'data-swipe-direction', () => this.state.swipeDirection());
-    dataBinding(this.elementRef, 'data-swiping', () => this.state.swiping());
+    dataBinding(this.elementRef, NGP_DRAWER_DATA_ATTRIBUTES.startingStyle, () =>
+      this.state.startingStyle(),
+    );
+    dataBinding(this.elementRef, NGP_DRAWER_DATA_ATTRIBUTES.endingStyle, () =>
+      this.state.endingStyle(),
+    );
+    dataBinding(this.elementRef, NGP_DRAWER_DATA_ATTRIBUTES.expanded, () => this.state.expanded());
+    dataBinding(this.elementRef, NGP_DRAWER_DATA_ATTRIBUTES.nestedDrawerOpen, () =>
+      this.state.nestedOpen(),
+    );
+    dataBinding(this.elementRef, NGP_DRAWER_DATA_ATTRIBUTES.nestedDrawerSwiping, () =>
+      this.state.nestedSwiping(),
+    );
+    dataBinding(
+      this.elementRef,
+      NGP_DRAWER_DATA_ATTRIBUTES.swipeDismiss,
+      () => this.state.swipeDismiss() !== null,
+    );
+    dataBinding(this.elementRef, NGP_DRAWER_DATA_ATTRIBUTES.swipeDirection, () =>
+      this.state.swipeDirection(),
+    );
+    dataBinding(this.elementRef, NGP_DRAWER_DATA_ATTRIBUTES.swiping, () => this.state.swiping());
     bindDrawerNestedVisuals(this.elementRef, this.state, this.destroyRef);
 
     this.focusManager = new DrawerFocusManager(
