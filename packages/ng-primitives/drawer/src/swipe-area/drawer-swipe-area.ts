@@ -712,7 +712,7 @@ export class NgpDrawerSwipeArea {
 
   private drawerSize(popup = this.state.popup()): number {
     const rect = popup?.getBoundingClientRect();
-    const horizontal = this.resolvedDirection() === 'left' || this.resolvedDirection() === 'right';
+    const horizontal = getSwipeAxis(this.resolvedDirection()) === 'x';
     return Math.max(40, horizontal ? (rect?.width ?? 0) : (rect?.height ?? 0));
   }
 
@@ -740,8 +740,7 @@ export class NgpDrawerSwipeArea {
       const borderSize = Array.isArray(entry.borderBoxSize)
         ? entry.borderBoxSize[0]
         : entry.borderBoxSize;
-      const horizontal =
-        this.resolvedDirection() === 'left' || this.resolvedDirection() === 'right';
+      const horizontal = getSwipeAxis(this.resolvedDirection()) === 'x';
       const measured = horizontal
         ? (borderSize?.inlineSize ?? entry.contentRect.width)
         : (borderSize?.blockSize ?? entry.contentRect.height);

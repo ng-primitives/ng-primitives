@@ -852,9 +852,7 @@ export class NgpDrawerViewport {
   private primarySize(): number {
     const element = this.state.popup() ?? this.elementRef.nativeElement;
     const rect = element.getBoundingClientRect();
-    return this.state.swipeDirection() === 'left' || this.state.swipeDirection() === 'right'
-      ? rect.width
-      : rect.height;
+    return getSwipeAxis(this.state.swipeDirection()) === 'x' ? rect.width : rect.height;
   }
 
   private visualElements(): HTMLElement[] {
@@ -1154,8 +1152,7 @@ export class NgpDrawerViewport {
         ? renderState.popup.getBoundingClientRect()
         : undefined;
     const primaryRect = popupRect ?? viewportRect;
-    const horizontal =
-      renderState.swipeDirection === 'left' || renderState.swipeDirection === 'right';
+    const horizontal = getSwipeAxis(renderState.swipeDirection) === 'x';
     const view = this.document.defaultView;
     const viewportHeight = viewportRect.height || view?.innerHeight || 0;
     const rootFontSize = Number.parseFloat(
@@ -1311,7 +1308,7 @@ export class NgpDrawerViewport {
       renderState.snapPoint,
       renderState.popupHeight,
     );
-    const vertical = renderState.swipeDirection === 'up' || renderState.swipeDirection === 'down';
+    const vertical = getSwipeAxis(renderState.swipeDirection) === 'y';
     const ownsHeight = active !== null && vertical;
     for (const element of elements) {
       if (active && ownsHeight) {
@@ -1363,7 +1360,7 @@ export class NgpDrawerViewport {
   }
 
   private isVertical(): boolean {
-    return this.state.swipeDirection() === 'up' || this.state.swipeDirection() === 'down';
+    return getSwipeAxis(this.state.swipeDirection()) === 'y';
   }
 
   private restoreVisuals(progressOverride: number | null = null): void {
