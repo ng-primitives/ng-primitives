@@ -666,23 +666,31 @@ export class NgpDrawerSwipeArea {
     if (!this.ownsTouchAction) {
       return;
     }
-    const element = this.elementRef.nativeElement;
-    if (this.appliedTouchAction !== null && element.style.touchAction !== this.appliedTouchAction) {
+    if (this.touchActionChangedExternally()) {
       this.ownsTouchAction = false;
       this.appliedTouchAction = null;
       return;
     }
+    const element = this.elementRef.nativeElement;
     const touchAction = getSwipeAxis(direction) === 'y' ? 'pan-x' : 'pan-y';
     element.style.touchAction = touchAction;
     this.appliedTouchAction = touchAction;
   }
 
   private restoreTouchAction(): void {
-    if (!this.ownsTouchAction) {
+    if (!this.ownsTouchAction || this.touchActionChangedExternally()) {
       return;
     }
     this.elementRef.nativeElement.style.touchAction = this.initialTouchAction;
     this.appliedTouchAction = null;
+  }
+
+  /** Whether a consumer has replaced the inline `touch-action` this directive last wrote. */
+  private touchActionChangedExternally(): boolean {
+    return (
+      this.appliedTouchAction !== null &&
+      this.elementRef.nativeElement.style.touchAction !== this.appliedTouchAction
+    );
   }
 
   private resolveOpeningVisual(update: DrawerSwipeUpdate, closedOffset: number): DrawerSwipeUpdate {

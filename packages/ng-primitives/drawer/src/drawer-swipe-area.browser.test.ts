@@ -274,6 +274,16 @@ describe('Drawer SwipeArea', () => {
     expect(consumerArea.style.touchAction).toBe('manipulation');
   });
 
+  it('keeps a touch-action the consumer set after the directive wrote its own', () => {
+    const area = getArea();
+    expect(area.style.touchAction).toBe('pan-x');
+
+    area.style.touchAction = 'none';
+    fixture.destroy();
+
+    expect(area.style.touchAction).toBe('none');
+  });
+
   it('remains inactive while disabled or moving in the wrong direction', () => {
     fixture.componentInstance.disabled.set(true);
     fixture.detectChanges();
