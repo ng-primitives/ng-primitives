@@ -53,6 +53,10 @@ import { NgpDrawerVirtualKeyboard } from './virtual-keyboard/drawer-virtual-keyb
                 <input data-test-disabled disabled />
                 <textarea data-test-textarea></textarea>
                 <textarea data-test-disabled-textarea disabled></textarea>
+                <fieldset disabled>
+                  <input data-test-fieldset-input />
+                  <textarea data-test-fieldset-textarea></textarea>
+                </fieldset>
                 <div contenteditable="true" data-test-editable>
                   <span data-test-editable-child>Text</span>
                 </div>
@@ -140,6 +144,8 @@ describe('Drawer VirtualKeyboard', () => {
     await openParent();
     expect(resolveKeyboardInputTarget(getElement('[data-test-disabled]'))).toBeNull();
     expect(resolveKeyboardInputTarget(getElement('[data-test-disabled-textarea]'))).toBeNull();
+    expect(resolveKeyboardInputTarget(getElement('[data-test-fieldset-input]'))).toBeNull();
+    expect(resolveKeyboardInputTarget(getElement('[data-test-fieldset-textarea]'))).toBeNull();
     expect(resolveKeyboardInputTarget(getElement('[data-test-checkbox]'))).toBeNull();
     expect(resolveKeyboardInputTarget(getElement('[data-test-button]'))).toBeNull();
     expect(resolveKeyboardInputTarget(getElement('[data-test-email]'))).toBe(
