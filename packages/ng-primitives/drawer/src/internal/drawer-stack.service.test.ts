@@ -23,6 +23,7 @@ describe('DrawerStackService', () => {
     releaseRegistryEntry = undefined;
     TestBed.resetTestingModule();
     vi.restoreAllMocks();
+    vi.unstubAllGlobals();
   });
 
   it('is inert until the first state and shares one listener set across states', () => {
@@ -96,7 +97,37 @@ describe('DrawerStackService', () => {
 
     injector.destroy();
     expectExactRemovals(registrations, removeEventListener);
-    expect(stackRemovals(removeEventListener)).toHaveLength(STACK_EVENT_TYPES.length);
+  });
+
+  it('asks beforeOpenChange once per Escape while a CloseWatcher is armed', () => {
+    const watchers = stubCloseWatcher();
+    const stack = createStack();
+    releaseRegistryEntry = pinRegistryListeners();
+    const requestOpen = vi.fn<DrawerState['requestOpen']>(() => false);
+    stack.activate(fakeState({ requestOpen }));
+
+    expect(watchers).not.toHaveLength(0);
+    const escape = pressEscape();
+    // The browser turns an Escape keydown that nobody prevented into a close request.
+    if (!escape.defaultPrevented) {
+      watchers.at(-1)?.requestClose();
+    }
+
+    expect(escape.defaultPrevented).toBe(true);
+    expect(requestOpen).toHaveBeenCalledTimes(1);
+    expect(requestOpen).toHaveBeenCalledWith(false, 'escape-key', { nativeEvent: escape });
+  });
+
+  it('marks Escape handled only when the drawer closes, without a CloseWatcher', () => {
+    vi.stubGlobal('CloseWatcher', undefined);
+    const stack = createStack();
+    releaseRegistryEntry = pinRegistryListeners();
+    let accept = false;
+    stack.activate(fakeState({ requestOpen: () => accept }));
+
+    expect(pressEscape().defaultPrevented).toBe(false);
+    accept = true;
+    expect(pressEscape().defaultPrevented).toBe(true);
   });
 });
 
@@ -105,7 +136,7 @@ function createStack(): DrawerStackService {
   return TestBed.inject(DrawerStackService);
 }
 
-function fakeState(): DrawerState {
+function fakeState(overrides: Partial<Pick<DrawerState, 'requestOpen'>> = {}): DrawerState {
   return {
     modal: () => false,
     activeTrigger: () => null,
@@ -113,7 +144,44 @@ function fakeState(): DrawerState {
     viewport: () => null,
     backdrop: () => null,
     requestOpen: () => false,
+    ...overrides,
   } as unknown as DrawerState;
+}
+
+function pressEscape(): KeyboardEvent {
+  const event = new KeyboardEvent('keydown', { bubbles: true, cancelable: true, key: 'Escape' });
+  document.dispatchEvent(event);
+  return event;
+}
+
+interface FakeCloseWatcher {
+  requestClose(): void;
+}
+
+function stubCloseWatcher(): FakeCloseWatcher[] {
+  const watchers: FakeCloseWatcher[] = [];
+  vi.stubGlobal(
+    'CloseWatcher',
+    class extends EventTarget implements FakeCloseWatcher {
+      private destroyed = false;
+
+      constructor() {
+        super();
+        watchers.push(this);
+      }
+
+      requestClose(): void {
+        if (!this.destroyed) {
+          this.dispatchEvent(new Event('close'));
+        }
+      }
+
+      destroy(): void {
+        this.destroyed = true;
+      }
+    },
+  );
+  return watchers;
 }
 
 /**
@@ -167,6 +235,7 @@ function expectExactRemovals(
   registrations: Parameters<Document['addEventListener']>[],
   removeEventListener: ReturnType<typeof vi.spyOn>,
 ): void {
+  expect(stackRemovals(removeEventListener)).toHaveLength(registrations.length);
   for (const [type, listener, options] of registrations) {
     expect(options).toBe(true);
     expect(removeEventListener).toHaveBeenCalledWith(type, listener, options);
