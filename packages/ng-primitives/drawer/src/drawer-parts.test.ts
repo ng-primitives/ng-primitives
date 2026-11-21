@@ -7,7 +7,6 @@ import { NgpDrawerContent } from './content/drawer-content';
 import { NgpDrawerDescription } from './description/drawer-description';
 import { NgpDrawer } from './drawer/drawer';
 import { createDrawerHandle, NgpDrawerHandle } from './handle/drawer-handle';
-import { DrawerState } from './internal/drawer-state';
 import { NgpDrawerPopup } from './popup/drawer-popup';
 import { NgpDrawerSwipeArea } from './swipe-area/drawer-swipe-area';
 import { NgpDrawerSwipeIgnore } from './swipe-ignore/drawer-swipe-ignore';
@@ -32,7 +31,7 @@ import { NgpDrawerViewport } from './viewport/drawer-viewport';
     <ng-container [handle]="handle" ngpDrawer>
       <button [ngpDrawerPayload]="{ id: 2 }" ngpDrawerTrigger>Open</button>
       <div ngpDrawerTrigger role="button" tabindex="0">Open non-native</div>
-      <h2 [id]="titleId()" ngpDrawerTitle>Title</h2>
+      <h2 ngpDrawerTitle>Title</h2>
       <p ngpDrawerDescription>Description</p>
       <div ngpDrawerContent><span ngpDrawerSwipeIgnore>Content</span></div>
       <button ngpDrawerClose>Close</button>
@@ -41,7 +40,6 @@ import { NgpDrawerViewport } from './viewport/drawer-viewport';
 })
 class PartsHost {
   readonly handle: NgpDrawerHandle<unknown> = createDrawerHandle();
-  readonly titleId = signal('custom-title');
   readonly root = viewChild.required(NgpDrawer);
 }
 
@@ -100,16 +98,40 @@ describe('Drawer semantic parts', () => {
     expect(ignore.hasAttribute('data-ngp-drawer-swipe-ignore')).toBe(true);
     expect(ignore.hasAttribute('data-base-ui-swipe-ignore')).toBe(false);
   });
+});
 
-  it('registers dynamic title and description IDs', () => {
-    const root = fixture.componentInstance.root();
-    const state = (root as unknown as { state: DrawerState }).state;
-    expect(state.titleIds()).toEqual(['custom-title']);
-    expect(state.descriptionIds()[0]).toMatch(/^ngp-drawer-description-/);
+@Component({
+  imports: [NgpDrawer, NgpDrawerDescription, NgpDrawerPopup, NgpDrawerTitle],
+  template: `
+    <ng-container ngpDrawer>
+      <section ngpDrawerPopup>
+        <h2 [id]="titleId()" ngpDrawerTitle>Title</h2>
+        <p ngpDrawerDescription>Description</p>
+      </section>
+    </ng-container>
+  `,
+})
+class LabellingHost {
+  readonly titleId = signal('custom-title');
+}
+
+describe('Drawer title and description registration', () => {
+  it('labels the popup with the dynamic title and generated description IDs', async () => {
+    await TestBed.configureTestingModule({ imports: [LabellingHost] }).compileComponents();
+    const fixture = TestBed.createComponent(LabellingHost);
+    fixture.detectChanges();
+
+    const popup = fixture.debugElement.query(By.directive(NgpDrawerPopup))
+      .nativeElement as HTMLElement;
+    const description = fixture.debugElement.query(By.directive(NgpDrawerDescription))
+      .nativeElement as HTMLElement;
+    expect(popup.getAttribute('aria-labelledby')).toBe('custom-title');
+    expect(description.id).toMatch(/^ngp-drawer-description-/);
+    expect(popup.getAttribute('aria-describedby')).toBe(description.id);
 
     fixture.componentInstance.titleId.set('changed-title');
     fixture.detectChanges();
-    expect(state.titleIds()).toEqual(['changed-title']);
+    expect(popup.getAttribute('aria-labelledby')).toBe('changed-title');
   });
 });
 

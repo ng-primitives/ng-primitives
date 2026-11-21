@@ -207,13 +207,15 @@ describe('DrawerSwipeEngine', () => {
 
   it('rebases maximum displacement while preserving the cached size', () => {
     const size = vi.fn(() => 200);
-    const engine = new DrawerSwipeEngine({ direction: () => 'down', size });
+    const engine = new DrawerSwipeEngine({ direction: () => 'down', size, threshold: () => 10 });
 
     engine.start({ x: 0, y: 0, time: 0, buttons: 1 });
     engine.move({ x: 0, y: 30, time: 50, buttons: 1 });
     expect(engine.rebase({ x: 10, y: 80, time: 100, buttons: 1 })).toBe(true);
     expect(engine.move({ x: 10, y: 100, time: 200, buttons: 1 })?.progress).toBe(0.1);
-    expect(engine.release({ x: 10, y: 95, time: 210, buttons: 0 })?.dismissed).toBe(false);
+    // Releasing at 15px passes the 10px threshold. Measured against the pre-rebase peak (30px),
+    // the 15px pull-back would count as a reversal and cancel the dismissal.
+    expect(engine.release({ x: 10, y: 95, time: 210, buttons: 0 })?.dismissed).toBe(true);
     expect(size).toHaveBeenCalledOnce();
   });
 

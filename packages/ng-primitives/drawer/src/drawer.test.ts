@@ -109,7 +109,20 @@ describe('NgpDrawer', () => {
     expect(emitted).toEqual([]);
   });
 
-  it('resets snap point on a successful close and allows canceling the reset', () => {
+  it('resets the snap point to the default on a successful close', () => {
+    const emitted: unknown[] = [];
+    roots[0].snapPointChange.subscribe(point => emitted.push(point));
+    roots[0].open.set(true);
+    roots[0].snapPoint.set(1);
+
+    roots[0].hide();
+
+    expect(roots[0].open()).toBe(false);
+    expect(roots[0].snapPoint()).toBe('120px');
+    expect(emitted).toEqual(['120px']);
+  });
+
+  it('keeps the snap point when a close-time snap reset is canceled', () => {
     roots[0].open.set(true);
     roots[0].snapPoint.set(1);
     roots[0].beforeSnapPointChange.subscribe(event => event.cancel());
