@@ -12,7 +12,7 @@ import {
 } from '@angular/core';
 import { injectElementRef } from 'ng-primitives/internal';
 import { dataBinding } from 'ng-primitives/state';
-import { NGP_DRAWER_DATA_ATTRIBUTES } from '../drawer.constants';
+import { NGP_DRAWER_CSS_VARIABLES, NGP_DRAWER_DATA_ATTRIBUTES } from '../drawer.constants';
 import { NgpDrawerSwipeDirection } from '../drawer.types';
 import { DrawerStackService } from '../internal/drawer-stack.service';
 import { injectDrawerState, requireDrawerState } from '../internal/drawer-state';
@@ -255,11 +255,13 @@ export class NgpDrawerSwipeArea {
   );
   constructor() {
     const unregister = this.state.registerElement(this.elementRef.nativeElement);
-    dataBinding(this.elementRef, 'data-disabled', () => this.disabled());
-    dataBinding(this.elementRef, 'data-open', () => this.state.open());
-    dataBinding(this.elementRef, 'data-closed', () => !this.state.open());
-    dataBinding(this.elementRef, 'data-swiping', () => this.state.swiping());
-    dataBinding(this.elementRef, 'data-swipe-direction', () => this.resolvedDirection());
+    dataBinding(this.elementRef, NGP_DRAWER_DATA_ATTRIBUTES.disabled, () => this.disabled());
+    dataBinding(this.elementRef, NGP_DRAWER_DATA_ATTRIBUTES.open, () => this.state.open());
+    dataBinding(this.elementRef, NGP_DRAWER_DATA_ATTRIBUTES.closed, () => !this.state.open());
+    dataBinding(this.elementRef, NGP_DRAWER_DATA_ATTRIBUTES.swiping, () => this.state.swiping());
+    dataBinding(this.elementRef, NGP_DRAWER_DATA_ATTRIBUTES.swipeDirection, () =>
+      this.resolvedDirection(),
+    );
 
     afterRenderEffect({
       write: () => {
@@ -481,12 +483,12 @@ export class NgpDrawerSwipeArea {
     for (const element of progressElements) {
       this.snapshotVisuals(element);
       element.style.transition = 'none';
-      element.style.setProperty('--ngp-drawer-swipe-progress', `${progress}`);
+      element.style.setProperty(NGP_DRAWER_CSS_VARIABLES.swipeProgress, `${progress}`);
     }
 
-    popup.style.setProperty('--ngp-drawer-swipe-movement-x', `${update.movement.x}px`);
-    popup.style.setProperty('--ngp-drawer-swipe-movement-y', `${update.movement.y}px`);
-    popup.style.setProperty('--ngp-drawer-swipe-strength', `${update.strength}`);
+    popup.style.setProperty(NGP_DRAWER_CSS_VARIABLES.swipeMovementX, `${update.movement.x}px`);
+    popup.style.setProperty(NGP_DRAWER_CSS_VARIABLES.swipeMovementY, `${update.movement.y}px`);
+    popup.style.setProperty(NGP_DRAWER_CSS_VARIABLES.swipeStrength, `${update.strength}`);
   }
 
   private onRelease(release: DrawerSwipeRelease): void {
@@ -534,10 +536,10 @@ export class NgpDrawerSwipeArea {
     }
     this.visualSnapshots.set(element, {
       transition: element.style.transition,
-      movementX: element.style.getPropertyValue('--ngp-drawer-swipe-movement-x'),
-      movementY: element.style.getPropertyValue('--ngp-drawer-swipe-movement-y'),
-      progress: element.style.getPropertyValue('--ngp-drawer-swipe-progress'),
-      strength: element.style.getPropertyValue('--ngp-drawer-swipe-strength'),
+      movementX: element.style.getPropertyValue(NGP_DRAWER_CSS_VARIABLES.swipeMovementX),
+      movementY: element.style.getPropertyValue(NGP_DRAWER_CSS_VARIABLES.swipeMovementY),
+      progress: element.style.getPropertyValue(NGP_DRAWER_CSS_VARIABLES.swipeProgress),
+      strength: element.style.getPropertyValue(NGP_DRAWER_CSS_VARIABLES.swipeStrength),
     });
   }
 
@@ -555,10 +557,10 @@ export class NgpDrawerSwipeArea {
     // so the browser has a start point to animate from.
     void this.state.popup()?.offsetWidth;
     for (const [element, snapshot] of this.visualSnapshots) {
-      this.restoreProperty(element, '--ngp-drawer-swipe-movement-x', snapshot.movementX);
-      this.restoreProperty(element, '--ngp-drawer-swipe-movement-y', snapshot.movementY);
-      this.restoreProperty(element, '--ngp-drawer-swipe-progress', snapshot.progress);
-      this.restoreProperty(element, '--ngp-drawer-swipe-strength', snapshot.strength);
+      this.restoreProperty(element, NGP_DRAWER_CSS_VARIABLES.swipeMovementX, snapshot.movementX);
+      this.restoreProperty(element, NGP_DRAWER_CSS_VARIABLES.swipeMovementY, snapshot.movementY);
+      this.restoreProperty(element, NGP_DRAWER_CSS_VARIABLES.swipeProgress, snapshot.progress);
+      this.restoreProperty(element, NGP_DRAWER_CSS_VARIABLES.swipeStrength, snapshot.strength);
     }
     this.visualSnapshots.clear();
   }

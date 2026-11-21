@@ -6,6 +6,7 @@ import {
   signal,
   untracked,
 } from '@angular/core';
+import { NGP_DRAWER_CSS_VARIABLES } from '../drawer.constants';
 import { DrawerState } from './drawer-state';
 
 interface NestedVisualSnapshot {
@@ -56,10 +57,10 @@ export function bindDrawerNestedVisuals(
     }
     const value = untracked(visualState);
     if (value.present && value.popupHeight > 0) {
-      retainedHeight ??= element.style.getPropertyValue('--ngp-drawer-height');
-      element.style.setProperty('--ngp-drawer-height', `${value.popupHeight}px`);
+      retainedHeight ??= element.style.getPropertyValue(NGP_DRAWER_CSS_VARIABLES.height);
+      element.style.setProperty(NGP_DRAWER_CSS_VARIABLES.height, `${value.popupHeight}px`);
     } else if (retainedHeight !== null) {
-      restoreProperty(element, '--ngp-drawer-height', retainedHeight);
+      restoreProperty(element, NGP_DRAWER_CSS_VARIABLES.height, retainedHeight);
       retainedHeight = null;
     }
   };
@@ -95,7 +96,7 @@ export function bindDrawerNestedVisuals(
           const progress = state.nestedVisualStore.getSnapshot().progress;
           setOrRestore(
             element,
-            '--ngp-drawer-swipe-progress',
+            NGP_DRAWER_CSS_VARIABLES.swipeProgress,
             progress > 0 ? String(progress) : '',
             snapshot.swipeProgress,
           );
@@ -110,22 +111,22 @@ export function bindDrawerNestedVisuals(
     unsubscribe?.();
     unsubscribeRelease?.();
     if (retainedHeight !== null) {
-      restoreProperty(element, '--ngp-drawer-height', retainedHeight);
+      restoreProperty(element, NGP_DRAWER_CSS_VARIABLES.height, retainedHeight);
     }
     const snapshot = untracked(snapshotState);
     if (snapshot) {
-      restoreProperty(element, '--ngp-drawer-nested-drawers', snapshot.nestedDrawers);
-      restoreProperty(element, '--ngp-drawer-frontmost-height', snapshot.frontmostHeight);
-      restoreProperty(element, '--ngp-drawer-swipe-progress', snapshot.swipeProgress);
+      restoreProperty(element, NGP_DRAWER_CSS_VARIABLES.nestedDrawers, snapshot.nestedDrawers);
+      restoreProperty(element, NGP_DRAWER_CSS_VARIABLES.frontmostHeight, snapshot.frontmostHeight);
+      restoreProperty(element, NGP_DRAWER_CSS_VARIABLES.swipeProgress, snapshot.swipeProgress);
     }
   });
 }
 
 function captureSnapshot(element: HTMLElement): NestedVisualSnapshot {
   return {
-    nestedDrawers: element.style.getPropertyValue('--ngp-drawer-nested-drawers'),
-    frontmostHeight: element.style.getPropertyValue('--ngp-drawer-frontmost-height'),
-    swipeProgress: element.style.getPropertyValue('--ngp-drawer-swipe-progress'),
+    nestedDrawers: element.style.getPropertyValue(NGP_DRAWER_CSS_VARIABLES.nestedDrawers),
+    frontmostHeight: element.style.getPropertyValue(NGP_DRAWER_CSS_VARIABLES.frontmostHeight),
+    swipeProgress: element.style.getPropertyValue(NGP_DRAWER_CSS_VARIABLES.swipeProgress),
   };
 }
 
@@ -137,13 +138,13 @@ function applyRenderState(element: HTMLElement, renderState: NestedVisualRenderS
   const height = renderState.present ? renderState.frontmostHeight : 0;
   setOrRestore(
     element,
-    '--ngp-drawer-nested-drawers',
+    NGP_DRAWER_CSS_VARIABLES.nestedDrawers,
     renderState.count > 0 ? String(renderState.count) : '',
     snapshot.nestedDrawers,
   );
   setOrRestore(
     element,
-    '--ngp-drawer-frontmost-height',
+    NGP_DRAWER_CSS_VARIABLES.frontmostHeight,
     height > 0 ? `${height}px` : '',
     snapshot.frontmostHeight,
   );
