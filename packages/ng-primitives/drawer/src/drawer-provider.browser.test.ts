@@ -1,5 +1,6 @@
 import { Component, viewChild, viewChildren } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { animationFrame, dispatchPointer, getElement } from './drawer-browser.fixture';
 import { NgpDrawer } from './drawer/drawer';
 import { NgpDrawerIndentBackground } from './indent-background/drawer-indent-background';
 import { NgpDrawerIndent } from './indent/drawer-indent';
@@ -83,7 +84,7 @@ describe('Drawer Provider and Indent parts', () => {
     const [first, second] = fixture.componentInstance.roots();
     first.show();
     fixture.detectChanges();
-    await waitForPopup('[data-test-provider-popup-1]');
+    await waitForFrontmostHeight('200px');
     const indent = getElement('[data-test-indent]');
     const background = getElement('[data-test-indent-background]');
     for (const element of [indent, background]) {
@@ -96,7 +97,7 @@ describe('Drawer Provider and Indent parts', () => {
 
     second.show();
     fixture.detectChanges();
-    await waitForPopup('[data-test-provider-popup-2]');
+    await waitForFrontmostHeight('300px');
     for (const element of [indent, background]) {
       expect(element.style.getPropertyValue('--ngp-drawer-nested-drawers')).toBe('2');
       expect(element.style.getPropertyValue('--ngp-drawer-height')).toBe('300px');
@@ -108,10 +109,10 @@ describe('Drawer Provider and Indent parts', () => {
     const second = fixture.componentInstance.roots()[1];
     second.show();
     fixture.detectChanges();
-    await waitForPopup('[data-test-provider-popup-2]');
+    await waitForFrontmostHeight('300px');
     const viewport = getElement('[data-test-provider-viewport-2]');
-    dispatchPointer(viewport, 'pointerdown', 0, 1, 1, 0);
-    dispatchPointer(viewport, 'pointermove', 60, 1, 1, 200);
+    dispatchPointer(viewport, 'pointerdown', { y: 0, buttons: 1, pointerId: 1, time: 0 });
+    dispatchPointer(viewport, 'pointermove', { y: 60, buttons: 1, pointerId: 1, time: 200 });
     await animationFrame();
     for (const element of [
       getElement('[data-test-indent]'),
@@ -135,7 +136,7 @@ describe('Drawer Provider and Indent parts', () => {
     first.show();
     second.show();
     fixture.detectChanges();
-    await waitForPopup('[data-test-provider-popup-2]');
+    await waitForFrontmostHeight('300px');
     second.hide();
     fixture.detectChanges();
     const indent = getElement('[data-test-indent]');
@@ -164,36 +165,11 @@ describe('Drawer Provider and Indent parts', () => {
   });
 });
 
-async function waitForPopup(selector: string): Promise<void> {
-  await vi.waitFor(() => expect(document.querySelector(selector)).not.toBeNull());
-}
-
-function getElement(selector: string): HTMLElement {
-  return document.querySelector<HTMLElement>(selector)!;
-}
-
-function dispatchPointer(
-  target: EventTarget,
-  type: 'pointerdown' | 'pointermove',
-  y: number,
-  buttons: number,
-  pointerId: number,
-  timeStamp: number,
-): void {
-  const event = new PointerEvent(type, {
-    bubbles: true,
-    button: 0,
-    buttons,
-    clientY: y,
-    composed: true,
-    isPrimary: true,
-    pointerId,
-    pointerType: 'mouse',
-  });
-  Object.defineProperty(event, 'timeStamp', { configurable: true, value: timeStamp });
-  target.dispatchEvent(event);
-}
-
-function animationFrame(): Promise<void> {
-  return new Promise(resolve => requestAnimationFrame(() => resolve()));
+/** The popup is measured after it mounts, so wait for the geometry it publishes, not the element. */
+async function waitForFrontmostHeight(height: string): Promise<void> {
+  await vi.waitFor(() =>
+    expect(
+      getElement('[data-test-indent]').style.getPropertyValue('--ngp-drawer-frontmost-height'),
+    ).toBe(height),
+  );
 }

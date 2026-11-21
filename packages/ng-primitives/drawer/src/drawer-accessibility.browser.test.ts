@@ -3,6 +3,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { NgpDrawerBackdrop } from './backdrop/drawer-backdrop';
 import { NgpDrawerClose } from './close/drawer-close';
 import { NgpDrawerDescription } from './description/drawer-description';
+import { animationFrame, waitForElement } from './drawer-browser.fixture';
 import { NgpDrawerFocusTarget, NgpDrawerModal } from './drawer.types';
 import { NgpDrawer } from './drawer/drawer';
 import { createDrawerHandle } from './handle/drawer-handle';
@@ -360,7 +361,7 @@ describe('Drawer accessibility', () => {
     fixture!.componentInstance.root().show();
     fixture!.detectChanges();
     const popup = await waitForElement('[data-test-popup]');
-    await nextFrame();
+    await animationFrame();
     expect(document.activeElement).toBe(prior);
 
     popup.focus();
@@ -420,7 +421,7 @@ describe('Drawer accessibility', () => {
     outside.focus();
     fixture!.componentInstance.root().hide();
     fixture!.detectChanges();
-    await nextFrame();
+    await animationFrame();
 
     expect(document.activeElement).toBe(outside);
   });
@@ -572,11 +573,6 @@ describe('Drawer accessibility', () => {
   }
 });
 
-async function waitForElement(selector: string): Promise<HTMLElement> {
-  await vi.waitFor(() => expect(document.querySelector(selector)).not.toBeNull());
-  return document.querySelector<HTMLElement>(selector)!;
-}
-
 async function waitForPopupFocus(): Promise<void> {
   const popup = await waitForElement('[data-test-popup]');
   await vi.waitFor(() => expect(document.activeElement).toBe(popup));
@@ -599,8 +595,4 @@ function isEffectivelyInert(element: HTMLElement): boolean {
       current.parentElement ?? (root instanceof ShadowRoot ? (root.host as HTMLElement) : null);
   }
   return false;
-}
-
-function nextFrame(): Promise<void> {
-  return new Promise(resolve => requestAnimationFrame(() => resolve()));
 }

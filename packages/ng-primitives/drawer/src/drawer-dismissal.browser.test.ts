@@ -2,6 +2,7 @@ import { Component, signal, viewChild, viewChildren } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { NgpDismissPolicy, NgpOverlayRegistry } from 'ng-primitives/portal';
 import { NgpDrawerBackdrop } from './backdrop/drawer-backdrop';
+import { dispatchPointer, waitForElement } from './drawer-browser.fixture';
 import { NgpDrawerChangeReason, NgpDrawerOpenChangeEvent } from './drawer.types';
 import { NgpDrawer } from './drawer/drawer';
 import { NgpDrawerPopup } from './popup/drawer-popup';
@@ -93,18 +94,18 @@ describe('Drawer dismissal', () => {
     const inside = popup.querySelector<HTMLElement>('[data-test-inside]')!;
     const outside = outsideButton(fixture!);
 
-    dispatchPointer(inside, 'pointerdown', 1);
-    dispatchPointer(outside, 'pointerup', 1);
+    dispatchPointer(inside, 'pointerdown', { pointerId: 1 });
+    dispatchPointer(outside, 'pointerup', { pointerId: 1 });
     fixture!.detectChanges();
     expect(fixture!.componentInstance.root().open()).toBe(true);
 
-    dispatchPointer(outside, 'pointerdown', 2);
-    dispatchPointer(inside, 'pointerup', 2);
+    dispatchPointer(outside, 'pointerdown', { pointerId: 2 });
+    dispatchPointer(inside, 'pointerup', { pointerId: 2 });
     fixture!.detectChanges();
     expect(fixture!.componentInstance.root().open()).toBe(true);
 
-    dispatchPointer(outside, 'pointerdown', 3);
-    dispatchPointer(outside, 'pointerup', 3);
+    dispatchPointer(outside, 'pointerdown', { pointerId: 3 });
+    dispatchPointer(outside, 'pointerup', { pointerId: 3 });
     fixture!.detectChanges();
     expect(fixture!.componentInstance.root().open()).toBe(false);
     expect(fixture!.componentInstance.reasons.at(-1)).toBe('outside-press');
@@ -116,15 +117,15 @@ describe('Drawer dismissal', () => {
     const inside = popup.querySelector<HTMLElement>('[data-test-inside]')!;
     const outside = outsideButton(fixture!);
 
-    dispatchPointer(outside, 'pointerdown', 4, 0, 0, 'touch');
-    dispatchPointer(outside, 'pointerup', 4, 0, 0, 'touch');
+    dispatchPointer(outside, 'pointerdown', { pointerId: 4, pointerType: 'touch' });
+    dispatchPointer(outside, 'pointerup', { pointerId: 4, pointerType: 'touch' });
     inside.click();
     fixture!.detectChanges();
 
     expect(fixture!.componentInstance.root().open()).toBe(true);
 
-    dispatchPointer(outside, 'pointerdown', 5, 0, 0, 'touch');
-    dispatchPointer(outside, 'pointerup', 5, 0, 0, 'touch');
+    dispatchPointer(outside, 'pointerdown', { pointerId: 5, pointerType: 'touch' });
+    dispatchPointer(outside, 'pointerup', { pointerId: 5, pointerType: 'touch' });
     fixture!.detectChanges();
     expect(fixture!.componentInstance.root().open()).toBe(true);
 
@@ -139,8 +140,8 @@ describe('Drawer dismissal', () => {
     await openDrawer();
     const viewport = document.querySelector<HTMLElement>('[data-test-viewport]')!;
 
-    dispatchPointer(viewport, 'pointerdown', 1);
-    dispatchPointer(viewport, 'pointerup', 1);
+    dispatchPointer(viewport, 'pointerdown', { pointerId: 1 });
+    dispatchPointer(viewport, 'pointerup', { pointerId: 1 });
     fixture!.detectChanges();
 
     expect(fixture!.componentInstance.root().open()).toBe(false);
@@ -153,9 +154,9 @@ describe('Drawer dismissal', () => {
     const viewport = document.querySelector<HTMLElement>('[data-test-viewport]')!;
     const reasonsBeforeDrag = [...fixture!.componentInstance.reasons];
 
-    dispatchPointer(viewport, 'pointerdown', 1, 0, 0);
-    dispatchPointer(viewport, 'pointermove', 1, 30, 0);
-    dispatchPointer(viewport, 'pointerup', 1, 30, 0);
+    dispatchPointer(viewport, 'pointerdown', { pointerId: 1 });
+    dispatchPointer(viewport, 'pointermove', { pointerId: 1, x: 30 });
+    dispatchPointer(viewport, 'pointerup', { pointerId: 1, x: 30 });
     fixture!.detectChanges();
 
     expect(fixture!.componentInstance.root().open()).toBe(true);
@@ -168,13 +169,13 @@ describe('Drawer dismissal', () => {
     const backdrop = document.querySelector<HTMLElement>('[data-test-backdrop]')!;
     const child = backdrop.querySelector<HTMLElement>('[data-test-backdrop-child]')!;
 
-    dispatchPointer(child, 'pointerdown', 1);
-    dispatchPointer(child, 'pointerup', 1);
+    dispatchPointer(child, 'pointerdown', { pointerId: 1 });
+    dispatchPointer(child, 'pointerup', { pointerId: 1 });
     fixture!.detectChanges();
     expect(fixture!.componentInstance.root().open()).toBe(true);
 
-    dispatchPointer(backdrop, 'pointerdown', 2);
-    dispatchPointer(backdrop, 'pointerup', 2);
+    dispatchPointer(backdrop, 'pointerdown', { pointerId: 2 });
+    dispatchPointer(backdrop, 'pointerup', { pointerId: 2 });
     fixture!.detectChanges();
     expect(fixture!.componentInstance.root().open()).toBe(false);
     expect(fixture!.componentInstance.reasons.at(-1)).toBe('backdrop-press');
@@ -185,15 +186,15 @@ describe('Drawer dismissal', () => {
     fixture!.componentInstance.custom.set(true);
     const popup = await openDrawer();
     const inside = popup.querySelector<HTMLElement>('[data-test-inside]')!;
-    dispatchPointer(inside, 'pointerdown', 1);
-    dispatchPointer(inside, 'pointerup', 1);
+    dispatchPointer(inside, 'pointerdown', { pointerId: 1 });
+    dispatchPointer(inside, 'pointerup', { pointerId: 1 });
 
     const shadowHost = popup.querySelector<HTMLElement>('[data-test-shadow-host]')!;
     const shadowRoot = shadowHost.attachShadow({ mode: 'open' });
     const shadowButton = document.createElement('button');
     shadowRoot.append(shadowButton);
-    dispatchPointer(shadowButton, 'pointerdown', 2);
-    dispatchPointer(shadowButton, 'pointerup', 2);
+    dispatchPointer(shadowButton, 'pointerdown', { pointerId: 2 });
+    dispatchPointer(shadowButton, 'pointerup', { pointerId: 2 });
     fixture!.detectChanges();
 
     expect(fixture!.componentInstance.root().open()).toBe(true);
@@ -208,10 +209,10 @@ describe('Drawer dismissal', () => {
     const outside = outsideButton(fixture!);
     const backdrop = document.querySelector<HTMLElement>('[data-test-backdrop]')!;
 
-    dispatchPointer(outside, 'pointerdown', 1);
-    dispatchPointer(outside, 'pointerup', 1);
-    dispatchPointer(backdrop, 'pointerdown', 2);
-    dispatchPointer(backdrop, 'pointerup', 2);
+    dispatchPointer(outside, 'pointerdown', { pointerId: 1 });
+    dispatchPointer(outside, 'pointerup', { pointerId: 1 });
+    dispatchPointer(backdrop, 'pointerdown', { pointerId: 2 });
+    dispatchPointer(backdrop, 'pointerup', { pointerId: 2 });
     outside.focus();
     fixture!.detectChanges();
     expect(fixture!.componentInstance.root().open()).toBe(true);
@@ -246,8 +247,8 @@ describe('Drawer dismissal', () => {
     await waitForElement('[data-test-popup-b]');
     const outside = outsideButton(stackFixture);
 
-    dispatchPointer(outside, 'pointerdown', 1);
-    dispatchPointer(outside, 'pointerup', 1);
+    dispatchPointer(outside, 'pointerdown', { pointerId: 1 });
+    dispatchPointer(outside, 'pointerup', { pointerId: 1 });
     stackFixture.detectChanges();
     expect(first.open()).toBe(true);
     expect(second.open()).toBe(false);
@@ -280,8 +281,8 @@ describe('Drawer dismissal', () => {
       // A menu or popover opened from inside the drawer owns Escape and outside presses first.
       registerDropdown({ outsidePress: true, escapeKey: true });
       document.dispatchEvent(new KeyboardEvent('keydown', { bubbles: true, key: 'Escape' }));
-      dispatchPointer(outside, 'pointerdown', 1);
-      dispatchPointer(outside, 'pointerup', 1);
+      dispatchPointer(outside, 'pointerdown', { pointerId: 1 });
+      dispatchPointer(outside, 'pointerup', { pointerId: 1 });
       fixture!.detectChanges();
       expect(fixture!.componentInstance.root().open()).toBe(true);
 
@@ -358,33 +359,6 @@ describe('Drawer dismissal', () => {
     return waitForElement('[data-test-popup]');
   }
 });
-
-function dispatchPointer(
-  target: EventTarget,
-  type: 'pointerdown' | 'pointermove' | 'pointerup',
-  pointerId: number,
-  clientX = 0,
-  clientY = 0,
-  pointerType = 'mouse',
-): void {
-  target.dispatchEvent(
-    new PointerEvent(type, {
-      bubbles: true,
-      button: 0,
-      clientX,
-      clientY,
-      composed: true,
-      isPrimary: true,
-      pointerId,
-      pointerType,
-    }),
-  );
-}
-
-async function waitForElement(selector: string): Promise<HTMLElement> {
-  await vi.waitFor(() => expect(document.querySelector(selector)).not.toBeNull());
-  return document.querySelector<HTMLElement>(selector)!;
-}
 
 function outsideButton(fixture: ComponentFixture<unknown>): HTMLElement {
   return (fixture.nativeElement as HTMLElement).querySelector<HTMLElement>('[data-test-outside]')!;

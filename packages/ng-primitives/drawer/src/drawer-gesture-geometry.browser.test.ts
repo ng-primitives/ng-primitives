@@ -1,5 +1,6 @@
 import { Component, viewChildren } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { animationFrame, dispatchPointer, rect, waitForElement } from './drawer-browser.fixture';
 import { NgpDrawer } from './drawer/drawer';
 import { NgpDrawerPopup } from './popup/drawer-popup';
 import { NgpDrawerPortal } from './portal/drawer-portal';
@@ -54,11 +55,13 @@ describe('Drawer gesture geometry reads', () => {
   it('keeps viewport geometry reads constant across move counts and fresh gestures', async () => {
     fixture.componentInstance.roots()[0].show();
     fixture.detectChanges();
-    const viewport = await query('[data-test-geometry-viewport]');
-    const popup = await query('[data-test-geometry-popup]');
+    const viewport = await waitForElement('[data-test-geometry-viewport]');
+    const popup = await waitForElement('[data-test-geometry-popup]');
     await fixture.whenStable();
-    const viewportRect = vi.spyOn(viewport, 'getBoundingClientRect').mockReturnValue(rect(200));
-    const popupRect = vi.spyOn(popup, 'getBoundingClientRect').mockReturnValue(rect(200));
+    const viewportRect = vi
+      .spyOn(viewport, 'getBoundingClientRect')
+      .mockReturnValue(rect(200, 200));
+    const popupRect = vi.spyOn(popup, 'getBoundingClientRect').mockReturnValue(rect(200, 200));
 
     runViewportGesture(viewport, 1, 1);
     const oneMove = {
@@ -99,14 +102,16 @@ describe('Drawer gesture geometry reads', () => {
   it('refreshes viewport geometry once on resize during a gesture', async () => {
     fixture.componentInstance.roots()[0].show();
     fixture.detectChanges();
-    const viewport = await query('[data-test-geometry-viewport]');
-    const popup = await query('[data-test-geometry-popup]');
+    const viewport = await waitForElement('[data-test-geometry-viewport]');
+    const popup = await waitForElement('[data-test-geometry-popup]');
     await fixture.whenStable();
-    const viewportRect = vi.spyOn(viewport, 'getBoundingClientRect').mockReturnValue(rect(200));
-    const popupRect = vi.spyOn(popup, 'getBoundingClientRect').mockReturnValue(rect(200));
+    const viewportRect = vi
+      .spyOn(viewport, 'getBoundingClientRect')
+      .mockReturnValue(rect(200, 200));
+    const popupRect = vi.spyOn(popup, 'getBoundingClientRect').mockReturnValue(rect(200, 200));
 
-    dispatchPointer(viewport, 'pointerdown', 0, 1, 5, 5000);
-    dispatchPointer(viewport, 'pointermove', 2, 1, 5, 5010);
+    dispatchPointer(viewport, 'pointerdown', { y: 0, buttons: 1, pointerId: 5, time: 5000 });
+    dispatchPointer(viewport, 'pointermove', { y: 2, buttons: 1, pointerId: 5, time: 5010 });
     expect(viewportRect).toHaveBeenCalledOnce();
     expect(popupRect).toHaveBeenCalledOnce();
 
@@ -115,33 +120,43 @@ describe('Drawer gesture geometry reads', () => {
     expect(popupRect).toHaveBeenCalledTimes(2);
 
     for (let index = 2; index <= 20; index += 1) {
-      dispatchPointer(viewport, 'pointermove', index / 2, 1, 5, 5000 + index * 10);
+      dispatchPointer(viewport, 'pointermove', {
+        y: index / 2,
+        buttons: 1,
+        pointerId: 5,
+        time: 5000 + index * 10,
+      });
     }
-    dispatchPointer(viewport, 'pointerup', 10, 0, 5, 5300);
+    dispatchPointer(viewport, 'pointerup', { y: 10, buttons: 0, pointerId: 5, time: 5300 });
     expect(viewportRect).toHaveBeenCalledTimes(2);
     expect(popupRect).toHaveBeenCalledTimes(2);
   });
 
   it('refreshes SwipeArea threshold geometry after provisional Popup resize', async () => {
-    const area = await query('[data-test-geometry-swipe-area]');
-    dispatchPointer(area, 'pointerdown', 200, 1, 6, 6000);
-    dispatchPointer(area, 'pointermove', 198, 1, 6, 6010);
+    const area = await waitForElement('[data-test-geometry-swipe-area]');
+    dispatchPointer(area, 'pointerdown', { y: 200, buttons: 1, pointerId: 6, time: 6000 });
+    dispatchPointer(area, 'pointermove', { y: 198, buttons: 1, pointerId: 6, time: 6010 });
     fixture.detectChanges();
-    const popup = await query('[data-test-geometry-area-popup]');
+    const popup = await waitForElement('[data-test-geometry-area-popup]');
     await fixture.whenStable();
-    const popupRect = vi.spyOn(popup, 'getBoundingClientRect').mockReturnValue(rect(200));
+    const popupRect = vi.spyOn(popup, 'getBoundingClientRect').mockReturnValue(rect(200, 200));
     await animationFrame();
     await animationFrame();
     popupRect.mockClear();
 
-    popupRect.mockReturnValue(rect(240));
+    popupRect.mockReturnValue(rect(240, 240));
     popup.style.height = '240px';
     await vi.waitFor(() => expect(popupRect).toHaveBeenCalledOnce());
 
     for (let index = 2; index <= 20; index += 1) {
-      dispatchPointer(area, 'pointermove', 200 - (index / 20) * 110, 1, 6, 6000 + index * 100);
+      dispatchPointer(area, 'pointermove', {
+        y: 200 - (index / 20) * 110,
+        buttons: 1,
+        pointerId: 6,
+        time: 6000 + index * 100,
+      });
     }
-    dispatchPointer(area, 'pointerup', 90, 0, 6, 8100);
+    dispatchPointer(area, 'pointerup', { y: 90, buttons: 0, pointerId: 6, time: 8100 });
     fixture.detectChanges();
 
     expect(fixture.componentInstance.roots()[1].open()).toBe(false);
@@ -150,25 +165,33 @@ describe('Drawer gesture geometry reads', () => {
 
   function runViewportGesture(target: HTMLElement, moves: number, pointerId: number): void {
     const startTime = pointerId * 1000;
-    dispatchPointer(target, 'pointerdown', 0, 1, pointerId, startTime);
+    dispatchPointer(target, 'pointerdown', {
+      y: 0,
+      buttons: 1,
+      pointerId: pointerId,
+      time: startTime,
+    });
     for (let index = 1; index <= moves; index += 1) {
-      dispatchPointer(
-        target,
-        'pointermove',
-        (index / moves) * 10,
-        1,
-        pointerId,
-        startTime + index * 10,
-      );
+      dispatchPointer(target, 'pointermove', {
+        y: (index / moves) * 10,
+        buttons: 1,
+        pointerId: pointerId,
+        time: startTime + index * 10,
+      });
     }
-    dispatchPointer(target, 'pointerup', 10, 0, pointerId, startTime + moves * 10 + 100);
+    dispatchPointer(target, 'pointerup', {
+      y: 10,
+      buttons: 0,
+      pointerId: pointerId,
+      time: startTime + moves * 10 + 100,
+    });
   }
 
   async function runSwipeAreaGesture(
     moves: number,
     pointerId: number,
   ): Promise<{ duringMount: number; afterMount: number }> {
-    const area = await query('[data-test-geometry-swipe-area]');
+    const area = await waitForElement('[data-test-geometry-swipe-area]');
     const startTime = pointerId * 1000;
     // The swipe area measures the popup in the render write phase that mounts it, so an instance
     // spy installed after `detectChanges()` would never see the read. Patch the prototype before
@@ -178,15 +201,25 @@ describe('Drawer gesture geometry reads', () => {
     Element.prototype.getBoundingClientRect = function (this: Element): DOMRect {
       if (this.matches('[data-test-geometry-area-popup]')) {
         reads += 1;
-        return rect(200);
+        return rect(200, 200);
       }
       return original.call(this);
     };
     try {
-      dispatchPointer(area, 'pointerdown', 200, 1, pointerId, startTime);
-      dispatchPointer(area, 'pointermove', 198, 1, pointerId, startTime + 10);
+      dispatchPointer(area, 'pointerdown', {
+        y: 200,
+        buttons: 1,
+        pointerId: pointerId,
+        time: startTime,
+      });
+      dispatchPointer(area, 'pointermove', {
+        y: 198,
+        buttons: 1,
+        pointerId: pointerId,
+        time: startTime + 10,
+      });
       fixture.detectChanges();
-      await query('[data-test-geometry-area-popup]');
+      await waitForElement('[data-test-geometry-area-popup]');
       await fixture.whenStable();
       await animationFrame();
       // Everything up to here is the mount: several directives measure the popup once each. The
@@ -195,16 +228,19 @@ describe('Drawer gesture geometry reads', () => {
       reads = 0;
 
       for (let index = 2; index <= moves; index += 1) {
-        dispatchPointer(
-          area,
-          'pointermove',
-          200 - (index / moves) * 10,
-          1,
-          pointerId,
-          startTime + index * 10,
-        );
+        dispatchPointer(area, 'pointermove', {
+          y: 200 - (index / moves) * 10,
+          buttons: 1,
+          pointerId: pointerId,
+          time: startTime + index * 10,
+        });
       }
-      dispatchPointer(area, 'pointerup', 190, 0, pointerId, startTime + moves * 10 + 100);
+      dispatchPointer(area, 'pointerup', {
+        y: 190,
+        buttons: 0,
+        pointerId: pointerId,
+        time: startTime + moves * 10 + 100,
+      });
       fixture.detectChanges();
       const afterMount = reads;
       await vi.waitFor(() =>
@@ -216,51 +252,3 @@ describe('Drawer gesture geometry reads', () => {
     }
   }
 });
-
-function dispatchPointer(
-  target: EventTarget,
-  type: 'pointerdown' | 'pointermove' | 'pointerup',
-  y: number,
-  buttons: number,
-  pointerId: number,
-  timeStamp: number,
-): void {
-  const event = new PointerEvent(type, {
-    bubbles: true,
-    button: 0,
-    buttons,
-    clientY: y,
-    composed: true,
-    isPrimary: true,
-    pointerId,
-    pointerType: 'mouse',
-  });
-  Object.defineProperty(event, 'timeStamp', { configurable: true, value: timeStamp });
-  target.dispatchEvent(event);
-}
-
-function query(selector: string): Promise<HTMLElement> {
-  return vi.waitFor(() => {
-    const element = document.querySelector<HTMLElement>(selector);
-    expect(element).not.toBeNull();
-    return element!;
-  });
-}
-
-function rect(size: number): DOMRect {
-  return {
-    bottom: size,
-    height: size,
-    left: 0,
-    right: size,
-    top: 0,
-    width: size,
-    x: 0,
-    y: 0,
-    toJSON: () => ({}),
-  };
-}
-
-function animationFrame(): Promise<void> {
-  return new Promise(resolve => requestAnimationFrame(() => resolve()));
-}

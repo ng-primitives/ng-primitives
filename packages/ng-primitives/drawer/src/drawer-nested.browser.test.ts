@@ -2,6 +2,7 @@ import { Component, signal, viewChildren } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { NgpDrawerBackdrop } from './backdrop/drawer-backdrop';
 import { NgpDrawerClose } from './close/drawer-close';
+import { dispatchPointer, dispatchTouch, getElement, touch } from './drawer-browser.fixture';
 import { NgpDrawer } from './drawer/drawer';
 import { NgpDrawerPopup } from './popup/drawer-popup';
 import { NgpDrawerPortal } from './portal/drawer-portal';
@@ -135,8 +136,8 @@ describe('nested Drawer roots', () => {
     const parentPopup = getElement('[data-test-parent-popup]');
     const parentBackdrop = getElement('[data-test-parent-backdrop]');
 
-    dispatchPointer(parentViewport, 'pointerdown', 0, 1, 30, 0);
-    dispatchPointer(parentViewport, 'pointermove', 20, 1, 30, 1);
+    dispatchPointer(parentViewport, 'pointerdown', { y: 0, buttons: 1, pointerId: 30, time: 0 });
+    dispatchPointer(parentViewport, 'pointermove', { y: 20, buttons: 1, pointerId: 30, time: 1 });
     expect(parentPopup.style.getPropertyValue('--ngp-drawer-swipe-movement-y')).toBe('20px');
     fixture.detectChanges();
     expect(parentPopup.hasAttribute('data-swiping')).toBe(true);
@@ -152,8 +153,8 @@ describe('nested Drawer roots', () => {
     expect(parentPopup.style.getPropertyValue('--ngp-drawer-swipe-movement-y')).toBe('0px');
     expect(parentPopup.style.getPropertyValue('--ngp-drawer-swipe-progress')).toBe('0');
 
-    dispatchPointer(parentViewport, 'pointerdown', 0, 1, 31, 2);
-    dispatchPointer(parentViewport, 'pointermove', 20, 1, 31, 3);
+    dispatchPointer(parentViewport, 'pointerdown', { y: 0, buttons: 1, pointerId: 31, time: 2 });
+    dispatchPointer(parentViewport, 'pointermove', { y: 20, buttons: 1, pointerId: 31, time: 3 });
     expect(parentPopup.hasAttribute('data-swiping')).toBe(false);
     expect(parentBackdrop.hasAttribute('data-swiping')).toBe(false);
     expect(parentPopup.style.getPropertyValue('--ngp-drawer-swipe-movement-y')).toBe('0px');
@@ -161,7 +162,7 @@ describe('nested Drawer roots', () => {
     roots[1].hide();
     fixture.detectChanges();
     expect(parentPopup.hasAttribute('data-nested-drawer-open')).toBe(false);
-    dispatchPointer(parentViewport, 'pointerdown', 0, 1, 32, 4);
+    dispatchPointer(parentViewport, 'pointerdown', { y: 0, buttons: 1, pointerId: 32, time: 4 });
     fixture.detectChanges();
     expect(parentPopup.hasAttribute('data-swiping')).toBe(true);
     parentViewport.dispatchEvent(new MouseEvent('contextmenu', { bubbles: true }));
@@ -177,7 +178,7 @@ describe('nested Drawer roots', () => {
     const childPopup = getElement('[data-test-child-popup]');
     const childBackdrop = getElement('[data-test-child-backdrop]');
 
-    dispatchPointer(childViewport, 'pointerdown', 0, 1, 40, 0);
+    dispatchPointer(childViewport, 'pointerdown', { y: 0, buttons: 1, pointerId: 40, time: 0 });
     fixture.detectChanges();
     expect(childPopup.hasAttribute('data-swiping')).toBe(true);
 
@@ -190,7 +191,7 @@ describe('nested Drawer roots', () => {
     expect(childBackdrop.hasAttribute('data-swiping')).toBe(false);
     expect(childPopup.style.getPropertyValue('--ngp-drawer-swipe-movement-y')).toBe('0px');
 
-    dispatchPointer(childViewport, 'pointerdown', 0, 1, 41, 1);
+    dispatchPointer(childViewport, 'pointerdown', { y: 0, buttons: 1, pointerId: 41, time: 1 });
     fixture.detectChanges();
     expect(childPopup.hasAttribute('data-swiping')).toBe(false);
     expect(childBackdrop.hasAttribute('data-swiping')).toBe(false);
@@ -199,7 +200,7 @@ describe('nested Drawer roots', () => {
     fixture.detectChanges();
     expect(roots[1].open()).toBe(true);
     expect(roots[2].mounted()).toBe(false);
-    dispatchPointer(childViewport, 'pointerdown', 0, 1, 42, 2);
+    dispatchPointer(childViewport, 'pointerdown', { y: 0, buttons: 1, pointerId: 42, time: 2 });
     fixture.detectChanges();
     expect(childPopup.hasAttribute('data-swiping')).toBe(true);
     childViewport.dispatchEvent(new MouseEvent('contextmenu', { bubbles: true }));
@@ -280,8 +281,8 @@ describe('nested Drawer roots', () => {
     const parentBackdrop = getElement('[data-test-parent-backdrop]');
     const childViewport = getElement('[data-test-child-viewport]');
     const childPopup = getElement('[data-test-child-popup]');
-    dispatchPointer(childViewport, 'pointerdown', 0, 1, 1, 0);
-    dispatchPointer(childViewport, 'pointermove', 60, 1, 1, 60);
+    dispatchPointer(childViewport, 'pointerdown', { y: 0, buttons: 1, pointerId: 1, time: 0 });
+    dispatchPointer(childViewport, 'pointermove', { y: 60, buttons: 1, pointerId: 1, time: 60 });
     expect(childPopup.style.getPropertyValue('--ngp-drawer-swipe-movement-y')).toBe('60px');
     expect(childPopup.style.transform).toContain('translate3d(0px, 60px, 0px)');
     expect(Number(parent.style.getPropertyValue('--ngp-drawer-swipe-progress'))).toBeCloseTo(0.2);
@@ -290,7 +291,7 @@ describe('nested Drawer roots', () => {
     expect(parentBackdrop.hasAttribute('data-nested-drawer-swiping')).toBe(false);
     expect(getElement('[data-test-child-backdrop]').hasAttribute('data-swiping')).toBe(true);
     expect(childViewport.hasAttribute('data-swiping')).toBe(false);
-    dispatchPointer(childViewport, 'pointerup', 60, 0, 1, 61);
+    dispatchPointer(childViewport, 'pointerup', { y: 60, buttons: 0, pointerId: 1, time: 61 });
     fixture.detectChanges();
     expect(childPopup.style.getPropertyValue('--ngp-drawer-swipe-movement-y')).toBe('60px');
     expect(parent.hasAttribute('data-nested-drawer-swiping')).toBe(false);
@@ -444,61 +445,20 @@ describe('nested Drawer roots', () => {
   }
 });
 
-function getElement(selector: string): HTMLElement {
-  return document.querySelector<HTMLElement>(selector)!;
-}
-
 function outsidePress(pointerId: number): void {
   const outside = getElement('[data-test-outside]');
-  const options = {
-    bubbles: true,
-    button: 0,
-    buttons: 1,
-    composed: true,
-    isPrimary: true,
-    pointerId,
-    pointerType: 'mouse',
-  };
-  outside.dispatchEvent(new PointerEvent('pointerdown', options));
-  outside.dispatchEvent(new PointerEvent('pointerup', { ...options, buttons: 0 }));
+  dispatchPointer(outside, 'pointerdown', { buttons: 1, pointerId });
+  dispatchPointer(outside, 'pointerup', { pointerId });
 }
 
 function touchClickWithJitter(target: HTMLElement, pointerId: number): void {
-  const touch = new Touch({ clientX: 0, clientY: 0, identifier: pointerId, target });
-  target.dispatchEvent(
-    new TouchEvent('touchstart', {
-      bubbles: true,
-      cancelable: true,
-      changedTouches: [touch],
-      composed: true,
-      targetTouches: [touch],
-      touches: [touch],
-    }),
-  );
-  const options = {
-    bubbles: true,
-    button: 0,
-    buttons: 1,
-    cancelable: true,
-    composed: true,
-    isPrimary: true,
-    pointerId,
-    pointerType: 'touch',
-  };
-  target.dispatchEvent(new PointerEvent('pointerdown', options));
-  const move = new PointerEvent('pointermove', { ...options, clientY: 2 });
-  target.dispatchEvent(move);
-  target.dispatchEvent(new PointerEvent('pointerup', { ...options, buttons: 0, clientY: 2 }));
-  target.dispatchEvent(
-    new TouchEvent('touchend', {
-      bubbles: true,
-      cancelable: true,
-      changedTouches: [touch],
-      composed: true,
-      targetTouches: [],
-      touches: [],
-    }),
-  );
+  const contact = touch(target, pointerId, 0, 0);
+  dispatchTouch(target, 'touchstart', [contact], [contact]);
+  const options = { buttons: 1, pointerId, pointerType: 'touch' };
+  dispatchPointer(target, 'pointerdown', options);
+  const move = dispatchPointer(target, 'pointermove', { ...options, y: 2 });
+  dispatchPointer(target, 'pointerup', { ...options, buttons: 0, y: 2 });
+  dispatchTouch(target, 'touchend', [], [contact]);
   expect(move.defaultPrevented).toBe(false);
   for (const viewport of document.querySelectorAll<HTMLElement>(
     '[data-test-parent-viewport], [data-test-child-viewport], [data-test-grandchild-viewport]',
@@ -510,38 +470,7 @@ function touchClickWithJitter(target: HTMLElement, pointerId: number): void {
 
 function touchClickRetargeted(target: HTMLElement, pointerId: number): void {
   const outside = getElement('[data-test-outside]');
-  const options = {
-    bubbles: true,
-    button: 0,
-    buttons: 1,
-    composed: true,
-    isPrimary: true,
-    pointerId,
-    pointerType: 'touch',
-  };
-  outside.dispatchEvent(new PointerEvent('pointerdown', options));
-  outside.dispatchEvent(new PointerEvent('pointerup', { ...options, buttons: 0 }));
+  dispatchPointer(outside, 'pointerdown', { buttons: 1, pointerId, pointerType: 'touch' });
+  dispatchPointer(outside, 'pointerup', { pointerId, pointerType: 'touch' });
   target.click();
-}
-
-function dispatchPointer(
-  target: EventTarget,
-  type: 'pointerdown' | 'pointermove' | 'pointerup',
-  y: number,
-  buttons: number,
-  pointerId: number,
-  timeStamp: number,
-): void {
-  const event = new PointerEvent(type, {
-    bubbles: true,
-    button: 0,
-    buttons,
-    clientY: y,
-    composed: true,
-    isPrimary: true,
-    pointerId,
-    pointerType: 'mouse',
-  });
-  Object.defineProperty(event, 'timeStamp', { configurable: true, value: timeStamp });
-  target.dispatchEvent(event);
 }

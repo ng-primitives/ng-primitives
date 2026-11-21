@@ -1,5 +1,6 @@
 import { Component, signal, viewChildren } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { animationFrame, getElement, rect, setDimensions } from './drawer-browser.fixture';
 import { NgpDrawer } from './drawer/drawer';
 import {
   resolveKeyboardInputTarget,
@@ -106,12 +107,15 @@ describe('Drawer VirtualKeyboard', () => {
   });
 
   afterEach(() => {
-    destroyFixture();
-    expect(visualViewport.listenerCount()).toBe(0);
-    expect(document.querySelectorAll('[data-ngp-drawer-overlay-host]')).toHaveLength(0);
-    restoreDescriptor(window, 'visualViewport', visualViewportDescriptor);
-    restoreDescriptor(window, 'innerHeight', innerHeightDescriptor);
-    vi.restoreAllMocks();
+    try {
+      destroyFixture();
+      expect(visualViewport.listenerCount()).toBe(0);
+      expect(document.querySelectorAll('[data-ngp-drawer-overlay-host]')).toHaveLength(0);
+    } finally {
+      restoreDescriptor(window, 'visualViewport', visualViewportDescriptor);
+      restoreDescriptor(window, 'innerHeight', innerHeightDescriptor);
+      vi.restoreAllMocks();
+    }
   });
 
   it('recognizes keyboard targets, labels, textarea, and contenteditable hosts', async () => {
@@ -212,8 +216,8 @@ describe('Drawer VirtualKeyboard', () => {
     const input = getElement<HTMLInputElement>('[data-test-input]');
     const scroller = getElement('[data-test-keyboard-scroll]');
     setDimensions(scroller, { clientHeight: 300, scrollHeight: 1000, scrollTop: 25 });
-    vi.spyOn(scroller, 'getBoundingClientRect').mockReturnValue(rect(0, 800));
-    vi.spyOn(input, 'getBoundingClientRect').mockReturnValue(rect(700, 760));
+    vi.spyOn(scroller, 'getBoundingClientRect').mockReturnValue(rect(300, 800));
+    vi.spyOn(input, 'getBoundingClientRect').mockReturnValue(rect(300, 60, 700));
     const scrollTo = vi.spyOn(scroller, 'scrollTo').mockImplementation(() => undefined);
 
     visualViewport.setGeometry({ height: 500, offsetTop: 0, scale: 1 });
@@ -302,15 +306,14 @@ describe('Drawer VirtualKeyboard', () => {
     ).toBe('0px');
   });
 
-  it('cleans touch state, listeners, rAF, variables, and styles on close and destroy', async () => {
+  it('cleans touch state, listeners, rAF, variables, and styles on destroy', async () => {
     await openParent();
-    const host = fixture.componentInstance;
     const input = getElement<HTMLInputElement>('[data-test-input]');
     const viewport = getElement('[data-test-keyboard-viewport]');
     const scroller = getElement('[data-test-keyboard-scroll]');
     setDimensions(scroller, { clientHeight: 300, scrollHeight: 1000, scrollTop: 25 });
-    vi.spyOn(scroller, 'getBoundingClientRect').mockReturnValue(rect(0, 800));
-    vi.spyOn(input, 'getBoundingClientRect').mockReturnValue(rect(700, 760));
+    vi.spyOn(scroller, 'getBoundingClientRect').mockReturnValue(rect(300, 800));
+    vi.spyOn(input, 'getBoundingClientRect').mockReturnValue(rect(300, 60, 700));
     vi.spyOn(scroller, 'scrollTo').mockImplementation(() => undefined);
     vi.spyOn(document, 'elementFromPoint').mockReturnValue(input);
 
@@ -324,6 +327,13 @@ describe('Drawer VirtualKeyboard', () => {
     destroyFixture();
     await animationFrame();
 
+    // The template's (click) binding is torn down with the fixture, so listen natively for a
+    // replacement click from the touch that started before destroy.
+    const replacementClick = vi.fn();
+    input.addEventListener('click', replacementClick);
+    expect(dispatchTouch(document, 'touchend', 10, 20)).toBe(true);
+    expect(replacementClick).not.toHaveBeenCalled();
+
     expect(viewport.style.getPropertyValue('--ngp-drawer-keyboard-inset')).toBe('7px');
     expect(scroller.style.overflowAnchor).toBe('auto');
     expect(scroller.style.paddingBottom).toBe('5px');
@@ -332,7 +342,6 @@ describe('Drawer VirtualKeyboard', () => {
     expect(input.style.transform).toBe('translateX(1px)');
     expect(input.style.transition).toBe('opacity 1s');
     expect(visualViewport.listenerCount()).toBe(0);
-    expect(host.clicks()).toBe(0);
   });
 
   async function openParent(): Promise<void> {
@@ -446,34 +455,6 @@ function dispatchTouch(
     touches: type === 'touchend' ? [] : touches,
   });
   return target.dispatchEvent(event);
-}
-
-function getElement<T extends HTMLElement = HTMLElement>(selector: string): T {
-  return document.querySelector<T>(selector)!;
-}
-
-function setDimensions(element: HTMLElement, values: Record<string, number>): void {
-  for (const [key, value] of Object.entries(values)) {
-    Object.defineProperty(element, key, { configurable: true, value, writable: true });
-  }
-}
-
-function rect(top: number, bottom: number): DOMRect {
-  return {
-    bottom,
-    height: bottom - top,
-    left: 0,
-    right: 300,
-    top,
-    width: 300,
-    x: 0,
-    y: top,
-    toJSON: () => ({}),
-  };
-}
-
-function animationFrame(): Promise<void> {
-  return new Promise(resolve => requestAnimationFrame(() => resolve()));
 }
 
 function restoreDescriptor(

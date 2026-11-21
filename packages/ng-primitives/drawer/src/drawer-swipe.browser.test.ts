@@ -2,6 +2,17 @@ import { Component, signal, viewChild } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { NgpDrawerBackdrop } from './backdrop/drawer-backdrop';
 import { NgpDrawerContent } from './content/drawer-content';
+import {
+  animationFrame,
+  dispatchPointer,
+  dispatchTouch,
+  getElement,
+  mockTouchHitTesting,
+  rect,
+  setDimensions,
+  setTouchHitTarget,
+  touch,
+} from './drawer-browser.fixture';
 import { NgpDrawerOpenChangeEvent, NgpDrawerSwipeDirection } from './drawer.types';
 import { NgpDrawer } from './drawer/drawer';
 import { NgpDrawerPopup } from './popup/drawer-popup';
@@ -77,14 +88,11 @@ class SwipeHost {
   }
 }
 
-let touchHitTarget: Element | null | undefined;
-
 describe('Drawer Viewport swipe integration', () => {
   let fixture: ComponentFixture<SwipeHost>;
 
   beforeEach(async () => {
-    touchHitTarget = undefined;
-    vi.spyOn(document, 'elementFromPoint').mockImplementation(() => touchHitTarget ?? null);
+    mockTouchHitTesting();
     await TestBed.configureTestingModule({ imports: [SwipeHost] }).compileComponents();
     fixture = TestBed.createComponent(SwipeHost);
     fixture.detectChanges();
@@ -153,7 +161,7 @@ describe('Drawer Viewport swipe integration', () => {
 
   it('dismisses a native touch swipe', async () => {
     const viewport = await openDrawer();
-    const popup = query('[data-test-popup]');
+    const popup = getElement('[data-test-popup]');
     dispatchTouch(viewport, 'touchstart', [touch(viewport, 30, 0, 0)], [], 0);
     const firstMove = dispatchTouch(viewport, 'touchmove', [touch(viewport, 30, 0, 10)], [], 100);
     const secondMove = dispatchTouch(viewport, 'touchmove', [touch(viewport, 30, 0, 80)], [], 200);
@@ -169,7 +177,7 @@ describe('Drawer Viewport swipe integration', () => {
 
   it('keeps a tap unclaimed and absorbs the delayed first iOS move without a visual jump', async () => {
     const viewport = await openDrawer();
-    const popup = query('[data-test-popup]');
+    const popup = getElement('[data-test-popup]');
     const click = vi.fn();
     viewport.addEventListener('click', click);
 
@@ -196,8 +204,8 @@ describe('Drawer Viewport swipe integration', () => {
 
   it('writes visuals synchronously and restores every consumer inline value', async () => {
     const viewport = await openDrawer();
-    const popup = query('[data-test-popup]');
-    const backdrop = query('[data-test-backdrop]');
+    const popup = getElement('[data-test-popup]');
+    const backdrop = getElement('[data-test-backdrop]');
     const elements = [viewport, popup, backdrop];
     const consumerTransform = 'translateX(7px) scale(0.9)';
     popup.style.transform = consumerTransform;
@@ -231,8 +239,8 @@ describe('Drawer Viewport swipe integration', () => {
 
   it('continues a velocity dismissal from the released swipe visuals', async () => {
     const viewport = await openDrawer();
-    const popup = query('[data-test-popup]');
-    const backdrop = query('[data-test-backdrop]');
+    const popup = getElement('[data-test-popup]');
+    const backdrop = getElement('[data-test-backdrop]');
     popup.style.transition = 'transform calc(var(--ngp-drawer-swipe-strength) * 400ms) linear';
     backdrop.style.transition = 'opacity calc(var(--ngp-drawer-swipe-strength) * 400ms) linear';
 
@@ -299,7 +307,7 @@ describe('Drawer Viewport swipe integration', () => {
 
   it('restores the released visuals when swipe dismissal is canceled', async () => {
     const viewport = await openDrawer();
-    const popup = query('[data-test-popup]');
+    const popup = getElement('[data-test-popup]');
     const consumerTransform = 'translateX(11px) scale(0.8)';
     popup.style.transform = consumerTransform;
     fixture.componentInstance.cancelNextClose.set(true);
@@ -336,7 +344,7 @@ describe('Drawer Viewport swipe integration', () => {
 
   it('restores consumer-owned drag styles when the Viewport is destroyed', async () => {
     const viewport = await openDrawer();
-    const popup = query('[data-test-popup]');
+    const popup = getElement('[data-test-popup]');
     const consumerTransform = 'translateX(13px) scale(0.75)';
     const consumerTransition = 'transform 175ms ease-in';
     popup.style.transform = consumerTransform;
@@ -357,7 +365,7 @@ describe('Drawer Viewport swipe integration', () => {
 
   it('cleans retained swipe visuals when reopened during exit', async () => {
     const viewport = await openDrawer();
-    const popup = query('[data-test-popup]');
+    const popup = getElement('[data-test-popup]');
 
     dispatchPointer(viewport, 'pointerdown', {
       y: 0,
@@ -402,7 +410,7 @@ describe('Drawer Viewport swipe integration', () => {
       ['[data-test-ignore]', 'touch'],
     ] as const;
     cases.forEach(([selector, pointerType], index) => {
-      const target = query(selector);
+      const target = getElement(selector);
       if (pointerType === 'touch') {
         touchSwipe(target, { x: 0, y: 0 }, { x: 0, y: 80 }, 10 + index);
       } else {
@@ -415,13 +423,13 @@ describe('Drawer Viewport swipe integration', () => {
 
   it('uses the coordinate hit target before a different composed target', async () => {
     const viewport = await openDrawer();
-    const range = query('[data-test-range]');
-    touchHitTarget = range;
+    const range = getElement('[data-test-range]');
+    setTouchHitTarget(range);
 
     dispatchTouch(viewport, 'touchstart', [touch(viewport, 75, 10, 10)], [], 0);
     const move = dispatchTouch(viewport, 'touchmove', [touch(viewport, 75, 10, 90)], [], 100);
     dispatchTouch(viewport, 'touchend', [], [touch(viewport, 75, 10, 90)], 101);
-    touchHitTarget = undefined;
+    setTouchHitTarget(undefined);
 
     expect(move.defaultPrevented).toBe(false);
     expect(viewport).not.toHaveAttribute('data-swiping');
@@ -430,7 +438,7 @@ describe('Drawer Viewport swipe integration', () => {
 
   it('allows touch dismissal from ordinary interactive Content', async () => {
     await openDrawer();
-    touchSwipe(query('[data-test-button]'), { x: 0, y: 0 }, { x: 0, y: 70 }, 20);
+    touchSwipe(getElement('[data-test-button]'), { x: 0, y: 0 }, { x: 0, y: 70 }, 20);
     fixture.detectChanges();
     expect(fixture.componentInstance.root().open()).toBe(false);
   });
@@ -445,7 +453,7 @@ describe('Drawer Viewport swipe integration', () => {
     async (direction, selector, offsetName, initialOffset, edgeOffset, movement) => {
       fixture.componentInstance.direction.set(direction);
       await openDrawer();
-      const scrollable = query(selector);
+      const scrollable = getElement(selector);
       setDimensions(scrollable, {
         clientHeight: 100,
         scrollHeight: 300,
@@ -504,7 +512,7 @@ describe('Drawer Viewport swipe integration', () => {
 
   it('preserves native Drawer-axis scrolling away from the dismissal edge', async () => {
     await openDrawer();
-    const scrollable = query('[data-test-scroll-y]');
+    const scrollable = getElement('[data-test-scroll-y]');
     setDimensions(scrollable, { clientHeight: 100, scrollHeight: 300 });
     scrollable.scrollTop = 80;
     dispatchTouch(scrollable, 'touchstart', [touch(scrollable, 72, 0, 0)], [], 0);
@@ -516,21 +524,21 @@ describe('Drawer Viewport swipe integration', () => {
 
   it('returns reverse and dominant cross-axis movement to native scrolling before ownership', async () => {
     await openDrawer();
-    const vertical = query('[data-test-scroll-y]');
+    const vertical = getElement('[data-test-scroll-y]');
     setDimensions(vertical, { clientHeight: 100, scrollHeight: 300 });
     vertical.scrollTop = 0;
     dispatchTouch(vertical, 'touchstart', [touch(vertical, 73, 0, 20)], [], 0);
     const reverse = dispatchTouch(vertical, 'touchmove', [touch(vertical, 73, 0, 0)], [], 100);
     dispatchTouch(vertical, 'touchend', [], [touch(vertical, 73, 0, 0)], 101);
 
-    const horizontal = query('[data-test-scroll-x]');
+    const horizontal = getElement('[data-test-scroll-x]');
     setDimensions(horizontal, { clientWidth: 100, scrollWidth: 300 });
     horizontal.scrollLeft = 50;
     dispatchTouch(horizontal, 'touchstart', [touch(horizontal, 74, 0, 0)], [], 200);
     const cross = dispatchTouch(horizontal, 'touchmove', [touch(horizontal, 74, 30, 2)], [], 300);
     expect(reverse.defaultPrevented).toBe(false);
     expect(cross.defaultPrevented).toBe(false);
-    expect(query('[data-test-viewport]')).not.toHaveAttribute('data-swiping');
+    expect(getElement('[data-test-viewport]')).not.toHaveAttribute('data-swiping');
   });
 
   it('keeps a mostly on-axis drag that starts with sideways jitter', async () => {
@@ -560,7 +568,7 @@ describe('Drawer Viewport swipe integration', () => {
 
   it('claims both Drawer-axis directions on ordinary Viewport content', async () => {
     const viewport = await openDrawer();
-    const popup = query('[data-test-popup]');
+    const popup = getElement('[data-test-popup]');
     dispatchTouch(viewport, 'touchstart', [touch(viewport, 77, 0, 30)], [], 0);
     const firstMove = dispatchTouch(viewport, 'touchmove', [touch(viewport, 77, 0, 0)], [], 100);
     const secondMove = dispatchTouch(viewport, 'touchmove', [touch(viewport, 77, 0, -30)], [], 200);
@@ -578,7 +586,7 @@ describe('Drawer Viewport swipe integration', () => {
 
   it('does not let a cross-axis scroller block dismissal', async () => {
     await openDrawer();
-    const scrollable = query('[data-test-scroll-x]');
+    const scrollable = getElement('[data-test-scroll-x]');
     setDimensions(scrollable, { clientWidth: 100, scrollWidth: 300 });
     scrollable.scrollLeft = 50;
     touchSwipe(scrollable, { x: 0, y: 0 }, { x: 0, y: 70 }, 31);
@@ -588,7 +596,7 @@ describe('Drawer Viewport swipe integration', () => {
 
   it('arbitrates an assigned slot through its ShadowRoot host', async () => {
     await openDrawer();
-    const scrollable = query('[data-test-scroll-y]');
+    const scrollable = getElement('[data-test-scroll-y]');
     setDimensions(scrollable, { clientHeight: 100, scrollHeight: 300 });
     scrollable.scrollTop = 25;
     const host = document.createElement('div');
@@ -604,7 +612,7 @@ describe('Drawer Viewport swipe integration', () => {
 
   it('tracks a composed shadow descendant and survives the pointer leaving', async () => {
     await openDrawer();
-    const popup = query('[data-test-popup]');
+    const popup = getElement('[data-test-popup]');
     const host = document.createElement('div');
     const shadow = host.attachShadow({ mode: 'open' });
     const child = document.createElement('span');
@@ -647,7 +655,7 @@ describe('Drawer Viewport swipe integration', () => {
 
   it('never claims a touch while text is selected', async () => {
     await openDrawer();
-    const content = query('[data-test-content]');
+    const content = getElement('[data-test-content]');
     const text = content.querySelector('button')!.firstChild!;
     const range = document.createRange();
     range.selectNodeContents(text);
@@ -714,7 +722,7 @@ describe('Drawer Viewport swipe integration', () => {
     const directive = fixture.componentInstance.viewport() as unknown as {
       capturePointer(pointerId: number): void;
     };
-    const viewport = query('[data-test-viewport]');
+    const viewport = getElement('[data-test-viewport]');
     viewport.setPointerCapture = vi.fn(() => {
       throw new DOMException('gone', 'NotFoundError');
     });
@@ -745,7 +753,7 @@ describe('Drawer Viewport swipe integration', () => {
 
   it('cleans context interruption and unmount during an active swipe', async () => {
     const viewport = await openDrawer();
-    const popup = query('[data-test-popup]');
+    const popup = getElement('[data-test-popup]');
     dispatchPointer(viewport, 'pointerdown', { buttons: 1, pointerId: 62, time: 0, y: 0 });
     dispatchPointer(viewport, 'pointermove', { buttons: 1, pointerId: 62, time: 100, y: 20 });
     viewport.dispatchEvent(new MouseEvent('contextmenu', { bubbles: true }));
@@ -765,23 +773,13 @@ describe('Drawer Viewport swipe integration', () => {
     fixture.componentInstance.root().show();
     fixture.detectChanges();
     await vi.waitFor(() => expect(document.querySelector('[data-test-viewport]')).not.toBeNull());
-    const viewport = query('[data-test-viewport]');
-    const popup = query('[data-test-popup]');
+    const viewport = getElement('[data-test-viewport]');
+    const popup = getElement('[data-test-popup]');
     vi.spyOn(viewport, 'getBoundingClientRect').mockReturnValue(rect(200, 200));
     vi.spyOn(popup, 'getBoundingClientRect').mockReturnValue(rect(200, 200));
     return viewport;
   }
 });
-
-interface PointerOptions {
-  readonly x?: number;
-  readonly y?: number;
-  readonly buttons: number;
-  readonly isPrimary?: boolean;
-  readonly pointerId: number;
-  readonly pointerType?: string;
-  readonly time: number;
-}
 
 function swipe(
   target: EventTarget,
@@ -827,84 +825,4 @@ function touchSwipe(
   dispatchTouch(target, 'touchmove', [touch(target, identifier, first.x, first.y)], [], 50);
   dispatchTouch(target, 'touchmove', [touch(target, identifier, end.x, end.y)], [], 100);
   dispatchTouch(target, 'touchend', [], [touch(target, identifier, end.x, end.y)], 101);
-}
-
-function dispatchPointer(
-  target: EventTarget,
-  type: 'pointerdown' | 'pointermove' | 'pointerup' | 'pointercancel',
-  options: PointerOptions,
-): PointerEvent {
-  const event = new PointerEvent(type, {
-    bubbles: true,
-    button: 0,
-    buttons: options.buttons,
-    cancelable: true,
-    clientX: options.x ?? 0,
-    clientY: options.y ?? 0,
-    composed: true,
-    isPrimary: options.isPrimary ?? true,
-    pointerId: options.pointerId,
-    pointerType: options.pointerType ?? 'mouse',
-  });
-  Object.defineProperty(event, 'timeStamp', { configurable: true, value: options.time });
-  target.dispatchEvent(event);
-  return event;
-}
-
-function touch(target: EventTarget, identifier: number, clientX: number, clientY: number): Touch {
-  return new Touch({ clientX, clientY, identifier, target });
-}
-
-function dispatchTouch(
-  target: EventTarget,
-  type: 'touchstart' | 'touchmove' | 'touchend' | 'touchcancel',
-  touches: readonly Touch[],
-  changedTouches: readonly Touch[],
-  time: number,
-): TouchEvent {
-  const event = new TouchEvent(type, {
-    bubbles: true,
-    cancelable: true,
-    changedTouches: [...changedTouches],
-    composed: true,
-    targetTouches: [...touches],
-    touches: [...touches],
-  });
-  Object.defineProperty(event, 'timeStamp', { configurable: true, value: time });
-  const previousHitTarget = touchHitTarget;
-  if (type === 'touchstart' && touchHitTarget === undefined) {
-    const touchTarget = touches[0]?.target;
-    touchHitTarget = touchTarget instanceof Element ? touchTarget : null;
-  }
-  target.dispatchEvent(event);
-  touchHitTarget = previousHitTarget;
-  return event;
-}
-
-function query(selector: string): HTMLElement {
-  return document.querySelector<HTMLElement>(selector)!;
-}
-
-function rect(width: number, height: number): DOMRect {
-  return {
-    bottom: height,
-    height,
-    left: 0,
-    right: width,
-    top: 0,
-    width,
-    x: 0,
-    y: 0,
-    toJSON: () => ({}),
-  };
-}
-
-function setDimensions(element: HTMLElement, values: Record<string, number>): void {
-  for (const [key, value] of Object.entries(values)) {
-    Object.defineProperty(element, key, { configurable: true, value, writable: true });
-  }
-}
-
-function animationFrame(): Promise<void> {
-  return new Promise(resolve => requestAnimationFrame(() => resolve()));
 }
