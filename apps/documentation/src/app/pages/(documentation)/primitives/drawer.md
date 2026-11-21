@@ -62,7 +62,7 @@ The default swipe direction is `down`. Align the viewport content to its bottom 
 
 ### Snap points
 
-Set `snapPoints` to a list of pixel, rem, or proportional positions. `defaultSnapPoint` controls the initial position and `snapPointChange` supports controlled state.
+Set `snapPoints` to a list of pixel, rem, or proportional positions. `defaultSnapPoint` controls the initial position. To control the position, bind `snapPoint` and update it from `snapPointChange`, for example with `[(snapPoint)]`; listening to `snapPointChange` alone leaves the drawer uncontrolled.
 
 <docs-example name="drawer-snap-points"></docs-example>
 

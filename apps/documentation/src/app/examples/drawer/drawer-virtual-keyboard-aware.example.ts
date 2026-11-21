@@ -45,7 +45,7 @@ import {
                 @for (field of fields; track field.label) {
                   <label>
                     {{ field.label }}
-                    <input [placeholder]="field.placeholder" />
+                    <input [type]="field.type" [placeholder]="field.placeholder" />
                   </label>
                 }
                 <label>
@@ -276,10 +276,10 @@ import {
 })
 export default class DrawerVirtualKeyboardAwareExample {
   readonly fields = [
-    { label: 'Name', placeholder: 'Ada Lovelace' },
-    { label: 'Phone', placeholder: '+1 (555) 123-4567' },
-    { label: 'Street address', placeholder: '12 Computing Way' },
-    { label: 'City', placeholder: 'San Francisco' },
-    { label: 'Postal code', placeholder: '94107' },
+    { label: 'Name', type: 'text', placeholder: 'Ada Lovelace' },
+    { label: 'Phone', type: 'tel', placeholder: '+1 (555) 123-4567' },
+    { label: 'Street address', type: 'text', placeholder: '12 Computing Way' },
+    { label: 'City', type: 'text', placeholder: 'San Francisco' },
+    { label: 'Postal code', type: 'text', placeholder: '94107' },
   ] as const;
 }

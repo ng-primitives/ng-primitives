@@ -29,6 +29,7 @@ export class DrawerVisualStateStore {
     }
   }
 
+  /** Clears the gesture fields. `frontmostHeight` is layout state that `NgpDrawer` keeps in sync. */
   reset(): void {
     this.set({ movementX: 0, movementY: 0, progress: 0, strength: 0 });
   }
