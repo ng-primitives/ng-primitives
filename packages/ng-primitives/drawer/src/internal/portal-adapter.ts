@@ -1,6 +1,7 @@
 import { Injector, TemplateRef, ViewContainerRef } from '@angular/core';
 import { StyleInjector } from 'ng-primitives/internal';
 import { createPortal, NgpPortal } from 'ng-primitives/portal';
+import { releaseDrawerIsolation } from './modal-isolation';
 
 // `:where()` keeps this at zero specificity, so any `pointer-events` the consumer sets on a part
 // (a pass-through non-modal viewport, say) still wins over the restored default.
@@ -65,6 +66,7 @@ export class DrawerPortalAdapter {
   show(): void {
     const host = this.hostElement;
     if (host) {
+      releaseDrawerIsolation(host);
       host.hidden = false;
       host.inert = false;
       host.removeAttribute('aria-hidden');
@@ -74,6 +76,7 @@ export class DrawerPortalAdapter {
   hide(): void {
     const host = this.hostElement;
     if (host) {
+      releaseDrawerIsolation(host);
       host.hidden = true;
       host.inert = true;
       host.setAttribute('aria-hidden', 'true');

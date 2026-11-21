@@ -1,4 +1,4 @@
-import { Component, signal, viewChild } from '@angular/core';
+import { Component, signal, viewChild, viewChildren } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Event as RouterEvent, NavigationStart, Router } from '@angular/router';
 import { Subject } from 'rxjs';
@@ -114,6 +114,29 @@ class PortalHost {
 class NonModalHitTestHost {
   pageClicks = 0;
   readonly root = viewChild.required(NgpDrawer);
+}
+
+@Component({
+  imports: [NgpDrawerPopup, NgpDrawerPortal, NgpDrawer, NgpDrawerViewport],
+  template: `
+    <ng-container [modal]="false" ngpDrawer>
+      <ng-template keepMounted ngpDrawerPortal>
+        <div data-test-kept-viewport ngpDrawerViewport>
+          <section ngpDrawerPopup>Kept</section>
+        </div>
+      </ng-template>
+    </ng-container>
+    <ng-container ngpDrawer>
+      <ng-template ngpDrawerPortal>
+        <div data-test-modal-viewport ngpDrawerViewport>
+          <section ngpDrawerPopup>Modal</section>
+        </div>
+      </ng-template>
+    </ng-container>
+  `,
+})
+class KeptUnderModalHost {
+  readonly roots = viewChildren(NgpDrawer);
 }
 
 function hitTargetAtCenter(element: Element): Element | null {
@@ -419,5 +442,59 @@ describe('NgpDrawerPortal', () => {
     } finally {
       hitFixture.destroy();
     }
+  });
+
+  describe('a kept-mounted host isolated by a modal drawer', () => {
+    let isolationFixture: ComponentFixture<KeptUnderModalHost>;
+    const keptHost = () =>
+      document.querySelector('[data-test-kept-viewport]')!.parentElement as HTMLElement;
+    const modalHost = () => document.querySelector('[data-test-modal-viewport]')?.parentElement;
+
+    async function setOpen(index: 0 | 1, open: boolean): Promise<void> {
+      const root = isolationFixture.componentInstance.roots()[index];
+      if (open) {
+        root.show();
+      } else {
+        root.hide();
+      }
+      isolationFixture.detectChanges();
+      await vi.waitFor(() => expect(root.open()).toBe(open));
+      if (index === 0) {
+        await vi.waitFor(() => expect(keptHost().hidden).toBe(!open));
+      } else if (open) {
+        await vi.waitFor(() => expect(modalHost()).toBeTruthy());
+      } else {
+        await vi.waitFor(() => expect(modalHost()).toBeFalsy());
+      }
+    }
+
+    beforeEach(() => {
+      isolationFixture = TestBed.createComponent(KeptUnderModalHost);
+      isolationFixture.detectChanges();
+    });
+
+    afterEach(() => isolationFixture.destroy());
+
+    it('stays interactive when reopened before the modal closes', async () => {
+      await setOpen(0, true);
+      await setOpen(0, false);
+      await setOpen(1, true);
+      await setOpen(0, true);
+      await setOpen(1, false);
+
+      expect(keptHost().inert).toBe(false);
+      expect(keptHost().hasAttribute('aria-hidden')).toBe(false);
+    });
+
+    it('stays inert when hidden before the modal closes', async () => {
+      await setOpen(0, true);
+      await setOpen(1, true);
+      await setOpen(0, false);
+      await setOpen(1, false);
+
+      expect(keptHost().hidden).toBe(true);
+      expect(keptHost().inert).toBe(true);
+      expect(keptHost().getAttribute('aria-hidden')).toBe('true');
+    });
   });
 });

@@ -40,6 +40,18 @@ export function isolateDrawerModal(
   };
 }
 
+/**
+ * Lift every modal isolation from `element` now, so a later restore cannot write back the state it
+ * recorded. A portal host calls this when it shows or hides, since that state is then stale.
+ */
+export function releaseDrawerIsolation(element: HTMLElement): void {
+  const record = isolatedElements.get(element);
+  if (record) {
+    record.count = 1;
+    restoreElement(element);
+  }
+}
+
 function isolateElement(element: HTMLElement): void {
   const existing = isolatedElements.get(element);
   if (existing) {
