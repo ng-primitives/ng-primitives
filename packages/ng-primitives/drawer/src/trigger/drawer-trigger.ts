@@ -1,6 +1,7 @@
 import { booleanAttribute, DestroyRef, Directive, inject, input } from '@angular/core';
 import { injectElementRef, explicitEffect } from 'ng-primitives/internal';
-import { attrBinding } from 'ng-primitives/state';
+import { attrBinding, dataBinding } from 'ng-primitives/state';
+import { NGP_DRAWER_DATA_ATTRIBUTES } from '../drawer.constants';
 import { NgpDrawerHandle } from '../handle/drawer-handle';
 import { createDrawerId, isNativeInteractiveElement } from '../internal/dom';
 import { injectDrawerState } from '../internal/drawer-state';
@@ -12,9 +13,6 @@ import { injectDrawerState } from '../internal/drawer-state';
     'aria-haspopup': 'dialog',
     '[attr.aria-expanded]': 'opened() ? "true" : "false"',
     '[attr.aria-disabled]': 'disabled() ? "true" : null',
-    '[attr.data-open]': 'opened() ? "" : null',
-    '[attr.data-closed]': 'opened() ? null : ""',
-    '[attr.data-disabled]': 'disabled() ? "" : null',
     '(click)': 'activate($event)',
     '(keydown)': 'onKeydown($event)',
   },
@@ -42,6 +40,9 @@ export class NgpDrawerTrigger {
     }
 
     attrBinding(this.elementRef, 'aria-controls', () => state?.popup()?.id ?? null);
+    dataBinding(this.elementRef, NGP_DRAWER_DATA_ATTRIBUTES.open, () => this.opened());
+    dataBinding(this.elementRef, NGP_DRAWER_DATA_ATTRIBUTES.closed, () => !this.opened());
+    dataBinding(this.elementRef, NGP_DRAWER_DATA_ATTRIBUTES.disabled, this.disabled);
 
     if (state) {
       explicitEffect([state.activeTrigger], ([activeTrigger]) => {

@@ -1,4 +1,5 @@
 /* Adapted from Base UI scroll helpers at c33f4210 (MIT, Material UI SAS). */
+import { NGP_DRAWER_DATA_ATTRIBUTES } from '../../drawer.constants';
 import { NgpDrawerSwipeDirection } from '../../drawer.types';
 import { DrawerSwipeAxis, getSwipeAxis, getSwipeSign } from './direction';
 
@@ -184,7 +185,9 @@ export function shouldIgnoreSwipeTarget(target: EventTarget | null, pointerType:
   if (!element) {
     return true;
   }
-  if (closestComposed(element, '[data-ngp-drawer-swipe-ignore], input[type="range"]')) {
+  if (
+    closestComposed(element, `[${NGP_DRAWER_DATA_ATTRIBUTES.swipeIgnore}], input[type="range"]`)
+  ) {
     return true;
   }
   if (
@@ -195,7 +198,10 @@ export function shouldIgnoreSwipeTarget(target: EventTarget | null, pointerType:
   ) {
     return true;
   }
-  if (pointerType !== 'touch' && closestComposed(element, '[data-drawer-content]')) {
+  if (
+    pointerType !== 'touch' &&
+    closestComposed(element, `[${NGP_DRAWER_DATA_ATTRIBUTES.content}]`)
+  ) {
     return true;
   }
   if (

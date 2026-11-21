@@ -1,4 +1,5 @@
 // Adapted from Base UI DrawerVirtualKeyboardProvider (MIT), pinned at c33f4210.
+import { NGP_DRAWER_CSS_VARIABLES } from '../../drawer.constants';
 import { DrawerState } from '../drawer-state';
 import {
   containsComposed,
@@ -60,7 +61,9 @@ export class DrawerKeyboardController {
   ) {
     this.window = document.defaultView;
     this.visualViewport = this.window?.visualViewport ?? null;
-    this.initialKeyboardInset = viewport.style.getPropertyValue('--ngp-drawer-keyboard-inset');
+    this.initialKeyboardInset = viewport.style.getPropertyValue(
+      NGP_DRAWER_CSS_VARIABLES.keyboardInset,
+    );
   }
 
   sync(): void {
@@ -82,7 +85,11 @@ export class DrawerKeyboardController {
     this.destroyed = true;
     this.removeListeners();
     this.clear();
-    this.restoreProperty(this.viewport, '--ngp-drawer-keyboard-inset', this.initialKeyboardInset);
+    this.restoreProperty(
+      this.viewport,
+      NGP_DRAWER_CSS_VARIABLES.keyboardInset,
+      this.initialKeyboardInset,
+    );
   }
 
   private isActive(): boolean {
@@ -258,7 +265,7 @@ export class DrawerKeyboardController {
     }
 
     this.viewport.style.setProperty(
-      '--ngp-drawer-keyboard-inset',
+      NGP_DRAWER_CSS_VARIABLES.keyboardInset,
       `${Math.ceil(getDrawerKeyboardInset(window, keyboardViewport))}px`,
     );
     const scrollTarget = findKeyboardScrollTarget(target, this.viewport);
@@ -327,7 +334,7 @@ export class DrawerKeyboardController {
   }
 
   private resetInsetAndAdjustment(): void {
-    this.viewport.style.setProperty('--ngp-drawer-keyboard-inset', '0px');
+    this.viewport.style.setProperty(NGP_DRAWER_CSS_VARIABLES.keyboardInset, '0px');
     this.restoreAdjustment();
   }
 

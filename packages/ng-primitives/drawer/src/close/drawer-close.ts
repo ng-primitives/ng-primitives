@@ -1,5 +1,7 @@
 import { booleanAttribute, DestroyRef, Directive, inject, input } from '@angular/core';
 import { injectElementRef } from 'ng-primitives/internal';
+import { dataBinding } from 'ng-primitives/state';
+import { NGP_DRAWER_DATA_ATTRIBUTES } from '../drawer.constants';
 import { injectDrawerState, requireDrawerState } from '../internal/drawer-state';
 
 @Directive({
@@ -7,7 +9,6 @@ import { injectDrawerState, requireDrawerState } from '../internal/drawer-state'
   standalone: true,
   host: {
     '[attr.aria-disabled]': 'disabled() ? "true" : null',
-    '[attr.data-disabled]': 'disabled() ? "" : null',
     '(click)': 'close($event)',
   },
 })
@@ -21,6 +22,7 @@ export class NgpDrawerClose {
   constructor() {
     const element = this.elementRef.nativeElement;
     const unregisterElement = this.state.registerElement(element);
+    dataBinding(this.elementRef, NGP_DRAWER_DATA_ATTRIBUTES.disabled, this.disabled);
     if (element instanceof HTMLButtonElement && !element.hasAttribute('type')) {
       element.type = 'button';
     }

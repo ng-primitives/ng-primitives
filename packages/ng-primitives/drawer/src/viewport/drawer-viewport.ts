@@ -13,7 +13,7 @@ import {
 } from '@angular/core';
 import { injectElementRef } from 'ng-primitives/internal';
 import { dataBinding } from 'ng-primitives/state';
-import { NGP_DRAWER_DATA_ATTRIBUTES } from '../drawer.constants';
+import { NGP_DRAWER_CSS_VARIABLES, NGP_DRAWER_DATA_ATTRIBUTES } from '../drawer.constants';
 import { NgpDrawerSnapPoint, NgpDrawerSwipeDirection } from '../drawer.types';
 import { injectDrawerState, requireDrawerState } from '../internal/drawer-state';
 import {
@@ -493,14 +493,18 @@ export class NgpDrawerViewport {
     const unregister = this.state.setPartElement('viewport', this.elementRef.nativeElement);
     const keyboardContext = this.keyboardContextRef();
     const unregisterKeyboard = keyboardContext?.register(this.state, this.elementRef.nativeElement);
-    dataBinding(this.elementRef, 'data-open', () => this.state.open());
-    dataBinding(this.elementRef, 'data-closed', () => !this.state.open());
+    dataBinding(this.elementRef, NGP_DRAWER_DATA_ATTRIBUTES.open, () => this.state.open());
+    dataBinding(this.elementRef, NGP_DRAWER_DATA_ATTRIBUTES.closed, () => !this.state.open());
     if (this.state.startingStyle()) {
-      this.elementRef.nativeElement.setAttribute('data-starting-style', '');
+      this.elementRef.nativeElement.setAttribute(NGP_DRAWER_DATA_ATTRIBUTES.startingStyle, '');
     }
-    dataBinding(this.elementRef, 'data-starting-style', () => this.state.startingStyle());
-    dataBinding(this.elementRef, 'data-ending-style', () => this.state.endingStyle());
-    dataBinding(this.elementRef, 'data-nested', () => this.state.nested());
+    dataBinding(this.elementRef, NGP_DRAWER_DATA_ATTRIBUTES.startingStyle, () =>
+      this.state.startingStyle(),
+    );
+    dataBinding(this.elementRef, NGP_DRAWER_DATA_ATTRIBUTES.endingStyle, () =>
+      this.state.endingStyle(),
+    );
+    dataBinding(this.elementRef, NGP_DRAWER_DATA_ATTRIBUTES.nested, () => this.state.nested());
 
     afterRenderEffect({
       write: () => {
@@ -871,10 +875,10 @@ export class NgpDrawerViewport {
       transform: element.style.transform,
       computedTransform:
         directTransform && element === popup ? this.readDragTransform(element) : null,
-      movementX: element.style.getPropertyValue('--ngp-drawer-swipe-movement-x'),
-      movementY: element.style.getPropertyValue('--ngp-drawer-swipe-movement-y'),
-      progress: element.style.getPropertyValue('--ngp-drawer-swipe-progress'),
-      strength: element.style.getPropertyValue('--ngp-drawer-swipe-strength'),
+      movementX: element.style.getPropertyValue(NGP_DRAWER_CSS_VARIABLES.swipeMovementX),
+      movementY: element.style.getPropertyValue(NGP_DRAWER_CSS_VARIABLES.swipeMovementY),
+      progress: element.style.getPropertyValue(NGP_DRAWER_CSS_VARIABLES.swipeProgress),
+      strength: element.style.getPropertyValue(NGP_DRAWER_CSS_VARIABLES.swipeStrength),
     }));
     for (const snapshot of this.visualSnapshots) {
       snapshot.element.style.transition = 'none';
@@ -895,10 +899,10 @@ export class NgpDrawerViewport {
       strength: update.strength,
     });
     for (const element of this.visualElements()) {
-      element.style.setProperty('--ngp-drawer-swipe-movement-x', `${update.movement.x}px`);
-      element.style.setProperty('--ngp-drawer-swipe-movement-y', `${update.movement.y}px`);
-      element.style.setProperty('--ngp-drawer-swipe-progress', `${update.progress}`);
-      element.style.setProperty('--ngp-drawer-swipe-strength', `${update.strength}`);
+      element.style.setProperty(NGP_DRAWER_CSS_VARIABLES.swipeMovementX, `${update.movement.x}px`);
+      element.style.setProperty(NGP_DRAWER_CSS_VARIABLES.swipeMovementY, `${update.movement.y}px`);
+      element.style.setProperty(NGP_DRAWER_CSS_VARIABLES.swipeProgress, `${update.progress}`);
+      element.style.setProperty(NGP_DRAWER_CSS_VARIABLES.swipeStrength, `${update.strength}`);
     }
     const popupSnapshot = this.visualSnapshots.find(snapshot => snapshot.computedTransform);
     if (popupSnapshot?.computedTransform) {
@@ -1006,7 +1010,7 @@ export class NgpDrawerViewport {
     }
     this.state.visualStore.set({ strength });
     for (const element of this.visualElements()) {
-      element.style.setProperty('--ngp-drawer-swipe-strength', `${strength}`);
+      element.style.setProperty(NGP_DRAWER_CSS_VARIABLES.swipeStrength, `${strength}`);
     }
   }
 
@@ -1173,8 +1177,8 @@ export class NgpDrawerViewport {
         initialSnapshot: this.snapSnapshots.has(element)
           ? null
           : {
-              height: element.style.getPropertyValue('--ngp-drawer-height'),
-              offset: element.style.getPropertyValue('--ngp-drawer-snap-point-offset'),
+              height: element.style.getPropertyValue(NGP_DRAWER_CSS_VARIABLES.height),
+              offset: element.style.getPropertyValue(NGP_DRAWER_CSS_VARIABLES.snapPointOffset),
             },
       }));
     return {
@@ -1278,8 +1282,8 @@ export class NgpDrawerViewport {
       this.snapSnapshots.set(
         element,
         this.snapSnapshots.get(element) ?? {
-          height: element.style.getPropertyValue('--ngp-drawer-height'),
-          offset: element.style.getPropertyValue('--ngp-drawer-snap-point-offset'),
+          height: element.style.getPropertyValue(NGP_DRAWER_CSS_VARIABLES.height),
+          offset: element.style.getPropertyValue(NGP_DRAWER_CSS_VARIABLES.snapPointOffset),
         },
       );
     }
@@ -1312,8 +1316,8 @@ export class NgpDrawerViewport {
     const ownsHeight = active !== null && vertical;
     for (const element of elements) {
       if (active && ownsHeight) {
-        element.style.setProperty('--ngp-drawer-snap-point-offset', `${active.offset}px`);
-        element.style.setProperty('--ngp-drawer-height', `${active.height}px`);
+        element.style.setProperty(NGP_DRAWER_CSS_VARIABLES.snapPointOffset, `${active.offset}px`);
+        element.style.setProperty(NGP_DRAWER_CSS_VARIABLES.height, `${active.height}px`);
       } else {
         this.restoreSnapElement(element);
       }
@@ -1338,7 +1342,7 @@ export class NgpDrawerViewport {
       }
       this.state.visualStore.set({ progress });
       for (const element of elements) {
-        element.style.setProperty('--ngp-drawer-swipe-progress', `${progress}`);
+        element.style.setProperty(NGP_DRAWER_CSS_VARIABLES.swipeProgress, `${progress}`);
       }
     }
   }
@@ -1355,8 +1359,8 @@ export class NgpDrawerViewport {
     if (!snapshot) {
       return;
     }
-    this.restoreProperty(element, '--ngp-drawer-height', snapshot.height);
-    this.restoreProperty(element, '--ngp-drawer-snap-point-offset', snapshot.offset);
+    this.restoreProperty(element, NGP_DRAWER_CSS_VARIABLES.height, snapshot.height);
+    this.restoreProperty(element, NGP_DRAWER_CSS_VARIABLES.snapPointOffset, snapshot.offset);
   }
 
   private isVertical(): boolean {
@@ -1367,14 +1371,26 @@ export class NgpDrawerViewport {
     for (const snapshot of this.visualSnapshots) {
       snapshot.element.style.transition = snapshot.transition;
       snapshot.element.style.transform = snapshot.transform;
-      this.restoreProperty(snapshot.element, '--ngp-drawer-swipe-movement-x', snapshot.movementX);
-      this.restoreProperty(snapshot.element, '--ngp-drawer-swipe-movement-y', snapshot.movementY);
       this.restoreProperty(
         snapshot.element,
-        '--ngp-drawer-swipe-progress',
+        NGP_DRAWER_CSS_VARIABLES.swipeMovementX,
+        snapshot.movementX,
+      );
+      this.restoreProperty(
+        snapshot.element,
+        NGP_DRAWER_CSS_VARIABLES.swipeMovementY,
+        snapshot.movementY,
+      );
+      this.restoreProperty(
+        snapshot.element,
+        NGP_DRAWER_CSS_VARIABLES.swipeProgress,
         progressOverride === null ? snapshot.progress : `${progressOverride}`,
       );
-      this.restoreProperty(snapshot.element, '--ngp-drawer-swipe-strength', snapshot.strength);
+      this.restoreProperty(
+        snapshot.element,
+        NGP_DRAWER_CSS_VARIABLES.swipeStrength,
+        snapshot.strength,
+      );
     }
     this.visualSnapshots = [];
   }
