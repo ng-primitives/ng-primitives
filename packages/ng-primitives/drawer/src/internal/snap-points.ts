@@ -27,28 +27,35 @@ export function resolveDrawerSnapPoints(
   }
 
   const maximum = Math.min(viewportHeight, popupHeight);
-  const resolved: ResolvedDrawerSnapPoint[] = [];
+  const candidates: { value: NgpDrawerSnapPoint; height: number; declaredIndex: number }[] = [];
   values.forEach((value, declaredIndex) => {
     const rawHeight = resolveHeight(value, viewportHeight, rootFontSize);
-    if (rawHeight === null) {
-      return;
-    }
-    const height = Math.min(maximum, Math.max(0, rawHeight));
-    const duplicateIndex = resolved.findIndex(point => Math.abs(point.height - height) <= 1);
-    const duplicate = duplicateIndex >= 0 ? resolved[duplicateIndex] : null;
-    const point = {
-      value,
-      values: duplicate ? [...duplicate.values, value] : [value],
-      height,
-      offset: popupHeight - height,
-      declaredIndex,
-    };
-    if (duplicateIndex >= 0) {
-      resolved.splice(duplicateIndex, 1, point);
-    } else {
-      resolved.push(point);
+    if (rawHeight !== null) {
+      candidates.push({ value, height: Math.min(maximum, Math.max(0, rawHeight)), declaredIndex });
     }
   });
+
+  // Scanned from the last declaration, which each kept point is anchored to: a candidate merges
+  // into the nearest kept point within 1px, so neither declaration order nor a chain of
+  // near-duplicates can move a point or leave two within 1px of each other.
+  const resolved: (ResolvedDrawerSnapPoint & { values: NgpDrawerSnapPoint[] })[] = [];
+  for (let index = candidates.length - 1; index >= 0; index -= 1) {
+    const { value, height, declaredIndex } = candidates[index];
+    const duplicate = resolved
+      .filter(point => Math.abs(point.height - height) <= 1)
+      .sort((a, b) => Math.abs(a.height - height) - Math.abs(b.height - height))[0];
+    if (duplicate) {
+      duplicate.values.unshift(value);
+    } else {
+      resolved.push({
+        value,
+        values: [value],
+        height,
+        offset: popupHeight - height,
+        declaredIndex,
+      });
+    }
+  }
 
   return resolved.sort((a, b) => a.height - b.height || a.declaredIndex - b.declaredIndex);
 }
