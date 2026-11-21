@@ -76,8 +76,9 @@ describe('Drawer listener lifecycle', () => {
     const registrations = continuationCalls(addEventListener);
     expect(registrations.map(([type]) => type)).toEqual(CONTINUATION_EVENT_TYPES);
 
+    const removalStart = removeEventListener.mock.calls.length;
     document.dispatchEvent(pointerEvent('pointercancel', 1, 0, 0));
-    expectExactRemovals(registrations, removeEventListener);
+    expectExactRemovals(registrations, removeEventListener, removalStart);
     fixture.destroy();
   });
 
@@ -96,8 +97,9 @@ describe('Drawer listener lifecycle', () => {
     expect(endRegistrations.map(([type]) => type)).toEqual(TOUCH_END_EVENT_TYPES);
     expect(touchMoveCalls(addEventListener)).toEqual(moveRegistrations);
 
+    const endRemovalStart = removeEventListener.mock.calls.length;
     document.dispatchEvent(touchEvent(viewport, 'touchcancel', 1, true));
-    expectExactTouchRemovals(endRegistrations, removeEventListener);
+    expectExactTouchRemovals(endRegistrations, removeEventListener, endRemovalStart);
     for (const registration of moveRegistrations) {
       expect(removeEventListener).not.toHaveBeenCalledWith(...registration);
     }
@@ -106,8 +108,9 @@ describe('Drawer listener lifecycle', () => {
     document.dispatchEvent(touchEvent(viewport, 'touchcancel', 2, true));
     expect(touchMoveCalls(addEventListener)).toEqual(moveRegistrations);
 
+    const moveRemovalStart = removeEventListener.mock.calls.length;
     fixture.destroy();
-    expectExactTouchRemovals(moveRegistrations, removeEventListener);
+    expectExactTouchRemovals(moveRegistrations, removeEventListener, moveRemovalStart);
   });
 
   it('cleans Viewport continuation listeners when closed or disabled', () => {
@@ -121,9 +124,10 @@ describe('Drawer listener lifecycle', () => {
 
     viewport.dispatchEvent(pointerEvent('pointerdown', 4, 0, 1));
     const closeRegistrations = continuationCalls(addEventListener);
+    const removalStart = removeEventListener.mock.calls.length;
     root.hide();
     fixture.detectChanges();
-    expectExactRemovals(closeRegistrations, removeEventListener);
+    expectExactRemovals(closeRegistrations, removeEventListener, removalStart);
 
     addEventListener.mockClear();
     removeEventListener.mockClear();
@@ -131,9 +135,10 @@ describe('Drawer listener lifecycle', () => {
     fixture.detectChanges();
     viewport.dispatchEvent(pointerEvent('pointerdown', 5, 0, 1));
     const disableRegistrations = continuationCalls(addEventListener);
+    const disableRemovalStart = removeEventListener.mock.calls.length;
     fixture.componentInstance.viewportEnabled.set(false);
     fixture.detectChanges();
-    expectExactRemovals(disableRegistrations, removeEventListener);
+    expectExactRemovals(disableRegistrations, removeEventListener, disableRemovalStart);
     fixture.destroy();
   });
 
@@ -148,9 +153,10 @@ describe('Drawer listener lifecycle', () => {
 
     viewport.dispatchEvent(touchEvent(viewport, 'touchstart', 10, false));
     const closeRegistrations = touchContinuationCalls(addEventListener);
+    const removalStart = removeEventListener.mock.calls.length;
     root.hide();
     fixture.detectChanges();
-    expectExactTouchRemovals(closeRegistrations, removeEventListener);
+    expectExactTouchRemovals(closeRegistrations, removeEventListener, removalStart);
 
     addEventListener.mockClear();
     removeEventListener.mockClear();
@@ -158,9 +164,10 @@ describe('Drawer listener lifecycle', () => {
     fixture.detectChanges();
     viewport.dispatchEvent(touchEvent(viewport, 'touchstart', 11, false));
     const disableRegistrations = touchContinuationCalls(addEventListener);
+    const disableRemovalStart = removeEventListener.mock.calls.length;
     fixture.componentInstance.viewportEnabled.set(false);
     fixture.detectChanges();
-    expectExactTouchRemovals(disableRegistrations, removeEventListener);
+    expectExactTouchRemovals(disableRegistrations, removeEventListener, disableRemovalStart);
     fixture.destroy();
   });
 
@@ -182,14 +189,20 @@ describe('Drawer listener lifecycle', () => {
     const continuationRegistrations = continuationCalls(addDocumentListener);
     expect(continuationRegistrations).toHaveLength(CONTINUATION_EVENT_TYPES.length);
 
+    const startRemovalStart = removeStartListener.mock.calls.length;
+    const continuationRemovalStart = removeDocumentListener.mock.calls.length;
     fixture.componentInstance.nested.set(true);
     fixture.detectChanges();
     const child = fixture.componentInstance.roots()[1];
     child.show();
     fixture.detectChanges();
 
-    expectExactRemovals(startRegistrations, removeStartListener);
-    expectExactRemovals(continuationRegistrations, removeDocumentListener);
+    expectExactRemovals(startRegistrations, removeStartListener, startRemovalStart);
+    expectExactRemovals(
+      continuationRegistrations,
+      removeDocumentListener,
+      continuationRemovalStart,
+    );
 
     addStartListener.mockClear();
     child.hide();
@@ -209,12 +222,13 @@ describe('Drawer listener lifecycle', () => {
 
     viewport.dispatchEvent(touchEvent(viewport, 'touchstart', 12, false));
     const registrations = touchContinuationCalls(addEventListener);
+    const removalStart = removeEventListener.mock.calls.length;
     fixture.componentInstance.nested.set(true);
     fixture.detectChanges();
     fixture.componentInstance.roots()[1].show();
     fixture.detectChanges();
 
-    expectExactTouchRemovals(registrations, removeEventListener);
+    expectExactTouchRemovals(registrations, removeEventListener, removalStart);
     fixture.destroy();
   });
 
@@ -233,10 +247,11 @@ describe('Drawer listener lifecycle', () => {
     expect(fixture.componentInstance.roots()[0].open()).toBe(true);
     expect(continuationCalls(removeEventListener)).toEqual([]);
 
+    const removalStart = removeEventListener.mock.calls.length;
     fixture.componentInstance.areaDisabled.set(true);
     fixture.detectChanges();
     expect(fixture.componentInstance.roots()[0].open()).toBe(false);
-    expectExactRemovals(registrations, removeEventListener);
+    expectExactRemovals(registrations, removeEventListener, removalStart);
     fixture.destroy();
   });
 
@@ -255,10 +270,11 @@ describe('Drawer listener lifecycle', () => {
     expect(fixture.componentInstance.roots()[0].open()).toBe(true);
     expect(touchContinuationCalls(removeEventListener)).toEqual([]);
 
+    const removalStart = removeEventListener.mock.calls.length;
     fixture.componentInstance.areaDisabled.set(true);
     fixture.detectChanges();
     expect(fixture.componentInstance.roots()[0].open()).toBe(false);
-    expectExactTouchRemovals(registrations, removeEventListener);
+    expectExactTouchRemovals(registrations, removeEventListener, removalStart);
     fixture.destroy();
   });
 
@@ -270,9 +286,10 @@ describe('Drawer listener lifecycle', () => {
 
     area.dispatchEvent(pointerEvent('pointerdown', 3, 100, 1));
     const registrations = continuationCalls(addEventListener);
+    const removalStart = removeEventListener.mock.calls.length;
     fixture.destroy();
 
-    expectExactRemovals(registrations, removeEventListener);
+    expectExactRemovals(registrations, removeEventListener, removalStart);
   });
 
   it('removes an owned native touch continuation set when its fixture is destroyed', () => {
@@ -285,9 +302,10 @@ describe('Drawer listener lifecycle', () => {
 
     viewport.dispatchEvent(touchEvent(viewport, 'touchstart', 13, false));
     const registrations = touchContinuationCalls(addEventListener);
+    const removalStart = removeEventListener.mock.calls.length;
     fixture.destroy();
 
-    expectExactTouchRemovals(registrations, removeEventListener);
+    expectExactTouchRemovals(registrations, removeEventListener, removalStart);
   });
 });
 
@@ -351,22 +369,30 @@ function touchEndCalls(spy: ReturnType<typeof vi.spyOn>): ListenerCall[] {
 function expectExactRemovals(
   registrations: ListenerCall[],
   removeEventListener: ReturnType<typeof vi.spyOn>,
+  removalStart: number,
 ): void {
-  // An empty capture would make the loop below pass without checking anything.
-  expect(registrations).not.toHaveLength(0);
-  for (const [type, listener, options] of registrations) {
+  for (const [, , options] of registrations) {
     expect(options).toBe(true);
-    expect(removeEventListener).toHaveBeenCalledWith(type, listener, options);
   }
+  expectExactTouchRemovals(registrations, removeEventListener, removalStart);
 }
 
+/**
+ * Asserts each registration was removed exactly once, with matching options, by a call recorded
+ * from `removalStart` on - so a removal from an earlier session cannot satisfy it.
+ */
 function expectExactTouchRemovals(
   registrations: ListenerCall[],
   removeEventListener: ReturnType<typeof vi.spyOn>,
+  removalStart: number,
 ): void {
+  // An empty capture would make the loop below pass without checking anything.
   expect(registrations).not.toHaveLength(0);
-  for (const [type, listener, options] of registrations) {
-    expect(removeEventListener).toHaveBeenCalledWith(type, listener, options);
+  const removals = removeEventListener.mock.calls.slice(removalStart) as ListenerCall[];
+  for (const registration of registrations) {
+    const [type, listener] = registration;
+    const matches = removals.filter(([t, l]) => t === type && l === listener);
+    expect(matches).toEqual([registration]);
   }
 }
 

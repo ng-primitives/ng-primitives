@@ -15,4 +15,19 @@ describe('DrawerVisualStateStore', () => {
     expect(store.getSnapshot().progress).toBe(1);
     expect(store.getSnapshot().movementY).toBe(0);
   });
+
+  it('keeps the frontmost height when the gesture resets', () => {
+    const store = new DrawerVisualStateStore();
+
+    store.set({ frontmostHeight: 320, progress: 0.5, movementY: 40, strength: 0.2 });
+    store.reset();
+
+    expect(store.getSnapshot()).toEqual({
+      movementX: 0,
+      movementY: 0,
+      progress: 0,
+      strength: 0,
+      frontmostHeight: 320,
+    });
+  });
 });
