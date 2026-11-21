@@ -1,0 +1,207 @@
+import { Component } from '@angular/core';
+import { NgpButton } from 'ng-primitives/button';
+import {
+  NgpDrawerBackdrop,
+  NgpDrawerClose,
+  NgpDrawerContent,
+  NgpDrawerDescription,
+  NgpDrawerPopup,
+  NgpDrawerPortal,
+  NgpDrawer,
+  NgpDrawerTitle,
+  NgpDrawerTrigger,
+  NgpDrawerViewport,
+} from 'ng-primitives/drawer';
+
+@Component({
+  selector: 'app-drawer-uncontained',
+  imports: [
+    NgpButton,
+    NgpDrawerBackdrop,
+    NgpDrawerClose,
+    NgpDrawerContent,
+    NgpDrawerDescription,
+    NgpDrawerPopup,
+    NgpDrawerPortal,
+    NgpDrawer,
+    NgpDrawerTitle,
+    NgpDrawerTrigger,
+    NgpDrawerViewport,
+  ],
+  template: `
+    <ng-container ngpDrawer>
+      <button class="trigger" ngpButton ngpDrawerTrigger>Open action sheet</button>
+      <ng-template ngpDrawerPortal>
+        <div class="backdrop" ngpDrawerBackdrop></div>
+        <div class="viewport" ngpDrawerViewport>
+          <section class="sheet" ngpDrawerPopup>
+            <div class="action-group" ngpDrawerContent>
+              <h2 class="visually-hidden" ngpDrawerTitle>Profile actions</h2>
+              <p class="visually-hidden" ngpDrawerDescription>Choose an action for this user.</p>
+              @for (action of actions; track action) {
+                <button ngpDrawerClose type="button">{{ action }}</button>
+              }
+            </div>
+            <div class="action-group">
+              <button class="destructive" ngpDrawerClose type="button">Block user</button>
+            </div>
+            <div class="action-group">
+              <button class="cancel" ngpDrawerClose type="button">Cancel</button>
+            </div>
+          </section>
+        </div>
+      </ng-template>
+    </ng-container>
+  `,
+  styles: `
+    :host {
+      display: flex;
+      justify-content: center;
+      width: 100%;
+    }
+
+    button {
+      min-height: 2.5rem;
+      padding-inline: 1rem;
+      color: var(--ngp-text-primary);
+      background: var(--ngp-background);
+      border: 0;
+      font: inherit;
+      font-size: 0.875rem;
+      letter-spacing: -0.006em;
+      outline: none;
+      transition: background-color 150ms cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    button:hover {
+      background: var(--ngp-background-hover);
+    }
+
+    button:active {
+      background: var(--ngp-background-active);
+    }
+
+    button:focus-visible {
+      outline: 2px solid var(--ngp-focus-ring);
+      outline-offset: -2px;
+    }
+
+    .trigger {
+      min-height: 2.125rem;
+      border-radius: 0.5rem;
+      box-shadow:
+        inset 0 0 0 1px var(--ngp-border),
+        0 1px 2px 0 rgb(0 0 0 / 4%);
+      font-weight: 510;
+      letter-spacing: -0.006em;
+      transition: background-color 150ms cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .trigger[data-hover] {
+      background: var(--ngp-background-hover);
+    }
+
+    .trigger[data-press] {
+      background: var(--ngp-background-active);
+    }
+
+    .trigger[data-focus-visible] {
+      outline: 2px solid var(--ngp-focus-ring);
+      outline-offset: 2px;
+    }
+
+    .backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: 1000;
+      background: var(--ngp-backdrop);
+      opacity: calc(1 - var(--ngp-drawer-swipe-progress));
+      transition: opacity 450ms cubic-bezier(0.32, 0.72, 0, 1);
+    }
+
+    .viewport {
+      position: fixed;
+      inset: 0;
+      z-index: 1001;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      touch-action: none;
+    }
+
+    .sheet {
+      display: grid;
+      width: min(22rem, 100%);
+      gap: 0.75rem;
+      max-height: 100dvh;
+      padding: 1rem 1rem max(1rem, env(safe-area-inset-bottom));
+      overflow-y: auto;
+      overscroll-behavior: contain;
+      pointer-events: none;
+      touch-action: auto;
+      outline: none;
+      transform: translateY(var(--ngp-drawer-swipe-movement-y));
+      transition: transform 450ms cubic-bezier(0.32, 0.72, 0, 1);
+      will-change: transform;
+    }
+
+    .sheet[data-starting-style],
+    .sheet[data-ending-style] {
+      transform: translateY(calc(100% + 1rem));
+    }
+
+    .backdrop[data-starting-style],
+    .backdrop[data-ending-style] {
+      opacity: 0;
+    }
+
+    [data-swiping] {
+      transition-duration: 0ms;
+      user-select: none;
+    }
+
+    .action-group {
+      display: grid;
+      overflow: hidden;
+      pointer-events: auto;
+      background: var(--ngp-background);
+      border: 1px solid var(--ngp-border);
+      border-radius: 0.75rem;
+      box-shadow: var(--ngp-shadow);
+    }
+
+    .action-group button + button {
+      border-block-start: 1px solid var(--ngp-border);
+    }
+
+    .destructive {
+      color: var(--ngp-primary);
+      font-weight: 510;
+    }
+
+    .cancel {
+      font-weight: 590;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .sheet,
+      .backdrop {
+        transition-duration: 0ms;
+      }
+    }
+
+    .visually-hidden {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      overflow: hidden;
+      clip: rect(0 0 0 0);
+      white-space: nowrap;
+      border: 0;
+    }
+  `,
+})
+export default class DrawerUncontainedExample {
+  readonly actions = ['Unfollow', 'Mute', 'Add to favorites', 'Restrict'] as const;
+}
