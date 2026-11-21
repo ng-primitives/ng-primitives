@@ -105,12 +105,13 @@ function isKeyboardInputElement(element: HTMLElement): boolean {
   if (!window) {
     return false;
   }
+  // `:disabled` also covers controls disabled by an ancestor `<fieldset disabled>`.
   if (element instanceof window.HTMLTextAreaElement) {
-    return !element.disabled;
+    return !element.matches(':disabled');
   }
   return (
     element instanceof window.HTMLInputElement &&
-    !element.disabled &&
+    !element.matches(':disabled') &&
     KEYBOARD_INPUT_TYPES.has(element.type)
   );
 }

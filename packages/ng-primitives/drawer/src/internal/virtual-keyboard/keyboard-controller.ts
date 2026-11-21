@@ -37,7 +37,9 @@ export class DrawerKeyboardController {
   private destroyed = false;
   private listenersAttached = false;
   private readonly capture = true;
-  private readonly touchOptions: AddEventListenerOptions = { capture: true, passive: false };
+  private readonly passiveTouchOptions: AddEventListenerOptions = { capture: true, passive: true };
+  // Only `touchend` cancels the native tap, so it alone has to block scrolling.
+  private readonly touchEndOptions: AddEventListenerOptions = { capture: true, passive: false };
   private readonly window: Window | null;
   private readonly visualViewport: VisualViewport | null;
   private readonly initialKeyboardInset: string;
@@ -94,10 +96,10 @@ export class DrawerKeyboardController {
     this.listenersAttached = true;
     this.document.addEventListener('focusin', this.onFocusIn, this.capture);
     this.document.addEventListener('focusout', this.onFocusOut, this.capture);
-    this.document.addEventListener('touchstart', this.onTouchStart, this.touchOptions);
-    this.document.addEventListener('touchmove', this.onTouchMove, this.touchOptions);
-    this.document.addEventListener('touchend', this.onTouchEnd, this.touchOptions);
-    this.document.addEventListener('touchcancel', this.onTouchCancel, this.touchOptions);
+    this.document.addEventListener('touchstart', this.onTouchStart, this.passiveTouchOptions);
+    this.document.addEventListener('touchmove', this.onTouchMove, this.passiveTouchOptions);
+    this.document.addEventListener('touchend', this.onTouchEnd, this.touchEndOptions);
+    this.document.addEventListener('touchcancel', this.onTouchCancel, this.passiveTouchOptions);
     this.visualViewport?.addEventListener('resize', this.onViewportChange);
     this.visualViewport?.addEventListener('scroll', this.onViewportChange);
   }
@@ -109,10 +111,10 @@ export class DrawerKeyboardController {
     this.listenersAttached = false;
     this.document.removeEventListener('focusin', this.onFocusIn, this.capture);
     this.document.removeEventListener('focusout', this.onFocusOut, this.capture);
-    this.document.removeEventListener('touchstart', this.onTouchStart, this.touchOptions);
-    this.document.removeEventListener('touchmove', this.onTouchMove, this.touchOptions);
-    this.document.removeEventListener('touchend', this.onTouchEnd, this.touchOptions);
-    this.document.removeEventListener('touchcancel', this.onTouchCancel, this.touchOptions);
+    this.document.removeEventListener('touchstart', this.onTouchStart, this.passiveTouchOptions);
+    this.document.removeEventListener('touchmove', this.onTouchMove, this.passiveTouchOptions);
+    this.document.removeEventListener('touchend', this.onTouchEnd, this.touchEndOptions);
+    this.document.removeEventListener('touchcancel', this.onTouchCancel, this.passiveTouchOptions);
     this.visualViewport?.removeEventListener('resize', this.onViewportChange);
     this.visualViewport?.removeEventListener('scroll', this.onViewportChange);
   }
