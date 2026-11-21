@@ -1,5 +1,5 @@
 import { booleanAttribute, DestroyRef, Directive, inject, input } from '@angular/core';
-import { injectElementRef, explicitEffect } from 'ng-primitives/internal';
+import { injectElementRef } from 'ng-primitives/internal';
 import { attrBinding, dataBinding } from 'ng-primitives/state';
 import { NGP_DRAWER_DATA_ATTRIBUTES } from '../drawer.constants';
 import { NgpDrawerHandle } from '../handle/drawer-handle';
@@ -44,14 +44,6 @@ export class NgpDrawerTrigger {
     dataBinding(this.elementRef, NGP_DRAWER_DATA_ATTRIBUTES.closed, () => !this.opened());
     dataBinding(this.elementRef, NGP_DRAWER_DATA_ATTRIBUTES.disabled, this.disabled);
 
-    if (state) {
-      explicitEffect([state.activeTrigger], ([activeTrigger]) => {
-        if (activeTrigger === element) {
-          state.triggerId.set(element.id);
-        }
-      });
-    }
-
     inject(DestroyRef).onDestroy(() => this.unregisterElement?.());
   }
 
@@ -71,7 +63,8 @@ export class NgpDrawerTrigger {
         'ngpDrawerTrigger must be inside ng-container[ngpDrawer] or receive [ngpDrawerHandle].',
       );
     }
-    state.activeTrigger.set(this.elementRef.nativeElement);
+    // The root records this element as the active trigger and publishes its id only once the open
+    // is accepted, so a canceled `beforeOpenChange` leaves both untouched.
     state.requestOpen(
       true,
       'trigger-press',

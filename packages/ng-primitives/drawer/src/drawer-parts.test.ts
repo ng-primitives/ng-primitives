@@ -74,6 +74,36 @@ describe('Drawer semantic parts', () => {
     expect(fixture.componentInstance.root().payload()).toEqual({ detached: true });
   });
 
+  it('publishes the trigger id through triggerIdChange when an in-tree trigger opens', () => {
+    const root = fixture.componentInstance.root();
+    const inTree = fixture.debugElement.queryAll(By.directive(NgpDrawerTrigger))[1]
+      .nativeElement as HTMLButtonElement;
+    const emitted: (string | null)[] = [];
+    root.triggerIdChange.subscribe(triggerId => emitted.push(triggerId));
+
+    inTree.click();
+    fixture.detectChanges();
+
+    expect(root.triggerId()).toBe(inTree.id);
+    expect(emitted).toEqual([inTree.id]);
+  });
+
+  it('leaves the trigger id untouched when an in-tree trigger open is canceled', () => {
+    const root = fixture.componentInstance.root();
+    const inTree = fixture.debugElement.queryAll(By.directive(NgpDrawerTrigger))[1]
+      .nativeElement as HTMLButtonElement;
+    const emitted: (string | null)[] = [];
+    root.triggerIdChange.subscribe(triggerId => emitted.push(triggerId));
+    root.beforeOpenChange.subscribe(event => event.cancel());
+
+    inTree.click();
+    fixture.detectChanges();
+
+    expect(root.open()).toBe(false);
+    expect(root.triggerId()).toBeNull();
+    expect(emitted).toEqual([]);
+  });
+
   it('activates non-native triggers once from keyboard', () => {
     const nonNative = fixture.debugElement.queryAll(By.directive(NgpDrawerTrigger))[2]
       .nativeElement as HTMLDivElement;

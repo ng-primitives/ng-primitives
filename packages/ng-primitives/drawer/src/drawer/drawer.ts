@@ -64,8 +64,9 @@ export class NgpDrawer {
    * The uncontrolled snap point is seeded with the resolved default, so "never set" does not exist
    * as a runtime state and the default is never applied imperatively on open. Angular's inputs land
    * after construction, so the seed cannot be read once — the linkedSignal re-seeds whenever the
-   * resolved default's value changes. A bound `[snapPoint]` always wins, so controlled mode is
-   * untouched by the seed.
+   * resolved default's value changes. A bound `[snapPoint]` replaces the seed, but like `open` it is
+   * a model rather than a strict controlled value: an accepted internal request still writes it, so
+   * a consumer that does not round-trip `snapPointChange` sees the drawer move anyway.
    */
   readonly snapPoint = linkedSignal<NgpDrawerSnapPoint | null>(() => {
     const bound = this.snapPointInput();
@@ -268,7 +269,7 @@ export class NgpDrawer {
     nativeEvent: Event | null = null,
     trigger: HTMLElement | null = null,
     payload?: unknown,
-    triggerId?: string,
+    triggerId: string | undefined = trigger?.id || undefined,
   ): boolean {
     if (this.open() === nextOpen) {
       if (nextOpen && payload !== undefined) {
@@ -276,6 +277,9 @@ export class NgpDrawer {
       }
       if (nextOpen) {
         this.setTriggerId(triggerId);
+        if (trigger) {
+          this.state.activeTrigger.set(trigger);
+        }
       }
       return true;
     }
