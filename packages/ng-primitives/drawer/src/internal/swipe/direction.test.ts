@@ -20,8 +20,12 @@ describe('swipe direction helpers', () => {
     expect(movementForDirection('down', { x: 16, y: -25 })).toEqual({ x: 4, y: -5 });
   });
 
-  it('returns the physical opposite direction', () => {
-    expect(oppositeSwipeDirection('up')).toBe('down');
-    expect(oppositeSwipeDirection('left')).toBe('right');
+  it.each([
+    ['up', 'down'],
+    ['down', 'up'],
+    ['left', 'right'],
+    ['right', 'left'],
+  ] as const)('returns %s opposite as %s', (direction, expected) => {
+    expect(oppositeSwipeDirection(direction)).toBe(expected);
   });
 });

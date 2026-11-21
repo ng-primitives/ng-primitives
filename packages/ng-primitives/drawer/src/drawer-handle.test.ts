@@ -25,13 +25,24 @@ function createController(id: number, calls: string[]): NgpDrawerHandleControlle
 
 describe('createDrawerHandle', () => {
   it('is a no-op before attach and after detach', () => {
-    const handle = createDrawerHandle<{ id: number }>();
-    expect(() => {
+    const handle = createDrawerHandle<TestPayload>();
+    const exerciseAll = () => {
       handle.open({ id: 1 });
       handle.close();
       handle.toggle();
       handle.unmount();
-    }).not.toThrow();
+    };
+
+    expect(exerciseAll).not.toThrow();
+    expect(handle.opened()).toBe(false);
+    expect(handle.payload()).toBeUndefined();
+
+    const calls: string[] = [];
+    const detach = setDrawerHandleController(handle, createController(1, calls));
+    detach();
+
+    expect(exerciseAll).not.toThrow();
+    expect(calls).toEqual([]);
     expect(handle.opened()).toBe(false);
     expect(handle.payload()).toBeUndefined();
   });

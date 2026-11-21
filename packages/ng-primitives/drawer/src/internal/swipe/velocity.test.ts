@@ -23,8 +23,12 @@ describe('DrawerVelocityTracker', () => {
     const tracker = new DrawerVelocityTracker();
     tracker.add({ x: 0, y: 0, time: 10 });
     tracker.add({ x: 100, y: 0, time: 5 });
-    expect(tracker.read({ x: 0, y: 0, time: 10 }).total).toEqual({ x: 0, y: 0 });
+    // Had the earlier sample been accepted, the release would read as a fast move back to x=0.
+    expect(tracker.read({ x: 0, y: 0, time: 10 }).recent).toEqual({ x: 0, y: 0 });
     tracker.reset();
-    expect(tracker.read({ x: 0, y: 0, time: 20 }).total).toEqual({ x: 0, y: 0 });
+    expect(tracker.read({ x: 50, y: 0, time: 20 })).toEqual({
+      total: { x: 0, y: 0 },
+      recent: { x: 0, y: 0 },
+    });
   });
 });

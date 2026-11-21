@@ -352,6 +352,8 @@ function expectExactRemovals(
   registrations: ListenerCall[],
   removeEventListener: ReturnType<typeof vi.spyOn>,
 ): void {
+  // An empty capture would make the loop below pass without checking anything.
+  expect(registrations).not.toHaveLength(0);
   for (const [type, listener, options] of registrations) {
     expect(options).toBe(true);
     expect(removeEventListener).toHaveBeenCalledWith(type, listener, options);
@@ -362,6 +364,7 @@ function expectExactTouchRemovals(
   registrations: ListenerCall[],
   removeEventListener: ReturnType<typeof vi.spyOn>,
 ): void {
+  expect(registrations).not.toHaveLength(0);
   for (const [type, listener, options] of registrations) {
     expect(removeEventListener).toHaveBeenCalledWith(type, listener, options);
   }

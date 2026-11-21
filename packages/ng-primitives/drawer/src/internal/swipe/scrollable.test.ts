@@ -11,6 +11,15 @@ import {
   shouldTransferToDrawer,
 } from './scrollable';
 
+const mounted: Element[] = [];
+
+/** Appends to the body and removes it after the test, even when an assertion fails. */
+function mount<T extends Element>(element: T): T {
+  document.body.append(element);
+  mounted.push(element);
+  return element;
+}
+
 function dimensions(element: HTMLElement, values: Partial<Record<string, number>>): void {
   for (const [key, value] of Object.entries(values)) {
     Object.defineProperty(element, key, { configurable: true, value, writable: true });
@@ -22,12 +31,17 @@ function rtlScroller(scrollLeft: number): HTMLElement {
   const element = document.createElement('div');
   element.style.direction = 'rtl';
   element.style.overflowX = 'auto';
-  document.body.append(element);
+  mount(element);
   dimensions(element, { scrollLeft, clientWidth: 100, scrollWidth: 200 });
   return element;
 }
 
 describe('scrollable swipe arbitration', () => {
+  afterEach(() => {
+    document.getSelection()?.removeAllRanges();
+    mounted.splice(0).forEach(element => element.remove());
+  });
+
   it.each([
     ['down', 20, true],
     ['down', -20, false],
@@ -103,7 +117,6 @@ describe('scrollable swipe arbitration', () => {
     (direction, scrollLeft, expected) => {
       const element = rtlScroller(scrollLeft);
       expect(isAtDismissEdge(element, direction)).toBe(expected);
-      element.remove();
     },
   );
 
@@ -119,7 +132,6 @@ describe('scrollable swipe arbitration', () => {
     (direction, scrollLeft, delta, expected) => {
       const element = rtlScroller(scrollLeft);
       expect(canConsumeTouchDelta(element, direction, delta)).toBe(expected);
-      element.remove();
     },
   );
 
@@ -133,7 +145,6 @@ describe('scrollable swipe arbitration', () => {
     (direction, scrollLeft, delta, expected) => {
       const element = rtlScroller(scrollLeft);
       expect(shouldTransferToDrawer(element, direction, delta)).toBe(expected);
-      element.remove();
     },
   );
 
@@ -146,10 +157,9 @@ describe('scrollable swipe arbitration', () => {
       clientWidth: 100,
       scrollWidth: 100,
     });
-    document.body.append(element);
+    mount(element);
     expect(canScrollAxis(element, 'y')).toBe(false);
     expect(canScrollAxis(element, 'x')).toBe(false);
-    element.remove();
   });
 
   it.each([
@@ -186,9 +196,8 @@ describe('scrollable swipe arbitration', () => {
     const child = document.createElement('span');
     shadow.append(child);
     boundary.append(host);
-    document.body.append(boundary);
+    mount(boundary);
     expect(findRelevantScrollable(child, boundary, 'down')).toBe(boundary);
-    boundary.remove();
   });
 
   it('does not treat a cross-axis scroller as relevant', () => {
@@ -197,9 +206,8 @@ describe('scrollable swipe arbitration', () => {
     child.style.overflowX = 'auto';
     dimensions(child, { clientWidth: 100, scrollWidth: 200 });
     boundary.append(child);
-    document.body.append(boundary);
+    mount(boundary);
     expect(findRelevantScrollable(child, boundary, 'down')).toBeNull();
-    boundary.remove();
   });
 
   it('captures the nearest nested Drawer-axis and cross-axis scrollables independently', () => {
@@ -214,13 +222,12 @@ describe('scrollable swipe arbitration', () => {
     horizontal.append(child);
     vertical.append(horizontal);
     boundary.append(vertical);
-    document.body.append(boundary);
+    mount(boundary);
 
     expect(findTouchScrollContext(child, boundary, 'down')).toEqual({
       crossAxis: horizontal,
       drawerAxis: vertical,
     });
-    boundary.remove();
   });
 
   it('lets an outer ancestor consume when the nested scroller is at its edge', () => {
@@ -235,7 +242,7 @@ describe('scrollable swipe arbitration', () => {
     inner.append(child);
     outer.append(inner);
     boundary.append(outer);
-    document.body.append(boundary);
+    mount(boundary);
 
     expect(findRelevantScrollable(child, boundary, 'down')).toBe(inner);
     expect(findConsumingScrollable(child, boundary, 'down', 20)).toBe(outer);
@@ -243,7 +250,6 @@ describe('scrollable swipe arbitration', () => {
     outer.scrollTop = 0;
     expect(findConsumingScrollable(child, boundary, 'down', 20)).toBeNull();
     expect(canTransferTouchToDrawer(child, boundary, 'down', 20)).toBe(true);
-    boundary.remove();
   });
 
   it('walks through an assigned slot and a ShadowRoot host', () => {
@@ -257,18 +263,17 @@ describe('scrollable swipe arbitration', () => {
     const assigned = document.createElement('span');
     host.append(assigned);
     boundary.append(host);
-    document.body.append(boundary);
+    mount(boundary);
     expect(assigned.assignedSlot).toBe(slot);
     expect(findRelevantScrollable(assigned, boundary, 'right')).toBe(boundary);
-    boundary.remove();
   });
 
-  it('protects explicit markers, ranges, selection, and mouse controls', () => {
+  it('protects explicit markers, ranges, editable fields, and mouse controls', () => {
     const content = document.createElement('div');
     content.dataset['drawerContent'] = '';
     const button = document.createElement('button');
     content.append(button);
-    document.body.append(content);
+    mount(content);
     expect(shouldIgnoreSwipeTarget(button, 'mouse')).toBe(true);
     expect(shouldIgnoreSwipeTarget(button, 'touch')).toBe(false);
     const range = document.createElement('input');
@@ -279,17 +284,29 @@ describe('scrollable swipe arbitration', () => {
     const editable = document.createElement('div');
     editable.setAttribute('contenteditable', 'true');
     expect(shouldIgnoreSwipeTarget(editable, 'touch')).toBe(true);
-    content.remove();
   });
 
-  it('recognizes ignore and editing ancestors across a shadow boundary', () => {
+  it('protects a target while a text selection is active', () => {
+    const text = mount(document.createElement('p'));
+    text.textContent = 'Selectable copy';
+    expect(shouldIgnoreSwipeTarget(text, 'touch')).toBe(false);
+
+    document.getSelection()?.selectAllChildren(text);
+    expect(shouldIgnoreSwipeTarget(text, 'touch')).toBe(true);
+  });
+
+  it('recognizes ignore and editing hosts across a shadow boundary', () => {
     const host = document.createElement('div');
     host.dataset['ngpDrawerSwipeIgnore'] = '';
     const shadow = host.attachShadow({ mode: 'open' });
     const child = document.createElement('span');
     shadow.append(child);
-    document.body.append(host);
+    mount(host);
     expect(shouldIgnoreSwipeTarget(child, 'touch')).toBe(true);
-    host.remove();
+
+    delete host.dataset['ngpDrawerSwipeIgnore'];
+    expect(shouldIgnoreSwipeTarget(child, 'touch')).toBe(false);
+    host.setAttribute('contenteditable', 'true');
+    expect(shouldIgnoreSwipeTarget(child, 'touch')).toBe(true);
   });
 });
