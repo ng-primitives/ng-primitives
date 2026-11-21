@@ -2,6 +2,7 @@ import { Component, signal, viewChild } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Event as RouterEvent, NavigationStart, Router } from '@angular/router';
 import { Subject } from 'rxjs';
+import { userEvent } from 'vitest/browser';
 import { NgpDrawerBackdrop } from './backdrop/drawer-backdrop';
 import { NgpDrawerDescription } from './description/drawer-description';
 import { NgpDrawer } from './drawer/drawer';
@@ -65,6 +66,59 @@ class PortalHost {
   readonly keepMounted = signal(false);
   readonly rapidCycleMotion = signal(false);
   readonly root = viewChild.required(NgpDrawer);
+}
+
+@Component({
+  imports: [NgpDrawerBackdrop, NgpDrawerPopup, NgpDrawerPortal, NgpDrawer, NgpDrawerViewport],
+  template: `
+    <button class="page-button" (click)="pageClicks = pageClicks + 1" data-test-page-button>
+      Page
+    </button>
+    <ng-container [disablePointerDismissal]="true" [modal]="false" ngpDrawer>
+      <ng-template ngpDrawerPortal>
+        <div class="backdrop" data-test-backdrop ngpDrawerBackdrop></div>
+        <div class="viewport" ngpDrawerViewport>
+          <section class="popup" data-test-popup ngpDrawerPopup>Drawer</section>
+        </div>
+      </ng-template>
+    </ng-container>
+  `,
+  styles: `
+    .page-button {
+      position: fixed;
+      top: 16px;
+      left: 16px;
+    }
+    .backdrop {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      width: 100px;
+      height: 100px;
+    }
+    .viewport {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+    }
+    .popup {
+      position: fixed;
+      top: 0;
+      right: 0;
+      width: 200px;
+      height: 100%;
+      pointer-events: auto;
+    }
+  `,
+})
+class NonModalHitTestHost {
+  pageClicks = 0;
+  readonly root = viewChild.required(NgpDrawer);
+}
+
+function hitTargetAtCenter(element: Element): Element | null {
+  const rect = element.getBoundingClientRect();
+  return document.elementFromPoint(rect.left + rect.width / 2, rect.top + rect.height / 2);
 }
 
 describe('NgpDrawerPortal', () => {
@@ -338,5 +392,32 @@ describe('NgpDrawerPortal', () => {
     expect(host.root().open()).toBe(true);
     expect(host.handle.payload()).toEqual({ id: 'B' });
     expect(document.querySelectorAll('[data-ngp-drawer-overlay-host]')).toHaveLength(1);
+  });
+
+  it('lets page clicks through the overlay host while its parts stay targetable', async () => {
+    const hitFixture = TestBed.createComponent(NonModalHitTestHost);
+    hitFixture.detectChanges();
+    try {
+      hitFixture.componentInstance.root().show();
+      hitFixture.detectChanges();
+      await vi.waitFor(() =>
+        expect(document.querySelector('[data-test-popup]')?.getAttribute('data-open')).toBe(''),
+      );
+      const pageButton = (hitFixture.nativeElement as HTMLElement).querySelector<HTMLElement>(
+        '[data-test-page-button]',
+      )!;
+      const popup = document.querySelector<HTMLElement>('[data-test-popup]')!;
+      const backdrop = document.querySelector<HTMLElement>('[data-test-backdrop]')!;
+
+      expect(hitTargetAtCenter(pageButton)).toBe(pageButton);
+      expect(hitTargetAtCenter(popup)).toBe(popup);
+      expect(hitTargetAtCenter(backdrop)).toBe(backdrop);
+
+      await userEvent.click(pageButton);
+      expect(hitFixture.componentInstance.pageClicks).toBe(1);
+      expect(hitFixture.componentInstance.root().open()).toBe(true);
+    } finally {
+      hitFixture.destroy();
+    }
   });
 });
