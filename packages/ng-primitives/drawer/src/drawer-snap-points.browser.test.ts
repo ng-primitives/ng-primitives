@@ -640,6 +640,22 @@ describe('Drawer snap point integration', () => {
     expect(popup.style.getPropertyValue('--ngp-drawer-swipe-progress')).toBe('0');
   });
 
+  it.each([{ remaining: ['100px'] as const }, { remaining: [] as const }])(
+    'clears snap progress when the points shrink to $remaining',
+    async ({ remaining }) => {
+      fixture.componentInstance.active.set('100px');
+      fixture.detectChanges();
+      const { popup } = await openDrawer();
+      expect(popup.style.getPropertyValue('--ngp-drawer-swipe-progress')).toBe('1');
+
+      fixture.componentInstance.points.set(remaining);
+      fixture.detectChanges();
+      await fixture.whenStable();
+
+      expect(popup.style.getPropertyValue('--ngp-drawer-swipe-progress')).toBe('0');
+    },
+  );
+
   it('preserves an explicit null snap point across a close and a reopen', async () => {
     fixture.componentInstance.active.set(null);
     fixture.detectChanges();

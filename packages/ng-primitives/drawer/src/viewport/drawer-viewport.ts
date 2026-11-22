@@ -167,6 +167,7 @@ export class NgpDrawerViewport {
     rootFontSize: 16,
   };
   private retainingExitVisuals = false;
+  private snapProgressPublished = false;
   private exitEndingSeen = false;
   private readonly snapSnapshots = new Map<HTMLElement, InlineSnapSnapshot>();
   private resizeObserver: ResizeObserver | null = null;
@@ -1325,26 +1326,33 @@ export class NgpDrawerViewport {
     // Published after the loop: releasing ownership notifies nested visuals synchronously, and it
     // must re-apply its freeze on top of `restoreSnapElement`, not before it.
     this.state.setSnapHeightOwned(ownsHeight);
-    if (
-      !this.engine.active &&
-      renderState.open &&
-      !renderState.endingStyle &&
-      vertical &&
-      points.length >= 2
-    ) {
-      const progress = active
-        ? this.resolveSnapProgress(points, active.offset)
-        : renderState.snapPoint === null
-          ? 0
-          : null;
+    if (!this.engine.active && renderState.open && !renderState.endingStyle && vertical) {
+      const progress = this.resolveIdleProgress(points, active, renderState.snapPoint);
       if (progress === null) {
         return;
       }
+      this.snapProgressPublished = points.length >= 2;
       this.state.visualStore.set({ progress });
       for (const element of elements) {
         element.style.setProperty(NGP_DRAWER_CSS_VARIABLES.swipeProgress, `${progress}`);
       }
     }
+  }
+
+  private resolveIdleProgress(
+    points: readonly ResolvedDrawerSnapPoint[],
+    active: ResolvedDrawerSnapPoint | null,
+    snapPoint: NgpDrawerSnapPoint | null,
+  ): number | null {
+    if (points.length < 2) {
+      // Fewer than two points span no range. Progress published while there was one is cleared
+      // once, so the backdrop, provider and nested visuals stop following a stale value.
+      return this.snapProgressPublished ? 0 : null;
+    }
+    if (active) {
+      return this.resolveSnapProgress(points, active.offset);
+    }
+    return snapPoint === null ? 0 : null;
   }
 
   private restoreSnapVisuals(): void {
