@@ -17,6 +17,8 @@ function createController(id: number, calls: string[]): NgpDrawerHandleControlle
     opened,
     payload,
     open: value => calls.push(`open:${value?.id ?? 'none'}:${id}`),
+    openFromTrigger: (_trigger, _event, value) =>
+      calls.push(`openFromTrigger:${value?.id ?? 'none'}:${id}`),
     close: () => calls.push(`close:${id}`),
     toggle: () => calls.push(`toggle:${id}`),
     unmount: () => calls.push(`unmount:${id}`),

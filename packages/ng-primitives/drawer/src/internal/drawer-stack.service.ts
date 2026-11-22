@@ -4,6 +4,7 @@ import { DestroyRef, inject, Injectable } from '@angular/core';
 import {
   BlockScrollStrategy,
   NgpDismissPolicy,
+  NgpOverlayEntry,
   NgpOverlayRegistry,
   ScrollStrategy,
 } from 'ng-primitives/portal';
@@ -90,7 +91,7 @@ export class DrawerStackService {
   };
   private readonly handleCloseWatcherClose = (event: Event): void => {
     const state = this.top();
-    if (!state || this.hasBlockingOverlayAbove(state, 'escapeKey')) {
+    if (!state || this.hasBlockingOverlayAbove(state, 'escapeKey', event)) {
       this.syncCloseWatcher();
       return;
     }
@@ -177,7 +178,11 @@ export class DrawerStackService {
    */
   private registerOverlay(state: DrawerState): void {
     const id = createDrawerId('overlay');
-    const trigger = state.activeTrigger();
+    // The published id comes first: a handle opens with an id alone, which leaves `activeTrigger`
+    // unset or pointing at the trigger of an earlier open.
+    const triggerId = state.triggerId();
+    const trigger =
+      (triggerId ? this.document.getElementById(triggerId) : null) ?? state.activeTrigger();
     this.registryIds.set(state, id);
     this.registry.register({
       id,
@@ -208,16 +213,36 @@ export class DrawerStackService {
    * it - handles this kind of dismissal itself, in which case the drawer must let it go first.
    * Overlays that opt out of a dismissal (tooltips, for example) never block the drawer.
    */
-  private hasBlockingOverlayAbove(state: DrawerState, dismissal: keyof NgpDismissPolicy): boolean {
-    const id = this.registryIds.get(state);
-    if (!id) {
-      return false;
-    }
-    const entries = this.registry.getEntries();
-    const index = entries.findIndex(entry => entry.id === id);
-    return (
-      index >= 0 && entries.slice(index + 1).some(entry => entry.dismissPolicy[dismissal] !== false)
+  private hasBlockingOverlayAbove(
+    state: DrawerState,
+    dismissal: keyof NgpDismissPolicy,
+    event?: Event,
+  ): boolean {
+    return this.overlaysAbove(state).some(
+      entry =>
+        entry.dismissPolicy[dismissal] !== false &&
+        // Such an overlay only takes an Escape pressed inside it, so the registry passes over it
+        // otherwise and the key would reach nobody if the drawer deferred to it.
+        (dismissal !== 'escapeKey' ||
+          !entry.escapeKeyInsideOnly ||
+          this.isInsideOverlay(entry, event)),
     );
+  }
+
+  private overlaysAbove(state: DrawerState): readonly NgpOverlayEntry[] {
+    const id = this.registryIds.get(state);
+    const entries = this.registry.getEntries();
+    const index = id ? entries.findIndex(entry => entry.id === id) : -1;
+    return index >= 0 ? entries.slice(index + 1) : [];
+  }
+
+  private isInsideOverlay(entry: NgpOverlayEntry, event?: Event): boolean {
+    const path = event?.composedPath?.() ?? [];
+    // A CloseWatcher `close` carries no target, so the focused element stands in for it.
+    const target = event?.target instanceof Node ? event.target : this.document.activeElement;
+    return entry
+      .getElements()
+      .some(element => path.includes(element) || (target !== null && element.contains(target)));
   }
 
   private onPointerDown(event: PointerEvent): void {
@@ -287,7 +312,7 @@ export class DrawerStackService {
       return;
     }
     const state = this.top();
-    if (!state || this.hasBlockingOverlayAbove(state, 'escapeKey')) {
+    if (!state || this.hasBlockingOverlayAbove(state, 'escapeKey', event)) {
       return;
     }
     const closed = state.requestOpen(false, 'escape-key', { nativeEvent: event });
@@ -303,7 +328,10 @@ export class DrawerStackService {
     if (
       state?.modal() === false &&
       !state.disablePointerDismissal() &&
-      !state.containsEvent(event)
+      !state.containsEvent(event) &&
+      // A menu, popover or dialog opened from the drawer is portaled out of it, so focus moving
+      // there has not left the drawer.
+      !this.overlaysAbove(state).some(entry => this.isInsideOverlay(entry, event))
     ) {
       state.requestOpen(false, 'focus-out', { nativeEvent: event });
     }

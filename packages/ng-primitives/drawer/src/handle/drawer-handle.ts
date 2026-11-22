@@ -13,6 +13,7 @@ export interface NgpDrawerHandleController<Payload> {
   readonly opened: () => boolean;
   readonly payload: () => Payload | undefined;
   open(payload?: Payload, triggerId?: string): void;
+  openFromTrigger(trigger: HTMLElement, nativeEvent: Event, payload?: Payload): void;
   close(): void;
   toggle(): void;
   unmount(): void;
@@ -27,6 +28,10 @@ class DrawerHandleImpl<Payload> implements NgpDrawerHandle<Payload> {
 
   open(payload?: Payload, triggerId?: string): void {
     this.controller()?.open(payload, triggerId);
+  }
+
+  openFromTrigger(trigger: HTMLElement, nativeEvent: Event, payload?: Payload): void {
+    this.controller()?.openFromTrigger(trigger, nativeEvent, payload);
   }
 
   close(): void {
@@ -71,4 +76,17 @@ export function setDrawerHandleController<Payload>(
     throw new Error('ngpDrawer: handle must be created with createDrawerHandle().');
   }
   return handle.attach(controller);
+}
+
+/** @internal Used only by NgpDrawerTrigger, so a detached trigger opens as a trigger press. */
+export function openDrawerHandleFromTrigger<Payload>(
+  handle: NgpDrawerHandle<Payload>,
+  trigger: HTMLElement,
+  nativeEvent: Event,
+  payload?: Payload,
+): void {
+  if (!(handle instanceof DrawerHandleImpl)) {
+    throw new Error('ngpDrawer: handle must be created with createDrawerHandle().');
+  }
+  handle.openFromTrigger(trigger, nativeEvent, payload);
 }

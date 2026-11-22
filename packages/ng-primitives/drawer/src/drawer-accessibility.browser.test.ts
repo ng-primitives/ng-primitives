@@ -1,10 +1,11 @@
 import { Component, signal, viewChild, viewChildren } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { NgpOverlayRegistry } from 'ng-primitives/portal';
 import { NgpDrawerBackdrop } from './backdrop/drawer-backdrop';
 import { NgpDrawerClose } from './close/drawer-close';
 import { NgpDrawerDescription } from './description/drawer-description';
 import { animationFrame, waitForElement } from './drawer-browser.fixture';
-import { NgpDrawerFocusTarget, NgpDrawerModal } from './drawer.types';
+import { NgpDrawerFocusTarget, NgpDrawerModal, NgpDrawerOpenChangeEvent } from './drawer.types';
 import { NgpDrawer } from './drawer/drawer';
 import { createDrawerHandle } from './handle/drawer-handle';
 import { NgpDrawerPopup } from './popup/drawer-popup';
@@ -193,6 +194,55 @@ describe('Drawer accessibility', () => {
     await vi.waitFor(() => expect(document.activeElement).toBe(trigger));
   });
 
+  describe('a detached trigger inside another overlay', () => {
+    let trigger: HTMLElement;
+    let events: NgpDrawerOpenChangeEvent[];
+    let registry: NgpOverlayRegistry;
+
+    beforeEach(async () => {
+      await createAccessibilityFixture();
+      trigger = (fixture!.nativeElement as HTMLElement).querySelector<HTMLElement>(
+        '[data-test-detached-trigger]',
+      )!;
+      events = [];
+      fixture!.componentInstance.root().beforeOpenChange.subscribe(event => events.push(event));
+      registry = TestBed.inject(NgpOverlayRegistry);
+      registry.register({
+        id: 'test-parent',
+        parentId: null,
+        overlay: { hide: () => undefined, hideImmediate: () => undefined },
+        getElements: () => [fixture!.nativeElement as HTMLElement],
+        triggerElement: document.body,
+        dismissPolicy: { outsidePress: false, escapeKey: false },
+      });
+    });
+
+    afterEach(() => registry.deregister('test-parent'));
+
+    async function drawerParentId(): Promise<string | null | undefined> {
+      fixture!.detectChanges();
+      const popup = await waitForElement('[data-test-popup]');
+      return registry.getEntries().find(entry => entry.getElements().includes(popup))?.parentId;
+    }
+
+    it('opens as a trigger press', async () => {
+      trigger.click();
+
+      expect(await drawerParentId()).toBe('test-parent');
+      expect(events).toHaveLength(1);
+      expect(events[0].reason).toBe('trigger-press');
+      expect(events[0].trigger).toBe(trigger);
+      expect(events[0].nativeEvent).toBeInstanceOf(MouseEvent);
+    });
+
+    it('stacks under the trigger overlay when the handle opens it by id', async () => {
+      fixture!.componentInstance.handle.open(undefined, trigger.id);
+
+      expect(await drawerParentId()).toBe('test-parent');
+      expect(events[0].reason).toBe('imperative');
+    });
+  });
+
   it('restores focus to the current triggerId instead of a stale active trigger', async () => {
     await createAccessibilityFixture();
     const inTreeTrigger = (fixture!.nativeElement as HTMLElement).querySelector<HTMLElement>(
@@ -242,7 +292,8 @@ describe('Drawer accessibility', () => {
     await vi.waitFor(() => expect(document.activeElement).toBe(inTreeTrigger));
 
     prior.focus();
-    detachedTrigger.click();
+    // Opening by id alone publishes the trigger id but leaves the active trigger untouched.
+    fixture!.componentInstance.handle.open(undefined, detachedTrigger.id);
     fixture!.detectChanges();
     await waitForPopupFocus();
     fixture!.componentInstance.showDetachedTrigger.set(false);

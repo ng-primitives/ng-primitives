@@ -20,7 +20,12 @@ export class DrawerPortalAdapter {
   ) {}
 
   attach(): void {
-    if (this.hasAttached()) {
+    if (this.portal && this.ownedHost) {
+      // The view is reused for as long as this adapter owns one. A host that left the document
+      // with its container goes back in, rather than a second host and view being created.
+      if (!this.ownedHost.isConnected) {
+        (this.container ?? this.document.body).append(this.ownedHost);
+      }
       this.bringDefaultHostToFront();
       this.show();
       return;
@@ -53,10 +58,6 @@ export class DrawerPortalAdapter {
     // The drawer drives its own enter/exit transitions through `data-starting-style` and
     // `data-ending-style`, so the portal must not defer the enter state by a frame.
     this.portal.attach(host, { immediate: true });
-  }
-
-  hasAttached(): boolean {
-    return this.portal?.getAttached() === true;
   }
 
   get hostElement(): HTMLElement | null {

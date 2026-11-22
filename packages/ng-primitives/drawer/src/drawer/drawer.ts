@@ -353,6 +353,8 @@ export class NgpDrawer {
       payload: () => this.payload(),
       open: (payload, triggerId) =>
         void this.requestOpen(true, 'imperative', null, null, payload, triggerId),
+      openFromTrigger: (trigger, nativeEvent, payload) =>
+        void this.requestOpen(true, 'trigger-press', nativeEvent, trigger, payload),
       close: () => this.requestOpen(false, 'imperative'),
       toggle: () => this.requestOpen(!this.open(), 'imperative'),
       unmount: () => this.unmount(),

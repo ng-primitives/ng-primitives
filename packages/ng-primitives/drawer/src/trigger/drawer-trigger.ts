@@ -2,7 +2,7 @@ import { booleanAttribute, DestroyRef, Directive, inject, input } from '@angular
 import { injectElementRef } from 'ng-primitives/internal';
 import { attrBinding, dataBinding } from 'ng-primitives/state';
 import { NGP_DRAWER_DATA_ATTRIBUTES } from '../drawer.constants';
-import { NgpDrawerHandle } from '../handle/drawer-handle';
+import { NgpDrawerHandle, openDrawerHandleFromTrigger } from '../handle/drawer-handle';
 import { createDrawerId, isNativeInteractiveElement } from '../internal/dom';
 import { injectDrawerState } from '../internal/drawer-state';
 
@@ -54,7 +54,12 @@ export class NgpDrawerTrigger {
     }
     const handle = this.ngpDrawerHandle();
     if (handle) {
-      handle.open(this.ngpDrawerPayload(), this.elementRef.nativeElement.id);
+      openDrawerHandleFromTrigger(
+        handle,
+        this.elementRef.nativeElement,
+        event,
+        this.ngpDrawerPayload(),
+      );
       return;
     }
     const state = this.stateRef();

@@ -1,5 +1,6 @@
 import { DOCUMENT } from '@angular/common';
 import { DestroyRef, Directive, inject } from '@angular/core';
+import { DrawerStackService } from '../internal/drawer-stack.service';
 import {
   ngpDrawerVirtualKeyboard,
   provideDrawerVirtualKeyboardState,
@@ -11,7 +12,10 @@ import {
   providers: [provideDrawerVirtualKeyboardState({ inherit: false })],
 })
 export class NgpDrawerVirtualKeyboard {
-  private readonly context = ngpDrawerVirtualKeyboard({ document: inject(DOCUMENT) });
+  private readonly context = ngpDrawerVirtualKeyboard({
+    document: inject(DOCUMENT),
+    stack: inject(DrawerStackService),
+  });
 
   constructor() {
     inject(DestroyRef).onDestroy(() => this.context.destroy());

@@ -299,6 +299,65 @@ describe('Drawer dismissal', () => {
     }
   });
 
+  it('stays open when focus moves into an overlay stacked above it', async () => {
+    await createDismissalFixture();
+    const popup = await openDrawer();
+    const registry = TestBed.inject(NgpOverlayRegistry);
+    const menu = document.createElement('div');
+    const menuItem = document.createElement('button');
+    menu.append(menuItem);
+    document.body.append(menu);
+    registry.register({
+      id: 'test-menu',
+      parentId: registry.getTopmost()?.id ?? null,
+      overlay: { hide: () => undefined, hideImmediate: () => undefined },
+      getElements: () => [menu],
+      triggerElement: popup,
+      dismissPolicy: { outsidePress: true, escapeKey: true },
+    });
+
+    try {
+      menuItem.focus();
+      fixture!.detectChanges();
+
+      expect(fixture!.componentInstance.root().open()).toBe(true);
+    } finally {
+      registry.deregister('test-menu');
+      menu.remove();
+    }
+  });
+
+  it('defers Escape to an inside-only overlay above it only when pressed inside that overlay', async () => {
+    await createDismissalFixture();
+    const popup = await openDrawer();
+    const registry = TestBed.inject(NgpOverlayRegistry);
+    const dialog = document.createElement('div');
+    document.body.append(dialog);
+    registry.register({
+      id: 'test-dialog',
+      parentId: registry.getTopmost()?.id ?? null,
+      overlay: { hide: () => undefined, hideImmediate: () => undefined },
+      getElements: () => [dialog],
+      triggerElement: popup,
+      dismissPolicy: { outsidePress: true, escapeKey: true },
+      escapeKeyInsideOnly: true,
+    });
+
+    try {
+      dialog.dispatchEvent(new KeyboardEvent('keydown', { bubbles: true, key: 'Escape' }));
+      fixture!.detectChanges();
+      expect(fixture!.componentInstance.root().open()).toBe(true);
+
+      popup.dispatchEvent(new KeyboardEvent('keydown', { bubbles: true, key: 'Escape' }));
+      fixture!.detectChanges();
+      expect(fixture!.componentInstance.root().open()).toBe(false);
+      expect(fixture!.componentInstance.reasons.at(-1)).toBe('escape-key');
+    } finally {
+      registry.deregister('test-dialog');
+      dialog.remove();
+    }
+  });
+
   it('deregisters from the overlay registry when it closes', async () => {
     await createDismissalFixture();
     const registry = TestBed.inject(NgpOverlayRegistry);

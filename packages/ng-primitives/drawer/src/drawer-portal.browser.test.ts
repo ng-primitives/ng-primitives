@@ -363,6 +363,34 @@ describe('NgpDrawerPortal', () => {
     });
   });
 
+  it('reuses the retained view when its custom container left the document', async () => {
+    fixture.componentInstance.custom.set(1);
+    fixture.componentInstance.keepMounted.set(true);
+    fixture.componentInstance.root().show();
+    fixture.detectChanges();
+    const container = (fixture.nativeElement as HTMLElement).querySelector<HTMLElement>(
+      '[data-test-custom-container="first"]',
+    )!;
+    const hosts = () => container.querySelectorAll<HTMLElement>('[data-ngp-drawer-custom-host]');
+    await vi.waitFor(() => expect(hosts()).toHaveLength(1));
+
+    fixture.componentInstance.root().hide();
+    fixture.detectChanges();
+    await vi.waitFor(() => expect(hosts()[0].hidden).toBe(true));
+    const parent = container.parentElement!;
+    const next = container.nextSibling;
+    container.remove();
+
+    try {
+      fixture.componentInstance.root().show();
+      fixture.detectChanges();
+      await vi.waitFor(() => expect(hosts()[0].hidden).toBe(false));
+      expect(hosts()).toHaveLength(1);
+    } finally {
+      parent.insertBefore(container, next);
+    }
+  });
+
   it('invalidates a stale exit when reopened and cleans up on destroy', async () => {
     fixture.componentInstance.root().show();
     fixture.detectChanges();

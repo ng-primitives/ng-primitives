@@ -1,4 +1,4 @@
-import { computed, isDevMode, signal, Signal, WritableSignal } from '@angular/core';
+import { computed, isDevMode, linkedSignal, signal, Signal, WritableSignal } from '@angular/core';
 import { createPrimitive } from 'ng-primitives/state';
 import {
   NgpDrawerChangeReason,
@@ -122,10 +122,23 @@ export function createDrawerState(props: DrawerStateProps): DrawerState {
   const nestedVisualStore = new DrawerVisualStateStore();
   const nestedUnsubscribers = new Map<DrawerState, () => void>();
 
+  // `nestedChildren` is ordered by registration, which is not the painting order: the child in
+  // front is the one opened last, so open children are kept in the order they opened.
+  const openChildren = linkedSignal<DrawerState[], DrawerState[]>({
+    source: () => {
+      nestedVersion();
+      return [...nestedChildren].filter(child => child.open());
+    },
+    computation: (open, previous) => {
+      const kept = (previous?.value ?? []).filter(child => open.includes(child));
+      return [...kept, ...open.filter(child => !kept.includes(child))];
+    },
+  });
+
   const syncNestedVisuals = (): void => {
-    const frontmost = [...nestedChildren]
-      .filter(child => child.open() || child.portalVisible())
-      .at(-1);
+    // A child still playing its exit is behind every open one.
+    const frontmost =
+      openChildren().at(-1) ?? [...nestedChildren].filter(child => child.portalVisible()).at(-1);
     const snapshot = frontmost?.visualStore.getSnapshot();
     nestedVisualStore.set({
       progress: snapshot?.progress ?? 0,
@@ -192,8 +205,8 @@ export function createDrawerState(props: DrawerStateProps): DrawerState {
       // A reused child keeps its last measured popup height for swipe geometry. It must not hand
       // that cached value to its ancestor before this entry's initial frame completes; otherwise
       // a reopened parent skips the same stable starting geometry it had on the first open.
-      const child = [...nestedChildren]
-        .filter(value => value.open() && value.popupGeometryReady())
+      const child = openChildren()
+        .filter(value => value.popupGeometryReady())
         .at(-1);
       return child?.frontmostHeight() ?? popupHeight();
     }),

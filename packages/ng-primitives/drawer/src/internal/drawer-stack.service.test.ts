@@ -145,6 +145,7 @@ function fakeState(overrides: Partial<Pick<DrawerState, 'requestOpen'>> = {}): D
   return {
     modal: () => false,
     activeTrigger: () => null,
+    triggerId: () => null,
     popup: () => null,
     viewport: () => null,
     backdrop: () => null,
