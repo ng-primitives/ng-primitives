@@ -25,7 +25,7 @@ export default defineConfig(({ mode }) => ({
       ignoreSourceErrors: true,
       tsconfig: './tsconfig.vitest.json',
     },
-    exclude: ['schematics/**/*.node.test.ts'],
+    exclude: ['schematics/**/*.node.test.ts', '**/*.browser.test.ts'],
     reporters: ['default'],
     coverage: {
       provider: 'v8',
