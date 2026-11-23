@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 import { render, waitFor } from '@testing-library/angular';
-import { NgpError, NgpFormControl, NgpFormField } from 'ng-primitives/form-field';
+import { NgpDescription, NgpError, NgpFormControl, NgpFormField } from 'ng-primitives/form-field';
 import { describe, expect, it } from 'vitest';
 
 describe('NgpError', () => {
@@ -286,6 +286,75 @@ describe('NgpError', () => {
     await rerender({ componentProperties: { showError: false, control } });
     fixture.detectChanges();
     expect(input).not.toHaveAttribute('aria-describedby');
+  });
+
+  it('should unregister when destroyed by the change that clears its error', async () => {
+    @Component({
+      template: `
+        <div ngpFormField>
+          <input [formControl]="control" ngpFormControl />
+          <p id="description" ngpDescription>Description</p>
+          @if (control.hasError('required')) {
+            <p ngpError ngpErrorValidator="required">Required Error</p>
+          }
+        </div>
+      `,
+      imports: [NgpFormField, NgpDescription, NgpError, NgpFormControl, ReactiveFormsModule],
+    })
+    class TestComponent {
+      control = new FormControl('', [Validators.required]);
+    }
+
+    const { container, fixture } = await render(TestComponent);
+    const input = container.querySelector('input');
+    const errorId = () => container.querySelector('[ngpError]')?.id;
+
+    expect(input).toHaveAttribute('aria-describedby', `description ${errorId()}`);
+
+    fixture.componentInstance.control.setValue('valid');
+    fixture.detectChanges();
+
+    expect(container.querySelector('[ngpError]')).not.toBeInTheDocument();
+    expect(input).toHaveAttribute('aria-describedby', 'description');
+
+    fixture.componentInstance.control.setValue('');
+    fixture.detectChanges();
+
+    expect(input).toHaveAttribute('aria-describedby', `description ${errorId()}`);
+
+    fixture.componentInstance.control.setValue('valid');
+    fixture.detectChanges();
+
+    expect(input).toHaveAttribute('aria-describedby', 'description');
+  });
+
+  it('should keep an id shared with a showing error when a passing one is destroyed', async () => {
+    @Component({
+      template: `
+        <div ngpFormField>
+          <input [formControl]="control" ngpFormControl />
+          <p id="email-error" ngpError ngpErrorValidator="email">Invalid</p>
+          @if (showRequired) {
+            <p id="email-error" ngpError ngpErrorValidator="required">Required</p>
+          }
+        </div>
+      `,
+      imports: [NgpFormField, NgpError, NgpFormControl, ReactiveFormsModule],
+    })
+    class TestComponent {
+      showRequired = true;
+      control = new FormControl('not-an-email', [Validators.required, Validators.email]);
+    }
+
+    const { container, fixture } = await render(TestComponent);
+    const input = container.querySelector('input');
+
+    expect(input).toHaveAttribute('aria-describedby', 'email-error');
+
+    fixture.componentInstance.showRequired = false;
+    fixture.detectChanges();
+
+    expect(input).toHaveAttribute('aria-describedby', 'email-error');
   });
 
   it('should handle async validation errors', async () => {

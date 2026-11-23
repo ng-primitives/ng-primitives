@@ -267,6 +267,10 @@ export const [NgpFormFieldStateToken, ngpFormField, injectFormFieldState, provid
     }
 
     function removeDescription(description: string): void {
+      if (!descriptions().includes(description)) {
+        return;
+      }
+
       descriptions.update(currentDescriptions =>
         currentDescriptions.filter(d => d !== description),
       );

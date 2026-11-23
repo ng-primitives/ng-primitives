@@ -64,39 +64,37 @@ export const [NgpErrorStateToken, ngpError, injectErrorState, provideErrorState]
     dataBinding(element, 'data-disabled', () => (formField()?.disabled() ? '' : null));
     dataBinding(element, 'data-validator', state);
 
-    let currentId = id();
+    // The id this instance added: ids are not reference counted by the form field, so an error
+    // that never registered must not remove an id another element shares.
+    let registeredId: string | undefined;
 
-    // Register/unregister with form field based on error state
     function registerError(): void {
-      formField()?.addDescription(currentId);
+      registeredId = id();
+      formField()?.addDescription(registeredId);
     }
 
     function unregisterError(): void {
-      formField()?.removeDescription(currentId);
+      if (registeredId === undefined) {
+        return;
+      }
+      formField()?.removeDescription(registeredId);
+      registeredId = undefined;
     }
 
     // Update error registration when hasError changes
     onBooleanChange(hasError, registerError, unregisterError);
 
-    function updateIdRegistration(newId: string, oldId?: string): void {
-      if (oldId && hasError()) {
-        formField()?.removeDescription(oldId);
-      }
-      currentId = newId;
+    function updateIdRegistration(): void {
+      unregisterError();
       if (hasError()) {
-        formField()?.addDescription(newId);
+        registerError();
       }
     }
 
     // Watch for id changes to update registration
-    explicitEffect([id], () => updateIdRegistration(id(), currentId));
+    explicitEffect([id], updateIdRegistration);
 
-    // Cleanup on destroy
-    onDestroy(() => {
-      if (hasError()) {
-        formField()?.removeDescription(currentId);
-      }
-    });
+    onDestroy(unregisterError);
 
     return {
       id,
