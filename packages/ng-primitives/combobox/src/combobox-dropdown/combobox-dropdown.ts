@@ -9,9 +9,10 @@ import { injectComboboxState } from '../combobox/combobox-state';
   exportAs: 'ngpComboboxDropdown',
   providers: [provideControlContainerIsolation()],
   host: {
-    role: 'listbox',
+    '[attr.role]': 'state().list() ? null : "listbox"',
     '[id]': 'id()',
-    '[attr.aria-multiselectable]': 'state().multiple()',
+    // aria-multiselectable belongs to the listbox, so ngpComboboxList carries it instead
+    '[attr.aria-multiselectable]': 'state().list() ? null : state().multiple()',
     '[attr.data-reference-hidden]': 'state().overlay()?.referenceHidden() ? "" : null',
     '[style.left.px]': 'state().overlay()?.position()?.x',
     '[style.top.px]': 'state().overlay()?.position()?.y',

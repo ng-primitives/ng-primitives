@@ -20,6 +20,7 @@ import {
   NgpComboboxButton,
   NgpComboboxDropdown,
   NgpComboboxInput,
+  NgpComboboxList,
   NgpComboboxOption,
   NgpComboboxPortal,
 } from 'ng-primitives/combobox';
@@ -145,6 +146,39 @@ To let users pick a value that isn't in the list, render a "create" option whose
 
 <docs-example name="combobox-creatable"></docs-example>
 
+### Other Content in the Dropdown
+
+A `listbox` may only contain options. To render anything else in the dropdown, such as the current selection or an "Apply" button, wrap the options in `ngpComboboxList` to keep the accessibility tree valid.
+
+```html
+<div ngpCombobox ngpComboboxMultiple>
+  <input ngpComboboxInput />
+  <div ngpComboboxDropdown>
+    <div ngpComboboxList aria-label="Fruits">
+      @for (option of options; track option) {
+      <div ngpComboboxOption [ngpComboboxOptionValue]="option">{{ option }}</div>
+      }
+    </div>
+    <button type="button">Apply</button>
+  </div>
+</div>
+```
+
+Keep `ngpComboboxList` rendered for as long as the dropdown is: put `@if` and `@for` around the options, and an empty-state message outside the list. A dropdown whose list is removed becomes the `listbox` itself again, with the other content inside it.
+
+```html
+<div ngpComboboxDropdown>
+  <div ngpComboboxList aria-label="Fruits">
+    @for (option of results; track option) {
+    <div ngpComboboxOption [ngpComboboxOptionValue]="option">{{ option }}</div>
+    }
+  </div>
+  @if (results.length === 0) {
+  <p>No results</p>
+  }
+</div>
+```
+
 ## API Reference
 
 The following directives are available to import from the `ng-primitives/combobox` package:
@@ -235,6 +269,14 @@ The input field for the combobox.
   <api-attribute name="data-pending" description="Applied when the input is pending (e.g., async validation)." />
 </api-reference-attributes>
 
+### NgpComboboxList
+
+The list that contains the options when the dropdown holds other content as well.
+
+<api-docs name="NgpComboboxList"></api-docs>
+
+<api-reference-props name="NgpComboboxList"></api-reference-props>
+
 ### NgpComboboxOption
 
 The individual options within the combobox dropdown.
@@ -299,6 +341,8 @@ bootstrapApplication(AppComponent, {
 ## Accessibility
 
 Adheres to the [WAI-ARIA](https://www.w3.org/WAI/ARIA/apg/patterns/combobox/) guidelines for comboboxes.
+
+When an `ngpComboboxList` is used, it takes `role="listbox"` and `aria-multiselectable`, and the input's `aria-controls` points at it. The dropdown takes no role, since focus stays on the input and the list is the popup it controls. Naming is left to the consumer, so add an `aria-label` (or `aria-labelledby`) to the list.
 
 ### Keyboard Interactions
 

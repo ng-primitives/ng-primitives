@@ -17,7 +17,7 @@ import { injectComboboxState } from '../combobox/combobox-state';
     'aria-haspopup': 'listbox',
     'aria-autocomplete': 'list',
     '[id]': 'id()',
-    '[attr.aria-controls]': 'state().open() ? dropdownId() : undefined',
+    '[attr.aria-controls]': 'state().open() ? state().listboxId() : undefined',
     '[attr.aria-expanded]': 'state().open()',
     '[attr.data-open]': 'state().open() ? "" : undefined',
     '[attr.data-disabled]': 'state().disabled() ? "" : undefined',

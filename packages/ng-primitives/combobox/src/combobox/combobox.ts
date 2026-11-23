@@ -29,6 +29,7 @@ import { controlStatus } from 'ng-primitives/utils';
 import type { NgpComboboxButton } from '../combobox-button/combobox-button';
 import type { NgpComboboxDropdown } from '../combobox-dropdown/combobox-dropdown';
 import type { NgpComboboxInput } from '../combobox-input/combobox-input';
+import type { NgpComboboxListState } from '../combobox-list/combobox-list-state';
 import { NgpComboboxOption } from '../combobox-option/combobox-option';
 import type { NgpComboboxPortal } from '../combobox-portal/combobox-portal';
 import { injectComboboxConfig } from '../config/combobox-config';
@@ -180,6 +181,20 @@ export class NgpCombobox {
    * @internal
    */
   readonly dropdown = signal<NgpComboboxDropdown | undefined>(undefined);
+
+  private readonly registeredList = signal<NgpComboboxListState | undefined>(undefined);
+
+  /**
+   * Store the combobox list, when a dedicated listbox wraps the options.
+   * @internal
+   */
+  readonly list = this.registeredList.asReadonly();
+
+  /**
+   * The id of the listbox the combobox controls: the list when there is one, otherwise the dropdown.
+   * @internal
+   */
+  readonly listboxId = computed(() => this.list()?.id() ?? this.dropdown()?.id());
 
   /**
    * Store the combobox options.
@@ -687,6 +702,26 @@ export class NgpCombobox {
   }
 
   /**
+   * Register the list with the combobox.
+   * @param list The list to register.
+   * @internal
+   */
+  registerList(list: NgpComboboxListState): void {
+    this.registeredList.set(list);
+  }
+
+  /**
+   * Unregister the list from the combobox.
+   * @param list The list to unregister.
+   * @internal
+   */
+  unregisterList(list: NgpComboboxListState): void {
+    if (this.list() === list) {
+      this.registeredList.set(undefined);
+    }
+  }
+
+  /**
    * Register an option with the combobox.
    * @param option The option to register.
    * @internal
@@ -735,6 +770,10 @@ export class NgpCombobox {
   protected handleKeydown(event: KeyboardEvent): void {
     // If the event originated from the input element, let the input handle it
     if (this.input() && event.target === this.input()?.elementRef.nativeElement) {
+      return;
+    }
+
+    if (this.isOtherDropdownContent(event.target)) {
       return;
     }
 
@@ -791,6 +830,22 @@ export class NgpCombobox {
         }
         break;
     }
+  }
+
+  /**
+   * Whether the element is content of the dropdown other than an option, such as a button or a
+   * field. Such content handles its own keys, which reach the combobox only when the dropdown is
+   * rendered inside it.
+   */
+  private isOtherDropdownContent(target: EventTarget | null): boolean {
+    const dropdown = this.dropdown()?.elementRef.nativeElement;
+
+    return (
+      target instanceof Element &&
+      target !== dropdown &&
+      !!dropdown?.contains(target) &&
+      !target.closest('[role="option"]')
+    );
   }
 
   /**
