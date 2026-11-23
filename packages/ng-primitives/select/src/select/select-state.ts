@@ -32,6 +32,9 @@ import type { NgpSelectListState } from '../select-list/select-list-state';
 import type { NgpSelectOptionState } from '../select-option/select-option-state';
 import { NgpSelectPortalState } from '../select-portal/select-portal-state';
 
+/** The popup types a select can announce through `aria-haspopup`. */
+export type NgpSelectHasPopup = 'listbox' | 'dialog';
+
 export interface NgpSelectOpenOptions {
   /**
    * Which option to activate once the dropdown has opened and its options have registered.
@@ -78,6 +81,9 @@ export interface NgpSelectState<T> {
 
   /** Whether the dropdown is modal. */
   readonly modal: Signal<boolean>;
+
+  /** The popup type set through the `hasPopup` prop, if any. */
+  readonly hasPopup: Signal<NgpSelectHasPopup | undefined>;
 
   /**
    * A function that will scroll the active option into view. This can be overridden
@@ -342,6 +348,9 @@ export interface NgpSelectProps<T> {
   /** Whether the dropdown is modal: the rest of the page is `inert` while it is open. */
   readonly modal?: Signal<boolean>;
 
+  /** The popup type the select announces through `aria-haspopup`. */
+  readonly hasPopup?: Signal<NgpSelectHasPopup | undefined>;
+
   /**
    * A function that will scroll the active option into view. This can be overridden
    * for cases such as virtual scrolling where we cannot scroll the option directly because
@@ -372,12 +381,15 @@ export const [NgpSelectStateToken, ngpSelect, _injectSelectState, provideSelectS
       flip = signal<NgpFlip>(true),
       offset = signal<NgpOffset>(0),
       modal = signal(false),
+      hasPopup = signal<NgpSelectHasPopup | undefined>(undefined),
       scrollToOption = signal<((index: number) => void) | undefined>(undefined),
       allOptions = signal<T[] | undefined>(undefined),
       onValueChange,
       onOpenChange,
     }: NgpSelectProps<T>): NgpSelectState<T> => {
       const elementRef = injectElementRef<HTMLElement>();
+      // read before the binding below takes the attribute over, so a consumer's own value survives
+      const hostHasPopup = elementRef.nativeElement.getAttribute('aria-haspopup');
       const value = controlled(_value);
       const disabled = controlled(_disabled, false);
       const container = controlled(_container, 'body');
@@ -460,6 +472,9 @@ export const [NgpSelectStateToken, ngpSelect, _injectSelectState, provideSelectS
       attrBinding(elementRef, 'role', () => (input() ? null : 'combobox'));
       attrBinding(elementRef, 'id', id);
       attrBinding(elementRef, 'aria-expanded', () => (input() ? undefined : expanded()));
+      attrBinding(elementRef, 'aria-haspopup', () =>
+        input() ? undefined : (hasPopup() ?? hostHasPopup),
+      );
       attrBinding(elementRef, 'aria-controls', () =>
         input() ? undefined : open() ? (list()?.id() ?? dropdown()?.id()) : undefined,
       );
@@ -981,6 +996,7 @@ export const [NgpSelectStateToken, ngpSelect, _injectSelectState, provideSelectS
         flip,
         offset,
         modal,
+        hasPopup,
         scrollToOption,
         allOptions,
         portal,
