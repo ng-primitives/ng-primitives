@@ -176,10 +176,10 @@ export interface NgpMenuTriggerState<T = unknown> {
   setPointerOverContent(isOver: boolean): void;
 
   /**
-   * The id of the trigger element, which names the menu.
+   * The trigger element, which names the menu.
    * @internal
    */
-  triggerId(): string | null;
+  triggerElement(): HTMLElement | null;
 }
 
 export interface NgpMenuTriggerProps<T = unknown> {
@@ -714,7 +714,7 @@ export const [
       setAnchor,
       setContainer,
       setPointerOverContent,
-      triggerId: () => element.nativeElement.id,
+      triggerElement: () => element.nativeElement,
       flip,
       container: deprecatedSetter(container, 'setContainer', setContainer),
     } satisfies NgpMenuTriggerState<T>;

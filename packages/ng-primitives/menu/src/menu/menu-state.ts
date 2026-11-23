@@ -82,7 +82,7 @@ export const [NgpMenuStateToken, ngpMenu, injectMenuState, provideMenuState] = c
 
     // Host bindings
     attrBinding(element, 'role', 'menu');
-    labelledByTrigger(element, () => menuTrigger()?.triggerId());
+    labelledByTrigger(element, () => menuTrigger()?.triggerElement());
     attrBinding(element, 'data-placement', overlay.finalPlacement);
     dataBinding(element, 'data-reference-hidden', overlay.referenceHidden);
     attrBinding(element, 'data-overlay', '');

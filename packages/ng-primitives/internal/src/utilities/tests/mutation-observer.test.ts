@@ -28,6 +28,25 @@ describe('fromMutationObserver', () => {
     subscription.unsubscribe();
   });
 
+  it('should only emit for the attributes in the filter', async () => {
+    const { fixture } = await render(TestComponent);
+    const { element } = fixture.componentInstance;
+    const callback = vi.fn();
+    const subscription = fromMutationObserver(element, {
+      attributes: true,
+      attributeFilter: ['id'],
+      injector: fixture.debugElement.injector,
+    }).subscribe(callback);
+
+    element.setAttribute('title', 'ignored');
+    await Promise.resolve();
+    expect(callback).not.toHaveBeenCalled();
+
+    element.id = 'observed';
+    await waitFor(() => expect(callback).toHaveBeenCalledOnce());
+    subscription.unsubscribe();
+  });
+
   it('should observe once after enabling, disabling and re-enabling', async () => {
     const { fixture } = await render(TestComponent);
     const { element, disabled } = fixture.componentInstance;

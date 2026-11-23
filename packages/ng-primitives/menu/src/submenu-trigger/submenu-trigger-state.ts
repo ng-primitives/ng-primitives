@@ -148,10 +148,10 @@ export interface NgpSubmenuTriggerState {
   setPointerOverContent(isOver: boolean): void;
 
   /**
-   * The id of the trigger element, which names the menu.
+   * The trigger element, which names the menu.
    * @internal
    */
-  triggerId(): string | null;
+  triggerElement(): HTMLElement | null;
 }
 
 export interface NgpSubmenuTriggerProps<T = unknown> {
@@ -576,7 +576,7 @@ export const [
       setContainer,
       focus,
       setPointerOverContent,
-      triggerId: () => element.nativeElement.id,
+      triggerElement: () => element.nativeElement,
       container: deprecatedSetter(container, 'setContainer', setContainer),
     } satisfies NgpSubmenuTriggerState;
   },

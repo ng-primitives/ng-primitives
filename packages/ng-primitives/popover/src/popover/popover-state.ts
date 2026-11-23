@@ -47,7 +47,7 @@ export const [NgpPopoverStateToken, ngpPopover, injectPopoverState, providePopov
       // Host binding
       attrBinding(elementRef, 'role', 'dialog');
       attrBinding(elementRef, 'id', id);
-      labelledByTrigger(elementRef, () => trigger()?.elementRef.nativeElement.id);
+      labelledByTrigger(elementRef, () => trigger()?.elementRef.nativeElement);
       styleBinding(elementRef, 'left.px', () => overlay.position().x ?? null);
       styleBinding(elementRef, 'top.px', () => overlay.position().y ?? null);
       styleBinding(elementRef, '--ngp-popover-trigger-width.px', () => overlay.triggerWidth());

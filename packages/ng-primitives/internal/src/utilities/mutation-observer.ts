@@ -28,7 +28,7 @@ interface NgpMutationObserverOptions {
    */
   characterData?: boolean;
   /**
-   * Whether the attributeFilter should be observed.
+   * Only these attribute names are observed.
    */
   attributeFilter?: string[];
 }
@@ -45,6 +45,7 @@ export function fromMutationObserver(
     subtree,
     attributes,
     characterData,
+    attributeFilter,
     disabled = signal(false),
     injector,
   }: NgpMutationObserverOptions = {},
@@ -67,7 +68,13 @@ export function fromMutationObserver(
 
       if (!observer) {
         observer = new MutationObserver(mutations => observable.next(mutations));
-        observer.observe(element, { childList, subtree, attributes, characterData });
+        observer.observe(element, {
+          childList,
+          subtree,
+          attributes,
+          characterData,
+          attributeFilter,
+        });
       }
     }
 
