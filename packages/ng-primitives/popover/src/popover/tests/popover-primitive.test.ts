@@ -527,6 +527,52 @@ describe('NgpPopover', () => {
       });
     });
 
+    it("should keep the consumer's aria-describedby next to the popover id", async () => {
+      const { getByRole } = await render(
+        `
+          <button [ngpPopoverTrigger]="content" aria-describedby="hint">Trigger</button>
+          <ng-template #content><div ngpPopover>Content</div></ng-template>
+        `,
+        { imports: [NgpPopoverTrigger, NgpPopover] },
+      );
+      const trigger = getByRole('button');
+      expect(trigger).toHaveAttribute('aria-describedby', 'hint');
+
+      fireEvent.click(trigger);
+      await waitFor(() => expect(document.querySelector('[ngpPopover]')).toBeInTheDocument());
+      const id = document.querySelector('[ngpPopover]')!.id;
+      await waitFor(() => expect(trigger).toHaveAttribute('aria-describedby', `hint ${id}`));
+
+      fireEvent.click(trigger);
+      await waitFor(() => expect(document.querySelector('[ngpPopover]')).not.toBeInTheDocument());
+      expect(trigger).toHaveAttribute('aria-describedby', 'hint');
+    });
+
+    it('should keep the popover id when the aria-describedby the consumer binds changes', async () => {
+      const { getByRole, rerender } = await render(
+        `
+          <button [ngpPopoverTrigger]="content" [attr.aria-describedby]="hint">Trigger</button>
+          <ng-template #content><div ngpPopover>Content</div></ng-template>
+        `,
+        { imports: [NgpPopoverTrigger, NgpPopover], componentProperties: { hint: 'hint' } },
+      );
+      const trigger = getByRole('button');
+      expect(trigger).toHaveAttribute('aria-describedby', 'hint');
+
+      fireEvent.click(trigger);
+      await waitFor(() => expect(document.querySelector('[ngpPopover]')).toBeInTheDocument());
+      const id = document.querySelector('[ngpPopover]')!.id;
+      await waitFor(() => expect(trigger).toHaveAttribute('aria-describedby', `hint ${id}`));
+
+      // the binding rewrites the whole attribute, and the popover id is added back
+      await rerender({ componentProperties: { hint: 'other' }, partialUpdate: true });
+      await waitFor(() => expect(trigger).toHaveAttribute('aria-describedby', `other ${id}`));
+
+      fireEvent.click(trigger);
+      await waitFor(() => expect(document.querySelector('[ngpPopover]')).not.toBeInTheDocument());
+      expect(trigger).toHaveAttribute('aria-describedby', 'other');
+    });
+
     it('should advertise the popup with aria-haspopup="dialog"', async () => {
       const { getByRole } = await render(PopoverTestComponent);
       expect(getByRole('button')).toHaveAttribute('aria-haspopup', 'dialog');

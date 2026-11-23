@@ -32,6 +32,7 @@ export {
 } from './hover-bridge/hover-bridge-controller';
 export * from './signals/explicit-effect';
 export * from './style-injector/style-injector';
+export * from './utilities/add-tokens';
 export * from './utilities/dom-removal';
 export * from './utilities/dom-sort';
 export * from './utilities/element-ref';

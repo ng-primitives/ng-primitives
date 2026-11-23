@@ -1,6 +1,7 @@
 import { Component, Directive, effect, input, OnInit, signal, TemplateRef } from '@angular/core';
 import { By } from '@angular/platform-browser';
 import { fireEvent, render, screen, waitFor } from '@testing-library/angular';
+import { NgpDescription, NgpFormControl, NgpFormField } from 'ng-primitives/form-field';
 import {
   injectTooltipTriggerState,
   NgpTooltip,
@@ -432,6 +433,109 @@ describe('NgpTooltipTrigger (primitive)', () => {
         expect(document.querySelector('[ngpTooltip]')).not.toBeInTheDocument();
         expect(trigger.getAttribute('aria-describedby')).toBeNull();
       });
+    });
+
+    it("should keep the consumer's aria-describedby next to the tooltip id", async () => {
+      const { getByRole } = await render(
+        `
+          <button
+            [ngpTooltipTrigger]="content"
+            ngpTooltipTriggerShowDelay="0"
+            ngpTooltipTriggerHideDelay="0"
+            aria-describedby="hint"
+          ></button>
+
+          <ng-template #content>
+            <div ngpTooltip>Tooltip content</div>
+          </ng-template>
+        `,
+        { imports: [NgpTooltipTrigger, NgpTooltip] },
+      );
+      const trigger = getByRole('button');
+      expect(trigger).toHaveAttribute('aria-describedby', 'hint');
+
+      fireEvent.mouseEnter(trigger);
+      await waitFor(() => expect(document.querySelector('[ngpTooltip]')).toBeInTheDocument());
+      const id = document.querySelector('[ngpTooltip]')!.id;
+      await waitFor(() => expect(trigger).toHaveAttribute('aria-describedby', `hint ${id}`));
+
+      fireEvent.mouseLeave(trigger);
+      await waitFor(() => expect(document.querySelector('[ngpTooltip]')).not.toBeInTheDocument());
+      expect(trigger).toHaveAttribute('aria-describedby', 'hint');
+    });
+
+    it('should keep the tooltip id when the aria-describedby the consumer binds changes', async () => {
+      const { getByRole, rerender } = await render(
+        `
+          <button
+            [ngpTooltipTrigger]="content"
+            [attr.aria-describedby]="hint"
+            ngpTooltipTriggerShowDelay="0"
+            ngpTooltipTriggerHideDelay="0"
+          ></button>
+
+          <ng-template #content>
+            <div ngpTooltip>Tooltip content</div>
+          </ng-template>
+        `,
+        { imports: [NgpTooltipTrigger, NgpTooltip], componentProperties: { hint: 'hint' } },
+      );
+      const trigger = getByRole('button');
+      expect(trigger).toHaveAttribute('aria-describedby', 'hint');
+
+      fireEvent.mouseEnter(trigger);
+      await waitFor(() => expect(document.querySelector('[ngpTooltip]')).toBeInTheDocument());
+      const id = document.querySelector('[ngpTooltip]')!.id;
+      await waitFor(() => expect(trigger).toHaveAttribute('aria-describedby', `hint ${id}`));
+
+      // the binding rewrites the whole attribute, and the tooltip id is added back
+      await rerender({ componentProperties: { hint: 'other' }, partialUpdate: true });
+      await waitFor(() => expect(trigger).toHaveAttribute('aria-describedby', `other ${id}`));
+
+      fireEvent.mouseLeave(trigger);
+      await waitFor(() => expect(document.querySelector('[ngpTooltip]')).not.toBeInTheDocument());
+      expect(trigger).toHaveAttribute('aria-describedby', 'other');
+    });
+
+    it("should leave only the consumer's aria-describedby once a form control that is also a trigger loses its tooltip and its description", async () => {
+      const { getByRole, rerender } = await render(
+        `
+          <div ngpFormField>
+            @if (showDescription) {
+              <div id="desc" ngpDescription>Description</div>
+            }
+            <input
+              ngpFormControl
+              [ngpTooltipTrigger]="content"
+              ngpTooltipTriggerShowDelay="0"
+              ngpTooltipTriggerHideDelay="0"
+              aria-describedby="hint"
+            />
+          </div>
+
+          <ng-template #content>
+            <div ngpTooltip>Tooltip content</div>
+          </ng-template>
+        `,
+        {
+          imports: [NgpFormField, NgpDescription, NgpFormControl, NgpTooltipTrigger, NgpTooltip],
+          componentProperties: { showDescription: true },
+        },
+      );
+      const trigger = getByRole('textbox');
+      expect(trigger).toHaveAttribute('aria-describedby', 'hint desc');
+
+      fireEvent.mouseEnter(trigger);
+      await waitFor(() => expect(document.querySelector('[ngpTooltip]')).toBeInTheDocument());
+      const id = document.querySelector('[ngpTooltip]')!.id;
+      await waitFor(() => expect(trigger).toHaveAttribute('aria-describedby', `hint desc ${id}`));
+
+      fireEvent.mouseLeave(trigger);
+      await waitFor(() => expect(document.querySelector('[ngpTooltip]')).not.toBeInTheDocument());
+      await waitFor(() => expect(trigger).toHaveAttribute('aria-describedby', 'hint desc'));
+
+      await rerender({ componentProperties: { showDescription: false }, partialUpdate: true });
+      await waitFor(() => expect(trigger).toHaveAttribute('aria-describedby', 'hint'));
     });
   });
 

@@ -9,7 +9,7 @@ import {
   ViewContainerRef,
   WritableSignal,
 } from '@angular/core';
-import { injectElementRef } from 'ng-primitives/internal';
+import { addTokens, injectElementRef } from 'ng-primitives/internal';
 import {
   createOverlay,
   NgpDismissGuard,
@@ -371,7 +371,7 @@ export const [
     attrBinding(elementRef, 'aria-expanded', () => (expanded() ? 'true' : 'false'));
     // the popover is a focus-trapped, dialog-like overlay, so advertise the popup type
     attrBinding(elementRef, 'aria-haspopup', 'dialog');
-    attrBinding(elementRef, 'aria-describedby', () => overlay()?.ariaDescribedBy());
+    addTokens(elementRef.nativeElement, 'aria-describedby', () => overlay()?.ariaDescribedBy());
     // reference the controlled popover by id while it is open (it does not exist when closed)
     attrBinding(elementRef, 'aria-controls', () => (open() ? (overlay()?.id() ?? null) : null));
     dataBinding(elementRef, 'data-open', open);

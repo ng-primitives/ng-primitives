@@ -11,6 +11,7 @@ import {
   untracked,
 } from '@angular/core';
 import {
+  addTokens,
   createHoverBridge,
   HoverBridgePoint,
   injectElementRef,
@@ -28,7 +29,6 @@ import {
   NgpShift,
 } from 'ng-primitives/portal';
 import {
-  attrBinding,
   controlled,
   createPrimitive,
   dataBinding,
@@ -395,7 +395,7 @@ export const [
     });
 
     // Host binding
-    attrBinding(elementRef, 'aria-describedby', () => overlay()?.ariaDescribedBy());
+    addTokens(elementRef.nativeElement, 'aria-describedby', () => overlay()?.ariaDescribedBy());
     dataBinding(elementRef, 'data-open', () => (open() ? '' : null));
 
     // Whether the current focus opens the tooltip. Kept for the re-enable check below, which

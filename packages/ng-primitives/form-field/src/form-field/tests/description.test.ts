@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
+import { TestBed } from '@angular/core/testing';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
-import { render } from '@testing-library/angular';
+import { render, waitFor } from '@testing-library/angular';
 import { NgpDescription, NgpFormControl, NgpFormField } from 'ng-primitives/form-field';
 import { describe, expect, it } from 'vitest';
 
@@ -201,6 +202,83 @@ describe('NgpDescription', () => {
     await rerender({ componentProperties: { showDescription: false } });
     fixture.detectChanges();
     expect(input).not.toHaveAttribute('aria-describedby');
+  });
+
+  it("should keep the control's own aria-describedby next to the descriptions", async () => {
+    const { getByTestId, rerender } = await render(
+      `<div ngpFormField>
+        @if (showDescription) {
+          <div id="test-desc" ngpDescription>Test Description</div>
+        }
+        <input ngpFormControl aria-describedby="hint" data-testid="in-field" />
+      </div>
+      <input ngpFormControl aria-describedby="hint" data-testid="standalone" />`,
+      {
+        imports: [NgpFormField, NgpDescription, NgpFormControl],
+        componentProperties: { showDescription: false },
+      },
+    );
+
+    expect(getByTestId('in-field')).toHaveAttribute('aria-describedby', 'hint');
+    expect(getByTestId('standalone')).toHaveAttribute('aria-describedby', 'hint');
+
+    await rerender({ componentProperties: { showDescription: true }, partialUpdate: true });
+    await waitFor(() =>
+      expect(getByTestId('in-field')).toHaveAttribute('aria-describedby', 'hint test-desc'),
+    );
+
+    await rerender({ componentProperties: { showDescription: false }, partialUpdate: true });
+    await waitFor(() =>
+      expect(getByTestId('in-field')).toHaveAttribute('aria-describedby', 'hint'),
+    );
+  });
+
+  it('should keep the descriptions when the aria-describedby the consumer binds changes', async () => {
+    const { getByRole, rerender } = await render(
+      `<div ngpFormField>
+        @if (showDescription) {
+          <div id="test-desc" ngpDescription>Test Description</div>
+        }
+        <input ngpFormControl [attr.aria-describedby]="hint" />
+      </div>`,
+      {
+        imports: [NgpFormField, NgpDescription, NgpFormControl],
+        componentProperties: { showDescription: true, hint: 'hint' },
+      },
+    );
+    const input = getByRole('textbox');
+    expect(input).toHaveAttribute('aria-describedby', 'hint test-desc');
+
+    // the binding rewrites the whole attribute, and the description is added back
+    await rerender({ componentProperties: { hint: 'other' }, partialUpdate: true });
+    await waitFor(() => expect(input).toHaveAttribute('aria-describedby', 'other test-desc'));
+
+    await rerender({ componentProperties: { showDescription: false }, partialUpdate: true });
+    await waitFor(() => expect(input).toHaveAttribute('aria-describedby', 'other'));
+  });
+
+  it('should merge a bound aria-describedby with a description in the first render', () => {
+    @Component({
+      imports: [NgpFormField, NgpDescription, NgpFormControl],
+      template: `
+        <div ngpFormField>
+          <div id="test-desc" ngpDescription>Test Description</div>
+          <input [attr.aria-describedby]="hint" ngpFormControl />
+        </div>
+      `,
+    })
+    class BoundHint {
+      readonly hint = 'hint';
+    }
+
+    const fixture = TestBed.createComponent(BoundHint);
+    fixture.detectChanges();
+
+    // read in the same task: no observer callback has run yet
+    expect(fixture.nativeElement.querySelector('input')).toHaveAttribute(
+      'aria-describedby',
+      'hint test-desc',
+    );
   });
 
   it('should handle all form field state combinations', async () => {
