@@ -105,6 +105,7 @@ export const [
     attrBinding(elementRef, 'role', 'option');
     attrBinding(elementRef, 'id', id);
     attrBinding(elementRef, 'aria-disabled', disabled);
+    attrBinding(elementRef, 'aria-selected', () => (selected() ? 'true' : 'false'));
     dataBinding(elementRef, 'data-disabled', () => (disabled() ? '' : null));
     dataBinding(elementRef, 'data-active', () =>
       listboxState()?.isFocused() && active() ? '' : null,
