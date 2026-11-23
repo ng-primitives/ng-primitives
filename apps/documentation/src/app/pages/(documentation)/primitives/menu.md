@@ -82,13 +82,13 @@ Clicking or tapping a submenu trigger opens its submenu. Clicking it with a mous
 
 ### Checkbox Items
 
-Menu items that can be toggled on and off. Clicking a checkbox item does not close the menu.
+Menu items that can be toggled on and off. Toggling a checkbox item does not close the menu, unless `ngpMenuItemCheckboxCloseOnSelect` is set to `true`.
 
 <docs-example name="menu-checkbox"></docs-example>
 
 ### Radio Items
 
-Menu items that allow selecting one option from a group. Clicking a radio item does not close the menu.
+Menu items that allow selecting one option from a group. Clicking a radio item does not close the menu, unless `ngpMenuItemRadioCloseOnSelect` is set to `true`.
 
 <docs-example name="menu-radio"></docs-example>
 
@@ -478,18 +478,18 @@ A modal menu makes the rest of the page `inert`, so screen readers only reach th
 
 ### Keyboard Interactions
 
-| Key                   | Description                                                                                    |
-| --------------------- | ---------------------------------------------------------------------------------------------- |
-| <kbd>Enter</kbd>      | Activates the focused menu item. Closes all menus unless the item is a checkbox or radio item. |
-| <kbd>Escape</kbd>     | Closes all open menus and returns focus as described in Focus Management below.                |
-| <kbd>ArrowDown</kbd>  | Moves focus to the next menu item.                                                             |
-| <kbd>ArrowUp</kbd>    | Moves focus to the previous menu item.                                                         |
-| <kbd>ArrowRight</kbd> | Opens a submenu when focused on a submenu trigger and moves focus into it (ArrowLeft in RTL).  |
-| <kbd>ArrowLeft</kbd>  | Closes the current submenu and moves focus to the parent submenu trigger (ArrowRight in RTL).  |
-| <kbd>Home</kbd>       | Moves focus to the first menu item.                                                            |
-| <kbd>End</kbd>        | Moves focus to the last menu item.                                                             |
-| A character           | Moves focus to the next item whose visible text starts with the characters typed.              |
-| <kbd>Space</kbd>      | Activates the focused menu item, or continues a search started by typing.                      |
+| Key                   | Description                                                                                                                                                                                                                                                                        |
+| --------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| <kbd>Enter</kbd>      | Activates the item. Regular items close the menu unless `ngpMenuItemCloseOnSelect` is `false`; checkbox and radio items stay open unless their close-on-select input is `true`. A submenu trigger opens its submenu and never closes the menu, whatever its close-on-select input. |
+| <kbd>Escape</kbd>     | Closes all open menus and returns focus as described in Focus Management below.                                                                                                                                                                                                    |
+| <kbd>ArrowDown</kbd>  | Moves focus to the next menu item.                                                                                                                                                                                                                                                 |
+| <kbd>ArrowUp</kbd>    | Moves focus to the previous menu item.                                                                                                                                                                                                                                             |
+| <kbd>ArrowRight</kbd> | Opens a submenu when focused on a submenu trigger and moves focus into it (ArrowLeft in RTL).                                                                                                                                                                                      |
+| <kbd>ArrowLeft</kbd>  | Closes the current submenu and moves focus to the parent submenu trigger (ArrowRight in RTL).                                                                                                                                                                                      |
+| <kbd>Home</kbd>       | Moves focus to the first menu item.                                                                                                                                                                                                                                                |
+| <kbd>End</kbd>        | Moves focus to the last menu item.                                                                                                                                                                                                                                                 |
+| A character           | Moves focus to the next item whose visible text starts with the characters typed.                                                                                                                                                                                                  |
+| <kbd>Space</kbd>      | Activates a `<button>` item, with the same close rules as Enter, or continues a search started by typing. A link item (`<a href>`) is activated by Enter only, as a native link is.                                                                                                |
 
 ### Focus Management
 
