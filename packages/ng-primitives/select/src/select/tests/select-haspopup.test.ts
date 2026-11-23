@@ -107,6 +107,28 @@ class BoundSelectComponent {
 })
 class UnannouncedDialogSelectComponent {}
 
+@Component({
+  template: `
+    <div ngpSelect aria-haspopup="dialog" data-testid="select">
+      <div *ngpSelectPortal ngpSelectDropdown data-testid="dropdown">
+        <input ngpSelectInput data-testid="select-input" />
+        <div ngpSelectList>
+          <div ngpSelectOption ngpSelectOptionValue="Apple">Apple</div>
+        </div>
+      </div>
+    </div>
+  `,
+  imports: [
+    NgpSelect,
+    NgpSelectDropdown,
+    NgpSelectInput,
+    NgpSelectList,
+    NgpSelectOption,
+    NgpSelectPortal,
+  ],
+})
+class StaticAttributeDialogSelectComponent {}
+
 const hasPopupWarning = expect.stringContaining('ngpSelectHasPopup="dialog"');
 
 async function open(): Promise<HTMLElement> {
@@ -214,6 +236,16 @@ describe('NgpSelect aria-haspopup', () => {
     it('stays silent when the select announces the dialog', async () => {
       const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
       await render(DialogSelectComponent);
+
+      const select = await open();
+      await waitFor(() => expect(select).not.toHaveAttribute('role'));
+
+      expect(warn).not.toHaveBeenCalledWith(hasPopupWarning);
+    });
+
+    it("stays silent when the host's own aria-haspopup announces the dialog", async () => {
+      const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+      await render(StaticAttributeDialogSelectComponent);
 
       const select = await open();
       await waitFor(() => expect(select).not.toHaveAttribute('role'));

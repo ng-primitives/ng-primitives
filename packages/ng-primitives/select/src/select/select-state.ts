@@ -82,8 +82,8 @@ export interface NgpSelectState<T> {
   /** Whether the dropdown is modal. */
   readonly modal: Signal<boolean>;
 
-  /** The popup type set through the `hasPopup` prop, if any. */
-  readonly hasPopup: Signal<NgpSelectHasPopup | undefined>;
+  /** The `aria-haspopup` the closed select announces: the `hasPopup` prop, else the host's own. */
+  readonly announcedHasPopup: Signal<string | null>;
 
   /**
    * A function that will scroll the active option into view. This can be overridden
@@ -390,6 +390,7 @@ export const [NgpSelectStateToken, ngpSelect, _injectSelectState, provideSelectS
       const elementRef = injectElementRef<HTMLElement>();
       // read before the binding below takes the attribute over, so a consumer's own value survives
       const hostHasPopup = elementRef.nativeElement.getAttribute('aria-haspopup');
+      const announcedHasPopup = computed(() => hasPopup() ?? hostHasPopup);
       const value = controlled(_value);
       const disabled = controlled(_disabled, false);
       const container = controlled(_container, 'body');
@@ -472,9 +473,7 @@ export const [NgpSelectStateToken, ngpSelect, _injectSelectState, provideSelectS
       attrBinding(elementRef, 'role', () => (input() ? null : 'combobox'));
       attrBinding(elementRef, 'id', id);
       attrBinding(elementRef, 'aria-expanded', () => (input() ? undefined : expanded()));
-      attrBinding(elementRef, 'aria-haspopup', () =>
-        input() ? undefined : (hasPopup() ?? hostHasPopup),
-      );
+      attrBinding(elementRef, 'aria-haspopup', () => (input() ? undefined : announcedHasPopup()));
       attrBinding(elementRef, 'aria-controls', () =>
         input() ? undefined : open() ? (list()?.id() ?? dropdown()?.id()) : undefined,
       );
@@ -996,7 +995,7 @@ export const [NgpSelectStateToken, ngpSelect, _injectSelectState, provideSelectS
         flip,
         offset,
         modal,
-        hasPopup,
+        announcedHasPopup,
         scrollToOption,
         allOptions,
         portal,
