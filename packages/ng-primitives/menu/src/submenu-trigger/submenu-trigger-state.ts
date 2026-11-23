@@ -281,6 +281,10 @@ export const [
         }
 
         hide('mouse');
+
+        if (open()) {
+          focus('keyboard');
+        }
       });
 
     // Host bindings
