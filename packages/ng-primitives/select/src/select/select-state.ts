@@ -460,6 +460,7 @@ export const [NgpSelectStateToken, ngpSelect, _injectSelectState, provideSelectS
       attrBinding(elementRef, 'role', () => (input() ? null : 'combobox'));
       attrBinding(elementRef, 'id', id);
       attrBinding(elementRef, 'aria-expanded', () => (input() ? undefined : expanded()));
+      attrBinding(elementRef, 'aria-disabled', () => (input() ? undefined : disabled()));
       attrBinding(elementRef, 'aria-controls', () =>
         input() ? undefined : open() ? (list()?.id() ?? dropdown()?.id()) : undefined,
       );

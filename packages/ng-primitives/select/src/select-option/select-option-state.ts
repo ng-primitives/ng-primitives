@@ -149,6 +149,7 @@ export const [
     attrBinding(elementRef, 'tabindex', -1);
     attrBinding(elementRef, 'id', id);
     attrBinding(elementRef, 'aria-selected', () => (selected() ? 'true' : undefined));
+    attrBinding(elementRef, 'aria-disabled', () => disabled() || selectState().disabled());
     dataBinding(elementRef, 'data-selected', () => (selected() ? '' : null));
     dataBinding(elementRef, 'data-active', () => (active() ? '' : null));
     dataBinding(elementRef, 'data-disabled', () => (disabled() ? '' : null));

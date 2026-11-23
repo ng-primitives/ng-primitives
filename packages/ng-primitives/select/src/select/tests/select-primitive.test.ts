@@ -104,6 +104,29 @@ class TestDisabledSelectComponent {
 
 @Component({
   template: `
+    <div [ngpSelectDisabled]="disabled()" ngpSelect data-testid="select">
+      <div *ngpSelectPortal ngpSelectDropdown>
+        <div ngpSelectOptionValue="Apple" ngpSelectOption data-testid="option-Apple">Apple</div>
+        <div
+          [ngpSelectOptionDisabled]="leekDisabled()"
+          ngpSelectOptionValue="Leek"
+          ngpSelectOption
+          data-testid="option-Leek"
+        >
+          Leek
+        </div>
+      </div>
+    </div>
+  `,
+  imports: [NgpSelect, NgpSelectDropdown, NgpSelectOption, NgpSelectPortal],
+})
+class TestDisablableSelectComponent {
+  readonly disabled = signal(false);
+  readonly leekDisabled = signal(true);
+}
+
+@Component({
+  template: `
     <div [(ngpSelectValue)]="value" ngpSelect data-testid="activated-select">
       @if (value(); as value) {
         <span data-testid="selected-value">{{ value }}</span>
@@ -667,12 +690,137 @@ describe('NgpSelect', () => {
   });
 
   describe('Disabled state', () => {
+    afterEach(async () => {
+      // The dropdown is portalled to the body, so destroying the fixture alone leaves it behind.
+      if (screen.queryByRole('listbox')) {
+        await userEvent.keyboard('{Escape}');
+        await waitFor(() => expect(screen.queryByRole('listbox')).not.toBeInTheDocument());
+      }
+    });
+
     it('should have correct attributes when disabled', async () => {
       await render(TestDisabledSelectComponent);
 
       const select = screen.getByTestId('disabled-select');
       expect(select).toHaveAttribute('data-disabled', '');
+      expect(select).toHaveAttribute('aria-disabled', 'true');
       expect(select).toHaveAttribute('tabindex', '-1');
+    });
+
+    it('should update aria-disabled when the disabled state changes', async () => {
+      const { fixture } = await render(TestDisablableSelectComponent);
+
+      const select = screen.getByTestId('select');
+      expect(select).toHaveAttribute('aria-disabled', 'false');
+
+      fixture.componentInstance.disabled.set(true);
+      fixture.detectChanges();
+      expect(select).toHaveAttribute('aria-disabled', 'true');
+
+      fixture.componentInstance.disabled.set(false);
+      fixture.detectChanges();
+      expect(select).toHaveAttribute('aria-disabled', 'false');
+    });
+
+    it('should leave aria-disabled to the native input while the dropdown with ngpSelectInput is open', async () => {
+      const disabled = signal(false);
+      const { fixture } = await render(
+        `<div [ngpSelectDisabled]="disabled()" ngpSelect data-testid="select">
+          <div *ngpSelectPortal ngpSelectDropdown>
+            <input ngpSelectInput data-testid="select-input" />
+            <div ngpSelectList>
+              <div ngpSelectOptionValue="Apple" ngpSelectOption>Apple</div>
+            </div>
+          </div>
+        </div>`,
+        {
+          imports: [
+            NgpSelect,
+            NgpSelectDropdown,
+            NgpSelectInput,
+            NgpSelectList,
+            NgpSelectOption,
+            NgpSelectPortal,
+          ],
+          componentProperties: { disabled },
+        },
+      );
+
+      const select = screen.getByTestId('select');
+      fireEvent.click(select);
+      const input = await screen.findByTestId('select-input');
+      // The input takes over the combobox role once it registers with the open select.
+      await waitFor(() => expect(select).not.toHaveAttribute('role'));
+
+      disabled.set(true);
+      fixture.detectChanges();
+
+      expect(input).toBeInTheDocument();
+      expect(select).not.toHaveAttribute('aria-disabled');
+      expect(input).toBeDisabled();
+    });
+
+    it('should set aria-disabled on a closed select whose ngpSelectInput is in the dropdown', async () => {
+      await render(
+        `<div ngpSelect ngpSelectDisabled data-testid="select">
+          <div *ngpSelectPortal ngpSelectDropdown>
+            <input ngpSelectInput />
+          </div>
+        </div>`,
+        { imports: [NgpSelect, NgpSelectDropdown, NgpSelectInput, NgpSelectPortal] },
+      );
+
+      const select = screen.getByTestId('select');
+      expect(select).toHaveAttribute('role', 'combobox');
+      expect(select).toHaveAttribute('aria-disabled', 'true');
+    });
+
+    it('should set aria-disabled on a disabled option', async () => {
+      const user = userEvent.setup();
+      await render(TestDisablableSelectComponent);
+
+      await user.click(screen.getByTestId('select'));
+
+      await waitFor(() => {
+        expect(screen.getByTestId('option-Leek')).toHaveAttribute('aria-disabled', 'true');
+        expect(screen.getByTestId('option-Apple')).toHaveAttribute('aria-disabled', 'false');
+      });
+    });
+
+    it('should update aria-disabled when an option is enabled and disabled again', async () => {
+      const user = userEvent.setup();
+      const { fixture } = await render(TestDisablableSelectComponent);
+
+      await user.click(screen.getByTestId('select'));
+      const leek = await screen.findByTestId('option-Leek');
+      expect(leek).toHaveAttribute('aria-disabled', 'true');
+
+      fixture.componentInstance.leekDisabled.set(false);
+      fixture.detectChanges();
+      expect(leek).toHaveAttribute('aria-disabled', 'false');
+
+      fixture.componentInstance.leekDisabled.set(true);
+      fixture.detectChanges();
+      expect(leek).toHaveAttribute('aria-disabled', 'true');
+    });
+
+    it('should set aria-disabled on every option while the select is disabled', async () => {
+      const user = userEvent.setup();
+      const { fixture } = await render(TestDisablableSelectComponent);
+
+      await user.click(screen.getByTestId('select'));
+      const apple = await screen.findByTestId('option-Apple');
+      const leek = screen.getByTestId('option-Leek');
+
+      fixture.componentInstance.disabled.set(true);
+      fixture.detectChanges();
+      expect(apple).toHaveAttribute('aria-disabled', 'true');
+      expect(leek).toHaveAttribute('aria-disabled', 'true');
+
+      fixture.componentInstance.disabled.set(false);
+      fixture.detectChanges();
+      expect(apple).toHaveAttribute('aria-disabled', 'false');
+      expect(leek).toHaveAttribute('aria-disabled', 'true');
     });
 
     it('should not open dropdown when clicked and disabled', async () => {

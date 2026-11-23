@@ -110,14 +110,17 @@ describe('Select (reusable component) — reactive forms', () => {
     );
 
     expect(screen.getByTestId('select')).not.toHaveAttribute('data-disabled');
+    expect(screen.getByTestId('select')).toHaveAttribute('aria-disabled', 'false');
 
     formControl.disable();
     fixture.detectChanges();
     expect(screen.getByTestId('select')).toHaveAttribute('data-disabled');
+    expect(screen.getByTestId('select')).toHaveAttribute('aria-disabled', 'true');
 
     formControl.enable();
     fixture.detectChanges();
     expect(screen.getByTestId('select')).not.toHaveAttribute('data-disabled');
+    expect(screen.getByTestId('select')).toHaveAttribute('aria-disabled', 'false');
   });
 
   it('does not loop writeValue back through onChange (regression)', async () => {
