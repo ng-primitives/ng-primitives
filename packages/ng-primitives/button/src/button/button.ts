@@ -56,4 +56,14 @@ export class NgpButton {
   unregisterDisabledSource(source: Signal<boolean>): void {
     this.state.unregisterDisabledSource(source);
   }
+
+  /** @internal */
+  registerAriaDisabledSource(source: Signal<boolean>): void {
+    this.state.registerAriaDisabledSource(source);
+  }
+
+  /** @internal */
+  unregisterAriaDisabledSource(source: Signal<boolean>): void {
+    this.state.unregisterAriaDisabledSource(source);
+  }
 }

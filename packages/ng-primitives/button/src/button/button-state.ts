@@ -35,6 +35,36 @@ export interface NgpButtonState {
    * @internal
    */
   unregisterDisabledSource(source: Signal<boolean>): void;
+
+  /**
+   * Set `aria-disabled` while `source` is true. The button stays focusable and pressable.
+   * @internal
+   */
+  registerAriaDisabledSource(source: Signal<boolean>): void;
+
+  /**
+   * Stop following a source added with `registerAriaDisabledSource`.
+   * @internal
+   */
+  unregisterAriaDisabledSource(source: Signal<boolean>): void;
+}
+
+/** Signals other parts on the element register; `active` is true while any of them is. */
+function sourceList() {
+  const sources = signal<readonly Signal<boolean>[]>([]);
+
+  return {
+    active: computed(() => sources().some(source => source())),
+    add(source: Signal<boolean>): void {
+      sources.update(current => [...current, source]);
+    },
+    remove(source: Signal<boolean>): void {
+      sources.update(current => {
+        const index = current.indexOf(source);
+        return index === -1 ? current : [...current.slice(0, index), ...current.slice(index + 1)];
+      });
+    },
+  };
 }
 
 export interface NgpButtonProps {
@@ -60,12 +90,16 @@ export const [NgpButtonStateToken, ngpButton, injectButtonState, provideButtonSt
 
       // Another part on the same element (e.g. a search clear button) can disable
       // the button without overriding the consumer's own disabled binding.
-      const disabledSources = signal<readonly Signal<boolean>[]>([]);
-      const disabledBySource = computed(() => disabledSources().some(source => source()));
+      const disabledSources = sourceList();
+      // Or only announce it as disabled (e.g. a collapsible trigger), leaving it focusable.
+      const ariaDisabledSources = sourceList();
 
-      const hardDisabled = computed(() => disabled() === true || disabledBySource());
+      const hardDisabled = computed(() => disabled() === true || disabledSources.active());
       const softDisabled = computed(() => disabled() === 'soft' && !hardDisabled());
       const anyDisabled = computed(() => hardDisabled() || softDisabled());
+      const announcedDisabled = computed(
+        () => softDisabled() || pending() || ariaDisabledSources.active(),
+      );
 
       ngpInteractions({
         hover: true,
@@ -81,11 +115,14 @@ export const [NgpButtonStateToken, ngpButton, injectButtonState, provideButtonSt
 
       if (isButton) {
         attrBinding(element, 'disabled', () => (hardDisabled() ? '' : null));
+        // The native disabled attribute already announces a fully disabled button.
         attrBinding(element, 'aria-disabled', () =>
-          softDisabled() || (pending() && !hardDisabled()) ? 'true' : null,
+          announcedDisabled() && !hardDisabled() ? 'true' : null,
         );
       } else {
-        attrBinding(element, 'aria-disabled', () => (anyDisabled() || pending() ? 'true' : null));
+        attrBinding(element, 'aria-disabled', () =>
+          announcedDisabled() || hardDisabled() ? 'true' : null,
+        );
       }
 
       // Capture runs before the consumer's `(click)` on the same element. Cancelling the click
@@ -116,24 +153,15 @@ export const [NgpButtonStateToken, ngpButton, injectButtonState, provideButtonSt
         pending.set(value);
       }
 
-      function registerDisabledSource(source: Signal<boolean>): void {
-        disabledSources.update(sources => [...sources, source]);
-      }
-
-      function unregisterDisabledSource(source: Signal<boolean>): void {
-        disabledSources.update(sources => {
-          const index = sources.indexOf(source);
-          return index === -1 ? sources : [...sources.slice(0, index), ...sources.slice(index + 1)];
-        });
-      }
-
       return {
         disabled: disabled.asReadonly(),
         pending: pending.asReadonly(),
         setDisabled,
         setPending,
-        registerDisabledSource,
-        unregisterDisabledSource,
+        registerDisabledSource: disabledSources.add,
+        unregisterDisabledSource: disabledSources.remove,
+        registerAriaDisabledSource: ariaDisabledSources.add,
+        unregisterAriaDisabledSource: ariaDisabledSources.remove,
       } satisfies NgpButtonState;
     },
   );

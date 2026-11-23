@@ -42,6 +42,11 @@ export interface NgpAccordionState<T> {
    */
   isOpen(value: T): boolean;
   /**
+   * Whether the specified value is open and cannot be collapsed.
+   * @internal
+   */
+  isLocked(value: T): boolean;
+  /**
    * Toggle the specified value.
    */
   toggle(value: T): void;
@@ -129,13 +134,17 @@ export const [NgpAccordionStateToken, ngpAccordion, _injectAccordionState, provi
         return value() === itemValue;
       }
 
-      function toggle(itemValue: T): void {
-        const open = isOpen(itemValue);
+      // A single, non-collapsible accordion always keeps its open item open.
+      function isLocked(itemValue: T): boolean {
+        return type() === 'single' && !collapsible() && isOpen(itemValue);
+      }
 
-        // if we are in single mode and the itemValue is already open and the accordion is not collapsible, do nothing
-        if (type() === 'single' && open && !collapsible()) {
+      function toggle(itemValue: T): void {
+        if (isLocked(itemValue)) {
           return;
         }
+
+        const open = isOpen(itemValue);
 
         // if we are in single mode then toggle the itemValue
         if (type() === 'single') {
@@ -165,6 +174,7 @@ export const [NgpAccordionStateToken, ngpAccordion, _injectAccordionState, provi
         setOrientation,
         setValue,
         isOpen,
+        isLocked,
         toggle,
       } satisfies NgpAccordionState<T>;
     },

@@ -359,6 +359,62 @@ describe('NgpButton disabled sources', () => {
   });
 });
 
+describe('NgpButton aria-disabled sources', () => {
+  async function setup(template = `<button ngpButton>Test</button>`) {
+    const view = await render(template, { imports: [NgpButton] });
+    const button = view.fixture.debugElement.query(By.directive(NgpButton)).injector.get(NgpButton);
+    const source = signal(false);
+    button.registerAriaDisabledSource(source);
+    await view.fixture.whenStable();
+    return { view, button, source, element: view.getByRole('button') };
+  }
+
+  it('sets aria-disabled while a registered source is true', async () => {
+    const { view, source, element } = await setup();
+    expect(element).not.toHaveAttribute('aria-disabled');
+
+    source.set(true);
+    await view.fixture.whenStable();
+    expect(element).toHaveAttribute('aria-disabled', 'true');
+
+    source.set(false);
+    await view.fixture.whenStable();
+    expect(element).not.toHaveAttribute('aria-disabled');
+  });
+
+  it('leaves the button focusable and without data-disabled', async () => {
+    const { view, source, element } = await setup();
+    source.set(true);
+    await view.fixture.whenStable();
+
+    element.focus();
+
+    expect(element).not.toBeDisabled();
+    expect(element).not.toHaveAttribute('data-disabled');
+    expect(element).toHaveFocus();
+  });
+
+  it('does not set aria-disabled on a fully disabled native button', async () => {
+    const { view, source, element } = await setup(`<button ngpButton disabled>Test</button>`);
+    source.set(true);
+    await view.fixture.whenStable();
+
+    expect(element).toBeDisabled();
+    expect(element).not.toHaveAttribute('aria-disabled');
+  });
+
+  it('stops following a source once it is unregistered', async () => {
+    const { view, button, source, element } = await setup();
+    source.set(true);
+    await view.fixture.whenStable();
+
+    button.unregisterAriaDisabledSource(source);
+    await view.fixture.whenStable();
+
+    expect(element).not.toHaveAttribute('aria-disabled');
+  });
+});
+
 describe('NgpButton pending', () => {
   @Component({
     imports: [NgpButton],
