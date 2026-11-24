@@ -497,6 +497,36 @@ describe('NgpTooltipTrigger (primitive)', () => {
       expect(trigger).toHaveAttribute('aria-describedby', 'other');
     });
 
+    it('should remove the tooltip id, and keep a token appended to aria-describedby while the tooltip was open', async () => {
+      const { getByRole } = await render(
+        `
+          <button
+            [ngpTooltipTrigger]="content"
+            ngpTooltipTriggerShowDelay="0"
+            ngpTooltipTriggerHideDelay="0"
+          ></button>
+
+          <ng-template #content>
+            <div ngpTooltip>Tooltip content</div>
+          </ng-template>
+        `,
+        { imports: [NgpTooltipTrigger, NgpTooltip] },
+      );
+      const trigger = getByRole('button');
+
+      fireEvent.mouseEnter(trigger);
+      await waitFor(() => expect(document.querySelector('[ngpTooltip]')).toBeInTheDocument());
+      const id = document.querySelector('[ngpTooltip]')!.id;
+      await waitFor(() => expect(trigger).toHaveAttribute('aria-describedby', id));
+
+      // as the CDK's `AriaDescriber` does
+      trigger.setAttribute('aria-describedby', `${trigger.getAttribute('aria-describedby')} hint`);
+
+      fireEvent.mouseLeave(trigger);
+      await waitFor(() => expect(document.querySelector('[ngpTooltip]')).not.toBeInTheDocument());
+      await waitFor(() => expect(trigger).toHaveAttribute('aria-describedby', 'hint'));
+    });
+
     it("should leave only the consumer's aria-describedby once a form control that is also a trigger loses its tooltip and its description", async () => {
       const { getByRole, rerender } = await render(
         `

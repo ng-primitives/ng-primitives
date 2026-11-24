@@ -3,155 +3,135 @@ import {
   afterRenderEffect,
   DestroyRef,
   effect,
-  HostAttributeToken,
   inject,
   PLATFORM_ID,
   untracked,
 } from '@angular/core';
 
-/** The tokens a primitive adds to an attribute: a list, or a space-separated string. */
-type Tokens = () => string[] | string | null | undefined;
-
-/** What the primitives on one element add to one of its space-separated attributes. */
-interface TokenRegistry {
-  /** The tokens of each primitive that adds to the attribute. */
-  readonly owners: Set<Tokens>;
-  /** The consumer's own tokens, read from the attribute whenever the consumer writes it. */
-  consumer: string[];
-  /** The tokens of the attribute as the consumer's template sets it, whatever the DOM holds. */
-  readonly inTemplate: string[];
-  /** The value the registry last wrote: an attribute that differs was written by the consumer. */
-  written: string | null | undefined;
-  /** Reports a consumer's binding that rewrites the attribute while it holds owners' tokens. */
-  observer: MutationObserver | null;
-}
-
-const registries = new WeakMap<Element, Map<string, TokenRegistry>>();
+/** Where the tokens a primitive adds to an attribute come from: a list, or a space-separated string. */
+type TokenSource = () => string[] | string | null | undefined;
 
 /**
  * Keep the tokens of a primitive in a space-separated attribute of the element, next to the
  * consumer's own value, set on the element or bound to it, and to the tokens that other primitives
  * on the element add to the same attribute. An attribute no primitive has added a token to stays
  * as the consumer wrote it.
- *
- * Call it where the primitive on the element is created: the attribute its template sets is read
- * from that injection context.
  */
-export function addTokens(element: HTMLElement, attr: string, tokens: Tokens): void {
-  const inTemplate = tokensOf(inject(new HostAttributeToken(attr), { optional: true }));
-  const registry = registerOwner(element, attr, tokens, inTemplate);
+export function addTokens(element: HTMLElement, attr: string, tokens: TokenSource): void {
+  const inBrowser = isPlatformBrowser(inject(PLATFORM_ID));
+  const registry = TokenRegistry.of(element, attr, !inBrowser);
+  const removeOwner = registry.addOwner(tokens);
   const write = () => {
     tokens();
-    untracked(() => writeTokens(element, attr, registry));
+    untracked(() => registry.write());
   };
 
-  // After render, like `attrBinding`: the consumer's binding has written its value by then.
-  if (isPlatformBrowser(inject(PLATFORM_ID))) {
+  // After render, like `attrBinding`: the consumer's binding has written its value by then. The
+  // switch `attrBinding` uses is private to `ng-primitives/state`, which cannot import this entry
+  // point back.
+  if (inBrowser) {
     afterRenderEffect(write);
   } else {
     effect(write);
   }
 
-  inject(DestroyRef).onDestroy(() => unregisterOwner(element, attr, tokens));
+  inject(DestroyRef).onDestroy(removeOwner);
 }
 
-function registerOwner(
-  element: HTMLElement,
-  attr: string,
-  tokens: Tokens,
-  inTemplate: string[],
-): TokenRegistry {
-  const ofElement = registries.get(element) ?? new Map<string, TokenRegistry>();
-  const registry: TokenRegistry = ofElement.get(attr) ?? {
-    owners: new Set(),
-    consumer: [],
-    inTemplate,
-    written: undefined,
-    observer: null,
-  };
-  registry.owners.add(tokens);
-  registries.set(element, ofElement.set(attr, registry));
-  return registry;
-}
+/**
+ * What the primitives on one element add to one of its space-separated attributes. It remembers
+ * the tokens it added, so everything else in the attribute is the consumer's, whoever wrote it and
+ * whenever. A token the consumer writes after an owner added the same one is the owner's.
+ */
+class TokenRegistry {
+  private static readonly registries = new WeakMap<Element, Map<string, TokenRegistry>>();
 
-function unregisterOwner(element: HTMLElement, attr: string, tokens: Tokens): void {
-  const ofElement = registries.get(element);
-  const registry = ofElement?.get(attr);
-  if (!ofElement || !registry) {
-    return;
-  }
-  registry.owners.delete(tokens);
-  writeTokens(element, attr, registry);
-
-  if (registry.owners.size === 0) {
-    ofElement.delete(attr);
-  }
-  if (ofElement.size === 0) {
-    registries.delete(element);
-  }
-}
-
-/** Write the attribute as the consumer's tokens followed by every owner's, each token once. */
-function writeTokens(element: HTMLElement, attr: string, registry: TokenRegistry): void {
-  const owned = [...registry.owners].flatMap(tokens => tokensOf(tokens()));
-  // Until a primitive adds a token, the consumer's value stays exactly as written.
-  if (registry.written === undefined && owned.length === 0) {
-    return;
+  static of(element: HTMLElement, attr: string, onServer: boolean): TokenRegistry {
+    const byAttribute = this.registries.get(element) ?? new Map<string, TokenRegistry>();
+    const registry = byAttribute.get(attr) ?? new TokenRegistry(element, attr, onServer);
+    this.registries.set(element, byAttribute.set(attr, registry));
+    return registry;
   }
 
-  const value = element.getAttribute(attr);
-  if (registry.written === undefined) {
-    registry.consumer = consumerTokensOnFirstRead(tokensOf(value), owned, registry.inTemplate);
-  } else if (value !== registry.written) {
-    registry.consumer = tokensOf(value);
+  /** One record per `addTokens` call: two primitives that pass one source stay two owners. */
+  private readonly owners = new Set<{ readonly tokens: TokenSource }>();
+  /** The owners' tokens in the attribute that the consumer had not written there itself. */
+  private added: string[];
+  /**
+   * Carries `added` from the server render to the browser. The ids the owners have there differ,
+   * so the text of the hydrated attribute cannot tell the server's ids from the consumer's tokens.
+   */
+  private readonly addedOnServerAttr: string;
+  private observer: MutationObserver | null = null;
+
+  private constructor(
+    private readonly element: HTMLElement,
+    private readonly attr: string,
+    private readonly onServer: boolean,
+  ) {
+    this.addedOnServerAttr = `data-ngp-added-${attr}`;
+    this.added = tokensOf(element.getAttribute(this.addedOnServerAttr));
+    element.removeAttribute(this.addedOnServerAttr);
   }
 
-  const next = [...new Set([...registry.consumer, ...owned])].join(' ');
-  registry.written = next || null;
+  /** Returns the function that removes the owner, and its tokens with it. */
+  addOwner(tokens: TokenSource): () => void {
+    const owner = { tokens };
+    this.owners.add(owner);
 
-  if (next !== (value ?? '')) {
-    if (next) {
-      element.setAttribute(attr, next);
-    } else {
-      element.removeAttribute(attr);
+    return () => {
+      this.owners.delete(owner);
+      this.write();
+    };
+  }
+
+  /** Write the attribute as the consumer's tokens followed by every owner's, each token once. */
+  write(): void {
+    const owned = [...this.owners].flatMap(owner => tokensOf(owner.tokens()));
+
+    // An attribute that holds no owner's token and gets none stays exactly as the consumer wrote it.
+    if (this.added.length > 0 || owned.length > 0) {
+      const value = this.element.getAttribute(this.attr);
+      const consumer = tokensOf(value).filter(token => !this.added.includes(token));
+      this.added = [...new Set(owned)].filter(token => !consumer.includes(token));
+      const next = [...new Set(consumer), ...this.added].join(' ');
+
+      if (next !== (value ?? '')) {
+        setOrRemoveAttribute(this.element, this.attr, next);
+      }
+      if (this.onServer) {
+        setOrRemoveAttribute(this.element, this.addedOnServerAttr, this.added.join(' '));
+      }
+    }
+
+    this.observeConsumer(owned.length > 0);
+  }
+
+  /**
+   * Watch the attribute while it holds owners' tokens: a binding of the consumer writes the whole
+   * attribute when its value changes, and the tokens are added back.
+   */
+  private observeConsumer(holdsOwnersTokens: boolean): void {
+    if (!holdsOwnersTokens) {
+      this.observer?.disconnect();
+      this.observer = null;
+      return;
+    }
+
+    // Not `fromMutationObserver`: it runs an effect in one injector, and the owners that share the
+    // registry each have their own.
+    if (!this.observer && typeof MutationObserver !== 'undefined') {
+      this.observer = new MutationObserver(() => this.write());
+      this.observer.observe(this.element, { attributeFilter: [this.attr] });
     }
   }
-
-  observeConsumer(element, attr, registry, owned.length > 0);
 }
 
-/**
- * The consumer's tokens in an attribute the registry has not written yet. After hydration that
- * attribute already holds the tokens the owners wrote on the server, which are not the consumer's:
- * an owner's token is the consumer's too only where the consumer's template sets it.
- */
-function consumerTokensOnFirstRead(
-  inDom: string[],
-  owned: string[],
-  inTemplate: string[],
-): string[] {
-  return inDom.filter(token => !owned.includes(token) || inTemplate.includes(token));
-}
-
-/**
- * Watch the attribute while it holds owners' tokens: a binding of the consumer writes the whole
- * attribute when its value changes, and the tokens are added back.
- */
-function observeConsumer(
-  element: HTMLElement,
-  attr: string,
-  registry: TokenRegistry,
-  holdsOwnersTokens: boolean,
-): void {
-  if (!holdsOwnersTokens) {
-    registry.observer?.disconnect();
-    registry.observer = null;
-    return;
-  }
-
-  if (!registry.observer && typeof MutationObserver !== 'undefined') {
-    registry.observer = new MutationObserver(() => writeTokens(element, attr, registry));
-    registry.observer.observe(element, { attributeFilter: [attr] });
+function setOrRemoveAttribute(element: HTMLElement, attr: string, value: string): void {
+  if (value) {
+    element.setAttribute(attr, value);
+  } else {
+    element.removeAttribute(attr);
   }
 }
 

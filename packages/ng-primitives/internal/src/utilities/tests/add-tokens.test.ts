@@ -1,4 +1,16 @@
-import { Component, Directive, ElementRef, inject, signal } from '@angular/core';
+import {
+  Component,
+  createEnvironmentInjector,
+  Directive,
+  ElementRef,
+  EnvironmentInjector,
+  inject,
+  PLATFORM_ID,
+  runInInjectionContext,
+  signal,
+  Type,
+} from '@angular/core';
+import { By } from '@angular/platform-browser';
 import { render } from '@testing-library/angular';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { addTokens } from '../add-tokens';
@@ -56,40 +68,121 @@ describe('addTokens', () => {
     expect(disconnect).toHaveBeenCalledOnce();
   });
 
-  @Component({ template: '' })
-  class ServerRendered {
-    readonly element = inject<ElementRef<HTMLElement>>(ElementRef).nativeElement;
-    readonly owner = signal<string[]>(['err']);
+  it("should take a token appended from outside for the consumer's, and not the owners' tokens before it", async () => {
+    const { fixture } = await render(TwoOwners);
+    const { element, first } = fixture.componentInstance;
+    first.set(['tip']);
+    await fixture.whenStable();
 
-    constructor() {
-      // the attribute as hydration finds it: the consumer's `hint`, then the owner's `err`
-      this.element.setAttribute('aria-describedby', 'hint err');
-      addTokens(this.element, 'aria-describedby', this.owner);
+    // as the CDK's `AriaDescriber` does
+    element.setAttribute('aria-describedby', `${element.getAttribute('aria-describedby')} x`);
+    await Promise.resolve();
+    first.set([]);
+    await fixture.whenStable();
+
+    expect(element).toHaveAttribute('aria-describedby', 'x');
+  });
+
+  @Component({ template: '' })
+  class SharedSource {
+    readonly element = inject<ElementRef<HTMLElement>>(ElementRef).nativeElement;
+    private readonly shared = signal(['desc']);
+    private readonly parent = inject(EnvironmentInjector);
+
+    addOwner(): EnvironmentInjector {
+      const injector = createEnvironmentInjector([], this.parent);
+      runInInjectionContext(injector, () =>
+        addTokens(this.element, 'aria-describedby', this.shared),
+      );
+      return injector;
     }
   }
 
-  it('should remove a token the owner wrote on the server once the owner withdraws it', async () => {
-    const { fixture } = await render(ServerRendered);
-    const { element, owner } = fixture.componentInstance;
+  it('should keep the tokens of an owner when another owner with the same source is destroyed', async () => {
+    const { fixture } = await render(SharedSource);
+    const { element } = fixture.componentInstance;
+    fixture.componentInstance.addOwner();
+    const second = fixture.componentInstance.addOwner();
+    fixture.detectChanges();
     await fixture.whenStable();
-    expect(element).toHaveAttribute('aria-describedby', 'hint err');
+    expect(element).toHaveAttribute('aria-describedby', 'desc');
 
-    owner.set([]);
+    second.destroy();
+
+    expect(element).toHaveAttribute('aria-describedby', 'desc');
+  });
+
+  it('should mark the tokens the owners add on the server', async () => {
+    const { fixture } = await render(TwoOwners, {
+      providers: [{ provide: PLATFORM_ID, useValue: 'server' }],
+    });
+    const { element, first } = fixture.componentInstance;
+    element.setAttribute('aria-describedby', 'hint');
+
+    first.set(['ngp-description-57']);
+    fixture.detectChanges();
     await fixture.whenStable();
 
-    expect(element).toHaveAttribute('aria-describedby', 'hint');
+    expect(element).toHaveAttribute('aria-describedby', 'hint ngp-description-57');
+    expect(element).toHaveAttribute('data-ngp-added-aria-describedby', 'ngp-description-57');
+  });
+
+  /** A component whose host the server rendered with the consumer's `hint` and an owner's id. */
+  function hydrated(tokensInBrowser: string[]): Type<{ element: HTMLElement }> {
+    @Component({ template: '' })
+    class Hydrated {
+      readonly element = inject<ElementRef<HTMLElement>>(ElementRef).nativeElement;
+
+      constructor() {
+        this.element.setAttribute('aria-describedby', 'hint ngp-description-57');
+        this.element.setAttribute('data-ngp-added-aria-describedby', 'ngp-description-57');
+        addTokens(this.element, 'aria-describedby', () => tokensInBrowser);
+      }
+    }
+    return Hydrated;
+  }
+
+  it('should replace the tokens the owners added on the server with their tokens in the browser', async () => {
+    const { fixture } = await render(hydrated(['ngp-description-0']));
+    await fixture.whenStable();
+    const { element } = fixture.componentInstance;
+
+    expect(element).toHaveAttribute('aria-describedby', 'hint ngp-description-0');
+    expect(element).not.toHaveAttribute('data-ngp-added-aria-describedby');
+  });
+
+  it('should remove the tokens the owners added on the server when they add none in the browser', async () => {
+    const { fixture } = await render(hydrated([]));
+    await fixture.whenStable();
+
+    expect(fixture.componentInstance.element).toHaveAttribute('aria-describedby', 'hint');
   });
 
   @Directive({ selector: '[owner]' })
   class Owner {
+    readonly tokens = signal(['err']);
+
     constructor() {
       addTokens(
         inject<ElementRef<HTMLElement>>(ElementRef).nativeElement,
         'aria-describedby',
-        () => ['err'],
+        this.tokens,
       );
     }
   }
+
+  it('should keep a token the consumer binds once an owner with the same token withdraws it', async () => {
+    const { fixture } = await render('<input owner [attr.aria-describedby]="hint" />', {
+      imports: [Owner],
+      componentProperties: { hint: 'err' },
+    });
+    await fixture.whenStable();
+
+    fixture.debugElement.query(By.directive(Owner)).injector.get(Owner).tokens.set([]);
+    await fixture.whenStable();
+
+    expect(fixture.nativeElement.querySelector('input')).toHaveAttribute('aria-describedby', 'err');
+  });
 
   it('should add a token once to a list the consumer separates with a newline or a tab', async () => {
     const { fixture } = await render('<input owner aria-describedby="hint\n\terr" />', {
