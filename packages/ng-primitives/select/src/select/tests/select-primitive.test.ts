@@ -782,7 +782,7 @@ describe('NgpSelect', () => {
       expect(leek).toHaveAttribute('aria-disabled', 'true');
     });
 
-    it('should set aria-disabled on every option while the select is disabled', async () => {
+    it('should disable every option while the select is disabled', async () => {
       const user = userEvent.setup();
       const { fixture } = await render(TestDisablableSelectAndOptionComponent);
 
@@ -793,12 +793,16 @@ describe('NgpSelect', () => {
       fixture.componentInstance.disabled.set(true);
       fixture.detectChanges();
       expect(apple).toHaveAttribute('aria-disabled', 'true');
+      expect(apple).toHaveAttribute('data-disabled');
       expect(leek).toHaveAttribute('aria-disabled', 'true');
+      expect(leek).toHaveAttribute('data-disabled');
 
       fixture.componentInstance.disabled.set(false);
       fixture.detectChanges();
       expect(apple).toHaveAttribute('aria-disabled', 'false');
+      expect(apple).not.toHaveAttribute('data-disabled');
       expect(leek).toHaveAttribute('aria-disabled', 'true');
+      expect(leek).toHaveAttribute('data-disabled');
     });
 
     it('should not open dropdown when clicked and disabled', async () => {

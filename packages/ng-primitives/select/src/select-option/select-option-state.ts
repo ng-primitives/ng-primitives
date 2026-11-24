@@ -100,17 +100,20 @@ export const [
   ({
     id = signal(uniqueId('ngp-select-option')),
     value = signal<any>(undefined),
-    disabled = signal(false),
+    disabled: _disabled = signal(false),
     index = signal<number | undefined>(undefined),
     onActivated,
   }: NgpSelectOptionProps) => {
     const elementRef = injectElementRef<HTMLElement>();
     const selectState = injectSelectState();
 
+    // the option is disabled if it is explicitly disabled or the whole select is disabled
+    const disabled = computed(() => _disabled() || selectState().disabled());
+
     ngpInteractions({
       hover: true,
       press: true,
-      disabled: disabled,
+      disabled,
     });
     // Computed states
     const active = computed(() => {
@@ -149,7 +152,7 @@ export const [
     attrBinding(elementRef, 'tabindex', -1);
     attrBinding(elementRef, 'id', id);
     attrBinding(elementRef, 'aria-selected', () => (selected() ? 'true' : undefined));
-    attrBinding(elementRef, 'aria-disabled', () => disabled() || selectState().disabled());
+    attrBinding(elementRef, 'aria-disabled', disabled);
     dataBinding(elementRef, 'data-selected', () => (selected() ? '' : null));
     dataBinding(elementRef, 'data-active', () => (active() ? '' : null));
     dataBinding(elementRef, 'data-disabled', () => (disabled() ? '' : null));
