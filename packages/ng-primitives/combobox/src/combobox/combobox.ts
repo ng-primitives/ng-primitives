@@ -771,7 +771,8 @@ export class NgpCombobox {
       return;
     }
 
-    if (this.handlesOwnKey(event)) {
+    // A prevented key was taken on its way up, such as an arrow by a number field in the dropdown.
+    if (event.defaultPrevented || this.handlesOwnKey(event)) {
       return;
     }
 

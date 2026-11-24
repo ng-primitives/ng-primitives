@@ -2,6 +2,7 @@ import { NgTemplateOutlet } from '@angular/common';
 import { Component, CUSTOM_ELEMENTS_SCHEMA, signal } from '@angular/core';
 import { fireEvent, render, screen, waitFor, within } from '@testing-library/angular';
 import { userEvent } from '@testing-library/user-event';
+import { NgpNumberField, NgpNumberFieldInput } from 'ng-primitives/number-field';
 import { describe, expect, it } from 'vitest';
 import { userEvent as browserUserEvent } from 'vitest/browser';
 import { NgpComboboxButton } from '../combobox-button/combobox-button';
@@ -333,6 +334,8 @@ if (!customElements.get('ngp-test-shadow-field')) {
     NgpComboboxList,
     NgpComboboxOption,
     NgpComboboxPortal,
+    NgpNumberField,
+    NgpNumberFieldInput,
   ],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   template: `
@@ -347,6 +350,11 @@ if (!customElements.get('ngp-test-shadow-field')) {
       <div *ngpComboboxPortal ngpComboboxDropdown data-testid="dropdown">
         <input aria-label="Filter" />
         <input aria-label="Amount" type="number" />
+        <!-- Text fields with a key handler of their own: a widget's, and the page's. -->
+        <div ngpNumberField ngpNumberFieldDefaultValue="5">
+          <input ngpNumberFieldInput aria-label="Quantity" />
+        </div>
+        <input (keydown)="$event.preventDefault()" aria-label="Tag" />
         <input aria-label="Volume" type="range" min="0" max="100" value="0" />
         <textarea aria-label="Note"></textarea>
         <select aria-label="Sort">
@@ -840,6 +848,30 @@ describe('NgpComboboxList', () => {
       expect(keydown.defaultPrevented).toBe(false);
       expect(apple).toHaveAttribute('data-active');
       expect(component.value()).toBeUndefined();
+    });
+
+    it.each(['ArrowDown', 'Enter'])(
+      'should leave %s to a text field that has taken it',
+      async key => {
+        const { component, apple } = await openControlsDropdown();
+
+        screen.getByRole('textbox', { name: 'Tag' }).focus();
+        await userEvent.keyboard(`{${key}}`);
+
+        expect(apple).toHaveAttribute('data-active');
+        expect(component.value()).toBeUndefined();
+      },
+    );
+
+    it('should step a number field on an arrow key and not move the active option', async () => {
+      const { apple } = await openControlsDropdown();
+
+      const quantity = screen.getByLabelText<HTMLInputElement>('Quantity');
+      quantity.focus();
+      await userEvent.keyboard('{ArrowDown}');
+
+      expect(quantity).toHaveValue('4');
+      expect(apple).toHaveAttribute('data-active');
     });
 
     // Real key presses below: the browser, not a simulation, decides what a key does in a field.
