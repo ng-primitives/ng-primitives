@@ -68,24 +68,28 @@ class TokenRegistry {
     };
   }
 
-  /** Write the attribute as the consumer's tokens followed by every owner's, each token once. */
+  /**
+   * Write the attribute as the consumer's tokens followed by the owners' tokens it lacks, each
+   * token once. While the registry has no token to add and none of its own to remove, the
+   * attribute is left exactly as the consumer wrote it.
+   */
   write(): void {
     const owned = [...this.owners].flatMap(owner => tokensOf(owner.tokens()));
 
     const value = this.element.getAttribute(this.attr);
     const consumer = tokensOf(value).filter(token => !this.added.includes(token));
-    const added = [...new Set(owned)].filter(token => !consumer.includes(token));
+    const nextAdded = [...new Set(owned)].filter(token => !consumer.includes(token));
+    const changesOwnTokens = this.added.length > 0 || nextAdded.length > 0;
 
-    // An attribute that holds no owner's token and gets none stays exactly as the consumer wrote it.
-    if (this.added.length > 0 || added.length > 0) {
-      const next = [...new Set(consumer), ...added].join(' ');
+    if (changesOwnTokens) {
+      const rewritten = [...new Set(consumer), ...nextAdded].join(' ');
 
-      if (next !== (value ?? '')) {
-        setOrRemoveAttribute(this.element, this.attr, next);
+      if (rewritten !== (value ?? '')) {
+        setOrRemoveAttribute(this.element, this.attr, rewritten);
       }
     }
 
-    this.added = added;
+    this.added = nextAdded;
     this.observeConsumer(owned.length > 0);
   }
 

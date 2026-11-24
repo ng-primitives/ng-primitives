@@ -159,7 +159,7 @@ describe('addTokens', () => {
     expect(fixture.nativeElement.querySelector('input')).toHaveAttribute('aria-describedby', 'err');
   });
 
-  it('should add a token once to a list the consumer separates with a newline or a tab', async () => {
+  it('should leave a list the consumer separates with a newline or a tab as written when it already holds the token', async () => {
     const { fixture } = await render('<input owner aria-describedby="hint\n\terr" />', {
       imports: [Owner],
     });
