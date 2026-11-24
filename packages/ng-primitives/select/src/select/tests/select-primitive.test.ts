@@ -1,4 +1,5 @@
 import { Component, computed, Directive, OnInit, signal, viewChild } from '@angular/core';
+import { By } from '@angular/platform-browser';
 import { fireEvent, render, screen, waitFor } from '@testing-library/angular';
 import userEvent from '@testing-library/user-event';
 import { NgpTemplatePortal } from 'ng-primitives/portal';
@@ -720,6 +721,27 @@ describe('NgpSelect', () => {
       fixture.componentInstance.disabled.set(false);
       fixture.detectChanges();
       expect(select).toHaveAttribute('aria-disabled', 'false');
+    });
+
+    it('should expose a read-only view of the disabled state on the injected state', async () => {
+      const disabled = signal(true);
+      const { fixture } = await render(
+        `<div [ngpSelectDisabled]="disabled()" ngpSelect captureFilteredSelectState></div>`,
+        {
+          imports: [NgpSelect, CaptureFilteredSelectStateDirective],
+          componentProperties: { disabled },
+        },
+      );
+      const { state } = fixture.debugElement
+        .query(By.directive(CaptureFilteredSelectStateDirective))
+        .injector.get(CaptureFilteredSelectStateDirective);
+
+      const readonlyDisabled = state().disabled.asReadonly();
+      expect(readonlyDisabled()).toBe(true);
+
+      disabled.set(false);
+      fixture.detectChanges();
+      expect(readonlyDisabled()).toBe(false);
     });
 
     it('should carry aria-disabled while closed and hand the disabled state over to ngpSelectInput while open', async () => {

@@ -1,4 +1,4 @@
-import { signal } from '@angular/core';
+import { computed, isWritableSignal, signal } from '@angular/core';
 import { deprecatedSetter } from 'ng-primitives/state';
 import { describe, expect, it, vi } from 'vitest';
 
@@ -34,6 +34,15 @@ describe('deprecatedSetter', () => {
       const s = signal('hello');
       const proxy = deprecatedSetter(s, 'setValue');
       expect(proxy()).toBe('hello');
+    });
+
+    it('should return a read-only view of the source from .asReadonly', () => {
+      const s = signal(1);
+      const readonly = deprecatedSetter(s, 'setValue').asReadonly();
+
+      s.set(2);
+      expect(readonly()).toBe(2);
+      expect(isWritableSignal(readonly)).toBe(false);
     });
   });
 
@@ -80,6 +89,25 @@ describe('deprecatedSetter', () => {
       const s = signal('hello');
       const proxy = deprecatedSetter(s.asReadonly(), 'setValue', vi.fn());
       expect(proxy()).toBe('hello');
+    });
+
+    it('should return a read-only view of a computed source from .asReadonly', () => {
+      const s = signal(1);
+      const doubled = computed(() => s() * 2);
+      const readonly = deprecatedSetter(doubled, 'setValue', vi.fn()).asReadonly();
+
+      s.set(2);
+      expect(readonly()).toBe(4);
+      expect(isWritableSignal(readonly)).toBe(false);
+    });
+
+    it('should return a read-only view of a read-only signal source from .asReadonly', () => {
+      const s = signal(1);
+      const readonly = deprecatedSetter(s.asReadonly(), 'setValue', vi.fn()).asReadonly();
+
+      s.set(2);
+      expect(readonly()).toBe(2);
+      expect(isWritableSignal(readonly)).toBe(false);
     });
   });
 });

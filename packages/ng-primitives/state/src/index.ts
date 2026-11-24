@@ -17,6 +17,7 @@ import {
   InputSignal,
   InputSignalWithTransform,
   isSignal,
+  isWritableSignal,
   linkedSignal,
   NgZone,
   PLATFORM_ID,
@@ -674,9 +675,20 @@ export function deprecatedSetter<T>(
           }
         };
       }
+      if (prop === 'asReadonly') {
+        return () => readonlyView(target);
+      }
       return target[prop as keyof WritableSignal<T>];
     },
   });
+}
+
+/**
+ * `deprecatedSetter` accepts a read-only source, which has no `asReadonly` of its own and is
+ * already the read-only view.
+ */
+function readonlyView<T>(source: Signal<T>): Signal<T> {
+  return isWritableSignal(source) ? source.asReadonly() : source;
 }
 
 /**
