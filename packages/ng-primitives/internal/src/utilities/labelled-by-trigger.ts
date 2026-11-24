@@ -17,6 +17,9 @@ export function labelledByTrigger(
   let appliedId: string | null = null;
 
   attrBinding(element, 'aria-labelledby', () => {
+    // Read before any return: a run that keeps the consumer's value must still rerun on a rename.
+    const id = triggerId() || null;
+
     // Decided once, so an `aria-label` added later does not freeze the overlay on the id it has.
     // In the browser the first run is after render, so a label bound in the template is already set.
     hasOwnLabel ??= element.nativeElement.hasAttribute('aria-label');
@@ -29,7 +32,7 @@ export function labelledByTrigger(
       return current;
     }
 
-    appliedId = triggerId() || null;
+    appliedId = id;
     return appliedId;
   });
 }

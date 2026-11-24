@@ -188,6 +188,30 @@ describe('NgpPopover accessible name', () => {
       expect(popover).toHaveAttribute('aria-labelledby', 'heading');
     });
 
+    it('should follow its trigger again once a later aria-labelledby is removed', async () => {
+      const { fixture } = await render(PopoverNameTestComponent);
+      fixture.componentInstance.triggerId.set('first-trigger');
+      fixture.detectChanges();
+      const popover = await open();
+      await waitFor(() => expect(popover).toHaveAttribute('aria-labelledby', 'first-trigger'));
+
+      fixture.componentInstance.labelledBy.set('heading');
+      fixture.detectChanges();
+      fixture.componentInstance.triggerId.set('second-trigger');
+      fixture.detectChanges();
+      await new Promise(resolve => setTimeout(resolve));
+      await fixture.whenStable();
+      expect(popover).toHaveAttribute('aria-labelledby', 'heading');
+
+      fixture.componentInstance.labelledBy.set(null);
+      fixture.detectChanges();
+      fixture.componentInstance.triggerId.set('third-trigger');
+      fixture.detectChanges();
+
+      await waitFor(() => expect(popover).toHaveAttribute('aria-labelledby', 'third-trigger'));
+      expect(popover).toHaveAccessibleName('Settings');
+    });
+
     it('should be labelled by a trigger that gains its id while open', async () => {
       const { fixture } = await render(PopoverTriggerIdTestComponent);
       fixture.componentInstance.triggerId.set('');
