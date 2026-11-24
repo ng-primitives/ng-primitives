@@ -171,7 +171,7 @@ By default the dropdown is rendered in a portal, outside the tab order of the in
 
 A mouse press in a dropdown that has a list moves focus only to an element that takes focus; any other press leaves focus where it is, so the arrow keys and `Enter` still reach the options. The nearest of these around the press decides:
 
-- **Takes focus:** a text field or any other input that is not a checkbox, a radio button or a button, a `select`, a `textarea`, editable content, a link, an `audio` or a `video` with controls, and a custom widget with a `tabindex` other than `-1`, also when the press lands on a child of it.
+- **Takes focus:** a text field or any other input that is not a checkbox, a radio button or a button, a `select`, a `textarea`, editable content, a link, an `audio` or a `video` with controls, and a custom widget with a `tabindex` other than `-1`, also when the press lands on a child of it. A disabled input, `select` or `textarea` cannot take focus.
 - **Keeps focus where it is:** buttons, inputs of type `button`, `submit`, `reset` or `image`, checkboxes, radio buttons, and any element with `role="button"` or `role="option"`, even one the list above names; also an element with `tabindex="-1"` that the list above does not name, so an option in a scrollable region with `tabindex="0"` still leaves focus on the input. Focus that was already on a button in the dropdown, moved there with `Tab`, stays on it.
 - **Everything else:** the press is prevented, so text outside the elements that take focus cannot be selected by dragging. A prevented press still clicks.
 
