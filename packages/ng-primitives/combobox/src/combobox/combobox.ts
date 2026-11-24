@@ -33,7 +33,7 @@ import type { NgpComboboxListState } from '../combobox-list/combobox-list-state'
 import { NgpComboboxOption } from '../combobox-option/combobox-option';
 import type { NgpComboboxPortal } from '../combobox-portal/combobox-portal';
 import { injectComboboxConfig } from '../config/combobox-config';
-import { areAllOptionsSelected, isTextField } from '../utils';
+import { areAllOptionsSelected, isKeyATextFieldLeavesToTheList } from '../utils';
 import { comboboxState, provideComboboxState } from './combobox-state';
 
 /**
@@ -771,7 +771,7 @@ export class NgpCombobox {
       return;
     }
 
-    if (this.handlesOwnKeys(event.target)) {
+    if (this.handlesOwnKey(event)) {
       return;
     }
 
@@ -831,22 +831,23 @@ export class NgpCombobox {
   }
 
   /**
-   * Whether the element is content beside the list in the dropdown that handles its own keys,
-   * such as a button: anything other than one of this combobox's options or a text field, which
-   * leaves the navigation keys to the combobox as its input does. The keys of such content reach
-   * the combobox only when the dropdown is rendered inside it. Without a list the dropdown is the
-   * listbox, and every key pressed in it stays the combobox's.
+   * Whether the key was pressed on content beside the list in the dropdown, which handles its own
+   * keys: anything other than one of this combobox's options, such as a button or a field. Such
+   * keys reach the combobox only when the dropdown is rendered inside it. A single-line text field
+   * still leaves the keys it has no use for to the combobox, as the combobox input does. Without a
+   * list the dropdown is the listbox, and every key pressed in it stays the combobox's.
    */
-  private handlesOwnKeys(target: EventTarget | null): boolean {
+  private handlesOwnKey(event: KeyboardEvent): boolean {
+    const { target } = event;
     const dropdown = this.dropdown()?.elementRef.nativeElement;
 
     return (
       !!this.list() &&
-      !isTextField(target) &&
       target instanceof Element &&
       target !== dropdown &&
       !!dropdown?.contains(target) &&
-      !this.options().some(option => option.elementRef.nativeElement.contains(target))
+      !this.options().some(option => option.elementRef.nativeElement.contains(target)) &&
+      !isKeyATextFieldLeavesToTheList(event)
     );
   }
 

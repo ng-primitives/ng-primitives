@@ -332,6 +332,14 @@ class PressedDropdownComponent {
 
       <div *ngpComboboxPortal ngpComboboxDropdown data-testid="dropdown">
         <input aria-label="Filter" />
+        <input aria-label="Amount" type="number" />
+        <input aria-label="Volume" type="range" min="0" max="100" value="0" />
+        <textarea aria-label="Note"></textarea>
+        <select aria-label="Sort">
+          <option>Name</option>
+          <option>Date</option>
+        </select>
+        <div aria-label="Comment" contenteditable="true"><b>bold</b></div>
 
         <div ngpComboboxList aria-label="Fruits">
           @for (fruit of fruits; track fruit) {
@@ -342,7 +350,7 @@ class PressedDropdownComponent {
     </div>
   `,
 })
-class InPlaceFilterWithListComponent {
+class InPlaceControlsWithListComponent {
   readonly fruits = ['Apple', 'Banana', 'Cherry'];
   readonly value = signal<string | undefined>(undefined);
 }
@@ -738,20 +746,28 @@ describe('NgpComboboxList', () => {
     });
   });
 
-  describe('a field in a dropdown rendered inside a combobox without an input', () => {
-    it('should navigate and select options inside the list', async () => {
-      const { fixture } = await render(InPlaceFilterWithListComponent);
+  describe('controls in a dropdown rendered inside a combobox without an input', () => {
+    async function openControlsDropdown() {
+      const view = await render(InPlaceControlsWithListComponent);
 
       screen.getByTestId('combobox').focus();
       await userEvent.keyboard('{ArrowDown}');
-      await screen.findByTestId('dropdown');
+      const dropdown = await screen.findByTestId('dropdown');
 
-      const [apple, banana] = screen.getAllByRole('option');
+      // The select's own options are options as well.
+      const [apple, banana] = within(screen.getByRole('listbox')).getAllByRole('option');
       await waitFor(() => {
         expect(apple).toHaveAttribute('data-active');
       });
 
-      screen.getByRole('textbox', { name: 'Filter' }).focus();
+      const filter = screen.getByRole<HTMLInputElement>('textbox', { name: 'Filter' });
+      return { component: view.fixture.componentInstance, dropdown, filter, apple, banana };
+    }
+
+    it('should navigate and select options inside the list from a text field', async () => {
+      const { component, filter, banana } = await openControlsDropdown();
+
+      filter.focus();
       await userEvent.keyboard('{ArrowDown}');
 
       await waitFor(() => {
@@ -760,7 +776,47 @@ describe('NgpComboboxList', () => {
 
       await userEvent.keyboard('{Enter}');
 
-      expect(fixture.componentInstance.value()).toBe('Banana');
+      expect(component.value()).toBe('Banana');
+    });
+
+    // Real key presses below: the browser, not a simulation, decides what a key does in a field.
+    it('should type a space into a text field and stay open', async () => {
+      const { dropdown, filter } = await openControlsDropdown();
+
+      await browserUserEvent.click(filter);
+      await browserUserEvent.keyboard('red apple');
+
+      expect(filter).toHaveValue('red apple');
+      expect(dropdown).toBeInTheDocument();
+    });
+
+    it('should leave Home and End to the caret of a text field', async () => {
+      const { filter, apple } = await openControlsDropdown();
+
+      await browserUserEvent.click(filter);
+      await browserUserEvent.keyboard('abc{Home}x{End}y');
+
+      expect(filter).toHaveValue('xabcy');
+      expect(apple).toHaveAttribute('data-active');
+    });
+
+    it.each([
+      ['a number field', 'Amount', 'ArrowDown'],
+      ['a range slider', 'Volume', 'ArrowDown'],
+      ['a textarea', 'Note', 'ArrowDown'],
+      ['a textarea', 'Note', 'Enter'],
+      ['editable content', 'Comment', 'Enter'],
+    ])('should leave the keys of %s alone (%s, %s)', async (_, label, key) => {
+      const { component, apple } = await openControlsDropdown();
+
+      const control = screen.getByLabelText(label);
+      control.focus();
+      const keydown = new KeyboardEvent('keydown', { key, bubbles: true, cancelable: true });
+      control.dispatchEvent(keydown);
+
+      expect(keydown.defaultPrevented).toBe(false);
+      expect(apple).toHaveAttribute('data-active');
+      expect(component.value()).toBeUndefined();
     });
   });
 
