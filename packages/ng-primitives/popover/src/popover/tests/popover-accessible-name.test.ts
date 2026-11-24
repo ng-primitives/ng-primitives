@@ -165,6 +165,7 @@ describe('NgpPopover accessible name', () => {
         fixture.detectChanges();
 
         await waitFor(() => expect(popover).toHaveAttribute('aria-labelledby', id));
+        expect(popover).toHaveAccessibleName('Settings');
       }
     });
 
