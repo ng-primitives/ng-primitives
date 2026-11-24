@@ -288,6 +288,21 @@ describe('NgpPopover accessible name', () => {
       expect(writes).not.toHaveBeenCalled();
     });
 
+    it('should be labelled by its trigger again once its aria-labelledby is removed by script', async () => {
+      const { fixture } = await render(PopoverNameTestComponent);
+      fixture.componentInstance.triggerId.set('first-trigger');
+      fixture.detectChanges();
+      const popover = await open();
+      await waitFor(() => expect(popover).toHaveAttribute('aria-labelledby', 'first-trigger'));
+      await new Promise(resolve => setTimeout(resolve));
+      await fixture.whenStable();
+
+      popover.removeAttribute('aria-labelledby');
+
+      await waitFor(() => expect(popover).toHaveAttribute('aria-labelledby', 'first-trigger'));
+      expect(popover).toHaveAccessibleName('Settings');
+    });
+
     it('should be labelled by a trigger that gains its id while open', async () => {
       const { fixture } = await render(PopoverTriggerIdTestComponent);
       fixture.componentInstance.triggerId.set('');

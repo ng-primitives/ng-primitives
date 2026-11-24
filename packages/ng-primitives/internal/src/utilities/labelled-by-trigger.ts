@@ -6,8 +6,8 @@ import { of } from 'rxjs';
 import { distinctUntilChanged, map, startWith, switchMap } from 'rxjs/operators';
 import { fromMutationObserver } from './mutation-observer';
 
-/** How the consumer named the overlay itself, apart from the `aria-labelledby` written here. */
-interface ConsumerName {
+/** The naming attributes as they stand on the overlay, the `aria-labelledby` written here included. */
+interface OverlayName {
   readonly hasAriaLabel: boolean;
   readonly labelledBy: string | null;
 }
@@ -27,25 +27,22 @@ export function labelledByTrigger(
   // The id is the consumer's to set, by any means, so the attribute itself is what is watched.
   const triggerId = observedAttributes(trigger, ['id'], current => current?.id || null);
 
-  // The write below reads as no consumer `aria-labelledby`: an equal name, so it reruns nothing.
-  const consumerName = observedAttributes(
+  // Compared as written, so removing the id applied here reruns the binding like any other change.
+  // The binding's own write cannot loop: its rerun writes the same id, which reads as an equal name.
+  const overlayName = observedAttributes(
     () => element.nativeElement,
     ['aria-label', 'aria-labelledby'],
-    (overlay): ConsumerName => {
-      const labelledBy = overlay.getAttribute('aria-labelledby');
-
-      return {
-        hasAriaLabel: overlay.hasAttribute('aria-label'),
-        labelledBy: labelledBy === appliedId ? null : labelledBy,
-      };
-    },
+    (overlay): OverlayName => ({
+      hasAriaLabel: overlay.hasAttribute('aria-label'),
+      labelledBy: overlay.getAttribute('aria-labelledby'),
+    }),
     (a, b) => a.hasAriaLabel === b.hasAriaLabel && a.labelledBy === b.labelledBy,
   );
 
   attrBinding(element, 'aria-labelledby', () => {
-    const { hasAriaLabel, labelledBy } = consumerName();
+    const { hasAriaLabel, labelledBy } = overlayName();
 
-    if (labelledBy !== null) {
+    if (labelledBy !== null && labelledBy !== appliedId) {
       appliedId = null;
       return labelledBy;
     }
