@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
-import { fireEvent, render } from '@testing-library/angular';
+import { fireEvent, render, waitFor } from '@testing-library/angular';
 import { NgpFormControl, NgpFormField, NgpLabel } from 'ng-primitives/form-field';
 import { describe, expect, it, vi } from 'vitest';
 
@@ -58,6 +58,59 @@ describe('NgpLabel', () => {
     await rerender({ componentProperties: { showLabel: false } });
     fixture.detectChanges();
     expect(input).not.toHaveAttribute('aria-labelledby');
+  });
+
+  it("should keep the control's own aria-labelledby next to the labels", async () => {
+    const { getByTestId, rerender } = await render(
+      `<div ngpFormField>
+        @if (showLabel) {
+          <label id="test-label" ngpLabel>Test Label</label>
+        }
+        <input ngpFormControl aria-labelledby="heading" data-testid="in-field" />
+      </div>
+      <input ngpFormControl aria-labelledby="heading" data-testid="standalone" />`,
+      {
+        imports: [NgpFormField, NgpLabel, NgpFormControl],
+        componentProperties: { showLabel: false },
+      },
+    );
+
+    expect(getByTestId('in-field')).toHaveAttribute('aria-labelledby', 'heading');
+    expect(getByTestId('standalone')).toHaveAttribute('aria-labelledby', 'heading');
+
+    await rerender({ componentProperties: { showLabel: true }, partialUpdate: true });
+    await waitFor(() =>
+      expect(getByTestId('in-field')).toHaveAttribute('aria-labelledby', 'heading test-label'),
+    );
+
+    await rerender({ componentProperties: { showLabel: false }, partialUpdate: true });
+    await waitFor(() =>
+      expect(getByTestId('in-field')).toHaveAttribute('aria-labelledby', 'heading'),
+    );
+  });
+
+  it('should keep the labels when the aria-labelledby the consumer binds changes', async () => {
+    const { getByRole, rerender } = await render(
+      `<div ngpFormField>
+        @if (showLabel) {
+          <label id="test-label" ngpLabel>Test Label</label>
+        }
+        <input ngpFormControl [attr.aria-labelledby]="heading" />
+      </div>`,
+      {
+        imports: [NgpFormField, NgpLabel, NgpFormControl],
+        componentProperties: { showLabel: true, heading: 'heading' },
+      },
+    );
+    const input = getByRole('textbox');
+    expect(input).toHaveAttribute('aria-labelledby', 'heading test-label');
+
+    // the binding rewrites the whole attribute, and the label is added back
+    await rerender({ componentProperties: { heading: 'other' }, partialUpdate: true });
+    await waitFor(() => expect(input).toHaveAttribute('aria-labelledby', 'other test-label'));
+
+    await rerender({ componentProperties: { showLabel: false }, partialUpdate: true });
+    await waitFor(() => expect(input).toHaveAttribute('aria-labelledby', 'other'));
   });
 
   it('should reflect form field status in data attributes', async () => {

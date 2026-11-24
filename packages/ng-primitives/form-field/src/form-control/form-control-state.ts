@@ -27,12 +27,6 @@ export function ngpFormControl({
   // Access the form control status.
   const status = controlStatus();
   const injector = inject(Injector);
-  // Determine the aria-labelledby attribute value.
-  const ariaLabelledBy = computed(() => {
-    const labels = formField()?.labels() ?? [];
-    return labels.length > 0 ? labels.join(' ') : null;
-  });
-
   const supportsDisabledAttribute = 'disabled' in elementRef.nativeElement;
 
   // Host bindings
@@ -52,7 +46,7 @@ export function ngpFormControl({
   });
 
   attrBinding(elementRef, 'id', id);
-  attrBinding(elementRef, 'aria-labelledby', ariaLabelledBy);
+  addTokens(elementRef.nativeElement, 'aria-labelledby', () => formField()?.labels());
   addTokens(elementRef.nativeElement, 'aria-describedby', () => formField()?.descriptions());
   // Expose the validity to assistive technology once the control has been
   // touched; a pristine/untouched control never advertises aria-invalid.

@@ -38,8 +38,8 @@ export const [
     const numberField = injectNumberFieldState();
     const document = inject(DOCUMENT);
 
-    // Form control integration — sets id and aria-labelledby on the input and adds the
-    // descriptions' ids to its aria-describedby
+    // Form control integration — sets id on the input and adds the labels' ids to its
+    // aria-labelledby and the descriptions' ids to its aria-describedby
     ngpFormControl({ id: numberField().id, disabled: numberField().disabled });
 
     const tabindex = computed(() => (numberField().disabled() ? -1 : 0));
