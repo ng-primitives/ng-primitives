@@ -2059,6 +2059,7 @@ describe('NgpSelect', () => {
           [(ngpSelectValue)]="value"
           (ngpSelectOpenChange)="onOpenChange($event)"
           ngpSelect
+          ngpSelectHasPopup="dialog"
           data-testid="select-with-input"
         >
           @if (value(); as val) {
@@ -2129,7 +2130,7 @@ describe('NgpSelect', () => {
     @Component({
       template: `
         <button data-testid="before">Before</button>
-        <div ngpSelect data-testid="select-with-input">
+        <div ngpSelect ngpSelectHasPopup="dialog" data-testid="select-with-input">
           <span>Select an option</span>
 
           <div *ngpSelectPortal ngpSelectDropdown data-testid="dropdown">
@@ -2216,7 +2217,13 @@ describe('NgpSelect', () => {
     it('should keep focus in the input when clicking an option in a multiple select', async () => {
       @Component({
         template: `
-          <div [(ngpSelectValue)]="value" ngpSelect ngpSelectMultiple data-testid="select">
+          <div
+            [(ngpSelectValue)]="value"
+            ngpSelect
+            ngpSelectMultiple
+            ngpSelectHasPopup="dialog"
+            data-testid="select"
+          >
             <div *ngpSelectPortal ngpSelectDropdown>
               <input ngpSelectInput data-testid="select-input" />
               <div ngpSelectList>
