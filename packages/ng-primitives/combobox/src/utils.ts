@@ -20,3 +20,22 @@ export function areAllOptionsSelected(
     regularOptions.every(({ value }) => selectedValues.some(val => compareWith(val, value)))
   );
 }
+
+const TEXT_FIELD_SELECTOR =
+  'textarea, input:not([type=button], [type=submit], [type=reset], [type=image], [type=checkbox], [type=radio])';
+
+/** Whether the event target is a field the user types into, which works only while it has focus. */
+export function isTextField(target: EventTarget | null): boolean {
+  return (
+    target instanceof HTMLElement &&
+    (target.isContentEditable || target.matches(TEXT_FIELD_SELECTOR))
+  );
+}
+
+/**
+ * Whether a mouse press on the event target has to move focus there for the control to work:
+ * a text field, or a select, which opens its picker on the press.
+ */
+export function needsFocusOnPress(target: EventTarget | null): boolean {
+  return isTextField(target) || (target instanceof Element && !!target.closest('select'));
+}

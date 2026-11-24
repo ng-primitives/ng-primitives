@@ -3,6 +3,7 @@ import { injectElementRef, observeResize } from 'ng-primitives/internal';
 import { provideControlContainerIsolation } from 'ng-primitives/portal';
 import { uniqueId } from 'ng-primitives/utils';
 import { injectComboboxState } from '../combobox/combobox-state';
+import { needsFocusOnPress } from '../utils';
 
 @Directive({
   selector: '[ngpComboboxDropdown]',
@@ -12,9 +13,7 @@ import { injectComboboxState } from '../combobox/combobox-state';
     '[attr.role]': 'isListbox() ? "listbox" : null',
     '[id]': 'id()',
     '[attr.aria-multiselectable]': 'isListbox() ? state().multiple() : null',
-    '(mousedown)': 'state().setDropdownPressed(true)',
-    '(mouseup)': 'state().setDropdownPressed(false)',
-    '(mouseleave)': 'state().setDropdownPressed(false)',
+    '(mousedown)': 'keepFocusOnPress($event)',
     '[attr.data-reference-hidden]': 'state().overlay()?.referenceHidden() ? "" : null',
     '[style.left.px]': 'state().overlay()?.position()?.x',
     '[style.top.px]': 'state().overlay()?.position()?.y',
@@ -62,5 +61,15 @@ export class NgpComboboxDropdown {
     // The combobox's own overlay, not one injected: a dropdown rendered in place would find an
     // enclosing overlay and replace that overlay's properties.
     this.state().overlay()?.registerAvailableSizePrefix('--ngp-combobox');
+  }
+
+  /**
+   * With a list, the dropdown holds content beside the options, and a press that moved focus onto
+   * it, or to nothing, would take the keys from the combobox. The press still clicks.
+   */
+  protected keepFocusOnPress(event: MouseEvent): void {
+    if (this.state().list() && !needsFocusOnPress(event.target)) {
+      event.preventDefault();
+    }
   }
 }

@@ -276,6 +276,43 @@ class InPlaceFilterWithoutListComponent {
   readonly value = signal<string | undefined>(undefined);
 }
 
+@Component({
+  imports: [
+    NgpCombobox,
+    NgpComboboxDropdown,
+    NgpComboboxInput,
+    NgpComboboxList,
+    NgpComboboxOption,
+    NgpComboboxPortal,
+  ],
+  template: `
+    <div [(ngpComboboxValue)]="value" ngpCombobox ngpComboboxMultiple>
+      <input ngpComboboxInput aria-label="Fruit" />
+
+      <div *ngpComboboxPortal ngpComboboxDropdown data-testid="dropdown">
+        <input aria-label="Filter" />
+
+        <div ngpComboboxList aria-label="Fruits">
+          <div role="group" aria-labelledby="fruits-label">
+            <div id="fruits-label" role="presentation">All fruits</div>
+            @for (fruit of fruits; track fruit) {
+              <div [ngpComboboxOptionValue]="fruit" ngpComboboxOption>{{ fruit }}</div>
+            }
+          </div>
+        </div>
+
+        <p>{{ value().length }} selected</p>
+        <button (click)="applied.set(true)" type="button">Apply</button>
+      </div>
+    </div>
+  `,
+})
+class PressedDropdownComponent {
+  readonly fruits = ['Apple', 'Banana', 'Cherry'];
+  readonly value = signal<string[]>([]);
+  readonly applied = signal(false);
+}
+
 async function openDropdown(): Promise<HTMLElement> {
   const input = screen.getByRole('combobox');
   input.focus();
@@ -454,39 +491,79 @@ describe('NgpComboboxList', () => {
     expect(listbox).not.toContainElement(screen.getByText('No results'));
   });
 
-  // Safari does not focus a button pressed with the mouse, so the input blurs to nothing.
-  describe('a press in the dropdown that blurs the input without moving focus', () => {
-    it('should keep the dropdown open until the press ends', async () => {
-      const { fixture } = await render(ComboboxListComponent);
+  // Real pointer presses: the browser, not a simulation, decides what a press focuses.
+  describe('a mouse press in a dropdown with a list', () => {
+    async function openPressedDropdown() {
+      const view = await render(PressedDropdownComponent);
       const input = await openDropdown();
-      const apply = screen.getByRole('button', { name: 'Apply' });
-
-      fireEvent.mouseDown(apply);
-      input.blur();
-      // a close is carried out by a timer, so let one that was scheduled run
-      await new Promise(resolve => setTimeout(resolve));
-      fixture.detectChanges();
-
-      expect(input).toHaveAttribute('aria-expanded', 'true');
-
-      fireEvent.mouseUp(apply);
-      input.focus();
-      input.blur();
-
+      const [apple, banana] = screen.getAllByRole('option');
       await waitFor(() => {
-        expect(input).toHaveAttribute('aria-expanded', 'false');
+        expect(input).toHaveAttribute('aria-activedescendant', apple.id);
       });
+      return { component: view.fixture.componentInstance, input, banana };
+    }
+
+    it('should keep focus on the input and the keys working after a press on a group label inside the list', async () => {
+      const { component, input, banana } = await openPressedDropdown();
+
+      await browserUserEvent.click(screen.getByText('All fruits'));
+
+      expect(input).toHaveFocus();
+
+      await browserUserEvent.keyboard('{ArrowDown}');
+      expect(input).toHaveAttribute('aria-activedescendant', banana.id);
+      await browserUserEvent.keyboard('{Enter}');
+
+      expect(component.value()).toEqual(['Banana']);
     });
 
-    it('should close the dropdown as before when there is no list', async () => {
+    it('should keep focus on the input and the keys working after a press on text beside the list', async () => {
+      const { component, input, banana } = await openPressedDropdown();
+
+      await browserUserEvent.click(screen.getByText('0 selected'));
+
+      expect(input).toHaveFocus();
+      expect(input).toHaveAttribute('aria-expanded', 'true');
+
+      await browserUserEvent.keyboard('{ArrowDown}');
+      expect(input).toHaveAttribute('aria-activedescendant', banana.id);
+      await browserUserEvent.keyboard('{Enter}');
+
+      expect(component.value()).toEqual(['Banana']);
+    });
+
+    it('should click a button beside the list and keep focus on the input', async () => {
+      const { component, input } = await openPressedDropdown();
+
+      await browserUserEvent.click(screen.getByRole('button', { name: 'Apply' }));
+
+      expect(component.applied()).toBe(true);
+      expect(input).toHaveFocus();
+      expect(input).toHaveAttribute('aria-expanded', 'true');
+    });
+
+    it('should let a pressed text field in the dropdown take focus and stay open', async () => {
+      const { input } = await openPressedDropdown();
+      const filter = screen.getByRole('textbox', { name: 'Filter' });
+
+      await browserUserEvent.click(filter);
+
+      expect(filter).toHaveFocus();
+      expect(input).toHaveAttribute('aria-expanded', 'true');
+    });
+  });
+
+  describe('a mouse press in a dropdown without a list', () => {
+    it('should keep its default and close the dropdown when it blurs the input to nothing', async () => {
       await render(ComboboxListComponent, {
         componentProperties: { withList: signal(false) },
       });
       const input = await openDropdown();
 
-      fireEvent.mouseDown(screen.getByRole('button', { name: 'Apply' }));
+      const notPrevented = fireEvent.mouseDown(screen.getByRole('button', { name: 'Apply' }));
       input.blur();
 
+      expect(notPrevented).toBe(true);
       await waitFor(() => {
         expect(input).toHaveAttribute('aria-expanded', 'false');
       });
