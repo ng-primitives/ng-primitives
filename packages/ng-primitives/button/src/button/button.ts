@@ -1,6 +1,6 @@
 import { BooleanInput } from '@angular/cdk/coercion';
 import { booleanAttribute, Directive, input, Signal } from '@angular/core';
-import { ngpButton, provideButtonState } from './button-state';
+import { NgpButtonAriaDisabledSourceKind, ngpButton, provideButtonState } from './button-state';
 
 @Directive({
   selector: '[ngpButton]',
@@ -58,8 +58,11 @@ export class NgpButton {
   }
 
   /** @internal */
-  registerAriaDisabledSource(source: Signal<boolean>, options?: { dataDisabled?: boolean }): void {
-    this.state.registerAriaDisabledSource(source, options);
+  registerAriaDisabledSource(
+    source: Signal<boolean>,
+    kind?: NgpButtonAriaDisabledSourceKind,
+  ): void {
+    this.state.registerAriaDisabledSource(source, kind);
   }
 
   /** @internal */

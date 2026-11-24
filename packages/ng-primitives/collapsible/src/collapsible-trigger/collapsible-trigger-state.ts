@@ -56,7 +56,7 @@ export const [
 
     // aria-disabled rather than disabled, so the trigger stays focusable and is announced.
     if (button) {
-      button.registerAriaDisabledSource(disabled, { dataDisabled: true });
+      button.registerAriaDisabledSource(disabled, 'announced-and-styled');
       button.registerAriaDisabledSource(ariaDisabled);
       onDestroy(() => {
         button.unregisterAriaDisabledSource(disabled);
