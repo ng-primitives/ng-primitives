@@ -17,7 +17,6 @@ import {
   InputSignal,
   InputSignalWithTransform,
   isSignal,
-  isWritableSignal,
   linkedSignal,
   NgZone,
   PLATFORM_ID,
@@ -684,11 +683,11 @@ export function deprecatedSetter<T>(
 }
 
 /**
- * `deprecatedSetter` accepts a read-only source, which has no `asReadonly` of its own and is
- * already the read-only view.
+ * The source's own read-only view, or the source itself: `deprecatedSetter` accepts a read-only
+ * source, which has no `asReadonly` of its own and is already the read-only view.
  */
-function readonlyView<T>(source: Signal<T>): Signal<T> {
-  return isWritableSignal(source) ? source.asReadonly() : source;
+function readonlyView<T>(source: Signal<T> & { asReadonly?: () => Signal<T> }): Signal<T> {
+  return source.asReadonly?.() ?? source;
 }
 
 /**
