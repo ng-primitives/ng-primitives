@@ -120,7 +120,7 @@ class TestDisabledSelectComponent {
   `,
   imports: [NgpSelect, NgpSelectDropdown, NgpSelectOption, NgpSelectPortal],
 })
-class TestDisablableSelectComponent {
+class TestDisablableSelectAndOptionComponent {
   readonly disabled = signal(false);
   readonly leekDisabled = signal(true);
 }
@@ -708,7 +708,7 @@ describe('NgpSelect', () => {
     });
 
     it('should update aria-disabled when the disabled state changes', async () => {
-      const { fixture } = await render(TestDisablableSelectComponent);
+      const { fixture } = await render(TestDisablableSelectAndOptionComponent);
 
       const select = screen.getByTestId('select');
       expect(select).toHaveAttribute('aria-disabled', 'false');
@@ -722,8 +722,9 @@ describe('NgpSelect', () => {
       expect(select).toHaveAttribute('aria-disabled', 'false');
     });
 
-    it('should leave aria-disabled to the native input while the dropdown with ngpSelectInput is open', async () => {
-      const disabled = signal(false);
+    it('should hand the disabled state over to ngpSelectInput while the input is the combobox', async () => {
+      const user = userEvent.setup();
+      const disabled = signal(true);
       const { fixture } = await render(
         `<div [ngpSelectDisabled]="disabled()" ngpSelect data-testid="select">
           <div *ngpSelectPortal ngpSelectDropdown>
@@ -746,54 +747,31 @@ describe('NgpSelect', () => {
         },
       );
 
+      // Closed, the input is not rendered, so the host is still the combobox.
       const select = screen.getByTestId('select');
-      fireEvent.click(select);
+      expect(select).toHaveAttribute('role', 'combobox');
+      expect(select).toHaveAttribute('aria-disabled', 'true');
+
+      disabled.set(false);
+      fixture.detectChanges();
+      await user.click(select);
       const input = await screen.findByTestId('select-input');
-      // The input takes over the combobox role once it registers with the open select.
       await waitFor(() => expect(select).not.toHaveAttribute('role'));
 
       disabled.set(true);
       fixture.detectChanges();
-
-      expect(input).toBeInTheDocument();
       expect(select).not.toHaveAttribute('aria-disabled');
       expect(input).toBeDisabled();
     });
 
-    it('should set aria-disabled on a closed select whose ngpSelectInput is in the dropdown', async () => {
-      await render(
-        `<div ngpSelect ngpSelectDisabled data-testid="select">
-          <div *ngpSelectPortal ngpSelectDropdown>
-            <input ngpSelectInput />
-          </div>
-        </div>`,
-        { imports: [NgpSelect, NgpSelectDropdown, NgpSelectInput, NgpSelectPortal] },
-      );
-
-      const select = screen.getByTestId('select');
-      expect(select).toHaveAttribute('role', 'combobox');
-      expect(select).toHaveAttribute('aria-disabled', 'true');
-    });
-
-    it('should set aria-disabled on a disabled option', async () => {
+    it('should set aria-disabled on a disabled option and follow its disabled input', async () => {
       const user = userEvent.setup();
-      await render(TestDisablableSelectComponent);
-
-      await user.click(screen.getByTestId('select'));
-
-      await waitFor(() => {
-        expect(screen.getByTestId('option-Leek')).toHaveAttribute('aria-disabled', 'true');
-        expect(screen.getByTestId('option-Apple')).toHaveAttribute('aria-disabled', 'false');
-      });
-    });
-
-    it('should update aria-disabled when an option is enabled and disabled again', async () => {
-      const user = userEvent.setup();
-      const { fixture } = await render(TestDisablableSelectComponent);
+      const { fixture } = await render(TestDisablableSelectAndOptionComponent);
 
       await user.click(screen.getByTestId('select'));
       const leek = await screen.findByTestId('option-Leek');
       expect(leek).toHaveAttribute('aria-disabled', 'true');
+      expect(screen.getByTestId('option-Apple')).toHaveAttribute('aria-disabled', 'false');
 
       fixture.componentInstance.leekDisabled.set(false);
       fixture.detectChanges();
@@ -806,7 +784,7 @@ describe('NgpSelect', () => {
 
     it('should set aria-disabled on every option while the select is disabled', async () => {
       const user = userEvent.setup();
-      const { fixture } = await render(TestDisablableSelectComponent);
+      const { fixture } = await render(TestDisablableSelectAndOptionComponent);
 
       await user.click(screen.getByTestId('select'));
       const apple = await screen.findByTestId('option-Apple');
