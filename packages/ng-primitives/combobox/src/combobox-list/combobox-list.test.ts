@@ -350,11 +350,12 @@ if (!customElements.get('ngp-test-shadow-field')) {
       <div *ngpComboboxPortal ngpComboboxDropdown data-testid="dropdown">
         <input aria-label="Filter" />
         <input aria-label="Amount" type="number" />
-        <!-- Text fields with a key handler of their own: a widget's, and the page's. -->
+        <!-- A text input that is a spin button by role. -->
         <div ngpNumberField ngpNumberFieldDefaultValue="5">
           <input ngpNumberFieldInput aria-label="Quantity" />
         </div>
-        <input (keydown)="$event.preventDefault()" aria-label="Tag" />
+        <!-- A filter in a form prevents Enter only to keep the form from submitting. -->
+        <input (keydown.enter)="$event.preventDefault()" aria-label="Form filter" />
         <input aria-label="Volume" type="range" min="0" max="100" value="0" />
         <textarea aria-label="Note"></textarea>
         <select aria-label="Sort">
@@ -784,7 +785,14 @@ describe('NgpComboboxList', () => {
       });
 
       const filter = screen.getByRole<HTMLInputElement>('textbox', { name: 'Filter' });
-      return { component: view.fixture.componentInstance, dropdown, filter, apple, banana };
+      return {
+        fixture: view.fixture,
+        component: view.fixture.componentInstance,
+        dropdown,
+        filter,
+        apple,
+        banana,
+      };
     }
 
     it('should navigate and select options inside the list from a text field', async () => {
@@ -850,27 +858,36 @@ describe('NgpComboboxList', () => {
       expect(component.value()).toBeUndefined();
     });
 
-    it.each(['ArrowDown', 'Enter'])(
-      'should leave %s to a text field that has taken it',
-      async key => {
-        const { component, apple } = await openControlsDropdown();
+    it('should select the active option on Enter from a text field that prevents it', async () => {
+      const { component } = await openControlsDropdown();
 
-        screen.getByRole('textbox', { name: 'Tag' }).focus();
-        await userEvent.keyboard(`{${key}}`);
+      screen.getByRole('textbox', { name: 'Form filter' }).focus();
+      await userEvent.keyboard('{Enter}');
 
-        expect(apple).toHaveAttribute('data-active');
-        expect(component.value()).toBeUndefined();
-      },
-    );
+      expect(component.value()).toBe('Apple');
+    });
 
-    it('should step a number field on an arrow key and not move the active option', async () => {
-      const { apple } = await openControlsDropdown();
+    it('should step a spin button on ArrowDown and not move the active option', async () => {
+      const { fixture, apple, banana } = await openControlsDropdown();
 
-      const quantity = screen.getByLabelText<HTMLInputElement>('Quantity');
+      const quantity = screen.getByRole<HTMLInputElement>('spinbutton', { name: 'Quantity' });
       quantity.focus();
       await userEvent.keyboard('{ArrowDown}');
+      await fixture.whenStable();
 
       expect(quantity).toHaveValue('4');
+      expect(apple).toHaveAttribute('data-active');
+      expect(banana).not.toHaveAttribute('data-active');
+    });
+
+    it('should leave Enter to a spin button and not select the active option', async () => {
+      const { fixture, component, apple } = await openControlsDropdown();
+
+      screen.getByRole('spinbutton', { name: 'Quantity' }).focus();
+      await userEvent.keyboard('{Enter}');
+      await fixture.whenStable();
+
+      expect(component.value()).toBeUndefined();
       expect(apple).toHaveAttribute('data-active');
     });
 

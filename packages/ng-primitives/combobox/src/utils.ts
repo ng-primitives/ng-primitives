@@ -42,28 +42,39 @@ export function needsFocusOnPress(event: MouseEvent): boolean {
 }
 
 const SINGLE_LINE_TEXT_TYPES = ['text', 'search', 'email', 'url', 'tel', 'password'];
+const TEXT_FIELD_ROLES = ['textbox', 'searchbox', 'combobox'];
 const LIST_KEYS = ['ArrowUp', 'ArrowDown', 'Enter', 'Escape'];
 
 /**
  * Whether the field the key was pressed in has no use for it, so the list may take it: a list key
  * on its own in a single-line field the user types into. Every other key is the field's: a space,
  * Home and End, a list key held with a modifier, such as Alt+ArrowDown, which opens the field's
- * suggestions, a key that belongs to an IME composition, and a key the field's own handler has
- * already taken, such as an arrow a number field steps by. So is every key of another
- * field: the arrows step a number, a date or a slider, and Enter breaks a line in a textarea.
+ * suggestions, and a key that belongs to an IME composition. So is every key of another field:
+ * the arrows step a number, a date, a slider or a text input given the role of a spin button, and
+ * Enter breaks a line in a textarea.
  */
 export function leavesKeyToList(event: KeyboardEvent): boolean {
-  const { target, key, defaultPrevented } = event;
+  const { target, key } = event;
 
   return (
-    !defaultPrevented &&
     target instanceof HTMLInputElement &&
     // The `type` property reads a missing or unknown type as `text`.
     SINGLE_LINE_TEXT_TYPES.includes(target.type) &&
+    hasTextFieldRole(target) &&
     LIST_KEYS.includes(key) &&
     !hasModifier(event) &&
     !isPartOfComposition(event)
   );
+}
+
+/**
+ * Whether the input is a text field to assistive technology as well: an explicit role of another
+ * widget, such as `spinbutton`, says its keys drive that widget.
+ */
+function hasTextFieldRole(input: HTMLInputElement): boolean {
+  const role = input.getAttribute('role');
+
+  return !role || TEXT_FIELD_ROLES.includes(role);
 }
 
 function hasModifier({ altKey, ctrlKey, metaKey, shiftKey }: KeyboardEvent): boolean {
