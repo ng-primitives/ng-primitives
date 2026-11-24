@@ -674,9 +674,20 @@ export function deprecatedSetter<T>(
           }
         };
       }
+      if (prop === 'asReadonly') {
+        return () => readonlyView(target);
+      }
       return target[prop as keyof WritableSignal<T>];
     },
   });
+}
+
+/**
+ * The source's own read-only view, or the source itself: `deprecatedSetter` accepts a read-only
+ * source, which has no `asReadonly` of its own and is already the read-only view.
+ */
+function readonlyView<T>(source: Signal<T> & { asReadonly?: () => Signal<T> }): Signal<T> {
+  return source.asReadonly?.() ?? source;
 }
 
 /**

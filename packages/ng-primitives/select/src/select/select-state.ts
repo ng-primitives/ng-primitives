@@ -55,7 +55,10 @@ export interface NgpSelectState<T> {
   /** Whether the select is multiple selection. */
   readonly multiple: Signal<boolean>;
 
-  /** Whether the select is disabled. */
+  /**
+   * Whether the select is disabled (its own disabled state or its form control's). Writing to it
+   * sets only the select's own state, so a disabled form control still keeps it disabled.
+   */
   readonly disabled: WritableSignal<boolean>;
 
   /** The comparator function used to compare options. */
@@ -379,7 +382,7 @@ export const [NgpSelectStateToken, ngpSelect, _injectSelectState, provideSelectS
     }: NgpSelectProps<T>): NgpSelectState<T> => {
       const elementRef = injectElementRef<HTMLElement>();
       const value = controlled(_value);
-      const disabled = controlled(_disabled, false);
+      const disabledInput = controlled(_disabled, false);
       const container = controlled(_container, 'body');
       const valueChangeEmitter = emitter<T | undefined>();
 
@@ -392,12 +395,17 @@ export const [NgpSelectStateToken, ngpSelect, _injectSelectState, provideSelectS
       }
 
       function setDisabled(isDisabled: boolean): void {
-        disabled.set(isDisabled);
+        disabledInput.set(isDisabled);
       }
 
       function setContainer(newContainer: HTMLElement | string | null): void {
         container.set(newContainer);
       }
+
+      // A form control can be disabled without telling the select (a value accessor with no
+      // setDisabledState), so the status is part of the one state every reader below uses.
+      const status = ngpFormControl({ id, disabled: disabledInput });
+      const disabled = computed(() => status().disabled ?? false);
 
       ngpInteractions({
         focus: true,
@@ -406,8 +414,6 @@ export const [NgpSelectStateToken, ngpSelect, _injectSelectState, provideSelectS
         press: true,
         disabled,
       });
-
-      ngpFormControl({ id, disabled });
 
       const portal = signal<NgpSelectPortalState | undefined>(undefined);
       const dropdown = signal<NgpSelectDropdownState | undefined>(undefined);
@@ -456,22 +462,36 @@ export const [NgpSelectStateToken, ngpSelect, _injectSelectState, provideSelectS
         }
       });
 
+      // While an ngpSelectInput is registered it is the combobox, so the host
+      // drops the role and the ARIA state that belongs to it.
+      function unlessInputIsCombobox<V>(value: () => V): () => V | undefined {
+        return () => (input() ? undefined : value());
+      }
+
       // Host bindings
-      attrBinding(elementRef, 'role', () => (input() ? null : 'combobox'));
-      attrBinding(elementRef, 'id', id);
-      attrBinding(elementRef, 'aria-expanded', () => (input() ? undefined : expanded()));
-      attrBinding(elementRef, 'aria-controls', () =>
-        input() ? undefined : open() ? (list()?.id() ?? dropdown()?.id()) : undefined,
+      attrBinding(
+        elementRef,
+        'role',
+        unlessInputIsCombobox(() => 'combobox'),
       );
-      attrBinding(elementRef, 'aria-activedescendant', () =>
-        input() ? undefined : open() ? activeDescendantManagerInstance.id() : undefined,
+      attrBinding(elementRef, 'aria-expanded', unlessInputIsCombobox(expanded));
+      attrBinding(elementRef, 'aria-disabled', unlessInputIsCombobox(disabled));
+      attrBinding(
+        elementRef,
+        'aria-controls',
+        unlessInputIsCombobox(() => (open() ? (list()?.id() ?? dropdown()?.id()) : undefined)),
+      );
+      attrBinding(
+        elementRef,
+        'aria-activedescendant',
+        unlessInputIsCombobox(() => (open() ? activeDescendantManagerInstance.id() : undefined)),
       );
       attrBinding(elementRef, 'tabindex', () => {
         if (input() || disabled()) return -1;
         return 0;
       });
+      // `id` and `data-disabled` are bound by `ngpFormControl` from the same id and disabled state.
       dataBinding(elementRef, 'data-open', () => (open() ? '' : null));
-      dataBinding(elementRef, 'data-disabled', () => (disabled() ? '' : null));
       dataBinding(elementRef, 'data-multiple', () => (multiple() ? '' : null));
 
       // Event listeners
