@@ -1,8 +1,8 @@
 import { NgTemplateOutlet } from '@angular/common';
 import { Component, signal } from '@angular/core';
-import { fireEvent, render, screen, waitFor, within } from '@testing-library/angular';
+import { render, screen, waitFor, within } from '@testing-library/angular';
 import { userEvent } from '@testing-library/user-event';
-import { afterEach, describe, expect, it } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import { NgpComboboxButton } from '../combobox-button/combobox-button';
 import { NgpComboboxDropdown } from '../combobox-dropdown/combobox-dropdown';
 import { NgpComboboxInput } from '../combobox-input/combobox-input';
@@ -171,14 +171,6 @@ async function openDropdown(): Promise<HTMLElement> {
 }
 
 describe('NgpComboboxList', () => {
-  afterEach(async () => {
-    const input = screen.queryByRole('combobox');
-    if (input) {
-      fireEvent.keyDown(input, { key: 'Escape' });
-    }
-    await waitFor(() => expect(screen.queryByTestId('dropdown')).not.toBeInTheDocument());
-  });
-
   it('should make the list the listbox and leave the dropdown without a role', async () => {
     await render(ComboboxListComponent);
     await openDropdown();
