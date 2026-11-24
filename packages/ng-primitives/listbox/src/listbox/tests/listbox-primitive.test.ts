@@ -32,7 +32,7 @@ class TestListboxDynamicOptionsComponent {
 @Component({
   template: `
     <div
-      [ngpListboxValue]="[{ id: 2 }]"
+      [ngpListboxValue]="value()"
       [ngpListboxCompareWith]="compareWith"
       ngpListbox
       data-testid="listbox"
@@ -44,7 +44,23 @@ class TestListboxDynamicOptionsComponent {
   imports: [NgpListbox, NgpListboxOption],
 })
 class TestListboxCompareWithComponent {
+  readonly value = signal([{ id: 2 }]);
   readonly compareWith = (a: { id: number }, b: { id: number }): boolean => a.id === b.id;
+}
+
+@Component({
+  template: `
+    <div [(ngpListboxValue)]="value" ngpListbox ngpListboxMode="multiple">
+      @for (fruit of fruits; track fruit) {
+        <div [ngpListboxOptionValue]="fruit" ngpListboxOption>{{ fruit }}</div>
+      }
+    </div>
+  `,
+  imports: [NgpListbox, NgpListboxOption],
+})
+class TestListboxTwoWayComponent {
+  readonly fruits = ['Apple', 'Banana', 'Cherry'];
+  readonly value = signal(['Banana']);
 }
 
 const imports = [NgpListbox, NgpListboxOption, NgpListboxSection, NgpListboxHeader];
@@ -452,6 +468,44 @@ describe('NgpListbox', () => {
       expect(container.getByTestId('opt-b')).toHaveAttribute('data-selected');
       expect(container.getByTestId('opt-a')).not.toHaveAttribute('data-selected');
     });
+
+    it('should set aria-selected on every option and move it with the selection', async () => {
+      const container = await render(
+        `<div ngpListbox [ngpListboxDefaultValue]="['b']" data-testid="listbox">
+          <div ngpListboxOption ngpListboxOptionValue="a" data-testid="opt-a">A</div>
+          <div ngpListboxOption ngpListboxOptionValue="b" data-testid="opt-b">B</div>
+        </div>`,
+        { imports },
+      );
+      expect(container.getByTestId('opt-a')).toHaveAttribute('aria-selected', 'false');
+      expect(container.getByTestId('opt-b')).toHaveAttribute('aria-selected', 'true');
+
+      fireEvent.click(container.getByTestId('opt-a'));
+      expect(container.getByTestId('opt-a')).toHaveAttribute('aria-selected', 'true');
+      expect(container.getByTestId('opt-b')).toHaveAttribute('aria-selected', 'false');
+    });
+
+    it('should move aria-selected with a selection made from the keyboard', async () => {
+      const container = await render(
+        `<div ngpListbox data-testid="listbox">
+          <div ngpListboxOption ngpListboxOptionValue="a" data-testid="opt-a">A</div>
+          <div ngpListboxOption ngpListboxOptionValue="b" data-testid="opt-b">B</div>
+        </div>`,
+        { imports },
+      );
+      const listbox = container.getByTestId('listbox');
+      fireEvent.focusIn(listbox);
+      await waitFor(() => expect(container.getByTestId('opt-a')).toHaveAttribute('data-active'));
+
+      fireEvent.keyDown(listbox, { key: 'Enter' });
+      expect(container.getByTestId('opt-a')).toHaveAttribute('aria-selected', 'true');
+      expect(container.getByTestId('opt-b')).toHaveAttribute('aria-selected', 'false');
+
+      fireEvent.keyDown(listbox, arrowDown);
+      fireEvent.keyDown(listbox, { key: ' ' });
+      expect(container.getByTestId('opt-a')).toHaveAttribute('aria-selected', 'false');
+      expect(container.getByTestId('opt-b')).toHaveAttribute('aria-selected', 'true');
+    });
   });
 
   describe('multiple selection', () => {
@@ -487,6 +541,40 @@ describe('NgpListbox', () => {
 
       fireEvent.click(container.getByTestId('opt-a'));
       expect(valueChange).toHaveBeenLastCalledWith(['b']);
+    });
+
+    it('should set aria-selected on every option as options are selected and deselected', async () => {
+      const container = await render(
+        `<div ngpListbox ngpListboxMode="multiple" [ngpListboxDefaultValue]="['a', 'b']" data-testid="listbox">
+          <div ngpListboxOption ngpListboxOptionValue="a" data-testid="opt-a">A</div>
+          <div ngpListboxOption ngpListboxOptionValue="b" data-testid="opt-b">B</div>
+          <div ngpListboxOption ngpListboxOptionValue="c" data-testid="opt-c">C</div>
+        </div>`,
+        { imports },
+      );
+      expect(container.getByTestId('opt-a')).toHaveAttribute('aria-selected', 'true');
+      expect(container.getByTestId('opt-b')).toHaveAttribute('aria-selected', 'true');
+      expect(container.getByTestId('opt-c')).toHaveAttribute('aria-selected', 'false');
+
+      fireEvent.click(container.getByTestId('opt-a'));
+      fireEvent.click(container.getByTestId('opt-c'));
+      expect(container.getByTestId('opt-a')).toHaveAttribute('aria-selected', 'false');
+      expect(container.getByTestId('opt-b')).toHaveAttribute('aria-selected', 'true');
+      expect(container.getByTestId('opt-c')).toHaveAttribute('aria-selected', 'true');
+    });
+
+    it('should set aria-selected from a two-way bound value and keep both in step', async () => {
+      const { fixture, getByText } = await render(TestListboxTwoWayComponent);
+      expect(getByText('Apple')).toHaveAttribute('aria-selected', 'false');
+      expect(getByText('Banana')).toHaveAttribute('aria-selected', 'true');
+      expect(getByText('Cherry')).toHaveAttribute('aria-selected', 'false');
+
+      fireEvent.click(getByText('Apple'));
+      fixture.detectChanges();
+      expect(fixture.componentInstance.value()).toEqual(['Banana', 'Apple']);
+      expect(getByText('Apple')).toHaveAttribute('aria-selected', 'true');
+      expect(getByText('Banana')).toHaveAttribute('aria-selected', 'true');
+      expect(getByText('Cherry')).toHaveAttribute('aria-selected', 'false');
     });
   });
 
@@ -524,6 +612,21 @@ describe('NgpListbox', () => {
       );
       fireEvent.click(container.getByTestId('opt-a'));
       expect(valueChange).not.toHaveBeenCalled();
+      expect(container.getByTestId('opt-a')).toHaveAttribute('aria-selected', 'false');
+    });
+
+    it('should set aria-selected on a disabled option selected by the default value', async () => {
+      const container = await render(
+        `<div ngpListbox [ngpListboxDefaultValue]="['a']" data-testid="listbox">
+          <div ngpListboxOption ngpListboxOptionValue="a" ngpListboxOptionDisabled data-testid="opt-a">A</div>
+          <div ngpListboxOption ngpListboxOptionValue="b" data-testid="opt-b">B</div>
+        </div>`,
+        { imports },
+      );
+      expect(container.getByTestId('opt-a')).toHaveAttribute('aria-selected', 'true');
+
+      fireEvent.click(container.getByTestId('opt-a'));
+      expect(container.getByTestId('opt-a')).toHaveAttribute('aria-selected', 'true');
     });
 
     it('should skip disabled options during keyboard navigation', async () => {
@@ -796,6 +899,18 @@ describe('NgpListbox', () => {
       // opt-b should be selected even though the value object is a different reference
       expect(container.getByTestId('opt-b')).toHaveAttribute('data-selected');
       expect(container.getByTestId('opt-a')).not.toHaveAttribute('data-selected');
+      expect(container.getByTestId('opt-b')).toHaveAttribute('aria-selected', 'true');
+      expect(container.getByTestId('opt-a')).toHaveAttribute('aria-selected', 'false');
+    });
+
+    it('should move aria-selected when the parent writes a new value', async () => {
+      const { fixture, getByTestId } = await render(TestListboxCompareWithComponent);
+
+      fixture.componentInstance.value.set([{ id: 1 }]);
+      fixture.detectChanges();
+
+      expect(getByTestId('opt-a')).toHaveAttribute('aria-selected', 'true');
+      expect(getByTestId('opt-b')).toHaveAttribute('aria-selected', 'false');
     });
   });
 

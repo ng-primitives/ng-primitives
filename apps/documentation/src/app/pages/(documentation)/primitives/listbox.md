@@ -116,7 +116,7 @@ Augments the popover trigger with listbox-specific behavior, such as opening the
 
 ## Accessibility
 
-Adheres to the [WAI-ARIA Listbox Design Pattern](https://www.w3.org/TR/wai-aria-practices-1.1/#Listbox).
+Adheres to the [WAI-ARIA Listbox Design Pattern](https://www.w3.org/WAI/ARIA/apg/patterns/listbox/). The listbox uses `role="listbox"` with `aria-multiselectable` reflecting `ngpListboxMode`, and each option uses `role="option"` with `aria-selected` set to `true` or `false`.
 
 ### Keyboard Interactions
 

@@ -30,7 +30,7 @@ export interface NgpListboxOptionState<T> {
    * @internal
    * Whether the option is selected.
    */
-  readonly selected: Signal<boolean | undefined>;
+  readonly selected: Signal<boolean>;
   /**
    * @internal
    * Whether the option is disabled (its own disabled state or the listbox's).
@@ -83,7 +83,7 @@ export const [
     const elementRef = injectElementRef<HTMLElement>();
     const listboxState = injectListboxState<T>();
 
-    const selected = computed(() => listboxState()?.isSelected(value()));
+    const selected = computed(() => listboxState()?.isSelected(value()) ?? false);
 
     // the option is disabled if it is explicitly disabled or the whole listbox is disabled
     const disabled = computed(() => _disabled() || (listboxState()?.disabled() ?? false));
@@ -105,6 +105,7 @@ export const [
     attrBinding(elementRef, 'role', 'option');
     attrBinding(elementRef, 'id', id);
     attrBinding(elementRef, 'aria-disabled', disabled);
+    attrBinding(elementRef, 'aria-selected', selected);
     dataBinding(elementRef, 'data-disabled', () => (disabled() ? '' : null));
     dataBinding(elementRef, 'data-active', () =>
       listboxState()?.isFocused() && active() ? '' : null,
