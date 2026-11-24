@@ -23,8 +23,8 @@ const optionTemplate = `<div ngpSelectOption ngpSelectOptionValue="Apple">Apple<
 const inputTemplate = `<input ngpSelectInput data-testid="select-input" />`;
 const searchableTemplate = `${inputTemplate}<div ngpSelectList>${optionTemplate}</div>`;
 
-/** Renders a select with `host` as its host's attributes and `dropdown` as its dropdown's content. */
-function renderSelect(host: string, dropdown: string) {
+/** Renders a select with `host` as its host's attributes; its dropdown is searchable unless `dropdown` says otherwise. */
+function renderSelect(host: string, dropdown = searchableTemplate) {
   return render(
     `<div ngpSelect ${host} data-testid="select">
       <div *ngpSelectPortal ngpSelectDropdown data-testid="dropdown">${dropdown}</div>
@@ -87,7 +87,7 @@ describe('NgpSelect aria-haspopup', () => {
 
   it('sets no aria-haspopup with a search input in the dropdown', async () => {
     vi.spyOn(console, 'warn').mockImplementation(() => undefined);
-    await renderSelect('', searchableTemplate);
+    await renderSelect('');
 
     expect(screen.getByTestId('select')).not.toHaveAttribute('aria-haspopup');
 
@@ -99,7 +99,7 @@ describe('NgpSelect aria-haspopup', () => {
   });
 
   it("keeps the host's static aria-haspopup with a search input in the dropdown", async () => {
-    await renderSelect('aria-haspopup="dialog"', searchableTemplate);
+    await renderSelect('aria-haspopup="dialog"');
 
     expect(screen.getByTestId('select')).toHaveAttribute('aria-haspopup', 'dialog');
 
@@ -116,7 +116,7 @@ describe('NgpSelect aria-haspopup', () => {
       ['aria-haspopup="listbox"', 'aria-haspopup="listbox"'],
     ])('warns when a search input is composed with %s on the select', async (_, host) => {
       const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
-      await renderSelect(host, searchableTemplate);
+      await renderSelect(host);
 
       await open();
 
@@ -124,8 +124,8 @@ describe('NgpSelect aria-haspopup', () => {
     });
 
     it.each([
-      ['a static attribute', () => renderSelect('aria-haspopup="dialog"', searchableTemplate)],
-      ['a binding', () => renderSelect('[attr.aria-haspopup]="\'dialog\'"', searchableTemplate)],
+      ['a static attribute', () => renderSelect('aria-haspopup="dialog"')],
+      ['a binding', () => renderSelect('[attr.aria-haspopup]="\'dialog\'"')],
       ["a wrapper's host metadata", renderWrappedSelect],
     ])('stays silent when %s announces the dialog', async (_, renderAnnounced) => {
       const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
@@ -133,6 +133,8 @@ describe('NgpSelect aria-haspopup', () => {
 
       await openSearchable();
 
+      // the input takes focus right after its dev check, in the same render callback
+      await waitFor(() => expect(screen.getByTestId('select-input')).toHaveFocus());
       expect(warn).not.toHaveBeenCalledWith(hasPopupWarning);
     });
 
