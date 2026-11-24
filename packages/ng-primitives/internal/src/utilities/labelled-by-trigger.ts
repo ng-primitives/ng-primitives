@@ -1,39 +1,76 @@
 import { ElementRef, inject, Injector, signal, Signal } from '@angular/core';
 import { attrBinding } from 'ng-primitives/state';
+import { safeTakeUntilDestroyed } from 'ng-primitives/utils';
 import { explicitEffect } from '../signals/explicit-effect';
 import { fromMutationObserver } from './mutation-observer';
 
+/** How the consumer named the overlay itself, apart from the `aria-labelledby` written here. */
+interface ConsumerName {
+  readonly hasAriaLabel: boolean;
+  readonly labelledBy: string | null;
+}
+
 /**
- * Name an overlay by its trigger through `aria-labelledby`, unless the consumer named it: with an
- * `aria-label` present when the overlay first renders, or with an `aria-labelledby` of their own,
- * whenever it is set.
+ * Name an overlay by its trigger through `aria-labelledby` while the consumer has not named it:
+ * an overlay with an `aria-label` carries no trigger id, and an `aria-labelledby` of the
+ * consumer's own is kept.
  */
 export function labelledByTrigger(
   element: ElementRef<HTMLElement>,
   trigger: () => HTMLElement | null | undefined,
 ): void {
   const triggerId = observedId(trigger);
-  let hadAriaLabelOnRender: boolean | undefined;
+  // The one record of ownership: any other `aria-labelledby` on the overlay is the consumer's.
   let appliedId: string | null = null;
 
+  const readConsumerName = (): ConsumerName => {
+    const labelledBy = element.nativeElement.getAttribute('aria-labelledby');
+
+    return {
+      hasAriaLabel: element.nativeElement.hasAttribute('aria-label'),
+      labelledBy: labelledBy === appliedId ? null : labelledBy,
+    };
+  };
+  const consumerNameChanged = observedConsumerName(element, readConsumerName);
+
   attrBinding(element, 'aria-labelledby', () => {
-    // Read before any return: a run that keeps the consumer's value must still rerun on a rename.
+    // Both read before any return, so every run depends on the trigger id and on the labels.
     const id = triggerId() || null;
+    consumerNameChanged();
 
-    // Decided once: an `aria-label` added later must not freeze the overlay on the id it has.
-    hadAriaLabelOnRender ??= element.nativeElement.hasAttribute('aria-label');
+    // Read from the element: its observer reports a moment after the consumer writes.
+    const { hasAriaLabel, labelledBy } = readConsumerName();
 
-    // Read every run: a value other than the one written here is the consumer's, and is kept.
-    const current = element.nativeElement.getAttribute('aria-labelledby');
-    const hasOwnLabelledBy = current !== null && current !== appliedId;
-
-    if (hadAriaLabelOnRender || hasOwnLabelledBy) {
-      return current;
+    if (labelledBy !== null) {
+      appliedId = null;
+      return labelledBy;
     }
 
-    appliedId = id;
+    appliedId = hasAriaLabel ? null : id;
     return appliedId;
   });
+}
+
+/**
+ * The consumer's naming of the overlay, kept current. A write of `labelledByTrigger` itself reads
+ * as no consumer `aria-labelledby`, so it leaves the value equal and reruns nothing.
+ */
+function observedConsumerName(
+  element: ElementRef<HTMLElement>,
+  read: () => ConsumerName,
+): Signal<ConsumerName> {
+  const name = signal(read(), {
+    equal: (a, b) => a.hasAriaLabel === b.hasAriaLabel && a.labelledBy === b.labelledBy,
+  });
+
+  fromMutationObserver(element.nativeElement, {
+    attributes: true,
+    attributeFilter: ['aria-label', 'aria-labelledby'],
+  })
+    .pipe(safeTakeUntilDestroyed())
+    .subscribe(() => name.set(read()));
+
+  return name;
 }
 
 /**

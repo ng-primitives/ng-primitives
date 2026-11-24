@@ -45,7 +45,7 @@ class MenuStaticLabelTestComponent {}
     <button [ngpMenuTrigger]="menu" [id]="triggerId()" data-testid="trigger">Options</button>
 
     <ng-template #menu>
-      <div ngpMenu data-testid="menu">
+      <div [attr.aria-label]="label()" ngpMenu data-testid="menu">
         <button
           [ngpSubmenuTrigger]="submenu"
           [id]="submenuTriggerId()"
@@ -68,6 +68,7 @@ class MenuStaticLabelTestComponent {}
 class MenuTriggerIdTestComponent {
   readonly triggerId = signal('first-trigger');
   readonly submenuTriggerId = signal('first-submenu-trigger');
+  readonly label = signal<string | null>(null);
 }
 
 describe('NgpMenu accessible name', () => {
@@ -137,6 +138,27 @@ describe('NgpMenu accessible name', () => {
       );
       expect(trigger).toHaveAttribute('id', 'second-trigger');
       expect(screen.getByTestId('menu')).toHaveAccessibleName('Options');
+    });
+
+    it('should take its name from an aria-label while it has one', async () => {
+      const { fixture } = await render(MenuTriggerIdTestComponent);
+      fireEvent.click(screen.getByTestId('trigger'));
+      await waitFor(() =>
+        expect(screen.getByTestId('menu')).toHaveAttribute('aria-labelledby', 'first-trigger'),
+      );
+      const menu = screen.getByTestId('menu');
+
+      fixture.componentInstance.label.set('File actions');
+      fixture.detectChanges();
+
+      await waitFor(() => expect(menu).not.toHaveAttribute('aria-labelledby'));
+      expect(menu).toHaveAccessibleName('File actions');
+
+      fixture.componentInstance.label.set(null);
+      fixture.detectChanges();
+
+      await waitFor(() => expect(menu).toHaveAttribute('aria-labelledby', 'first-trigger'));
+      expect(menu).toHaveAccessibleName('Options');
     });
 
     it('should keep a submenu labelled by its submenu trigger', async () => {
