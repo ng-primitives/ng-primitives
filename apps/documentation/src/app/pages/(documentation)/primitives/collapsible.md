@@ -97,7 +97,7 @@ Adheres to the [Disclosure WAI-ARIA design pattern](https://www.w3.org/WAI/ARIA/
 
 The trigger exposes `aria-expanded` and `aria-controls`, pointing at the content region. When the trigger is a `<button>` element the correct `type="button"` is applied automatically.
 
-A disabled collapsible sets `aria-disabled="true"` on the trigger rather than the native `disabled` attribute, so the trigger stays focusable and is announced as disabled.
+A disabled collapsible sets `aria-disabled="true"` on the trigger rather than the native `disabled` attribute, so the trigger stays focusable and is announced as disabled. A trigger that is also an `ngpButton` with `[disabled]="true"` still gets the native `disabled` attribute.
 
 ### Keyboard Interactions
 
