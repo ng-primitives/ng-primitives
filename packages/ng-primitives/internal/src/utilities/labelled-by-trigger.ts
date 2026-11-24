@@ -14,7 +14,7 @@ interface NamingAttributes {
 
 /**
  * Name an overlay by its trigger through `aria-labelledby` while the consumer has not named it:
- * an overlay with an `aria-label` carries no trigger id, and an `aria-labelledby` of the
+ * an overlay with a non-blank `aria-label` carries no trigger id, and an `aria-labelledby` of the
  * consumer's own is kept.
  */
 export function labelledByTrigger(
@@ -33,7 +33,7 @@ export function labelledByTrigger(
     () => element.nativeElement,
     ['aria-label', 'aria-labelledby'],
     (overlay): NamingAttributes => ({
-      hasAriaLabel: overlay.hasAttribute('aria-label'),
+      hasAriaLabel: hasOwnAriaLabel(overlay),
       labelledBy: overlay.getAttribute('aria-labelledby'),
     }),
     (a, b) => a.hasAriaLabel === b.hasAriaLabel && a.labelledBy === b.labelledBy,
@@ -50,6 +50,11 @@ export function labelledByTrigger(
     appliedId = hasAriaLabel ? null : triggerId();
     return appliedId;
   });
+}
+
+/** Whether the overlay's `aria-label` names it: an empty or blank one gives no accessible name. */
+function hasOwnAriaLabel(overlay: HTMLElement): boolean {
+  return !!overlay.getAttribute('aria-label')?.trim();
 }
 
 /**

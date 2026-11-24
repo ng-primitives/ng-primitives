@@ -106,6 +106,23 @@ describe('NgpPopover accessible name', () => {
     expect(popover).toHaveAccessibleName('Bound name');
   });
 
+  it.each([
+    ['an empty', ''],
+    ['a blank', '  '],
+  ])('should be labelled by its trigger beside %s aria-label', async (_, label) => {
+    const { fixture } = await render(PopoverNameTestComponent);
+    fixture.componentInstance.label.set(label);
+    fixture.detectChanges();
+
+    const popover = await open();
+
+    expect(popover).toHaveAttribute('aria-label', label);
+    await waitFor(() =>
+      expect(popover).toHaveAttribute('aria-labelledby', screen.getByTestId('trigger').id),
+    );
+    expect(popover).toHaveAccessibleName('Settings');
+  });
+
   it('should not override a bound aria-labelledby', async () => {
     const { fixture } = await render(PopoverNameTestComponent);
     fixture.componentInstance.labelledBy.set('custom-heading');
@@ -184,6 +201,23 @@ describe('NgpPopover accessible name', () => {
       expect(popover).not.toHaveAttribute('aria-labelledby');
 
       fixture.componentInstance.label.set(null);
+      fixture.detectChanges();
+
+      await waitFor(() => expect(popover).toHaveAttribute('aria-labelledby', 'first-trigger'));
+      expect(popover).toHaveAccessibleName('Settings');
+    });
+
+    it('should be labelled by its trigger again once its aria-label is emptied', async () => {
+      const { fixture } = await render(PopoverNameTestComponent);
+      fixture.componentInstance.triggerId.set('first-trigger');
+      fixture.componentInstance.label.set('Bound name');
+      fixture.detectChanges();
+      const popover = await open();
+      await new Promise(resolve => setTimeout(resolve));
+      await fixture.whenStable();
+      expect(popover).not.toHaveAttribute('aria-labelledby');
+
+      fixture.componentInstance.label.set('');
       fixture.detectChanges();
 
       await waitFor(() => expect(popover).toHaveAttribute('aria-labelledby', 'first-trigger'));
