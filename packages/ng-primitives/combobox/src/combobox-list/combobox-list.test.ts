@@ -779,6 +779,33 @@ describe('NgpComboboxList', () => {
       expect(component.value()).toBe('Banana');
     });
 
+    it('should move the active option back on ArrowUp from a text field', async () => {
+      const { filter, apple, banana } = await openControlsDropdown();
+
+      filter.focus();
+      await userEvent.keyboard('{ArrowDown}');
+      await waitFor(() => {
+        expect(banana).toHaveAttribute('data-active');
+      });
+
+      await userEvent.keyboard('{ArrowUp}');
+
+      await waitFor(() => {
+        expect(apple).toHaveAttribute('data-active');
+      });
+    });
+
+    it('should close the dropdown on Escape from a text field', async () => {
+      const { dropdown, filter } = await openControlsDropdown();
+
+      filter.focus();
+      await userEvent.keyboard('{Escape}');
+
+      await waitFor(() => {
+        expect(dropdown).not.toBeInTheDocument();
+      });
+    });
+
     // Real key presses below: the browser, not a simulation, decides what a key does in a field.
     it('should type a space into a text field and stay open', async () => {
       const { dropdown, filter } = await openControlsDropdown();
@@ -805,6 +832,7 @@ describe('NgpComboboxList', () => {
       ['a range slider', 'Volume', 'ArrowDown'],
       ['a textarea', 'Note', 'ArrowDown'],
       ['a textarea', 'Note', 'Enter'],
+      ['a select', 'Sort', 'ArrowDown'],
       ['editable content', 'Comment', 'Enter'],
     ])('should leave the keys of %s alone (%s, %s)', async (_, label, key) => {
       const { component, apple } = await openControlsDropdown();
