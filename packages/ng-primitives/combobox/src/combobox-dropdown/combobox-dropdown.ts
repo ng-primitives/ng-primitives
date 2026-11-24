@@ -1,4 +1,4 @@
-import { Directive, input } from '@angular/core';
+import { computed, Directive, input } from '@angular/core';
 import { injectElementRef, observeResize } from 'ng-primitives/internal';
 import { provideControlContainerIsolation } from 'ng-primitives/portal';
 import { uniqueId } from 'ng-primitives/utils';
@@ -9,10 +9,9 @@ import { injectComboboxState } from '../combobox/combobox-state';
   exportAs: 'ngpComboboxDropdown',
   providers: [provideControlContainerIsolation()],
   host: {
-    '[attr.role]': 'state().list() ? null : "listbox"',
+    '[attr.role]': 'isListbox() ? "listbox" : null',
     '[id]': 'id()',
-    // aria-multiselectable belongs to the listbox, so ngpComboboxList carries it instead
-    '[attr.aria-multiselectable]': 'state().list() ? null : state().multiple()',
+    '[attr.aria-multiselectable]': 'isListbox() ? state().multiple() : null',
     '(mousedown)': 'state().setDropdownPressed(true)',
     '(mouseup)': 'state().setDropdownPressed(false)',
     '(mouseleave)': 'state().setDropdownPressed(false)',
@@ -30,6 +29,9 @@ import { injectComboboxState } from '../combobox/combobox-state';
 export class NgpComboboxDropdown {
   /** Access the combobox state. */
   protected readonly state = injectComboboxState();
+
+  /** Whether the dropdown is the listbox: an ngpComboboxList takes that over, with its attributes. */
+  protected readonly isListbox = computed(() => !this.state().list());
 
   /** The dimensions of the combobox. */
   protected readonly comboboxDimensions = observeResize(
