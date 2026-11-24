@@ -108,7 +108,10 @@ export class NgpSelect {
     transform: booleanAttribute,
   });
 
-  /** The select's `aria-haspopup`: set `dialog` when the dropdown holds an `ngpSelectInput`. */
+  /**
+   * The select's `aria-haspopup`: set `dialog` when the dropdown holds an `ngpSelectInput`.
+   * The select owns the attribute, so a bound `[attr.aria-haspopup]` on the host is removed.
+   */
   readonly hasPopup = input<NgpSelectHasPopup | undefined>(undefined, {
     alias: 'ngpSelectHasPopup',
   });
