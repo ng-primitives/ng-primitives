@@ -1,8 +1,9 @@
 import { signal, Signal } from '@angular/core';
 import { injectElementRef } from 'ng-primitives/internal';
-import { attrBinding, createPrimitive, dataBinding, onDestroy } from 'ng-primitives/state';
-import { onChange, uniqueId } from 'ng-primitives/utils';
+import { attrBinding, createPrimitive, dataBinding } from 'ng-primitives/state';
+import { uniqueId } from 'ng-primitives/utils';
 import { injectFormFieldState } from '../form-field/form-field-state';
+import { keepIdRegistered } from '../form-field/keep-id-registered';
 
 /**
  * The state interface for the Description primitive.
@@ -45,29 +46,11 @@ export const [
     dataBinding(element, 'data-pending', () => (formField()?.pending() ? '' : null));
     dataBinding(element, 'data-disabled', () => (formField()?.disabled() ? '' : null));
 
-    // The id this description has registered: it may be destroyed before a changed id is seen,
-    // and then `id()` is not the registration to undo.
-    let registeredId: string | undefined;
-
-    function registerDescription(): void {
-      registeredId = id();
-      formField()?.addDescription(registeredId);
-    }
-
-    function unregisterDescription(): void {
-      if (registeredId === undefined) {
-        return;
-      }
-      formField()?.removeDescription(registeredId);
-      registeredId = undefined;
-    }
-
-    onChange(id, () => {
-      unregisterDescription();
-      registerDescription();
+    keepIdRegistered({
+      id,
+      add: descriptionId => formField()?.addDescription(descriptionId),
+      remove: descriptionId => formField()?.removeDescription(descriptionId),
     });
-
-    onDestroy(unregisterDescription);
 
     return { id } satisfies NgpDescriptionState;
   },

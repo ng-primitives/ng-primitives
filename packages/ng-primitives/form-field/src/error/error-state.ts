@@ -1,8 +1,8 @@
 import { Signal, computed, signal } from '@angular/core';
 import { injectElementRef } from 'ng-primitives/internal';
-import { attrBinding, createPrimitive, dataBinding, onDestroy } from 'ng-primitives/state';
-import { onBooleanChange, onChange } from 'ng-primitives/utils';
+import { attrBinding, createPrimitive, dataBinding } from 'ng-primitives/state';
 import { injectFormFieldState } from '../form-field/form-field-state';
+import { keepIdRegistered } from '../form-field/keep-id-registered';
 
 /**
  * The state interface for the Error primitive.
@@ -64,33 +64,13 @@ export const [NgpErrorStateToken, ngpError, injectErrorState, provideErrorState]
     dataBinding(element, 'data-disabled', () => (formField()?.disabled() ? '' : null));
     dataBinding(element, 'data-validator', state);
 
-    // The id this error has registered, if any: by the time it is destroyed `hasError()` may
-    // already be false, so only this says whether there is a registration to undo.
-    let registeredId: string | undefined;
-
-    function registerError(): void {
-      registeredId = id();
-      formField()?.addDescription(registeredId);
-    }
-
-    function unregisterError(): void {
-      if (registeredId === undefined) {
-        return;
-      }
-      formField()?.removeDescription(registeredId);
-      registeredId = undefined;
-    }
-
-    onBooleanChange(hasError, registerError, unregisterError);
-
-    onChange(id, newId => {
-      if (registeredId !== undefined && registeredId !== newId) {
-        unregisterError();
-        registerError();
-      }
+    // The error describes the control only while it shows
+    keepIdRegistered({
+      id,
+      active: hasError,
+      add: errorId => formField()?.addDescription(errorId),
+      remove: errorId => formField()?.removeDescription(errorId),
     });
-
-    onDestroy(unregisterError);
 
     return {
       id,
