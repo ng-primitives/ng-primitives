@@ -11,6 +11,7 @@ import {
   untracked,
 } from '@angular/core';
 import {
+  addTokens,
   createHoverBridge,
   HoverBridgePoint,
   injectElementRef,
@@ -28,7 +29,6 @@ import {
   NgpShift,
 } from 'ng-primitives/portal';
 import {
-  attrBinding,
   controlled,
   createPrimitive,
   dataBinding,
@@ -395,7 +395,7 @@ export const [
     });
 
     // Host binding
-    attrBinding(elementRef, 'aria-describedby', () => overlay()?.ariaDescribedBy());
+    addTokens(elementRef.nativeElement, 'aria-describedby', () => overlay()?.ariaDescribedBy());
     dataBinding(elementRef, 'data-open', () => (open() ? '' : null));
 
     // Whether the current focus opens the tooltip. Kept for the re-enable check below, which
@@ -409,8 +409,8 @@ export const [
 
     // Pointer focus is left to hover, and focus an overlay hands back on close (which reports a
     // keyboard origin after an Escape) is not the user arriving. 'program' still opens it: a
-    // screen reader moving focus sends no keydown, and `aria-describedby` only exists while the
-    // tooltip is open. FocusMonitor reports null on blur.
+    // screen reader moving focus sends no keydown, and `aria-describedby` carries the
+    // tooltip's id only while it is open. FocusMonitor reports null on blur.
     focusMonitor
       .monitor(trigger.nativeElement)
       .pipe(safeTakeUntilDestroyed())

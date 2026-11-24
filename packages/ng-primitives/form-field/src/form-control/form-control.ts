@@ -6,7 +6,7 @@ import { ngpFormControl } from './form-control-state';
 /**
  * Typically this primitive would be not be used directly, but instead a more specific form control primitive would be used (e.g. `ngpInput`). All of our form control primitives use `ngpFormControl` internally so they will have the same accessibility features as described below.
  *
- * The `NgpFormControl` directive is used to mark a form control element within a form field. This element will have an `aria-labelledby` attribute set to the ID of the label element within the form field and an `aria-describedby` attribute set to the ID of the description elements within the form field.
+ * The `NgpFormControl` directive is used to mark a form control element within a form field. The IDs of the label elements within the form field are added to this element's `aria-labelledby` attribute and the IDs of the description elements within the form field to its `aria-describedby` attribute, each next to any value the attribute already has.
  */
 @Directive({
   selector: '[ngpFormControl]',

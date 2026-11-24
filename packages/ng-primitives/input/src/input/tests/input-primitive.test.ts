@@ -260,5 +260,19 @@ describe('NgpInput', () => {
 
       expect(getByRole('textbox')).toHaveAttribute('aria-describedby', 'description-id');
     });
+
+    it("should keep the input's own aria-describedby next to the description", async () => {
+      const { getByRole } = await render(
+        `
+        <div ngpFormField>
+          <input ngpInput aria-describedby="hint" />
+          <p ngpDescription id="description-id">Help text</p>
+        </div>
+      `,
+        { imports: [NgpInput, NgpFormField, NgpDescription] },
+      );
+
+      expect(getByRole('textbox')).toHaveAttribute('aria-describedby', 'hint description-id');
+    });
   });
 });

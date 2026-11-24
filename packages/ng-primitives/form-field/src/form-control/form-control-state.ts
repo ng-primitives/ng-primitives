@@ -1,6 +1,6 @@
 import { Injector, Signal, computed, inject, signal } from '@angular/core';
 import { NgControl } from '@angular/forms';
-import { explicitEffect, injectElementRef } from 'ng-primitives/internal';
+import { addTokens, explicitEffect, injectElementRef } from 'ng-primitives/internal';
 import { attrBinding, dataBinding } from 'ng-primitives/state';
 import { NgpControlStatus, controlStatus } from 'ng-primitives/utils';
 import { injectFormFieldState } from '../form-field/form-field-state';
@@ -27,17 +27,6 @@ export function ngpFormControl({
   // Access the form control status.
   const status = controlStatus();
   const injector = inject(Injector);
-  // Determine the aria-labelledby attribute value.
-  const ariaLabelledBy = computed(() => {
-    const labels = formField()?.labels() ?? [];
-    return labels.length > 0 ? labels.join(' ') : null;
-  });
-  // Determine the aria-describedby attribute value.
-  const ariaDescribedBy = computed(() => {
-    const descriptions = formField()?.descriptions() ?? [];
-    return descriptions.length > 0 ? descriptions.join(' ') : null;
-  });
-
   const supportsDisabledAttribute = 'disabled' in elementRef.nativeElement;
 
   // Host bindings
@@ -57,8 +46,8 @@ export function ngpFormControl({
   });
 
   attrBinding(elementRef, 'id', id);
-  attrBinding(elementRef, 'aria-labelledby', ariaLabelledBy);
-  attrBinding(elementRef, 'aria-describedby', ariaDescribedBy);
+  addTokens(elementRef.nativeElement, 'aria-labelledby', () => formField()?.labels());
+  addTokens(elementRef.nativeElement, 'aria-describedby', () => formField()?.descriptions());
   // Expose the validity to assistive technology once the control has been
   // touched; a pristine/untouched control never advertises aria-invalid.
   attrBinding(elementRef, 'aria-invalid', () =>
