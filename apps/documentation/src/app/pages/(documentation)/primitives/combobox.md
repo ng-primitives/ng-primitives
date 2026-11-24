@@ -153,9 +153,10 @@ A `listbox` may only contain options. To render anything else in the dropdown, s
 <docs-example name="combobox-list"></docs-example>
 
 ```html
-<div ngpCombobox ngpComboboxMultiple>
+<div ngpCombobox ngpComboboxMultiple [ngpComboboxDropdownContainer]="container">
   <input ngpComboboxInput />
-  <div ngpComboboxDropdown>
+  <div #container></div>
+  <div *ngpComboboxPortal ngpComboboxDropdown>
     <div ngpComboboxList aria-label="Fruits">
       @for (option of options; track option) {
       <div ngpComboboxOption [ngpComboboxOptionValue]="option">{{ option }}</div>
@@ -166,7 +167,7 @@ A `listbox` may only contain options. To render anything else in the dropdown, s
 </div>
 ```
 
-By default the dropdown is rendered in a portal, outside the tab order of the input, so `Tab` moves past it. To let the keyboard reach a button or a field in the dropdown, render the dropdown right after the input with `ngpComboboxDropdownContainer`.
+By default the dropdown is rendered in a portal, outside the tab order of the input, so `Tab` moves past it. To let the keyboard reach a button or a field in the dropdown, set `ngpComboboxDropdownContainer` to an element placed right after the input, as above: the dropdown is rendered into it and follows the input in the tab order.
 
 Use one `ngpComboboxList` per dropdown, since the combobox controls a single listbox. Keep it rendered for as long as the dropdown is: put `@if` and `@for` around the options, and an empty-state message outside the list. A dropdown whose list is removed becomes the `listbox` itself again, with the other content inside it.
 
