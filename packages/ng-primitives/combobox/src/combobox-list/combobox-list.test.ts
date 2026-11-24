@@ -303,6 +303,8 @@ class InPlaceFilterWithoutListComponent {
         </div>
 
         <p>{{ value().length }} selected</p>
+        <!-- A tabindex of -1 keeps an element out of the tab order; it asks for no focus. -->
+        <div tabindex="-1" data-testid="scroll-area"><span>Details</span></div>
         <button (click)="applied.set(true)" type="button">Apply</button>
       </div>
     </div>
@@ -602,6 +604,14 @@ describe('NgpComboboxList', () => {
       await browserUserEvent.keyboard('{Enter}');
 
       expect(component.value()).toEqual(['Banana']);
+    });
+
+    it('should keep focus on the input after a press on text inside an element with a tabindex of -1', async () => {
+      const { input } = await openPressedDropdown();
+
+      await browserUserEvent.click(screen.getByText('Details'));
+
+      expect(input).toHaveFocus();
     });
 
     it('should click a button beside the list and keep focus on the input', async () => {

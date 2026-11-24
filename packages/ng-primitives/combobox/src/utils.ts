@@ -21,20 +21,21 @@ export function areAllOptionsSelected(
   );
 }
 
+// A `tabindex` of -1 keeps an element out of the tab order and asks for no focus on a press: the
+// combobox's list and its options carry one.
 const FOCUSABLE_SELECTOR =
-  'a[href], button, input, select, textarea, [contenteditable]:not([contenteditable=false]), [tabindex]';
-// Controls that act on a click and need no focus for it. An option carries a tabindex of -1.
+  'a[href], button, input, select, textarea, [contenteditable]:not([contenteditable=false]), [tabindex]:not([tabindex="-1"])';
+// Controls that act on a click and need no focus for it.
 const ACTS_WITHOUT_FOCUS_SELECTOR =
   'button, input:is([type=button], [type=submit], [type=reset], [type=image], [type=checkbox], [type=radio]), [role=button], [role=option]';
 
 /**
  * Whether a mouse press in the dropdown moves focus: it does when the nearest focusable element
  * around the press, inside the dropdown, is anything but a button-like control or an option: a
- * field, a select, editable content, a link, a custom widget with a `tabindex`. A press on
- * content that is not focusable, or on the combobox's own list, which carries a `tabindex` only
- * to stay out of the tab order, leaves focus where it is.
+ * field, a select, editable content, a link, a custom widget with a `tabindex` other than -1. A
+ * press on any other content leaves focus where it is.
  */
-export function takesFocusOnPress(event: MouseEvent, listId: string): boolean {
+export function takesFocusOnPress(event: MouseEvent): boolean {
   // From the element pressed, not `event.target`, which for a press inside a web component is
   // its host, up to the dropdown the press is handled on.
   const path = event.composedPath();
@@ -42,7 +43,7 @@ export function takesFocusOnPress(event: MouseEvent, listId: string): boolean {
     .slice(0, path.indexOf(event.currentTarget!))
     .find(
       (target): target is Element =>
-        target instanceof Element && target.matches(FOCUSABLE_SELECTOR) && target.id !== listId,
+        target instanceof Element && target.matches(FOCUSABLE_SELECTOR),
     );
 
   return !!focusable && !focusable.matches(ACTS_WITHOUT_FOCUS_SELECTOR);
