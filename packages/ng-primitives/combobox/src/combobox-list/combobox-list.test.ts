@@ -806,6 +806,24 @@ describe('NgpComboboxList', () => {
       });
     });
 
+    it.each([
+      ['Alt+ArrowDown', { key: 'ArrowDown', altKey: true }],
+      ['Shift+ArrowDown', { key: 'ArrowDown', shiftKey: true }],
+      ['Shift+Enter', { key: 'Enter', shiftKey: true }],
+      ['Control+Enter', { key: 'Enter', ctrlKey: true }],
+      ['Meta+Enter', { key: 'Enter', metaKey: true }],
+    ])('should leave %s to a text field', async (_, init) => {
+      const { component, filter, apple } = await openControlsDropdown();
+
+      filter.focus();
+      const keydown = new KeyboardEvent('keydown', { ...init, bubbles: true, cancelable: true });
+      filter.dispatchEvent(keydown);
+
+      expect(keydown.defaultPrevented).toBe(false);
+      expect(apple).toHaveAttribute('data-active');
+      expect(component.value()).toBeUndefined();
+    });
+
     // Real key presses below: the browser, not a simulation, decides what a key does in a field.
     it('should type a space into a text field and stay open', async () => {
       const { dropdown, filter } = await openControlsDropdown();
