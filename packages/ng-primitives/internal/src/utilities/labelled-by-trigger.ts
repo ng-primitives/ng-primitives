@@ -2,7 +2,8 @@ import { computed, ElementRef, inject, Injector, signal } from '@angular/core';
 import { toObservable } from '@angular/core/rxjs-interop';
 import { attrBinding } from 'ng-primitives/state';
 import { safeTakeUntilDestroyed } from 'ng-primitives/utils';
-import { distinctUntilChanged, map, of, startWith, switchMap } from 'rxjs';
+import { of } from 'rxjs';
+import { distinctUntilChanged, map, startWith, switchMap } from 'rxjs/operators';
 import { fromMutationObserver } from './mutation-observer';
 
 /** How the consumer named the overlay itself, apart from the `aria-labelledby` written here. */
