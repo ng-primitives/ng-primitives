@@ -370,6 +370,10 @@ describe('NgpAccordion', () => {
     it('should clear aria-disabled and data-disabled when the accordion is enabled again', async () => {
       const fixture = await renderWithButton({ accordionDisabled: true });
       const triggers = fixture.getAllByTestId('accordion-trigger');
+      for (const trigger of triggers) {
+        expect(trigger).toHaveAttribute('aria-disabled', 'true');
+        expect(trigger).toHaveAttribute('data-disabled');
+      }
 
       await fixture.rerender({
         componentProperties: { accordionDisabled: false },
