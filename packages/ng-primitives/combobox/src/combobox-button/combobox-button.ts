@@ -35,8 +35,9 @@ export class NgpComboboxButton {
 
   /**
    * The id of the dropdown.
-   * @deprecated No longer what `aria-controls` names. Read `listboxId` from the combobox state
-   * (`injectComboboxState`) instead: the list when there is one, otherwise the dropdown.
+   * @deprecated `aria-controls` names the dropdown only when it holds no `ngpComboboxList`. Read
+   * `listboxId` from the combobox state (`injectComboboxState`) instead: the list when there is
+   * one, otherwise the dropdown.
    */
   readonly dropdownId = computed(() => this.state().dropdown()?.id());
 
