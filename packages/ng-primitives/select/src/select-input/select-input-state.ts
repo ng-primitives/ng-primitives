@@ -200,6 +200,13 @@ export const [
             console.error(
               '[ngpSelectInput]: When using ngpSelectInput, the options must be wrapped in an element with the ngpSelectList directive (role="listbox"). Without it the input (role="combobox") is nested inside the listbox, which is invalid.',
             );
+          } else if (
+            selectState().elementRef.nativeElement.getAttribute('aria-haspopup') !== 'dialog'
+          ) {
+            // read from the DOM, so a static, a bound and a host-metadata value all count
+            console.warn(
+              '[ngpSelectInput]: The dropdown is a dialog while it holds an ngpSelectInput and an ngpSelectList. Set aria-haspopup="dialog" on the element with the ngpSelect directive, so the closed select announces it.',
+            );
           }
         }
 

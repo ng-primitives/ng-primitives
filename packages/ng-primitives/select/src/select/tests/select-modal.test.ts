@@ -129,7 +129,7 @@ describe('NgpSelect modal', () => {
         NgpSelectPortal,
       ],
       template: `
-        <div ngpSelect ngpSelectDropdownModal data-testid="select">
+        <div ngpSelect ngpSelectDropdownModal aria-haspopup="dialog" data-testid="select">
           Pick a fruit
           <div *ngpSelectPortal ngpSelectDropdown data-testid="dropdown" aria-label="Fruits">
             <input ngpSelectInput aria-label="Search" data-testid="search" />
@@ -167,6 +167,7 @@ describe('NgpSelect modal', () => {
           [ngpSelectDropdownContainer]="inside"
           ngpSelect
           ngpSelectDropdownModal
+          aria-haspopup="dialog"
           data-testid="select"
         >
           Pick a fruit
