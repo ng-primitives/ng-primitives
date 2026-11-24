@@ -1,12 +1,6 @@
 import { isPlatformBrowser } from '@angular/common';
-import {
-  afterRenderEffect,
-  DestroyRef,
-  effect,
-  inject,
-  PLATFORM_ID,
-  untracked,
-} from '@angular/core';
+import { DestroyRef, inject, PLATFORM_ID, untracked } from '@angular/core';
+import { isomorphicEffect } from 'ng-primitives/state';
 
 /** Where the tokens a primitive adds to an attribute come from: a list, or a space-separated string. */
 type TokenSource = () => string[] | string | null | undefined;
@@ -18,22 +12,15 @@ type TokenSource = () => string[] | string | null | undefined;
  * as the consumer wrote it.
  */
 export function addTokens(element: HTMLElement, attr: string, tokens: TokenSource): void {
-  const inBrowser = isPlatformBrowser(inject(PLATFORM_ID));
-  const registry = TokenRegistry.of(element, attr, !inBrowser);
+  const onServer = !isPlatformBrowser(inject(PLATFORM_ID));
+  const registry = TokenRegistry.of(element, attr, onServer);
   const removeOwner = registry.addOwner(tokens);
-  const write = () => {
+
+  // After render, like `attrBinding`: the consumer's binding has written its value by then.
+  isomorphicEffect(() => {
     tokens();
     untracked(() => registry.write());
-  };
-
-  // After render, like `attrBinding`: the consumer's binding has written its value by then. The
-  // switch `attrBinding` uses is private to `ng-primitives/state`, which cannot import this entry
-  // point back.
-  if (inBrowser) {
-    afterRenderEffect(write);
-  } else {
-    effect(write);
-  }
+  });
 
   inject(DestroyRef).onDestroy(removeOwner);
 }

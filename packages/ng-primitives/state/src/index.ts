@@ -728,7 +728,10 @@ export function emitter<T>({
   });
 }
 
-function isomorphicEffect(callback: () => void): void {
+/**
+ * @internal Runs a DOM-writing effect after render in the browser and as a plain effect on the server.
+ */
+export function isomorphicEffect(callback: () => void): void {
   const injector = inject(Injector);
   const platformId = injector.get(PLATFORM_ID);
 
