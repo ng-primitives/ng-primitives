@@ -1,7 +1,7 @@
 import { Component, signal } from '@angular/core';
 import { fireEvent, render, screen, waitFor } from '@testing-library/angular';
 import { NgpPopover, NgpPopoverTrigger } from 'ng-primitives/popover';
-import { describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 
 @Component({
   template: `
@@ -16,6 +16,7 @@ import { describe, expect, it } from 'vitest';
         ngpPopover
         data-testid="popover"
       >
+        <h2 id="heading">Preferences</h2>
         Popover content
       </div>
     </ng-template>
@@ -39,6 +40,22 @@ class PopoverNameTestComponent {
   imports: [NgpPopoverTrigger, NgpPopover],
 })
 class PopoverStaticLabelTestComponent {}
+
+@Component({
+  template: `
+    <button [ngpPopoverTrigger]="content" [id]="triggerId()" data-testid="trigger">Settings</button>
+
+    <ng-template #content>
+      <div ngpPopover data-testid="popover">
+        <button (click)="triggerId.set('renamed-from-inside')" type="button">Rename</button>
+      </div>
+    </ng-template>
+  `,
+  imports: [NgpPopoverTrigger, NgpPopover],
+})
+class PopoverTriggerIdTestComponent {
+  readonly triggerId = signal('first-trigger');
+}
 
 async function open(): Promise<HTMLElement> {
   fireEvent.click(screen.getByTestId('trigger'));
@@ -89,6 +106,23 @@ describe('NgpPopover accessible name', () => {
     expect(popover).toHaveAccessibleName('Bound name');
   });
 
+  it.each([
+    ['an empty', ''],
+    ['a blank', '  '],
+  ])('should be labelled by its trigger beside %s aria-label', async (_, label) => {
+    const { fixture } = await render(PopoverNameTestComponent);
+    fixture.componentInstance.label.set(label);
+    fixture.detectChanges();
+
+    const popover = await open();
+
+    expect(popover).toHaveAttribute('aria-label', label);
+    await waitFor(() =>
+      expect(popover).toHaveAttribute('aria-labelledby', screen.getByTestId('trigger').id),
+    );
+    expect(popover).toHaveAccessibleName('Settings');
+  });
+
   it('should not override a bound aria-labelledby', async () => {
     const { fixture } = await render(PopoverNameTestComponent);
     fixture.componentInstance.labelledBy.set('custom-heading');
@@ -98,5 +132,222 @@ describe('NgpPopover accessible name', () => {
 
     await new Promise(resolve => setTimeout(resolve));
     expect(popover).toHaveAttribute('aria-labelledby', 'custom-heading');
+  });
+
+  describe('when the trigger id changes', () => {
+    afterEach(async () => {
+      if (screen.queryByTestId('popover')) {
+        fireEvent.click(screen.getByTestId('trigger'));
+      }
+      await waitFor(() => expect(screen.queryByTestId('popover')).not.toBeInTheDocument());
+    });
+
+    it('should stay labelled by its trigger through each rename', async () => {
+      const { fixture } = await render(PopoverTriggerIdTestComponent);
+      const popover = await open();
+      await waitFor(() => expect(popover).toHaveAttribute('aria-labelledby', 'first-trigger'));
+
+      for (const id of ['second-trigger', 'third-trigger']) {
+        fixture.componentInstance.triggerId.set(id);
+        fixture.detectChanges();
+
+        await waitFor(() => expect(popover).toHaveAttribute('aria-labelledby', id));
+        expect(popover).toHaveAccessibleName('Settings');
+      }
+    });
+
+    it('should follow a rename made from inside the popover', async () => {
+      await render(PopoverTriggerIdTestComponent);
+      const popover = await open();
+
+      fireEvent.click(screen.getByRole('button', { name: 'Rename' }));
+
+      await waitFor(() =>
+        expect(popover).toHaveAttribute('aria-labelledby', 'renamed-from-inside'),
+      );
+      expect(popover).toHaveAccessibleName('Settings');
+    });
+
+    it('should take its name from an aria-label added later', async () => {
+      const { fixture } = await render(PopoverNameTestComponent);
+      fixture.componentInstance.triggerId.set('first-trigger');
+      fixture.detectChanges();
+      const popover = await open();
+      await waitFor(() => expect(popover).toHaveAttribute('aria-labelledby', 'first-trigger'));
+
+      fixture.componentInstance.label.set('Late name');
+      fixture.detectChanges();
+
+      await waitFor(() => expect(popover).not.toHaveAttribute('aria-labelledby'));
+      expect(popover).toHaveAccessibleName('Late name');
+
+      fixture.componentInstance.triggerId.set('second-trigger');
+      fixture.detectChanges();
+
+      await new Promise(resolve => setTimeout(resolve));
+      await fixture.whenStable();
+      expect(popover).not.toHaveAttribute('aria-labelledby');
+      expect(popover).toHaveAccessibleName('Late name');
+    });
+
+    it('should be labelled by its trigger again once an aria-label is removed', async () => {
+      const { fixture } = await render(PopoverNameTestComponent);
+      fixture.componentInstance.triggerId.set('first-trigger');
+      fixture.componentInstance.label.set('Bound name');
+      fixture.detectChanges();
+      const popover = await open();
+      await new Promise(resolve => setTimeout(resolve));
+      await fixture.whenStable();
+      expect(popover).not.toHaveAttribute('aria-labelledby');
+
+      fixture.componentInstance.label.set(null);
+      fixture.detectChanges();
+
+      await waitFor(() => expect(popover).toHaveAttribute('aria-labelledby', 'first-trigger'));
+      expect(popover).toHaveAccessibleName('Settings');
+    });
+
+    it('should be labelled by its trigger again once its aria-label is emptied', async () => {
+      const { fixture } = await render(PopoverNameTestComponent);
+      fixture.componentInstance.triggerId.set('first-trigger');
+      fixture.componentInstance.label.set('Bound name');
+      fixture.detectChanges();
+      const popover = await open();
+      await new Promise(resolve => setTimeout(resolve));
+      await fixture.whenStable();
+      expect(popover).not.toHaveAttribute('aria-labelledby');
+
+      fixture.componentInstance.label.set('');
+      fixture.detectChanges();
+
+      await waitFor(() => expect(popover).toHaveAttribute('aria-labelledby', 'first-trigger'));
+      expect(popover).toHaveAccessibleName('Settings');
+    });
+
+    it('should keep an aria-labelledby the consumer adds later', async () => {
+      const { fixture } = await render(PopoverNameTestComponent);
+      fixture.componentInstance.triggerId.set('first-trigger');
+      fixture.detectChanges();
+      const popover = await open();
+      await waitFor(() => expect(popover).toHaveAttribute('aria-labelledby', 'first-trigger'));
+
+      fixture.componentInstance.labelledBy.set('heading');
+      fixture.detectChanges();
+      expect(popover).toHaveAttribute('aria-labelledby', 'heading');
+
+      fixture.componentInstance.triggerId.set('second-trigger');
+      fixture.detectChanges();
+
+      await new Promise(resolve => setTimeout(resolve));
+      await fixture.whenStable();
+      expect(popover).toHaveAttribute('aria-labelledby', 'heading');
+      expect(popover).toHaveAccessibleName('Preferences');
+    });
+
+    it('should keep an aria-label present at render through a trigger rename', async () => {
+      const { fixture } = await render(PopoverNameTestComponent);
+      fixture.componentInstance.triggerId.set('first-trigger');
+      fixture.componentInstance.label.set('Bound name');
+      fixture.detectChanges();
+      const popover = await open();
+
+      fixture.componentInstance.triggerId.set('second-trigger');
+      fixture.detectChanges();
+
+      await new Promise(resolve => setTimeout(resolve));
+      await fixture.whenStable();
+      expect(popover).not.toHaveAttribute('aria-labelledby');
+      expect(popover).toHaveAccessibleName('Bound name');
+    });
+
+    it('should be labelled by its trigger again once a later aria-labelledby is removed', async () => {
+      const { fixture } = await render(PopoverNameTestComponent);
+      fixture.componentInstance.triggerId.set('first-trigger');
+      fixture.detectChanges();
+      const popover = await open();
+      await waitFor(() => expect(popover).toHaveAttribute('aria-labelledby', 'first-trigger'));
+
+      fixture.componentInstance.labelledBy.set('heading');
+      fixture.detectChanges();
+      await new Promise(resolve => setTimeout(resolve));
+      await fixture.whenStable();
+      expect(popover).toHaveAttribute('aria-labelledby', 'heading');
+
+      fixture.componentInstance.labelledBy.set(null);
+      fixture.detectChanges();
+
+      await waitFor(() => expect(popover).toHaveAttribute('aria-labelledby', 'first-trigger'));
+      expect(popover).toHaveAccessibleName('Settings');
+    });
+
+    it('should be labelled by the id its trigger took while an aria-labelledby held', async () => {
+      const { fixture } = await render(PopoverNameTestComponent);
+      fixture.componentInstance.triggerId.set('first-trigger');
+      fixture.componentInstance.labelledBy.set('heading');
+      fixture.detectChanges();
+      const popover = await open();
+
+      fixture.componentInstance.triggerId.set('second-trigger');
+      fixture.detectChanges();
+      await new Promise(resolve => setTimeout(resolve));
+      await fixture.whenStable();
+      expect(popover).toHaveAttribute('aria-labelledby', 'heading');
+
+      fixture.componentInstance.labelledBy.set(null);
+      fixture.detectChanges();
+
+      await waitFor(() => expect(popover).toHaveAttribute('aria-labelledby', 'second-trigger'));
+      expect(popover).toHaveAccessibleName('Settings');
+    });
+
+    it('should write aria-labelledby no more once the name has settled', async () => {
+      const { fixture } = await render(PopoverNameTestComponent);
+      fixture.componentInstance.triggerId.set('first-trigger');
+      fixture.detectChanges();
+      const popover = await open();
+      await waitFor(() => expect(popover).toHaveAttribute('aria-labelledby', 'first-trigger'));
+      await new Promise(resolve => setTimeout(resolve));
+      await fixture.whenStable();
+
+      const writes = vi.fn();
+      const observer = new MutationObserver(writes);
+      observer.observe(popover, { attributeFilter: ['aria-labelledby'] });
+
+      for (let round = 0; round < 3; round++) {
+        fixture.detectChanges();
+        await new Promise(resolve => setTimeout(resolve));
+      }
+      observer.disconnect();
+
+      expect(writes).not.toHaveBeenCalled();
+    });
+
+    it('should be labelled by its trigger again once its aria-labelledby is removed by script', async () => {
+      const { fixture } = await render(PopoverNameTestComponent);
+      fixture.componentInstance.triggerId.set('first-trigger');
+      fixture.detectChanges();
+      const popover = await open();
+      await waitFor(() => expect(popover).toHaveAttribute('aria-labelledby', 'first-trigger'));
+      await new Promise(resolve => setTimeout(resolve));
+      await fixture.whenStable();
+
+      popover.removeAttribute('aria-labelledby');
+
+      await waitFor(() => expect(popover).toHaveAttribute('aria-labelledby', 'first-trigger'));
+      expect(popover).toHaveAccessibleName('Settings');
+    });
+
+    it('should be labelled by a trigger that gains its id while open', async () => {
+      const { fixture } = await render(PopoverTriggerIdTestComponent);
+      fixture.componentInstance.triggerId.set('');
+      fixture.detectChanges();
+      const popover = await open();
+
+      fixture.componentInstance.triggerId.set('late-trigger');
+      fixture.detectChanges();
+
+      await waitFor(() => expect(popover).toHaveAttribute('aria-labelledby', 'late-trigger'));
+      expect(popover).toHaveAccessibleName('Settings');
+    });
   });
 });

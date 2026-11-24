@@ -2,7 +2,7 @@ import { Injector, Signal, signal } from '@angular/core';
 import { Observable } from 'rxjs';
 import { explicitEffect } from '../signals/explicit-effect';
 
-interface NgpMutationObserverOptions {
+interface NgpMutationObserverBaseOptions {
   /**
    * Whether to listen for events.
    */
@@ -20,18 +20,29 @@ interface NgpMutationObserverOptions {
    */
   subtree?: boolean;
   /**
-   * Whether the attributes should be observed.
-   */
-  attributes?: boolean;
-  /**
    * Whether the characterData should be observed.
    */
   characterData?: boolean;
-  /**
-   * Whether the attributeFilter should be observed.
-   */
-  attributeFilter?: string[];
 }
+
+type NgpMutationObserverOptions = NgpMutationObserverBaseOptions &
+  (
+    | {
+        /**
+         * Whether the attributes should be observed.
+         */
+        attributes?: boolean;
+        attributeFilter?: undefined;
+      }
+    | {
+        attributes?: true;
+        /**
+         * Only these attribute names are observed. A filter observes attributes by itself:
+         * the browser throws on one beside `attributes: false`.
+         */
+        attributeFilter: string[];
+      }
+  );
 
 /**
  * This function sets up a mutation observer to listen for changes in the DOM.
@@ -45,6 +56,7 @@ export function fromMutationObserver(
     subtree,
     attributes,
     characterData,
+    attributeFilter,
     disabled = signal(false),
     injector,
   }: NgpMutationObserverOptions = {},
@@ -67,7 +79,13 @@ export function fromMutationObserver(
 
       if (!observer) {
         observer = new MutationObserver(mutations => observable.next(mutations));
-        observer.observe(element, { childList, subtree, attributes, characterData });
+        observer.observe(element, {
+          childList,
+          subtree,
+          attributes,
+          characterData,
+          attributeFilter,
+        });
       }
     }
 

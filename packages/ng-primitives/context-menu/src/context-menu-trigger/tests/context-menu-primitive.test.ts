@@ -11,7 +11,7 @@ import {
   NgpContextMenuTrigger,
   injectContextMenuTriggerState,
 } from 'ng-primitives/context-menu';
-import { describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it } from 'vitest';
 
 @Component({
   template: `
@@ -423,6 +423,36 @@ describe('NgpContextMenuTrigger', () => {
     fireEvent.click(moreItem);
 
     await waitFor(() => expect(screen.getByTestId('submenu')).toBeInTheDocument());
+  });
+
+  describe('when the submenu trigger id changes', () => {
+    afterEach(async () => {
+      fireEvent.mouseUp(document.body);
+      await waitFor(() => {
+        expect(screen.queryByTestId('context-menu')).not.toBeInTheDocument();
+        expect(screen.queryByTestId('submenu')).not.toBeInTheDocument();
+      });
+    });
+
+    it('should keep the submenu labelled by its submenu trigger', async () => {
+      await render(ContextMenuWithSubmenuComponent);
+      await openContextMenu();
+      const moreItem = screen.getByTestId('more-item');
+      fireEvent.click(moreItem);
+      await waitFor(() =>
+        expect(screen.getByTestId('submenu')).toHaveAttribute('aria-labelledby', moreItem.id),
+      );
+
+      moreItem.id = 'renamed-more-item';
+
+      await waitFor(() =>
+        expect(screen.getByTestId('submenu')).toHaveAttribute(
+          'aria-labelledby',
+          'renamed-more-item',
+        ),
+      );
+      expect(screen.getByTestId('context-menu')).toBeInTheDocument();
+    });
   });
 
   describe('ARIA attributes', () => {

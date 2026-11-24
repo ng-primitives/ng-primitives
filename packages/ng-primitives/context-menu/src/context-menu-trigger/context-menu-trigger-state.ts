@@ -9,7 +9,7 @@ import {
   WritableSignal,
 } from '@angular/core';
 import { injectElementRef } from 'ng-primitives/internal';
-import { NgpMenuTriggerStateToken } from 'ng-primitives/menu';
+import { NgpMenuTriggerState, NgpMenuTriggerStateToken } from 'ng-primitives/menu';
 import {
   createOverlay,
   NgpFlip,
@@ -319,35 +319,28 @@ export const [
       // No-op for context menu
     }
 
-    // Set the compat state on NgpMenuTriggerStateToken so NgpMenu can find it.
-    // NgpMenu injects this token and calls hide(), openOrigin(), setPointerOverContent() on it.
-    const menuTriggerToken = inject(NgpMenuTriggerStateToken, { optional: true });
-    // eslint-disable-next-line @angular-eslint/no-uncalled-signals -- checking inject() nullability, not signal value
-    if (menuTriggerToken) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (menuTriggerToken as any).set({
-        menu,
-        placement: signal('bottom-start'),
-        open,
-        offset,
-        disabled,
-        flip,
-        context,
-        openOrigin,
-        setDisabled: noop,
-        setFlip: noop,
-        setPlacement: noop,
-        setOffset: noop,
-        setContext: noop,
-        show,
-        hide,
-        toggle: noop,
-        setMenu: noop,
-        setPointerOverContent,
-        // the area a context menu opens from is no name for it
-        triggerId: () => null,
-      });
-    }
+    setMenuTriggerCompatState({
+      menu,
+      placement: signal('bottom-start'),
+      open,
+      offset,
+      disabled,
+      flip,
+      context,
+      openOrigin,
+      setDisabled: noop,
+      setFlip: noop,
+      setPlacement: noop,
+      setOffset: noop,
+      setContext: noop,
+      show,
+      hide,
+      toggle: noop,
+      setMenu: noop,
+      setPointerOverContent,
+      // the area a context menu opens from is no name for it
+      triggerElement: () => null,
+    });
 
     return {
       open,
@@ -360,6 +353,28 @@ export const [
     } satisfies NgpContextMenuTriggerState;
   },
 );
+
+/**
+ * The part of the menu trigger state a context menu has: the members `NgpMenu` calls without a
+ * guard are required, the rest may be left out.
+ */
+type MenuTriggerCompatState<T> = Pick<
+  NgpMenuTriggerState<T>,
+  'hide' | 'openOrigin' | 'setPointerOverContent' | 'triggerElement'
+> &
+  Partial<NgpMenuTriggerState<T>>;
+
+/**
+ * Publish the context menu trigger where `NgpMenu` looks for its trigger. The token is typed for
+ * the whole menu trigger state, hence the cast.
+ */
+function setMenuTriggerCompatState<T>(state: MenuTriggerCompatState<T>): void {
+  const menuTriggerState = inject(NgpMenuTriggerStateToken, { optional: true }) as WritableSignal<
+    MenuTriggerCompatState<T>
+  > | null;
+
+  menuTriggerState?.set(state);
+}
 
 export function injectContextMenuTriggerState(
   options?: StateInjectionOptions,
