@@ -45,13 +45,29 @@ export const [
     dataBinding(element, 'data-pending', () => (formField()?.pending() ? '' : null));
     dataBinding(element, 'data-disabled', () => (formField()?.disabled() ? '' : null));
 
-    onChange(id, (newId, oldId) => {
-      if (oldId) {
-        formField()?.removeDescription(oldId);
+    // The id this description has registered: it may be destroyed before a changed id is seen,
+    // and then `id()` is not the registration to undo.
+    let registeredId: string | undefined;
+
+    function registerDescription(): void {
+      registeredId = id();
+      formField()?.addDescription(registeredId);
+    }
+
+    function unregisterDescription(): void {
+      if (registeredId === undefined) {
+        return;
       }
-      formField()?.addDescription(newId);
+      formField()?.removeDescription(registeredId);
+      registeredId = undefined;
+    }
+
+    onChange(id, () => {
+      unregisterDescription();
+      registerDescription();
     });
-    onDestroy(() => formField()?.removeDescription(id()));
+
+    onDestroy(unregisterDescription);
 
     return { id } satisfies NgpDescriptionState;
   },

@@ -1,7 +1,13 @@
-import { Component } from '@angular/core';
+import { Component, Directive, signal, viewChild } from '@angular/core';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { render } from '@testing-library/angular';
-import { NgpDescription, NgpFormControl, NgpFormField } from 'ng-primitives/form-field';
+import {
+  NgpDescription,
+  NgpFormControl,
+  NgpFormField,
+  ngpDescription,
+  provideDescriptionState,
+} from 'ng-primitives/form-field';
 import { describe, expect, it } from 'vitest';
 
 describe('NgpDescription', () => {
@@ -200,6 +206,46 @@ describe('NgpDescription', () => {
 
     await rerender({ componentProperties: { showDescription: false } });
     fixture.detectChanges();
+    expect(input).not.toHaveAttribute('aria-describedby');
+  });
+
+  it('should unregister the id it registered when removed before a changed id is seen', async () => {
+    @Directive({
+      selector: '[testDescription]',
+      providers: [provideDescriptionState()],
+    })
+    class TestDescription {
+      readonly id = signal('first-desc');
+
+      constructor() {
+        ngpDescription({ id: this.id });
+      }
+    }
+
+    @Component({
+      template: `
+        <div ngpFormField>
+          @if (showDescription()) {
+            <div testDescription>Test Description</div>
+          }
+          <input ngpFormControl />
+        </div>
+      `,
+      imports: [NgpFormField, NgpFormControl, TestDescription],
+    })
+    class TestComponent {
+      readonly showDescription = signal(true);
+      readonly description = viewChild(TestDescription);
+    }
+
+    const { fixture, container } = await render(TestComponent);
+    const input = container.querySelector('input');
+    expect(input).toHaveAttribute('aria-describedby', 'first-desc');
+
+    fixture.componentInstance.description()?.id.set('second-desc');
+    fixture.componentInstance.showDescription.set(false);
+    fixture.detectChanges();
+
     expect(input).not.toHaveAttribute('aria-describedby');
   });
 
