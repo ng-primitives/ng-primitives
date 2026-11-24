@@ -116,7 +116,7 @@ Options without a value do not perform any selection by default. You can use thi
 
 ### Searchable Select
 
-Add `ngpSelectInput` inside the dropdown to provide a search field. Filtering is left to the consumer. Wrap the options in `ngpSelectList` to keep the accessibility tree valid, and put `aria-haspopup="dialog"` on the `ngpSelect` element so the closed trigger announces the dialog.
+Add `ngpSelectInput` inside the dropdown to provide a search field. Filtering is left to the consumer. Wrap the options in `ngpSelectList` to keep the accessibility tree valid, and set `aria-haspopup="dialog"` on the `ngpSelect` element (see Accessibility below).
 
 <docs-example name="select-input"></docs-example>
 
@@ -225,7 +225,9 @@ bootstrapApplication(AppComponent, {
 
 The select primitive follows the [WAI-ARIA Combobox pattern](https://www.w3.org/WAI/ARIA/apg/patterns/combobox/). The trigger uses `role="combobox"` with `aria-expanded` and `aria-controls`. The dropdown uses `role="listbox"` (with `aria-multiselectable` reflecting `ngpSelectMultiple`) and options use `role="option"` with `aria-selected`. Focus is managed using `aria-activedescendant`.
 
-When a search input (`ngpSelectInput`) is used, the combobox semantics move to the input, which receives focus when the dropdown opens. The dropdown becomes a `dialog` wrapping the input and an `ngpSelectList` (`role="listbox"`), and the input drives the options via `aria-activedescendant` and `aria-controls`. Naming is left to the consumer, so add an `aria-label` (or `aria-labelledby`) to both the dropdown dialog and the list. The dropdown is rendered only while open, so the closed trigger cannot tell that it opens a dialog: put `aria-haspopup="dialog"` on the `ngpSelect` element whenever the dropdown holds an `ngpSelectInput`, otherwise the trigger keeps the combobox role's implicit `listbox` popup. Write it as a static attribute, or bind `[attr.aria-haspopup]` when it depends on state. The select never sets or removes `aria-haspopup`: the attribute is yours.
+When a search input (`ngpSelectInput`) is used, the combobox semantics move to the input, which receives focus when the dropdown opens. The dropdown becomes a `dialog` wrapping the input and an `ngpSelectList` (`role="listbox"`), and the input drives the options via `aria-activedescendant` and `aria-controls`. Naming is left to the consumer, so add an `aria-label` (or `aria-labelledby`) to both the dropdown dialog and the list.
+
+The select never sets or removes `aria-haspopup`, and the dropdown is rendered only while open, so the closed trigger cannot tell that it opens a dialog. When the dropdown holds both `ngpSelectInput` and `ngpSelectList`, put `aria-haspopup="dialog"` on the `ngpSelect` element; without it the trigger keeps the combobox role's implicit `listbox` popup, and `ngpSelectInput` logs a warning in development mode. Keep the attribute in place while the dropdown is open as well as closed. A static attribute is the simplest way; bind `[attr.aria-haspopup]` only for a select that sometimes has no search input.
 
 A modal select makes the rest of the page `inert` while the dropdown is open, so screen readers only reach the select and its dropdown. Elements with `data-ngp-modal-exempt`, such as the toast region, and `aria-live` regions placed directly in `<body>` stay reachable. A live region nested in the page, such as a form error, is `inert` too while the dropdown is open.
 
