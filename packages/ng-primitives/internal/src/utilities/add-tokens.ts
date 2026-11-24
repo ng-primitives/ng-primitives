@@ -72,18 +72,20 @@ class TokenRegistry {
   write(): void {
     const owned = [...this.owners].flatMap(owner => tokensOf(owner.tokens()));
 
+    const value = this.element.getAttribute(this.attr);
+    const consumer = tokensOf(value).filter(token => !this.added.includes(token));
+    const added = [...new Set(owned)].filter(token => !consumer.includes(token));
+
     // An attribute that holds no owner's token and gets none stays exactly as the consumer wrote it.
-    if (this.added.length > 0 || owned.length > 0) {
-      const value = this.element.getAttribute(this.attr);
-      const consumer = tokensOf(value).filter(token => !this.added.includes(token));
-      this.added = [...new Set(owned)].filter(token => !consumer.includes(token));
-      const next = [...new Set(consumer), ...this.added].join(' ');
+    if (this.added.length > 0 || added.length > 0) {
+      const next = [...new Set(consumer), ...added].join(' ');
 
       if (next !== (value ?? '')) {
         setOrRemoveAttribute(this.element, this.attr, next);
       }
     }
 
+    this.added = added;
     this.observeConsumer(owned.length > 0);
   }
 

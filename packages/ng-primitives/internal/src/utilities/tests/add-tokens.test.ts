@@ -162,7 +162,19 @@ describe('addTokens', () => {
 
     expect(fixture.nativeElement.querySelector('input')).toHaveAttribute(
       'aria-describedby',
-      'hint err',
+      'hint\n\terr',
+    );
+  });
+
+  it('should leave the attribute as the consumer wrote it when it already holds the tokens of the owners', async () => {
+    const { fixture } = await render('<input owner aria-describedby="err  hint err" />', {
+      imports: [Owner],
+    });
+    await fixture.whenStable();
+
+    expect(fixture.nativeElement.querySelector('input')).toHaveAttribute(
+      'aria-describedby',
+      'err  hint err',
     );
   });
 });
