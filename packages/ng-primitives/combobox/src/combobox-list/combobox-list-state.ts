@@ -1,6 +1,6 @@
 import { Signal, signal } from '@angular/core';
 import { injectElementRef } from 'ng-primitives/internal';
-import { attrBinding, createPrimitive, onDestroy } from 'ng-primitives/state';
+import { attrBinding, createPrimitive, listener, onDestroy } from 'ng-primitives/state';
 import { uniqueId } from 'ng-primitives/utils';
 import { injectComboboxState } from '../combobox/combobox-state';
 
@@ -31,6 +31,14 @@ export const [
     attrBinding(elementRef, 'aria-multiselectable', () => comboboxState().multiple());
     // Focus stays on the input, and a list that scrolls is otherwise a tab stop of its own.
     attrBinding(elementRef, 'tabindex', '-1');
+
+    // That tabindex lets a press on the list beside its options focus the list, which would
+    // take the keys from the input.
+    listener(elementRef, 'mousedown', event => {
+      if (event.target === elementRef.nativeElement) {
+        event.preventDefault();
+      }
+    });
 
     const state = { id } satisfies NgpComboboxListState;
 

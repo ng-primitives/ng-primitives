@@ -110,13 +110,23 @@ class InPlaceComboboxListComponent {
     NgpComboboxPortal,
   ],
   template: `
-    <div ngpCombobox ngpComboboxDropdownContainer="#in-place-scrolling">
+    <div
+      [(ngpComboboxValue)]="value"
+      ngpCombobox
+      ngpComboboxMultiple
+      ngpComboboxDropdownContainer="#in-place-scrolling"
+    >
       <input ngpComboboxInput aria-label="Fruit" />
 
       <div id="in-place-scrolling"></div>
 
       <div *ngpComboboxPortal ngpComboboxDropdown data-testid="dropdown">
-        <div style="max-height: 40px; overflow-y: auto" ngpComboboxList aria-label="Fruits">
+        <!-- The padding is a surface of the list that belongs to no option. -->
+        <div
+          style="max-height: 40px; overflow-y: auto; padding-top: 16px"
+          ngpComboboxList
+          aria-label="Fruits"
+        >
           @for (fruit of fruits; track fruit) {
             <div [ngpComboboxOptionValue]="fruit" ngpComboboxOption>{{ fruit }}</div>
           }
@@ -129,6 +139,7 @@ class InPlaceComboboxListComponent {
 })
 class InPlaceScrollingComboboxListComponent {
   readonly fruits = ['Apple', 'Banana', 'Cherry', 'Grape', 'Lemon', 'Mango', 'Orange', 'Peach'];
+  readonly value = signal<string[]>([]);
 }
 
 @Component({
@@ -554,6 +565,27 @@ describe('NgpComboboxList', () => {
       await browserUserEvent.keyboard('{Tab}');
 
       expect(screen.getByRole('button', { name: 'Apply' })).toHaveFocus();
+    });
+
+    it('should keep focus on the input and the keys working after a press on the list beside its options', async () => {
+      const { fixture } = await render(InPlaceScrollingComboboxListComponent);
+      const input = await openDropdown();
+      const list = screen.getByRole('listbox');
+      const [apple, banana] = screen.getAllByRole('option');
+      await waitFor(() => {
+        expect(input).toHaveAttribute('aria-activedescendant', apple.id);
+      });
+
+      // A real pointer press: the browser, not a simulation, decides what a press focuses.
+      await browserUserEvent.click(list, { position: { x: 8, y: 8 } });
+
+      expect(input).toHaveFocus();
+
+      await browserUserEvent.keyboard('{ArrowDown}');
+      expect(input).toHaveAttribute('aria-activedescendant', banana.id);
+      await browserUserEvent.keyboard('{Enter}');
+
+      expect(fixture.componentInstance.value()).toEqual(['Banana']);
     });
 
     it('should leave Enter to a button in the dropdown when the combobox sits inside an option of another widget', async () => {
