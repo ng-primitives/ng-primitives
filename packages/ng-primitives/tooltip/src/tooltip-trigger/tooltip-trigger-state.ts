@@ -409,8 +409,8 @@ export const [
 
     // Pointer focus is left to hover, and focus an overlay hands back on close (which reports a
     // keyboard origin after an Escape) is not the user arriving. 'program' still opens it: a
-    // screen reader moving focus sends no keydown, and `aria-describedby` only exists while the
-    // tooltip is open. FocusMonitor reports null on blur.
+    // screen reader moving focus sends no keydown, and `aria-describedby` only carries the
+    // tooltip's id while it is open. FocusMonitor reports null on blur.
     focusMonitor
       .monitor(trigger.nativeElement)
       .pipe(safeTakeUntilDestroyed())
