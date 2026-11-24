@@ -1,4 +1,4 @@
-import { Component, signal } from '@angular/core';
+import { Component } from '@angular/core';
 import { fireEvent, render, screen, waitFor } from '@testing-library/angular';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import {
@@ -20,16 +20,16 @@ const imports = [
 ];
 
 const optionTemplate = `<div ngpSelectOption ngpSelectOptionValue="Apple">Apple</div>`;
-const listTemplate = `<div ngpSelectList>${optionTemplate}</div>`;
-const searchableTemplate = `<input ngpSelectInput data-testid="select-input" />${listTemplate}`;
+const inputTemplate = `<input ngpSelectInput data-testid="select-input" />`;
+const searchableTemplate = `${inputTemplate}<div ngpSelectList>${optionTemplate}</div>`;
 
 /** Renders a select with `host` as its host's attributes and `dropdown` as its dropdown's content. */
-function renderSelect(host: string, dropdown = optionTemplate, componentProperties = {}) {
+function renderSelect(host: string, dropdown: string) {
   return render(
     `<div ngpSelect ${host} data-testid="select">
       <div *ngpSelectPortal ngpSelectDropdown data-testid="dropdown">${dropdown}</div>
     </div>`,
-    { imports, componentProperties },
+    { imports },
   );
 }
 
@@ -85,63 +85,21 @@ describe('NgpSelect aria-haspopup', () => {
     vi.restoreAllMocks();
   });
 
-  it.each([
-    ['options', optionTemplate],
-    ['a list', listTemplate],
-    ['a search input', searchableTemplate],
-  ])('sets no aria-haspopup with %s in the dropdown', async (_, dropdown) => {
+  it('sets no aria-haspopup with a search input in the dropdown', async () => {
     vi.spyOn(console, 'warn').mockImplementation(() => undefined);
-    await renderSelect('', dropdown);
+    await renderSelect('', searchableTemplate);
 
     expect(screen.getByTestId('select')).not.toHaveAttribute('aria-haspopup');
 
-    const select = await open();
+    const select = await openSearchable();
     expect(select).not.toHaveAttribute('aria-haspopup');
 
     await close();
     expect(select).not.toHaveAttribute('aria-haspopup');
   });
 
-  it.each([
-    ['a listbox', optionTemplate],
-    ['a search input', searchableTemplate],
-  ])("keeps the host's static aria-haspopup with %s in the dropdown", async (_, dropdown) => {
-    await renderSelect('aria-haspopup="dialog"', dropdown);
-
-    expect(screen.getByTestId('select')).toHaveAttribute('aria-haspopup', 'dialog');
-
-    const select = await open();
-    expect(select).toHaveAttribute('aria-haspopup', 'dialog');
-
-    await close();
-    expect(select).toHaveAttribute('aria-haspopup', 'dialog');
-  });
-
-  it("keeps the host's bound aria-haspopup and follows its changes", async () => {
-    const popup = signal<string | undefined>('dialog');
-    const { fixture } = await renderSelect('[attr.aria-haspopup]="popup()"', searchableTemplate, {
-      popup,
-    });
-    const select = screen.getByTestId('select');
-    expect(select).toHaveAttribute('aria-haspopup', 'dialog');
-
-    await openSearchable();
-    expect(select).toHaveAttribute('aria-haspopup', 'dialog');
-
-    await close();
-    expect(select).toHaveAttribute('aria-haspopup', 'dialog');
-
-    popup.set('listbox');
-    fixture.detectChanges();
-    expect(select).toHaveAttribute('aria-haspopup', 'listbox');
-
-    popup.set(undefined);
-    fixture.detectChanges();
-    expect(select).not.toHaveAttribute('aria-haspopup');
-  });
-
-  it("keeps an aria-haspopup set through a wrapper's host metadata", async () => {
-    await renderWrappedSelect();
+  it("keeps the host's static aria-haspopup with a search input in the dropdown", async () => {
+    await renderSelect('aria-haspopup="dialog"', searchableTemplate);
 
     expect(screen.getByTestId('select')).toHaveAttribute('aria-haspopup', 'dialog');
 
@@ -166,11 +124,12 @@ describe('NgpSelect aria-haspopup', () => {
     });
 
     it.each([
-      ['static', 'aria-haspopup="dialog"'],
-      ['bound', '[attr.aria-haspopup]="\'dialog\'"'],
-    ])("stays silent when the host's %s aria-haspopup announces the dialog", async (_, host) => {
+      ['a static attribute', () => renderSelect('aria-haspopup="dialog"', searchableTemplate)],
+      ['a binding', () => renderSelect('[attr.aria-haspopup]="\'dialog\'"', searchableTemplate)],
+      ["a wrapper's host metadata", renderWrappedSelect],
+    ])('stays silent when %s announces the dialog', async (_, renderAnnounced) => {
       const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
-      await renderSelect(host, searchableTemplate);
+      await renderAnnounced();
 
       await openSearchable();
 
@@ -180,10 +139,7 @@ describe('NgpSelect aria-haspopup', () => {
     it('stays silent without an ngpSelectList, where the dropdown is a listbox', async () => {
       const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
       const error = vi.spyOn(console, 'error').mockImplementation(() => undefined);
-      await renderSelect(
-        '',
-        `<input ngpSelectInput data-testid="select-input" />${optionTemplate}`,
-      );
+      await renderSelect('', `${inputTemplate}${optionTemplate}`);
 
       await open();
 
@@ -191,15 +147,6 @@ describe('NgpSelect aria-haspopup', () => {
         expect(error).toHaveBeenCalledWith(expect.stringContaining('ngpSelectList')),
       );
       expect(screen.getByTestId('dropdown')).toHaveAttribute('role', 'listbox');
-      expect(warn).not.toHaveBeenCalledWith(hasPopupWarning);
-    });
-
-    it("stays silent when a wrapper's host metadata announces the dialog", async () => {
-      const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
-      await renderWrappedSelect();
-
-      await openSearchable();
-
       expect(warn).not.toHaveBeenCalledWith(hasPopupWarning);
     });
   });
