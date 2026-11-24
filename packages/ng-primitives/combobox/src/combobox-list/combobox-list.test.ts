@@ -356,6 +356,9 @@ if (!customElements.get('ngp-test-shadow-field')) {
         </div>
         <!-- A filter in a form prevents Enter only to keep the form from submitting. -->
         <input (keydown.enter)="$event.preventDefault()" aria-label="Form filter" />
+        <!-- The role attribute is a list of tokens: the first one is the role. -->
+        <input aria-label="Padded role filter" role=" textbox " />
+        <input aria-label="Fallback role filter" role="searchbox extra" />
         <input aria-label="Volume" type="range" min="0" max="100" value="0" />
         <textarea aria-label="Note"></textarea>
         <select aria-label="Sort">
@@ -866,6 +869,25 @@ describe('NgpComboboxList', () => {
 
       expect(component.value()).toBe('Apple');
     });
+
+    it.each([
+      [' textbox ', 'Padded role filter'],
+      ['searchbox extra', 'Fallback role filter'],
+    ])(
+      'should move the active option on ArrowDown from a text field with the role "%s"',
+      async (role, name) => {
+        const { fixture, apple, banana } = await openControlsDropdown();
+
+        const filter = screen.getByLabelText(name);
+        expect(filter.getAttribute('role')).toBe(role);
+        filter.focus();
+        await userEvent.keyboard('{ArrowDown}');
+        await fixture.whenStable();
+
+        expect(banana).toHaveAttribute('data-active');
+        expect(apple).not.toHaveAttribute('data-active');
+      },
+    );
 
     it('should step a spin button on ArrowDown and not move the active option', async () => {
       const { fixture, apple, banana } = await openControlsDropdown();

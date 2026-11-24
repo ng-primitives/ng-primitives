@@ -44,6 +44,8 @@ export function needsFocusOnPress(event: MouseEvent): boolean {
 const SINGLE_LINE_TEXT_TYPES = ['text', 'search', 'email', 'url', 'tel', 'password'];
 const TEXT_FIELD_ROLES = ['textbox', 'searchbox', 'combobox'];
 const LIST_KEYS = ['ArrowUp', 'ArrowDown', 'Enter', 'Escape'];
+// ASCII whitespace, which separates the tokens of an HTML attribute.
+const HTML_TOKEN_SEPARATOR = /[\t\n\f\r ]+/;
 
 /**
  * Whether the field the key was pressed in has no use for it, so the list may take it: a list key
@@ -69,10 +71,11 @@ export function leavesKeyToList(event: KeyboardEvent): boolean {
 
 /**
  * Whether the input is a text field to assistive technology as well: an explicit role of another
- * widget, such as `spinbutton`, says its keys drive that widget.
+ * widget, such as `spinbutton`, says its keys drive that widget. The `role` attribute is a list
+ * of tokens, and the first one is the role.
  */
 function hasTextFieldRole(input: HTMLInputElement): boolean {
-  const role = input.getAttribute('role');
+  const [role] = (input.getAttribute('role') ?? '').trim().split(HTML_TOKEN_SEPARATOR);
 
   return !role || TEXT_FIELD_ROLES.includes(role);
 }
