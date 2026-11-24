@@ -11,7 +11,7 @@ import {
 } from 'ng-primitives/portal';
 import { uniqueId } from 'ng-primitives/utils';
 import { injectSelectConfig } from '../config/select-config';
-import { ngpSelect, NgpSelectHasPopup, provideSelectState } from './select-state';
+import { ngpSelect, provideSelectState } from './select-state';
 
 /**
  * Ideally we would use a generic type here, unfortunately, unlike in React,
@@ -109,14 +109,6 @@ export class NgpSelect {
   });
 
   /**
-   * The select's `aria-haspopup`: set `dialog` when the dropdown holds an `ngpSelectInput`.
-   * While unset, the select leaves the host's `aria-haspopup` to the consumer.
-   */
-  readonly hasPopup = input<NgpSelectHasPopup | undefined>(undefined, {
-    alias: 'ngpSelectHasPopup',
-  });
-
-  /**
    * A function that will scroll the active option into view. This can be overridden
    * for cases such as virtual scrolling where we cannot scroll the option directly because
    * it may not be rendered.
@@ -145,7 +137,6 @@ export class NgpSelect {
     flip: this.flip,
     offset: this.offset,
     modal: this.modal,
-    hasPopup: this.hasPopup,
     scrollToOption: this.scrollToOption,
     allOptions: this.allOptions,
     onValueChange: value => this.valueChange.emit(value),

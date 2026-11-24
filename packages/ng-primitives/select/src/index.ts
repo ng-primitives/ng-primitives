@@ -43,7 +43,6 @@ export { NgpSelect } from './select/select';
 export {
   injectSelectState,
   ngpSelect,
-  type NgpSelectHasPopup,
   NgpSelectStateToken,
   provideSelectState,
 } from './select/select-state';

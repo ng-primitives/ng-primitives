@@ -202,13 +202,10 @@ export const [
             );
           }
 
-          const announcedHasPopup =
-            selectState().hasPopup() ||
-            selectState().elementRef.nativeElement.getAttribute('aria-haspopup');
-
-          if (announcedHasPopup !== 'dialog') {
+          // read from the DOM so a static, a bound and a host-metadata value all count
+          if (selectState().elementRef.nativeElement.getAttribute('aria-haspopup') !== 'dialog') {
             console.warn(
-              '[ngpSelectInput]: The dropdown is a dialog while it holds an ngpSelectInput. Set ngpSelectHasPopup="dialog" on the element with the ngpSelect directive, so the closed select announces it.',
+              '[ngpSelectInput]: The dropdown is a dialog while it holds an ngpSelectInput. Set aria-haspopup="dialog" on the element with the ngpSelect directive, so the closed select announces it.',
             );
           }
         }

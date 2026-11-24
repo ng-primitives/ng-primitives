@@ -2059,7 +2059,7 @@ describe('NgpSelect', () => {
           [(ngpSelectValue)]="value"
           (ngpSelectOpenChange)="onOpenChange($event)"
           ngpSelect
-          ngpSelectHasPopup="dialog"
+          aria-haspopup="dialog"
           data-testid="select-with-input"
         >
           @if (value(); as val) {
@@ -2130,7 +2130,7 @@ describe('NgpSelect', () => {
     @Component({
       template: `
         <button data-testid="before">Before</button>
-        <div ngpSelect ngpSelectHasPopup="dialog" data-testid="select-with-input">
+        <div ngpSelect aria-haspopup="dialog" data-testid="select-with-input">
           <span>Select an option</span>
 
           <div *ngpSelectPortal ngpSelectDropdown data-testid="dropdown">
@@ -2221,7 +2221,7 @@ describe('NgpSelect', () => {
             [(ngpSelectValue)]="value"
             ngpSelect
             ngpSelectMultiple
-            ngpSelectHasPopup="dialog"
+            aria-haspopup="dialog"
             data-testid="select"
           >
             <div *ngpSelectPortal ngpSelectDropdown>

@@ -2,8 +2,6 @@ import {
   computed,
   effect,
   ElementRef,
-  HostAttributeToken,
-  inject,
   Signal,
   signal,
   untracked,
@@ -22,7 +20,6 @@ import {
   dataBinding,
   deprecatedSetter,
   emitter,
-  isomorphicEffect,
   listener,
   SetterOptions,
   StateInjectionOptions,
@@ -34,9 +31,6 @@ import type { NgpSelectInputState } from '../select-input/select-input-state';
 import type { NgpSelectListState } from '../select-list/select-list-state';
 import type { NgpSelectOptionState } from '../select-option/select-option-state';
 import { NgpSelectPortalState } from '../select-portal/select-portal-state';
-
-/** The popup types a select can announce through `aria-haspopup`. */
-export type NgpSelectHasPopup = 'listbox' | 'dialog';
 
 export interface NgpSelectOpenOptions {
   /**
@@ -84,11 +78,6 @@ export interface NgpSelectState<T> {
 
   /** Whether the dropdown is modal. */
   readonly modal: Signal<boolean>;
-
-  /**
-   * @internal The popup type the select announces through `aria-haspopup`.
-   */
-  readonly hasPopup: Signal<NgpSelectHasPopup | undefined>;
 
   /**
    * A function that will scroll the active option into view. This can be overridden
@@ -353,9 +342,6 @@ export interface NgpSelectProps<T> {
   /** Whether the dropdown is modal: the rest of the page is `inert` while it is open. */
   readonly modal?: Signal<boolean>;
 
-  /** The popup type the select announces through `aria-haspopup`. */
-  readonly hasPopup?: Signal<NgpSelectHasPopup | undefined>;
-
   /**
    * A function that will scroll the active option into view. This can be overridden
    * for cases such as virtual scrolling where we cannot scroll the option directly because
@@ -386,7 +372,6 @@ export const [NgpSelectStateToken, ngpSelect, _injectSelectState, provideSelectS
       flip = signal<NgpFlip>(true),
       offset = signal<NgpOffset>(0),
       modal = signal(false),
-      hasPopup = signal<NgpSelectHasPopup | undefined>(undefined),
       scrollToOption = signal<((index: number) => void) | undefined>(undefined),
       allOptions = signal<T[] | undefined>(undefined),
       onValueChange,
@@ -475,27 +460,6 @@ export const [NgpSelectStateToken, ngpSelect, _injectSelectState, provideSelectS
       attrBinding(elementRef, 'role', () => (input() ? null : 'combobox'));
       attrBinding(elementRef, 'id', id);
       attrBinding(elementRef, 'aria-expanded', () => (input() ? undefined : expanded()));
-      // Not an attrBinding: an `aria-haspopup` the consumer set is theirs. Once the select stops
-      // announcing, it hands the attribute back unless the consumer has bound over its value. What
-      // it hands back is the template's static value: after hydration the DOM holds the server's.
-      const staticHasPopup = inject(new HostAttributeToken('aria-haspopup'), { optional: true });
-      let writtenHasPopup: NgpSelectHasPopup | undefined;
-      isomorphicEffect(() => {
-        const host = elementRef.nativeElement;
-        const ownHasPopup = (!input() && hasPopup()) || undefined;
-
-        if (ownHasPopup) {
-          host.setAttribute('aria-haspopup', ownHasPopup);
-        } else if (writtenHasPopup && host.getAttribute('aria-haspopup') === writtenHasPopup) {
-          if (staticHasPopup === null) {
-            host.removeAttribute('aria-haspopup');
-          } else {
-            host.setAttribute('aria-haspopup', staticHasPopup);
-          }
-        }
-
-        writtenHasPopup = ownHasPopup;
-      });
       attrBinding(elementRef, 'aria-controls', () =>
         input() ? undefined : open() ? (list()?.id() ?? dropdown()?.id()) : undefined,
       );
@@ -1017,7 +981,6 @@ export const [NgpSelectStateToken, ngpSelect, _injectSelectState, provideSelectS
         flip,
         offset,
         modal,
-        hasPopup,
         scrollToOption,
         allOptions,
         portal,
