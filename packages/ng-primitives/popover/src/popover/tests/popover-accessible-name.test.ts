@@ -136,6 +136,24 @@ describe('NgpPopover accessible name', () => {
       }
     });
 
+    it('should keep following its trigger after an aria-label is added', async () => {
+      const { fixture } = await render(PopoverNameTestComponent);
+      fixture.componentInstance.triggerId.set('first-trigger');
+      fixture.detectChanges();
+      const popover = await open();
+      await waitFor(() => expect(popover).toHaveAttribute('aria-labelledby', 'first-trigger'));
+
+      fixture.componentInstance.label.set('Late name');
+      fixture.detectChanges();
+
+      for (const id of ['second-trigger', 'third-trigger']) {
+        fixture.componentInstance.triggerId.set(id);
+        fixture.detectChanges();
+
+        await waitFor(() => expect(popover).toHaveAttribute('aria-labelledby', id));
+      }
+    });
+
     it('should be labelled by a trigger that gains its id while open', async () => {
       const { fixture } = await render(PopoverTriggerIdTestComponent);
       fixture.componentInstance.triggerId.set('');

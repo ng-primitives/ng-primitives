@@ -12,17 +12,16 @@ export function labelledByTrigger(
   trigger: () => HTMLElement | null | undefined,
 ): void {
   const triggerId = observedId(trigger);
-  let appliedId: string | null = null;
+  let ownLabel: boolean | undefined;
 
-  // In the browser this runs after render, so a label bound in the template is already set.
   attrBinding(element, 'aria-labelledby', () => {
-    const current = element.nativeElement.getAttribute('aria-labelledby');
-    const ownLabel =
+    // Decided once: a label added later does not override the trigger name. In the browser the
+    // first run is after render, so a label bound in the template is already set.
+    ownLabel ??=
       element.nativeElement.hasAttribute('aria-label') ||
-      (current !== null && current !== appliedId);
+      element.nativeElement.hasAttribute('aria-labelledby');
 
-    appliedId = ownLabel ? null : triggerId() || null;
-    return ownLabel ? current : appliedId;
+    return ownLabel ? element.nativeElement.getAttribute('aria-labelledby') : triggerId() || null;
   });
 }
 
