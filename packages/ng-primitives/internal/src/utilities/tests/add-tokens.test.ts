@@ -11,7 +11,7 @@ import {
 } from '@angular/core';
 import { By } from '@angular/platform-browser';
 import { render } from '@testing-library/angular';
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, describe, expect, it, onTestFinished, vi } from 'vitest';
 import { addTokens } from '../add-tokens';
 
 describe('addTokens', () => {
@@ -103,6 +103,7 @@ describe('addTokens', () => {
     const { fixture } = await render(SharedSource);
     const { element } = fixture.componentInstance;
     const first = fixture.componentInstance.addOwner();
+    onTestFinished(() => first.destroy());
     const second = fixture.componentInstance.addOwner();
     fixture.detectChanges();
     await fixture.whenStable();
@@ -111,7 +112,6 @@ describe('addTokens', () => {
     second.destroy();
 
     expect(element).toHaveAttribute('aria-describedby', 'desc');
-    first.destroy();
   });
 
   it("should leave the attribute to the consumer's tokens on the server", async () => {
