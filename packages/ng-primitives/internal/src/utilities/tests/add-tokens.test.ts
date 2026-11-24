@@ -55,17 +55,18 @@ describe('addTokens', () => {
     const disconnect = vi.spyOn(MutationObserver.prototype, 'disconnect');
     const { fixture } = await render(TwoOwners);
     const { element, first } = fixture.componentInstance;
-    expect(observe).not.toHaveBeenCalledWith(element, expect.anything());
+    // the spies see every observer on the page: only those of the element count
+    const observations = () => observe.mock.calls.filter(([target]) => target === element);
+    expect(observations()).toHaveLength(0);
 
     first.set(['desc']);
     await fixture.whenStable();
-    expect(observe).toHaveBeenCalledExactlyOnceWith(element, {
-      attributeFilter: ['aria-describedby'],
-    });
+    expect(observations()).toEqual([[element, { attributeFilter: ['aria-describedby'] }]]);
+    const observer = observe.mock.contexts[observe.mock.calls.findIndex(([t]) => t === element)];
 
     first.set([]);
     await fixture.whenStable();
-    expect(disconnect).toHaveBeenCalledOnce();
+    expect(disconnect.mock.contexts.filter(context => context === observer)).toHaveLength(1);
   });
 
   it("should take a token appended from outside for the consumer's, and not the owners' tokens before it", async () => {
