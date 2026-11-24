@@ -101,8 +101,8 @@ A disabled collapsible sets `aria-disabled="true"` on the trigger rather than th
 
 ### Keyboard Interactions
 
-- <kbd>Space</kbd> - Toggle the collapsible when the trigger is focused.
-- <kbd>Enter</kbd> - Toggle the collapsible when the trigger is focused.
+- <kbd>Space</kbd> - Toggle the collapsible when the trigger is focused and the collapsible is not disabled.
+- <kbd>Enter</kbd> - Toggle the collapsible when the trigger is focused and the collapsible is not disabled.
 
 ### Hidden Until Found
 

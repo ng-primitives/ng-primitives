@@ -165,8 +165,8 @@ The trigger of a disabled item, and every trigger of an accordion disabled with 
 
 ### Keyboard Interactions
 
-- <kbd>Space</kbd> - Toggle the expanded state of the accordion item when the trigger is focused.
-- <kbd>Enter</kbd> - Toggle the expanded state of the accordion item when the trigger is focused.
+- <kbd>Space</kbd> - Toggle the expanded state of the accordion item when the trigger is focused and not `aria-disabled`.
+- <kbd>Enter</kbd> - Toggle the expanded state of the accordion item when the trigger is focused and not `aria-disabled`.
 
 ### Hidden Until Found
 
