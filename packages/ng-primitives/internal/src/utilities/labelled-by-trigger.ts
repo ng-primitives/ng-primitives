@@ -6,8 +6,8 @@ import { of } from 'rxjs';
 import { distinctUntilChanged, map, startWith, switchMap } from 'rxjs/operators';
 import { fromMutationObserver } from './mutation-observer';
 
-/** The naming attributes as they stand on the overlay, the `aria-labelledby` written here included. */
-interface OverlayName {
+/** The overlay's naming attributes as they stand, the `aria-labelledby` written here included. */
+interface NamingAttributes {
   readonly hasAriaLabel: boolean;
   readonly labelledBy: string | null;
 }
@@ -27,12 +27,12 @@ export function labelledByTrigger(
   // The id is the consumer's to set, by any means, so the attribute itself is what is watched.
   const triggerId = observedAttributes(trigger, ['id'], current => current?.id || null);
 
-  // Compared as written, so removing the id applied here reruns the binding like any other change.
-  // The binding's own write cannot loop: its rerun writes the same id, which reads as an equal name.
-  const overlayName = observedAttributes(
+  // The key keeps the id applied here, so removing it reruns the binding. The binding's own write
+  // cannot loop: its rerun writes the same id, which reads as an equal key.
+  const namingAttributes = observedAttributes(
     () => element.nativeElement,
     ['aria-label', 'aria-labelledby'],
-    (overlay): OverlayName => ({
+    (overlay): NamingAttributes => ({
       hasAriaLabel: overlay.hasAttribute('aria-label'),
       labelledBy: overlay.getAttribute('aria-labelledby'),
     }),
@@ -40,7 +40,7 @@ export function labelledByTrigger(
   );
 
   attrBinding(element, 'aria-labelledby', () => {
-    const { hasAriaLabel, labelledBy } = overlayName();
+    const { hasAriaLabel, labelledBy } = namingAttributes();
 
     if (labelledBy !== null && labelledBy !== appliedId) {
       appliedId = null;
