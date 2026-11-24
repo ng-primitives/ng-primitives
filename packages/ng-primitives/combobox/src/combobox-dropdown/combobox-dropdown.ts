@@ -3,7 +3,7 @@ import { injectElementRef, observeResize } from 'ng-primitives/internal';
 import { provideControlContainerIsolation } from 'ng-primitives/portal';
 import { uniqueId } from 'ng-primitives/utils';
 import { injectComboboxState } from '../combobox/combobox-state';
-import { needsFocusOnPress } from '../utils';
+import { takesFocusOnPress } from '../utils';
 
 @Directive({
   selector: '[ngpComboboxDropdown]',
@@ -68,7 +68,9 @@ export class NgpComboboxDropdown {
    * it, or to nothing, would take the keys from the combobox. The press still clicks.
    */
   protected keepFocusOnPress(event: MouseEvent): void {
-    if (this.state().list() && !needsFocusOnPress(event)) {
+    const list = this.state().list();
+
+    if (list && !takesFocusOnPress(event, list.id())) {
       event.preventDefault();
     }
   }

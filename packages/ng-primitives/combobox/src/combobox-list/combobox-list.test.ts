@@ -367,6 +367,9 @@ if (!customElements.get('ngp-test-shadow-field')) {
         </select>
         <div aria-label="Comment" contenteditable="true"><b>bold</b></div>
         <ngp-test-shadow-field data-testid="shadow-field" />
+        <!-- A custom widget is focusable by its tabindex alone. -->
+        <div aria-label="Zoom" aria-valuenow="1" role="slider" tabindex="0"><span>Thumb</span></div>
+        <a (click)="$event.preventDefault()" href="#help">Help</a>
 
         <div ngpComboboxList aria-label="Fruits">
           @for (fruit of fruits; track fruit) {
@@ -997,6 +1000,23 @@ describe('NgpComboboxList', () => {
       await browserUserEvent.click(screen.getByText('bold'));
 
       expect(screen.getByLabelText('Comment')).toHaveFocus();
+    });
+
+    it('should let a custom widget take focus when a child of it is pressed', async () => {
+      await openControlsDropdown();
+
+      await browserUserEvent.click(screen.getByText('Thumb'));
+
+      expect(screen.getByRole('slider', { name: 'Zoom' })).toHaveFocus();
+    });
+
+    it('should let a pressed link take focus', async () => {
+      await openControlsDropdown();
+      const link = screen.getByRole('link', { name: 'Help' });
+
+      await browserUserEvent.click(link);
+
+      expect(link).toHaveFocus();
     });
 
     it('should move a range slider on a press', async () => {

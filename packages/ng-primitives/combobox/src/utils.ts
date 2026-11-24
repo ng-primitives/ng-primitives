@@ -21,24 +21,31 @@ export function areAllOptionsSelected(
   );
 }
 
-const NEEDS_FOCUS_ON_PRESS_SELECTOR =
-  'select, textarea, input:not([type=button], [type=submit], [type=reset], [type=image], [type=checkbox], [type=radio])';
+const FOCUSABLE_SELECTOR =
+  'a[href], button, input, select, textarea, [contenteditable]:not([contenteditable=false]), [tabindex]';
+// Controls that act on a click and need no focus for it. An option carries a tabindex of -1.
+const ACTS_WITHOUT_FOCUS_SELECTOR =
+  'button, input:is([type=button], [type=submit], [type=reset], [type=image], [type=checkbox], [type=radio]), [role=button], [role=option]';
 
 /**
- * Whether the control under a mouse press works only once the press has moved focus to it: a
- * field the user types into, editable content, a select, and the inputs a press drives, such as a
- * slider, which does not move once the press is prevented.
+ * Whether a mouse press in the dropdown moves focus: it does when the nearest focusable element
+ * around the press, inside the dropdown, is anything but a button-like control or an option: a
+ * field, a select, editable content, a link, a custom widget with a `tabindex`. A press on
+ * content that is not focusable, or on the combobox's own list, which carries a `tabindex` only
+ * to stay out of the tab order, leaves focus where it is.
  */
-export function needsFocusOnPress(event: MouseEvent): boolean {
-  // The element pressed, not `event.target`: for a press inside a web component that is its
-  // host, whatever control the shadow root holds.
-  const [target] = event.composedPath();
+export function takesFocusOnPress(event: MouseEvent, listId: string): boolean {
+  // From the element pressed, not `event.target`, which for a press inside a web component is
+  // its host, up to the dropdown the press is handled on.
+  const path = event.composedPath();
+  const focusable = path
+    .slice(0, path.indexOf(event.currentTarget!))
+    .find(
+      (target): target is Element =>
+        target instanceof Element && target.matches(FOCUSABLE_SELECTOR) && target.id !== listId,
+    );
 
-  return (
-    target instanceof Element &&
-    (!!target.closest(NEEDS_FOCUS_ON_PRESS_SELECTOR) ||
-      (target instanceof HTMLElement && target.isContentEditable))
-  );
+  return !!focusable && !focusable.matches(ACTS_WITHOUT_FOCUS_SELECTOR);
 }
 
 const SINGLE_LINE_TEXT_TYPES = ['text', 'search', 'email', 'url', 'tel', 'password'];
