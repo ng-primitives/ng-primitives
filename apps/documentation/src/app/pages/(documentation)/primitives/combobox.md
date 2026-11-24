@@ -20,6 +20,7 @@ import {
   NgpComboboxButton,
   NgpComboboxDropdown,
   NgpComboboxInput,
+  NgpComboboxList,
   NgpComboboxOption,
   NgpComboboxPortal,
 } from 'ng-primitives/combobox';
@@ -145,6 +146,54 @@ To let users pick a value that isn't in the list, render a "create" option whose
 
 <docs-example name="combobox-creatable"></docs-example>
 
+### Other Content in the Dropdown
+
+A `listbox` may only contain options. To render anything else in the dropdown, such as the current selection or an "Apply" button, wrap the options in `ngpComboboxList` to keep the accessibility tree valid.
+
+<docs-example name="combobox-list"></docs-example>
+
+```html
+<div ngpCombobox ngpComboboxMultiple [ngpComboboxDropdownContainer]="container">
+  <input ngpComboboxInput />
+  <div #container></div>
+  <div *ngpComboboxPortal ngpComboboxDropdown>
+    <div ngpComboboxList aria-label="Fruits">
+      @for (option of options; track option) {
+      <div ngpComboboxOption [ngpComboboxOptionValue]="option">{{ option }}</div>
+      }
+    </div>
+    <button type="button">Apply</button>
+  </div>
+</div>
+```
+
+By default the dropdown is rendered in a portal, outside the tab order of the input, so `Tab` moves past it. To let the keyboard reach a button or a field in the dropdown, set `ngpComboboxDropdownContainer` to an element placed right after the input, as above: the dropdown is rendered into it and follows the input in the tab order. A key pressed on such a control stays with it, except that a single-line text field passes the arrow keys, `Enter` and `Escape` on to the list; a field with another role, such as a spin button, keeps its keys.
+
+A mouse press in a dropdown that has a list moves focus only to an element that takes focus; any other press leaves focus where it is, so the arrow keys and `Enter` still reach the options. The nearest of these around the press decides:
+
+- **Takes focus:** a text field or any other input that is not a checkbox, a radio button or a button, a `select`, a `textarea`, editable content, a link, an `audio` or a `video` with controls, and a custom widget with a `tabindex` other than `-1`, also when the press lands on a child of it.
+- **Keeps focus where it is:** buttons, inputs of type `button`, `submit`, `reset` or `image`, checkboxes, radio buttons, and any element with `role="button"` or `role="option"`, even one the list above names; also an element with `tabindex="-1"` that the list above does not name, so an option in a scrollable region with `tabindex="0"` still leaves focus on the input. Focus that was already on a button in the dropdown, moved there with `Tab`, stays on it.
+- **Everything else:** the press is prevented, so text outside the elements that take focus cannot be selected by dragging. A prevented press still clicks.
+
+A disabled control, or one inside a disabled `<fieldset>`, fires no `mousedown` or `click`, so the dropdown cannot keep focus from moving: the browser moves focus off the input and the dropdown closes, as on a press outside it. To keep the dropdown open when such a control is pressed, mark it `aria-disabled="true"` instead of `disabled`. The press then follows the rules above, so a button still clicks and a field still takes typing: your own handlers have to ignore them while they are disabled.
+
+A press on a `<label>` activates its control; some browsers also move focus to it: Chrome focuses a checkbox whose label text is pressed, Safari and Firefox on macOS do not.
+
+Use one `ngpComboboxList` per dropdown, since the combobox controls a single listbox. Keep it rendered for as long as the dropdown is: put `@if` and `@for` around the options, and an empty-state message outside the list. A dropdown whose list is removed becomes the `listbox` itself again, with the other content inside it.
+
+```html
+<div ngpComboboxDropdown>
+  <div ngpComboboxList aria-label="Fruits">
+    @for (option of results; track option) {
+    <div ngpComboboxOption [ngpComboboxOptionValue]="option">{{ option }}</div>
+    }
+  </div>
+  @if (results.length === 0) {
+  <p>No results</p>
+  }
+</div>
+```
+
 ## API Reference
 
 The following directives are available to import from the `ng-primitives/combobox` package:
@@ -235,6 +284,14 @@ The input field for the combobox.
   <api-attribute name="data-pending" description="Applied when the input is pending (e.g., async validation)." />
 </api-reference-attributes>
 
+### NgpComboboxList
+
+The list that contains the options when the dropdown holds other content as well.
+
+<api-docs name="NgpComboboxList"></api-docs>
+
+<api-reference-props name="NgpComboboxList"></api-reference-props>
+
 ### NgpComboboxOption
 
 The individual options within the combobox dropdown.
@@ -299,6 +356,8 @@ bootstrapApplication(AppComponent, {
 ## Accessibility
 
 Adheres to the [WAI-ARIA](https://www.w3.org/WAI/ARIA/apg/patterns/combobox/) guidelines for comboboxes.
+
+When an `ngpComboboxList` is used, it takes `role="listbox"` and `aria-multiselectable`, and while the dropdown is open the `aria-controls` of the input and of the button point at it. The dropdown takes no role, since focus stays on the input, or on the combobox itself when it has no input, and the list is the popup being controlled. Naming is left to the consumer, so add an `aria-label` (or `aria-labelledby`) to the list.
 
 ### Keyboard Interactions
 

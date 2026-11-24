@@ -29,10 +29,11 @@ import { controlStatus } from 'ng-primitives/utils';
 import type { NgpComboboxButton } from '../combobox-button/combobox-button';
 import type { NgpComboboxDropdown } from '../combobox-dropdown/combobox-dropdown';
 import type { NgpComboboxInput } from '../combobox-input/combobox-input';
+import type { NgpComboboxListState } from '../combobox-list/combobox-list-state';
 import { NgpComboboxOption } from '../combobox-option/combobox-option';
 import type { NgpComboboxPortal } from '../combobox-portal/combobox-portal';
 import { injectComboboxConfig } from '../config/combobox-config';
-import { areAllOptionsSelected } from '../utils';
+import { areAllOptionsSelected, leavesKeyToList } from '../utils';
 import { comboboxState, provideComboboxState } from './combobox-state';
 
 /**
@@ -180,6 +181,20 @@ export class NgpCombobox {
    * @internal
    */
   readonly dropdown = signal<NgpComboboxDropdown | undefined>(undefined);
+
+  private readonly registeredLists = signal<NgpComboboxListState[]>([]);
+
+  /**
+   * The combobox list, when a dedicated listbox wraps the options: the one registered last.
+   * @internal
+   */
+  readonly list = computed(() => this.registeredLists().at(-1));
+
+  /**
+   * The id of the listbox the combobox controls: the list when there is one, otherwise the dropdown.
+   * @internal
+   */
+  readonly listboxId = computed(() => this.list()?.id() ?? this.dropdown()?.id());
 
   /**
    * Store the combobox options.
@@ -687,6 +702,24 @@ export class NgpCombobox {
   }
 
   /**
+   * Register the list with the combobox.
+   * @param list The list to register.
+   * @internal
+   */
+  registerList(list: NgpComboboxListState): void {
+    this.registeredLists.update(lists => [...lists, list]);
+  }
+
+  /**
+   * Unregister the list from the combobox.
+   * @param list The list to unregister.
+   * @internal
+   */
+  unregisterList(list: NgpComboboxListState): void {
+    this.registeredLists.update(lists => lists.filter(registered => registered !== list));
+  }
+
+  /**
    * Register an option with the combobox.
    * @param option The option to register.
    * @internal
@@ -735,6 +768,10 @@ export class NgpCombobox {
   protected handleKeydown(event: KeyboardEvent): void {
     // If the event originated from the input element, let the input handle it
     if (this.input() && event.target === this.input()?.elementRef.nativeElement) {
+      return;
+    }
+
+    if (this.handlesOwnKey(event)) {
       return;
     }
 
@@ -791,6 +828,28 @@ export class NgpCombobox {
         }
         break;
     }
+  }
+
+  /**
+   * Whether the key was pressed on content beside the list in the dropdown, which handles its own
+   * keys: anything other than one of this combobox's options, such as a button or a field. Such
+   * keys reach the combobox only when the dropdown is rendered inside it. A single-line text field
+   * still leaves the keys it has no use for to the combobox, as the combobox input does; a web
+   * component keeps every key, since its events arrive with the host as their target. Without a
+   * list the dropdown is the listbox, and every key pressed in it stays the combobox's.
+   */
+  private handlesOwnKey(event: KeyboardEvent): boolean {
+    const { target } = event;
+    const dropdown = this.dropdown()?.elementRef.nativeElement;
+
+    return (
+      !!this.list() &&
+      target instanceof Element &&
+      target !== dropdown &&
+      !!dropdown?.contains(target) &&
+      !this.options().some(option => option.elementRef.nativeElement.contains(target)) &&
+      !leavesKeyToList(event)
+    );
   }
 
   /**

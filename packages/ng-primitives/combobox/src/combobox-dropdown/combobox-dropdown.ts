@@ -1,17 +1,19 @@
-import { Directive, input } from '@angular/core';
+import { computed, Directive, input } from '@angular/core';
 import { injectElementRef, observeResize } from 'ng-primitives/internal';
 import { provideControlContainerIsolation } from 'ng-primitives/portal';
 import { uniqueId } from 'ng-primitives/utils';
 import { injectComboboxState } from '../combobox/combobox-state';
+import { takesFocusOnPress } from '../utils';
 
 @Directive({
   selector: '[ngpComboboxDropdown]',
   exportAs: 'ngpComboboxDropdown',
   providers: [provideControlContainerIsolation()],
   host: {
-    role: 'listbox',
+    '[attr.role]': 'isListbox() ? "listbox" : null',
     '[id]': 'id()',
-    '[attr.aria-multiselectable]': 'state().multiple()',
+    '[attr.aria-multiselectable]': 'isListbox() ? state().multiple() : null',
+    '(mousedown)': 'keepFocusOnPress($event)',
     '[attr.data-reference-hidden]': 'state().overlay()?.referenceHidden() ? "" : null',
     '[style.left.px]': 'state().overlay()?.position()?.x',
     '[style.top.px]': 'state().overlay()?.position()?.y',
@@ -26,6 +28,9 @@ import { injectComboboxState } from '../combobox/combobox-state';
 export class NgpComboboxDropdown {
   /** Access the combobox state. */
   protected readonly state = injectComboboxState();
+
+  /** Whether the dropdown is the listbox: an ngpComboboxList takes that over, with its attributes. */
+  protected readonly isListbox = computed(() => !this.state().list());
 
   /** The dimensions of the combobox. */
   protected readonly comboboxDimensions = observeResize(
@@ -56,5 +61,15 @@ export class NgpComboboxDropdown {
     // The combobox's own overlay, not one injected: a dropdown rendered in place would find an
     // enclosing overlay and replace that overlay's properties.
     this.state().overlay()?.registerAvailableSizePrefix('--ngp-combobox');
+  }
+
+  /**
+   * With a list, the dropdown holds content beside the options, and a press that moved focus onto
+   * it, or to nothing, would take the keys from the combobox. The press still clicks.
+   */
+  protected keepFocusOnPress(event: MouseEvent): void {
+    if (this.state().list() && !takesFocusOnPress(event)) {
+      event.preventDefault();
+    }
   }
 }

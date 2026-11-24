@@ -17,7 +17,7 @@ import { injectComboboxState } from '../combobox/combobox-state';
     'aria-haspopup': 'listbox',
     'aria-autocomplete': 'list',
     '[id]': 'id()',
-    '[attr.aria-controls]': 'state().open() ? dropdownId() : undefined',
+    '[attr.aria-controls]': 'state().open() ? state().listboxId() : undefined',
     '[attr.aria-expanded]': 'state().open()',
     '[attr.data-open]': 'state().open() ? "" : undefined',
     '[attr.data-disabled]': 'state().disabled() ? "" : undefined',
@@ -39,7 +39,12 @@ export class NgpComboboxInput {
   /** The id of the input. */
   readonly id = input<string>(uniqueId('ngp-combobox-input'));
 
-  /** The id of the dropdown. */
+  /**
+   * The id of the dropdown.
+   * @deprecated `aria-controls` names the dropdown only when it holds no `ngpComboboxList`. Read
+   * `listboxId` from the combobox state (`injectComboboxState`) instead: the list when there is
+   * one, otherwise the dropdown.
+   */
   readonly dropdownId = computed(() => this.state().dropdown()?.id());
 
   /** The id of the active descendant. */

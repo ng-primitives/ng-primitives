@@ -20,3 +20,111 @@ export function areAllOptionsSelected(
     regularOptions.every(({ value }) => selectedValues.some(val => compareWith(val, value)))
   );
 }
+
+const FOCUSABLE_SELECTOR =
+  'a[href], button, input, select, textarea, audio[controls], video[controls], [contenteditable]:not([contenteditable=false]), [tabindex]:not([tabindex="-1"])';
+// Controls that act on a click and need no focus for it, by element and by role.
+const ACTS_WITHOUT_FOCUS_SELECTOR =
+  'button, input:is([type=button], [type=submit], [type=reset], [type=image], [type=checkbox], [type=radio])';
+const ACTS_WITHOUT_FOCUS_ROLES = ['button', 'option'];
+// A browser focuses an element with a `tabindex` of -1 on a press. The dropdown keeps focus from
+// it by choice, as from the combobox's list and options, which carry one.
+const KEPT_FROM_FOCUS_SELECTOR = '[tabindex="-1"]';
+
+/**
+ * Whether a mouse press in the dropdown moves focus. The nearest element around the press, inside
+ * the dropdown, that is focusable, a button-like control, an option or has a `tabindex` of -1
+ * decides, whatever wraps it. The press moves focus when that element is a field, a select,
+ * editable content, a link, a media player with controls or a custom widget with a `tabindex`
+ * other than -1; on a button-like control, an option, an element with a `tabindex` of -1 that is
+ * none of these, and on any other content, focus stays where it is.
+ */
+export function takesFocusOnPress(event: MouseEvent): boolean {
+  // From the element pressed, not `event.target`, which for a press inside a web component is
+  // its host, up to the dropdown the press is handled on.
+  const path = event.composedPath();
+  const pressed = path
+    .slice(0, path.indexOf(event.currentTarget!))
+    .find((target): target is Element => target instanceof Element && decidesFocusOnPress(target));
+
+  return !!pressed && pressed.matches(FOCUSABLE_SELECTOR) && !actsWithoutFocus(pressed);
+}
+
+function decidesFocusOnPress(element: Element): boolean {
+  return (
+    element.matches(FOCUSABLE_SELECTOR) ||
+    element.matches(KEPT_FROM_FOCUS_SELECTOR) ||
+    actsWithoutFocus(element)
+  );
+}
+
+function actsWithoutFocus(element: Element): boolean {
+  const role = roleOf(element);
+
+  return (
+    element.matches(ACTS_WITHOUT_FOCUS_SELECTOR) ||
+    (!!role && ACTS_WITHOUT_FOCUS_ROLES.includes(role))
+  );
+}
+
+const SINGLE_LINE_TEXT_TYPES = ['text', 'search', 'email', 'url', 'tel', 'password'];
+const TEXT_FIELD_ROLES = ['textbox', 'searchbox', 'combobox'];
+const LIST_KEYS = ['ArrowUp', 'ArrowDown', 'Enter', 'Escape'];
+// ASCII whitespace, which separates the tokens of an HTML attribute.
+const HTML_TOKEN_SEPARATOR = /[\t\n\f\r ]+/;
+
+/**
+ * Whether the field the key was pressed in has no use for it, so the list may take it: a list key
+ * on its own in a single-line field the user types into. Every other key is the field's: a space,
+ * Home and End, a list key held with a modifier, such as Alt+ArrowDown, which opens the field's
+ * suggestions, and a key that belongs to an IME composition. So is every key of another field:
+ * the arrows step a number, a date, a slider or a text input given the role of a spin button, and
+ * Enter breaks a line in a textarea.
+ */
+export function leavesKeyToList(event: KeyboardEvent): boolean {
+  const { target, key } = event;
+
+  return (
+    target instanceof HTMLInputElement &&
+    // The `type` property reads a missing or unknown type as `text`.
+    SINGLE_LINE_TEXT_TYPES.includes(target.type) &&
+    hasTextFieldRole(target) &&
+    LIST_KEYS.includes(key) &&
+    !hasModifier(event) &&
+    !isPartOfComposition(event)
+  );
+}
+
+/**
+ * Whether the input is a text field to assistive technology as well: an explicit role of another
+ * widget, such as `spinbutton`, says its keys drive that widget.
+ */
+function hasTextFieldRole(input: HTMLInputElement): boolean {
+  const role = roleOf(input);
+
+  return !role || TEXT_FIELD_ROLES.includes(role);
+}
+
+/**
+ * The role an element is given: the first token of its `role` attribute, which is a list of
+ * tokens. WAI-ARIA would skip a token that names no role and read the next one; here an unknown
+ * first token is the role, so a field that carries one keeps its keys, and a pressed element that
+ * carries one is no button or option: it takes focus if it is focusable.
+ */
+function roleOf(element: Element): string | undefined {
+  return (element.getAttribute('role') ?? '')
+    .split(HTML_TOKEN_SEPARATOR)
+    .find(token => token !== '');
+}
+
+function hasModifier({ altKey, ctrlKey, metaKey, shiftKey }: KeyboardEvent): boolean {
+  return altKey || ctrlKey || metaKey || shiftKey;
+}
+
+/**
+ * Safari reports the Enter that commits a composition as `Enter` after the composition has ended,
+ * with only the key code left to tell it from an Enter of its own.
+ */
+function isPartOfComposition({ isComposing, keyCode }: KeyboardEvent): boolean {
+  return isComposing || keyCode === 229;
+}
