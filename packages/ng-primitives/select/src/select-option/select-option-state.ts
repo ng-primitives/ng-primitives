@@ -107,7 +107,6 @@ export const [
     const elementRef = injectElementRef<HTMLElement>();
     const selectState = injectSelectState();
 
-    // the option is disabled if it is explicitly disabled or the whole select is disabled
     const disabled = computed(() => _disabled() || selectState().disabled());
 
     ngpInteractions({

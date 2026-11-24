@@ -55,7 +55,10 @@ export interface NgpSelectState<T> {
   /** Whether the select is multiple selection. */
   readonly multiple: Signal<boolean>;
 
-  /** Whether the select is disabled (its own disabled state or its form control's). */
+  /**
+   * Whether the select is disabled (its own disabled state or its form control's). Writing to it
+   * sets only the select's own state, so a disabled form control still keeps it disabled.
+   */
   readonly disabled: WritableSignal<boolean>;
 
   /** The comparator function used to compare options. */
