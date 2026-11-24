@@ -34,6 +34,7 @@ import {
       ngpCombobox
     >
       <input
+        #input
         [value]="filter()"
         (input)="onFilterChange($event)"
         placeholder="Select characters..."
@@ -66,7 +67,7 @@ import {
 
         <div class="footer">
           <span>{{ value().length }} selected</span>
-          <button [disabled]="value().length === 0" (click)="value.set([])" type="button">
+          <button [disabled]="value().length === 0" (click)="clear(input)" type="button">
             Clear
           </button>
         </div>
@@ -288,6 +289,12 @@ export default class ComboboxListExample {
   protected onFilterChange(event: Event): void {
     const input = event.target as HTMLInputElement;
     this.filter.set(input.value);
+  }
+
+  /** Clear the selection and return focus to the input, as the button disables itself. */
+  protected clear(input: HTMLInputElement): void {
+    this.value.set([]);
+    input.focus();
   }
 
   protected resetOnClose(open: boolean): void {
