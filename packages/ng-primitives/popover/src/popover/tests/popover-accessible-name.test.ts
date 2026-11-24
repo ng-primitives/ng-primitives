@@ -1,7 +1,7 @@
 import { Component, signal } from '@angular/core';
 import { fireEvent, render, screen, waitFor } from '@testing-library/angular';
 import { NgpPopover, NgpPopoverTrigger } from 'ng-primitives/popover';
-import { afterEach, describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 
 @Component({
   template: `
@@ -180,6 +180,7 @@ describe('NgpPopover accessible name', () => {
       fixture.detectChanges();
       const popover = await open();
       await new Promise(resolve => setTimeout(resolve));
+      await fixture.whenStable();
       expect(popover).not.toHaveAttribute('aria-labelledby');
 
       fixture.componentInstance.label.set(null);
@@ -243,6 +244,48 @@ describe('NgpPopover accessible name', () => {
 
       await waitFor(() => expect(popover).toHaveAttribute('aria-labelledby', 'first-trigger'));
       expect(popover).toHaveAccessibleName('Settings');
+    });
+
+    it('should be labelled by the id its trigger took while an aria-labelledby held', async () => {
+      const { fixture } = await render(PopoverNameTestComponent);
+      fixture.componentInstance.triggerId.set('first-trigger');
+      fixture.componentInstance.labelledBy.set('heading');
+      fixture.detectChanges();
+      const popover = await open();
+
+      fixture.componentInstance.triggerId.set('second-trigger');
+      fixture.detectChanges();
+      await new Promise(resolve => setTimeout(resolve));
+      await fixture.whenStable();
+      expect(popover).toHaveAttribute('aria-labelledby', 'heading');
+
+      fixture.componentInstance.labelledBy.set(null);
+      fixture.detectChanges();
+
+      await waitFor(() => expect(popover).toHaveAttribute('aria-labelledby', 'second-trigger'));
+      expect(popover).toHaveAccessibleName('Settings');
+    });
+
+    it('should write aria-labelledby no more once the name has settled', async () => {
+      const { fixture } = await render(PopoverNameTestComponent);
+      fixture.componentInstance.triggerId.set('first-trigger');
+      fixture.detectChanges();
+      const popover = await open();
+      await waitFor(() => expect(popover).toHaveAttribute('aria-labelledby', 'first-trigger'));
+      await new Promise(resolve => setTimeout(resolve));
+      await fixture.whenStable();
+
+      const writes = vi.fn();
+      const observer = new MutationObserver(writes);
+      observer.observe(popover, { attributeFilter: ['aria-labelledby'] });
+
+      for (let round = 0; round < 3; round++) {
+        fixture.detectChanges();
+        await new Promise(resolve => setTimeout(resolve));
+      }
+      observer.disconnect();
+
+      expect(writes).not.toHaveBeenCalled();
     });
 
     it('should be labelled by a trigger that gains its id while open', async () => {
