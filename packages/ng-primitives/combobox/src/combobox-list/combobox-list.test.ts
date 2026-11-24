@@ -375,6 +375,7 @@ if (!customElements.get('ngp-test-shadow-field')) {
         <!-- A custom widget is focusable by its tabindex alone. -->
         <div aria-label="Zoom" aria-valuenow="1" role="slider" tabindex="0"><span>Thumb</span></div>
         <a (click)="$event.preventDefault()" href="#help">Help</a>
+        <video aria-label="Clip" controls data-testid="video"></video>
 
         <div ngpComboboxList aria-label="Fruits">
           @for (fruit of fruits; track fruit) {
@@ -1041,6 +1042,15 @@ describe('NgpComboboxList', () => {
       await browserUserEvent.click(link);
 
       expect(link).toHaveFocus();
+    });
+
+    it('should let a pressed video with controls take focus', async () => {
+      await openControlsDropdown();
+      const video = screen.getByTestId('video');
+
+      await browserUserEvent.click(video);
+
+      expect(video).toHaveFocus();
     });
 
     it('should move a range slider on a press', async () => {
