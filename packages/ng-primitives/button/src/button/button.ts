@@ -58,8 +58,8 @@ export class NgpButton {
   }
 
   /** @internal */
-  registerAriaDisabledSource(source: Signal<boolean>): void {
-    this.state.registerAriaDisabledSource(source);
+  registerAriaDisabledSource(source: Signal<boolean>, options?: { dataDisabled?: boolean }): void {
+    this.state.registerAriaDisabledSource(source, options);
   }
 
   /** @internal */

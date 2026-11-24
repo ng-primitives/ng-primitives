@@ -37,10 +37,11 @@ export interface NgpButtonState {
   unregisterDisabledSource(source: Signal<boolean>): void;
 
   /**
-   * Set `aria-disabled` while `source` is true. The button stays focusable and pressable.
+   * Set `aria-disabled` while `source` is true, and `data-disabled` too with `dataDisabled`.
+   * The button stays focusable and pressable.
    * @internal
    */
-  registerAriaDisabledSource(source: Signal<boolean>): void;
+  registerAriaDisabledSource(source: Signal<boolean>, options?: { dataDisabled?: boolean }): void;
 
   /**
    * Stop following a source added with `registerAriaDisabledSource`.
@@ -49,22 +50,12 @@ export interface NgpButtonState {
   unregisterAriaDisabledSource(source: Signal<boolean>): void;
 }
 
-/** Signals other parts on the element register; `active` is true while any of them is. */
-function sourceList() {
-  const sources = signal<readonly Signal<boolean>[]>([]);
-
-  return {
-    active: computed(() => sources().some(source => source())),
-    add(source: Signal<boolean>): void {
-      sources.update(current => [...current, source]);
-    },
-    remove(source: Signal<boolean>): void {
-      sources.update(current => {
-        const index = current.indexOf(source);
-        return index === -1 ? current : [...current.slice(0, index), ...current.slice(index + 1)];
-      });
-    },
-  };
+/** A signal another part on the element registered, and what the button sets while it is true. */
+interface DisabledSource {
+  readonly active: Signal<boolean>;
+  /** Fully disable the button, rather than only set `aria-disabled`. */
+  readonly hard: boolean;
+  readonly dataDisabled: boolean;
 }
 
 export interface NgpButtonProps {
@@ -88,18 +79,21 @@ export const [NgpButtonStateToken, ngpButton, injectButtonState, provideButtonSt
       const disabled = controlled(_disabled);
       const pending = controlled(_pending);
 
-      // Another part on the same element (e.g. a search clear button) can disable
-      // the button without overriding the consumer's own disabled binding.
-      const disabledSources = sourceList();
-      // Or only announce it as disabled (e.g. a collapsible trigger), leaving it focusable.
-      const ariaDisabledSources = sourceList();
+      // Another part on the same element can disable the button (e.g. a search clear button)
+      // or only announce it as disabled (e.g. a collapsible trigger), without overriding the
+      // consumer's own disabled binding. Read in the bindings, so the list is one signal per button.
+      const sources = signal<readonly DisabledSource[]>([]);
 
-      const hardDisabled = computed(() => disabled() === true || disabledSources.active());
+      function isSourceActive(matches: (source: DisabledSource) => boolean): boolean {
+        return sources().some(source => matches(source) && source.active());
+      }
+
+      const hardDisabled = computed(
+        () => disabled() === true || isSourceActive(source => source.hard),
+      );
       const softDisabled = computed(() => disabled() === 'soft' && !hardDisabled());
       const anyDisabled = computed(() => hardDisabled() || softDisabled());
-      const announcedDisabled = computed(
-        () => softDisabled() || pending() || ariaDisabledSources.active(),
-      );
+      const announcedDisabled = () => softDisabled() || pending() || isSourceActive(() => true);
 
       ngpInteractions({
         hover: true,
@@ -110,7 +104,9 @@ export const [NgpButtonStateToken, ngpButton, injectButtonState, provideButtonSt
       // Soft-disabled and pending stay focusable, so only suppress focus-visible when fully disabled.
       ngpFocusVisible({ disabled: hardDisabled });
 
-      dataBinding(element, 'data-disabled', () => (softDisabled() ? 'soft' : hardDisabled()));
+      dataBinding(element, 'data-disabled', () =>
+        softDisabled() ? 'soft' : hardDisabled() || isSourceActive(source => source.dataDisabled),
+      );
       dataBinding(element, 'data-pending', pending);
 
       if (isButton) {
@@ -153,15 +149,30 @@ export const [NgpButtonStateToken, ngpButton, injectButtonState, provideButtonSt
         pending.set(value);
       }
 
+      function registerSource(source: DisabledSource): void {
+        sources.update(current => [...current, source]);
+      }
+
+      function unregisterSource(active: Signal<boolean>, hard: boolean): void {
+        sources.update(current => {
+          const index = current.findIndex(
+            source => source.active === active && source.hard === hard,
+          );
+          return index === -1 ? current : current.filter((_, at) => at !== index);
+        });
+      }
+
       return {
         disabled: disabled.asReadonly(),
         pending: pending.asReadonly(),
         setDisabled,
         setPending,
-        registerDisabledSource: disabledSources.add,
-        unregisterDisabledSource: disabledSources.remove,
-        registerAriaDisabledSource: ariaDisabledSources.add,
-        unregisterAriaDisabledSource: ariaDisabledSources.remove,
+        registerDisabledSource: active =>
+          registerSource({ active, hard: true, dataDisabled: true }),
+        unregisterDisabledSource: active => unregisterSource(active, true),
+        registerAriaDisabledSource: (active, { dataDisabled = false } = {}) =>
+          registerSource({ active, hard: false, dataDisabled }),
+        unregisterAriaDisabledSource: active => unregisterSource(active, false),
       } satisfies NgpButtonState;
     },
   );

@@ -196,21 +196,65 @@ describe('NgpCollapsible', () => {
     ['before', [NgpButton, ...imports]],
     ['after', [...imports, NgpButton]],
   ])('with NgpButton imported %s the trigger', (_, importsWithButton) => {
-    function renderWithButton(disabled: boolean) {
+    function renderWithButton(disabled: boolean, buttonDisabled = false) {
       return render(
         `
         <div ngpCollapsible [ngpCollapsibleDisabled]="disabled">
-          <button data-testid="trigger" ngpCollapsibleTrigger ngpButton>Toggle</button>
+          <button data-testid="trigger" ngpCollapsibleTrigger ngpButton [disabled]="buttonDisabled">
+            Toggle
+          </button>
           <div ngpCollapsibleContent>Content</div>
         </div>
         `,
-        { imports: importsWithButton, componentProperties: { disabled } },
+        { imports: importsWithButton, componentProperties: { disabled, buttonDisabled } },
       );
     }
 
     it('should set aria-disabled on the trigger when disabled', async () => {
       const fixture = await renderWithButton(true);
       expect(fixture.getByTestId('trigger')).toHaveAttribute('aria-disabled', 'true');
+    });
+
+    it('should set data-disabled on the trigger when disabled', async () => {
+      const fixture = await renderWithButton(true);
+      expect(fixture.getByTestId('trigger')).toHaveAttribute('data-disabled');
+    });
+
+    it('should update data-disabled on the trigger when disabled changes', async () => {
+      const fixture = await renderWithButton(false);
+      expect(fixture.getByTestId('trigger')).not.toHaveAttribute('data-disabled');
+
+      await fixture.rerender({ componentProperties: { disabled: true }, partialUpdate: true });
+      await waitFor(() => expect(fixture.getByTestId('trigger')).toHaveAttribute('data-disabled'));
+
+      await fixture.rerender({ componentProperties: { disabled: false }, partialUpdate: true });
+      await waitFor(() =>
+        expect(fixture.getByTestId('trigger')).not.toHaveAttribute('data-disabled'),
+      );
+    });
+
+    it('should keep data-disabled on the disabled trigger when the button is enabled again', async () => {
+      const fixture = await renderWithButton(true, true);
+      const trigger = fixture.getByTestId('trigger');
+
+      await fixture.rerender({
+        componentProperties: { buttonDisabled: false },
+        partialUpdate: true,
+      });
+      await waitFor(() => expect(trigger).not.toHaveAttribute('disabled'));
+
+      expect(trigger).toHaveAttribute('data-disabled');
+      expect(trigger).toHaveAttribute('aria-disabled', 'true');
+    });
+
+    it('should keep the disabled trigger focusable', async () => {
+      const fixture = await renderWithButton(true);
+      const trigger = fixture.getByTestId('trigger');
+
+      trigger.focus();
+
+      expect(trigger).not.toHaveAttribute('disabled');
+      expect(trigger).toHaveFocus();
     });
 
     it('should update aria-disabled on the trigger when disabled changes', async () => {
