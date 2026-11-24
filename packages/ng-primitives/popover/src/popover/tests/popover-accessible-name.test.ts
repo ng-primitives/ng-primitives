@@ -45,7 +45,9 @@ class PopoverStaticLabelTestComponent {}
     <button [ngpPopoverTrigger]="content" [id]="triggerId()" data-testid="trigger">Settings</button>
 
     <ng-template #content>
-      <div ngpPopover data-testid="popover">Popover content</div>
+      <div ngpPopover data-testid="popover">
+        <button (click)="triggerId.set('renamed-from-inside')" type="button">Rename</button>
+      </div>
     </ng-template>
   `,
   imports: [NgpPopoverTrigger, NgpPopover],
@@ -134,6 +136,18 @@ describe('NgpPopover accessible name', () => {
         await waitFor(() => expect(popover).toHaveAttribute('aria-labelledby', id));
         expect(popover).toHaveAccessibleName('Settings');
       }
+    });
+
+    it('should follow a rename made from inside the popover', async () => {
+      await render(PopoverTriggerIdTestComponent);
+      const popover = await open();
+
+      fireEvent.click(screen.getByRole('button', { name: 'Rename' }));
+
+      await waitFor(() =>
+        expect(popover).toHaveAttribute('aria-labelledby', 'renamed-from-inside'),
+      );
+      expect(popover).toHaveAccessibleName('Settings');
     });
 
     it('should keep following its trigger after an aria-label is added', async () => {
