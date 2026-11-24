@@ -26,14 +26,14 @@ export function labelledByTrigger(
 }
 
 /**
- * The element's `id`, kept current. The id is the consumer's to set, by any means, so the
+ * The trigger's `id`, kept current. The id is the consumer's to set, by any means, so the
  * attribute itself is what is watched.
  */
-function observedId(element: () => HTMLElement | null | undefined): Signal<string | undefined> {
+function observedId(trigger: () => HTMLElement | null | undefined): Signal<string | undefined> {
   const id = signal<string | undefined>(undefined);
   const injector = inject(Injector);
 
-  explicitEffect([element], ([current], onCleanup) => {
+  explicitEffect([trigger], ([current], onCleanup) => {
     id.set(current?.id);
 
     if (!current) {
