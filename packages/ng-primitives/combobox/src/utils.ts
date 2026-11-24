@@ -49,14 +49,14 @@ const LIST_KEYS = ['ArrowUp', 'ArrowDown', 'Enter', 'Escape'];
  * on its own in a single-line field the user types into. Every other key is the field's: a space,
  * Home and End, a list key held with a modifier, such as Alt+ArrowDown, which opens the field's
  * suggestions, a key that belongs to an IME composition, and a key the field's own handler has
- * already taken, such as an arrow that `ngpNumberFieldInput` steps by. So is every key of another
+ * already taken, such as an arrow a number field steps by. So is every key of another
  * field: the arrows step a number, a date or a slider, and Enter breaks a line in a textarea.
  */
 export function leavesKeyToList(event: KeyboardEvent): boolean {
-  const { target, key } = event;
+  const { target, key, defaultPrevented } = event;
 
   return (
-    !event.defaultPrevented &&
+    !defaultPrevented &&
     target instanceof HTMLInputElement &&
     // The `type` property reads a missing or unknown type as `text`.
     SINGLE_LINE_TEXT_TYPES.includes(target.type) &&
