@@ -1,8 +1,8 @@
 import { Signal, computed, signal } from '@angular/core';
-import { explicitEffect, injectElementRef } from 'ng-primitives/internal';
-import { attrBinding, createPrimitive, dataBinding, onDestroy } from 'ng-primitives/state';
-import { onBooleanChange } from 'ng-primitives/utils';
+import { injectElementRef } from 'ng-primitives/internal';
+import { attrBinding, createPrimitive, dataBinding } from 'ng-primitives/state';
 import { injectFormFieldState } from '../form-field/form-field-state';
+import { keepIdRegistered } from '../form-field/keep-id-registered';
 
 /**
  * The state interface for the Error primitive.
@@ -64,38 +64,12 @@ export const [NgpErrorStateToken, ngpError, injectErrorState, provideErrorState]
     dataBinding(element, 'data-disabled', () => (formField()?.disabled() ? '' : null));
     dataBinding(element, 'data-validator', state);
 
-    let currentId = id();
-
-    // Register/unregister with form field based on error state
-    function registerError(): void {
-      formField()?.addDescription(currentId);
-    }
-
-    function unregisterError(): void {
-      formField()?.removeDescription(currentId);
-    }
-
-    // Update error registration when hasError changes
-    onBooleanChange(hasError, registerError, unregisterError);
-
-    function updateIdRegistration(newId: string, oldId?: string): void {
-      if (oldId && hasError()) {
-        formField()?.removeDescription(oldId);
-      }
-      currentId = newId;
-      if (hasError()) {
-        formField()?.addDescription(newId);
-      }
-    }
-
-    // Watch for id changes to update registration
-    explicitEffect([id], () => updateIdRegistration(id(), currentId));
-
-    // Cleanup on destroy
-    onDestroy(() => {
-      if (hasError()) {
-        formField()?.removeDescription(currentId);
-      }
+    // The error describes the control only while it shows
+    keepIdRegistered({
+      id,
+      active: hasError,
+      add: errorId => formField()?.addDescription(errorId),
+      remove: errorId => formField()?.removeDescription(errorId),
     });
 
     return {

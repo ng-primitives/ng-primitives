@@ -1,8 +1,9 @@
 import { signal, Signal } from '@angular/core';
 import { injectElementRef } from 'ng-primitives/internal';
-import { attrBinding, createPrimitive, dataBinding, onDestroy } from 'ng-primitives/state';
-import { onChange, uniqueId } from 'ng-primitives/utils';
+import { attrBinding, createPrimitive, dataBinding } from 'ng-primitives/state';
+import { uniqueId } from 'ng-primitives/utils';
 import { injectFormFieldState } from '../form-field/form-field-state';
+import { keepIdRegistered } from '../form-field/keep-id-registered';
 
 /**
  * The state interface for the Description primitive.
@@ -45,15 +46,10 @@ export const [
     dataBinding(element, 'data-pending', () => (formField()?.pending() ? '' : null));
     dataBinding(element, 'data-disabled', () => (formField()?.disabled() ? '' : null));
 
-    // Register with form field and cleanup on destroy
-    formField()?.addDescription(id());
-    onDestroy(() => formField()?.removeDescription(id()));
-
-    onChange(id, (newId, oldId) => {
-      if (oldId) {
-        formField()?.removeDescription(oldId);
-      }
-      formField()?.addDescription(newId);
+    keepIdRegistered({
+      id,
+      add: descriptionId => formField()?.addDescription(descriptionId),
+      remove: descriptionId => formField()?.removeDescription(descriptionId),
     });
 
     return { id } satisfies NgpDescriptionState;

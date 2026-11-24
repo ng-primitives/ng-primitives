@@ -71,7 +71,7 @@ export interface NgpFormFieldState {
    */
   addLabel(label: string): void;
   /**
-   * Register a description with the form field.
+   * Register a description with the form field. Each call is undone by one `removeDescription`.
    */
   addDescription(description: string): void;
   /**
@@ -106,8 +106,10 @@ export const [NgpFormFieldStateToken, ngpFormField, injectFormFieldState, provid
     // Store the form labels
     const labels = signal<string[]>([]);
 
-    // Store the form descriptions
-    const descriptions = signal<string[]>([]);
+    // How many parts registered each description, in registration order: an id two parts share
+    // stays until both remove it.
+    const descriptionCounts = signal<ReadonlyMap<string, number>>(new Map());
+    const descriptions = computed(() => [...descriptionCounts().keys()]);
 
     // Store the registered form controls; the most recent one is the active one
     const registrations = signal<{ id: string; ngControl: NgControl | null }[]>([]);
@@ -249,11 +251,9 @@ export const [NgpFormFieldStateToken, ngpFormField, injectFormFieldState, provid
     }
 
     function addDescription(description: string): void {
-      if (descriptions().includes(description)) {
-        return;
-      }
-
-      descriptions.update(currentDescriptions => [...currentDescriptions, description]);
+      descriptionCounts.update(counts =>
+        new Map(counts).set(description, (counts.get(description) ?? 0) + 1),
+      );
     }
 
     function removeFormControl(id?: string): void {
@@ -267,9 +267,23 @@ export const [NgpFormFieldStateToken, ngpFormField, injectFormFieldState, provid
     }
 
     function removeDescription(description: string): void {
-      descriptions.update(currentDescriptions =>
-        currentDescriptions.filter(d => d !== description),
-      );
+      descriptionCounts.update(counts => {
+        const count = counts.get(description);
+
+        if (count === undefined) {
+          return counts;
+        }
+
+        const remaining = new Map(counts);
+
+        if (count > 1) {
+          remaining.set(description, count - 1);
+        } else {
+          remaining.delete(description);
+        }
+
+        return remaining;
+      });
     }
 
     return {
