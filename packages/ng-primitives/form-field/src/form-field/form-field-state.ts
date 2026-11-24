@@ -243,7 +243,7 @@ export const [NgpFormFieldStateToken, ngpFormField, injectFormFieldState, provid
     }
 
     function addLabel(label: string): void {
-      if (untracked(labels).includes(label)) {
+      if (labels().includes(label)) {
         return;
       }
 
