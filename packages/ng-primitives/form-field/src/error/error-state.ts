@@ -64,8 +64,8 @@ export const [NgpErrorStateToken, ngpError, injectErrorState, provideErrorState]
     dataBinding(element, 'data-disabled', () => (formField()?.disabled() ? '' : null));
     dataBinding(element, 'data-validator', state);
 
-    // The id this instance added: ids are not reference counted by the form field, so an error
-    // that never registered must not remove an id another element shares.
+    // The id this error has registered, if any: by the time it is destroyed `hasError()` may
+    // already be false, so only this says whether there is a registration to undo.
     let registeredId: string | undefined;
 
     function registerError(): void {

@@ -328,7 +328,7 @@ describe('NgpError', () => {
     expect(input).toHaveAttribute('aria-describedby', 'description');
   });
 
-  it('should keep an id shared with a showing error when a passing one is destroyed', async () => {
+  it('should keep an id two errors share when the passing one is destroyed', async () => {
     @Component({
       template: `
         <div ngpFormField>
@@ -355,6 +355,37 @@ describe('NgpError', () => {
     fixture.detectChanges();
 
     expect(input).toHaveAttribute('aria-describedby', 'email-error');
+  });
+
+  it('should keep an id two showing errors share until the last one stops showing', async () => {
+    @Component({
+      template: `
+        <div ngpFormField>
+          <input [formControl]="control" ngpFormControl />
+          <p id="pw-error" ngpError ngpErrorValidator="minlength">Too short</p>
+          <p id="pw-error" ngpError ngpErrorValidator="pattern">Needs a digit</p>
+        </div>
+      `,
+      imports: [NgpFormField, NgpError, NgpFormControl, ReactiveFormsModule],
+    })
+    class TestComponent {
+      control = new FormControl('abc', [Validators.minLength(5), Validators.pattern(/\d/)]);
+    }
+
+    const { container, fixture } = await render(TestComponent);
+    const input = container.querySelector('input');
+
+    expect(input).toHaveAttribute('aria-describedby', 'pw-error');
+
+    fixture.componentInstance.control.setValue('abcdef');
+    fixture.detectChanges();
+
+    expect(input).toHaveAttribute('aria-describedby', 'pw-error');
+
+    fixture.componentInstance.control.setValue('abcdef1');
+    fixture.detectChanges();
+
+    expect(input).not.toHaveAttribute('aria-describedby');
   });
 
   it('should handle async validation errors', async () => {

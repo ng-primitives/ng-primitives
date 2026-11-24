@@ -45,16 +45,13 @@ export const [
     dataBinding(element, 'data-pending', () => (formField()?.pending() ? '' : null));
     dataBinding(element, 'data-disabled', () => (formField()?.disabled() ? '' : null));
 
-    // Register with form field and cleanup on destroy
-    formField()?.addDescription(id());
-    onDestroy(() => formField()?.removeDescription(id()));
-
     onChange(id, (newId, oldId) => {
       if (oldId) {
         formField()?.removeDescription(oldId);
       }
       formField()?.addDescription(newId);
     });
+    onDestroy(() => formField()?.removeDescription(id()));
 
     return { id } satisfies NgpDescriptionState;
   },

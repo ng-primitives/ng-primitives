@@ -71,7 +71,7 @@ export interface NgpFormFieldState {
    */
   addLabel(label: string): void;
   /**
-   * Register a description with the form field.
+   * Register a description with the form field. Each call is undone by one `removeDescription`.
    */
   addDescription(description: string): void;
   /**
@@ -108,6 +108,9 @@ export const [NgpFormFieldStateToken, ngpFormField, injectFormFieldState, provid
 
     // Store the form descriptions
     const descriptions = signal<string[]>([]);
+
+    // How many parts registered each description: an id two parts share stays until both remove it.
+    const descriptionCounts = new Map<string, number>();
 
     // Store the registered form controls; the most recent one is the active one
     const registrations = signal<{ id: string; ngControl: NgControl | null }[]>([]);
@@ -241,7 +244,7 @@ export const [NgpFormFieldStateToken, ngpFormField, injectFormFieldState, provid
     }
 
     function addLabel(label: string): void {
-      if (labels().includes(label)) {
+      if (untracked(labels).includes(label)) {
         return;
       }
 
@@ -249,11 +252,12 @@ export const [NgpFormFieldStateToken, ngpFormField, injectFormFieldState, provid
     }
 
     function addDescription(description: string): void {
-      if (descriptions().includes(description)) {
-        return;
-      }
+      const count = descriptionCounts.get(description) ?? 0;
+      descriptionCounts.set(description, count + 1);
 
-      descriptions.update(currentDescriptions => [...currentDescriptions, description]);
+      if (count === 0) {
+        descriptions.update(currentDescriptions => [...currentDescriptions, description]);
+      }
     }
 
     function removeFormControl(id?: string): void {
@@ -267,10 +271,18 @@ export const [NgpFormFieldStateToken, ngpFormField, injectFormFieldState, provid
     }
 
     function removeDescription(description: string): void {
-      if (!descriptions().includes(description)) {
+      const count = descriptionCounts.get(description);
+
+      if (count === undefined) {
         return;
       }
 
+      if (count > 1) {
+        descriptionCounts.set(description, count - 1);
+        return;
+      }
+
+      descriptionCounts.delete(description);
       descriptions.update(currentDescriptions =>
         currentDescriptions.filter(d => d !== description),
       );
