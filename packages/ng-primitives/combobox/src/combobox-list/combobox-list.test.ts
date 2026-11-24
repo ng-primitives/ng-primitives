@@ -3,6 +3,7 @@ import { Component, signal } from '@angular/core';
 import { fireEvent, render, screen, waitFor, within } from '@testing-library/angular';
 import { userEvent } from '@testing-library/user-event';
 import { describe, expect, it } from 'vitest';
+import { userEvent as browserUserEvent } from 'vitest/browser';
 import { NgpComboboxButton } from '../combobox-button/combobox-button';
 import { NgpComboboxDropdown } from '../combobox-dropdown/combobox-dropdown';
 import { NgpComboboxInput } from '../combobox-input/combobox-input';
@@ -97,6 +98,37 @@ class InPlaceComboboxListComponent {
   readonly fruits = ['Apple', 'Banana', 'Cherry'];
   readonly value = signal<string[]>([]);
   readonly applied = signal(false);
+}
+
+@Component({
+  imports: [
+    NgpCombobox,
+    NgpComboboxDropdown,
+    NgpComboboxInput,
+    NgpComboboxList,
+    NgpComboboxOption,
+    NgpComboboxPortal,
+  ],
+  template: `
+    <div ngpCombobox ngpComboboxDropdownContainer="#in-place-scrolling">
+      <input ngpComboboxInput aria-label="Fruit" />
+
+      <div id="in-place-scrolling"></div>
+
+      <div *ngpComboboxPortal ngpComboboxDropdown data-testid="dropdown">
+        <div style="max-height: 40px; overflow-y: auto" ngpComboboxList aria-label="Fruits">
+          @for (fruit of fruits; track fruit) {
+            <div [ngpComboboxOptionValue]="fruit" ngpComboboxOption>{{ fruit }}</div>
+          }
+        </div>
+
+        <button type="button">Apply</button>
+      </div>
+    </div>
+  `,
+})
+class InPlaceScrollingComboboxListComponent {
+  readonly fruits = ['Apple', 'Banana', 'Cherry', 'Grape', 'Lemon', 'Mango', 'Orange', 'Peach'];
 }
 
 @Component({
@@ -510,6 +542,18 @@ describe('NgpComboboxList', () => {
 
       expect(screen.getByRole('button', { name: 'Apply' })).toHaveFocus();
       expect(input).toHaveAttribute('aria-expanded', 'true');
+    });
+
+    it('should skip a list that scrolls on Tab from the input', async () => {
+      await render(InPlaceScrollingComboboxListComponent);
+      await openDropdown();
+      const list = screen.getByRole('listbox');
+      expect(list.scrollHeight).toBeGreaterThan(list.clientHeight);
+
+      // A real key press: the browser, not a simulation, decides that a scroll container is a tab stop.
+      await browserUserEvent.keyboard('{Tab}');
+
+      expect(screen.getByRole('button', { name: 'Apply' })).toHaveFocus();
     });
 
     it('should leave Enter to a button in the dropdown when the combobox sits inside an option of another widget', async () => {

@@ -29,6 +29,8 @@ export const [
     attrBinding(elementRef, 'role', 'listbox');
     attrBinding(elementRef, 'id', id);
     attrBinding(elementRef, 'aria-multiselectable', () => comboboxState().multiple());
+    // Focus stays on the input, and a list that scrolls is otherwise a tab stop of its own.
+    attrBinding(elementRef, 'tabindex', '-1');
 
     const state = { id } satisfies NgpComboboxListState;
 
