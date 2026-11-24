@@ -420,6 +420,31 @@ describe('NgpError', () => {
     );
   });
 
+  it('should register under the new id when the id changes while the validator passes', async () => {
+    const control = new FormControl('valid', [Validators.required]);
+    const { container, rerender, fixture } = await render(
+      `<div ngpFormField>
+        <div [id]="errorId" ngpError>Test Error</div>
+        <input [formControl]="control" ngpFormControl />
+      </div>`,
+      {
+        imports: [NgpFormField, NgpError, NgpFormControl, ReactiveFormsModule],
+        componentProperties: { errorId: 'initial-id', control },
+      },
+    );
+
+    const input = container.querySelector('input');
+    expect(input).not.toHaveAttribute('aria-describedby');
+
+    await rerender({ componentProperties: { errorId: 'new-id', control } });
+    fixture.detectChanges();
+    expect(input).not.toHaveAttribute('aria-describedby');
+
+    control.setValue('');
+    fixture.detectChanges();
+    expect(input).toHaveAttribute('aria-describedby', 'new-id');
+  });
+
   it('should handle async validation errors', async () => {
     const asyncValidator = (control: any) => {
       return new Promise<{ asyncError: boolean } | null>(resolve => {
