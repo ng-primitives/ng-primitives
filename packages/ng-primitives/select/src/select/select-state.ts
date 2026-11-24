@@ -55,7 +55,7 @@ export interface NgpSelectState<T> {
   /** Whether the select is multiple selection. */
   readonly multiple: Signal<boolean>;
 
-  /** Whether the select is disabled. */
+  /** Whether the select is disabled (its own disabled state or its form control's). */
   readonly disabled: WritableSignal<boolean>;
 
   /** The comparator function used to compare options. */
@@ -379,7 +379,7 @@ export const [NgpSelectStateToken, ngpSelect, _injectSelectState, provideSelectS
     }: NgpSelectProps<T>): NgpSelectState<T> => {
       const elementRef = injectElementRef<HTMLElement>();
       const value = controlled(_value);
-      const disabled = controlled(_disabled, false);
+      const disabledInput = controlled(_disabled, false);
       const container = controlled(_container, 'body');
       const valueChangeEmitter = emitter<T | undefined>();
 
@@ -392,12 +392,17 @@ export const [NgpSelectStateToken, ngpSelect, _injectSelectState, provideSelectS
       }
 
       function setDisabled(isDisabled: boolean): void {
-        disabled.set(isDisabled);
+        disabledInput.set(isDisabled);
       }
 
       function setContainer(newContainer: HTMLElement | string | null): void {
         container.set(newContainer);
       }
+
+      // A form control can be disabled without telling the select (a value accessor with no
+      // setDisabledState), so the status is part of the one state every reader below uses.
+      const status = ngpFormControl({ id, disabled: disabledInput });
+      const disabled = computed(() => status().disabled ?? false);
 
       ngpInteractions({
         focus: true,
@@ -406,8 +411,6 @@ export const [NgpSelectStateToken, ngpSelect, _injectSelectState, provideSelectS
         press: true,
         disabled,
       });
-
-      ngpFormControl({ id, disabled });
 
       const portal = signal<NgpSelectPortalState | undefined>(undefined);
       const dropdown = signal<NgpSelectDropdownState | undefined>(undefined);

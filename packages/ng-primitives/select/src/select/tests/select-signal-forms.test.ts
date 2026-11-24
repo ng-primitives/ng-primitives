@@ -90,10 +90,12 @@ describe('Select (reusable component) — signal forms', () => {
     fixture.componentInstance.isDisabled.set(true);
     await fixture.whenStable();
     expect(screen.getByTestId('select')).toHaveAttribute('data-disabled');
+    expect(screen.getByTestId('select')).toHaveAttribute('aria-disabled', 'true');
 
     fixture.componentInstance.isDisabled.set(false);
     await fixture.whenStable();
     expect(screen.getByTestId('select')).not.toHaveAttribute('data-disabled');
+    expect(screen.getByTestId('select')).toHaveAttribute('aria-disabled', 'false');
   });
 
   it('supports multiple selection bound to a string[] field', async () => {

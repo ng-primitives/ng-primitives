@@ -1,8 +1,43 @@
-import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { render, screen } from '@testing-library/angular';
+import { Component } from '@angular/core';
+import {
+  ControlValueAccessor,
+  FormControl,
+  FormsModule,
+  ReactiveFormsModule,
+} from '@angular/forms';
+import { render, screen, waitFor } from '@testing-library/angular';
 import userEvent from '@testing-library/user-event';
+import {
+  NgpSelect,
+  NgpSelectDropdown,
+  NgpSelectOption,
+  NgpSelectPortal,
+} from 'ng-primitives/select';
+import { provideValueAccessor } from 'ng-primitives/utils';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { SelectFixture } from './select-forms.fixture';
+
+/**
+ * A wrapper whose value accessor leaves `setDisabledState` out, so the form control's status is
+ * the only thing telling the select it is disabled.
+ */
+@Component({
+  selector: 'app-select-without-set-disabled-state',
+  hostDirectives: [NgpSelect],
+  providers: [provideValueAccessor(SelectWithoutSetDisabledState)],
+  imports: [NgpSelectDropdown, NgpSelectOption, NgpSelectPortal],
+  template: `
+    <div *ngpSelectPortal ngpSelectDropdown>
+      <div ngpSelectOptionValue="Apple" ngpSelectOption data-testid="option-Apple">Apple</div>
+    </div>
+  `,
+  host: { 'data-testid': 'select' },
+})
+class SelectWithoutSetDisabledState implements ControlValueAccessor {
+  writeValue(): void {}
+  registerOnChange(): void {}
+  registerOnTouched(): void {}
+}
 
 function removeLingeringDropdown(): void {
   // Dropdown is portalled to the body, so fixture.destroy() alone can leave
@@ -121,6 +156,40 @@ describe('Select (reusable component) — reactive forms', () => {
     fixture.detectChanges();
     expect(screen.getByTestId('select')).not.toHaveAttribute('data-disabled');
     expect(screen.getByTestId('select')).toHaveAttribute('aria-disabled', 'false');
+  });
+
+  it('treats a select disabled only through its form control status as disabled', async () => {
+    const user = userEvent.setup();
+    const formControl = new FormControl<string | undefined>({ value: undefined, disabled: true });
+    const { fixture } = await render(
+      `<app-select-without-set-disabled-state [formControl]="formControl" />`,
+      {
+        imports: [SelectWithoutSetDisabledState, ReactiveFormsModule],
+        componentProperties: { formControl },
+      },
+    );
+
+    const select = screen.getByTestId('select');
+    await waitFor(() => expect(select).toHaveAttribute('data-disabled'));
+    expect(select).toHaveAttribute('aria-disabled', 'true');
+    expect(select).toHaveAttribute('tabindex', '-1');
+
+    await user.click(select);
+    expect(screen.queryByRole('listbox')).not.toBeInTheDocument();
+
+    formControl.enable();
+    fixture.detectChanges();
+    expect(select).toHaveAttribute('aria-disabled', 'false');
+    expect(select).toHaveAttribute('tabindex', '0');
+
+    await user.click(select);
+    const option = await screen.findByTestId('option-Apple');
+    expect(option).toHaveAttribute('aria-disabled', 'false');
+
+    formControl.disable();
+    fixture.detectChanges();
+    expect(option).toHaveAttribute('aria-disabled', 'true');
+    expect(option).toHaveAttribute('data-disabled');
   });
 
   it('does not loop writeValue back through onChange (regression)', async () => {
