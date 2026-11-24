@@ -303,7 +303,7 @@ class InPlaceFilterWithoutListComponent {
         </div>
 
         <p>{{ value().length }} selected</p>
-        <!-- A tabindex of -1 keeps an element out of the tab order; it asks for no focus. -->
+        <!-- A browser focuses an element with a tabindex of -1 on a press; the dropdown keeps focus from it. -->
         <div tabindex="-1" data-testid="scroll-area"><span>Details</span></div>
         <!-- The role attribute is a list of tokens, and its first token is read as the role. -->
         <div role="button extra" tabindex="0">Fallback role button</div>
@@ -317,6 +317,38 @@ class PressedDropdownComponent {
   readonly fruits = ['Apple', 'Banana', 'Cherry'];
   readonly value = signal<string[]>([]);
   readonly applied = signal(false);
+}
+
+@Component({
+  imports: [
+    NgpCombobox,
+    NgpComboboxDropdown,
+    NgpComboboxInput,
+    NgpComboboxList,
+    NgpComboboxOption,
+    NgpComboboxPortal,
+  ],
+  template: `
+    <div [(ngpComboboxValue)]="value" ngpCombobox ngpComboboxMultiple>
+      <input ngpComboboxInput aria-label="Fruit" />
+
+      <div *ngpComboboxPortal ngpComboboxDropdown data-testid="dropdown">
+        <!-- A scrollable region is given a tabindex of 0 so that the keyboard can scroll it. -->
+        <div tabindex="0">
+          <div ngpComboboxList aria-label="Fruits">
+            @for (fruit of fruits; track fruit) {
+              <div [ngpComboboxOptionValue]="fruit" ngpComboboxOption>{{ fruit }}</div>
+            }
+          </div>
+          <div role="button" tabindex="-1">Clear</div>
+        </div>
+      </div>
+    </div>
+  `,
+})
+class FocusableRegionDropdownComponent {
+  readonly fruits = ['Apple', 'Banana', 'Cherry'];
+  readonly value = signal<string[]>([]);
 }
 
 // A web component: its field sits in a shadow root, so events from the field reach listeners
@@ -626,6 +658,29 @@ describe('NgpComboboxList', () => {
         await browserUserEvent.click(screen.getByText(text));
 
         expect(input).toHaveFocus();
+      },
+    );
+
+    it.each(['Banana', 'Clear'])(
+      'should keep focus on the input and the keys working after a press on a control with a tabindex of -1 inside a focusable region: %s',
+      async text => {
+        await render(FocusableRegionDropdownComponent);
+        const input = await openDropdown();
+        const [apple, banana, cherry] = screen.getAllByRole('option');
+        await waitFor(() => {
+          expect(input).toHaveAttribute('aria-activedescendant', apple.id);
+        });
+
+        await browserUserEvent.click(screen.getByText(text));
+
+        expect(input).toHaveFocus();
+
+        const active = input.getAttribute('aria-activedescendant');
+        await browserUserEvent.keyboard('{ArrowDown}');
+        expect(input).toHaveAttribute(
+          'aria-activedescendant',
+          active === apple.id ? banana.id : cherry.id,
+        );
       },
     );
 

@@ -21,33 +21,41 @@ export function areAllOptionsSelected(
   );
 }
 
-// A `tabindex` of -1 keeps an element out of the tab order and asks for no focus on a press: the
-// combobox's list and its options carry one.
 const FOCUSABLE_SELECTOR =
   'a[href], button, input, select, textarea, audio[controls], video[controls], [contenteditable]:not([contenteditable=false]), [tabindex]:not([tabindex="-1"])';
 // Controls that act on a click and need no focus for it, by element and by role.
 const ACTS_WITHOUT_FOCUS_SELECTOR =
   'button, input:is([type=button], [type=submit], [type=reset], [type=image], [type=checkbox], [type=radio])';
 const ACTS_WITHOUT_FOCUS_ROLES = ['button', 'option'];
+// A browser focuses an element with a `tabindex` of -1 on a press. The dropdown keeps focus from
+// it by choice, as from the combobox's list and options, which carry one.
+const KEPT_FROM_FOCUS_SELECTOR = '[tabindex="-1"]';
 
 /**
- * Whether a mouse press in the dropdown moves focus: it does when the nearest focusable element
- * around the press, inside the dropdown, is anything but a button-like control or an option: a
- * field, a select, editable content, a link, a media player with controls, a custom widget with a
- * `tabindex` other than -1. A press on any other content leaves focus where it is.
+ * Whether a mouse press in the dropdown moves focus. The nearest element around the press, inside
+ * the dropdown, that is focusable, a button-like control, an option or has a `tabindex` of -1
+ * decides, whatever wraps it. The press moves focus when that element is a field, a select,
+ * editable content, a link, a media player with controls or a custom widget with a `tabindex`
+ * other than -1; on a button-like control, an option, an element with a `tabindex` of -1 that is
+ * none of these, and on any other content, focus stays where it is.
  */
 export function takesFocusOnPress(event: MouseEvent): boolean {
   // From the element pressed, not `event.target`, which for a press inside a web component is
   // its host, up to the dropdown the press is handled on.
   const path = event.composedPath();
-  const focusable = path
+  const pressed = path
     .slice(0, path.indexOf(event.currentTarget!))
-    .find(
-      (target): target is Element =>
-        target instanceof Element && target.matches(FOCUSABLE_SELECTOR),
-    );
+    .find((target): target is Element => target instanceof Element && decidesFocusOnPress(target));
 
-  return !!focusable && !actsWithoutFocus(focusable);
+  return !!pressed && pressed.matches(FOCUSABLE_SELECTOR) && !actsWithoutFocus(pressed);
+}
+
+function decidesFocusOnPress(element: Element): boolean {
+  return (
+    element.matches(FOCUSABLE_SELECTOR) ||
+    element.matches(KEPT_FROM_FOCUS_SELECTOR) ||
+    actsWithoutFocus(element)
+  );
 }
 
 function actsWithoutFocus(element: Element): boolean {
@@ -100,7 +108,8 @@ function hasTextFieldRole(input: HTMLInputElement): boolean {
 /**
  * The role an element is given: the first token of its `role` attribute, which is a list of
  * tokens. WAI-ARIA would skip a token that names no role and read the next one; here an unknown
- * first token is the role, so a field that carries one keeps its keys.
+ * first token is the role, so a field that carries one keeps its keys, and a pressed element that
+ * carries one is no button or option: it takes focus if it is focusable.
  */
 function roleOf(element: Element): string | undefined {
   return (element.getAttribute('role') ?? '')
