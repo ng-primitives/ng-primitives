@@ -378,5 +378,18 @@ describe('NgpComboboxList', () => {
       expect(arrowDown.defaultPrevented).toBe(false);
       expect(input).toHaveAttribute('aria-activedescendant', apple.id);
     });
+
+    it('should close the dropdown on Escape pressed on a button in the dropdown', async () => {
+      await render(InPlaceComboboxListComponent);
+      const input = await openDropdown();
+
+      screen.getByRole('button', { name: 'Apply' }).focus();
+      expect(input).toHaveAttribute('aria-expanded', 'true');
+      await userEvent.keyboard('{Escape}');
+
+      await waitFor(() => {
+        expect(input).toHaveAttribute('aria-expanded', 'false');
+      });
+    });
   });
 });
