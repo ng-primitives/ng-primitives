@@ -1,7 +1,8 @@
-import { ElementRef, inject, Injector, signal, Signal } from '@angular/core';
+import { computed, ElementRef, inject, Injector, signal } from '@angular/core';
+import { toObservable } from '@angular/core/rxjs-interop';
 import { attrBinding } from 'ng-primitives/state';
 import { safeTakeUntilDestroyed } from 'ng-primitives/utils';
-import { explicitEffect } from '../signals/explicit-effect';
+import { distinctUntilChanged, map, of, startWith, switchMap } from 'rxjs';
 import { fromMutationObserver } from './mutation-observer';
 
 /** How the consumer named the overlay itself, apart from the `aria-labelledby` written here. */
@@ -19,83 +20,69 @@ export function labelledByTrigger(
   element: ElementRef<HTMLElement>,
   trigger: () => HTMLElement | null | undefined,
 ): void {
-  const triggerId = observedId(trigger);
   // The one record of ownership: any other `aria-labelledby` on the overlay is the consumer's.
   let appliedId: string | null = null;
 
-  const readConsumerName = (): ConsumerName => {
-    const labelledBy = element.nativeElement.getAttribute('aria-labelledby');
+  // The id is the consumer's to set, by any means, so the attribute itself is what is watched.
+  const triggerId = observedAttributes(trigger, ['id'], current => current?.id || null);
 
-    return {
-      hasAriaLabel: element.nativeElement.hasAttribute('aria-label'),
-      labelledBy: labelledBy === appliedId ? null : labelledBy,
-    };
-  };
-  const consumerNameChanged = observedConsumerName(element, readConsumerName);
+  // The write below reads as no consumer `aria-labelledby`: an equal name, so it reruns nothing.
+  const consumerName = observedAttributes(
+    () => element.nativeElement,
+    ['aria-label', 'aria-labelledby'],
+    (overlay): ConsumerName => {
+      const labelledBy = overlay.getAttribute('aria-labelledby');
+
+      return {
+        hasAriaLabel: overlay.hasAttribute('aria-label'),
+        labelledBy: labelledBy === appliedId ? null : labelledBy,
+      };
+    },
+    (a, b) => a.hasAriaLabel === b.hasAriaLabel && a.labelledBy === b.labelledBy,
+  );
 
   attrBinding(element, 'aria-labelledby', () => {
-    // Both read before any return, so every run depends on the trigger id and on the labels.
-    const id = triggerId() || null;
-    consumerNameChanged();
-
-    // Read from the element: its observer reports a moment after the consumer writes.
-    const { hasAriaLabel, labelledBy } = readConsumerName();
+    const { hasAriaLabel, labelledBy } = consumerName();
 
     if (labelledBy !== null) {
       appliedId = null;
       return labelledBy;
     }
 
-    appliedId = hasAriaLabel ? null : id;
+    appliedId = hasAriaLabel ? null : triggerId();
     return appliedId;
   });
 }
 
 /**
- * The consumer's naming of the overlay, kept current. A write of `labelledByTrigger` itself reads
- * as no consumer `aria-labelledby`, so it leaves the value equal and reruns nothing.
+ * What `read` finds on the element, taken from the element on every call: its observer reports a
+ * moment after a write. A reactive reader reruns once the named attributes change what `read`
+ * finds.
  */
-function observedConsumerName(
-  element: ElementRef<HTMLElement>,
-  read: () => ConsumerName,
-): Signal<ConsumerName> {
-  const name = signal(read(), {
-    equal: (a, b) => a.hasAriaLabel === b.hasAriaLabel && a.labelledBy === b.labelledBy,
-  });
-
-  fromMutationObserver(element.nativeElement, {
-    attributes: true,
-    attributeFilter: ['aria-label', 'aria-labelledby'],
-  })
-    .pipe(safeTakeUntilDestroyed())
-    .subscribe(() => name.set(read()));
-
-  return name;
-}
-
-/**
- * The trigger's `id`, kept current. The id is the consumer's to set, by any means, so the
- * attribute itself is what is watched.
- */
-function observedId(trigger: () => HTMLElement | null | undefined): Signal<string | undefined> {
-  const id = signal<string | undefined>(undefined);
+function observedAttributes<E extends HTMLElement | null | undefined, T>(
+  element: () => E,
+  attributeFilter: string[],
+  read: (element: E) => T,
+  equal?: (a: T, b: T) => boolean,
+): () => T {
+  const changes = signal(0);
   const injector = inject(Injector);
 
-  explicitEffect([trigger], ([current], onCleanup) => {
-    id.set(current?.id);
+  toObservable(computed(element))
+    .pipe(
+      switchMap(current =>
+        current
+          ? fromMutationObserver(current, { attributeFilter, injector }).pipe(startWith(null))
+          : of(null),
+      ),
+      map(() => read(element())),
+      distinctUntilChanged(equal),
+      safeTakeUntilDestroyed(),
+    )
+    .subscribe(() => changes.update(count => count + 1));
 
-    if (!current) {
-      return;
-    }
-
-    const subscription = fromMutationObserver(current, {
-      attributes: true,
-      attributeFilter: ['id'],
-      injector,
-    }).subscribe(() => id.set(current.id));
-
-    onCleanup(() => subscription.unsubscribe());
-  });
-
-  return id;
+  return () => {
+    changes();
+    return read(element());
+  };
 }
