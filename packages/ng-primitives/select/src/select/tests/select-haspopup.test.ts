@@ -177,6 +177,23 @@ describe('NgpSelect aria-haspopup', () => {
       expect(warn).not.toHaveBeenCalledWith(hasPopupWarning);
     });
 
+    it('stays silent without an ngpSelectList, where the dropdown is a listbox', async () => {
+      const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+      const error = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+      await renderSelect(
+        '',
+        `<input ngpSelectInput data-testid="select-input" />${optionTemplate}`,
+      );
+
+      await open();
+
+      await waitFor(() =>
+        expect(error).toHaveBeenCalledWith(expect.stringContaining('ngpSelectList')),
+      );
+      expect(screen.getByTestId('dropdown')).toHaveAttribute('role', 'listbox');
+      expect(warn).not.toHaveBeenCalledWith(hasPopupWarning);
+    });
+
     it("stays silent when a wrapper's host metadata announces the dialog", async () => {
       const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
       await renderWrappedSelect();
