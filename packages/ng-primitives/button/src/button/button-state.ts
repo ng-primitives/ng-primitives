@@ -155,9 +155,9 @@ export const [NgpButtonStateToken, ngpButton, injectButtonState, provideButtonSt
 
       function unregisterSource(active: Signal<boolean>, hard: boolean): void {
         sources.update(current => {
-          const index = current.findIndex(
-            source => source.active === active && source.hard === hard,
-          );
+          const index = current
+            .map(source => (source.hard === hard ? source.active : null))
+            .indexOf(active);
           return index === -1 ? current : current.filter((_, at) => at !== index);
         });
       }
