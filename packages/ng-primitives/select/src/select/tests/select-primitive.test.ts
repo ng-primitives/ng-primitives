@@ -1003,6 +1003,12 @@ describe('NgpSelect', () => {
   });
 
   describe('ARIA attributes', () => {
+    it('should carry its id on the host', async () => {
+      await render(TestSelectComponent);
+
+      expect(screen.getByTestId('select').id).toMatch(/^ngp-select/);
+    });
+
     it('should have correct aria-controls when dropdown is open', async () => {
       const user = userEvent.setup();
       await render(TestSelectComponent);
