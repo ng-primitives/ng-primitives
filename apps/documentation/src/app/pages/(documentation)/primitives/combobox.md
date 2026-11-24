@@ -150,6 +150,8 @@ To let users pick a value that isn't in the list, render a "create" option whose
 
 A `listbox` may only contain options. To render anything else in the dropdown, such as the current selection or an "Apply" button, wrap the options in `ngpComboboxList` to keep the accessibility tree valid.
 
+<docs-example name="combobox-list"></docs-example>
+
 ```html
 <div ngpCombobox ngpComboboxMultiple>
   <input ngpComboboxInput />
@@ -166,7 +168,7 @@ A `listbox` may only contain options. To render anything else in the dropdown, s
 
 By default the dropdown is rendered in a portal, outside the tab order of the input, so `Tab` moves past it. To let the keyboard reach a button or a field in the dropdown, render the dropdown right after the input with `ngpComboboxDropdownContainer`.
 
-Keep `ngpComboboxList` rendered for as long as the dropdown is: put `@if` and `@for` around the options, and an empty-state message outside the list. A dropdown whose list is removed becomes the `listbox` itself again, with the other content inside it.
+Use one `ngpComboboxList` per dropdown, since the combobox controls a single listbox. Keep it rendered for as long as the dropdown is: put `@if` and `@for` around the options, and an empty-state message outside the list. A dropdown whose list is removed becomes the `listbox` itself again, with the other content inside it.
 
 ```html
 <div ngpComboboxDropdown>
