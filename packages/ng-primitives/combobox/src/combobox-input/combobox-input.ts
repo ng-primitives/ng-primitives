@@ -147,6 +147,10 @@ export class NgpComboboxInput {
   protected closeDropdown(event: FocusEvent): void {
     const relatedTarget = event.relatedTarget as HTMLElement;
 
+    if (this.state().isBlurFromDropdownPress(event)) {
+      return;
+    }
+
     // if the blur was caused by focus moving to the dropdown, don't close
     if (
       relatedTarget &&

@@ -1,6 +1,6 @@
 import { NgTemplateOutlet } from '@angular/common';
 import { Component, signal } from '@angular/core';
-import { render, screen, waitFor, within } from '@testing-library/angular';
+import { fireEvent, render, screen, waitFor, within } from '@testing-library/angular';
 import { userEvent } from '@testing-library/user-event';
 import { describe, expect, it } from 'vitest';
 import { NgpComboboxButton } from '../combobox-button/combobox-button';
@@ -411,6 +411,45 @@ describe('NgpComboboxList', () => {
     expect(listbox).not.toContainElement(screen.getByText('No results'));
   });
 
+  // Safari does not focus a button pressed with the mouse, so the input blurs to nothing.
+  describe('a press in the dropdown that blurs the input without moving focus', () => {
+    it('should keep the dropdown open until the press ends', async () => {
+      const { fixture } = await render(ComboboxListComponent);
+      const input = await openDropdown();
+      const apply = screen.getByRole('button', { name: 'Apply' });
+
+      fireEvent.mouseDown(apply);
+      input.blur();
+      // a close is carried out by a timer, so let one that was scheduled run
+      await new Promise(resolve => setTimeout(resolve));
+      fixture.detectChanges();
+
+      expect(input).toHaveAttribute('aria-expanded', 'true');
+
+      fireEvent.mouseUp(apply);
+      input.focus();
+      input.blur();
+
+      await waitFor(() => {
+        expect(input).toHaveAttribute('aria-expanded', 'false');
+      });
+    });
+
+    it('should close the dropdown as before when there is no list', async () => {
+      await render(ComboboxListComponent, {
+        componentProperties: { withList: signal(false) },
+      });
+      const input = await openDropdown();
+
+      fireEvent.mouseDown(screen.getByRole('button', { name: 'Apply' }));
+      input.blur();
+
+      await waitFor(() => {
+        expect(input).toHaveAttribute('aria-expanded', 'false');
+      });
+    });
+  });
+
   describe('content beside the list, in a dropdown rendered inside the combobox', () => {
     it('should leave Enter to a button in the dropdown', async () => {
       const { fixture } = await render(InPlaceComboboxListComponent);
@@ -462,6 +501,17 @@ describe('NgpComboboxList', () => {
         expect(input).toHaveAttribute('aria-expanded', 'false');
       });
     });
+
+    it('should move focus from the input to a button in the dropdown on Tab and stay open', async () => {
+      await render(InPlaceComboboxListComponent);
+      const input = await openDropdown();
+
+      await userEvent.tab();
+
+      expect(screen.getByRole('button', { name: 'Apply' })).toHaveFocus();
+      expect(input).toHaveAttribute('aria-expanded', 'true');
+    });
+
     it('should leave Enter to a button in the dropdown when the combobox sits inside an option of another widget', async () => {
       const { fixture } = await render(ForeignOptionsComboboxListComponent);
       const input = await openDropdown();

@@ -164,6 +164,8 @@ A `listbox` may only contain options. To render anything else in the dropdown, s
 </div>
 ```
 
+By default the dropdown is rendered in a portal, outside the tab order of the input, so `Tab` moves past it. To let the keyboard reach a button or a field in the dropdown, render the dropdown right after the input with `ngpComboboxDropdownContainer`.
+
 Keep `ngpComboboxList` rendered for as long as the dropdown is: put `@if` and `@for` around the options, and an empty-state message outside the list. A dropdown whose list is removed becomes the `listbox` itself again, with the other content inside it.
 
 ```html

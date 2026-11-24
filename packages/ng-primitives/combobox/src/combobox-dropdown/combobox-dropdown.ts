@@ -13,6 +13,9 @@ import { injectComboboxState } from '../combobox/combobox-state';
     '[id]': 'id()',
     // aria-multiselectable belongs to the listbox, so ngpComboboxList carries it instead
     '[attr.aria-multiselectable]': 'state().list() ? null : state().multiple()',
+    '(mousedown)': 'state().setDropdownPressed(true)',
+    '(mouseup)': 'state().setDropdownPressed(false)',
+    '(mouseleave)': 'state().setDropdownPressed(false)',
     '[attr.data-reference-hidden]': 'state().overlay()?.referenceHidden() ? "" : null',
     '[style.left.px]': 'state().overlay()?.position()?.x',
     '[style.top.px]': 'state().overlay()?.position()?.y',

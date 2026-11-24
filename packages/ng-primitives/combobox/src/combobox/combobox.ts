@@ -196,6 +196,9 @@ export class NgpCombobox {
    */
   readonly listboxId = computed(() => this.list()?.id() ?? this.dropdown()?.id());
 
+  /** Whether a mouse button is held down inside the dropdown. */
+  private dropdownPressed = false;
+
   /**
    * Store the combobox options.
    * @internal
@@ -385,6 +388,7 @@ export class NgpCombobox {
    */
   onOverlayClosed(): void {
     this.closing.set(true);
+    this.dropdownPressed = false;
     this.openChange.emit(false);
     // clear the active descendant
     this.activeDescendantManager.reset();
@@ -720,6 +724,23 @@ export class NgpCombobox {
   }
 
   /**
+   * Record whether a mouse button is held down inside the dropdown.
+   * @internal
+   */
+  setDropdownPressed(pressed: boolean): void {
+    this.dropdownPressed = pressed;
+  }
+
+  /**
+   * Whether the blur moved focus nowhere because of a press on content beside the list, which
+   * must not close the dropdown: Safari does not focus a button pressed with the mouse.
+   * @internal
+   */
+  isBlurFromDropdownPress(event: FocusEvent): boolean {
+    return !event.relatedTarget && !!this.list() && this.dropdownPressed;
+  }
+
+  /**
    * Register an option with the combobox.
    * @param option The option to register.
    * @internal
@@ -861,6 +882,10 @@ export class NgpCombobox {
   @HostListener('blur', ['$event'])
   protected onBlur(event: FocusEvent): void {
     const relatedTarget = event.relatedTarget as HTMLElement;
+
+    if (this.isBlurFromDropdownPress(event)) {
+      return;
+    }
 
     // if the blur was caused by focus moving to the dropdown, don't close
     if (relatedTarget && this.dropdown()?.elementRef.nativeElement.contains(relatedTarget)) {
