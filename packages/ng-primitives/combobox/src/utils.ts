@@ -72,10 +72,13 @@ export function leavesKeyToList(event: KeyboardEvent): boolean {
 /**
  * Whether the input is a text field to assistive technology as well: an explicit role of another
  * widget, such as `spinbutton`, says its keys drive that widget. The `role` attribute is a list
- * of tokens, and the first one is the role.
+ * of tokens, and its first token is read as the role: WAI-ARIA would skip a token that names no
+ * role, so a field whose first token is unknown keeps its keys here.
  */
 function hasTextFieldRole(input: HTMLInputElement): boolean {
-  const [role] = (input.getAttribute('role') ?? '').trim().split(HTML_TOKEN_SEPARATOR);
+  const role = (input.getAttribute('role') ?? '')
+    .split(HTML_TOKEN_SEPARATOR)
+    .find(token => token !== '');
 
   return !role || TEXT_FIELD_ROLES.includes(role);
 }

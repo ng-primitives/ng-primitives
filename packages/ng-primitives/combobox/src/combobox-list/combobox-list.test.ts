@@ -356,7 +356,7 @@ if (!customElements.get('ngp-test-shadow-field')) {
         </div>
         <!-- A filter in a form prevents Enter only to keep the form from submitting. -->
         <input (keydown.enter)="$event.preventDefault()" aria-label="Form filter" />
-        <!-- The role attribute is a list of tokens: the first one is the role. -->
+        <!-- The role attribute is a list of tokens, and its first token is read as the role. -->
         <input aria-label="Padded role filter" role=" textbox " />
         <input aria-label="Fallback role filter" role="searchbox extra" />
         <input aria-label="Volume" type="range" min="0" max="100" value="0" />
