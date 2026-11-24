@@ -33,7 +33,7 @@ import type { NgpComboboxListState } from '../combobox-list/combobox-list-state'
 import { NgpComboboxOption } from '../combobox-option/combobox-option';
 import type { NgpComboboxPortal } from '../combobox-portal/combobox-portal';
 import { injectComboboxConfig } from '../config/combobox-config';
-import { areAllOptionsSelected, isKeyATextFieldLeavesToTheList } from '../utils';
+import { areAllOptionsSelected, leavesKeyToList } from '../utils';
 import { comboboxState, provideComboboxState } from './combobox-state';
 
 /**
@@ -847,7 +847,7 @@ export class NgpCombobox {
       target !== dropdown &&
       !!dropdown?.contains(target) &&
       !this.options().some(option => option.elementRef.nativeElement.contains(target)) &&
-      !isKeyATextFieldLeavesToTheList(event)
+      !leavesKeyToList(event)
     );
   }
 
