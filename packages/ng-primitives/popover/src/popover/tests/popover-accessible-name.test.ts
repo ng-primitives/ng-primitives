@@ -16,6 +16,7 @@ import { afterEach, describe, expect, it } from 'vitest';
         ngpPopover
         data-testid="popover"
       >
+        <h2 id="heading">Preferences</h2>
         Popover content
       </div>
     </ng-template>
@@ -186,6 +187,23 @@ describe('NgpPopover accessible name', () => {
       await new Promise(resolve => setTimeout(resolve));
       await fixture.whenStable();
       expect(popover).toHaveAttribute('aria-labelledby', 'heading');
+      expect(popover).toHaveAccessibleName('Preferences');
+    });
+
+    it('should keep an aria-label present at render through a trigger rename', async () => {
+      const { fixture } = await render(PopoverNameTestComponent);
+      fixture.componentInstance.triggerId.set('first-trigger');
+      fixture.componentInstance.label.set('Bound name');
+      fixture.detectChanges();
+      const popover = await open();
+
+      fixture.componentInstance.triggerId.set('second-trigger');
+      fixture.detectChanges();
+
+      await new Promise(resolve => setTimeout(resolve));
+      await fixture.whenStable();
+      expect(popover).not.toHaveAttribute('aria-labelledby');
+      expect(popover).toHaveAccessibleName('Bound name');
     });
 
     it('should follow its trigger again once a later aria-labelledby is removed', async () => {
