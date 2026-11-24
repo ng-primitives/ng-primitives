@@ -11,124 +11,6 @@ import {
   NgpSelectPortal,
 } from '../../index';
 
-@Component({
-  template: `
-    <div ngpSelect data-testid="select">
-      <div *ngpSelectPortal ngpSelectDropdown data-testid="dropdown">
-        <div ngpSelectOption ngpSelectOptionValue="Apple">Apple</div>
-      </div>
-    </div>
-  `,
-  imports: [NgpSelect, NgpSelectDropdown, NgpSelectOption, NgpSelectPortal],
-})
-class ListboxSelectComponent {}
-
-@Component({
-  template: `
-    <div ngpSelect ngpSelectHasPopup="dialog" data-testid="select">
-      <div *ngpSelectPortal ngpSelectDropdown data-testid="dropdown">
-        <input ngpSelectInput data-testid="select-input" />
-        <div ngpSelectList>
-          <div ngpSelectOption ngpSelectOptionValue="Apple">Apple</div>
-        </div>
-      </div>
-    </div>
-  `,
-  imports: [
-    NgpSelect,
-    NgpSelectDropdown,
-    NgpSelectInput,
-    NgpSelectList,
-    NgpSelectOption,
-    NgpSelectPortal,
-  ],
-})
-class DialogSelectComponent {}
-
-@Component({
-  template: `
-    <div ngpSelect data-testid="select">
-      <div *ngpSelectPortal ngpSelectDropdown data-testid="dropdown">
-        <div ngpSelectList>
-          <div ngpSelectOption ngpSelectOptionValue="Apple">Apple</div>
-        </div>
-      </div>
-    </div>
-  `,
-  imports: [NgpSelect, NgpSelectDropdown, NgpSelectList, NgpSelectOption, NgpSelectPortal],
-})
-class ListWithoutInputSelectComponent {}
-
-@Component({
-  template: `
-    <div ngpSelect aria-haspopup="dialog" data-testid="select">
-      <div *ngpSelectPortal ngpSelectDropdown data-testid="dropdown">
-        <div ngpSelectOption ngpSelectOptionValue="Apple">Apple</div>
-      </div>
-    </div>
-  `,
-  imports: [NgpSelect, NgpSelectDropdown, NgpSelectOption, NgpSelectPortal],
-})
-class StaticAttributeSelectComponent {}
-
-@Component({
-  template: `
-    <div [ngpSelectHasPopup]="hasPopup()" ngpSelect data-testid="select">
-      <div *ngpSelectPortal ngpSelectDropdown data-testid="dropdown">
-        <div ngpSelectOption ngpSelectOptionValue="Apple">Apple</div>
-      </div>
-    </div>
-  `,
-  imports: [NgpSelect, NgpSelectDropdown, NgpSelectOption, NgpSelectPortal],
-})
-class BoundSelectComponent {
-  readonly hasPopup = signal<NgpSelectHasPopup | undefined>('listbox');
-}
-
-@Component({
-  template: `
-    <div ngpSelect data-testid="select">
-      <div *ngpSelectPortal ngpSelectDropdown data-testid="dropdown">
-        <input ngpSelectInput data-testid="select-input" />
-        <div ngpSelectList>
-          <div ngpSelectOption ngpSelectOptionValue="Apple">Apple</div>
-        </div>
-      </div>
-    </div>
-  `,
-  imports: [
-    NgpSelect,
-    NgpSelectDropdown,
-    NgpSelectInput,
-    NgpSelectList,
-    NgpSelectOption,
-    NgpSelectPortal,
-  ],
-})
-class UnannouncedDialogSelectComponent {}
-
-@Component({
-  template: `
-    <div ngpSelect aria-haspopup="dialog" data-testid="select">
-      <div *ngpSelectPortal ngpSelectDropdown data-testid="dropdown">
-        <input ngpSelectInput data-testid="select-input" />
-        <div ngpSelectList>
-          <div ngpSelectOption ngpSelectOptionValue="Apple">Apple</div>
-        </div>
-      </div>
-    </div>
-  `,
-  imports: [
-    NgpSelect,
-    NgpSelectDropdown,
-    NgpSelectInput,
-    NgpSelectList,
-    NgpSelectOption,
-    NgpSelectPortal,
-  ],
-})
-class StaticAttributeDialogSelectComponent {}
-
 /** Leaves the host as hydration finds it: holding the `aria-haspopup` the server render wrote. */
 @Directive({ selector: '[serverRenderedHasPopup]' })
 class ServerRenderedHasPopup {
@@ -140,20 +22,44 @@ class ServerRenderedHasPopup {
   }
 }
 
+const imports = [
+  // the server-rendered attribute has to be on the host before the select is created
+  ServerRenderedHasPopup,
+  NgpSelect,
+  NgpSelectDropdown,
+  NgpSelectInput,
+  NgpSelectList,
+  NgpSelectOption,
+  NgpSelectPortal,
+];
+
+const option = `<div ngpSelectOption ngpSelectOptionValue="Apple">Apple</div>`;
+const list = `<div ngpSelectList>${option}</div>`;
+const searchable = `<input ngpSelectInput data-testid="select-input" />${list}`;
+
+/** Renders a select with `host` as its host's attributes and `dropdown` as its dropdown's content. */
+function renderSelect(host: string, dropdown = option, componentProperties = {}) {
+  return render(
+    `<div ngpSelect ${host} data-testid="select">
+      <div *ngpSelectPortal ngpSelectDropdown data-testid="dropdown">${dropdown}</div>
+    </div>`,
+    { imports, componentProperties },
+  );
+}
+
+/** A reusable select that announces its popup through its own host metadata. */
 @Component({
+  selector: 'app-dialog-select',
+  hostDirectives: [NgpSelect],
+  host: { 'aria-haspopup': 'dialog' },
   template: `
-    <div [ngpSelectHasPopup]="hasPopup()" serverRenderedHasPopup ngpSelect data-testid="select">
-      <div *ngpSelectPortal ngpSelectDropdown data-testid="dropdown">
-        <div ngpSelectOption ngpSelectOptionValue="Apple">Apple</div>
-      </div>
+    <div *ngpSelectPortal ngpSelectDropdown data-testid="dropdown">
+      <div ngpSelectOption ngpSelectOptionValue="Apple">Apple</div>
     </div>
   `,
-  // the server-rendered attribute has to be on the host before the select is created
-  imports: [ServerRenderedHasPopup, NgpSelect, NgpSelectDropdown, NgpSelectOption, NgpSelectPortal],
+  imports: [NgpSelectDropdown, NgpSelectOption, NgpSelectPortal],
 })
-class HydratedSelectComponent {
-  readonly hasPopup = signal<NgpSelectHasPopup | undefined>('dialog');
-}
+class WrappedSelectComponent {}
 
 const hasPopupWarning = expect.stringContaining('ngpSelectHasPopup="dialog"');
 
@@ -175,7 +81,7 @@ describe('NgpSelect aria-haspopup', () => {
   afterEach(close);
 
   it('sets no aria-haspopup by default, leaving the combobox its implicit listbox', async () => {
-    await render(ListboxSelectComponent);
+    await renderSelect('');
 
     expect(screen.getByTestId('select')).not.toHaveAttribute('aria-haspopup');
 
@@ -186,7 +92,7 @@ describe('NgpSelect aria-haspopup', () => {
   });
 
   it('sets no aria-haspopup for a list without a search input', async () => {
-    await render(ListWithoutInputSelectComponent);
+    await renderSelect('', list);
 
     expect(screen.getByTestId('select')).not.toHaveAttribute('aria-haspopup');
 
@@ -196,51 +102,88 @@ describe('NgpSelect aria-haspopup', () => {
     expect(select).not.toHaveAttribute('aria-haspopup');
   });
 
-  it("keeps the host's own aria-haspopup while the input is unset", async () => {
-    await render(StaticAttributeSelectComponent);
+  it('sets no aria-haspopup for an empty input', async () => {
+    await renderSelect('ngpSelectHasPopup');
 
-    expect(screen.getByTestId('select')).toHaveAttribute('aria-haspopup', 'dialog');
+    expect(screen.getByTestId('select')).not.toHaveAttribute('aria-haspopup');
+  });
 
-    const select = await open();
-    expect(select).toHaveAttribute('aria-haspopup', 'dialog');
+  describe('while the input is unset', () => {
+    it.each([
+      ['a listbox', option],
+      ['a search input', searchable],
+    ])("keeps the host's static aria-haspopup with %s in the dropdown", async (_, dropdown) => {
+      await renderSelect('aria-haspopup="dialog"', dropdown);
 
-    await close();
-    expect(select).toHaveAttribute('aria-haspopup', 'dialog');
+      expect(screen.getByTestId('select')).toHaveAttribute('aria-haspopup', 'dialog');
+
+      const select = await open();
+      await waitFor(() => expect(screen.getByTestId('dropdown')).toHaveAttribute('role'));
+      expect(select).toHaveAttribute('aria-haspopup', 'dialog');
+
+      await close();
+      expect(select).toHaveAttribute('aria-haspopup', 'dialog');
+    });
+
+    it("keeps an aria-haspopup set through a wrapper's host metadata", async () => {
+      const { fixture } = await render(WrappedSelectComponent);
+
+      expect(fixture.nativeElement).toHaveAttribute('aria-haspopup', 'dialog');
+    });
+
+    it("keeps the host's bound aria-haspopup as it changes", async () => {
+      const popup = signal('dialog');
+      const { fixture } = await renderSelect('[attr.aria-haspopup]="popup()"', option, { popup });
+      const select = screen.getByTestId('select');
+      expect(select).toHaveAttribute('aria-haspopup', 'dialog');
+
+      popup.set('listbox');
+      fixture.detectChanges();
+      expect(select).toHaveAttribute('aria-haspopup', 'listbox');
+    });
   });
 
   it('follows the input as it changes', async () => {
-    const { fixture } = await render(BoundSelectComponent);
+    const hasPopup = signal<NgpSelectHasPopup | undefined>('listbox');
+    const { fixture } = await renderSelect('[ngpSelectHasPopup]="hasPopup()"', option, {
+      hasPopup,
+    });
     const select = screen.getByTestId('select');
     expect(select).toHaveAttribute('aria-haspopup', 'listbox');
 
-    fixture.componentInstance.hasPopup.set('dialog');
+    hasPopup.set('dialog');
     fixture.detectChanges();
     expect(select).toHaveAttribute('aria-haspopup', 'dialog');
 
-    fixture.componentInstance.hasPopup.set(undefined);
+    hasPopup.set(undefined);
     fixture.detectChanges();
     expect(select).not.toHaveAttribute('aria-haspopup');
   });
 
   it('removes an aria-haspopup the server render wrote once the input is unset', async () => {
-    const { fixture } = await render(HydratedSelectComponent);
+    const hasPopup = signal<NgpSelectHasPopup | undefined>('dialog');
+    const { fixture } = await renderSelect(
+      '[ngpSelectHasPopup]="hasPopup()" serverRenderedHasPopup',
+      option,
+      { hasPopup },
+    );
     const select = screen.getByTestId('select');
     expect(select).toHaveAttribute('aria-haspopup', 'dialog');
 
-    fixture.componentInstance.hasPopup.set(undefined);
+    hasPopup.set(undefined);
     fixture.detectChanges();
 
     expect(select).not.toHaveAttribute('aria-haspopup');
   });
 
   it('announces a dialog popup before the first opening', async () => {
-    await render(DialogSelectComponent);
+    await renderSelect('ngpSelectHasPopup="dialog"', searchable);
 
     expect(screen.getByTestId('select')).toHaveAttribute('aria-haspopup', 'dialog');
   });
 
-  it('drops aria-haspopup while the search input is the combobox', async () => {
-    await render(DialogSelectComponent);
+  it('drops its aria-haspopup while the search input is the combobox', async () => {
+    await renderSelect('ngpSelectHasPopup="dialog"', searchable);
     const select = await open();
 
     expect(screen.getByTestId('dropdown')).toHaveAttribute('role', 'dialog');
@@ -249,7 +192,7 @@ describe('NgpSelect aria-haspopup', () => {
   });
 
   it('announces a dialog popup again after closing', async () => {
-    await render(DialogSelectComponent);
+    await renderSelect('ngpSelectHasPopup="dialog"', searchable);
     const select = await open();
 
     await close();
@@ -263,26 +206,20 @@ describe('NgpSelect aria-haspopup', () => {
 
     it('warns when a search input is composed without ngpSelectHasPopup="dialog"', async () => {
       const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
-      await render(UnannouncedDialogSelectComponent);
+      await renderSelect('', searchable);
 
       await open();
 
       await waitFor(() => expect(warn).toHaveBeenCalledWith(hasPopupWarning));
     });
 
-    it('stays silent when the select announces the dialog', async () => {
+    it.each([
+      ['the select announces the dialog', 'ngpSelectHasPopup="dialog"'],
+      ["the host's static aria-haspopup announces the dialog", 'aria-haspopup="dialog"'],
+      ["the host's bound aria-haspopup announces the dialog", '[attr.aria-haspopup]="\'dialog\'"'],
+    ])('stays silent when %s', async (_, host) => {
       const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
-      await render(DialogSelectComponent);
-
-      const select = await open();
-      await waitFor(() => expect(select).not.toHaveAttribute('role'));
-
-      expect(warn).not.toHaveBeenCalledWith(hasPopupWarning);
-    });
-
-    it("stays silent when the host's own aria-haspopup announces the dialog", async () => {
-      const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
-      await render(StaticAttributeDialogSelectComponent);
+      await renderSelect(host, searchable);
 
       const select = await open();
       await waitFor(() => expect(select).not.toHaveAttribute('role'));

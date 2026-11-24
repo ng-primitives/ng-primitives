@@ -202,7 +202,11 @@ export const [
             );
           }
 
-          if (selectState().announcedHasPopup() !== 'dialog') {
+          const announcedHasPopup =
+            selectState().hasPopup() ||
+            selectState().elementRef.nativeElement.getAttribute('aria-haspopup');
+
+          if (announcedHasPopup !== 'dialog') {
             console.warn(
               '[ngpSelectInput]: The dropdown is a dialog while it holds an ngpSelectInput. Set ngpSelectHasPopup="dialog" on the element with the ngpSelect directive, so the closed select announces it.',
             );

@@ -2,8 +2,6 @@ import {
   computed,
   effect,
   ElementRef,
-  HostAttributeToken,
-  inject,
   Signal,
   signal,
   untracked,
@@ -22,6 +20,7 @@ import {
   dataBinding,
   deprecatedSetter,
   emitter,
+  isomorphicEffect,
   listener,
   SetterOptions,
   StateInjectionOptions,
@@ -84,8 +83,10 @@ export interface NgpSelectState<T> {
   /** Whether the dropdown is modal. */
   readonly modal: Signal<boolean>;
 
-  /** The `aria-haspopup` the closed select announces: the `hasPopup` prop, else the host's static one. */
-  readonly announcedHasPopup: Signal<string | null>;
+  /**
+   * @internal The popup type the select announces through `aria-haspopup`.
+   */
+  readonly hasPopup: Signal<NgpSelectHasPopup | undefined>;
 
   /**
    * A function that will scroll the active option into view. This can be overridden
@@ -390,10 +391,6 @@ export const [NgpSelectStateToken, ngpSelect, _injectSelectState, provideSelectS
       onOpenChange,
     }: NgpSelectProps<T>): NgpSelectState<T> => {
       const elementRef = injectElementRef<HTMLElement>();
-      // The template's static attribute, not the DOM's: after hydration the DOM holds the value
-      // the server render bound, which would outlive the input that set it.
-      const hostHasPopup = inject(new HostAttributeToken('aria-haspopup'), { optional: true });
-      const announcedHasPopup = computed(() => hasPopup() ?? hostHasPopup);
       const value = controlled(_value);
       const disabled = controlled(_disabled, false);
       const container = controlled(_container, 'body');
@@ -476,7 +473,20 @@ export const [NgpSelectStateToken, ngpSelect, _injectSelectState, provideSelectS
       attrBinding(elementRef, 'role', () => (input() ? null : 'combobox'));
       attrBinding(elementRef, 'id', id);
       attrBinding(elementRef, 'aria-expanded', () => (input() ? undefined : expanded()));
-      attrBinding(elementRef, 'aria-haspopup', () => (input() ? undefined : announcedHasPopup()));
+      // Not an attrBinding: an `aria-haspopup` the consumer set is theirs, so the select removes
+      // only the one it wrote.
+      let wroteHasPopup = false;
+      isomorphicEffect(() => {
+        const ownHasPopup = input() ? undefined : hasPopup();
+
+        if (ownHasPopup) {
+          elementRef.nativeElement.setAttribute('aria-haspopup', ownHasPopup);
+          wroteHasPopup = true;
+        } else if (wroteHasPopup) {
+          elementRef.nativeElement.removeAttribute('aria-haspopup');
+          wroteHasPopup = false;
+        }
+      });
       attrBinding(elementRef, 'aria-controls', () =>
         input() ? undefined : open() ? (list()?.id() ?? dropdown()?.id()) : undefined,
       );
@@ -998,7 +1008,7 @@ export const [NgpSelectStateToken, ngpSelect, _injectSelectState, provideSelectS
         flip,
         offset,
         modal,
-        announcedHasPopup,
+        hasPopup,
         scrollToOption,
         allOptions,
         portal,
