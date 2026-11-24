@@ -342,7 +342,7 @@ bootstrapApplication(AppComponent, {
 
 Adheres to the [WAI-ARIA](https://www.w3.org/WAI/ARIA/apg/patterns/combobox/) guidelines for comboboxes.
 
-When an `ngpComboboxList` is used, it takes `role="listbox"` and `aria-multiselectable`, and the input's `aria-controls` points at it. The dropdown takes no role, since focus stays on the input and the list is the popup it controls. Naming is left to the consumer, so add an `aria-label` (or `aria-labelledby`) to the list.
+When an `ngpComboboxList` is used, it takes `role="listbox"` and `aria-multiselectable`, and while the dropdown is open the `aria-controls` of the input and of the button point at it. The dropdown takes no role, since focus stays on the input, or on the combobox itself when it has no input, and the list is the popup being controlled. Naming is left to the consumer, so add an `aria-label` (or `aria-labelledby`) to the list.
 
 ### Keyboard Interactions
 
