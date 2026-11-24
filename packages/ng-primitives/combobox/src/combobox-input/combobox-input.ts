@@ -39,7 +39,11 @@ export class NgpComboboxInput {
   /** The id of the input. */
   readonly id = input<string>(uniqueId('ngp-combobox-input'));
 
-  /** The id of the dropdown. */
+  /**
+   * The id of the dropdown.
+   * @deprecated No longer what `aria-controls` names. Read `listboxId` from the combobox state
+   * (`injectComboboxState`) instead: the list when there is one, otherwise the dropdown.
+   */
   readonly dropdownId = computed(() => this.state().dropdown()?.id());
 
   /** The id of the active descendant. */
