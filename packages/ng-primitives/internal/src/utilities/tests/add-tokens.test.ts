@@ -166,6 +166,18 @@ describe('addTokens', () => {
     );
   });
 
+  it('should keep a non-breaking space inside a token of the consumer', async () => {
+    const { fixture } = await render('<input owner aria-describedby="help\u00a0text" />', {
+      imports: [Owner],
+    });
+    await fixture.whenStable();
+
+    expect(fixture.nativeElement.querySelector('input')).toHaveAttribute(
+      'aria-describedby',
+      'help\u00a0text err',
+    );
+  });
+
   it('should leave the attribute as the consumer wrote it when it already holds the tokens of the owners', async () => {
     const { fixture } = await render('<input owner aria-describedby="err  hint err" />', {
       imports: [Owner],

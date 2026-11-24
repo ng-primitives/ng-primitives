@@ -117,9 +117,11 @@ function setOrRemoveAttribute(element: HTMLElement, attr: string, value: string)
   }
 }
 
+/** What separates tokens in HTML: ASCII whitespace only, so a token can hold a non-breaking space. */
+const TOKEN_SEPARATOR = /[\t\n\f\r ]+/;
+
 function tokensOf(value: string[] | string | null | undefined): string[] {
   const values = typeof value === 'string' ? [value] : (value ?? []);
-  // An owner can add several tokens in one string, such as alternative keys of one shortcut, and
-  // a consumer's list can be separated by any whitespace.
-  return values.flatMap(tokens => tokens.split(/\s+/)).filter(Boolean);
+  // An owner can add several tokens in one string, such as alternative keys of one shortcut.
+  return values.flatMap(tokens => tokens.split(TOKEN_SEPARATOR)).filter(Boolean);
 }
