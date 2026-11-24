@@ -455,12 +455,12 @@ describe('NgpTooltipTrigger (primitive)', () => {
       expect(trigger).toHaveAttribute('aria-describedby', 'hint');
 
       fireEvent.mouseEnter(trigger);
-      await waitFor(() => expect(document.querySelector('[ngpTooltip]')).toBeInTheDocument());
-      const id = document.querySelector('[ngpTooltip]')!.id;
+      const tooltip = await screen.findByRole('tooltip');
+      const id = tooltip.id;
       await waitFor(() => expect(trigger).toHaveAttribute('aria-describedby', `hint ${id}`));
 
       fireEvent.mouseLeave(trigger);
-      await waitFor(() => expect(document.querySelector('[ngpTooltip]')).not.toBeInTheDocument());
+      await waitFor(() => expect(tooltip).not.toBeInTheDocument());
       expect(trigger).toHaveAttribute('aria-describedby', 'hint');
     });
 
@@ -484,8 +484,8 @@ describe('NgpTooltipTrigger (primitive)', () => {
       expect(trigger).toHaveAttribute('aria-describedby', 'hint');
 
       fireEvent.mouseEnter(trigger);
-      await waitFor(() => expect(document.querySelector('[ngpTooltip]')).toBeInTheDocument());
-      const id = document.querySelector('[ngpTooltip]')!.id;
+      const tooltip = await screen.findByRole('tooltip');
+      const id = tooltip.id;
       await waitFor(() => expect(trigger).toHaveAttribute('aria-describedby', `hint ${id}`));
 
       // the binding rewrites the whole attribute, and the tooltip id is added back
@@ -493,7 +493,7 @@ describe('NgpTooltipTrigger (primitive)', () => {
       await waitFor(() => expect(trigger).toHaveAttribute('aria-describedby', `other ${id}`));
 
       fireEvent.mouseLeave(trigger);
-      await waitFor(() => expect(document.querySelector('[ngpTooltip]')).not.toBeInTheDocument());
+      await waitFor(() => expect(tooltip).not.toBeInTheDocument());
       expect(trigger).toHaveAttribute('aria-describedby', 'other');
     });
 
@@ -515,15 +515,15 @@ describe('NgpTooltipTrigger (primitive)', () => {
       const trigger = getByRole('button');
 
       fireEvent.mouseEnter(trigger);
-      await waitFor(() => expect(document.querySelector('[ngpTooltip]')).toBeInTheDocument());
-      const id = document.querySelector('[ngpTooltip]')!.id;
+      const tooltip = await screen.findByRole('tooltip');
+      const id = tooltip.id;
       await waitFor(() => expect(trigger).toHaveAttribute('aria-describedby', id));
 
       // as the CDK's `AriaDescriber` does
       trigger.setAttribute('aria-describedby', `${trigger.getAttribute('aria-describedby')} hint`);
 
       fireEvent.mouseLeave(trigger);
-      await waitFor(() => expect(document.querySelector('[ngpTooltip]')).not.toBeInTheDocument());
+      await waitFor(() => expect(tooltip).not.toBeInTheDocument());
       await waitFor(() => expect(trigger).toHaveAttribute('aria-describedby', 'hint'));
     });
 
@@ -556,12 +556,12 @@ describe('NgpTooltipTrigger (primitive)', () => {
       expect(trigger).toHaveAttribute('aria-describedby', 'hint desc');
 
       fireEvent.mouseEnter(trigger);
-      await waitFor(() => expect(document.querySelector('[ngpTooltip]')).toBeInTheDocument());
-      const id = document.querySelector('[ngpTooltip]')!.id;
+      const tooltip = await screen.findByRole('tooltip');
+      const id = tooltip.id;
       await waitFor(() => expect(trigger).toHaveAttribute('aria-describedby', `hint desc ${id}`));
 
       fireEvent.mouseLeave(trigger);
-      await waitFor(() => expect(document.querySelector('[ngpTooltip]')).not.toBeInTheDocument());
+      await waitFor(() => expect(tooltip).not.toBeInTheDocument());
       await waitFor(() => expect(trigger).toHaveAttribute('aria-describedby', 'hint desc'));
 
       await rerender({ componentProperties: { showDescription: false }, partialUpdate: true });

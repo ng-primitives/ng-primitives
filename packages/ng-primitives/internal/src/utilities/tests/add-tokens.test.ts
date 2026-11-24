@@ -55,20 +55,21 @@ describe('addTokens', () => {
     const { fixture } = await render(TwoOwners);
     const { element, first } = fixture.componentInstance;
     // the spies see every observer on the page: only those of the element count
-    const observations = () => observe.mock.calls.filter(([target]) => target === element);
+    const ofElement = ([target]: [Node, ...unknown[]]) => target === element;
+    const observations = () => observe.mock.calls.filter(ofElement);
     expect(observations()).toHaveLength(0);
 
     first.set(['desc']);
     await fixture.whenStable();
     expect(observations()).toEqual([[element, { attributeFilter: ['aria-describedby'] }]]);
-    const observer = observe.mock.contexts[observe.mock.calls.findIndex(([t]) => t === element)];
+    const observer = observe.mock.contexts[observe.mock.calls.findIndex(ofElement)];
 
     first.set([]);
     await fixture.whenStable();
     expect(disconnect.mock.contexts.filter(context => context === observer)).toHaveLength(1);
   });
 
-  it("should take a token appended from outside for the consumer's, and not the owners' tokens before it", async () => {
+  it("should keep a token appended from outside as the consumer's", async () => {
     const { fixture } = await render(TwoOwners);
     const { element, first } = fixture.componentInstance;
     first.set(['tip']);
@@ -101,7 +102,7 @@ describe('addTokens', () => {
   it('should keep the tokens of an owner when another owner with the same source is destroyed', async () => {
     const { fixture } = await render(SharedSource);
     const { element } = fixture.componentInstance;
-    fixture.componentInstance.addOwner();
+    const first = fixture.componentInstance.addOwner();
     const second = fixture.componentInstance.addOwner();
     fixture.detectChanges();
     await fixture.whenStable();
@@ -110,6 +111,7 @@ describe('addTokens', () => {
     second.destroy();
 
     expect(element).toHaveAttribute('aria-describedby', 'desc');
+    first.destroy();
   });
 
   it("should leave the attribute to the consumer's tokens on the server", async () => {
