@@ -8,12 +8,11 @@ type TokenSource = () => string[] | string | null | undefined;
  * Keep the tokens of a primitive in a space-separated attribute of the element, next to the
  * consumer's own value, set on the element or bound to it, and to the tokens that other primitives
  * on the element add to the same attribute. An attribute no primitive has added a token to stays
- * as the consumer wrote it. The tokens are added in the browser only: the server HTML holds the
- * consumer's value alone.
+ * as the consumer wrote it. The tokens are added in the browser only: the ids a primitive generates
+ * differ between the server and the browser, so one written on the server could not be told from a
+ * consumer's token after hydration. Must be called in an injection context.
  */
 export function addTokens(element: HTMLElement, attr: string, tokens: TokenSource): void {
-  // The ids a primitive generates differ between the server and the browser, so one written on
-  // the server could not be told from a consumer's token after hydration.
   if (isPlatformServer(inject(PLATFORM_ID))) {
     return;
   }
@@ -101,7 +100,7 @@ class TokenRegistry {
 
     // Not `fromMutationObserver`: it runs an effect in one injector, and the owners that share the
     // registry each have their own.
-    if (!this.observer && typeof MutationObserver !== 'undefined') {
+    if (!this.observer) {
       this.observer = new MutationObserver(() => this.write());
       this.observer.observe(this.element, { attributeFilter: [this.attr] });
     }
