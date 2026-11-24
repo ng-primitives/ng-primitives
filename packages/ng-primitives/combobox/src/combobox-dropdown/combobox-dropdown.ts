@@ -68,7 +68,7 @@ export class NgpComboboxDropdown {
    * it, or to nothing, would take the keys from the combobox. The press still clicks.
    */
   protected keepFocusOnPress(event: MouseEvent): void {
-    if (this.state().list() && !needsFocusOnPress(event.target)) {
+    if (this.state().list() && !needsFocusOnPress(event)) {
       event.preventDefault();
     }
   }

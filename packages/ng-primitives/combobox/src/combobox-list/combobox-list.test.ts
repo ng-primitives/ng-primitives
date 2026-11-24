@@ -1,5 +1,5 @@
 import { NgTemplateOutlet } from '@angular/common';
-import { Component, signal } from '@angular/core';
+import { Component, CUSTOM_ELEMENTS_SCHEMA, signal } from '@angular/core';
 import { fireEvent, render, screen, waitFor, within } from '@testing-library/angular';
 import { userEvent } from '@testing-library/user-event';
 import { describe, expect, it } from 'vitest';
@@ -313,6 +313,19 @@ class PressedDropdownComponent {
   readonly applied = signal(false);
 }
 
+// A web component: its field sits in a shadow root, so events from the field reach listeners
+// outside with the host as their target.
+class ShadowField extends HTMLElement {
+  constructor() {
+    super();
+    this.attachShadow({ mode: 'open' }).innerHTML = '<input aria-label="Shadow filter" />';
+  }
+}
+
+if (!customElements.get('ngp-test-shadow-field')) {
+  customElements.define('ngp-test-shadow-field', ShadowField);
+}
+
 @Component({
   imports: [
     NgpCombobox,
@@ -321,6 +334,7 @@ class PressedDropdownComponent {
     NgpComboboxOption,
     NgpComboboxPortal,
   ],
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
   template: `
     <div
       [(ngpComboboxValue)]="value"
@@ -340,6 +354,7 @@ class PressedDropdownComponent {
           <option>Date</option>
         </select>
         <div aria-label="Comment" contenteditable="true"><b>bold</b></div>
+        <ngp-test-shadow-field data-testid="shadow-field" />
 
         <div ngpComboboxList aria-label="Fruits">
           @for (fruit of fruits; track fruit) {
@@ -868,7 +883,34 @@ describe('NgpComboboxList', () => {
       expect(component.value()).toBeUndefined();
     });
 
+    it('should leave the keys of a field inside a web component alone', async () => {
+      const { component, apple } = await openControlsDropdown();
+
+      const field = screen.getByTestId('shadow-field').shadowRoot!.querySelector('input')!;
+      field.focus();
+      const keydown = new KeyboardEvent('keydown', {
+        key: 'Enter',
+        bubbles: true,
+        cancelable: true,
+        composed: true,
+      });
+      field.dispatchEvent(keydown);
+
+      expect(keydown.defaultPrevented).toBe(false);
+      expect(apple).toHaveAttribute('data-active');
+      expect(component.value()).toBeUndefined();
+    });
+
     // Real pointer presses below: the browser, not a simulation, decides what a press focuses.
+    it('should let a pressed field inside a web component take focus', async () => {
+      await openControlsDropdown();
+      const host = screen.getByTestId('shadow-field');
+
+      await browserUserEvent.click(host);
+
+      expect(host.shadowRoot!.activeElement).toBe(host.shadowRoot!.querySelector('input'));
+    });
+
     it('should let a pressed select take focus', async () => {
       await openControlsDropdown();
       const select = screen.getByRole('combobox', { name: 'Sort' });

@@ -834,7 +834,8 @@ export class NgpCombobox {
    * Whether the key was pressed on content beside the list in the dropdown, which handles its own
    * keys: anything other than one of this combobox's options, such as a button or a field. Such
    * keys reach the combobox only when the dropdown is rendered inside it. A single-line text field
-   * still leaves the keys it has no use for to the combobox, as the combobox input does. Without a
+   * still leaves the keys it has no use for to the combobox, as the combobox input does; a web
+   * component keeps every key, since its events arrive with the host as their target. Without a
    * list the dropdown is the listbox, and every key pressed in it stays the combobox's.
    */
   private handlesOwnKey(event: KeyboardEvent): boolean {

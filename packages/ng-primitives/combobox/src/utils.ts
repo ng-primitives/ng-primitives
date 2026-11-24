@@ -29,7 +29,11 @@ const NEEDS_FOCUS_ON_PRESS_SELECTOR =
  * field the user types into, editable content, a select, and the inputs a press drives, such as a
  * slider, which does not move once the press is prevented.
  */
-export function needsFocusOnPress(target: EventTarget | null): boolean {
+export function needsFocusOnPress(event: MouseEvent): boolean {
+  // The element pressed, not `event.target`: for a press inside a web component that is its
+  // host, whatever control the shadow root holds.
+  const [target] = event.composedPath();
+
   return (
     target instanceof Element &&
     (!!target.closest(NEEDS_FOCUS_ON_PRESS_SELECTOR) ||
