@@ -236,6 +236,7 @@ describe('NgpCollapsible', () => {
     it('should keep data-disabled on the disabled trigger when the button is enabled again', async () => {
       const fixture = await renderWithButton(true, true);
       const trigger = fixture.getByTestId('trigger');
+      expect(trigger).toHaveAttribute('disabled');
 
       await fixture.rerender({
         componentProperties: { buttonDisabled: false },

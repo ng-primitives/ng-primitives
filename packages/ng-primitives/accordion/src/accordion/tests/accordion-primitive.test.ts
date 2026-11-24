@@ -376,8 +376,12 @@ describe('NgpAccordion', () => {
         partialUpdate: true,
       });
 
-      await waitFor(() => expect(triggers[0]).not.toHaveAttribute('aria-disabled'));
-      expect(triggers[0]).not.toHaveAttribute('data-disabled');
+      await waitFor(() => {
+        for (const trigger of triggers) {
+          expect(trigger).not.toHaveAttribute('aria-disabled');
+          expect(trigger).not.toHaveAttribute('data-disabled');
+        }
+      });
     });
   });
 
