@@ -456,16 +456,30 @@ export const [NgpSelectStateToken, ngpSelect, _injectSelectState, provideSelectS
         }
       });
 
+      // While an ngpSelectInput is registered it is the combobox, so the host
+      // drops the role and the ARIA state that belongs to it.
+      function unlessInputIsCombobox<T>(value: () => T): () => T | undefined {
+        return () => (input() ? undefined : value());
+      }
+
       // Host bindings
-      attrBinding(elementRef, 'role', () => (input() ? null : 'combobox'));
-      attrBinding(elementRef, 'id', id);
-      attrBinding(elementRef, 'aria-expanded', () => (input() ? undefined : expanded()));
-      attrBinding(elementRef, 'aria-disabled', () => (input() ? undefined : disabled()));
-      attrBinding(elementRef, 'aria-controls', () =>
-        input() ? undefined : open() ? (list()?.id() ?? dropdown()?.id()) : undefined,
+      attrBinding(
+        elementRef,
+        'role',
+        unlessInputIsCombobox(() => 'combobox'),
       );
-      attrBinding(elementRef, 'aria-activedescendant', () =>
-        input() ? undefined : open() ? activeDescendantManagerInstance.id() : undefined,
+      attrBinding(elementRef, 'id', id);
+      attrBinding(elementRef, 'aria-expanded', unlessInputIsCombobox(expanded));
+      attrBinding(elementRef, 'aria-disabled', unlessInputIsCombobox(disabled));
+      attrBinding(
+        elementRef,
+        'aria-controls',
+        unlessInputIsCombobox(() => (open() ? (list()?.id() ?? dropdown()?.id()) : undefined)),
+      );
+      attrBinding(
+        elementRef,
+        'aria-activedescendant',
+        unlessInputIsCombobox(() => (open() ? activeDescendantManagerInstance.id() : undefined)),
       );
       attrBinding(elementRef, 'tabindex', () => {
         if (input() || disabled()) return -1;
