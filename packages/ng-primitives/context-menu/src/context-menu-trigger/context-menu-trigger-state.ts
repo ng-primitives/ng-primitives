@@ -319,7 +319,7 @@ export const [
       // No-op for context menu
     }
 
-    provideMenuTriggerCompatState({
+    setMenuTriggerCompatState({
       menu,
       placement: signal('bottom-start'),
       open,
@@ -340,7 +340,7 @@ export const [
       setPointerOverContent,
       // the area a context menu opens from is no name for it
       triggerElement: () => null,
-    } satisfies Partial<NgpMenuTriggerState<T>>);
+    });
 
     return {
       open,
@@ -355,14 +355,22 @@ export const [
 );
 
 /**
- * Publish the context menu trigger where `NgpMenu` looks for its trigger. A context menu has no
- * menu trigger, so only part of that state exists: `NgpMenu` reads `hide`, `openOrigin`,
- * `openFocus`, `setPointerOverContent` and `triggerElement`. The token is typed for the whole
- * state, hence the cast.
+ * The part of the menu trigger state a context menu has: the members `NgpMenu` calls without a
+ * guard are required, the rest may be left out.
  */
-function provideMenuTriggerCompatState<T>(state: Partial<NgpMenuTriggerState<T>>): void {
+type MenuTriggerCompatState<T> = Pick<
+  NgpMenuTriggerState<T>,
+  'hide' | 'openOrigin' | 'setPointerOverContent' | 'triggerElement'
+> &
+  Partial<NgpMenuTriggerState<T>>;
+
+/**
+ * Publish the context menu trigger where `NgpMenu` looks for its trigger. The token is typed for
+ * the whole menu trigger state, hence the cast.
+ */
+function setMenuTriggerCompatState<T>(state: MenuTriggerCompatState<T>): void {
   const menuTriggerState = inject(NgpMenuTriggerStateToken, { optional: true }) as WritableSignal<
-    Partial<NgpMenuTriggerState<T>>
+    MenuTriggerCompatState<T>
   > | null;
 
   menuTriggerState?.set(state);
