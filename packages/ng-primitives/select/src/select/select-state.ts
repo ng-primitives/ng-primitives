@@ -488,8 +488,8 @@ export const [NgpSelectStateToken, ngpSelect, _injectSelectState, provideSelectS
         if (input() || disabled()) return -1;
         return 0;
       });
+      // `data-disabled` is bound by `ngpFormControl` from the same disabled state.
       dataBinding(elementRef, 'data-open', () => (open() ? '' : null));
-      dataBinding(elementRef, 'data-disabled', () => (disabled() ? '' : null));
       dataBinding(elementRef, 'data-multiple', () => (multiple() ? '' : null));
 
       // Event listeners
