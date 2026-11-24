@@ -33,7 +33,7 @@ import type { NgpComboboxListState } from '../combobox-list/combobox-list-state'
 import { NgpComboboxOption } from '../combobox-option/combobox-option';
 import type { NgpComboboxPortal } from '../combobox-portal/combobox-portal';
 import { injectComboboxConfig } from '../config/combobox-config';
-import { areAllOptionsSelected } from '../utils';
+import { areAllOptionsSelected, isTextField } from '../utils';
 import { comboboxState, provideComboboxState } from './combobox-state';
 
 /**
@@ -771,7 +771,7 @@ export class NgpCombobox {
       return;
     }
 
-    if (this.isOtherDropdownContent(event.target)) {
+    if (this.handlesOwnKeys(event.target)) {
       return;
     }
 
@@ -831,16 +831,18 @@ export class NgpCombobox {
   }
 
   /**
-   * Whether the element is content beside the list in the dropdown: anything other than one of
-   * this combobox's options, such as a button or a field. Such content handles its own keys,
-   * which reach the combobox only when the dropdown is rendered inside it. Without a list the
-   * dropdown is the listbox, and every key pressed in it stays the combobox's.
+   * Whether the element is content beside the list in the dropdown that handles its own keys,
+   * such as a button: anything other than one of this combobox's options or a text field, which
+   * leaves the navigation keys to the combobox as its input does. The keys of such content reach
+   * the combobox only when the dropdown is rendered inside it. Without a list the dropdown is the
+   * listbox, and every key pressed in it stays the combobox's.
    */
-  private isOtherDropdownContent(target: EventTarget | null): boolean {
+  private handlesOwnKeys(target: EventTarget | null): boolean {
     const dropdown = this.dropdown()?.elementRef.nativeElement;
 
     return (
       !!this.list() &&
+      !isTextField(target) &&
       target instanceof Element &&
       target !== dropdown &&
       !!dropdown?.contains(target) &&

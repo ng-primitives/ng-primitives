@@ -313,6 +313,40 @@ class PressedDropdownComponent {
   readonly applied = signal(false);
 }
 
+@Component({
+  imports: [
+    NgpCombobox,
+    NgpComboboxDropdown,
+    NgpComboboxList,
+    NgpComboboxOption,
+    NgpComboboxPortal,
+  ],
+  template: `
+    <div
+      [(ngpComboboxValue)]="value"
+      ngpCombobox
+      ngpComboboxDropdownContainer="#in-place"
+      data-testid="combobox"
+    >
+      <div id="in-place"></div>
+
+      <div *ngpComboboxPortal ngpComboboxDropdown data-testid="dropdown">
+        <input aria-label="Filter" />
+
+        <div ngpComboboxList aria-label="Fruits">
+          @for (fruit of fruits; track fruit) {
+            <div [ngpComboboxOptionValue]="fruit" ngpComboboxOption>{{ fruit }}</div>
+          }
+        </div>
+      </div>
+    </div>
+  `,
+})
+class InPlaceFilterWithListComponent {
+  readonly fruits = ['Apple', 'Banana', 'Cherry'];
+  readonly value = signal<string | undefined>(undefined);
+}
+
 async function openDropdown(): Promise<HTMLElement> {
   const input = screen.getByRole('combobox');
   input.focus();
@@ -701,6 +735,32 @@ describe('NgpComboboxList', () => {
 
       expect(arrowDown.defaultPrevented).toBe(false);
       expect(input).toHaveAttribute('aria-activedescendant', apple.id);
+    });
+  });
+
+  describe('a field in a dropdown rendered inside a combobox without an input', () => {
+    it('should navigate and select options inside the list', async () => {
+      const { fixture } = await render(InPlaceFilterWithListComponent);
+
+      screen.getByTestId('combobox').focus();
+      await userEvent.keyboard('{ArrowDown}');
+      await screen.findByTestId('dropdown');
+
+      const [apple, banana] = screen.getAllByRole('option');
+      await waitFor(() => {
+        expect(apple).toHaveAttribute('data-active');
+      });
+
+      screen.getByRole('textbox', { name: 'Filter' }).focus();
+      await userEvent.keyboard('{ArrowDown}');
+
+      await waitFor(() => {
+        expect(banana).toHaveAttribute('data-active');
+      });
+
+      await userEvent.keyboard('{Enter}');
+
+      expect(fixture.componentInstance.value()).toBe('Banana');
     });
   });
 
