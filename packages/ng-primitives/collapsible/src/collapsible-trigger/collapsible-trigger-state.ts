@@ -51,11 +51,19 @@ export const [
     const collapsible = injectCollapsibleState();
 
     const disabled = collapsible().disabled;
-    // An ngpButton on the same element binds the same attributes, so feed it rather than compete.
     const button = inject(NgpButton, { self: true, optional: true });
 
+    // Host bindings
+    attrBinding(element, 'id', id);
+    attrBinding(element, 'type', tagName === 'button' ? 'button' : null);
+    attrBinding(element, 'aria-controls', collapsible().contentId);
+    attrBinding(element, 'aria-expanded', collapsible().open);
+    dataBinding(element, 'data-open', collapsible().open);
+    dataBinding(element, 'data-closed', () => !collapsible().open());
+    dataBinding(element, 'data-orientation', collapsible().orientation);
     // aria-disabled rather than disabled, so the trigger stays focusable and is announced.
     if (button) {
+      // An ngpButton on the same element binds the same attributes, so feed it rather than compete.
       button.registerAriaDisabledSource(disabled, 'announced-and-styled');
       button.registerAriaDisabledSource(ariaDisabled);
       onDestroy(() => {
@@ -66,15 +74,6 @@ export const [
       attrBinding(element, 'aria-disabled', () => (disabled() || ariaDisabled() ? 'true' : null));
       dataBinding(element, 'data-disabled', disabled);
     }
-
-    // Host bindings
-    attrBinding(element, 'id', id);
-    attrBinding(element, 'type', tagName === 'button' ? 'button' : null);
-    attrBinding(element, 'aria-controls', collapsible().contentId);
-    attrBinding(element, 'aria-expanded', collapsible().open);
-    dataBinding(element, 'data-open', collapsible().open);
-    dataBinding(element, 'data-closed', () => !collapsible().open());
-    dataBinding(element, 'data-orientation', collapsible().orientation);
 
     // Register the trigger with the collapsible state
     collapsible().setTrigger(id());
