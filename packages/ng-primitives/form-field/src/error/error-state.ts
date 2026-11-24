@@ -1,7 +1,7 @@
 import { Signal, computed, signal } from '@angular/core';
-import { explicitEffect, injectElementRef } from 'ng-primitives/internal';
+import { injectElementRef } from 'ng-primitives/internal';
 import { attrBinding, createPrimitive, dataBinding, onDestroy } from 'ng-primitives/state';
-import { onBooleanChange } from 'ng-primitives/utils';
+import { onBooleanChange, onChange } from 'ng-primitives/utils';
 import { injectFormFieldState } from '../form-field/form-field-state';
 
 /**
@@ -81,18 +81,14 @@ export const [NgpErrorStateToken, ngpError, injectErrorState, provideErrorState]
       registeredId = undefined;
     }
 
-    // Update error registration when hasError changes
     onBooleanChange(hasError, registerError, unregisterError);
 
-    function updateIdRegistration(): void {
-      unregisterError();
-      if (hasError()) {
+    onChange(id, newId => {
+      if (registeredId !== undefined && registeredId !== newId) {
+        unregisterError();
         registerError();
       }
-    }
-
-    // Watch for id changes to update registration
-    explicitEffect([id], updateIdRegistration);
+    });
 
     onDestroy(unregisterError);
 

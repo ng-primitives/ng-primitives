@@ -388,6 +388,38 @@ describe('NgpError', () => {
     expect(input).not.toHaveAttribute('aria-describedby');
   });
 
+  it('should keep a showing error ahead of a description rendered after it', async () => {
+    @Component({
+      template: `
+        <div ngpFormField>
+          <input [formControl]="control" ngpFormControl />
+          @if (showMessages) {
+            <p ngpError>Error</p>
+            <p ngpDescription>Description</p>
+          }
+        </div>
+      `,
+      imports: [NgpFormField, NgpDescription, NgpError, NgpFormControl, ReactiveFormsModule],
+    })
+    class TestComponent {
+      showMessages = false;
+      control = new FormControl('', [Validators.required]);
+    }
+
+    const { container, fixture } = await render(TestComponent);
+
+    fixture.componentInstance.showMessages = true;
+    fixture.detectChanges();
+
+    const errorId = container.querySelector('[ngpError]')?.id;
+    const descriptionId = container.querySelector('[ngpDescription]')?.id;
+
+    expect(container.querySelector('input')).toHaveAttribute(
+      'aria-describedby',
+      `${errorId} ${descriptionId}`,
+    );
+  });
+
   it('should handle async validation errors', async () => {
     const asyncValidator = (control: any) => {
       return new Promise<{ asyncError: boolean } | null>(resolve => {
