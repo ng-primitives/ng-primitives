@@ -2,6 +2,8 @@ import {
   computed,
   effect,
   ElementRef,
+  HostAttributeToken,
+  inject,
   Signal,
   signal,
   untracked,
@@ -473,19 +475,26 @@ export const [NgpSelectStateToken, ngpSelect, _injectSelectState, provideSelectS
       attrBinding(elementRef, 'role', () => (input() ? null : 'combobox'));
       attrBinding(elementRef, 'id', id);
       attrBinding(elementRef, 'aria-expanded', () => (input() ? undefined : expanded()));
-      // Not an attrBinding: an `aria-haspopup` the consumer set is theirs, so the select removes
-      // only the one it wrote.
-      let wroteHasPopup = false;
+      // Not an attrBinding: an `aria-haspopup` the consumer set is theirs. Once the select stops
+      // announcing, it hands the attribute back unless the consumer has bound over its value. What
+      // it hands back is the template's static value: after hydration the DOM holds the server's.
+      const staticHasPopup = inject(new HostAttributeToken('aria-haspopup'), { optional: true });
+      let writtenHasPopup: NgpSelectHasPopup | undefined;
       isomorphicEffect(() => {
-        const ownHasPopup = input() ? undefined : hasPopup();
+        const host = elementRef.nativeElement;
+        const ownHasPopup = (!input() && hasPopup()) || undefined;
 
         if (ownHasPopup) {
-          elementRef.nativeElement.setAttribute('aria-haspopup', ownHasPopup);
-          wroteHasPopup = true;
-        } else if (wroteHasPopup) {
-          elementRef.nativeElement.removeAttribute('aria-haspopup');
-          wroteHasPopup = false;
+          host.setAttribute('aria-haspopup', ownHasPopup);
+        } else if (writtenHasPopup && host.getAttribute('aria-haspopup') === writtenHasPopup) {
+          if (staticHasPopup === null) {
+            host.removeAttribute('aria-haspopup');
+          } else {
+            host.setAttribute('aria-haspopup', staticHasPopup);
+          }
         }
+
+        writtenHasPopup = ownHasPopup;
       });
       attrBinding(elementRef, 'aria-controls', () =>
         input() ? undefined : open() ? (list()?.id() ?? dropdown()?.id()) : undefined,

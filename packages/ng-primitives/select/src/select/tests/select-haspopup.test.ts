@@ -160,6 +160,46 @@ describe('NgpSelect aria-haspopup', () => {
     expect(select).not.toHaveAttribute('aria-haspopup');
   });
 
+  it.each<NgpSelectHasPopup>(['dialog', 'listbox'])(
+    "hands the host's static aria-haspopup back once the input %s is unset",
+    async initial => {
+      const hasPopup = signal<NgpSelectHasPopup | undefined>(initial);
+      const { fixture } = await renderSelect(
+        'aria-haspopup="dialog" [ngpSelectHasPopup]="hasPopup()"',
+        option,
+        { hasPopup },
+      );
+      const select = screen.getByTestId('select');
+      expect(select).toHaveAttribute('aria-haspopup', initial);
+
+      hasPopup.set(undefined);
+      fixture.detectChanges();
+
+      expect(select).toHaveAttribute('aria-haspopup', 'dialog');
+    },
+  );
+
+  it('keeps an aria-haspopup the consumer bound over its own once the input is unset', async () => {
+    const hasPopup = signal<NgpSelectHasPopup | undefined>('listbox');
+    const popup = signal<string | undefined>(undefined);
+    const { fixture } = await renderSelect(
+      '[ngpSelectHasPopup]="hasPopup()" [attr.aria-haspopup]="popup()"',
+      option,
+      { hasPopup, popup },
+    );
+    const select = screen.getByTestId('select');
+    expect(select).toHaveAttribute('aria-haspopup', 'listbox');
+
+    popup.set('dialog');
+    fixture.detectChanges();
+    expect(select).toHaveAttribute('aria-haspopup', 'dialog');
+
+    hasPopup.set(undefined);
+    fixture.detectChanges();
+
+    expect(select).toHaveAttribute('aria-haspopup', 'dialog');
+  });
+
   it('removes an aria-haspopup the server render wrote once the input is unset', async () => {
     const hasPopup = signal<NgpSelectHasPopup | undefined>('dialog');
     const { fixture } = await renderSelect(
