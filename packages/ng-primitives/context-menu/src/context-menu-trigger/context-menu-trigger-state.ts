@@ -9,7 +9,7 @@ import {
   WritableSignal,
 } from '@angular/core';
 import { injectElementRef } from 'ng-primitives/internal';
-import { NgpMenuTriggerStateToken } from 'ng-primitives/menu';
+import { NgpMenuTriggerState, NgpMenuTriggerStateToken } from 'ng-primitives/menu';
 import {
   createOverlay,
   NgpFlip,
@@ -346,7 +346,7 @@ export const [
         setPointerOverContent,
         // the area a context menu opens from is no name for it
         triggerElement: () => null,
-      });
+      } satisfies Partial<NgpMenuTriggerState<T>>);
     }
 
     return {
