@@ -472,7 +472,7 @@ Adheres to the [WAI-ARIA Menu Button Pattern](https://www.w3.org/WAI/ARIA/apg/pa
 
 An item with a `ngpMenuItemShortcut` is described by it through `aria-describedby`, and the shortcut is hidden from the item's name. Its `ngpMenuItemShortcutKeys` become the item's `aria-keyshortcuts`.
 
-A menu is named by its trigger through `aria-labelledby`, and a submenu by its submenu trigger, unless an `aria-label` or `aria-labelledby` is present when the overlay renders; labels added later do not override the trigger name. While open, the menu stays named by its trigger when the trigger is renamed or gains an id. A context menu has no trigger to take a name from, so give it an `aria-label`.
+A menu is named by its trigger through `aria-labelledby`, and a submenu by its submenu trigger, unless it has an `aria-label` when it renders or is given an `aria-labelledby` of its own. An `aria-label` added later does not replace the trigger name. While open, the menu stays named by its trigger when the trigger is renamed or gains an id. A context menu has no trigger to take a name from, so give it an `aria-label`.
 
 A modal menu makes the rest of the page `inert`, so screen readers only reach the menu, its submenus and its trigger. Elements with `data-ngp-modal-exempt`, such as the toast region, and `aria-live` regions placed directly in `<body>` stay reachable. A live region nested in the page, such as a form error, is `inert` too while the menu is open.
 
