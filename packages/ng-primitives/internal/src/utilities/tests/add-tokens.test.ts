@@ -95,6 +95,12 @@ describe('addTokens', () => {
       runInInjectionContext(injector, () =>
         addTokens(this.element, 'aria-describedby', this.shared),
       );
+      // also when an assertion fails before the test destroys it
+      onTestFinished(() => {
+        if (!injector.destroyed) {
+          injector.destroy();
+        }
+      });
       return injector;
     }
   }
@@ -102,8 +108,7 @@ describe('addTokens', () => {
   it('should keep the tokens of an owner when another owner with the same source is destroyed', async () => {
     const { fixture } = await render(SharedSource);
     const { element } = fixture.componentInstance;
-    const first = fixture.componentInstance.addOwner();
-    onTestFinished(() => first.destroy());
+    fixture.componentInstance.addOwner();
     const second = fixture.componentInstance.addOwner();
     fixture.detectChanges();
     await fixture.whenStable();
