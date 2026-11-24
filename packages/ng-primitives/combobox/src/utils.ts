@@ -25,9 +25,10 @@ export function areAllOptionsSelected(
 // combobox's list and its options carry one.
 const FOCUSABLE_SELECTOR =
   'a[href], button, input, select, textarea, [contenteditable]:not([contenteditable=false]), [tabindex]:not([tabindex="-1"])';
-// Controls that act on a click and need no focus for it.
+// Controls that act on a click and need no focus for it, by element and by role.
 const ACTS_WITHOUT_FOCUS_SELECTOR =
-  'button, input:is([type=button], [type=submit], [type=reset], [type=image], [type=checkbox], [type=radio]), [role=button], [role=option]';
+  'button, input:is([type=button], [type=submit], [type=reset], [type=image], [type=checkbox], [type=radio])';
+const ACTS_WITHOUT_FOCUS_ROLES = ['button', 'option'];
 
 /**
  * Whether a mouse press in the dropdown moves focus: it does when the nearest focusable element
@@ -46,7 +47,16 @@ export function takesFocusOnPress(event: MouseEvent): boolean {
         target instanceof Element && target.matches(FOCUSABLE_SELECTOR),
     );
 
-  return !!focusable && !focusable.matches(ACTS_WITHOUT_FOCUS_SELECTOR);
+  return !!focusable && !actsWithoutFocus(focusable);
+}
+
+function actsWithoutFocus(element: Element): boolean {
+  const role = roleOf(element);
+
+  return (
+    element.matches(ACTS_WITHOUT_FOCUS_SELECTOR) ||
+    (!!role && ACTS_WITHOUT_FOCUS_ROLES.includes(role))
+  );
 }
 
 const SINGLE_LINE_TEXT_TYPES = ['text', 'search', 'email', 'url', 'tel', 'password'];
@@ -79,16 +89,23 @@ export function leavesKeyToList(event: KeyboardEvent): boolean {
 
 /**
  * Whether the input is a text field to assistive technology as well: an explicit role of another
- * widget, such as `spinbutton`, says its keys drive that widget. The `role` attribute is a list
- * of tokens, and its first token is read as the role: WAI-ARIA would skip a token that names no
- * role, so a field whose first token is unknown keeps its keys here.
+ * widget, such as `spinbutton`, says its keys drive that widget.
  */
 function hasTextFieldRole(input: HTMLInputElement): boolean {
-  const role = (input.getAttribute('role') ?? '')
-    .split(HTML_TOKEN_SEPARATOR)
-    .find(token => token !== '');
+  const role = roleOf(input);
 
   return !role || TEXT_FIELD_ROLES.includes(role);
+}
+
+/**
+ * The role an element is given: the first token of its `role` attribute, which is a list of
+ * tokens. WAI-ARIA would skip a token that names no role and read the next one; here an unknown
+ * first token is the role, so a field that carries one keeps its keys.
+ */
+function roleOf(element: Element): string | undefined {
+  return (element.getAttribute('role') ?? '')
+    .split(HTML_TOKEN_SEPARATOR)
+    .find(token => token !== '');
 }
 
 function hasModifier({ altKey, ctrlKey, metaKey, shiftKey }: KeyboardEvent): boolean {

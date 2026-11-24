@@ -305,6 +305,9 @@ class InPlaceFilterWithoutListComponent {
         <p>{{ value().length }} selected</p>
         <!-- A tabindex of -1 keeps an element out of the tab order; it asks for no focus. -->
         <div tabindex="-1" data-testid="scroll-area"><span>Details</span></div>
+        <!-- The role attribute is a list of tokens, and its first token is read as the role. -->
+        <div role="button extra" tabindex="0">Fallback role button</div>
+        <div role=" option " tabindex="0">Padded role option</div>
         <button (click)="applied.set(true)" type="button">Apply</button>
       </div>
     </div>
@@ -613,6 +616,17 @@ describe('NgpComboboxList', () => {
 
       expect(input).toHaveFocus();
     });
+
+    it.each(['Fallback role button', 'Padded role option'])(
+      'should keep focus on the input after a press on a control whose role is the first token of its role attribute: %s',
+      async text => {
+        const { input } = await openPressedDropdown();
+
+        await browserUserEvent.click(screen.getByText(text));
+
+        expect(input).toHaveFocus();
+      },
+    );
 
     it('should click a button beside the list and keep focus on the input', async () => {
       const { component, input } = await openPressedDropdown();
