@@ -164,6 +164,6 @@ The following directives are available to import from the `ng-primitives/form-fi
 
 ## Accessibility
 
-The label and description elements should be associated with the form control using the `aria-labelledby` and `aria-describedby` attributes, respectively. This will ensure that screen readers can provide the necessary context to users. The form control's own `aria-labelledby` and `aria-describedby` are kept next to the label and description ids. Those ids are added in the browser: server-rendered HTML carries only the control's own values until hydration, so a native control is named by its `<label for>` in the meantime and a custom control is unnamed until then.
+The label and description elements should be associated with the form control using the `aria-labelledby` and `aria-describedby` attributes, respectively. This will ensure that screen readers can provide the necessary context to users. The form control's own `aria-labelledby` and `aria-describedby` are kept next to the label and description ids. Those ids are added in the browser: server-rendered HTML carries only the control's own values until hydration, so a native control is named by its `<label for>` in the meantime and a custom control with no accessible name of its own is unnamed until then.
 
 The form control exposes `aria-invalid="true"` to assistive technology once it is invalid and has been touched, so validation errors are not announced before the user has had a chance to interact with the field.
