@@ -8,7 +8,6 @@ import {
   PLATFORM_ID,
   runInInjectionContext,
   signal,
-  Type,
 } from '@angular/core';
 import { By } from '@angular/platform-browser';
 import { render } from '@testing-library/angular';
@@ -113,7 +112,7 @@ describe('addTokens', () => {
     expect(element).toHaveAttribute('aria-describedby', 'desc');
   });
 
-  it('should mark the tokens the owners add on the server', async () => {
+  it("should leave the attribute to the consumer's tokens on the server", async () => {
     const { fixture } = await render(TwoOwners, {
       providers: [{ provide: PLATFORM_ID, useValue: 'server' }],
     });
@@ -124,39 +123,7 @@ describe('addTokens', () => {
     fixture.detectChanges();
     await fixture.whenStable();
 
-    expect(element).toHaveAttribute('aria-describedby', 'hint ngp-description-57');
-    expect(element).toHaveAttribute('data-ngp-added-aria-describedby', 'ngp-description-57');
-  });
-
-  /** A component whose host the server rendered with the consumer's `hint` and an owner's id. */
-  function hydrated(tokensInBrowser: string[]): Type<{ element: HTMLElement }> {
-    @Component({ template: '' })
-    class Hydrated {
-      readonly element = inject<ElementRef<HTMLElement>>(ElementRef).nativeElement;
-
-      constructor() {
-        this.element.setAttribute('aria-describedby', 'hint ngp-description-57');
-        this.element.setAttribute('data-ngp-added-aria-describedby', 'ngp-description-57');
-        addTokens(this.element, 'aria-describedby', () => tokensInBrowser);
-      }
-    }
-    return Hydrated;
-  }
-
-  it('should replace the tokens the owners added on the server with their tokens in the browser', async () => {
-    const { fixture } = await render(hydrated(['ngp-description-0']));
-    await fixture.whenStable();
-    const { element } = fixture.componentInstance;
-
-    expect(element).toHaveAttribute('aria-describedby', 'hint ngp-description-0');
-    expect(element).not.toHaveAttribute('data-ngp-added-aria-describedby');
-  });
-
-  it('should remove the tokens the owners added on the server when they add none in the browser', async () => {
-    const { fixture } = await render(hydrated([]));
-    await fixture.whenStable();
-
-    expect(fixture.componentInstance.element).toHaveAttribute('aria-describedby', 'hint');
+    expect(element).toHaveAttribute('aria-describedby', 'hint');
   });
 
   @Directive({ selector: '[owner]' })

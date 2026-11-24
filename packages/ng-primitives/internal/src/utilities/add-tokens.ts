@@ -1,6 +1,5 @@
-import { isPlatformBrowser } from '@angular/common';
-import { DestroyRef, inject, PLATFORM_ID, untracked } from '@angular/core';
-import { isomorphicEffect } from 'ng-primitives/state';
+import { isPlatformServer } from '@angular/common';
+import { afterRenderEffect, DestroyRef, inject, PLATFORM_ID, untracked } from '@angular/core';
 
 /** Where the tokens a primitive adds to an attribute come from: a list, or a space-separated string. */
 type TokenSource = () => string[] | string | null | undefined;
@@ -9,15 +8,21 @@ type TokenSource = () => string[] | string | null | undefined;
  * Keep the tokens of a primitive in a space-separated attribute of the element, next to the
  * consumer's own value, set on the element or bound to it, and to the tokens that other primitives
  * on the element add to the same attribute. An attribute no primitive has added a token to stays
- * as the consumer wrote it.
+ * as the consumer wrote it. The tokens are added in the browser only: the server HTML holds the
+ * consumer's value alone.
  */
 export function addTokens(element: HTMLElement, attr: string, tokens: TokenSource): void {
-  const onServer = !isPlatformBrowser(inject(PLATFORM_ID));
-  const registry = TokenRegistry.of(element, attr, onServer);
+  // The ids a primitive generates differ between the server and the browser, so one written on
+  // the server could not be told from a consumer's token after hydration.
+  if (isPlatformServer(inject(PLATFORM_ID))) {
+    return;
+  }
+
+  const registry = TokenRegistry.of(element, attr);
   const removeOwner = registry.addOwner(tokens);
 
   // After render, like `attrBinding`: the consumer's binding has written its value by then.
-  isomorphicEffect(() => {
+  afterRenderEffect(() => {
     tokens();
     untracked(() => registry.write());
   });
@@ -26,16 +31,18 @@ export function addTokens(element: HTMLElement, attr: string, tokens: TokenSourc
 }
 
 /**
- * What the primitives on one element add to one of its space-separated attributes. It remembers
- * the tokens it added, so everything else in the attribute is the consumer's, whoever wrote it and
- * whenever. A token the consumer writes after an owner added the same one is the owner's.
+ * What the primitives on one element add to one of its space-separated attributes. Owners' tokens
+ * are added in the browser only, so on the first read every token in the attribute is the
+ * consumer's. After that it remembers the tokens it added: everything else is the consumer's,
+ * whoever wrote it and whenever. A token the consumer writes after an owner added the same one is
+ * the owner's.
  */
 class TokenRegistry {
   private static readonly registries = new WeakMap<Element, Map<string, TokenRegistry>>();
 
-  static of(element: HTMLElement, attr: string, onServer: boolean): TokenRegistry {
+  static of(element: HTMLElement, attr: string): TokenRegistry {
     const byAttribute = this.registries.get(element) ?? new Map<string, TokenRegistry>();
-    const registry = byAttribute.get(attr) ?? new TokenRegistry(element, attr, onServer);
+    const registry = byAttribute.get(attr) ?? new TokenRegistry(element, attr);
     this.registries.set(element, byAttribute.set(attr, registry));
     return registry;
   }
@@ -43,23 +50,13 @@ class TokenRegistry {
   /** One record per `addTokens` call: two primitives that pass one source stay two owners. */
   private readonly owners = new Set<{ readonly tokens: TokenSource }>();
   /** The owners' tokens in the attribute that the consumer had not written there itself. */
-  private added: string[];
-  /**
-   * Carries `added` from the server render to the browser. The ids the owners have there differ,
-   * so the text of the hydrated attribute cannot tell the server's ids from the consumer's tokens.
-   */
-  private readonly addedOnServerAttr: string;
+  private added: string[] = [];
   private observer: MutationObserver | null = null;
 
   private constructor(
     private readonly element: HTMLElement,
     private readonly attr: string,
-    private readonly onServer: boolean,
-  ) {
-    this.addedOnServerAttr = `data-ngp-added-${attr}`;
-    this.added = tokensOf(element.getAttribute(this.addedOnServerAttr));
-    element.removeAttribute(this.addedOnServerAttr);
-  }
+  ) {}
 
   /** Returns the function that removes the owner, and its tokens with it. */
   addOwner(tokens: TokenSource): () => void {
@@ -85,9 +82,6 @@ class TokenRegistry {
 
       if (next !== (value ?? '')) {
         setOrRemoveAttribute(this.element, this.attr, next);
-      }
-      if (this.onServer) {
-        setOrRemoveAttribute(this.element, this.addedOnServerAttr, this.added.join(' '));
       }
     }
 
