@@ -48,6 +48,21 @@ class TestListboxCompareWithComponent {
   readonly compareWith = (a: { id: number }, b: { id: number }): boolean => a.id === b.id;
 }
 
+@Component({
+  template: `
+    <div [(ngpListboxValue)]="value" ngpListbox ngpListboxMode="multiple">
+      @for (fruit of fruits; track fruit) {
+        <div [ngpListboxOptionValue]="fruit" ngpListboxOption>{{ fruit }}</div>
+      }
+    </div>
+  `,
+  imports: [NgpListbox, NgpListboxOption],
+})
+class TestListboxTwoWayComponent {
+  readonly fruits = ['Apple', 'Banana', 'Cherry'];
+  readonly value = signal(['Banana']);
+}
+
 const imports = [NgpListbox, NgpListboxOption, NgpListboxSection, NgpListboxHeader];
 
 const arrowDown = { key: 'ArrowDown', code: 'ArrowDown', keyCode: 40, which: 40 };
@@ -469,6 +484,28 @@ describe('NgpListbox', () => {
       expect(container.getByTestId('opt-a')).toHaveAttribute('aria-selected', 'true');
       expect(container.getByTestId('opt-b')).toHaveAttribute('aria-selected', 'false');
     });
+
+    it('should move aria-selected with a selection made from the keyboard', async () => {
+      const container = await render(
+        `<div ngpListbox data-testid="listbox">
+          <div ngpListboxOption ngpListboxOptionValue="a" data-testid="opt-a">A</div>
+          <div ngpListboxOption ngpListboxOptionValue="b" data-testid="opt-b">B</div>
+        </div>`,
+        { imports },
+      );
+      const listbox = container.getByTestId('listbox');
+      fireEvent.focusIn(listbox);
+      await waitFor(() => expect(container.getByTestId('opt-a')).toHaveAttribute('data-active'));
+
+      fireEvent.keyDown(listbox, { key: 'Enter' });
+      expect(container.getByTestId('opt-a')).toHaveAttribute('aria-selected', 'true');
+      expect(container.getByTestId('opt-b')).toHaveAttribute('aria-selected', 'false');
+
+      fireEvent.keyDown(listbox, arrowDown);
+      fireEvent.keyDown(listbox, { key: ' ' });
+      expect(container.getByTestId('opt-a')).toHaveAttribute('aria-selected', 'false');
+      expect(container.getByTestId('opt-b')).toHaveAttribute('aria-selected', 'true');
+    });
   });
 
   describe('multiple selection', () => {
@@ -524,6 +561,20 @@ describe('NgpListbox', () => {
       expect(container.getByTestId('opt-a')).toHaveAttribute('aria-selected', 'false');
       expect(container.getByTestId('opt-b')).toHaveAttribute('aria-selected', 'true');
       expect(container.getByTestId('opt-c')).toHaveAttribute('aria-selected', 'true');
+    });
+
+    it('should set aria-selected from a two-way bound value and keep both in step', async () => {
+      const { fixture, getByText } = await render(TestListboxTwoWayComponent);
+      expect(getByText('Apple')).toHaveAttribute('aria-selected', 'false');
+      expect(getByText('Banana')).toHaveAttribute('aria-selected', 'true');
+      expect(getByText('Cherry')).toHaveAttribute('aria-selected', 'false');
+
+      fireEvent.click(getByText('Apple'));
+      fixture.detectChanges();
+      expect(fixture.componentInstance.value()).toEqual(['Banana', 'Apple']);
+      expect(getByText('Apple')).toHaveAttribute('aria-selected', 'true');
+      expect(getByText('Banana')).toHaveAttribute('aria-selected', 'true');
+      expect(getByText('Cherry')).toHaveAttribute('aria-selected', 'false');
     });
   });
 
