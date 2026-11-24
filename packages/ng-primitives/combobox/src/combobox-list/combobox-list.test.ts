@@ -162,6 +162,77 @@ class TwoComboboxListsComponent {
   readonly withSecondList = signal(true);
 }
 
+@Component({
+  imports: [
+    NgpCombobox,
+    NgpComboboxDropdown,
+    NgpComboboxInput,
+    NgpComboboxList,
+    NgpComboboxOption,
+    NgpComboboxPortal,
+  ],
+  template: `
+    <!-- The combobox is itself content of an option of another widget. -->
+    <div role="listbox" aria-label="Filters">
+      <div role="option" aria-selected="false">
+        <div
+          [(ngpComboboxValue)]="value"
+          ngpCombobox
+          ngpComboboxMultiple
+          ngpComboboxDropdownContainer="#in-place"
+        >
+          <input ngpComboboxInput aria-label="Fruit" />
+
+          <div id="in-place"></div>
+
+          <div *ngpComboboxPortal ngpComboboxDropdown data-testid="dropdown">
+            <div ngpComboboxList aria-label="Fruits">
+              <div ngpComboboxOption ngpComboboxOptionValue="Apple">Apple</div>
+              <div ngpComboboxOption ngpComboboxOptionValue="Banana">Banana</div>
+            </div>
+
+            <div role="listbox" aria-label="Presets">
+              <div role="option" aria-selected="false" tabindex="0">Recent</div>
+            </div>
+
+            <button (click)="applied.set(true)" type="button">Apply</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  `,
+})
+class ForeignOptionsComboboxListComponent {
+  readonly value = signal<string[]>([]);
+  readonly applied = signal(false);
+}
+
+@Component({
+  imports: [NgpCombobox, NgpComboboxDropdown, NgpComboboxOption, NgpComboboxPortal],
+  template: `
+    <div
+      [(ngpComboboxValue)]="value"
+      ngpCombobox
+      ngpComboboxDropdownContainer="#in-place"
+      data-testid="combobox"
+    >
+      <div id="in-place"></div>
+
+      <div *ngpComboboxPortal ngpComboboxDropdown data-testid="dropdown">
+        <input aria-label="Filter" />
+
+        @for (fruit of fruits; track fruit) {
+          <div [ngpComboboxOptionValue]="fruit" ngpComboboxOption>{{ fruit }}</div>
+        }
+      </div>
+    </div>
+  `,
+})
+class InPlaceFilterWithoutListComponent {
+  readonly fruits = ['Apple', 'Banana', 'Cherry'];
+  readonly value = signal<string | undefined>(undefined);
+}
+
 async function openDropdown(): Promise<HTMLElement> {
   const input = screen.getByRole('combobox');
   input.focus();
@@ -390,6 +461,69 @@ describe('NgpComboboxList', () => {
       await waitFor(() => {
         expect(input).toHaveAttribute('aria-expanded', 'false');
       });
+    });
+    it('should leave Enter to a button in the dropdown when the combobox sits inside an option of another widget', async () => {
+      const { fixture } = await render(ForeignOptionsComboboxListComponent);
+      const input = await openDropdown();
+
+      const apple = screen.getByRole('option', { name: 'Apple' });
+      await waitFor(() => {
+        expect(input).toHaveAttribute('aria-activedescendant', apple.id);
+      });
+
+      screen.getByRole('button', { name: 'Apply' }).focus();
+      await userEvent.keyboard('{Enter}');
+
+      expect(fixture.componentInstance.applied()).toBe(true);
+      expect(fixture.componentInstance.value()).toEqual([]);
+    });
+
+    it('should leave the keys of an option of another widget in the dropdown alone', async () => {
+      await render(ForeignOptionsComboboxListComponent);
+      const input = await openDropdown();
+
+      const apple = screen.getByRole('option', { name: 'Apple' });
+      await waitFor(() => {
+        expect(input).toHaveAttribute('aria-activedescendant', apple.id);
+      });
+
+      const recent = screen.getByRole('option', { name: 'Recent' });
+      recent.focus();
+      const arrowDown = new KeyboardEvent('keydown', {
+        key: 'ArrowDown',
+        bubbles: true,
+        cancelable: true,
+      });
+      recent.dispatchEvent(arrowDown);
+
+      expect(arrowDown.defaultPrevented).toBe(false);
+      expect(input).toHaveAttribute('aria-activedescendant', apple.id);
+    });
+  });
+
+  describe('a dropdown rendered inside the combobox without a list', () => {
+    it('should navigate and select options from a field in the dropdown', async () => {
+      const { fixture } = await render(InPlaceFilterWithoutListComponent);
+
+      screen.getByTestId('combobox').focus();
+      await userEvent.keyboard('{ArrowDown}');
+      await screen.findByTestId('dropdown');
+
+      const [apple, banana] = screen.getAllByRole('option');
+      await waitFor(() => {
+        expect(apple).toHaveAttribute('data-active');
+      });
+
+      screen.getByRole('textbox', { name: 'Filter' }).focus();
+      await userEvent.keyboard('{ArrowDown}');
+
+      await waitFor(() => {
+        expect(banana).toHaveAttribute('data-active');
+      });
+
+      await userEvent.keyboard('{Enter}');
+
+      expect(fixture.componentInstance.value()).toBe('Banana');
     });
   });
 });

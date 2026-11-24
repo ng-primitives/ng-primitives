@@ -831,18 +831,20 @@ export class NgpCombobox {
   }
 
   /**
-   * Whether the element is content of the dropdown other than an option, such as a button or a
-   * field. Such content handles its own keys, which reach the combobox only when the dropdown is
-   * rendered inside it.
+   * Whether the element is content beside the list in the dropdown: anything other than one of
+   * this combobox's options, such as a button or a field. Such content handles its own keys,
+   * which reach the combobox only when the dropdown is rendered inside it. Without a list the
+   * dropdown is the listbox, and every key pressed in it stays the combobox's.
    */
   private isOtherDropdownContent(target: EventTarget | null): boolean {
     const dropdown = this.dropdown()?.elementRef.nativeElement;
 
     return (
+      !!this.list() &&
       target instanceof Element &&
       target !== dropdown &&
       !!dropdown?.contains(target) &&
-      !target.closest('[role="option"]')
+      !this.options().some(option => option.elementRef.nativeElement.contains(target))
     );
   }
 
