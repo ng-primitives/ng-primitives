@@ -1,4 +1,4 @@
-import { Component, signal } from '@angular/core';
+import { Component, Directive, ElementRef, inject, signal } from '@angular/core';
 import { fireEvent, render, screen, waitFor } from '@testing-library/angular';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import {
@@ -129,6 +129,32 @@ class UnannouncedDialogSelectComponent {}
 })
 class StaticAttributeDialogSelectComponent {}
 
+/** Leaves the host as hydration finds it: holding the `aria-haspopup` the server render wrote. */
+@Directive({ selector: '[serverRenderedHasPopup]' })
+class ServerRenderedHasPopup {
+  constructor() {
+    inject<ElementRef<HTMLElement>>(ElementRef).nativeElement.setAttribute(
+      'aria-haspopup',
+      'dialog',
+    );
+  }
+}
+
+@Component({
+  template: `
+    <div [ngpSelectHasPopup]="hasPopup()" serverRenderedHasPopup ngpSelect data-testid="select">
+      <div *ngpSelectPortal ngpSelectDropdown data-testid="dropdown">
+        <div ngpSelectOption ngpSelectOptionValue="Apple">Apple</div>
+      </div>
+    </div>
+  `,
+  // the server-rendered attribute has to be on the host before the select is created
+  imports: [ServerRenderedHasPopup, NgpSelect, NgpSelectDropdown, NgpSelectOption, NgpSelectPortal],
+})
+class HydratedSelectComponent {
+  readonly hasPopup = signal<NgpSelectHasPopup | undefined>('dialog');
+}
+
 const hasPopupWarning = expect.stringContaining('ngpSelectHasPopup="dialog"');
 
 async function open(): Promise<HTMLElement> {
@@ -193,6 +219,17 @@ describe('NgpSelect aria-haspopup', () => {
 
     fixture.componentInstance.hasPopup.set(undefined);
     fixture.detectChanges();
+    expect(select).not.toHaveAttribute('aria-haspopup');
+  });
+
+  it('removes an aria-haspopup the server render wrote once the input is unset', async () => {
+    const { fixture } = await render(HydratedSelectComponent);
+    const select = screen.getByTestId('select');
+    expect(select).toHaveAttribute('aria-haspopup', 'dialog');
+
+    fixture.componentInstance.hasPopup.set(undefined);
+    fixture.detectChanges();
+
     expect(select).not.toHaveAttribute('aria-haspopup');
   });
 

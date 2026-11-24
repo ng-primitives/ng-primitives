@@ -2,6 +2,8 @@ import {
   computed,
   effect,
   ElementRef,
+  HostAttributeToken,
+  inject,
   Signal,
   signal,
   untracked,
@@ -82,7 +84,7 @@ export interface NgpSelectState<T> {
   /** Whether the dropdown is modal. */
   readonly modal: Signal<boolean>;
 
-  /** The `aria-haspopup` the closed select announces: the `hasPopup` prop, else the host's own. */
+  /** The `aria-haspopup` the closed select announces: the `hasPopup` prop, else the host's static one. */
   readonly announcedHasPopup: Signal<string | null>;
 
   /**
@@ -388,8 +390,9 @@ export const [NgpSelectStateToken, ngpSelect, _injectSelectState, provideSelectS
       onOpenChange,
     }: NgpSelectProps<T>): NgpSelectState<T> => {
       const elementRef = injectElementRef<HTMLElement>();
-      // read before the binding below takes the attribute over, so a consumer's own value survives
-      const hostHasPopup = elementRef.nativeElement.getAttribute('aria-haspopup');
+      // The template's static attribute, not the DOM's: after hydration the DOM holds the value
+      // the server render bound, which would outlive the input that set it.
+      const hostHasPopup = inject(new HostAttributeToken('aria-haspopup'), { optional: true });
       const announcedHasPopup = computed(() => hasPopup() ?? hostHasPopup);
       const value = controlled(_value);
       const disabled = controlled(_disabled, false);
