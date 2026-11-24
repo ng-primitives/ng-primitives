@@ -13,22 +13,21 @@ export function labelledByTrigger(
   trigger: () => HTMLElement | null | undefined,
 ): void {
   const triggerId = observedId(trigger);
-  let hasOwnLabel: boolean | undefined;
+  let hadAriaLabelOnRender: boolean | undefined;
   let appliedId: string | null = null;
 
   attrBinding(element, 'aria-labelledby', () => {
     // Read before any return: a run that keeps the consumer's value must still rerun on a rename.
     const id = triggerId() || null;
 
-    // Decided once, so an `aria-label` added later does not freeze the overlay on the id it has.
-    // In the browser the first run is after render, so a label bound in the template is already set.
-    hasOwnLabel ??= element.nativeElement.hasAttribute('aria-label');
+    // Decided once: an `aria-label` added later must not freeze the overlay on the id it has.
+    hadAriaLabelOnRender ??= element.nativeElement.hasAttribute('aria-label');
 
     // Read every run: a value other than the one written here is the consumer's, and is kept.
     const current = element.nativeElement.getAttribute('aria-labelledby');
     const hasOwnLabelledBy = current !== null && current !== appliedId;
 
-    if (hasOwnLabel || hasOwnLabelledBy) {
+    if (hadAriaLabelOnRender || hasOwnLabelledBy) {
       return current;
     }
 
