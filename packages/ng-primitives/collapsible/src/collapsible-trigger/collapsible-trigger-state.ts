@@ -1,6 +1,13 @@
 import { HOST_TAG_NAME, inject, signal, Signal } from '@angular/core';
+import { NgpButton } from 'ng-primitives/button';
 import { injectElementRef } from 'ng-primitives/internal';
-import { attrBinding, createPrimitive, dataBinding, listener } from 'ng-primitives/state';
+import {
+  attrBinding,
+  createPrimitive,
+  dataBinding,
+  listener,
+  onDestroy,
+} from 'ng-primitives/state';
 import { uniqueId } from 'ng-primitives/utils';
 import { injectCollapsibleState } from '../collapsible/collapsible-state';
 
@@ -20,6 +27,12 @@ export interface NgpCollapsibleTriggerProps {
    * The id of the trigger.
    */
   readonly id?: Signal<string>;
+  /**
+   * Sets `aria-disabled` on the trigger while true, for an owner that refuses
+   * the toggle. The trigger stays focusable and does not block the click itself.
+   * @internal
+   */
+  readonly ariaDisabled?: Signal<boolean>;
 }
 
 export const [
@@ -31,10 +44,14 @@ export const [
   'NgpCollapsibleTrigger',
   ({
     id = signal(uniqueId('ngp-collapsible-trigger')),
+    ariaDisabled = signal(false),
   }: NgpCollapsibleTriggerProps): NgpCollapsibleTriggerState => {
     const element = injectElementRef<HTMLElement>();
     const tagName = inject(HOST_TAG_NAME);
     const collapsible = injectCollapsibleState();
+
+    const disabled = collapsible().disabled;
+    const button = inject(NgpButton, { self: true, optional: true });
 
     // Host bindings
     attrBinding(element, 'id', id);
@@ -43,8 +60,20 @@ export const [
     attrBinding(element, 'aria-expanded', collapsible().open);
     dataBinding(element, 'data-open', collapsible().open);
     dataBinding(element, 'data-closed', () => !collapsible().open());
-    dataBinding(element, 'data-disabled', collapsible().disabled);
     dataBinding(element, 'data-orientation', collapsible().orientation);
+    // aria-disabled rather than disabled, so the trigger stays focusable and is announced.
+    if (button) {
+      // An ngpButton on the same element binds the same attributes, so feed it rather than compete.
+      button.registerAriaDisabledSource(disabled, 'announced-and-styled');
+      button.registerAriaDisabledSource(ariaDisabled);
+      onDestroy(() => {
+        button.unregisterAriaDisabledSource(disabled);
+        button.unregisterAriaDisabledSource(ariaDisabled);
+      });
+    } else {
+      attrBinding(element, 'aria-disabled', () => (disabled() || ariaDisabled() ? 'true' : null));
+      dataBinding(element, 'data-disabled', disabled);
+    }
 
     // Register the trigger with the collapsible state
     collapsible().setTrigger(id());

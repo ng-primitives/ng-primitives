@@ -161,10 +161,12 @@ Adheres to the [Accordion WAI-ARIA design pattern](https://www.w3.org/WAI/ARIA/a
 
 Tip: Per APG, wrap each trigger button in a heading element (e.g., `h3`) or an element with `role="heading"` and an appropriate `aria-level`. Ensure the button is the only child of the heading.
 
+The trigger of a disabled item, and every trigger of an accordion disabled with `ngpAccordionDisabled`, sets `aria-disabled="true"` and stays focusable. So does the trigger of the open item when `ngpAccordionType` is `single` and `ngpAccordionCollapsible` is `false`, as its panel cannot be collapsed.
+
 ### Keyboard Interactions
 
-- <kbd>Space</kbd> - Toggle the expanded state of the accordion item when the trigger is focused.
-- <kbd>Enter</kbd> - Toggle the expanded state of the accordion item when the trigger is focused.
+- <kbd>Space</kbd> - Toggle the expanded state of the accordion item when the trigger is focused and the item is neither disabled nor the open item that cannot be collapsed.
+- <kbd>Enter</kbd> - Toggle the expanded state of the accordion item when the trigger is focused and the item is neither disabled nor the open item that cannot be collapsed.
 
 ### Hidden Until Found
 

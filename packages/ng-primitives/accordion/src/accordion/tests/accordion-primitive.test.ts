@@ -6,6 +6,7 @@ import {
   NgpAccordionItem,
   NgpAccordionTrigger,
 } from 'ng-primitives/accordion';
+import { NgpButton } from 'ng-primitives/button';
 import { describe, expect, it, vi } from 'vitest';
 
 const imports = [NgpAccordion, NgpAccordionItem, NgpAccordionContent, NgpAccordionTrigger];
@@ -222,6 +223,170 @@ describe('NgpAccordion', () => {
 
     expect(triggers[0]).toHaveAttribute('data-disabled');
     expect(triggers[1]).not.toHaveAttribute('data-disabled');
+  });
+
+  it('should set aria-disabled on the trigger of a disabled item', async () => {
+    const fixture = await renderTemplate({ itemDisabled: true });
+    const triggers = fixture.getAllByTestId('accordion-trigger');
+
+    expect(triggers[0]).toHaveAttribute('aria-disabled', 'true');
+    expect(triggers[1]).not.toHaveAttribute('aria-disabled');
+  });
+
+  it('should set aria-disabled on every trigger when the accordion is disabled', async () => {
+    const fixture = await renderTemplate({ accordionDisabled: true });
+    const triggers = fixture.getAllByTestId('accordion-trigger');
+
+    expect(triggers[0]).toHaveAttribute('aria-disabled', 'true');
+    expect(triggers[1]).toHaveAttribute('aria-disabled', 'true');
+  });
+
+  it('should set aria-disabled on the open trigger when the accordion is not collapsible', async () => {
+    const fixture = await renderTemplate({ value: 'item-1', collapsible: false });
+    const triggers = fixture.getAllByTestId('accordion-trigger');
+
+    expect(triggers[0]).toHaveAttribute('aria-disabled', 'true');
+    expect(triggers[0]).not.toHaveAttribute('data-disabled');
+    expect(triggers[1]).not.toHaveAttribute('aria-disabled');
+
+    fireEvent.click(triggers[1]);
+
+    expect(triggers[0]).not.toHaveAttribute('aria-disabled');
+    expect(triggers[1]).toHaveAttribute('aria-disabled', 'true');
+  });
+
+  it.each([
+    ['the accordion is collapsible', { type: 'single', collapsible: true, value: 'item-1' }],
+    ['the type is multiple', { type: 'multiple', collapsible: false, value: ['item-1'] }],
+  ])('should not set aria-disabled on the open trigger when %s', async (_, properties) => {
+    const fixture = await renderTemplate(properties);
+    const triggers = fixture.getAllByTestId('accordion-trigger');
+
+    expect(triggers[0]).not.toHaveAttribute('aria-disabled');
+  });
+
+  it('should keep the open item open when its locked trigger is clicked', async () => {
+    const fixture = await renderTemplate({ value: 'item-1', collapsible: false });
+    const trigger = fixture.getAllByTestId('accordion-trigger')[0];
+
+    fireEvent.click(trigger);
+
+    expect(trigger).toHaveAttribute('data-open');
+    expect(trigger).toHaveAttribute('aria-disabled', 'true');
+  });
+
+  it.each([
+    ['Enter', '{Enter}'],
+    ['Space', ' '],
+  ])('should keep the open item open when %s is pressed on its locked trigger', async (_, key) => {
+    const fixture = await renderTemplate({ value: 'item-1', collapsible: false });
+    const trigger = fixture.getAllByTestId('accordion-trigger')[0];
+
+    trigger.focus();
+    await userEvent.keyboard(key);
+
+    expect(trigger).toHaveAttribute('data-open');
+    expect(trigger).toHaveAttribute('aria-disabled', 'true');
+  });
+
+  it('should keep the locked trigger focusable', async () => {
+    const fixture = await renderTemplate({ value: 'item-1', collapsible: false });
+    const trigger = fixture.getAllByTestId('accordion-trigger')[0];
+
+    trigger.focus();
+
+    expect(trigger).not.toHaveAttribute('disabled');
+    expect(trigger).toHaveFocus();
+  });
+
+  // NgpButton binds aria-disabled on the same element; the import order decides
+  // which of the two directives is created first.
+  describe.each([
+    ['before', [NgpButton, ...imports]],
+    ['after', [...imports, NgpButton]],
+  ])('with NgpButton imported %s the trigger', (_, importsWithButton) => {
+    function renderWithButton(componentProperties: { [alias: string]: unknown }) {
+      return render(
+        `
+        <div ngpAccordion
+             ngpAccordionType="single"
+             [ngpAccordionCollapsible]="collapsible"
+             [ngpAccordionDisabled]="accordionDisabled"
+             [(ngpAccordionValue)]="value">
+          <div ngpAccordionItem
+               ngpAccordionItemValue="item-1"
+               [ngpAccordionItemDisabled]="itemDisabled">
+            <button data-testid="accordion-trigger" ngpAccordionTrigger ngpButton>Header 1</button>
+            <div ngpAccordionContent>Content 1</div>
+          </div>
+          <div ngpAccordionItem ngpAccordionItemValue="item-2">
+            <button data-testid="accordion-trigger" ngpAccordionTrigger ngpButton>Header 2</button>
+            <div ngpAccordionContent>Content 2</div>
+          </div>
+        </div>
+        `,
+        {
+          imports: importsWithButton,
+          componentProperties: { collapsible: true, ...componentProperties },
+        },
+      );
+    }
+
+    it('should set aria-disabled on the open trigger when the accordion is not collapsible', async () => {
+      const fixture = await renderWithButton({ value: 'item-1', collapsible: false });
+      const triggers = fixture.getAllByTestId('accordion-trigger');
+
+      expect(triggers[0]).toHaveAttribute('aria-disabled', 'true');
+      expect(triggers[1]).not.toHaveAttribute('aria-disabled');
+
+      fireEvent.click(triggers[1]);
+
+      await waitFor(() => expect(triggers[1]).toHaveAttribute('aria-disabled', 'true'));
+      expect(triggers[0]).not.toHaveAttribute('aria-disabled');
+      expect(triggers[1]).not.toHaveAttribute('data-disabled');
+    });
+
+    it('should set aria-disabled and data-disabled on the trigger of a disabled item', async () => {
+      const fixture = await renderWithButton({ itemDisabled: true });
+      const triggers = fixture.getAllByTestId('accordion-trigger');
+
+      expect(triggers[0]).toHaveAttribute('aria-disabled', 'true');
+      expect(triggers[0]).toHaveAttribute('data-disabled');
+      expect(triggers[0]).not.toHaveAttribute('disabled');
+      expect(triggers[1]).not.toHaveAttribute('aria-disabled');
+      expect(triggers[1]).not.toHaveAttribute('data-disabled');
+    });
+
+    it('should set aria-disabled and data-disabled on every trigger when the accordion is disabled', async () => {
+      const fixture = await renderWithButton({ accordionDisabled: true });
+
+      for (const trigger of fixture.getAllByTestId('accordion-trigger')) {
+        expect(trigger).toHaveAttribute('aria-disabled', 'true');
+        expect(trigger).toHaveAttribute('data-disabled');
+        expect(trigger).not.toHaveAttribute('disabled');
+      }
+    });
+
+    it('should clear aria-disabled and data-disabled when the accordion is enabled again', async () => {
+      const fixture = await renderWithButton({ accordionDisabled: true });
+      const triggers = fixture.getAllByTestId('accordion-trigger');
+      for (const trigger of triggers) {
+        expect(trigger).toHaveAttribute('aria-disabled', 'true');
+        expect(trigger).toHaveAttribute('data-disabled');
+      }
+
+      await fixture.rerender({
+        componentProperties: { accordionDisabled: false },
+        partialUpdate: true,
+      });
+
+      await waitFor(() => {
+        for (const trigger of triggers) {
+          expect(trigger).not.toHaveAttribute('aria-disabled');
+          expect(trigger).not.toHaveAttribute('data-disabled');
+        }
+      });
+    });
   });
 
   it('should set the data-disabled attribute on the item elements', async () => {
