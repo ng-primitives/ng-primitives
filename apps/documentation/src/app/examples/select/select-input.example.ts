@@ -30,7 +30,7 @@ import {
         [(ngpSelectValue)]="value"
         (ngpSelectOpenChange)="onOpen($event)"
         ngpSelect
-        ngpSelectHasPopup="dialog"
+        aria-haspopup="dialog"
         aria-labelledby="select-search-label"
       >
         @if (value(); as selected) {
