@@ -432,6 +432,20 @@ describe('NgpButton aria-disabled sources', () => {
     expect(element).toBeDisabled();
   });
 
+  it('keeps an aria-disabled source when a disabled source with the same signal is unregistered', async () => {
+    const { view, button, source, element } = await setup();
+    button.registerDisabledSource(source);
+    source.set(true);
+    await view.fixture.whenStable();
+    expect(element).toBeDisabled();
+
+    button.unregisterDisabledSource(source);
+    await view.fixture.whenStable();
+
+    expect(element).not.toBeDisabled();
+    expect(element).toHaveAttribute('aria-disabled', 'true');
+  });
+
   it('stops following a source once it is unregistered', async () => {
     const { view, button, source, element } = await setup();
     source.set(true);
