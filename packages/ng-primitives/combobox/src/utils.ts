@@ -43,9 +43,9 @@ const LIST_KEYS = ['ArrowUp', 'ArrowDown', 'Enter', 'Escape'];
 /**
  * Whether the field the key was pressed in has no use for it, so the list may take it: a list key
  * on its own in a single-line field the user types into. Every other key is the field's: a space,
- * Home and End, and a list key held with a modifier, such as Alt+ArrowDown, which opens the
- * field's suggestions. So is every key of another field: the arrows step a number, a date or a
- * slider, and Enter breaks a line in a textarea.
+ * Home and End, a list key held with a modifier, such as Alt+ArrowDown, which opens the field's
+ * suggestions, and a key that belongs to an IME composition. So is every key of another field:
+ * the arrows step a number, a date or a slider, and Enter breaks a line in a textarea.
  */
 export function leavesKeyToList(event: KeyboardEvent): boolean {
   const { target, key } = event;
@@ -55,10 +55,19 @@ export function leavesKeyToList(event: KeyboardEvent): boolean {
     // The `type` property reads a missing or unknown type as `text`.
     SINGLE_LINE_TEXT_TYPES.includes(target.type) &&
     LIST_KEYS.includes(key) &&
-    !hasModifier(event)
+    !hasModifier(event) &&
+    !isPartOfComposition(event)
   );
 }
 
 function hasModifier({ altKey, ctrlKey, metaKey, shiftKey }: KeyboardEvent): boolean {
   return altKey || ctrlKey || metaKey || shiftKey;
+}
+
+/**
+ * Safari reports the Enter that commits a composition as `Enter` after the composition has ended,
+ * with only the key code left to tell it from an Enter of its own.
+ */
+function isPartOfComposition({ isComposing, keyCode }: KeyboardEvent): boolean {
+  return isComposing || keyCode === 229;
 }

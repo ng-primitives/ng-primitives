@@ -812,6 +812,9 @@ describe('NgpComboboxList', () => {
       ['Shift+Enter', { key: 'Enter', shiftKey: true }],
       ['Control+Enter', { key: 'Enter', ctrlKey: true }],
       ['Meta+Enter', { key: 'Enter', metaKey: true }],
+      // Safari reports the Enter that commits an IME composition as Enter, not as Process.
+      ['Enter that commits a composition', { key: 'Enter', isComposing: true }],
+      ['Enter with the key code of a composition', { key: 'Enter', keyCode: 229 }],
     ])('should leave %s to a text field', async (_, init) => {
       const { component, filter, apple } = await openControlsDropdown();
 
