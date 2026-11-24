@@ -471,7 +471,6 @@ export const [NgpSelectStateToken, ngpSelect, _injectSelectState, provideSelectS
         'role',
         unlessInputIsCombobox(() => 'combobox'),
       );
-      attrBinding(elementRef, 'id', id);
       attrBinding(elementRef, 'aria-expanded', unlessInputIsCombobox(expanded));
       attrBinding(elementRef, 'aria-disabled', unlessInputIsCombobox(disabled));
       attrBinding(
@@ -488,7 +487,7 @@ export const [NgpSelectStateToken, ngpSelect, _injectSelectState, provideSelectS
         if (input() || disabled()) return -1;
         return 0;
       });
-      // `data-disabled` is bound by `ngpFormControl` from the same disabled state.
+      // `id` and `data-disabled` are bound by `ngpFormControl` from the same id and disabled state.
       dataBinding(elementRef, 'data-open', () => (open() ? '' : null));
       dataBinding(elementRef, 'data-multiple', () => (multiple() ? '' : null));
 
