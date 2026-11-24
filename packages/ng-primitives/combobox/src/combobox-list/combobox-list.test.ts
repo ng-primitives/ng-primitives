@@ -818,6 +818,33 @@ describe('NgpComboboxList', () => {
       expect(apple).toHaveAttribute('data-active');
       expect(component.value()).toBeUndefined();
     });
+
+    // Real pointer presses below: the browser, not a simulation, decides what a press focuses.
+    it('should let a pressed select take focus', async () => {
+      await openControlsDropdown();
+      const select = screen.getByRole('combobox', { name: 'Sort' });
+
+      await browserUserEvent.click(select);
+
+      expect(select).toHaveFocus();
+    });
+
+    it('should let editable content take focus when a child of it is pressed', async () => {
+      await openControlsDropdown();
+
+      await browserUserEvent.click(screen.getByText('bold'));
+
+      expect(screen.getByLabelText('Comment')).toHaveFocus();
+    });
+
+    it('should move a range slider on a press', async () => {
+      await openControlsDropdown();
+      const slider = screen.getByRole<HTMLInputElement>('slider', { name: 'Volume' });
+
+      await browserUserEvent.click(slider);
+
+      expect(slider.valueAsNumber).toBeGreaterThan(0);
+    });
   });
 
   describe('a dropdown rendered inside the combobox without a list', () => {
