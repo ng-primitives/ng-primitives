@@ -722,7 +722,7 @@ describe('NgpSelect', () => {
       expect(select).toHaveAttribute('aria-disabled', 'false');
     });
 
-    it('should hand the disabled state over to ngpSelectInput while the input is the combobox', async () => {
+    it('should carry aria-disabled while closed and hand the disabled state over to ngpSelectInput while open', async () => {
       const user = userEvent.setup();
       const disabled = signal(true);
       const { fixture } = await render(

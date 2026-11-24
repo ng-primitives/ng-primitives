@@ -24,7 +24,7 @@ export interface NgpSelectOptionState {
   /** The value of the option. */
   readonly value: Signal<any>;
 
-  /** The disabled state of the option. */
+  /** Whether the option is disabled (its own disabled state or the select's). */
   readonly disabled: Signal<boolean>;
 
   /** The index of the option in the list. */

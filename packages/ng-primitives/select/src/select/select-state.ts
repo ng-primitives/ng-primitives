@@ -458,7 +458,7 @@ export const [NgpSelectStateToken, ngpSelect, _injectSelectState, provideSelectS
 
       // While an ngpSelectInput is registered it is the combobox, so the host
       // drops the role and the ARIA state that belongs to it.
-      function unlessInputIsCombobox<T>(value: () => T): () => T | undefined {
+      function unlessInputIsCombobox<V>(value: () => V): () => V | undefined {
         return () => (input() ? undefined : value());
       }
 
