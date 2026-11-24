@@ -182,13 +182,13 @@ export class NgpCombobox {
    */
   readonly dropdown = signal<NgpComboboxDropdown | undefined>(undefined);
 
-  private readonly registeredList = signal<NgpComboboxListState | undefined>(undefined);
+  private readonly registeredLists = signal<NgpComboboxListState[]>([]);
 
   /**
-   * Store the combobox list, when a dedicated listbox wraps the options.
+   * The combobox list, when a dedicated listbox wraps the options: the one registered last.
    * @internal
    */
-  readonly list = this.registeredList.asReadonly();
+  readonly list = computed(() => this.registeredLists().at(-1));
 
   /**
    * The id of the listbox the combobox controls: the list when there is one, otherwise the dropdown.
@@ -707,7 +707,7 @@ export class NgpCombobox {
    * @internal
    */
   registerList(list: NgpComboboxListState): void {
-    this.registeredList.set(list);
+    this.registeredLists.update(lists => [...lists, list]);
   }
 
   /**
@@ -716,9 +716,7 @@ export class NgpCombobox {
    * @internal
    */
   unregisterList(list: NgpComboboxListState): void {
-    if (this.list() === list) {
-      this.registeredList.set(undefined);
-    }
+    this.registeredLists.update(lists => lists.filter(registered => registered !== list));
   }
 
   /**

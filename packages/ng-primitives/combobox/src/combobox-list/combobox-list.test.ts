@@ -323,6 +323,20 @@ describe('NgpComboboxList', () => {
     expect(screen.getByTestId('dropdown')).not.toHaveAttribute('role');
   });
 
+  it('should fall back to the remaining list when the list created last is removed', async () => {
+    const { fixture } = await render(TwoComboboxListsComponent);
+    const input = await openDropdown();
+
+    const firstList = screen.getByTestId('first-list');
+
+    fixture.componentInstance.withSecondList.set(false);
+
+    await waitFor(() => {
+      expect(input).toHaveAttribute('aria-controls', firstList.id);
+    });
+    expect(screen.getByTestId('dropdown')).not.toHaveAttribute('role');
+  });
+
   it('should keep the dropdown without a role while the mounted list is empty', async () => {
     await render(EmptyComboboxListComponent);
     await openDropdown();
