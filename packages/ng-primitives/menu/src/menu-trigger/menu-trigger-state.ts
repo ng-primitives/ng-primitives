@@ -130,8 +130,9 @@ export interface NgpMenuTriggerState<T = unknown> {
   setContext(context: T): void;
 
   /**
-   * Set whether the menu opens on first render when its open state is not bound.
-   * @param defaultOpen - Whether the menu opens on first render
+   * Set whether the menu opens on the first render that has content when its open state is
+   * not bound.
+   * @param defaultOpen - Whether the menu opens on the first render that has content
    */
   setDefaultOpen(defaultOpen: boolean): void;
 
@@ -204,7 +205,7 @@ export interface NgpMenuTriggerProps<T = unknown> {
    */
   readonly open?: Signal<boolean | undefined>;
   /**
-   * Whether the menu opens on first render when `open` is `undefined`.
+   * Whether the menu opens on the first render that has content when `open` is `undefined`.
    * @default false
    */
   readonly defaultOpen?: Signal<boolean>;

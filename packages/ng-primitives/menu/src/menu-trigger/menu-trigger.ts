@@ -51,7 +51,8 @@ export class NgpMenuTrigger<T = unknown> {
   });
 
   /**
-   * Whether the menu opens on first render when `ngpMenuTriggerOpen` is unset.
+   * Whether the menu opens on the first render that has content when `ngpMenuTriggerOpen` is
+   * unset.
    * @default false
    */
   readonly defaultOpen = input<boolean, BooleanInput>(false, {
