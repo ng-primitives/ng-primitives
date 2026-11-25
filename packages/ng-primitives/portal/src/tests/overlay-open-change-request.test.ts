@@ -419,6 +419,26 @@ describe('NgpOverlay requestOpenChange', () => {
       expect(document.activeElement).toBe(other);
     });
 
+    it('drops the press when a later declined request has none', async () => {
+      const { fixture } = await render(OverlayHost);
+      const owner = boundOwner(false);
+      overlay = fixture.componentInstance.create(owner.requestOpenChange);
+      const other = fixture.componentInstance.other().nativeElement;
+
+      await overlay.show({ fromTriggerPress: true });
+      other.focus();
+      // asked again from code, and this is the request the owner answers
+      await overlay.show();
+      owner.open = true;
+      await overlay.show({ immediate: true, fromOwner: true });
+      document.querySelector<HTMLElement>('[data-testid="inside"]')!.focus();
+      owner.open = false;
+      overlay.hide({ origin: 'mouse', immediate: true });
+
+      await waitFor(() => expect(overlay!.isOpen()).toBe(false));
+      expect(document.activeElement).toBe(other);
+    });
+
     it('keeps the focus to return to when the open cancels an exit animation', async () => {
       const { fixture } = await render(OverlayHost);
       const owner = boundOwner(true);
@@ -514,6 +534,26 @@ describe('NgpOverlay requestOpenChange', () => {
     owner.open = true;
     await overlay.show({ immediate: true, fromOwner: true });
 
+    owner.open = false;
+    overlay.hide({ origin: 'mouse', immediate: true });
+
+    await waitFor(() => expect(overlay!.isOpen()).toBe(false));
+    expect(document.activeElement).toBe(fixture.componentInstance.trigger().nativeElement);
+  });
+
+  it('keeps the owner answering when another immediate show joins its pending open', async () => {
+    const { fixture } = await render(OverlayHost);
+    const owner = boundOwner(false);
+    overlay = fixture.componentInstance.create(owner.requestOpenChange);
+    (document.activeElement as HTMLElement | null)?.blur();
+
+    await overlay.show({ fromTriggerPress: true });
+    owner.open = true;
+    await Promise.all([
+      overlay.show({ immediate: true, fromOwner: true }),
+      overlay.show({ immediate: true }),
+    ]);
+    document.querySelector<HTMLElement>('[data-testid="inside"]')!.focus();
     owner.open = false;
     overlay.hide({ origin: 'mouse', immediate: true });
 

@@ -434,6 +434,9 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
   /** Where the press that opened the overlay landed, while its open waits for the show delay. */
   private pendingPress: Element | null = null;
 
+  /** Whether the owner's open is among the shows waiting for the show delay. */
+  private pendingFromOwner = false;
+
   /** Whether a press opened the overlay, which then decides where focus returns. */
   private openedByPress = false;
 
@@ -443,7 +446,7 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
    */
   private declinedClose: OverlayTriggerOptions | null = null;
 
-  /** Where the press that asked for an open `requestOpenChange` declined landed. */
+  /** Where the press that asked for the last open `requestOpenChange` declined landed, if any. */
   private declinedOpenPress: Element | null = null;
 
   /** Signal tracking whether the overlay is open */
@@ -692,8 +695,8 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
    * @param options.pressTarget Where in the trigger the press that opened it landed: focus returns
    * to the element that press would focus, if any.
    * @param options.immediate Whether to skip the show delay.
-   * @param options.fromOwner Whether the owner of the open state opens it to answer an open
-   * `requestOpenChange` declined, which then keeps the press that asked for it.
+   * @param options.fromOwner Whether the owner of the open state opens it to answer a declined
+   * open request; only then does focus return to that request's press.
    */
   show(options?: {
     skipCooldown?: boolean;
@@ -730,6 +733,7 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
 
       if (this.openTimeout) {
         this.pendingPress = this.pressOf(options) ?? this.pendingPress;
+        this.pendingFromOwner ||= !!options?.fromOwner;
         this.pendingShowResolvers.push(resolve);
 
         if (!options?.immediate) {
@@ -767,15 +771,18 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
       if (!joining) {
         this.pendingShowResolvers.push(resolve);
         this.pendingPress = this.pressOf(options);
+        this.pendingFromOwner = !!options?.fromOwner;
       }
 
       this.openTimeout = this.disposables.setTimeout(() => {
         this.openTimeout = undefined;
         const press = this.pendingPress;
+        const fromOwner = this.pendingFromOwner;
         this.pendingPress = null;
+        this.pendingFromOwner = false;
 
         try {
-          this.createOverlay(options?.skipCooldown, press, options?.fromOwner);
+          this.createOverlay(options?.skipCooldown, press, fromOwner);
         } finally {
           // Settle even if creating the overlay threw, so callers are never left hanging.
           this.settlePendingShows();
@@ -792,6 +799,7 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
     this.openTimeout();
     this.openTimeout = undefined;
     this.pendingPress = null;
+    this.pendingFromOwner = false;
     this.settlePendingShows();
   }
 
@@ -813,10 +821,7 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
     return this.config.requestOpenChange?.(open) ?? true;
   }
 
-  /**
-   * Clear the press of a declined open as an open commits. Only the owner's open answers that
-   * request, so only it returns the press; any other open leaves focus to its own press.
-   */
+  /** Return the declined open's press for the owner's answering open, and clear it either way. */
   private takeDeclinedOpenPress(fromOwner: boolean): Element | null {
     const press = fromOwner ? this.declinedOpenPress : null;
     this.declinedOpenPress = null;
@@ -855,7 +860,7 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
     }
 
     if (!this.isOpenChangeAllowed(true)) {
-      this.declinedOpenPress = press ?? this.declinedOpenPress;
+      this.declinedOpenPress = press;
       return;
     }
 
@@ -1514,7 +1519,7 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
 
     // The open the owner commits afterwards is the one the press asked for.
     if (!this.isOpenChangeAllowed(true)) {
-      this.declinedOpenPress = press ?? this.declinedOpenPress;
+      this.declinedOpenPress = press;
       return;
     }
 
