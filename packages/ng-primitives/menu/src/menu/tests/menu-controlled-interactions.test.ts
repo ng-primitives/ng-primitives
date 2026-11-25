@@ -218,7 +218,6 @@ class HideDelayWithSubmenuComponent {
   readonly changes: boolean[] = [];
 }
 
-/** Releases for every held exit animation, so no overlay is left mid-close for later tests. */
 @Component({
   template: `
     <button data-testid="page-button">Page</button>
@@ -245,6 +244,31 @@ class TwoWayModalComponent {
   readonly open = signal(false);
 }
 
+@Component({
+  template: `
+    <button
+      [ngpMenuTrigger]="menu"
+      [ngpMenuTriggerOpen]="open()"
+      [ngpMenuTriggerOpenTriggers]="['click', 'arrowkey']"
+      data-testid="trigger"
+    >
+      Trigger
+    </button>
+
+    <ng-template #menu>
+      <div ngpMenu data-testid="menu">
+        <button ngpMenuItem data-testid="rename">Rename</button>
+        <button ngpMenuItem data-testid="archive">Archive</button>
+      </div>
+    </ng-template>
+  `,
+  imports: [NgpMenuTrigger, NgpMenu, NgpMenuItem],
+})
+class OneWayComponent {
+  readonly open = signal(false);
+}
+
+/** Releases for every held exit animation, so no overlay is left mid-close for later tests. */
 const releases: (() => void)[] = [];
 
 /** An exit animation that settles only once released, holding the menu mid-close. */
@@ -261,6 +285,14 @@ function heldAnimation(): Animation {
 }
 
 const byId = (id: string) => screen.getByTestId(id);
+
+/** A pointer press that, like Safari, does not focus what it lands on. */
+function pointerPress(target: HTMLElement): void {
+  target.dispatchEvent(
+    new PointerEvent('pointerdown', { bubbles: true, cancelable: true, isPrimary: true }),
+  );
+  target.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, detail: 1 }));
+}
 const present = (id: string) => !!screen.queryByTestId(id);
 const settle = () => new Promise(resolve => setTimeout(resolve, 50));
 
@@ -364,6 +396,33 @@ describe('NgpMenuTrigger open binding, interactions', () => {
       fixture.detectChanges();
 
       await waitFor(() => expect(document.activeElement).toBe(byId('rename')));
+    });
+
+    it('opens on the first item after an Up Arrow request the binding ignored', async () => {
+      const { fixture } = await render(OneWayComponent);
+      byId('trigger').focus();
+      await userEvent.keyboard('{ArrowUp}');
+      fixture.detectChanges();
+      await fixture.whenStable();
+      expect(present('menu')).toBe(false);
+
+      fixture.componentInstance.open.set(true);
+      fixture.detectChanges();
+
+      await waitFor(() => expect(document.activeElement).toBe(byId('rename')));
+    });
+
+    it('returns focus to the trigger whose press the binding answered', async () => {
+      await render(TwoWayModalComponent);
+      // Safari does not focus a pressed button, so only the press names the trigger
+      pointerPress(byId('trigger'));
+      await screen.findByTestId('menu');
+      (document.activeElement as HTMLElement | null)?.blur();
+
+      pointerPress(byId('rename'));
+
+      await waitFor(() => expect(present('menu')).toBe(false));
+      expect(document.activeElement).toBe(byId('trigger'));
     });
   });
 

@@ -340,8 +340,10 @@ export const [
     // completes, so track what has been announced rather than what was open per call.
     let announcedOpen = false;
 
-    // Set while the binding has an open request to answer, until it opens or another request comes.
+    // Set while the binding has an open request to answer: only an open in the render right
+    // after the request answers it.
     let answeringOpenRequest = false;
+    const declinedRequests = signal(0);
 
     // Tearing the overlay down closes it, but a destroyed directive can no longer
     // emit through `openChange` (Angular NG0953), so skip the notification.
@@ -368,6 +370,13 @@ export const [
           openOverlay();
         }
       });
+    });
+
+    // Runs after the effect above in the same render, so a request the binding has not answered
+    // by then lapses, and a later open from the binding starts fresh.
+    afterRenderEffect(() => {
+      declinedRequests();
+      answeringOpenRequest = false;
     });
 
     // Track whether pointer is over trigger or content (for hover triggers)
@@ -671,19 +680,21 @@ export const [
     function openOverlay(): void {
       // An open that answers a declined request keeps how the user asked for it. Any other
       // starts fresh: the binding does not say how it was set, so take the input last used.
-      if (!answeringOpenRequest) {
+      const answering = answeringOpenRequest;
+      answeringOpenRequest = false;
+
+      if (!answering) {
         openOrigin.set(inputModality.mostRecentModality ?? 'program');
         openedOnHover.set(false);
         openFocus.set('first');
       }
-      answeringOpenRequest = false;
 
       if (!overlay()) {
         createOverlayInstance();
       }
 
       overlay()
-        ?.show({ immediate: true })
+        ?.show({ immediate: true, fromOwner: answering })
         .then(() => (announcedOpen ||= open()));
     }
 
@@ -700,6 +711,7 @@ export const [
       }
 
       answeringOpenRequest = next;
+      declinedRequests.update(count => count + 1);
       onOpenChange?.(next);
       return false;
     }
