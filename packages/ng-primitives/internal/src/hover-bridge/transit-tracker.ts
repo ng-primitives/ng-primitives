@@ -56,11 +56,11 @@ export function createHoverTransitDecline({
   isBlocked,
   isPointerOverTrigger,
   show,
-}: HoverTransitDeclineOptions): () => boolean {
+}: HoverTransitDeclineOptions): (isCurrent?: () => boolean) => boolean {
   const disposables = injectDisposables();
   let cancelPendingRetry: (() => void) | undefined = undefined;
 
-  return () => {
+  return (isCurrent = () => true) => {
     if (!isBlocked()) {
       return false;
     }
@@ -72,7 +72,7 @@ export function createHoverTransitDecline({
     cancelPendingRetry = disposables.setTimeout(() => {
       cancelPendingRetry = undefined;
 
-      if (isPointerOverTrigger() && !isBlocked()) {
+      if (isCurrent() && isPointerOverTrigger() && !isBlocked()) {
         show();
       }
     }, HOVER_BRIDGE_TIMEOUT_MS);
