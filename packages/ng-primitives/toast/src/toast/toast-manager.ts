@@ -449,9 +449,16 @@ export class NgpToastManager {
       this.hovered.update(placements => without(placements, placement)),
     );
 
-    this.renderer.listen(container, 'focusin', () =>
-      this.focused.update(placements => [...without(placements, placement), placement]),
-    );
+    // Only keyboard focus holds the toasts: a click on a toast focuses the container
+    // (tabindex -1), which would otherwise keep them paused after the pointer leaves.
+    this.renderer.listen(container, 'focusin', (event: FocusEvent) => {
+      const isKeyboardFocus = (event.target as HTMLElement).matches(':focus-visible');
+      this.focused.update(placements =>
+        isKeyboardFocus
+          ? [...without(placements, placement), placement]
+          : without(placements, placement),
+      );
+    });
 
     this.renderer.listen(container, 'focusout', (event: FocusEvent) => {
       if (!container.contains(event.relatedTarget as Node | null)) {

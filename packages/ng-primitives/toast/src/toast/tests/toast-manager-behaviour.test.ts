@@ -451,6 +451,26 @@ describe('NgpToastManager behaviour', () => {
       host.show('B');
       await waitFor(() => expect(toastWithLabel('B')).toHaveAttribute('data-expanded', 'false'));
     });
+
+    it('resumes once the pointer leaves a toast that a click focused', async () => {
+      const corner = document.body.appendChild(document.createElement('div'));
+      corner.style.cssText = 'position: fixed; left: 0; bottom: 0; width: 4px; height: 4px;';
+
+      try {
+        const host = await renderHost({ duration: 100 });
+        host.show('A');
+        await waitFor(() => expect(toasts().length).toBe(1));
+
+        // the click focuses the container, which has tabindex -1
+        await userEvent.click(toastWithLabel('A').querySelector('span')!);
+        expect(containers()[0].contains(document.activeElement)).toBe(true);
+
+        await userEvent.hover(corner);
+        await waitFor(() => expect(toasts().length).toBe(0));
+      } finally {
+        corner.remove();
+      }
+    });
   });
 
   describe('stacking', () => {
