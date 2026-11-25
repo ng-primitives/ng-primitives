@@ -9,6 +9,12 @@ import { NgpSubmenuTrigger } from '../submenu-trigger/submenu-trigger';
 
 export interface NgpMenuItemState {
   /**
+   * Whether activation is blocked. Used by a trigger on the same element.
+   * @internal
+   */
+  readonly activationDisabled?: Signal<boolean>;
+
+  /**
    * Add an element that describes the item, such as its shortcut.
    * @internal
    */
@@ -30,6 +36,9 @@ export interface NgpMenuItemProps {
    */
   readonly disabled?: Signal<boolean>;
 
+  /** Whether the item is disabled but stays in the menu's focus order. */
+  readonly softDisabled?: Signal<boolean>;
+
   /**
    * Whether the menu should close when this item is selected.
    * @default signal(true)
@@ -48,6 +57,7 @@ export const [NgpMenuItemStateToken, ngpMenuItem, injectMenuItemState, provideMe
     'NgpMenuItem',
     ({
       disabled = signal(false),
+      softDisabled = signal(false),
       closeOnSelect = signal(true),
       role = 'menuitem',
     }: NgpMenuItemProps) => {
@@ -56,7 +66,10 @@ export const [NgpMenuItemStateToken, ngpMenuItem, injectMenuItemState, provideMe
       const parentMenu = injectMenuState({ optional: true });
       const focusMonitor = inject(FocusMonitor);
 
-      ngpButton({ disabled });
+      const activationDisabled = computed(() => disabled() || softDisabled());
+      ngpButton({
+        disabled: computed(() => disabled() || (softDisabled() ? 'soft' : false)),
+      });
 
       const describedBy = signal<string[]>([]);
       const keyShortcuts = signal<string[]>([]);
@@ -74,8 +87,7 @@ export const [NgpMenuItemStateToken, ngpMenuItem, injectMenuItemState, provideMe
 
       // Methods
       function onClick(event: MouseEvent): void {
-        // Disabled items are inert - they must not activate or close the menu.
-        if (disabled()) {
+        if (activationDisabled()) {
           return;
         }
 
@@ -169,6 +181,7 @@ export const [NgpMenuItemStateToken, ngpMenuItem, injectMenuItemState, provideMe
       }
 
       return {
+        activationDisabled,
         addDescribedBy,
         removeDescribedBy,
         addKeyShortcuts,

@@ -33,6 +33,7 @@ import {
   listener,
 } from 'ng-primitives/state';
 import { injectDisposables, safeTakeUntilDestroyed, uniqueId } from 'ng-primitives/utils';
+import { NgpMenuItemStateToken } from '../menu-item/menu-item-state';
 import { injectMenuState } from '../menu/menu-state';
 
 export interface NgpSubmenuTriggerState {
@@ -202,6 +203,7 @@ export const [
     const viewContainerRef = inject(ViewContainerRef);
     const parentMenu = injectMenuState({ optional: true });
     const parentOverlay = inject(NgpOverlay, { optional: true });
+    const menuItem = inject(NgpMenuItemStateToken, { self: true, optional: true });
     const focusMonitor = inject(FocusMonitor);
     const interactivityChecker = inject(InteractivityChecker);
     const disposables = injectDisposables();
@@ -209,6 +211,9 @@ export const [
     // Controlled properties
     const menu = controlled(_menu);
     const disabled = controlled(_disabled);
+    const activationDisabled = computed(
+      () => disabled() || (menuItem?.()?.activationDisabled() ?? false),
+    );
     const placement = controlled(_placement);
     const flip = controlled(_flip);
     const offset = controlled(_offset);
@@ -234,7 +239,8 @@ export const [
     function captureWork(): () => boolean {
       const generation = workGeneration;
       const parentIsOpen = parentOverlay?.captureOpenCycle();
-      return () => generation === workGeneration && !disabled() && (parentIsOpen?.() ?? true);
+      return () =>
+        generation === workGeneration && !activationDisabled() && (parentIsOpen?.() ?? true);
     }
 
     // Safe-polygon hover intent: while the pointer travels inside a corridor from
@@ -279,9 +285,9 @@ export const [
       }
     });
 
-    // A bound input can change without going through the state setter.
+    // A bound input or the item can change without going through the trigger state setter.
     effect(() => {
-      if (disabled()) {
+      if (activationDisabled()) {
         untracked(closeOnDisable);
       }
     });
@@ -335,7 +341,7 @@ export const [
       const pointerType = lastPointerType;
       clearPointerType();
 
-      if (disabled?.()) {
+      if (activationDisabled()) {
         return;
       }
 
@@ -381,6 +387,10 @@ export const [
     }
 
     function toggle(event: MouseEvent): void {
+      if (activationDisabled()) {
+        return;
+      }
+
       // determine the origin of the event, 0 is keyboard, 1 is mouse
       const origin: FocusOrigin = event.detail === 0 ? 'keyboard' : 'mouse';
 

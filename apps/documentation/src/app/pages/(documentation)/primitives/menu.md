@@ -342,12 +342,21 @@ The following directives are available to import from the `ng-primitives/menu` p
 
 ### NgpMenuItem
 
+Use `ngpMenuItemSoftDisabled` to keep an unavailable item in the arrow-key focus order. The item
+exposes `aria-disabled="true"`, skips menu selection, and cannot open a submenu. When the item becomes
+soft-disabled, it cancels pending submenu openings, including those requested by descendants.
+Re-enabling the item allows a fresh opening. Focus within an open or closing submenu returns to
+the trigger.
+The regular `ngpMenuItemDisabled` input takes precedence and removes the item from the focus order.
+
+Guard application event handlers and link navigation when using a soft-disabled item.
+
 <api-docs name="NgpMenuItem"></api-docs>
 
 <api-reference-props name="NgpMenuItem"></api-reference-props>
 
 <api-reference-attributes>
-  <api-attribute name="data-disabled" description="Applied when the item is disabled." />
+  <api-attribute name="data-disabled" description="Applied when the item is disabled. The value is soft when the item remains focusable." />
 </api-reference-attributes>
 
 ### NgpSubmenuTrigger
