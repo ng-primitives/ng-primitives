@@ -192,33 +192,6 @@ describe('NgpToastManager behaviour', () => {
       expect(containers()).toHaveLength(0);
     });
 
-    it('shows a toast on the server, where `:hover` is not supported', () => {
-      // Domino, the server DOM, throws on `:hover`
-      const matches = Element.prototype.matches;
-      const spy = vi.spyOn(Element.prototype, 'matches').mockImplementation(function (
-        this: Element,
-        selector: string,
-      ) {
-        if (selector.includes(':hover')) {
-          throw new Error(':hover is not supported.');
-        }
-        return matches.call(this, selector);
-      });
-
-      try {
-        TestBed.configureTestingModule({
-          providers: [{ provide: PLATFORM_ID, useValue: 'server' }],
-        });
-        const manager = TestBed.inject(NgpToastManager);
-
-        expect(() =>
-          manager.show(TestToast, { context: { label: 'A' }, persistent: true }),
-        ).not.toThrow();
-      } finally {
-        spy.mockRestore();
-      }
-    });
-
     describe('with a component-provided manager', () => {
       let root: ComponentRef<TestAppRoot> | undefined;
 
@@ -290,6 +263,33 @@ describe('NgpToastManager behaviour', () => {
       TestBed.inject(NgpToastManager);
 
       expect(containers()).toHaveLength(0);
+    });
+
+    it('shows a toast on the server, where `:hover` is not supported', () => {
+      // Domino, the server DOM, throws on `:hover`
+      const matches = Element.prototype.matches;
+      const spy = vi.spyOn(Element.prototype, 'matches').mockImplementation(function (
+        this: Element,
+        selector: string,
+      ) {
+        if (selector.includes(':hover')) {
+          throw new Error(':hover is not supported.');
+        }
+        return matches.call(this, selector);
+      });
+
+      try {
+        TestBed.configureTestingModule({
+          providers: [{ provide: PLATFORM_ID, useValue: 'server' }],
+        });
+        const manager = TestBed.inject(NgpToastManager);
+
+        expect(() =>
+          manager.show(TestToast, { context: { label: 'A' }, persistent: true }),
+        ).not.toThrow();
+      } finally {
+        spy.mockRestore();
+      }
     });
   });
 
