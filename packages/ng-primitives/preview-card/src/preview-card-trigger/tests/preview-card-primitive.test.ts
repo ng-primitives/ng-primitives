@@ -10,6 +10,7 @@ import {
   NgpPreviewCardTrigger,
 } from 'ng-primitives/preview-card';
 import { afterEach, describe, expect, it, vi } from 'vitest';
+import { userEvent as realUserEvent } from 'vitest/browser';
 
 /**
  * Every fixture labels its card so assertions can never be satisfied by a card
@@ -769,6 +770,28 @@ describe('NgpPreviewCardTrigger (primitive)', () => {
 
       expect(card('corridor-ends-focused-card')).toBeInTheDocument();
       expect(inCard('corridor-ends-focused-card', 'first')).toHaveFocus();
+    });
+
+    it('should close the card when the pointer leaves it after a click inside it', async () => {
+      const { getByTestId } = await renderTab('pointer-leaves-clicked-card', {
+        content: '<button type="button" data-testid="action">action</button>',
+      });
+
+      // Real input: only a trusted click leaves the focused button without :focus-visible.
+      await realUserEvent.hover(getByTestId('trigger'));
+      await waitFor(() => {
+        expect(card('pointer-leaves-clicked-card')).toBeInTheDocument();
+      });
+
+      const action = inCard('pointer-leaves-clicked-card', 'action');
+      await realUserEvent.click(action);
+      expect(action).toHaveFocus();
+
+      await realUserEvent.hover(getByTestId('before'));
+
+      await waitFor(() => {
+        expect(card('pointer-leaves-clicked-card')).toBeNull();
+      });
     });
 
     it('should keep the card open when Tab moves focus into it during the hover corridor', async () => {

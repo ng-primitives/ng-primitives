@@ -579,11 +579,14 @@ export const [
       overlay()?.hide();
     }
 
-    /** Close as the pointer leaves, unless focus is in the card: leaving it then closes it. */
+    /**
+     * Close as the pointer leaves, unless keyboard focus is in the card: leaving it then
+     * closes it. Focus from a click in the card does not hold it open.
+     */
     function hideFromPointer(): void {
       const activeElement = elementRef.nativeElement.ownerDocument.activeElement;
 
-      if (activeElement && isInsideCard(activeElement)) {
+      if (activeElement?.matches(':focus-visible') && isInsideCard(activeElement)) {
         hoverBridge.clear();
         return;
       }
