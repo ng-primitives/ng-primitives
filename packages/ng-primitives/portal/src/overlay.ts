@@ -477,6 +477,9 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
    */
   readonly closing = new Subject<void>();
 
+  /** Where the outside press that the close now under way answers landed, if one did. */
+  private closingPress: Element | null = null;
+
   /**
    * Signal tracking whether the current transition is instant due to cooldown.
    * When true, CSS can skip animations using the data-instant attribute.
@@ -689,12 +692,15 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
    * @param options.pressTarget Where in the trigger the press that opened it landed: focus returns
    * to the element that press would focus, if any.
    * @param options.immediate Whether to skip the show delay.
+   * @param options.fromOwner Whether the owner of the open state opens it to answer an open
+   * `requestOpenChange` declined, which then keeps the press that asked for it.
    */
   show(options?: {
     skipCooldown?: boolean;
     fromTriggerPress?: boolean;
     pressTarget?: Element;
     immediate?: boolean;
+    fromOwner?: boolean;
   }): Promise<void> {
     return new Promise<void>(resolve => {
       // If closing is in progress, cancel it
@@ -706,7 +712,7 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
       // If destruction is in progress (exit animation running), cancel it
       // and reuse the existing overlay instead of creating a new one.
       if (this.destroyingPortal) {
-        this.cancelDestruction(this.pressOf(options));
+        this.cancelDestruction(this.pressOf(options), options?.fromOwner);
         resolve();
         return;
       }
@@ -769,7 +775,7 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
         this.pendingPress = null;
 
         try {
-          this.createOverlay(options?.skipCooldown, press);
+          this.createOverlay(options?.skipCooldown, press, options?.fromOwner);
         } finally {
           // Settle even if creating the overlay threw, so callers are never left hanging.
           this.settlePendingShows();
@@ -808,6 +814,16 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
   }
 
   /**
+   * Clear the press of a declined open as an open commits. Only the owner's open answers that
+   * request, so only it returns the press; any other open leaves focus to its own press.
+   */
+  private takeDeclinedOpenPress(fromOwner: boolean): Element | null {
+    const press = fromOwner ? this.declinedOpenPress : null;
+    this.declinedOpenPress = null;
+    return press;
+  }
+
+  /**
    * Stop any pending close operation. This is useful for example, if we move the mouse from the tooltip trigger to the tooltip itself.
    * This will prevent the tooltip from closing immediately when the mouse leaves the trigger.
    * @internal
@@ -829,7 +845,7 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
    * restores the portal, and re-enables positioning and scroll strategy.
    * Used when show() or cancelPendingClose() is called during exit animation.
    */
-  private cancelDestruction(press: Element | null = null): void {
+  private cancelDestruction(press: Element | null = null, fromOwner = false): void {
     const portal = this.destroyingPortal;
 
     // Teardown is terminal - a destroyed overlay must not be brought back, and its portal
@@ -844,8 +860,7 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
     }
 
     // A press reopened it, or the owner committed a reopen a declined press asked for.
-    press ??= this.declinedOpenPress;
-    this.declinedOpenPress = null;
+    press ??= this.takeDeclinedOpenPress(fromOwner);
 
     if (press) {
       this.focusBeforeOpen = this.findFocusableAncestor(press) ?? this.focusBeforeOpen;
@@ -917,7 +932,9 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
     const canBeDeclined = !!this.config.requestOpenChange;
 
     if (!canBeDeclined) {
+      this.closingPress = options?.outsidePressTarget ?? null;
       this.closing.next();
+      this.closingPress = null;
     }
 
     // Check cooldown BEFORE recording, then record for the next overlay
@@ -942,6 +959,9 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
         return;
       }
 
+      // Only the owner's close commits a declined close, and returns focus as that close would.
+      const close = options?.fromOwner ? { ...this.declinedClose, ...options } : options;
+
       if (canBeDeclined) {
         if (!this.isOpenChangeAllowed(false)) {
           this.declinedClose = options ?? {};
@@ -950,11 +970,10 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
           return;
         }
 
+        this.closingPress = close?.outsidePressTarget ?? null;
         this.closing.next();
+        this.closingPress = null;
       }
-
-      // Only the owner's close commits a declined close, and returns focus as that close would.
-      const close = options?.fromOwner ? { ...this.declinedClose, ...options } : options;
       const origin = close?.origin ?? 'program';
       this.declinedClose = null;
 
@@ -985,6 +1004,15 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
       this.instantTransition.set(false);
       this.closeTimeout = this.disposables.setTimeout(dispose, delay);
     }
+  }
+
+  /**
+   * The outside press the close under way answers, read while `closing` emits. An owner's close
+   * answers the outside press it commits.
+   * @internal
+   */
+  closingPressTarget(): Element | null {
+    return this.closingPress;
   }
 
   /**
@@ -1470,8 +1498,9 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
   /**
    * Internal method to create the overlay
    * @param skipCooldown If true, skip registering with the cooldown manager
+   * @param fromOwner Whether the owner opens it to answer a declined open
    */
-  private createOverlay(skipCooldown?: boolean, press?: Element | null): void {
+  private createOverlay(skipCooldown?: boolean, press?: Element | null, fromOwner = false): void {
     const content = this.config.content();
 
     // Nothing to render: either the trigger never had content, or it was cleared while
@@ -1486,8 +1515,7 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
       return;
     }
 
-    press ??= this.declinedOpenPress;
-    this.declinedOpenPress = null;
+    press ??= this.takeDeclinedOpenPress(fromOwner);
     this.declinedClose = null;
 
     // A press names the control it landed on: Safari does not focus a clicked button, and an

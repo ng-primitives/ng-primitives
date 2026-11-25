@@ -407,6 +407,23 @@ describe('NgpDialogOverlay backdrop click with an overlay open in the dialog', (
     },
   );
 
+  it('should let a popover whose guard kept it open return focus itself when it closes on Escape later', async () => {
+    await openDialog(() => false);
+    await userEvent.click(screen.getByTestId('open-popover'));
+    await screen.findByTestId('popover');
+    screen.getByTestId('open-menu').focus();
+
+    await clickBackdrop();
+    await new Promise(resolve => setTimeout(resolve, 50));
+    expect(screen.getByTestId('popover')).toBeInTheDocument();
+
+    screen.getByTestId('popover-button').focus();
+    await userEvent.keyboard('{Escape}');
+
+    await waitFor(() => expect(screen.queryByTestId('popover')).toBeNull());
+    expect(document.activeElement).toBe(screen.getByTestId('open-popover'));
+  });
+
   it('should return focus to the popover trigger when an async guard lets the popover close', async () => {
     await openPopoverInDialog(() => Promise.resolve(true));
     screen.getByTestId('popover-button').focus();
@@ -542,6 +559,65 @@ describe('NgpDialogOverlay backdrop click with a custom overlay', () => {
 
     await waitFor(() => expect(screen.queryByTestId('custom-overlay')).toBeNull());
     expect(document.activeElement).toBe(trigger);
+  });
+
+  describe('whose owner declines the close', () => {
+    /** Opens a custom overlay whose owner allows only what `owner.open` says. */
+    async function showDeclinableOverlay(restoreFocus: boolean) {
+      const owner = { open: true };
+      const { fixture } = await render(CustomOverlayHost);
+      fireEvent.click(screen.getByTestId('open-dialog'));
+      await screen.findByTestId('dialog');
+
+      const host = fixture.componentInstance;
+      const trigger = screen.getByTestId('custom-trigger');
+      trigger.focus();
+      const overlay = TestBed.runInInjectionContext(() =>
+        createOverlay({
+          content: host.custom,
+          triggerElement: trigger,
+          injector: host.injector,
+          viewContainerRef: host.viewContainerRef,
+          closeOnOutsideClick: true,
+          restoreFocus,
+          requestOpenChange: open => open === owner.open,
+        }),
+      );
+      await overlay.show();
+      await screen.findByTestId('custom-overlay');
+      return { owner, overlay, trigger };
+    }
+
+    it('should return focus to the trigger when the owner commits the declined backdrop close', async () => {
+      const { owner, overlay, trigger } = await showDeclinableOverlay(false);
+      screen.getByTestId('custom-action').focus();
+
+      await clickBackdrop();
+      await new Promise(resolve => setTimeout(resolve, 50));
+      expect(screen.getByTestId('custom-overlay')).toBeInTheDocument();
+
+      owner.open = false;
+      overlay.hide({ immediate: true, fromOwner: true });
+
+      await waitFor(() => expect(screen.queryByTestId('custom-overlay')).toBeNull());
+      expect(document.activeElement).toBe(trigger);
+    });
+
+    it('should leave a later close of its own to return focus itself', async () => {
+      const { owner, overlay, trigger } = await showDeclinableOverlay(true);
+      screen.getByTestId('other').focus();
+
+      await clickBackdrop();
+      await new Promise(resolve => setTimeout(resolve, 50));
+      expect(screen.getByTestId('custom-overlay')).toBeInTheDocument();
+
+      screen.getByTestId('custom-action').focus();
+      owner.open = false;
+      overlay.hide({ origin: 'keyboard', immediate: true });
+
+      await waitFor(() => expect(screen.queryByTestId('custom-overlay')).toBeNull());
+      expect(document.activeElement).toBe(trigger);
+    });
   });
 
   it('should keep the dialog open for presses during a delayed close, and close it on the next press', async () => {
