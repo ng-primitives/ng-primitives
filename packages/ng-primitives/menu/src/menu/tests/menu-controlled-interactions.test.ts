@@ -250,6 +250,7 @@ class TwoWayModalComponent {
       [ngpMenuTrigger]="menu"
       [ngpMenuTriggerOpen]="open()"
       [ngpMenuTriggerOpenTriggers]="['click', 'arrowkey']"
+      (ngpMenuTriggerOpenChange)="changes.push($event)"
       data-testid="trigger"
     >
       Trigger
@@ -266,6 +267,7 @@ class TwoWayModalComponent {
 })
 class OneWayComponent {
   readonly open = signal(false);
+  readonly changes: boolean[] = [];
 }
 
 /** Releases for every held exit animation, so no overlay is left mid-close for later tests. */
@@ -293,6 +295,7 @@ function pointerPress(target: HTMLElement): void {
   );
   target.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, detail: 1 }));
 }
+
 const present = (id: string) => !!screen.queryByTestId(id);
 const settle = () => new Promise(resolve => setTimeout(resolve, 50));
 
@@ -404,6 +407,7 @@ describe('NgpMenuTrigger open binding, interactions', () => {
       await userEvent.keyboard('{ArrowUp}');
       fixture.detectChanges();
       await fixture.whenStable();
+      expect(fixture.componentInstance.changes).toEqual([true]);
       expect(present('menu')).toBe(false);
 
       fixture.componentInstance.open.set(true);
