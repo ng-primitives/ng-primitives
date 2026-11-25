@@ -1520,7 +1520,7 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
 
     // The open the owner commits afterwards is the one the press asked for.
     if (!this.isOpenChangeAllowed(true)) {
-      this.declinedOpenPress = press;
+      this.declinedOpenPress = press ?? null;
       return;
     }
 
