@@ -39,6 +39,7 @@ class TwoWayComponent {
     >
       Trigger
     </button>
+    <button data-testid="outside">Outside</button>
 
     <ng-template #content>
       <div ngpPopover>
@@ -150,6 +151,14 @@ function pendingAnimation(): Animation {
 }
 
 const popover = () => document.querySelector('[ngpPopover]');
+
+/** A pointer press that, like Safari, does not focus the button it lands on. */
+function pointerPress(target: HTMLElement): void {
+  target.dispatchEvent(
+    new PointerEvent('pointerdown', { bubbles: true, cancelable: true, isPrimary: true }),
+  );
+  target.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, detail: 1 }));
+}
 const settle = () => new Promise(resolve => setTimeout(resolve, 50));
 
 describe('NgpPopoverTrigger open binding', () => {
@@ -186,6 +195,44 @@ describe('NgpPopoverTrigger open binding', () => {
       expect(host.open()).toBe(false);
 
       expect(host.changes).toEqual([true, false]);
+    });
+  });
+
+  describe('the trigger press of a declined open', () => {
+    it('returns focus to the trigger when the binding answers the press', async () => {
+      const { fixture, getByRole } = await render(TwoWayComponent);
+      const trigger = getByRole('button', { name: 'Trigger' });
+
+      pointerPress(trigger);
+      await waitFor(() => expect(popover()).toBeInTheDocument());
+      popover()!.querySelector('button')!.focus();
+
+      fixture.componentInstance.open.set(false);
+      fixture.detectChanges();
+
+      await waitFor(() => expect(popover()).not.toBeInTheDocument());
+      expect(document.activeElement).toBe(trigger);
+    });
+
+    it('is not taken by a later open the binding makes on its own', async () => {
+      const { fixture, getByRole, getByTestId } = await render(OneWayComponent);
+      const host = fixture.componentInstance;
+
+      pointerPress(getByRole('button', { name: 'Trigger' }));
+      await settle();
+      expect(host.changes).toEqual([true]);
+
+      getByTestId('outside').focus();
+      host.open.set(true);
+      fixture.detectChanges();
+      await waitFor(() => expect(popover()).toBeInTheDocument());
+      popover()!.querySelector('button')!.focus();
+
+      host.open.set(false);
+      fixture.detectChanges();
+
+      await waitFor(() => expect(popover()).not.toBeInTheDocument());
+      expect(document.activeElement).toBe(getByTestId('outside'));
     });
   });
 

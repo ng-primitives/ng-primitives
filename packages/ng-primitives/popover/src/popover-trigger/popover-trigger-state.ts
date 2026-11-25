@@ -406,6 +406,11 @@ export const [
       overlay()?.destroy();
     });
 
+    // Set while the binding has an open request to answer: only an open in the render right
+    // after the request answers it.
+    let answeringOpenRequest = false;
+    const declinedRequests = signal(0);
+
     // Runs after render, so a bound or default open never runs during server rendering.
     let rendered = false;
     afterRenderEffect(() => {
@@ -424,17 +429,27 @@ export const [
       });
     });
 
+    // Runs after the effect above in the same render, so a request the binding has not answered
+    // by then lapses.
+    afterRenderEffect(() => {
+      declinedRequests();
+      answeringOpenRequest = false;
+    });
+
     /**
      * Let a change through when nothing is bound or it matches the binding. Anything else is
      * reported through `openChange` and left to the binding.
      */
     function requestOpenChange(next: boolean): boolean {
       const bound = _open?.();
+      answeringOpenRequest = false;
 
       if (bound === undefined || bound === next) {
         return true;
       }
 
+      answeringOpenRequest = next;
+      declinedRequests.update(count => count + 1);
       onOpenChange?.(next);
       return false;
     }
@@ -539,7 +554,11 @@ export const [
         createOverlayInstance();
       }
 
-      await overlay()?.show({ immediate: true });
+      // Only an open that answers a declined request takes the press that asked for it.
+      const answering = answeringOpenRequest;
+      answeringOpenRequest = false;
+
+      await overlay()?.show({ immediate: true, fromOwner: answering });
       announcedOpen ||= open();
     }
 
