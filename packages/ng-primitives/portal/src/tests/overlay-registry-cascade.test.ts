@@ -148,6 +148,20 @@ describe('NgpOverlayRegistry cascade closing', () => {
       expect(registry.isInClosingDescendant(focused, 'nested')).toBe(false);
     });
 
+    it('lets the innermost closing overlay decide when their elements are nested', () => {
+      const page = entry('page', null);
+      const menu = entry('menu', 'page');
+      const dialog = entry('dialog', 'menu', false);
+      // the dialog renders inside the menu, and starts closing after it
+      menu.getElements()[0].appendChild(dialog.getElements()[0]);
+      register(page, menu, dialog);
+
+      close(menu);
+      const inDialog = close(dialog);
+
+      expect(registry.isInClosingDescendant(inDialog, 'page')).toBe(false);
+    });
+
     it('does not count as inside an overlay it opted out of closing with', () => {
       const menu = entry('menu', null);
       const dialog = entry('dialog', 'menu', false);

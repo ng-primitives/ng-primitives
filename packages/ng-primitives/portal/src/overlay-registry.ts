@@ -228,12 +228,16 @@ export class NgpOverlayRegistry {
    * `ancestorId`, like `closesWith()` for an overlay still registered.
    */
   isInClosingDescendant(element: Element, ancestorId: string): boolean {
+    // The innermost closing overlay holding the element decides, as the nearest open one does
+    // in `findContainingOverlay()`.
+    let nearest: { id: string; host: Element } | null = null;
     for (const [id, closing] of this.closing) {
-      if (closing.getElements().some(el => el.contains(element))) {
-        return this.cascadesTo(id, ancestorId);
+      const host = closing.getElements().find(el => el.contains(element));
+      if (host && (!nearest || nearest.host.contains(host))) {
+        nearest = { id, host };
       }
     }
-    return false;
+    return nearest !== null && this.cascadesTo(nearest.id, ancestorId);
   }
 
   /** Whether `id` closes with `ancestorId`, walking parents through open and closing overlays. */
