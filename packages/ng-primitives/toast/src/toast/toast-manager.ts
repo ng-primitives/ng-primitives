@@ -92,9 +92,9 @@ export class NgpToastManager {
 
     // Emptying the container cleared its hover, and Safari fires no new mouseenter when a toast
     // appears under a pointer that never left it. Untracked, so an effect that calls show() does
-    // not rerun on every toast.
+    // not rerun on every toast. Skipped on the server, where Domino throws on `:hover`.
     const isEmpty = !untracked(this.toasts).some(t => t.instance.options.placement === placement);
-    if (isEmpty && container.matches(':hover')) {
+    if (this.isBrowser && isEmpty && container.matches(':hover')) {
       this.hovered.update(placements => [...without(placements, placement), placement]);
     }
 
