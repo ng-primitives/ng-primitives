@@ -39,6 +39,7 @@ class BoundPopoverInDialogComponent {
   private readonly viewContainerRef = inject(ViewContainerRef);
   private readonly dialog = viewChild.required<TemplateRef<unknown>>('dialog');
   readonly open = signal(false);
+  readonly changes: boolean[] = [];
   acceptClose = true;
 
   openDialog(): void {
@@ -46,6 +47,7 @@ class BoundPopoverInDialogComponent {
   }
 
   onOpenChange(open: boolean): void {
+    this.changes.push(open);
     if (open || this.acceptClose) {
       this.open.set(open);
     }
@@ -88,6 +90,7 @@ describe('NgpPopoverTrigger with a bound open state in a dialog', () => {
 
     await clickBackdrop();
     await new Promise(resolve => setTimeout(resolve, 50));
+    expect(host.changes).toEqual([false]);
     expect(screen.getByTestId('popover')).toBeInTheDocument();
     expect(TestBed.inject(NgpDialogManager).openDialogs.length).toBe(1);
 
