@@ -18,7 +18,7 @@ import { createOverlay, NgpOverlay, NgpOverlayConfig } from '../overlay';
     <button #other>Other</button>
 
     <ng-template #content>
-      <div data-testid="overlay">Content</div>
+      <div data-testid="overlay"><button data-testid="inside">Inside</button></div>
     </ng-template>
   `,
 })
@@ -342,7 +342,7 @@ describe('NgpOverlay requestOpenChange', () => {
     await waitFor(() => expect(overlay!.isOpen()).toBe(false));
 
     owner.open = true;
-    await overlay.show({ immediate: true });
+    await overlay.show({ immediate: true, fromOwner: true });
     owner.open = false;
     overlay.hide({ origin: 'mouse', immediate: true });
 
@@ -365,7 +365,7 @@ describe('NgpOverlay requestOpenChange', () => {
 
       await overlay.show({ fromTriggerPress: true });
       owner.open = true;
-      await overlay.show({ immediate: true });
+      await overlay.show({ immediate: true, fromOwner: true });
       element.getAnimations = () => [];
 
       return { owner, trigger: fixture.componentInstance.trigger().nativeElement };
@@ -390,12 +390,60 @@ describe('NgpOverlay requestOpenChange', () => {
       (document.activeElement as HTMLElement | null)?.blur();
 
       owner.open = true;
-      await overlay!.show({ immediate: true });
+      await overlay!.show({ immediate: true, fromOwner: true });
       owner.open = false;
       overlay!.hide({ origin: 'mouse', immediate: true });
 
       await waitFor(() => expect(overlay!.isOpen()).toBe(false));
       expect(document.activeElement).toBe(document.body);
+    });
+  });
+
+  describe('when the owner opens without answering a declined press', () => {
+    it('returns focus to where it was rather than to the pressed trigger', async () => {
+      const { fixture } = await render(OverlayHost);
+      const owner = boundOwner(false);
+      overlay = fixture.componentInstance.create(owner.requestOpenChange);
+      const other = fixture.componentInstance.other().nativeElement;
+
+      await overlay.show({ fromTriggerPress: true });
+      other.focus();
+      owner.open = true;
+      await overlay.show({ immediate: true });
+      // closed from inside the panel, so focus is still the overlay's to return
+      document.querySelector<HTMLElement>('[data-testid="inside"]')!.focus();
+      owner.open = false;
+      overlay.hide({ origin: 'mouse', immediate: true });
+
+      await waitFor(() => expect(overlay!.isOpen()).toBe(false));
+      expect(document.activeElement).toBe(other);
+    });
+
+    it('keeps the focus to return to when the open cancels an exit animation', async () => {
+      const { fixture } = await render(OverlayHost);
+      const owner = boundOwner(true);
+      overlay = fixture.componentInstance.create(owner.requestOpenChange);
+      const other = fixture.componentInstance.other().nativeElement;
+      other.focus();
+      await overlay.show();
+
+      const element = document.querySelector<HTMLElement>('[data-testid="overlay"]')!;
+      element.getAnimations = () => [pendingAnimation()];
+      owner.open = false;
+      overlay.hide({ immediate: true });
+
+      await overlay.show({ fromTriggerPress: true });
+      owner.open = true;
+      await overlay.show({ immediate: true });
+      element.getAnimations = () => [];
+      expect(overlay.isOpen()).toBe(true);
+
+      document.querySelector<HTMLElement>('[data-testid="inside"]')!.focus();
+      owner.open = false;
+      overlay.hide({ origin: 'mouse', immediate: true });
+
+      await waitFor(() => expect(overlay!.isOpen()).toBe(false));
+      expect(document.activeElement).toBe(other);
     });
   });
 
@@ -464,7 +512,7 @@ describe('NgpOverlay requestOpenChange', () => {
     // Safari does not focus a pressed button, so only the press names the trigger
     await overlay.show({ fromTriggerPress: true });
     owner.open = true;
-    await overlay.show({ immediate: true });
+    await overlay.show({ immediate: true, fromOwner: true });
 
     owner.open = false;
     overlay.hide({ origin: 'mouse', immediate: true });
@@ -482,7 +530,7 @@ describe('NgpOverlay requestOpenChange', () => {
 
     await overlay.show({ pressTarget: other });
     owner.open = true;
-    await overlay.show({ immediate: true });
+    await overlay.show({ immediate: true, fromOwner: true });
 
     owner.open = false;
     overlay.hide({ origin: 'mouse', immediate: true });
