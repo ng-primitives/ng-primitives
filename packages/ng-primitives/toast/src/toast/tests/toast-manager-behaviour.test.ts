@@ -471,6 +471,30 @@ describe('NgpToastManager behaviour', () => {
         corner.remove();
       }
     });
+
+    it('stays paused while the window loses focus with focus inside a toast', async () => {
+      const host = await renderHost({ duration: 60 });
+      host.show('A');
+
+      await waitFor(() => expect(toasts().length).toBe(1));
+      // a key press first, so the scripted focus counts as keyboard focus
+      await userEvent.keyboard('{Shift}');
+      const button = toasts()[0].querySelector<HTMLButtonElement>('.dismiss')!;
+      button.focus();
+      await waitFor(() => expect(toasts()[0]).toHaveAttribute('data-paused'));
+
+      // what the browser dispatches when the user switches to another app
+      const hasFocus = vi.spyOn(document, 'hasFocus').mockReturnValue(false);
+      try {
+        button.dispatchEvent(new FocusEvent('focusout', { bubbles: true, relatedTarget: null }));
+
+        await wait(200);
+        expect(toasts().length).toBe(1);
+        expect(toasts()[0]).toHaveAttribute('data-paused');
+      } finally {
+        hasFocus.mockRestore();
+      }
+    });
   });
 
   describe('stacking', () => {

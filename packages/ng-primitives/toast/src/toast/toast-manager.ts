@@ -461,6 +461,10 @@ export class NgpToastManager {
     });
 
     this.renderer.listen(container, 'focusout', (event: FocusEvent) => {
+      // The window losing focus fires a focusout with no relatedTarget while focus stays here.
+      if (!event.relatedTarget && !container.ownerDocument.hasFocus()) {
+        return;
+      }
       if (!container.contains(event.relatedTarget as Node | null)) {
         this.focused.update(placements => without(placements, placement));
       }
