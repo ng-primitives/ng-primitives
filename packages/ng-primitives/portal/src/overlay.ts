@@ -801,6 +801,7 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
     }
 
     this.destroyingPortal = null;
+    this.registry.releaseClosing(this.id());
     portal.cancelDetach();
 
     // An immediate keepMounted detach has already pulled the live view out of the DOM.
@@ -1079,7 +1080,10 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
 
     const containingId =
       element instanceof HTMLElement ? this.registry.findContainingOverlay(element) : null;
-    return containingId !== null && this.registry.closesWith(containingId, this.id());
+    if (containingId !== null) {
+      return this.registry.closesWith(containingId, this.id());
+    }
+    return this.registry.isInClosingDescendant(element, this.id());
   }
 
   /** Where the press that opens the overlay landed, if a press opens it. */
@@ -1368,8 +1372,8 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
   }
 
   /** Remove the overlay from the registry, and lift its `inert` layer. */
-  private deregisterFromRegistry(): void {
-    this.registry.deregister(this.id());
+  private deregisterFromRegistry(closingElements?: () => HTMLElement[]): void {
+    this.registry.deregister(this.id(), closingElements);
 
     if (this.hidingLayer) {
       this.outsideHiding.remove(this.hidingLayer);
@@ -1732,8 +1736,9 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
     // Close any descendant overlays before destroying this one
     this.registry.closeDescendants(this.id());
 
-    // Deregister from the overlay registry, so the page is usable during the exit animation
-    this.deregisterFromRegistry();
+    // Deregister from the overlay registry, so the page is usable during the exit animation,
+    // still counting as nested while it animates out
+    this.deregisterFromRegistry(() => portal.getElements());
 
     // Clear portal reference to prevent double destruction
     this.portal.set(null);
@@ -1780,6 +1785,7 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
     if (this.destroyingPortal === portal) {
       const outletElement = this.registeredOutletElement;
       this.destroyingPortal = null;
+      this.registry.releaseClosing(this.id());
       this.registeredOutletElement = null;
       this.openContainer = null;
 
