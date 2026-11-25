@@ -19,6 +19,7 @@ import {
   provideToastConfig,
 } from 'ng-primitives/toast';
 import { afterEach, describe, expect, it, vi } from 'vitest';
+import { userEvent } from 'vitest/browser';
 
 interface ToastContext {
   label: string;
@@ -263,6 +264,33 @@ describe('NgpToastManager behaviour', () => {
 
       expect(containers()).toHaveLength(0);
     });
+
+    it('shows a toast on the server, where `:hover` is not supported', () => {
+      // Domino, the server DOM, throws on `:hover`
+      const matches = Element.prototype.matches;
+      const spy = vi.spyOn(Element.prototype, 'matches').mockImplementation(function (
+        this: Element,
+        selector: string,
+      ) {
+        if (selector.includes(':hover')) {
+          throw new Error(':hover is not supported.');
+        }
+        return matches.call(this, selector);
+      });
+
+      try {
+        TestBed.configureTestingModule({
+          providers: [{ provide: PLATFORM_ID, useValue: 'server' }],
+        });
+        const manager = TestBed.inject(NgpToastManager);
+
+        expect(() =>
+          manager.show(TestToast, { context: { label: 'A' }, persistent: true }),
+        ).not.toThrow();
+      } finally {
+        spy.mockRestore();
+      }
+    });
   });
 
   describe('auto-dismiss', () => {
@@ -296,6 +324,176 @@ describe('NgpToastManager behaviour', () => {
 
       container.dispatchEvent(new MouseEvent('mouseleave'));
       await waitFor(() => expect(toasts().length).toBe(0));
+    });
+
+    it('does not auto-dismiss while focus is inside a toast and resumes once it leaves', async () => {
+      const host = await renderHost({ duration: 60 });
+      host.show('A');
+
+      await waitFor(() => expect(toasts().length).toBe(1));
+      const button = toasts()[0].querySelector<HTMLButtonElement>('.dismiss')!;
+      button.focus();
+      await waitFor(() => expect(toasts()[0]).toHaveAttribute('data-paused'));
+      expect(toasts()[0]).toHaveAttribute('data-expanded', 'true');
+
+      await wait(200);
+      expect(toasts().length).toBe(1);
+
+      button.blur();
+      await waitFor(() => expect(toasts().length).toBe(0));
+    });
+
+    it('stays paused while focus is inside when the toast is updated, then runs the new duration', async () => {
+      const host = await renderHost({ duration: 60_000 });
+      const ref = host.show('A');
+
+      await waitFor(() => expect(toasts().length).toBe(1));
+      const button = toasts()[0].querySelector<HTMLButtonElement>('.dismiss')!;
+      button.focus();
+      await waitFor(() => expect(toasts()[0]).toHaveAttribute('data-paused'));
+
+      ref.update({ duration: 50 });
+      await wait(200);
+      expect(toasts().length).toBe(1);
+      expect(toasts()[0]).toHaveAttribute('data-paused');
+
+      button.blur();
+      await waitFor(() => expect(toasts().length).toBe(0));
+    });
+
+    it('keeps the timer paused while focus moves between toasts of the same container', async () => {
+      const host = await renderHost({ duration: 60 });
+      host.show('A');
+      host.show('B');
+
+      await waitFor(() => expect(toasts().length).toBe(2));
+      toastWithLabel('A').querySelector<HTMLButtonElement>('.dismiss')!.focus();
+      toastWithLabel('B').querySelector<HTMLButtonElement>('.dismiss')!.focus();
+
+      await wait(200);
+      expect(toasts().length).toBe(2);
+      expect(toastWithLabel('A')).toHaveAttribute('data-paused');
+    });
+
+    it('stays paused when the pointer leaves while focus is still inside', async () => {
+      const host = await renderHost({ duration: 60 });
+      host.show('A');
+
+      await waitFor(() => expect(toasts().length).toBe(1));
+      const container = containers()[0];
+      container.dispatchEvent(new MouseEvent('mouseenter'));
+      toasts()[0].querySelector<HTMLButtonElement>('.dismiss')!.focus();
+      container.dispatchEvent(new MouseEvent('mouseleave'));
+
+      await wait(200);
+      expect(toasts().length).toBe(1);
+      expect(toasts()[0]).toHaveAttribute('data-paused');
+    });
+
+    it('resumes the other toasts when the focused one is removed without a focusout', async () => {
+      // Safari and Firefox fire no focusout when the focused element is removed
+      const swallow = (event: Event) => event.stopImmediatePropagation();
+      window.addEventListener('focusout', swallow, { capture: true });
+
+      try {
+        const host = await renderHost({ duration: 100 });
+        host.show('A', { persistent: true });
+        host.show('B');
+
+        await waitFor(() => expect(toasts().length).toBe(2));
+        const toast = toastWithLabel('A');
+        toast.querySelector<HTMLButtonElement>('.dismiss')!.focus();
+        await waitFor(() => expect(toastWithLabel('B')).toHaveAttribute('data-paused'));
+
+        // A swipe hands focus to no other toast, and focus entered from nowhere has nowhere to
+        // return to, so it stays in A until A is removed.
+        toast.setPointerCapture = vi.fn();
+        fireEvent(toast, new PointerEvent('pointerdown', { button: 0, clientX: 0, pointerId: 1 }));
+        fireEvent(toast, new PointerEvent('pointermove', { clientX: 200, pointerId: 1 }));
+        fireEvent(toast, new PointerEvent('pointerup', { clientX: 200, pointerId: 1 }));
+
+        await waitFor(() => expect(toasts().length).toBe(0));
+      } finally {
+        window.removeEventListener('focusout', swallow, { capture: true });
+      }
+    });
+
+    it('collapses a hovered placement once its last toast is dismissed while another placement has toasts', async () => {
+      const host = await renderHost({ persistent: true });
+      host.show('A', { placement: 'top-end' });
+      host.show('B', { placement: 'bottom-end' });
+
+      await waitFor(() => expect(toasts().length).toBe(2));
+      const topEnd = containers().find(c => c.dataset['ngpToastContainer'] === 'top-end')!;
+      topEnd.dispatchEvent(new MouseEvent('mouseenter'));
+      await waitFor(() => expect(toastWithLabel('A')).toHaveAttribute('data-expanded', 'true'));
+
+      // An emptied container fires no mouseleave.
+      toastWithLabel('A').querySelector<HTMLButtonElement>('.dismiss')!.click();
+      await waitFor(() => expect(toasts().length).toBe(1));
+
+      host.show('C', { placement: 'top-end' });
+      await waitFor(() => expect(toastWithLabel('C')).toHaveAttribute('data-expanded', 'false'));
+    });
+
+    it('collapses the placement once its focused last toast is dismissed', async () => {
+      const host = await renderHost({ persistent: true });
+      host.show('A');
+
+      await waitFor(() => expect(toasts().length).toBe(1));
+      const button = toasts()[0].querySelector<HTMLButtonElement>('.dismiss')!;
+      button.focus();
+      await waitFor(() => expect(toasts()[0]).toHaveAttribute('data-expanded', 'true'));
+
+      button.click();
+      await waitFor(() => expect(toasts().length).toBe(0));
+
+      host.show('B');
+      await waitFor(() => expect(toastWithLabel('B')).toHaveAttribute('data-expanded', 'false'));
+    });
+
+    it('resumes once the pointer leaves a toast that a click focused', async () => {
+      const corner = document.body.appendChild(document.createElement('div'));
+      corner.style.cssText = 'position: fixed; left: 0; bottom: 0; width: 4px; height: 4px;';
+
+      try {
+        const host = await renderHost({ duration: 100 });
+        host.show('A');
+        await waitFor(() => expect(toasts().length).toBe(1));
+
+        // the click focuses the container, which has tabindex -1
+        await userEvent.click(toastWithLabel('A').querySelector('span')!);
+        expect(containers()[0].contains(document.activeElement)).toBe(true);
+
+        await userEvent.hover(corner);
+        await waitFor(() => expect(toasts().length).toBe(0));
+      } finally {
+        corner.remove();
+      }
+    });
+
+    it('stays paused while the window loses focus with focus inside a toast', async () => {
+      const host = await renderHost({ duration: 60 });
+      host.show('A');
+
+      await waitFor(() => expect(toasts().length).toBe(1));
+      // a key press first, so the scripted focus counts as keyboard focus
+      await userEvent.keyboard('{Shift}');
+      const button = toasts()[0].querySelector<HTMLButtonElement>('.dismiss')!;
+      button.focus();
+      await waitFor(() => expect(toasts()[0]).toHaveAttribute('data-paused'));
+
+      // what the browser dispatches when the user switches to another app
+      const hasFocus = vi.spyOn(document, 'hasFocus').mockReturnValue(false);
+      try {
+        button.dispatchEvent(new FocusEvent('focusout', { bubbles: true, relatedTarget: null }));
+
+        await wait(200);
+        expect(toasts().length).toBe(1);
+        expect(toasts()[0]).toHaveAttribute('data-paused');
+      } finally {
+        hasFocus.mockRestore();
+      }
     });
   });
 
@@ -344,6 +542,34 @@ describe('NgpToastManager behaviour', () => {
 
       host.show('B');
       await waitFor(() => expect(toastWithLabel('B')).toHaveAttribute('data-expanded', 'false'));
+    });
+
+    it('keeps a placement expanded when its next toast appears under a pointer still over it', async () => {
+      // styled to keep its size once empty, so the pointer never leaves it (only WebKit then fires no mouseenter)
+      const style = document.head.appendChild(document.createElement('style'));
+      style.textContent =
+        '[data-ngp-toast-container="top-end"] { min-width: 200px; min-height: 80px; }';
+      const corner = document.body.appendChild(document.createElement('div'));
+      corner.style.cssText = 'position: fixed; left: 0; bottom: 0; width: 4px; height: 4px;';
+
+      try {
+        const host = await renderHost({ persistent: true });
+        host.show('A');
+        await waitFor(() => expect(toasts().length).toBe(1));
+        await userEvent.hover(containers()[0]);
+        await waitFor(() => expect(toastWithLabel('A')).toHaveAttribute('data-expanded', 'true'));
+
+        toastWithLabel('A').querySelector<HTMLButtonElement>('.dismiss')!.click();
+        await waitFor(() => expect(toasts().length).toBe(0));
+
+        host.show('B');
+        await waitFor(() => expect(toastWithLabel('B')).toHaveAttribute('data-expanded', 'true'));
+      } finally {
+        // the pointer keeps its position across test files: park it where nothing renders
+        await userEvent.hover(corner);
+        corner.remove();
+        style.remove();
+      }
     });
   });
 
