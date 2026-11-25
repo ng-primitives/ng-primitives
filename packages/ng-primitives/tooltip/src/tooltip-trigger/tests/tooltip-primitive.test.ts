@@ -1301,22 +1301,25 @@ describe('NgpTooltipTrigger (primitive)', () => {
   });
 
   describe('cooldown', () => {
-    it('should show a second tooltip instantly (data-instant) while another tooltip is active', async () => {
+    it('should show a second tooltip instantly (data-instant) after the active tooltip swaps content', async () => {
       vi.useFakeTimers({ shouldAdvanceTime: true });
 
-      const { getByTestId } = await render(
+      const { fixture, getByTestId } = await render(
         `
-          <button data-testid="trigger-a" [ngpTooltipTrigger]="contentA" ngpTooltipTriggerShowDelay="300"></button>
+          <button data-testid="trigger-a" [ngpTooltipTrigger]="useFirst ? contentA : replacement" ngpTooltipTriggerShowDelay="300"></button>
           <button data-testid="trigger-b" [ngpTooltipTrigger]="contentB" ngpTooltipTriggerShowDelay="300"></button>
 
           <ng-template #contentA>
             <div ngpTooltip data-testid="tooltip-a">Tooltip A</div>
           </ng-template>
+          <ng-template #replacement>
+            <div ngpTooltip data-testid="tooltip-replacement">Replacement</div>
+          </ng-template>
           <ng-template #contentB>
             <div ngpTooltip data-testid="tooltip-b">Tooltip B</div>
           </ng-template>
         `,
-        { imports: [NgpTooltipTrigger, NgpTooltip] },
+        { imports: [NgpTooltipTrigger, NgpTooltip], componentProperties: { useFirst: true } },
       );
 
       // Show the first tooltip, which respects its own 300ms show delay.
@@ -1324,6 +1327,12 @@ describe('NgpTooltipTrigger (primitive)', () => {
       vi.advanceTimersByTime(300);
       await waitFor(() => {
         expect(document.querySelector('[data-testid="tooltip-a"]')).toBeInTheDocument();
+      });
+
+      fixture.componentInstance.useFirst = false;
+      fixture.detectChanges();
+      await waitFor(() => {
+        expect(document.querySelector('[data-testid="tooltip-replacement"]')).toBeInTheDocument();
       });
 
       // With a tooltip already active, hovering the second trigger shows it
@@ -1334,6 +1343,7 @@ describe('NgpTooltipTrigger (primitive)', () => {
         const tooltipB = document.querySelector('[data-testid="tooltip-b"]');
         expect(tooltipB).toBeInTheDocument();
         expect(tooltipB).toHaveAttribute('data-instant');
+        expect(document.querySelectorAll('[ngpTooltip]')).toHaveLength(1);
       });
     });
   });
@@ -2337,7 +2347,7 @@ describe('NgpTooltipTrigger (primitive)', () => {
       <button
         [ngpTooltipTrigger]="showTooltip ? (useFirst ? first : second) : null"
         ngpTooltipTriggerShowDelay="0"
-        ngpTooltipTriggerHideDelay="0"
+        [ngpTooltipTriggerHideDelay]="hideDelay"
         [ngpTooltipTriggerUseTextContent]="false"
       ></button>
 
@@ -2350,11 +2360,16 @@ describe('NgpTooltipTrigger (primitive)', () => {
     `;
 
     function renderDynamic(
-      componentProperties: { useFirst?: boolean; showTooltip?: boolean } = {},
+      componentProperties: { useFirst?: boolean; showTooltip?: boolean; hideDelay?: number } = {},
     ) {
       return render(dynamicTemplate, {
         imports: [NgpTooltipTrigger, NgpTooltip],
-        componentProperties: { useFirst: true, showTooltip: true, ...componentProperties },
+        componentProperties: {
+          useFirst: true,
+          showTooltip: true,
+          hideDelay: 0,
+          ...componentProperties,
+        },
       });
     }
 
@@ -2536,6 +2551,32 @@ describe('NgpTooltipTrigger (primitive)', () => {
 
       await waitFor(() => {
         expect(document.querySelector('[ngpTooltip]')).not.toBeInTheDocument();
+      });
+    });
+
+    it('should pick up a reference that changed during the hide delay when hovered again', async () => {
+      vi.useFakeTimers({ shouldAdvanceTime: true });
+
+      const { fixture, getByRole } = await renderDynamic({ hideDelay: 300 });
+      const trigger = getByRole('button');
+
+      fireEvent.mouseEnter(trigger);
+      vi.advanceTimersByTime(1);
+      await waitFor(() => {
+        expect(document.querySelector('[ngpTooltip]')?.textContent?.trim()).toBe('First tooltip');
+      });
+
+      fireEvent.mouseLeave(trigger);
+      fixture.componentInstance.useFirst = false;
+      fixture.detectChanges();
+      expect(document.querySelector('[ngpTooltip]')?.textContent?.trim()).toBe('First tooltip');
+
+      fireEvent.mouseEnter(trigger);
+      vi.advanceTimersByTime(300);
+      await waitFor(() => {
+        const tooltips = document.querySelectorAll('[ngpTooltip]');
+        expect(tooltips).toHaveLength(1);
+        expect(tooltips[0].textContent?.trim()).toBe('Second tooltip');
       });
     });
 

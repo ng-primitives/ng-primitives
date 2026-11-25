@@ -102,6 +102,8 @@ export interface NgpOverlayEntry {
   cascadeClose?: boolean;
 }
 
+type NgpPanelOwner = Pick<NgpOverlayEntry, 'id' | 'overlay' | 'getElements'>;
+
 /**
  * Minimal overlay reference needed by the registry.
  * This avoids a circular dependency with NgpOverlay.
@@ -133,6 +135,12 @@ export class NgpOverlayRegistry {
 
   /** Ordered list of visible overlay entries (oldest first, newest/topmost last) */
   private readonly entries: NgpOverlayEntry[] = [];
+
+  // Exiting content can still own focus, but it no longer participates in dismissal.
+  private readonly exiting = new Map<string, NgpOverlayEntry>();
+
+  // A view being inserted or replaced can run hooks before it joins the dismiss stack.
+  private readonly transitioningPanels = new Map<string, NgpPanelOwner>();
 
   /** Set of overlay IDs currently evaluating an async dismiss guard */
   private readonly pendingGuardIds = new Set<string>();
@@ -173,6 +181,7 @@ export class NgpOverlayRegistry {
       return existing;
     }
 
+    this.endExit(entry.id);
     const entryOrder = order ?? this.nextOrder++;
     const index = this.entries.findIndex(e => this.orders.get(e.id)! > entryOrder);
     this.entries.splice(index === -1 ? this.entries.length : index, 0, entry);
@@ -204,6 +213,26 @@ export class NgpOverlayRegistry {
     }
   }
 
+  /** @internal */
+  startExit(id: string, getElements: () => HTMLElement[]): void {
+    const entry = this.entries.find(e => e.id === id);
+    if (entry) {
+      this.exiting.set(id, { ...entry, getElements });
+    }
+  }
+
+  /** @internal */
+  endExit(id: string): void {
+    this.exiting.delete(id);
+  }
+
+  /** @internal */
+  containsDescendant(id: string, element: Element): boolean {
+    return this.getCascadingDescendants(id, true).some(entry =>
+      entry.getElements().some(root => root.contains(element)),
+    );
+  }
+
   /**
    * Close all descendants of the given overlay.
    * Called by NgpOverlay when it hides to cascade the close to children.
@@ -228,8 +257,9 @@ export class NgpOverlayRegistry {
    * Descendants of `id` that close along with it. The walk stops at an entry that opted
    * out, leaving its own subtree open too.
    */
-  private getCascadingDescendants(id: string): NgpOverlayEntry[] {
-    return this.collectDescendants(id, entry => entry.cascadeClose !== false);
+  private getCascadingDescendants(id: string, includeExiting = false): NgpOverlayEntry[] {
+    const entries = includeExiting ? [...this.entries, ...this.exiting.values()] : this.entries;
+    return this.collectDescendants(id, entry => entry.cascadeClose !== false, entries);
   }
 
   /**
@@ -239,10 +269,11 @@ export class NgpOverlayRegistry {
   private collectDescendants(
     id: string,
     include: (entry: NgpOverlayEntry) => boolean = () => true,
+    entries = this.entries,
   ): NgpOverlayEntry[] {
     const childrenByParent = new Map<string, NgpOverlayEntry[]>();
 
-    for (const entry of this.entries) {
+    for (const entry of entries) {
       if (entry.parentId === null) {
         continue;
       }
@@ -291,12 +322,34 @@ export class NgpOverlayRegistry {
    * Returns the ID of the most recently opened (topmost) containing overlay, or null.
    */
   findContainingOverlay(element: HTMLElement): string | null {
+    return this.findContainingEntry(element)?.id ?? null;
+  }
+
+  /** @internal */
+  trackTransitioningPanel(owner: NgpPanelOwner): () => void {
+    this.transitioningPanels.set(owner.id, owner);
+    return () => this.transitioningPanels.delete(owner.id);
+  }
+
+  /** @internal */
+  findPanelOwner(element: HTMLElement): NgpPanelOwner | null {
+    const contains = (owner: NgpPanelOwner) =>
+      owner.getElements().some(root => root.contains(element));
+
+    return (
+      [...this.transitioningPanels.values()].reverse().find(contains) ??
+      this.findContainingEntry(element) ??
+      [...this.exiting.values()].find(contains) ??
+      null
+    );
+  }
+
+  private findContainingEntry(element: HTMLElement): NgpOverlayEntry | null {
     // Walk from topmost to oldest so we find the nearest containing overlay
     for (let i = this.entries.length - 1; i >= 0; i--) {
       const entry = this.entries[i];
-      const elements = entry.getElements();
-      if (elements.some(el => el.contains(element))) {
-        return entry.id;
+      if (entry.getElements().some(el => el.contains(element))) {
+        return entry;
       }
     }
     return null;

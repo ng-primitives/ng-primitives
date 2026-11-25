@@ -3,6 +3,7 @@ import {
   Directive,
   ElementRef,
   Injector,
+  OnInit,
   TemplateRef,
   ViewContainerRef,
   inject,
@@ -16,18 +17,42 @@ import {
   NgpOffset,
   NgpOverlay,
   NgpOverlayConfig,
+  NgpOverlayContent,
   NgpOverlayTemplateContext,
   NgpPlacement,
   NgpPosition,
   createOverlay,
 } from 'ng-primitives/portal';
-import { afterEach, describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 
 /** Registers a nested element as the overlay's positioning outlet. */
 @Directive({ selector: '[testOutlet]' })
 class TestOutletDirective {
   constructor() {
     inject(NgpOverlay).registerOutletElement(inject(ElementRef).nativeElement);
+  }
+}
+
+/** Calls back while the portal is still constructing its content. */
+@Component({ template: '<div data-testid="overlay">Opening</div>' })
+class OverlayClosingDuringMount implements OnInit {
+  static onMount: (overlay: NgpOverlay<unknown>, host: HTMLElement) => void;
+  private readonly overlay = inject(NgpOverlay);
+  private readonly host = inject<ElementRef<HTMLElement>>(ElementRef).nativeElement;
+
+  ngOnInit(): void {
+    OverlayClosingDuringMount.onMount(this.overlay, this.host);
+  }
+}
+
+@Directive({ selector: '[testAttachTrigger]' })
+class AttachTriggerDirective implements OnInit {
+  static onMount: (overlay: NgpOverlay<unknown>, trigger: HTMLElement) => void;
+  private readonly overlay = inject(NgpOverlay);
+  private readonly trigger = inject<ElementRef<HTMLElement>>(ElementRef).nativeElement;
+
+  ngOnInit(): void {
+    AttachTriggerDirective.onMount(this.overlay, this.trigger);
   }
 }
 
@@ -45,7 +70,7 @@ class OverlayConsumerComponent {
 }
 
 @Component({
-  imports: [TestOutletDirective],
+  imports: [AttachTriggerDirective, TestOutletDirective],
   template: `
     <button
       data-testid="trigger"
@@ -85,6 +110,27 @@ class OverlayConsumerComponent {
         </div>
       }
     </ng-template>
+
+    <ng-template #withoutOutlet>
+      <button testAttachTrigger type="button">Child trigger</button>
+    </ng-template>
+
+    <ng-template #outsideOutlet>
+      <div testOutlet></div>
+      <button testAttachTrigger type="button">Child trigger</button>
+    </ng-template>
+
+    <ng-template #insideOutlet>
+      <div testOutlet>
+        <button testAttachTrigger type="button">Child trigger</button>
+      </div>
+    </ng-template>
+
+    <ng-template #conditionalTrigger>
+      @if (true) {
+        <button testAttachTrigger type="button">Child trigger</button>
+      }
+    </ng-template>
   `,
 })
 class OverlayHostComponent {
@@ -93,6 +139,14 @@ class OverlayHostComponent {
     viewChild.required<TemplateRef<NgpOverlayTemplateContext<unknown>>>('nestedOutlet');
   readonly controlFlowRoot =
     viewChild.required<TemplateRef<NgpOverlayTemplateContext<unknown>>>('controlFlowRoot');
+  readonly withoutOutlet =
+    viewChild.required<TemplateRef<NgpOverlayTemplateContext<unknown>>>('withoutOutlet');
+  readonly outsideOutlet =
+    viewChild.required<TemplateRef<NgpOverlayTemplateContext<unknown>>>('outsideOutlet');
+  readonly insideOutlet =
+    viewChild.required<TemplateRef<NgpOverlayTemplateContext<unknown>>>('insideOutlet');
+  readonly conditionalTrigger =
+    viewChild.required<TemplateRef<NgpOverlayTemplateContext<unknown>>>('conditionalTrigger');
   readonly viewContainerRef = inject(ViewContainerRef);
   readonly injector = inject(Injector);
 }
@@ -137,6 +191,254 @@ describe('createOverlay imperative usage', () => {
     target.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true, composed: true }));
     target.dispatchEvent(new MouseEvent('mouseup', { bubbles: true, composed: true }));
   }
+
+  it.each(['hide', 'hideImmediate'] as const)(
+    'discards an in-flight mount cancelled by %s and settles it separately from a new show',
+    async close => {
+      const { overlay } = await setup(() => ({ content: signal(OverlayClosingDuringMount) }));
+      let mounts = 0;
+      let nextShow: Promise<void> | undefined;
+      let discardedHost: HTMLElement | undefined;
+      OverlayClosingDuringMount.onMount = (overlay, host) => {
+        if (++mounts === 1) {
+          discardedHost = host;
+          overlay[close]();
+          nextShow = overlay.show();
+        }
+      };
+
+      await overlay.show();
+      expect(overlay.isOpen()).toBe(false);
+      expect(screen.queryByTestId('overlay')).not.toBeInTheDocument();
+
+      await nextShow;
+      expect(mounts).toBe(2);
+      expect(overlay.isOpen()).toBe(true);
+      expect(screen.getAllByTestId('overlay')).toHaveLength(1);
+
+      await new Promise(requestAnimationFrame);
+      expect(discardedHost).not.toHaveAttribute('data-enter');
+    },
+  );
+
+  it.each(['hide', 'hideImmediate'] as const)(
+    'cancels a replacement during %s and lets a new show mount fresh content',
+    async close => {
+      const content = signal<NgpOverlayContent<unknown>>(OverlayConsumerComponent);
+      const { overlay, fixture } = await setup(() => ({ content }));
+      let mounts = 0;
+      let nextShow: Promise<void> | undefined;
+      let discardedHost: HTMLElement | undefined;
+      OverlayClosingDuringMount.onMount = (overlay, host) => {
+        if (++mounts === 1) {
+          discardedHost = host;
+          expect(overlay.isClosing()).toBe(false);
+          overlay[close]();
+          nextShow = overlay.show();
+        }
+      };
+
+      await overlay.show();
+      content.set(OverlayClosingDuringMount);
+      fixture.detectChanges();
+
+      await waitFor(() => expect(discardedHost).toBeDefined());
+      expect(discardedHost).not.toBeInTheDocument();
+      await nextShow;
+      expect(mounts).toBe(2);
+      expect(overlay.isOpen()).toBe(true);
+      expect(screen.getAllByTestId('overlay')).toHaveLength(1);
+    },
+  );
+
+  it.each(['hide', 'hideImmediate'] as const)(
+    'returns focus when a first attach focuses and then cancels via %s',
+    async close => {
+      const { overlay, getByTestId } = await setup(() => ({
+        content: signal(OverlayClosingDuringMount),
+        restoreFocus: true,
+      }));
+      const trigger = getByTestId('trigger');
+      trigger.focus();
+      let focusedDuringMount = false;
+      OverlayClosingDuringMount.onMount = (overlay, host) => {
+        host.tabIndex = -1;
+        host.focus();
+        focusedDuringMount = document.activeElement === host;
+        overlay[close]();
+      };
+      await overlay.show();
+      await new Promise(requestAnimationFrame);
+      expect(focusedDuringMount).toBe(true);
+      expect(overlay.isOpen()).toBe(false);
+      expect(trigger).toHaveFocus();
+    },
+  );
+
+  function createImperativeChild(
+    trigger: HTMLElement,
+    host: OverlayHostComponent,
+    config: Partial<NgpOverlayConfig<unknown>> = {},
+  ) {
+    return createOverlay<unknown>({
+      content: host.content,
+      triggerElement: trigger,
+      injector: host.injector,
+      viewContainerRef: host.viewContainerRef,
+      showDelay: 100,
+      ...config,
+    });
+  }
+
+  it('cancels an imperative child queued from the DOM of a replaced panel', async () => {
+    const content = signal<NgpOverlayContent<unknown>>(OverlayConsumerComponent);
+    const { overlay: parent, fixture } = await setup(() => ({ content }));
+    const host = fixture.componentInstance;
+    await parent.show();
+    const trigger = screen.getByTestId('overlay-close');
+    expect(trigger.isConnected).toBe(true);
+
+    const child = createImperativeChild(trigger, host);
+    try {
+      const opened = child.show();
+      OverlayClosingDuringMount.onMount = () => {};
+      content.set(OverlayClosingDuringMount);
+      fixture.detectChanges();
+      await waitFor(() => expect(trigger).not.toBeInTheDocument());
+      await opened;
+      expect(parent.isOpen()).toBe(true);
+      expect(child.isOpen()).toBe(false);
+      expect(screen.getAllByTestId('overlay')).toHaveLength(1);
+    } finally {
+      child.destroy();
+    }
+
+    const replacement = screen.getByTestId('overlay');
+    const freshChild = createImperativeChild(replacement, host);
+    try {
+      await freshChild.show();
+      expect(freshChild.isOpen()).toBe(true);
+    } finally {
+      freshChild.destroy();
+    }
+  });
+
+  it.each([
+    ['withoutOutlet', 'first'],
+    ['outsideOutlet', 'first'],
+    ['insideOutlet', 'first'],
+    ['withoutOutlet', 'replacement'],
+    ['outsideOutlet', 'replacement'],
+    ['insideOutlet', 'replacement'],
+    ['component', 'first'],
+    ['component', 'replacement'],
+  ] as const)('cancels an imperative child queued by %s during %s attach', async (panel, phase) => {
+    const content = signal<NgpOverlayContent<unknown>>(OverlayConsumerComponent);
+    const { overlay: parent, fixture } = await setup(() => ({ content }));
+    const host = fixture.componentInstance;
+    const provisional = panel === 'component' ? OverlayClosingDuringMount : host[panel]();
+    let child: NgpOverlay<unknown> | undefined;
+    let childTrigger: HTMLElement | undefined;
+    let connectedAtShow = false;
+    let opened: Promise<void> | undefined;
+    AttachTriggerDirective.onMount = OverlayClosingDuringMount.onMount = (overlay, trigger) => {
+      childTrigger = trigger;
+      connectedAtShow = trigger.isConnected;
+      child = createImperativeChild(trigger, host);
+      opened = child.show();
+      overlay.hide({ immediate: true });
+    };
+
+    try {
+      if (phase === 'first') {
+        content.set(provisional);
+        await parent.show();
+      } else {
+        await parent.show();
+        expect(parent.isOpen()).toBe(true);
+        content.set(provisional);
+        fixture.detectChanges();
+        await waitFor(() => expect(opened).toBeDefined());
+      }
+      expect(opened).toBeDefined();
+      expect(connectedAtShow).toBe(true);
+      expect(parent.isOpen()).toBe(false);
+      expect(childTrigger?.isConnected).toBe(false);
+      await opened;
+      expect(child?.isOpen()).toBe(false);
+      expect(screen.queryByTestId('overlay')).not.toBeInTheDocument();
+    } finally {
+      child?.destroy();
+    }
+  });
+
+  it('uses the attaching template panel as owner inside an already open overlay', async () => {
+    const { overlay: ancestor, fixture } = await setup(() => ({
+      content: signal(OverlayConsumerComponent),
+    }));
+    await ancestor.show();
+    const host = fixture.componentInstance;
+    const parent = createImperativeChild(screen.getByTestId('overlay-close'), host, {
+      content: host.conditionalTrigger,
+      container: screen.getByTestId('overlay'),
+      showDelay: 0,
+    });
+    const captureParentCycle = vi.spyOn(parent, 'captureOpenCycle');
+    let child: NgpOverlay<unknown> | undefined;
+    let opened: Promise<void> | undefined;
+    AttachTriggerDirective.onMount = (overlay, trigger) => {
+      expect(trigger.isConnected).toBe(true);
+      child = createImperativeChild(trigger, host);
+      opened = child.show();
+      overlay.hide({ immediate: true });
+    };
+
+    try {
+      await parent.show();
+      expect(opened).toBeDefined();
+      expect(captureParentCycle).toHaveBeenCalledOnce();
+      expect(ancestor.isOpen()).toBe(true);
+      expect(parent.isOpen()).toBe(false);
+      expect(screen.queryByRole('button', { name: 'Child trigger' })).not.toBeInTheDocument();
+      await opened;
+      expect(child?.isOpen()).toBe(false);
+      expect(screen.getAllByTestId('overlay')).toHaveLength(1);
+    } finally {
+      child?.destroy();
+      parent.destroy();
+    }
+  });
+
+  it('rejects a delayed child requested from the closing panel during the cascade', async () => {
+    const { overlay: parent, fixture } = await setup(() => ({
+      content: signal(OverlayConsumerComponent),
+    }));
+    await parent.show();
+    const trigger = screen.getByTestId('overlay-close');
+    const host = fixture.componentInstance;
+    let sibling: NgpOverlay<unknown> | undefined;
+    let opened: Promise<void> | undefined;
+    const child = createImperativeChild(trigger, host, {
+      showDelay: 0,
+      onClose: () => {
+        sibling = createImperativeChild(trigger, host);
+        opened = sibling.show();
+      },
+    });
+
+    try {
+      await child.show();
+      expect(child.isOpen()).toBe(true);
+      parent.hideImmediate();
+      expect(opened).toBeDefined();
+      await opened;
+      expect(sibling?.isOpen()).toBe(false);
+      expect(screen.queryByTestId('overlay')).not.toBeInTheDocument();
+    } finally {
+      child.destroy();
+      sibling?.destroy();
+    }
+  });
 
   it('reads a restoreFocus signal when the overlay closes', async () => {
     const restoreFocus = signal(true);
