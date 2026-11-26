@@ -561,6 +561,17 @@ describe('NgpButton pending', () => {
     expect(button).not.toHaveAttribute('data-press');
   });
 
+  it('adds the hover state back when pending ends under a resting pointer', async () => {
+    const { view, host, button } = await setup();
+    await userEvent.hover(button);
+    expect(button).not.toHaveAttribute('data-hover');
+
+    host.pending.set(false);
+    view.fixture.detectChanges();
+
+    expect(button).toHaveAttribute('data-hover', '');
+  });
+
   it('keeps focus-visible while pending', async () => {
     const { view, button } = await setup();
 
