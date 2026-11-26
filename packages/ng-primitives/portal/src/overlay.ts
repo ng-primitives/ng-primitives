@@ -1082,12 +1082,7 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
       return true;
     }
 
-    const containingId =
-      element instanceof HTMLElement ? this.registry.findContainingOverlay(element) : null;
-    if (containingId !== null) {
-      return this.registry.closesWith(containingId, this.id());
-    }
-    return this.registry.isInClosingDescendant(element, this.id());
+    return this.registry.isInDescendant(element, this.id());
   }
 
   /** Where the press that opens the overlay landed, if a press opens it. */

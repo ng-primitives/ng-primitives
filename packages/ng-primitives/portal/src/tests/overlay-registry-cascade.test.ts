@@ -143,9 +143,9 @@ describe('NgpOverlayRegistry cascade closing', () => {
       const focused = close(nested);
       close(submenu);
 
-      expect(registry.isInClosingDescendant(focused, 'submenu')).toBe(true);
-      expect(registry.isInClosingDescendant(focused, 'menu')).toBe(true);
-      expect(registry.isInClosingDescendant(focused, 'nested')).toBe(false);
+      expect(registry.isInDescendant(focused, 'submenu')).toBe(true);
+      expect(registry.isInDescendant(focused, 'menu')).toBe(true);
+      expect(registry.isInDescendant(focused, 'nested')).toBe(false);
     });
 
     it('lets the innermost closing overlay decide when their elements are nested', () => {
@@ -159,7 +159,7 @@ describe('NgpOverlayRegistry cascade closing', () => {
       close(menu);
       const inDialog = close(dialog);
 
-      expect(registry.isInClosingDescendant(inDialog, 'page')).toBe(false);
+      expect(registry.isInDescendant(inDialog, 'page')).toBe(false);
     });
 
     it('does not count as inside an overlay it opted out of closing with', () => {
@@ -167,7 +167,7 @@ describe('NgpOverlayRegistry cascade closing', () => {
       const dialog = entry('dialog', 'menu', false);
       register(menu, dialog);
 
-      expect(registry.isInClosingDescendant(close(dialog), 'menu')).toBe(false);
+      expect(registry.isInDescendant(close(dialog), 'menu')).toBe(false);
     });
 
     it('stops counting once released or registered again', () => {
@@ -179,10 +179,36 @@ describe('NgpOverlayRegistry cascade closing', () => {
       const inReleased = close(released);
       const inReopened = close(reopened);
       registry.releaseClosing('released');
-      registry.register(reopened);
+      // opened again, this time from outside the menu
+      registry.register({ ...reopened, parentId: null });
 
-      expect(registry.isInClosingDescendant(inReleased, 'menu')).toBe(false);
-      expect(registry.isInClosingDescendant(inReopened, 'menu')).toBe(false);
+      expect(registry.isInDescendant(inReleased, 'menu')).toBe(false);
+      expect(registry.isInDescendant(inReopened, 'menu')).toBe(false);
+    });
+
+    it('lets a closing overlay inside an unrelated open one decide', () => {
+      const menu = entry('menu', null);
+      const submenu = entry('submenu', 'menu');
+      const popover = entry('popover', null);
+      // the submenu renders inside the popover, which does not close with the menu
+      popover.getElements()[0].appendChild(submenu.getElements()[0]);
+      register(menu, submenu, popover);
+
+      expect(registry.isInDescendant(close(submenu), 'menu')).toBe(true);
+    });
+
+    it('lets an open overlay inside a closing one decide', () => {
+      const menu = entry('menu', null);
+      const submenu = entry('submenu', 'menu');
+      const popover = entry('popover', null);
+      // the popover renders inside the submenu, and does not close with the menu
+      submenu.getElements()[0].appendChild(popover.getElements()[0]);
+      register(menu, submenu, popover);
+      const inPopover = popover.getElements()[0].appendChild(document.createElement('button'));
+
+      close(submenu);
+
+      expect(registry.isInDescendant(inPopover, 'menu')).toBe(false);
     });
 
     it('is not kept by a deregistration that names no elements', () => {
@@ -193,7 +219,7 @@ describe('NgpOverlayRegistry cascade closing', () => {
 
       registry.deregister('submenu');
 
-      expect(registry.isInClosingDescendant(focused, 'menu')).toBe(false);
+      expect(registry.isInDescendant(focused, 'menu')).toBe(false);
     });
   });
 

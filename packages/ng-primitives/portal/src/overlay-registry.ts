@@ -224,20 +224,32 @@ export class NgpOverlayRegistry {
   }
 
   /**
-   * Whether `element` is inside an overlay that is animating out and would have closed with
-   * `ancestorId`, like `closesWith()` for an overlay still registered.
+   * Whether `element` is in an overlay that closes with `ancestorId`, open or still animating
+   * out. The overlay whose element sits innermost around it decides, so a closing child
+   * rendered inside an unrelated open overlay is still judged by its own parent chain.
    */
-  isInClosingDescendant(element: Element, ancestorId: string): boolean {
-    // The innermost closing overlay holding the element decides, as the nearest open one does
-    // in `findContainingOverlay()`.
-    let nearest: { id: string; host: Element } | null = null;
-    for (const [id, closing] of this.closing) {
-      const host = closing.getElements().find(el => el.contains(element));
-      if (host && (!nearest || nearest.host.contains(host))) {
-        nearest = { id, host };
+  isInDescendant(element: Element, ancestorId: string): boolean {
+    let open: { id: string; host: Element } | null = null;
+    // topmost first, as in `findContainingOverlay()`
+    for (let i = this.entries.length - 1; i >= 0 && !open; i--) {
+      const host = this.entries[i].getElements().find(el => el.contains(element));
+      if (host) {
+        open = { id: this.entries[i].id, host };
       }
     }
-    return nearest !== null && this.cascadesTo(nearest.id, ancestorId);
+
+    let closing: { id: string; host: Element } | null = null;
+    for (const [id, entry] of this.closing) {
+      const host = entry.getElements().find(el => el.contains(element));
+      if (host && (!closing || closing.host.contains(host))) {
+        closing = { id, host };
+      }
+    }
+
+    if (closing && (!open || open.host.contains(closing.host))) {
+      return this.cascadesTo(closing.id, ancestorId);
+    }
+    return open !== null && this.closesWith(open.id, ancestorId);
   }
 
   /** Whether `id` closes with `ancestorId`, walking parents through open and closing overlays. */
