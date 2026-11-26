@@ -37,14 +37,28 @@ export class NgpMenu {
    * Where focus goes when the menu closes: an element, `false` to leave focus where it is,
    * `null` for the default (for a root menu, the element focused when it opened, usually the
    * trigger; a submenu leaves focus alone), `true` for that default in a submenu too, or a
-   * function that receives the close origin and returns one of these.
+   * function that receives the close origin and returns one of these. Left Arrow in a submenu
+   * focuses its submenu trigger when it can receive focus.
    * @default null
    */
   readonly finalFocus = input<NgpOverlayFinalFocus | null>(null, {
     alias: 'ngpMenuFinalFocus',
   });
 
-  private readonly state = ngpMenu({ finalFocus: this.finalFocus });
+  /**
+   * Whether Escape closes only the submenu that has focus, and focuses its submenu trigger,
+   * instead of closing the whole menu. Set it on the root menu; it applies to every submenu.
+   * @default false
+   */
+  readonly escapeClosesOnlySubmenu = input<boolean, BooleanInput>(false, {
+    alias: 'ngpMenuEscapeClosesOnlySubmenu',
+    transform: booleanAttribute,
+  });
+
+  private readonly state = ngpMenu({
+    finalFocus: this.finalFocus,
+    escapeClosesOnlySubmenu: this.escapeClosesOnlySubmenu,
+  });
 
   constructor() {
     ngpRovingFocusGroup({ inherit: false, wrap: this.wrap, typeahead: signal(true) });

@@ -218,7 +218,7 @@ describe('NgpMenuItemCheckbox', () => {
     <button [ngpMenuTrigger]="menu" data-testid="root-trigger">Open Menu</button>
 
     <ng-template #menu>
-      <div ngpMenu data-testid="root-menu">
+      <div ngpMenu ngpMenuEscapeClosesOnlySubmenu data-testid="root-menu">
         <button ngpMenuItem data-testid="item-1">Item 1</button>
         <button [ngpSubmenuTrigger]="submenu" ngpMenuItem data-testid="submenu-trigger">
           Open Submenu
@@ -371,23 +371,25 @@ describe('NgpMenuItemCheckbox in submenu', () => {
     });
   });
 
-  it('should close all menus when Escape is pressed on checkbox in submenu', async () => {
+  it('should close only the submenu when Escape is pressed on a checkbox in it', async () => {
     const { fixture } = await render(TestSubmenuCheckboxComponent);
     const rootTrigger = await openSubmenu(fixture);
 
     const checkbox = document.querySelector('[data-testid="submenu-checkbox"]') as HTMLElement;
     checkbox.focus();
 
-    // Press Escape - should close all menus regardless of closeOnSelect
+    // Press Escape - closes the submenu regardless of closeOnSelect
     const submenu = document.querySelector('[data-testid="submenu"]');
     fireEvent.keyDown(submenu!, { key: 'Escape' });
     fixture.detectChanges();
 
-    // All menus should be closed (async)
-    await waitFor(() => {
-      expect(rootTrigger).not.toHaveAttribute('data-open');
-      expect(document.querySelector('[data-testid="submenu"]')).not.toBeInTheDocument();
-    });
+    // Only the submenu closes (async)
+    await waitFor(() =>
+      expect(document.querySelector('[data-testid="submenu"]')).not.toBeInTheDocument(),
+    );
+    // a root menu closing with it would be removed a task later
+    await new Promise(resolve => setTimeout(resolve, 50));
+    expect(rootTrigger).toHaveAttribute('data-open');
   });
 
   it('should close only the submenu on Left Arrow from checkbox item', async () => {

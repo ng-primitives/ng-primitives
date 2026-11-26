@@ -212,7 +212,7 @@ Adheres to the [WAI-ARIA Menu Pattern](https://www.w3.org/WAI/ARIA/apg/patterns/
 | Key                   | Description                                                                                    |
 | --------------------- | ---------------------------------------------------------------------------------------------- |
 | <kbd>Enter</kbd>      | Activates the focused menu item. Closes all menus unless the item is a checkbox or radio item. |
-| <kbd>Escape</kbd>     | Closes all open menus.                                                                         |
+| <kbd>Escape</kbd>     | Closes all menus, or just the focused submenu with `ngpContextMenuEscapeClosesOnlySubmenu`.    |
 | <kbd>ArrowDown</kbd>  | Moves focus to the next menu item.                                                             |
 | <kbd>ArrowUp</kbd>    | Moves focus to the previous menu item.                                                         |
 | <kbd>ArrowRight</kbd> | Opens a submenu when focused on a submenu trigger.                                             |
