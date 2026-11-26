@@ -75,16 +75,21 @@ describe('NgpOverlay closing again after a cancelled close', () => {
     void overlay.show();
     overlay.hide({ immediate: true });
 
-    // let the cancelled close settle
-    await new Promise(resolve => setTimeout(resolve));
+    try {
+      // let the cancelled close settle
+      await new Promise(resolve => setTimeout(resolve));
 
-    expect(content).toHaveAttribute('data-exit');
-    expect(content.isConnected).toBe(true);
+      expect(content).toHaveAttribute('data-exit');
+      expect(content.isConnected).toBe(true);
 
-    // still owned by the second close, so reopening brings the same view back
-    await overlay.show();
-    expect(screen.getByTestId('content')).toBe(content);
-    expect(content).not.toHaveAttribute('data-exit');
-    secondExit.finish();
+      // still owned by the second close, so reopening brings the same view back
+      await overlay.show();
+      expect(screen.getByTestId('content')).toBe(content);
+      expect(content).not.toHaveAttribute('data-exit');
+    } finally {
+      firstExit.finish();
+      secondExit.finish();
+      await new Promise(resolve => setTimeout(resolve));
+    }
   });
 });
