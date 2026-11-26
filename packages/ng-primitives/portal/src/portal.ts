@@ -14,6 +14,8 @@ import { NgpExitAnimationRef, setupExitAnimation } from 'ng-primitives/internal'
 export interface NgpPortalAttachOptions {
   /** If true, skip enter animation delay and set enter state immediately. */
   immediate?: boolean;
+  /** @internal */
+  canEnter?: () => boolean;
 }
 
 export interface NgpPortalDetachOptions {
@@ -151,7 +153,7 @@ export class NgpComponentPortal<T> extends NgpPortal {
 
     const element = this.viewRef.location.nativeElement as HTMLElement;
 
-    this.exitAnimationRef = setupExitAnimation({ element, immediate: options?.immediate });
+    this.exitAnimationRef = setupExitAnimation({ element, ...options });
 
     return this;
   }
@@ -242,7 +244,7 @@ export class NgpComponentPortal<T> extends NgpPortal {
     const element = this.viewRef.location.nativeElement as HTMLElement;
     clearAnimationState(element);
     container.appendChild(element);
-    this.exitAnimationRef = setupExitAnimation({ element, immediate: options?.immediate });
+    this.exitAnimationRef = setupExitAnimation({ element, ...options });
   }
 
   /**
@@ -279,19 +281,25 @@ export class NgpTemplatePortal<T> extends NgpPortal {
    * @param options Optional attach configuration
    */
   attach(container: HTMLElement, options?: NgpPortalAttachOptions): this {
-    const domOutlet = new DomPortalOutlet(
-      container,
-      undefined,
-      ...this._getDomPortalOutletCtorParamsCompat(),
-    );
-    this.viewRef = domOutlet.attach(this.templatePortal);
+    const { templateRef, viewContainerRef, context, injector } = this.templatePortal;
+    const viewRef = viewContainerRef.createEmbeddedView(templateRef, context, { injector });
+    this.viewRef = viewRef;
+    for (const rootNode of viewRef.rootNodes) {
+      container.appendChild(rootNode);
+    }
 
-    for (const rootNode of this.viewRef.rootNodes) {
+    // Init hooks can open overlays whose triggers must already resolve to this panel.
+    viewRef.detectChanges();
+    if (this.viewRef !== viewRef || viewRef.destroyed) {
+      return this;
+    }
+
+    for (const rootNode of viewRef.rootNodes) {
       if (rootNode instanceof HTMLElement) {
         // Setup exit animation for each root node
         const exitAnimationRef = setupExitAnimation({
           element: rootNode,
-          immediate: options?.immediate,
+          ...options,
         });
         this.exitAnimationRefs.push(exitAnimationRef);
       }
@@ -401,7 +409,7 @@ export class NgpTemplatePortal<T> extends NgpPortal {
 
     this.exitAnimationRefs = this.viewRef.rootNodes
       .filter((node): node is HTMLElement => node instanceof HTMLElement)
-      .map(element => setupExitAnimation({ element, immediate: options?.immediate }));
+      .map(element => setupExitAnimation({ element, ...options }));
   }
 
   /**

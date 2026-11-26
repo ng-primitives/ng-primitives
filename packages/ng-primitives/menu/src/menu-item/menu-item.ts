@@ -18,6 +18,12 @@ export class NgpMenuItem {
     transform: booleanAttribute,
   });
 
+  /** Keeps the item focusable while preventing menu selection and opening its submenu. */
+  readonly softDisabled = input<boolean, BooleanInput>(false, {
+    alias: 'ngpMenuItemSoftDisabled',
+    transform: booleanAttribute,
+  });
+
   /** Whether the menu should close when this item is selected */
   readonly closeOnSelect = input<boolean, BooleanInput>(true, {
     alias: 'ngpMenuItemCloseOnSelect',
@@ -25,7 +31,11 @@ export class NgpMenuItem {
   });
 
   constructor() {
-    ngpMenuItem({ disabled: this.disabled, closeOnSelect: this.closeOnSelect });
+    ngpMenuItem({
+      disabled: this.disabled,
+      softDisabled: this.softDisabled,
+      closeOnSelect: this.closeOnSelect,
+    });
     ngpRovingFocusItem({ disabled: this.disabled });
   }
 }

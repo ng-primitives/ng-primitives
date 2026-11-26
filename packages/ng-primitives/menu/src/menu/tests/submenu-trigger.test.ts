@@ -1,15 +1,544 @@
-import { Component, Directive, OnInit, signal } from '@angular/core';
+import { Component, Directive, OnInit, inject, signal, viewChild } from '@angular/core';
 import { fireEvent, render, screen, waitFor } from '@testing-library/angular';
 import { userEvent } from '@testing-library/user-event';
+import { HOVER_BRIDGE_TIMEOUT_MS } from 'ng-primitives/internal';
 import {
   NgpMenu,
   NgpMenuItem,
   NgpMenuTrigger,
   NgpSubmenuTrigger,
+  injectMenuState,
   injectSubmenuTriggerState,
 } from 'ng-primitives/menu';
 import { NgpOverlay } from 'ng-primitives/portal';
 import { describe, expect, it, vi } from 'vitest';
+
+@Directive({ selector: '[captureSubmenuTrigger]' })
+class CaptureSubmenuTriggerDirective {
+  constructor() {
+    const host = inject(DisableSubmenuComponent);
+    host.trigger = injectSubmenuTriggerState();
+    host.menu = injectMenuState();
+  }
+}
+
+@Directive({ selector: '[countSubmenuMount]' })
+class CountSubmenuMountDirective implements OnInit {
+  private readonly host = inject(DisableSubmenuComponent);
+
+  constructor() {
+    this.host.submenuMounts++;
+    this.host.onSubmenuMount?.();
+  }
+
+  ngOnInit(): void {
+    this.host.onSubmenuInit?.();
+  }
+}
+
+@Component({
+  template: `
+    <button [ngpMenuTrigger]="menu" data-testid="root-trigger">Open Menu</button>
+
+    <ng-template #menu>
+      <div ngpMenu data-testid="root-menu">
+        <button
+          [ngpSubmenuTrigger]="replace() ? replacement : submenu"
+          [ngpSubmenuTriggerDisabled]="disabled()"
+          ngpMenuItem
+          captureSubmenuTrigger
+          data-testid="submenu-trigger"
+        >
+          Open Submenu
+        </button>
+        <button ngpMenuItem data-testid="sibling">Sibling</button>
+      </div>
+    </ng-template>
+
+    <ng-template #submenu>
+      <div [ngpMenuFinalFocus]="finalFocus()" ngpMenu countSubmenuMount data-testid="submenu">
+        <button
+          #nestedTrigger="ngpSubmenuTrigger"
+          [ngpSubmenuTrigger]="grandchild"
+          ngpMenuItem
+          data-testid="submenu-item"
+        >
+          Submenu Item
+        </button>
+      </div>
+    </ng-template>
+
+    <ng-template #replacement>
+      <div ngpMenu countSubmenuMount data-testid="replacement">
+        <button
+          #nestedTrigger="ngpSubmenuTrigger"
+          [ngpSubmenuTrigger]="grandchild"
+          ngpMenuItem
+          data-testid="replacement-item"
+        >
+          Replacement Item
+        </button>
+      </div>
+    </ng-template>
+
+    <ng-template #grandchild>
+      <div ngpMenu data-testid="grandchild">
+        <button ngpMenuItem data-testid="leaf">Leaf</button>
+      </div>
+    </ng-template>
+  `,
+  imports: [
+    NgpMenuTrigger,
+    NgpMenu,
+    NgpMenuItem,
+    NgpSubmenuTrigger,
+    CaptureSubmenuTriggerDirective,
+    CountSubmenuMountDirective,
+  ],
+})
+class DisableSubmenuComponent {
+  readonly replace = signal(false);
+  readonly disabled = signal(false);
+  readonly nestedTrigger = viewChild<NgpSubmenuTrigger>('nestedTrigger');
+  readonly finalFocus = signal<HTMLElement | null>(null);
+  trigger!: ReturnType<typeof injectSubmenuTriggerState>;
+  menu!: ReturnType<typeof injectMenuState>;
+  submenuMounts = 0;
+  onSubmenuMount?: () => void;
+  onSubmenuInit?: () => void;
+}
+
+describe('NgpSubmenuTrigger disable transitions', () => {
+  it.each(
+    (['closed', 'scheduled', 'mounting', 'open', 'replacing', 'exiting'] as const).flatMap(phase =>
+      [false, true].map(reenable => ({ phase, reenable })),
+    ),
+  )('closes from $phase when disabled (re-enable: $reenable)', async ({ phase, reenable }) => {
+    const { fixture } = await render(DisableSubmenuComponent);
+    fireEvent.click(screen.getByTestId('root-trigger'));
+    const element = await screen.findByTestId('submenu-trigger');
+    const host = fixture.componentInstance;
+    const trigger = host.trigger();
+    await waitFor(() => expect(element).toHaveFocus());
+
+    function disable(): void {
+      trigger.setDisabled(true);
+      if (reenable) {
+        trigger.setDisabled(false);
+      }
+    }
+
+    if (phase === 'mounting') {
+      host.onSubmenuMount = disable;
+      trigger.show();
+      await waitFor(() => expect(host.submenuMounts).toBe(1));
+      host.onSubmenuMount = undefined;
+    } else if (phase === 'replacing') {
+      trigger.show();
+      await waitFor(() => expect(screen.getByTestId('submenu-item')).toHaveFocus());
+      host.onSubmenuMount = disable;
+      host.replace.set(true);
+      fixture.detectChanges();
+      await waitFor(() => expect(host.submenuMounts).toBe(2));
+      host.onSubmenuMount = undefined;
+      expect(screen.queryByTestId('replacement')).not.toBeInTheDocument();
+      expect(element).toHaveAttribute('aria-expanded', 'false');
+      host.replace.set(false);
+    } else if (phase === 'exiting') {
+      trigger.show();
+      const panel = await screen.findByTestId('submenu');
+      await waitFor(() => expect(screen.getByTestId('submenu-item')).toHaveFocus());
+      const animation = panel.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 10000 });
+      animation.pause();
+      try {
+        trigger.hide();
+        await waitFor(() => expect(panel).toHaveAttribute('data-exit'));
+        disable();
+        expect(element).toHaveFocus();
+      } finally {
+        animation.finish();
+      }
+    } else {
+      if (phase === 'scheduled') {
+        trigger.show();
+      } else if (phase === 'open') {
+        trigger.show();
+        await waitFor(() => expect(screen.getByTestId('submenu-item')).toHaveFocus());
+      }
+      disable();
+    }
+
+    await new Promise(requestAnimationFrame);
+    await waitFor(() => {
+      expect(element).toHaveAttribute('aria-expanded', 'false');
+      expect(trigger.open()).toBe(false);
+      expect(screen.queryByTestId('submenu')).not.toBeInTheDocument();
+    });
+    expect(element).toHaveFocus();
+
+    trigger.setDisabled(false);
+    trigger.show();
+    await waitFor(() => expect(screen.getByTestId('submenu-item')).toHaveFocus());
+    expect(element).toHaveAttribute('aria-expanded', 'true');
+  });
+
+  it.each(['scheduled', 'open'] as const)(
+    'discards the %s descendant of the replaced panel and lets the new panel open its own',
+    async phase => {
+      const { fixture } = await render(DisableSubmenuComponent);
+      fireEvent.click(screen.getByTestId('root-trigger'));
+      await screen.findByTestId('submenu-trigger');
+      const host = fixture.componentInstance;
+      host.trigger().show();
+      await waitFor(() => expect(screen.getByTestId('submenu-item')).toHaveFocus());
+
+      host.nestedTrigger()!.show();
+      if (phase === 'open') {
+        await waitFor(() => expect(screen.getByTestId('leaf')).toHaveFocus());
+      }
+
+      host.replace.set(true);
+      fixture.detectChanges();
+      await waitFor(() => expect(screen.getByTestId('replacement-item')).toHaveFocus());
+      expect(screen.queryByTestId('grandchild')).not.toBeInTheDocument();
+
+      host.nestedTrigger()!.show();
+      await waitFor(() => expect(screen.getByTestId('leaf')).toHaveFocus());
+    },
+  );
+
+  it.each(['input', 'state'] as const)(
+    'invalidates a descendant show requested before the ancestor starts exiting via %s',
+    async source => {
+      const { fixture } = await render(DisableSubmenuComponent);
+      await openMenuAndSubmenu(fixture);
+      const trigger = screen.getByTestId('submenu-trigger');
+      const panel = screen.getByTestId('submenu');
+      const item = screen.getByTestId('submenu-item');
+      await waitFor(() => expect(item).toHaveFocus());
+
+      const { disabled, trigger: state } = fixture.componentInstance;
+      const animation = panel.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 10000 });
+      animation.pause();
+      try {
+        item.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true }));
+        if (source === 'input') {
+          disabled.set(true);
+          fixture.detectChanges();
+          disabled.set(false);
+          fixture.detectChanges();
+        } else {
+          state().setDisabled(true);
+          state().setDisabled(false);
+        }
+        expect(panel).toHaveAttribute('data-exit');
+
+        // A second request made from already exiting content cannot open either.
+        item.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true }));
+        await new Promise<void>(resolve => setTimeout(resolve, 0));
+        expect(screen.queryByTestId('grandchild')).not.toBeInTheDocument();
+        expect(trigger).toHaveFocus();
+      } finally {
+        animation.finish();
+      }
+    },
+  );
+
+  it('returns focus acquired synchronously during portal attachment', async () => {
+    const { fixture } = await render(DisableSubmenuComponent);
+    fireEvent.click(screen.getByTestId('root-trigger'));
+    const element = await screen.findByTestId('submenu-trigger');
+    await waitFor(() => expect(element).toHaveFocus());
+    const host = fixture.componentInstance;
+    const trigger = host.trigger();
+
+    let focusedDuringAttach = false;
+    host.onSubmenuInit = () => {
+      const item = screen.getByTestId('submenu-item');
+      item.focus();
+      focusedDuringAttach = document.activeElement === item;
+      trigger.setDisabled(true);
+      trigger.setDisabled(false);
+    };
+
+    trigger.show();
+    await waitFor(() => expect(host.submenuMounts).toBe(1));
+    expect(focusedDuringAttach).toBe(true);
+    expect(screen.queryByTestId('submenu')).not.toBeInTheDocument();
+    expect(element).toHaveFocus();
+  });
+
+  it('re-arms initial focus when a fresh show resumes a disabled submenu', async () => {
+    const { fixture } = await render(DisableSubmenuComponent);
+    await openMenuAndSubmenu(fixture);
+    const { trigger } = fixture.componentInstance;
+    const panel = screen.getByTestId('submenu');
+    const item = screen.getByTestId('submenu-item');
+    await waitFor(() => expect(item).toHaveFocus());
+
+    const animation = panel.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 10000 });
+    animation.pause();
+    try {
+      trigger().setDisabled(true);
+      expect(screen.getByTestId('submenu-trigger')).toHaveFocus();
+      trigger().setDisabled(false);
+      trigger().show();
+
+      await waitFor(() => expect(item).toHaveFocus());
+      expect(screen.getByTestId('submenu')).toBe(panel);
+    } finally {
+      animation.cancel();
+    }
+  });
+
+  it('requires a fresh descendant show when its ancestor resumes a pending close', async () => {
+    const { fixture } = await render(DisableSubmenuComponent);
+    await openMenuAndSubmenu(fixture);
+    const host = fixture.componentInstance;
+    const ancestor = host.trigger();
+    const descendant = host.nestedTrigger()!;
+    const submenu = screen.getByTestId('submenu');
+
+    descendant.show();
+    ancestor.hide();
+    ancestor.show();
+
+    await new Promise<void>(resolve => setTimeout(resolve, 0));
+    expect(screen.getByTestId('submenu')).toBe(submenu);
+    expect(screen.queryByTestId('grandchild')).not.toBeInTheDocument();
+
+    descendant.show();
+    await waitFor(() => expect(screen.getByTestId('leaf')).toHaveFocus());
+  });
+
+  it.each([false, true])(
+    'returns focus from a grandchild when its ancestor is disabled (grandchild exiting: %s)',
+    async exiting => {
+      const { fixture } = await render(DisableSubmenuComponent);
+      await openMenuAndSubmenu(fixture);
+      const host = fixture.componentInstance;
+      host.nestedTrigger()!.show();
+      await waitFor(() => expect(screen.getByTestId('leaf')).toHaveFocus());
+
+      const grandchild = screen.getByTestId('grandchild');
+      const animation = grandchild.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 10000 });
+      animation.pause();
+      try {
+        if (exiting) {
+          host.nestedTrigger()!.hide();
+          await waitFor(() => expect(grandchild).toHaveAttribute('data-exit'));
+        }
+
+        host.trigger().setDisabled(true);
+        expect(screen.getByTestId('submenu-trigger')).toHaveFocus();
+      } finally {
+        animation.finish();
+      }
+      await waitFor(() => expect(grandchild).not.toBeInTheDocument());
+    },
+  );
+
+  it.each(['input', 'state'] as const)(
+    'cancels a submenu mount already scheduled by hover when disabled through the %s',
+    async source => {
+      const { fixture } = await render(DisableSubmenuComponent);
+      fireEvent.click(screen.getByTestId('root-trigger'));
+      const element = await screen.findByTestId('submenu-trigger');
+      const host = fixture.componentInstance;
+
+      const setDisabled = (value: boolean) => {
+        if (source === 'input') {
+          host.disabled.set(value);
+          fixture.detectChanges();
+        } else {
+          host.trigger().setDisabled(value);
+        }
+      };
+
+      fireEvent.pointerEnter(element, { pointerType: 'mouse' });
+      expect(host.trigger().open()).toBe(false);
+      setDisabled(true);
+      setDisabled(false);
+
+      // Let the overlay's zero-delay mount timer run if it was not cancelled.
+      await new Promise<void>(resolve => setTimeout(resolve, 0));
+      expect(host.submenuMounts).toBe(0);
+      expect(element).toHaveAttribute('aria-expanded', 'false');
+
+      fireEvent.pointerEnter(element, { pointerType: 'mouse' });
+      await waitFor(() => expect(host.submenuMounts).toBe(1));
+    },
+  );
+
+  it.each(['input', 'state'] as const)(
+    'cancels a transit hover retry after disabling and re-enabling through the %s',
+    async source => {
+      const { fixture } = await render(DisableSubmenuComponent);
+      fireEvent.click(screen.getByTestId('root-trigger'));
+      const element = await screen.findByTestId('submenu-trigger');
+      const sibling = screen.getByTestId('sibling');
+      const { disabled, menu, trigger } = fixture.componentInstance;
+
+      function setDisabled(value: boolean): void {
+        if (source === 'state') {
+          trigger().setDisabled(value);
+        } else {
+          disabled.set(value);
+        }
+        fixture.detectChanges();
+      }
+
+      vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] });
+      try {
+        menu().setTransitSource(sibling);
+        expect(menu().isTransitBlocked(element)).toBe(true);
+        fireEvent.pointerEnter(element, { pointerType: 'mouse' });
+        setDisabled(true);
+        setDisabled(false);
+        menu().clearTransitSource(sibling);
+
+        // Run the retry and any resulting overlay mount timer.
+        vi.advanceTimersByTime(HOVER_BRIDGE_TIMEOUT_MS + 1);
+      } finally {
+        vi.useRealTimers();
+      }
+      expect(fixture.componentInstance.submenuMounts).toBe(0);
+      expect(element).toHaveAttribute('aria-expanded', 'false');
+
+      fireEvent.pointerEnter(element, { pointerType: 'mouse' });
+      await waitFor(() => expect(fixture.componentInstance.submenuMounts).toBe(1));
+    },
+  );
+
+  it.each([
+    ['input', 'submenu-trigger'],
+    ['state', 'submenu-trigger'],
+    ['state', 'sibling'],
+  ] as const)(
+    'cancels initial focus when disabled through the %s after mounting with focus on %s',
+    async (source, focusedId) => {
+      const { fixture } = await render(DisableSubmenuComponent);
+      fireEvent.click(screen.getByTestId('root-trigger'));
+      const element = await screen.findByTestId('submenu-trigger');
+      const focused = screen.getByTestId(focusedId);
+      focused.focus();
+      const { disabled, trigger } = fixture.componentInstance;
+
+      let mounted: HTMLElement | null = null;
+      let hadEntered = false;
+      let focusAtMount: Element | null = null;
+      const observer = new MutationObserver(() => {
+        const submenu = screen.queryByTestId('submenu');
+        if (!submenu) {
+          return;
+        }
+
+        observer.disconnect();
+        mounted = submenu;
+        hadEntered = submenu.hasAttribute('data-enter');
+        focusAtMount = document.activeElement;
+
+        if (source === 'state') {
+          trigger().setDisabled(true);
+        } else {
+          disabled.set(true);
+        }
+        fixture.detectChanges();
+      });
+
+      try {
+        observer.observe(document.body, { childList: true, subtree: true });
+        fireEvent.pointerEnter(element, { pointerType: 'mouse' });
+        await waitFor(() => {
+          expect(mounted).not.toBeNull();
+          expect(element).toHaveAttribute('aria-expanded', 'false');
+          expect(screen.queryByTestId('submenu')).not.toBeInTheDocument();
+          expect(focused).toHaveFocus();
+        });
+
+        expect(hadEntered).toBe(false);
+        expect(focusAtMount).toBe(focused);
+        // Let the portal's queued enter frame run after detaching the panel.
+        await new Promise(requestAnimationFrame);
+        expect(mounted).not.toHaveAttribute('data-enter');
+      } finally {
+        observer.disconnect();
+      }
+    },
+  );
+
+  it('cancels a pending focus handoff after a mouse click on an open submenu trigger', async () => {
+    const { fixture } = await render(DisableSubmenuComponent);
+    await openMenuAndSubmenu(fixture);
+
+    const element = screen.getByTestId('submenu-trigger');
+    const item = screen.getByTestId('submenu-item');
+    await waitFor(() => expect(item).toHaveFocus());
+    element.focus();
+    const onFocus = vi.fn();
+    item.addEventListener('focusin', onFocus);
+    const { trigger } = fixture.componentInstance;
+
+    fireEvent.pointerDown(element, { pointerType: 'mouse', button: 0 });
+    fireEvent.click(element, { detail: 1 });
+    trigger().setDisabled(true);
+    trigger().setDisabled(false);
+
+    await waitFor(() => expect(screen.queryByTestId('submenu')).not.toBeInTheDocument());
+    expect(onFocus).not.toHaveBeenCalled();
+    expect(element).toHaveFocus();
+  });
+
+  it.each(['input', 'state'] as const)(
+    'closes an open submenu and returns focus when disabled through the %s',
+    async source => {
+      const { fixture } = await render(DisableSubmenuComponent);
+      await openMenuAndSubmenu(fixture);
+
+      const { disabled, trigger } = fixture.componentInstance;
+      const element = screen.getByTestId('submenu-trigger');
+      await waitFor(() => expect(screen.getByTestId('submenu-item')).toHaveFocus());
+      expect(element).toHaveAttribute('aria-expanded', 'true');
+
+      const setDisabled = (value: boolean) =>
+        source === 'input' ? disabled.set(value) : trigger().setDisabled(value);
+      setDisabled(true);
+
+      await waitFor(() => {
+        expect(screen.queryByTestId('submenu')).not.toBeInTheDocument();
+        expect(element).toHaveAttribute('aria-expanded', 'false');
+        expect(element).toHaveFocus();
+      });
+
+      trigger().show();
+      expect(trigger().open()).toBe(false);
+
+      setDisabled(false);
+      fixture.detectChanges();
+      trigger().show();
+
+      await waitFor(() => expect(element).toHaveAttribute('aria-expanded', 'true'));
+    },
+  );
+
+  it('keeps focus on another item when the open submenu is disabled', async () => {
+    const { fixture } = await render(DisableSubmenuComponent);
+    await openMenuAndSubmenu(fixture);
+
+    const sibling = screen.getByTestId('sibling');
+    const { finalFocus, trigger } = fixture.componentInstance;
+    finalFocus.set(screen.getByTestId('submenu-trigger'));
+    fixture.detectChanges();
+
+    sibling.focus();
+    trigger().setDisabled(true);
+
+    await waitFor(() => {
+      expect(screen.queryByTestId('submenu')).not.toBeInTheDocument();
+      expect(sibling).toHaveFocus();
+    });
+  });
+});
 
 @Component({
   template: `
@@ -640,9 +1169,7 @@ describe('NgpSubmenuTrigger dynamic content', () => {
 
     fireEvent.click(document.querySelector('[data-testid="submenu-trigger"]') as HTMLElement);
     await waitFor(() => {
-      expect(document.querySelector('[data-testid="submenu"]')?.textContent?.trim()).toBe(
-        'First item',
-      );
+      expect(screen.getByRole('menuitem', { name: 'First item' })).toHaveFocus();
     });
 
     fixture.componentInstance.useFirst = false;
@@ -651,7 +1178,7 @@ describe('NgpSubmenuTrigger dynamic content', () => {
     await waitFor(() => {
       const submenus = document.querySelectorAll('[data-testid="submenu"]');
       expect(submenus).toHaveLength(1);
-      expect(submenus[0].textContent?.trim()).toBe('Second item');
+      expect(screen.getByRole('menuitem', { name: 'Second item' })).toHaveFocus();
     });
   });
 });
