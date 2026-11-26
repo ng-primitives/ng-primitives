@@ -38,7 +38,7 @@ export class NgpMenu {
    * `null` for the default (for a root menu, the element focused when it opened, usually the
    * trigger; a submenu leaves focus alone), `true` for that default in a submenu too, or a
    * function that receives the close origin and returns one of these. Left Arrow in a submenu
-   * always focuses its submenu trigger.
+   * focuses its submenu trigger when it can receive focus.
    * @default null
    */
   readonly finalFocus = input<NgpOverlayFinalFocus | null>(null, {
