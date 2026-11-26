@@ -720,6 +720,73 @@ describe('NgpCombobox', () => {
     });
   });
 
+  describe('keyboard focus ring', () => {
+    // the manager ignores the pointer for 200ms after a keyboard move, as the move may scroll
+    // an option under a resting cursor
+    const pointerIgnoreToLapse = () => new Promise(resolve => setTimeout(resolve, 250));
+
+    it('should set data-focus-visible on the option the keyboard makes active', async () => {
+      await render(TestComponent);
+
+      const input = screen.getByRole('combobox');
+      input.focus();
+      await userEvent.keyboard('{arrowdown}');
+      await waitFor(() => {
+        expect(screen.getByText('Apple')).toHaveAttribute('data-active');
+      });
+      expect(screen.getByText('Apple')).not.toHaveAttribute('data-focus-visible');
+
+      await userEvent.keyboard('{arrowdown}');
+      await waitFor(() => {
+        expect(screen.getByText('Banana')).toHaveAttribute('data-focus-visible');
+      });
+      expect(screen.getByText('Apple')).not.toHaveAttribute('data-focus-visible');
+
+      await userEvent.keyboard('{End}');
+      await waitFor(() => {
+        expect(screen.getByText('Elderberry')).toHaveAttribute('data-focus-visible');
+      });
+    });
+
+    it('should clear data-focus-visible when the pointer makes another option active', async () => {
+      await render(TestComponent);
+
+      const input = screen.getByRole('combobox');
+      input.focus();
+      await userEvent.keyboard('{arrowdown}{arrowdown}');
+      await waitFor(() => {
+        expect(screen.getByText('Banana')).toHaveAttribute('data-focus-visible');
+      });
+      await pointerIgnoreToLapse();
+
+      fireEvent.pointerEnter(screen.getByText('Cherry'));
+
+      await waitFor(() => {
+        expect(screen.getByText('Cherry')).toHaveAttribute('data-active');
+      });
+      expect(screen.getByText('Cherry')).not.toHaveAttribute('data-focus-visible');
+      expect(screen.getByText('Banana')).not.toHaveAttribute('data-focus-visible');
+    });
+
+    it('should set data-focus-visible again on a keyboard move after the pointer', async () => {
+      await render(TestComponent);
+
+      const input = screen.getByRole('combobox');
+      input.focus();
+      await userEvent.keyboard('{arrowdown}');
+      fireEvent.pointerEnter(await screen.findByText('Cherry'));
+      await waitFor(() => {
+        expect(screen.getByText('Cherry')).toHaveAttribute('data-active');
+      });
+
+      await userEvent.keyboard('{arrowup}');
+
+      await waitFor(() => {
+        expect(screen.getByText('Banana')).toHaveAttribute('data-focus-visible');
+      });
+    });
+  });
+
   describe('disabled', () => {
     it('should respect disabled state', async () => {
       const { fixture } = await render(TestComponent);

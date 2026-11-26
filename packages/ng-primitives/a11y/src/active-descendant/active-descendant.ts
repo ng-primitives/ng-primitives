@@ -55,6 +55,11 @@ export interface NgpActiveDescendantManagerState {
   id: Signal<string | undefined>;
 
   /**
+   * How the active item was made active, or `null` before the first activation.
+   */
+  origin: Signal<NgpActivationOrigin | null>;
+
+  /**
    * Activate an item in the active descendant group.
    */
   activateByIndex: (index: number, options?: ActivationOptions) => void;
@@ -107,6 +112,10 @@ export function activeDescendantManager({
   const disposables = injectDisposables();
 
   const activeIndex = signal<number>(0);
+  // the origin belongs to the item it was recorded for, so it follows that item across re-indexing
+  const lastActivation = signal<{ origin: NgpActivationOrigin; id: string | undefined } | null>(
+    null,
+  );
   const disabled = controlled(_disabled);
   let isIgnoringPointer = false;
 
@@ -115,10 +124,22 @@ export function activeDescendantManager({
   const typeaheadSearch = createTypeahead();
 
   // compute the id of the active descendant
-  const id = computed(() => {
-    const index = activeIndex();
-    return index >= 0 && index < count() ? getItemId(index) : undefined;
+  const id = computed(() => getActiveItemId(activeIndex()));
+
+  // a virtual list's item has no id until it renders, so an unknown id counts as the same item
+  const origin = computed(() => {
+    const activation = lastActivation();
+
+    if (!activation) {
+      return null;
+    }
+
+    return activation.id === undefined || activation.id === id() ? activation.origin : 'program';
   });
+
+  function getActiveItemId(index: number): string | undefined {
+    return index >= 0 && index < count() ? getItemId(index) : undefined;
+  }
 
   /**
    * Start ignoring pointer interactions temporarily.
@@ -136,19 +157,30 @@ export function activeDescendantManager({
     }, 200); // 200ms should be enough for scroll to complete
   }
 
-  function activateByIndex(index: number, { scroll = true, origin }: ActivationOptions = {}): void {
+  function activateByIndex(
+    index: number,
+    { scroll = true, origin: activationOrigin }: ActivationOptions = {},
+  ): void {
     if (disabled() || (index >= 0 && isItemDisabled(index))) {
       return;
     }
 
     // if the origin is the pointer but we are ignoring pointer interactions, do nothing
-    if (origin === 'pointer' && isIgnoringPointer) {
+    if (activationOrigin === 'pointer' && isIgnoringPointer) {
       return;
     }
 
     // ensure any pointer interactions triggered via scrolling due to keyboard navigation are ignored
-    if (origin === 'keyboard') {
+    if (activationOrigin === 'keyboard') {
       startIgnoringPointer();
+    }
+
+    // an activation with no origin of the same item (selecting it, or re-indexing it after the
+    // list changed) keeps how it became active
+    const itemId = getActiveItemId(index);
+
+    if (activationOrigin || itemId !== lastActivation()?.id) {
+      lastActivation.set({ origin: activationOrigin ?? 'program', id: itemId });
     }
 
     activeIndex.set(index);
@@ -272,6 +304,7 @@ export function activeDescendantManager({
   return {
     id,
     index: activeIndex,
+    origin,
     activateByIndex,
     activateById,
     first,
@@ -284,9 +317,15 @@ export function activeDescendantManager({
   } satisfies NgpActiveDescendantManagerState;
 }
 
+/**
+ * How an item was made active: by the keyboard, the pointer, or the program (an activation
+ * given no origin).
+ */
+export type NgpActivationOrigin = 'keyboard' | 'pointer' | 'program';
+
 export interface ActivationOptions {
   /** Whether to scroll the activated item into view. */
   scroll?: boolean;
   /** Define the source of activation. */
-  origin?: 'keyboard' | 'pointer';
+  origin?: NgpActivationOrigin;
 }

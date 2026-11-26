@@ -175,7 +175,7 @@ export const [NgpListboxStateToken, ngpListbox, _injectListboxState, provideList
 
       // Listener
       listener(elementRef, 'focusin', () => isFocused.set(true));
-      listener(elementRef, 'focusout', () => isFocused.set(false));
+      listener(elementRef, 'focusout', onFocusOut);
       listener(elementRef, 'keydown', onKeydown);
 
       // Start with nothing active so the initial sync picks the selected option (or
@@ -219,6 +219,16 @@ export const [NgpListboxStateToken, ngpListbox, _injectListboxState, provideList
         } else {
           activeDescendant.first({ scroll: false });
         }
+      }
+
+      function onFocusOut(): void {
+        isFocused.set(false);
+
+        // focus may come back from the pointer, so only a keyboard move brings the ring back
+        activeDescendant.activateByIndex(activeDescendant.index(), {
+          scroll: false,
+          origin: 'program',
+        });
       }
 
       function onKeydown(event: KeyboardEvent): void {

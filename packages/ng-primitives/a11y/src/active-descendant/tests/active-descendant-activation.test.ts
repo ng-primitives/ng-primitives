@@ -76,4 +76,110 @@ describe('activeDescendantManager activation', () => {
     manager.activateByIndex(0, { origin: 'pointer' });
     expect(manager.index()).toBe(0);
   });
+
+  describe('origin', () => {
+    it('should be null before the first activation', () => {
+      const { manager } = createManager();
+
+      expect(manager.origin()).toBeNull();
+    });
+
+    it('should record the origin of each activation', () => {
+      vi.useFakeTimers();
+      const { manager } = createManager();
+
+      manager.next({ origin: 'keyboard' });
+      expect(manager.origin()).toBe('keyboard');
+
+      vi.advanceTimersByTime(500);
+      manager.activateByIndex(2, { origin: 'pointer' });
+      expect(manager.origin()).toBe('pointer');
+
+      manager.previous({ origin: 'keyboard' });
+      expect(manager.origin()).toBe('keyboard');
+    });
+
+    it('should record typeahead as keyboard', () => {
+      const { manager } = createManager();
+
+      manager.typeahead('b');
+
+      expect(manager.origin()).toBe('keyboard');
+    });
+
+    it('should record an activation of another item without an origin as program', () => {
+      const { manager } = createManager();
+
+      manager.next({ origin: 'keyboard' });
+      manager.activateByIndex(2);
+
+      expect(manager.origin()).toBe('program');
+    });
+
+    it('should record a reset without an origin as program', () => {
+      const { manager } = createManager();
+
+      manager.next({ origin: 'keyboard' });
+      manager.reset();
+
+      expect(manager.origin()).toBe('program');
+    });
+
+    it('should keep the origin when the active item is activated again without one', () => {
+      const { manager } = createManager();
+
+      manager.next({ origin: 'keyboard' });
+      manager.activateByIndex(1);
+
+      expect(manager.origin()).toBe('keyboard');
+    });
+
+    it('should keep the origin of an item activated again at a new index', () => {
+      const ids = signal(['b', 'c']);
+      const manager = TestBed.runInInjectionContext(() =>
+        activeDescendantManager({
+          count: computed(() => ids().length),
+          getItemId: index => ids()[index],
+          isItemDisabled: () => false,
+          scrollIntoView: vi.fn(),
+        }),
+      );
+
+      manager.activateByIndex(1, { origin: 'keyboard' });
+      ids.set(['a', 'b', 'c']);
+      manager.activateByIndex(2, { scroll: false });
+
+      expect(manager.id()).toBe('c');
+      expect(manager.origin()).toBe('keyboard');
+    });
+
+    it('should read as program once another item takes the active index', () => {
+      const ids = signal(['a', 'b', 'c']);
+      const manager = TestBed.runInInjectionContext(() =>
+        activeDescendantManager({
+          count: computed(() => ids().length),
+          getItemId: index => ids()[index],
+          isItemDisabled: () => false,
+          scrollIntoView: vi.fn(),
+        }),
+      );
+
+      manager.activateByIndex(1, { origin: 'keyboard' });
+      ids.set(['x', 'y']);
+
+      expect(manager.id()).toBe('y');
+      expect(manager.origin()).toBe('program');
+    });
+
+    it('should keep the origin when a pointer activation is ignored', () => {
+      vi.useFakeTimers();
+      const { manager } = createManager();
+
+      manager.next({ origin: 'keyboard' });
+      manager.activateByIndex(0, { origin: 'pointer' });
+
+      expect(manager.index()).toBe(1);
+      expect(manager.origin()).toBe('keyboard');
+    });
+  });
 });

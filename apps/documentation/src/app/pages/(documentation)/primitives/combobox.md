@@ -246,6 +246,7 @@ The individual options within the combobox dropdown.
 <api-reference-attributes>
   <api-attribute name="data-selected" description="Applied when the option is selected." />
   <api-attribute name="data-active" description="Applied when the option is active." />
+  <api-attribute name="data-focus-visible" description="Applied to the active option when the keyboard made it active. Hover removes it, so a keyboard focus ring can be styled apart from the hover highlight." />
   <api-attribute name="data-disabled" description="Applied when the option is disabled." />
 </api-reference-attributes>
 

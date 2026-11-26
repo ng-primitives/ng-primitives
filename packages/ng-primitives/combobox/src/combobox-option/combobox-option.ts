@@ -27,6 +27,7 @@ type T = any;
     '[attr.aria-selected]': 'selected() ? "true" : undefined',
     '[attr.data-selected]': 'selected() ? "" : undefined',
     '[attr.data-active]': 'active() ? "" : undefined',
+    '[attr.data-focus-visible]': 'focusVisible() ? "" : undefined',
     '[attr.data-disabled]': 'disabled() ? "" : undefined',
     '(click)': 'select()',
   },
@@ -87,6 +88,11 @@ export class NgpComboboxOption implements OnDestroy {
 
     return this.state().activeDescendantManager.id() === this.id();
   });
+
+  // options never take DOM focus, so the keyboard ring follows how the option became active
+  protected readonly focusVisible = computed(
+    () => this.active() && this.state().activeDescendantManager.origin() === 'keyboard',
+  );
 
   /** Whether this option is selected. */
   protected readonly selected = computed(() => {

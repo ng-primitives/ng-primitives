@@ -790,6 +790,86 @@ describe('NgpListbox', () => {
     });
   });
 
+  describe('keyboard focus ring', () => {
+    // the manager ignores the pointer for 200ms after a keyboard move, as the move may scroll
+    // an option under a resting cursor
+    const pointerIgnoreToLapse = () => new Promise(resolve => setTimeout(resolve, 250));
+
+    const template = `<div ngpListbox data-testid="listbox">
+      <div ngpListboxOption ngpListboxOptionValue="a" data-testid="opt-a">A</div>
+      <div ngpListboxOption ngpListboxOptionValue="b" data-testid="opt-b">B</div>
+      <div ngpListboxOption ngpListboxOptionValue="c" data-testid="opt-c">C</div>
+    </div>`;
+
+    it('should set data-focus-visible on the option the keyboard makes active', async () => {
+      const container = await render(template, { imports });
+      const listbox = container.getByTestId('listbox');
+      fireEvent.focusIn(listbox);
+      await waitFor(() => expect(container.getByTestId('opt-a')).toHaveAttribute('data-active'));
+      expect(container.getByTestId('opt-a')).not.toHaveAttribute('data-focus-visible');
+
+      fireEvent.keyDown(listbox, arrowDown);
+
+      await waitFor(() =>
+        expect(container.getByTestId('opt-b')).toHaveAttribute('data-focus-visible'),
+      );
+      expect(container.getByTestId('opt-a')).not.toHaveAttribute('data-focus-visible');
+
+      fireEvent.focusOut(listbox);
+      await waitFor(() =>
+        expect(container.getByTestId('opt-b')).not.toHaveAttribute('data-focus-visible'),
+      );
+    });
+
+    it('should not set data-focus-visible again when the listbox is focused again', async () => {
+      const container = await render(template, { imports });
+      const listbox = container.getByTestId('listbox');
+      fireEvent.focusIn(listbox);
+      fireEvent.keyDown(listbox, arrowDown);
+      await waitFor(() =>
+        expect(container.getByTestId('opt-b')).toHaveAttribute('data-focus-visible'),
+      );
+
+      fireEvent.focusOut(listbox);
+      fireEvent.focusIn(listbox);
+
+      await waitFor(() => expect(container.getByTestId('opt-b')).toHaveAttribute('data-active'));
+      expect(container.getByTestId('opt-b')).not.toHaveAttribute('data-focus-visible');
+    });
+
+    it('should clear data-focus-visible when the pointer makes another option active', async () => {
+      const container = await render(template, { imports });
+      const listbox = container.getByTestId('listbox');
+      fireEvent.focusIn(listbox);
+      fireEvent.keyDown(listbox, arrowDown);
+      await waitFor(() =>
+        expect(container.getByTestId('opt-b')).toHaveAttribute('data-focus-visible'),
+      );
+      await pointerIgnoreToLapse();
+
+      fireEvent.mouseEnter(container.getByTestId('opt-c'));
+
+      await waitFor(() => expect(container.getByTestId('opt-c')).toHaveAttribute('data-active'));
+      expect(container.getByTestId('opt-c')).not.toHaveAttribute('data-focus-visible');
+      expect(container.getByTestId('opt-b')).not.toHaveAttribute('data-focus-visible');
+    });
+
+    it('should set data-focus-visible again on a keyboard move after the pointer', async () => {
+      const container = await render(template, { imports });
+      const listbox = container.getByTestId('listbox');
+      fireEvent.focusIn(listbox);
+      fireEvent.mouseEnter(container.getByTestId('opt-b'));
+      await waitFor(() => expect(container.getByTestId('opt-b')).toHaveAttribute('data-active'));
+      expect(container.getByTestId('opt-b')).not.toHaveAttribute('data-focus-visible');
+
+      fireEvent.keyDown(listbox, arrowDown);
+
+      await waitFor(() =>
+        expect(container.getByTestId('opt-c')).toHaveAttribute('data-focus-visible'),
+      );
+    });
+  });
+
   describe('compareWith', () => {
     it('should use the compareWith function to determine the selected option', async () => {
       const container = await render(TestListboxCompareWithComponent);

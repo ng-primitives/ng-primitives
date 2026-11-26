@@ -88,13 +88,19 @@ export const [
     // the option is disabled if it is explicitly disabled or the whole listbox is disabled
     const disabled = computed(() => _disabled() || (listboxState()?.disabled() ?? false));
 
-    // the option is the active descendant when the listbox's manager points at its id
-    const active = computed(() => listboxState()?.activeDescendantManager.id() === id());
+    // the option shows as active while the listbox is focused and its manager points at the option
+    const active = computed(
+      () => !!listboxState()?.isFocused() && listboxState()?.activeDescendantManager.id() === id(),
+    );
+
+    // options never take DOM focus, so the keyboard ring follows how the option became active
+    const focusVisible = computed(
+      () => active() && listboxState()?.activeDescendantManager.origin() === 'keyboard',
+    );
 
     // Setup interactions. Options never receive DOM focus - the listbox uses the
     // active-descendant pattern, so keyboard focus stays on the container and the
-    // active option is reflected via `data-active`. Requesting focus/focusVisible
-    // here would only add attributes that can never appear.
+    // active option is reflected via `data-active` and `data-focus-visible`.
     ngpInteractions({
       hover: true,
       press: true,
@@ -106,9 +112,8 @@ export const [
     attrBinding(elementRef, 'id', id);
     attrBinding(elementRef, 'aria-disabled', disabled);
     dataBinding(elementRef, 'data-disabled', () => (disabled() ? '' : null));
-    dataBinding(elementRef, 'data-active', () =>
-      listboxState()?.isFocused() && active() ? '' : null,
-    );
+    dataBinding(elementRef, 'data-active', () => (active() ? '' : null));
+    dataBinding(elementRef, 'data-focus-visible', () => (focusVisible() ? '' : null));
     dataBinding(elementRef, 'data-selected', () => (selected() ? '' : null));
 
     // Listener
