@@ -87,13 +87,13 @@ export class NgpComboboxInput {
         break;
       case 'Home':
         if (this.state().open()) {
-          this.state().activeDescendantManager.first();
+          this.state().activeDescendantManager.first({ origin: 'keyboard' });
           event.preventDefault();
         }
         break;
       case 'End':
         if (this.state().open()) {
-          this.state().activeDescendantManager.last();
+          this.state().activeDescendantManager.last({ origin: 'keyboard' });
           event.preventDefault();
         }
         break;

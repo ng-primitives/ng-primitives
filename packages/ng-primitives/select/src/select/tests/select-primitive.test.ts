@@ -759,6 +759,70 @@ describe('NgpSelect', () => {
     });
   });
 
+  describe('Keyboard focus ring', () => {
+    // the manager ignores the pointer for 200ms after a keyboard move, as the move may scroll
+    // an option under a resting cursor
+    const pointerIgnoreToLapse = () => new Promise(resolve => setTimeout(resolve, 250));
+
+    it('should set data-focus-visible on the option the keyboard makes active', async () => {
+      const user = userEvent.setup();
+      await render(TestSelectComponent);
+
+      const select = screen.getByTestId('select');
+      await user.click(select);
+      await waitFor(() => {
+        expect(screen.getByTestId('option-Apple')).toHaveAttribute('data-active', '');
+      });
+      expect(screen.getByTestId('option-Apple')).not.toHaveAttribute('data-focus-visible');
+
+      fireEvent.keyDown(select, { key: 'ArrowDown' });
+
+      await waitFor(() => {
+        expect(screen.getByTestId('option-Banana')).toHaveAttribute('data-focus-visible', '');
+      });
+      expect(screen.getByTestId('option-Apple')).not.toHaveAttribute('data-focus-visible');
+    });
+
+    it('should clear data-focus-visible when the pointer makes another option active', async () => {
+      const user = userEvent.setup();
+      await render(TestSelectComponent);
+
+      const select = screen.getByTestId('select');
+      await user.click(select);
+      fireEvent.keyDown(select, { key: 'ArrowDown' });
+      await waitFor(() => {
+        expect(screen.getByTestId('option-Banana')).toHaveAttribute('data-focus-visible', '');
+      });
+      await pointerIgnoreToLapse();
+
+      fireEvent.pointerEnter(screen.getByTestId('option-Cherry'));
+
+      await waitFor(() => {
+        expect(screen.getByTestId('option-Cherry')).toHaveAttribute('data-active', '');
+      });
+      expect(screen.getByTestId('option-Cherry')).not.toHaveAttribute('data-focus-visible');
+      expect(screen.getByTestId('option-Banana')).not.toHaveAttribute('data-focus-visible');
+    });
+
+    it('should set data-focus-visible again on a keyboard move after the pointer', async () => {
+      const user = userEvent.setup();
+      await render(TestSelectComponent);
+
+      const select = screen.getByTestId('select');
+      await user.click(select);
+      fireEvent.pointerEnter(screen.getByTestId('option-Cherry'));
+      await waitFor(() => {
+        expect(screen.getByTestId('option-Cherry')).toHaveAttribute('data-active', '');
+      });
+
+      fireEvent.keyDown(select, { key: 'ArrowUp' });
+
+      await waitFor(() => {
+        expect(screen.getByTestId('option-Banana')).toHaveAttribute('data-focus-visible', '');
+      });
+    });
+  });
+
   describe('Activated output', () => {
     it('should emit activated when option with value is clicked', async () => {
       const user = userEvent.setup();

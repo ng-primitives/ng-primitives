@@ -123,6 +123,11 @@ export const [
       return selectState().activeDescendantManager.id() === id();
     });
 
+    // options never take DOM focus, so the keyboard ring follows how the option became active
+    const focusVisible = computed(
+      () => active() && selectState().activeDescendantManager.origin() === 'keyboard',
+    );
+
     const selected = computed(() => {
       const val = value();
       const stateValue = selectState().value();
@@ -151,6 +156,7 @@ export const [
     attrBinding(elementRef, 'aria-selected', () => (selected() ? 'true' : undefined));
     dataBinding(elementRef, 'data-selected', () => (selected() ? '' : null));
     dataBinding(elementRef, 'data-active', () => (active() ? '' : null));
+    dataBinding(elementRef, 'data-focus-visible', () => (focusVisible() ? '' : null));
     dataBinding(elementRef, 'data-disabled', () => (disabled() ? '' : null));
 
     // Event listeners
