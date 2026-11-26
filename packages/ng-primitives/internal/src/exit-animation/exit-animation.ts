@@ -34,6 +34,7 @@ interface NgpExitAnimationOptions {
   element: HTMLElement;
   /** If true, skip requestAnimationFrame delay and set enter state immediately. */
   immediate?: boolean;
+  canEnter?: () => boolean;
 }
 
 export interface NgpExitAnimationRef {
@@ -80,6 +81,7 @@ function exitAnimationFallbackTimeout(animations: Animation[]): number {
 export function setupExitAnimation({
   element,
   immediate,
+  canEnter,
 }: NgpExitAnimationOptions): NgpExitAnimationRef {
   let state: 'enter' | 'exit' = 'enter';
   let exitResolve: (() => void) | null = null;
@@ -129,7 +131,9 @@ export function setupExitAnimation({
       }
 
       pendingEnterFrame = null;
-      setState('enter');
+      if (canEnter?.() ?? true) {
+        setState('enter');
+      }
     });
   }
 

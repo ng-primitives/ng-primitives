@@ -1,4 +1,13 @@
-import { Component, Directive, effect, inject, input, viewChild } from '@angular/core';
+import {
+  Component,
+  Directive,
+  ElementRef,
+  OnInit,
+  effect,
+  inject,
+  input,
+  viewChild,
+} from '@angular/core';
 import { fireEvent, render, waitFor } from '@testing-library/angular';
 import { NgpMenu, NgpMenuItem, NgpMenuTrigger, injectMenuTriggerState } from 'ng-primitives/menu';
 import { NgpOverlay, NgpOverlayContent } from 'ng-primitives/portal';
@@ -153,6 +162,49 @@ class ResolvedPlacementComponent {}
 const queryMenu = () => document.querySelector<HTMLElement>('[data-testid="menu"]');
 
 describe('NgpMenuTrigger programmatic control', () => {
+  it.each([true, false])(
+    'returns focus only when the first menu attach closes with focus inside (%s)',
+    async focusInside => {
+      let focusedDuringAttach = false;
+
+      @Directive({ selector: '[focusAndCloseOnInit]' })
+      class FocusAndCloseOnInit implements OnInit {
+        private readonly overlay = inject(NgpOverlay);
+        private readonly button = inject<ElementRef<HTMLButtonElement>>(ElementRef).nativeElement;
+
+        ngOnInit(): void {
+          const target = focusInside ? this.button : outside;
+          target.focus();
+          focusedDuringAttach = document.activeElement === target;
+          this.overlay.hide({ restoreFocus: true, origin: 'keyboard' });
+        }
+      }
+
+      const { getByRole, queryByRole } = await render(
+        `
+          <button [ngpMenuTrigger]="content">Open</button>
+          <button>Outside</button>
+          <ng-template #content>
+            <div ngpMenu><button ngpMenuItem focusAndCloseOnInit>Close on init</button></div>
+          </ng-template>
+        `,
+        { imports: [NgpMenu, NgpMenuTrigger, NgpMenuItem, FocusAndCloseOnInit] },
+      );
+      const trigger = getByRole('button', { name: 'Open' });
+      const outside = getByRole('button', { name: 'Outside' });
+
+      trigger.focus();
+      fireEvent.click(trigger);
+
+      await waitFor(() => expect(focusedDuringAttach).toBe(true));
+      await waitFor(() => {
+        expect(focusInside ? trigger : outside).toHaveFocus();
+        expect(queryByRole('menuitem', { name: 'Close on init' })).not.toBeInTheDocument();
+        expect(trigger).toHaveAttribute('aria-expanded', 'false');
+      });
+    },
+  );
+
   it('opens and closes through show() and hide() while the trigger is disabled', async () => {
     const { getByTestId } = await render(ProgrammaticMenuComponent);
     const trigger = getByTestId('trigger');
