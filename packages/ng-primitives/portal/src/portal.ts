@@ -126,7 +126,9 @@ export class NgpComponentPortal<T> extends NgpPortal {
   private readonly componentPortal: ComponentPortal<T>;
   private viewRef: ComponentRef<T> | null = null;
   private isDestroying = false;
-  private detachCancelled = false;
+  // Bumped by every detach and cancel, so a detach that resumes after being cancelled, or
+  // superseded by a later one, knows it no longer owns the view.
+  private detachRun = 0;
   private exitAnimationRef: NgpExitAnimationRef | null = null;
 
   constructor(component: Type<T>, viewContainerRef: ViewContainerRef | null, injector: Injector) {
@@ -182,7 +184,7 @@ export class NgpComponentPortal<T> extends NgpPortal {
    */
   cancelDetach(): void {
     if (this.isDestroying) {
-      this.detachCancelled = true;
+      this.detachRun++;
       this.exitAnimationRef?.cancel();
       this.isDestroying = false;
     }
@@ -206,16 +208,15 @@ export class NgpComponentPortal<T> extends NgpPortal {
       return;
     }
     this.isDestroying = true;
-    this.detachCancelled = false;
+    const run = ++this.detachRun;
 
     // Only wait for exit animation if not immediate
     if (!immediate) {
       await this.exitAnimationRef?.exit();
     }
 
-    // If cancelled during exit animation, don't destroy
-    if (this.detachCancelled) {
-      this.detachCancelled = false;
+    // Cancelled during the exit animation, or a later detach owns the view now
+    if (run !== this.detachRun) {
       return;
     }
 
@@ -261,7 +262,9 @@ export class NgpTemplatePortal<T> extends NgpPortal {
   private viewRef: EmbeddedViewRef<T> | null = null;
   private exitAnimationRefs: NgpExitAnimationRef[] = [];
   private isDestroying = false;
-  private detachCancelled = false;
+  // Bumped by every detach and cancel, so a detach that resumes after being cancelled, or
+  // superseded by a later one, knows it no longer owns the view.
+  private detachRun = 0;
 
   constructor(
     template: TemplateRef<T>,
@@ -330,7 +333,7 @@ export class NgpTemplatePortal<T> extends NgpPortal {
    */
   cancelDetach(): void {
     if (this.isDestroying) {
-      this.detachCancelled = true;
+      this.detachRun++;
       for (const ref of this.exitAnimationRefs) {
         ref.cancel();
       }
@@ -359,16 +362,15 @@ export class NgpTemplatePortal<T> extends NgpPortal {
     }
 
     this.isDestroying = true;
-    this.detachCancelled = false;
+    const run = ++this.detachRun;
 
     // Only wait for exit animations if not immediate
     if (!immediate) {
       await Promise.all(this.exitAnimationRefs.map(ref => ref.exit()));
     }
 
-    // If cancelled during exit animation, don't destroy
-    if (this.detachCancelled) {
-      this.detachCancelled = false;
+    // Cancelled during the exit animation, or a later detach owns the view now
+    if (run !== this.detachRun) {
       return;
     }
 

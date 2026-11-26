@@ -383,6 +383,9 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
 
   /** Portal currently being destroyed (for cancel support during exit animations) */
   private destroyingPortal: NgpPortal | null = null;
+  // Bumped by every close and cancelled close: a reopened overlay closes again on the same
+  // portal, so the portal alone cannot tell a stale close from the current one.
+  private closeRun = 0;
 
   /**
    * Portal kept alive (detached from the DOM but not destroyed) after a keepMounted hide,
@@ -801,6 +804,7 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
     }
 
     this.destroyingPortal = null;
+    this.closeRun++;
     this.registry.releaseClosing(this.id());
     portal.cancelDetach();
 
@@ -1751,6 +1755,7 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
     // Track the destroying portal so cancelDestruction() can restore it
     // if show() is called during the exit animation.
     this.destroyingPortal = portal;
+    const run = ++this.closeRun;
 
     // disable scroll strategy
     this.scrollStrategy.disable();
@@ -1779,10 +1784,11 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
     // view/component instance alive so attachPortal() can reuse it later.
     await portal.detach({ immediate, keepMounted: reusableContent !== null });
 
-    // Only complete destruction if it was not cancelled during exit animation.
+    // Only complete destruction if it was not cancelled, or superseded by a later close,
+    // during the exit animation.
     // finalPlacement and instantTransition are intentionally cleared here
     // (not before the await) so they remain valid if destruction is cancelled.
-    if (this.destroyingPortal === portal) {
+    if (run === this.closeRun) {
       const outletElement = this.registeredOutletElement;
       this.destroyingPortal = null;
       this.registry.releaseClosing(this.id());
