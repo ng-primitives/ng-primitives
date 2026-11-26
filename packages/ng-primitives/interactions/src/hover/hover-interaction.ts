@@ -1,7 +1,7 @@
 import { ElementRef, inject, Signal, signal } from '@angular/core';
 import { onDomRemoval } from 'ng-primitives/internal';
 import { dataBinding, listener } from 'ng-primitives/state';
-import { onBooleanChange } from 'ng-primitives/utils';
+import { onChange } from 'ng-primitives/utils';
 import { isHoverEnabled } from '../config/interactions-config';
 
 // Module-level flag that tracks whether the user's last input was a touch.
@@ -85,8 +85,15 @@ export function ngpHover({
   listener(elementRef.nativeElement, 'mouseenter', onMouseEnter);
   listener(elementRef.nativeElement, 'mouseleave', onMouseLeave);
 
-  // anytime the disabled state changes to true, we must reset the hover state
-  onBooleanChange(disabled, reset);
+  // Disabling ends the hover. Re-enabling fires neither `pointerenter` nor `mouseenter` for a
+  // pointer that is already on the element, so check `:hover` instead.
+  onChange(disabled, (isDisabled, wasDisabled) => {
+    if (isDisabled) {
+      reset();
+    } else if (wasDisabled) {
+      resumeHover();
+    }
+  });
 
   // if the element is removed from the dom, we want to reset the hover state
   onDomRemoval(elementRef.nativeElement, reset);
@@ -102,17 +109,37 @@ export function ngpHover({
   }
 
   /**
+   * Start the hover if a pointer already rests on the element. After a touch the
+   * browser keeps `:hover` on the tapped element, so it does not count.
+   */
+  function resumeHover(): void {
+    if (
+      !ignoreEmulatedMouseEvents &&
+      !hadRecentTouch &&
+      elementRef.nativeElement.matches(':hover')
+    ) {
+      startHover();
+    }
+  }
+
+  /**
    * Trigger the hover start events.
    * @param event
    * @param pointerType
    */
   function onHoverBegin(event: Event, pointerType: string): void {
     if (
-      disabled() ||
       pointerType === 'touch' ||
-      hovered() ||
       !(event.currentTarget as Element)?.contains(event.target as Element)
     ) {
+      return;
+    }
+
+    startHover();
+  }
+
+  function startHover(): void {
+    if (disabled() || hovered()) {
       return;
     }
 

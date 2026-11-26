@@ -1,7 +1,9 @@
+import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { fireEvent, render } from '@testing-library/angular';
 import { NgpHover, provideInteractionsConfig } from 'ng-primitives/interactions';
 import { describe, expect, it, vi } from 'vitest';
+import { userEvent } from 'vitest/browser';
 
 describe('NgpHover', () => {
   function dispatchPointerEvent(
@@ -236,6 +238,114 @@ describe('NgpHover', () => {
       expect(hoverStart).not.toHaveBeenCalled();
       fireEvent.mouseEnter(trigger);
       expect(hoverStart).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('when re-enabled', () => {
+    // These use the real browser pointer: neither `pointerenter` nor `mouseenter` fires
+    // again for a pointer that is already inside the element, so only `:hover` can tell.
+    async function renderDisabled() {
+      const disabled = signal(true);
+      const hoverStart = vi.fn();
+      const hoverEnd = vi.fn();
+      const view = await render(
+        `
+          <span data-testid="elsewhere">Elsewhere</span>
+          <div
+            data-testid="trigger"
+            ngpHover
+            [ngpHoverDisabled]="disabled()"
+            (ngpHoverStart)="hoverStart()"
+            (ngpHoverEnd)="hoverEnd()"
+          >
+            Trigger
+          </div>
+        `,
+        { imports: [NgpHover], componentProperties: { disabled, hoverStart, hoverEnd } },
+      );
+      const setDisabled = (value: boolean) => {
+        disabled.set(value);
+        view.fixture.detectChanges();
+      };
+      return {
+        ...view,
+        trigger: view.getByTestId('trigger'),
+        elsewhere: view.getByTestId('elsewhere'),
+        setDisabled,
+        hoverStart,
+        hoverEnd,
+      };
+    }
+
+    it('should hover when the pointer already rests on the element', async () => {
+      const { trigger, setDisabled, hoverStart } = await renderDisabled();
+      await userEvent.hover(trigger);
+      expect(trigger).not.toHaveAttribute('data-hover');
+
+      setDisabled(false);
+
+      expect(trigger).toHaveAttribute('data-hover', '');
+      expect(hoverStart).toHaveBeenCalledTimes(1);
+    });
+
+    it('should hover again when the pointer rested on the element through a disabled period', async () => {
+      const { trigger, setDisabled, hoverStart, hoverEnd } = await renderDisabled();
+      setDisabled(false);
+      await userEvent.hover(trigger);
+      expect(trigger).toHaveAttribute('data-hover', '');
+
+      setDisabled(true);
+      expect(trigger).not.toHaveAttribute('data-hover');
+      expect(hoverEnd).toHaveBeenCalledTimes(1);
+
+      setDisabled(false);
+
+      expect(trigger).toHaveAttribute('data-hover', '');
+      expect(hoverStart).toHaveBeenCalledTimes(2);
+    });
+
+    it('should not hover when the pointer left the element while it was disabled', async () => {
+      const { trigger, elsewhere, setDisabled, hoverStart } = await renderDisabled();
+      await userEvent.hover(trigger);
+      await userEvent.hover(elsewhere);
+
+      setDisabled(false);
+
+      expect(trigger).not.toHaveAttribute('data-hover');
+      expect(hoverStart).not.toHaveBeenCalled();
+    });
+
+    it('should not hover when the pointer is not on the element', async () => {
+      const { trigger, setDisabled, hoverStart } = await renderDisabled();
+
+      setDisabled(false);
+
+      expect(trigger).not.toHaveAttribute('data-hover');
+      expect(hoverStart).not.toHaveBeenCalled();
+    });
+
+    it('should not hover after a touch', async () => {
+      const { trigger, setDisabled, hoverStart } = await renderDisabled();
+      await userEvent.hover(trigger);
+      // Touch leaves `:hover` stuck on the last tapped element.
+      dispatchPointerEvent(document, 'pointerup', 'touch');
+
+      setDisabled(false);
+
+      expect(trigger).not.toHaveAttribute('data-hover');
+      expect(hoverStart).not.toHaveBeenCalled();
+    });
+
+    it('should end the hover when the pointer leaves after re-enabling', async () => {
+      const { trigger, elsewhere, setDisabled, hoverEnd } = await renderDisabled();
+      await userEvent.hover(trigger);
+      setDisabled(false);
+      expect(trigger).toHaveAttribute('data-hover', '');
+
+      await userEvent.hover(elsewhere);
+
+      expect(trigger).not.toHaveAttribute('data-hover');
+      expect(hoverEnd).toHaveBeenCalledTimes(1);
     });
   });
 
