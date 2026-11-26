@@ -249,7 +249,7 @@ export class NgpOverlayRegistry {
     if (closing && (!open || open.host.contains(closing.host))) {
       return this.cascadesTo(closing.id, ancestorId);
     }
-    return open !== null && this.closesWith(open.id, ancestorId);
+    return open !== null && this.cascadesTo(open.id, ancestorId);
   }
 
   /** Whether `id` closes with `ancestorId`, walking parents through open and closing overlays. */

@@ -211,6 +211,21 @@ describe('NgpOverlayRegistry cascade closing', () => {
       expect(registry.isInDescendant(inPopover, 'menu')).toBe(false);
     });
 
+    it('counts an open overlay whose parent is still closing', () => {
+      const menu = entry('menu', null);
+      const submenu = entry('submenu', 'menu');
+      const nested = entry('nested', 'submenu');
+      register(menu, submenu, nested);
+      const inNested = nested.getElements()[0].appendChild(document.createElement('button'));
+
+      close(nested);
+      close(submenu);
+      // reopened while its parent is still animating out
+      registry.register(nested);
+
+      expect(registry.isInDescendant(inNested, 'menu')).toBe(true);
+    });
+
     it('is not kept by a deregistration that names no elements', () => {
       const menu = entry('menu', null);
       const submenu = entry('submenu', 'menu');
