@@ -127,6 +127,117 @@ describe('NgpOverlayRegistry cascade closing', () => {
     expect(registry.closesWith('menu', 'menu')).toBe(false);
   });
 
+  describe('an overlay animating out', () => {
+    function close(e: ReturnType<typeof entry>): HTMLElement {
+      const focused = e.getElements()[0].appendChild(document.createElement('button'));
+      registry.deregister(e.id, () => e.getElements());
+      return focused;
+    }
+
+    it('still counts as inside the overlays it would have closed with', () => {
+      const menu = entry('menu', null);
+      const submenu = entry('submenu', 'menu');
+      const nested = entry('nested', 'submenu');
+      register(menu, submenu, nested);
+
+      const focused = close(nested);
+      close(submenu);
+
+      expect(registry.isInDescendant(focused, 'submenu')).toBe(true);
+      expect(registry.isInDescendant(focused, 'menu')).toBe(true);
+      expect(registry.isInDescendant(focused, 'nested')).toBe(false);
+    });
+
+    it('lets the innermost closing overlay decide when their elements are nested', () => {
+      const page = entry('page', null);
+      const menu = entry('menu', 'page');
+      const dialog = entry('dialog', 'menu', false);
+      // the dialog renders inside the menu, and starts closing after it
+      menu.getElements()[0].appendChild(dialog.getElements()[0]);
+      register(page, menu, dialog);
+
+      close(menu);
+      const inDialog = close(dialog);
+
+      expect(registry.isInDescendant(inDialog, 'page')).toBe(false);
+    });
+
+    it('does not count as inside an overlay it opted out of closing with', () => {
+      const menu = entry('menu', null);
+      const dialog = entry('dialog', 'menu', false);
+      register(menu, dialog);
+
+      expect(registry.isInDescendant(close(dialog), 'menu')).toBe(false);
+    });
+
+    it('stops counting once released or registered again', () => {
+      const menu = entry('menu', null);
+      const released = entry('released', 'menu');
+      const reopened = entry('reopened', 'menu');
+      register(menu, released, reopened);
+
+      const inReleased = close(released);
+      const inReopened = close(reopened);
+      registry.releaseClosing('released');
+      // opened again, this time from outside the menu
+      registry.register({ ...reopened, parentId: null });
+
+      expect(registry.isInDescendant(inReleased, 'menu')).toBe(false);
+      expect(registry.isInDescendant(inReopened, 'menu')).toBe(false);
+    });
+
+    it('lets a closing overlay inside an unrelated open one decide', () => {
+      const menu = entry('menu', null);
+      const submenu = entry('submenu', 'menu');
+      const popover = entry('popover', null);
+      // the submenu renders inside the popover, which does not close with the menu
+      popover.getElements()[0].appendChild(submenu.getElements()[0]);
+      register(menu, submenu, popover);
+
+      expect(registry.isInDescendant(close(submenu), 'menu')).toBe(true);
+    });
+
+    it('lets an open overlay inside a closing one decide', () => {
+      const menu = entry('menu', null);
+      const submenu = entry('submenu', 'menu');
+      const popover = entry('popover', null);
+      // the popover renders inside the submenu, and does not close with the menu
+      submenu.getElements()[0].appendChild(popover.getElements()[0]);
+      register(menu, submenu, popover);
+      const inPopover = popover.getElements()[0].appendChild(document.createElement('button'));
+
+      close(submenu);
+
+      expect(registry.isInDescendant(inPopover, 'menu')).toBe(false);
+    });
+
+    it('counts an open overlay whose parent is still closing', () => {
+      const menu = entry('menu', null);
+      const submenu = entry('submenu', 'menu');
+      const nested = entry('nested', 'submenu');
+      register(menu, submenu, nested);
+      const inNested = nested.getElements()[0].appendChild(document.createElement('button'));
+
+      close(nested);
+      close(submenu);
+      // reopened while its parent is still animating out
+      registry.register(nested);
+
+      expect(registry.isInDescendant(inNested, 'menu')).toBe(true);
+    });
+
+    it('is not kept by a deregistration that names no elements', () => {
+      const menu = entry('menu', null);
+      const submenu = entry('submenu', 'menu');
+      register(menu, submenu);
+      const focused = submenu.getElements()[0].appendChild(document.createElement('button'));
+
+      registry.deregister('submenu');
+
+      expect(registry.isInDescendant(focused, 'menu')).toBe(false);
+    });
+  });
+
   it('closes siblings that did not opt out', () => {
     const menu = entry('menu', null);
     const dialog = entry('dialog', 'menu', false);
