@@ -34,7 +34,7 @@ import { NgpFlip, NgpFlipOptions } from './flip';
 import { NgpOffset } from './offset';
 import { NgpHidingLayer, NgpOutsideHiding } from './outside-hiding';
 import { CooldownOverlay, NgpOverlayCooldownManager } from './overlay-cooldown';
-import { NgpDismissGuard, NgpOverlayRegistry } from './overlay-registry';
+import { NgpDismissGuard, NgpOverlayRef, NgpOverlayRegistry } from './overlay-registry';
 import { provideOverlayContext } from './overlay-token';
 import { NgpPortal, createPortal } from './portal';
 import { NgpPosition } from './position';
@@ -147,6 +147,12 @@ export interface NgpOverlayConfig<T = unknown> {
    * content will not open.
    */
   content: Signal<NgpOverlayContent<T> | null | undefined>;
+
+  /**
+   * Capture the lifetime of the trigger and its owning overlay when opening.
+   * @internal
+   */
+  captureOpenGuard?: () => () => boolean;
 
   /** The element that triggers the overlay */
   triggerElement: HTMLElement;
@@ -295,6 +301,27 @@ export type NgpOverlayTemplateContext<T> = {
   $implicit: T;
 };
 
+interface OverlayAttachment {
+  isCurrent: () => boolean;
+  portal?: NgpPortal;
+  releaseOwner?: () => void;
+  close?: () => void;
+}
+
+interface OverlayCloseFocus {
+  outsidePressTarget?: Element;
+  triggerGone?: boolean;
+  forceRestore?: boolean;
+  onlyIfInside?: boolean;
+}
+
+interface OverlayOpenRequest {
+  isCurrent: () => boolean;
+  press: Element | null;
+  cancelTimer?: () => void;
+  resolvers: (() => void)[];
+}
+
 /**
  * NgpOverlay manages the lifecycle and positioning of overlay UI elements.
  * It abstracts the common behavior shared by tooltips, popovers, menus, etc.
@@ -367,16 +394,17 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
    */
   private positionPass = 0;
 
-  /** Timeout handle for showing the overlay */
-  private openTimeout?: () => void;
+  private readonly openGeneration = signal(0);
+  private readonly closeRequested = signal(false);
 
-  /**
-   * Resolvers for every caller awaiting a scheduled open - the one that started it and
-   * any that joined while it was pending. Without these, a `show()` returned a promise
-   * that never settled, so anything chained onto it - e.g. moving focus into a menu once
-   * it has opened - never ran.
-   */
-  private pendingShowResolvers: (() => void)[] = [];
+  // The same request owns the show delay and the synchronous portal attach.
+  private opening: OverlayOpenRequest | null = null;
+  private attaching: OverlayAttachment | null = null;
+
+  // While swapping content, the overlay stays open even though neither portal is mounted.
+  private readonly replacement = signal<{ previousPortal: NgpPortal; hadFocus: boolean } | null>(
+    null,
+  );
 
   /** Timeout handle for hiding the overlay */
   private closeTimeout?: () => void;
@@ -421,9 +449,6 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
   /** The element focused when the overlay opened, where focus returns on close. */
   private focusBeforeOpen: HTMLElement | null = null;
 
-  /** Where the press that opened the overlay landed, while its open waits for the show delay. */
-  private pendingPress: Element | null = null;
-
   /** Whether a press opened the overlay, which then decides where focus returns. */
   private openedByPress = false;
 
@@ -434,7 +459,17 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
    * Whether the overlay is on its way out: `isOpen()` stays true until the exit
    * animation ends, while this is true from the moment the close starts.
    */
-  readonly isClosing = computed(() => this.isOpen() && this.portal() === null);
+  readonly isClosing = computed(
+    () =>
+      this.isOpen() &&
+      this.portal() === null &&
+      (this.replacement() === null || this.closeRequested()),
+  );
+
+  /** The mounted cycle, including when a close and reopen share one render. @internal */
+  readonly activeOpenGeneration = computed(() =>
+    this.isOpen() && !this.isClosing() && !this.closeRequested() ? this.openGeneration() : null,
+  );
 
   /** A unique id for the overlay */
   readonly id = signal<string>(uniqueId('ngp-overlay'));
@@ -673,6 +708,16 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
     pressTarget?: Element;
   }): Promise<void> {
     return new Promise<void>(resolve => {
+      const canOpen = this.config.captureOpenGuard?.();
+      const parent = this.resolveParent();
+      const parentIsCurrent =
+        parent?.overlay instanceof NgpOverlay ? parent.overlay.captureOpenCycle() : undefined;
+      if (this.forceDestroyed || canOpen?.() === false || parentIsCurrent?.() === false) {
+        resolve();
+        return;
+      }
+
+      this.closeRequested.set(false);
       // If closing is in progress, cancel it
       if (this.closeTimeout) {
         this.closeTimeout();
@@ -687,19 +732,19 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
         return;
       }
 
-      // Already shown - settle immediately.
-      if (this.isOpen()) {
+      // Reconcile content that changed while a pending close owned the view.
+      if (this.isOpen() && !this.attaching?.close) {
+        this.replaceContent();
         resolve();
         return;
       }
 
-      // An open is already scheduled: join it rather than starting a second one, so
-      // this caller settles when that open completes (or when it is cancelled).
-      if (this.openTimeout) {
-        this.pendingPress = this.pressOf(options) ?? this.pendingPress;
-        this.pendingShowResolvers.push(resolve);
+      if (this.opening?.isCurrent()) {
+        this.opening.press = this.pressOf(options) ?? this.opening.press;
+        this.opening.resolvers.push(resolve);
         return;
       }
+      this.cancelOpening();
 
       // Use the provided delay or fall back to config
       let delay = this.config.showDelay ?? 0;
@@ -724,49 +769,75 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
       // Set instant transition flag based on whether delay was skipped due to cooldown
       this.instantTransition.set(isInstantDueToCooldown);
 
-      // Queue this caller alongside any that join while the open is scheduled, so a
-      // cancelled open settles the caller that started it as well as the joiners.
-      this.pendingShowResolvers.push(resolve);
-      this.pendingPress = this.pressOf(options);
-
-      this.openTimeout = this.disposables.setTimeout(() => {
-        this.openTimeout = undefined;
-        const press = this.pendingPress;
-        this.pendingPress = null;
+      const request: OverlayOpenRequest = {
+        isCurrent: () =>
+          this.opening === request &&
+          (canOpen?.() ?? true) &&
+          (parentIsCurrent?.() ?? true) &&
+          (!parent || this.resolveParent()?.id === parent.id),
+        press: this.pressOf(options),
+        resolvers: [resolve],
+      };
+      this.opening = request;
+      request.cancelTimer = this.disposables.setTimeout(() => {
+        request.cancelTimer = undefined;
 
         try {
-          this.createOverlay(options?.skipCooldown, press);
+          if (request.isCurrent()) {
+            this.createOverlay(request.isCurrent, options?.skipCooldown, request.press);
+          }
         } finally {
-          // Settle even if creating the overlay threw, so callers are never left hanging.
-          this.settlePendingShows();
+          this.releaseAttachment();
+          if (this.opening === request) {
+            this.cancelOpening();
+          }
         }
       }, delay);
     });
   }
 
-  /** Cancel an open waiting for the show delay, and settle everyone who awaited it. */
-  private cancelScheduledOpen(): void {
-    if (!this.openTimeout) {
-      return;
-    }
-    this.openTimeout();
-    this.openTimeout = undefined;
-    this.pendingPress = null;
-    this.settlePendingShows();
+  private cancelOpening(): void {
+    const request = this.opening;
+    this.opening = null;
+    request?.cancelTimer?.();
+    request?.resolvers.forEach(resolve => resolve());
+  }
+
+  private invalidateOpening(): void {
+    this.invalidatePanel();
+    this.closeRequested.set(true);
+    this.cancelOpening();
+  }
+
+  private invalidatePanel(): void {
+    this.openGeneration.update(generation => generation + 1);
   }
 
   /**
-   * Settle everyone who awaited a show that was already scheduled. Called both when the
-   * open completes and when it is cancelled - the promise means "the show attempt has
-   * finished", so callers should check `isOpen()` rather than assume success.
+   * Capture the opening lifetime for work deferred by the content or by a submenu.
+   * @internal
    */
-  private settlePendingShows(): void {
-    const resolvers = this.pendingShowResolvers;
-    this.pendingShowResolvers = [];
-
-    for (const resolve of resolvers) {
-      resolve();
+  captureOpenCycle(): () => boolean {
+    // Old view destruction and the rollback of a cancelled attach can both run user code.
+    // Work requested there must never capture the lifetime of the incoming view.
+    if (
+      this.attaching
+        ? !this.attaching.portal || !this.attaching.isCurrent()
+        : this.replacement() !== null
+    ) {
+      return () => false;
     }
+
+    const generation = this.openGeneration();
+    const canOpen = this.config.captureOpenGuard?.();
+    const isCurrent = () =>
+      generation === this.openGeneration() &&
+      !this.closeRequested() &&
+      !this.forceDestroyed &&
+      !this.isClosing() &&
+      (this.isOpen() || this.opening !== null) &&
+      (canOpen?.() ?? true);
+    return isCurrent() ? isCurrent : () => false;
   }
 
   /**
@@ -775,6 +846,7 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
    * @internal
    */
   cancelPendingClose(): void {
+    this.closeRequested.set(false);
     if (this.closeTimeout) {
       this.closeTimeout();
       this.closeTimeout = undefined;
@@ -783,6 +855,8 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
     // Also cancel in-progress destruction (exit animation running)
     if (this.destroyingPortal) {
       this.cancelDestruction();
+    } else {
+      this.replaceContent();
     }
   }
 
@@ -845,11 +919,34 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
    * @param options Optional options for hiding the overlay
    */
   hide(options?: OverlayTriggerOptions): void {
-    // If opening is in progress, cancel it
-    this.cancelScheduledOpen();
+    const replacement = this.replacement();
+    const attachment = this.attaching;
+    const closingReplacement = replacement && this.closeRequested();
+    this.invalidateOpening();
 
-    // Don't proceed if already closing or closed unless immediate is true
-    if ((this.closeTimeout && !options?.immediate) || !this.isOpen()) {
+    const dispose = () =>
+      this.closePortal(
+        options?.origin ?? 'program',
+        options?.restoreFocus === false
+          ? undefined
+          : {
+              outsidePressTarget: options?.outsidePressTarget,
+              forceRestore: options?.restoreFocus,
+              triggerGone: this.forceDestroyed,
+            },
+      );
+
+    // Angular can still be building the view. Return focus once its roots are available,
+    // before the provisional portal is detached.
+    if (attachment) {
+      attachment.close ??= () => {
+        this.closing.next();
+        dispose();
+      };
+      return;
+    }
+
+    if (closingReplacement || (this.closeTimeout && !options?.immediate) || !this.isOpen()) {
       return;
     }
 
@@ -876,32 +973,8 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
       this.cooldownManager.recordClose(this.config.overlayType);
     }
 
-    const dispose = async () => {
-      this.closeTimeout = undefined;
-
-      // If show() was called while we were waiting, abort the close
-      if (this.openTimeout) {
-        return;
-      }
-
-      const origin = options?.origin ?? 'program';
-
-      // Update the close origin signal so computed signals can react
-      this.closeOrigin.set(origin);
-
-      // Call the onClose callback if provided (for external signal updates)
-      this.config.onClose?.(origin);
-
-      this.restoreFocus(origin, {
-        outsidePressTarget: options?.outsidePressTarget,
-        forceRestore: options?.restoreFocus,
-      });
-
-      await this.destroyOverlay();
-    };
-
-    if (options?.immediate) {
-      // If immediate, dispose right away
+    if (options?.immediate || replacement) {
+      // A replacement has no mounted view to keep on screen during a delay or exit.
       dispose();
     } else {
       // Reset instant transition for normal closes so exit animations can play.
@@ -911,8 +984,36 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
       // attribute itself is dropped later, as the element switches to its exit
       // state - see clearInstantAttribute().
       this.instantTransition.set(false);
-      this.closeTimeout = this.disposables.setTimeout(dispose, delay);
+      this.closeTimeout = this.disposables.setTimeout(() => {
+        this.closeTimeout = undefined;
+        if (!this.opening) {
+          dispose();
+        }
+      }, delay);
     }
+  }
+
+  private closePortal(
+    origin: FocusOrigin,
+    focus?: OverlayCloseFocus,
+    destroyOptions?: OverlayDestroyOptions,
+  ): void {
+    this.closeOrigin.set(origin);
+    this.config.onClose?.(origin);
+
+    if (focus) {
+      const activeElement = this.document.activeElement;
+      if (
+        !focus.onlyIfInside ||
+        activeElement === null ||
+        activeElement === this.document.body ||
+        this.containsElement(activeElement, true)
+      ) {
+        this.restoreFocus(origin, focus);
+      }
+    }
+
+    void this.destroyOverlay(destroyOptions);
   }
 
   /**
@@ -1018,7 +1119,7 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
     const focusMovedAway =
       activeElement !== null &&
       activeElement !== this.document.body &&
-      !this.containsElement(activeElement);
+      !this.containsElement(activeElement, true);
 
     return focusMovedAway ? null : this.focusReturnTarget(origin, triggerGone, fallBackToTrigger);
   }
@@ -1037,7 +1138,7 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
       before !== this.document.body &&
       before.isConnected &&
       (before !== trigger || triggerAvailable) &&
-      !this.containsElement(before)
+      !this.containsElement(before, true)
     ) {
       return before;
     }
@@ -1071,10 +1172,24 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
   /**
    * Whether the element is in this overlay or in a nested overlay that closes with it. One
    * that opted out of closing with it (a dialog opened from a menu item) is somewhere else.
+   * @internal
    */
-  private containsElement(element: Element): boolean {
+  containsElement(element: Element, includeTransitioning = false): boolean {
     if (this.getElements().some(overlayElement => overlayElement.contains(element))) {
       return true;
+    }
+
+    if (includeTransitioning) {
+      // CDK runs view hooks before attach returns the portal's root elements.
+      const replacement = this.replacement();
+      return (
+        (element === this.document.body && replacement?.hadFocus === true) ||
+        (replacement?.previousPortal.getElements().some(root => root.contains(element)) ?? false) ||
+        (this.attaching?.portal?.getElements().some(root => root.contains(element)) ?? false) ||
+        (this.registeredOutletElement?.contains(element) ?? false) ||
+        (this.destroyingPortal?.getElements().some(root => root.contains(element)) ?? false) ||
+        this.registry.containsDescendant(this.id(), element)
+      );
     }
 
     const containingId =
@@ -1109,7 +1224,7 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
   private replaceContent(): void {
     // A close that is already under way owns the current portal - rebuilding it here
     // would put the overlay back on screen after it was dismissed.
-    if (!this.isOpen() || this.closeTimeout || this.destroyingPortal) {
+    if (!this.isOpen() || this.closeRequested() || this.destroyingPortal || this.replacement()) {
       return;
     }
 
@@ -1135,22 +1250,48 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
       return;
     }
 
-    this.portal.set(null);
-    this.disposePositioning?.();
-    this.disposePositioning = undefined;
-    this.positionPass++;
-    this.registeredOutletElement = null;
+    const focused = this.document.activeElement;
+    const replacement = {
+      previousPortal: portal,
+      hadFocus: focused !== null && this.containsElement(focused, true),
+    };
+    this.replacement.set(replacement);
+    const container = this.openContainer ?? undefined;
 
-    // Immediate on both sides: the exit animation belongs to the content being
-    // replaced, and replaying the entrance would read as a close and reopen rather
-    // than a content change.
-    portal.detach({ immediate: true });
-    this.attachPortal(content, true, this.openContainer ?? undefined);
+    try {
+      const releaseOwner = this.registry.trackTransitioningPanel({
+        id: this.id(),
+        overlay: this,
+        getElements: () => portal.getElements(),
+      });
+      let generation: number;
+      try {
+        generation = this.retirePanel();
+        this.registeredOutletElement = null;
+        // A swap should look continuous, so the old view skips its exit animation.
+        void portal.detach({ immediate: true });
+      } finally {
+        releaseOwner();
+      }
 
-    // The replaced content's finalFocus went with it; content that sets one does so as it renders.
-    if (this.finalFocusReleased) {
-      this.finalFocus = null;
-      this.finalFocusReleased = false;
+      const canOpen = this.config.captureOpenGuard?.();
+      const isCurrent = () =>
+        !this.closeRequested() && generation === this.openGeneration() && (canOpen?.() ?? true);
+
+      if (isCurrent() && this.attachPortal(content, true, isCurrent, container)) {
+        this.outsideHiding.refresh();
+        // Final focus supplied by the old content only applies to that view.
+        if (this.finalFocusReleased) {
+          this.finalFocus = null;
+          this.finalFocusReleased = false;
+        }
+      }
+    } finally {
+      this.releaseAttachment();
+      if (!this.portal() && this.isOpen() && !this.closeRequested()) {
+        this.closeImmediately(undefined, true);
+      }
+      this.replacement.set(null);
     }
   }
 
@@ -1195,40 +1336,37 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
       this.destroyingPortal?.finishDetach();
     }
 
-    // Cancel any pending operations
-    this.cancelScheduledOpen();
+    const shouldAnnounce =
+      this.portal() !== null || (this.replacement() !== null && !this.closeRequested());
+    this.invalidateOpening();
     if (this.closeTimeout) {
       this.closeTimeout();
       this.closeTimeout = undefined;
     }
 
-    // Only fire close events if the overlay is still mounted. `portal()` is
-    // nulled synchronously at the start of destroyOverlay, so on a second
-    // hideImmediate() (e.g. when both a caller's destroy and the overlay's
-    // own destroyRef.onDestroy both fire) we skip re-emitting - `isOpen()`
-    // alone is not enough because it's only flipped after destroyOverlay's
-    // `await portal.detach()`, leaving a window where it lies.
-    if (this.isOpen() && this.portal() !== null) {
-      // Emit closing event
-      this.closing.next();
-
-      // Update close origin and call callback (default to 'program' for immediate closes)
-      this.closeOrigin.set('program');
-      this.config.onClose?.('program');
-
-      // Focus held by content that is going away moves on, after `closing` so focus traps have
-      // let go. A forced destroy also takes the trigger with it, and the content can already be
-      // gone with the trigger's view, which leaves focus on the body.
-      const activeElement = this.document.activeElement;
-      const focusWasInside =
-        activeElement === null ||
-        activeElement === this.document.body ||
-        this.containsElement(activeElement);
-      if ((options?.forceDestroy || restoreFocusIfInside) && focusWasInside) {
-        this.restoreFocus('program', { triggerGone: options?.forceDestroy });
-      }
+    if (options?.forceDestroy) {
+      this.forceDestroyed = true;
     }
-    this.destroyOverlay({ immediate: true, forceDestroy: options?.forceDestroy });
+    const destroyOptions = { immediate: true, forceDestroy: options?.forceDestroy };
+    const attachment = this.attaching;
+    const close = () => {
+      this.closing.next();
+      this.closePortal(
+        'program',
+        options?.forceDestroy || restoreFocusIfInside || attachment
+          ? { triggerGone: this.forceDestroyed, onlyIfInside: true }
+          : undefined,
+        destroyOptions,
+      );
+    };
+
+    if (attachment) {
+      attachment.close ??= close;
+    } else if (shouldAnnounce && this.isOpen()) {
+      close();
+    } else {
+      void this.destroyOverlay(destroyOptions);
+    }
   }
 
   /**
@@ -1332,7 +1470,7 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
     this.registryOrder = this.registry.register(
       {
         id: this.id(),
-        parentId: this.resolveParentId(),
+        parentId: this.resolveParent()?.id ?? null,
         overlay: this,
         getElements: () => this.getElements(),
         triggerElement: this.config.triggerElement,
@@ -1368,8 +1506,12 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
   }
 
   /** Remove the overlay from the registry, and lift its `inert` layer. */
-  private deregisterFromRegistry(): void {
-    this.registry.deregister(this.id());
+  private deregisterFromRegistry(portal?: NgpPortal): void {
+    const id = this.id();
+    if (portal) {
+      this.registry.startExit(id, () => portal.getElements());
+    }
+    this.registry.deregister(id);
 
     if (this.hidingLayer) {
       this.outsideHiding.remove(this.hidingLayer);
@@ -1389,22 +1531,28 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
    * trigger in the DOM, else the injected one. Inside a dialog the injected one is `null`, as a
    * dialog is not an `NgpOverlay`.
    */
-  private resolveParentId(): string | null {
+  private resolveParent(): { id: string; overlay: NgpOverlayRef } | null {
     const trigger = this.config.triggerElement;
-    const containing = trigger ? this.registry.findContainingOverlay(trigger) : null;
-    return containing ?? this.parentOverlay?.id() ?? null;
+    const containing = trigger ? this.registry.findPanelOwner(trigger) : null;
+    const parent = this.parentOverlay;
+    return containing ?? (parent && { id: parent.id(), overlay: parent });
   }
 
   /**
    * Internal method to create the overlay
+   * @param isCurrent Whether the opening request still owns the attach
    * @param skipCooldown If true, skip registering with the cooldown manager
    */
-  private createOverlay(skipCooldown?: boolean, press?: Element | null): void {
+  private createOverlay(
+    isCurrent: () => boolean,
+    skipCooldown?: boolean,
+    press?: Element | null,
+  ): void {
     const content = this.config.content();
 
     // Nothing to render: either the trigger never had content, or it was cleared while
     // the show delay was running. Either way there is nothing to open with.
-    if (!content) {
+    if (!content || !isCurrent()) {
       return;
     }
 
@@ -1418,7 +1566,9 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
     this.openedByPress = !!press;
 
     // Skip the enter animation delay if this is an instant transition
-    this.attachPortal(content, this.instantTransition());
+    if (!this.attachPortal(content, this.instantTransition(), isCurrent)) {
+      return;
+    }
 
     // Mark as open
     this.isOpen.set(true);
@@ -1440,27 +1590,31 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
    * positioning it. Shared by the initial open and by content swaps.
    * @param content The content to render
    * @param immediate If true, skip the enter animation
+   * @param isCurrent Whether the opening or replacement still owns the attach
    * @param container The container to attach into; resolved from the config when omitted
    */
   private attachPortal(
     content: NgpOverlayContent<T>,
     immediate: boolean,
+    isCurrent: () => boolean,
     container: HTMLElement = this.resolveContainer(),
-  ): void {
+  ): boolean {
+    const attachment: OverlayAttachment = { isCurrent };
+    this.attaching = attachment;
     this.renderedContent = content;
     this.openContainer = container;
 
     let portal: NgpPortal;
     const keptMounted = this.keptMounted;
 
-    if (keptMounted?.content === content) {
+    const canReuse = keptMounted?.content === content;
+    if (canReuse) {
       // Reuse the portal kept alive from a previous keepMounted hide - re-inserts its
       // existing DOM nodes rather than creating a new view/component instance, so the
       // content is not re-instantiated and its one-time setup does not re-run.
       this.keptMounted = null;
       this.registeredOutletElement = keptMounted.outletElement;
       portal = keptMounted.portal;
-      portal.reattach(container, { immediate });
     } else {
       // A kept-mounted portal from a previous hide no longer matches the current
       // content (e.g. the overlay's content input changed while it was hidden) -
@@ -1487,24 +1641,46 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
         ),
         { $implicit: this.config.context } as NgpOverlayTemplateContext<T>,
       );
-
-      // Attach portal to container
-      portal.attach(container, { immediate });
     }
 
-    // Update portal signal
-    this.portal.set(portal);
+    attachment.portal = portal;
+    attachment.releaseOwner = this.registry.trackTransitioningPanel({
+      id: this.id(),
+      overlay: this,
+      getElements: () => {
+        // Constructors can register an outlet before the portal exposes its roots.
+        const outlet = this.registeredOutletElement;
+        const roots = portal.getElements();
+        return roots.length > 0 || !outlet ? roots : [outlet];
+      },
+    });
 
-    // If instant transition is active, set data-instant attribute synchronously
-    // so CSS can use it for styling purposes
-    if (this.instantTransition()) {
+    const options = { immediate, canEnter: () => this.portal() === portal };
+    if (canReuse) {
+      portal.reattach(container, options);
+    } else {
+      portal.attach(container, options);
+    }
+
+    if (this.instantTransition() && isCurrent()) {
       for (const element of portal.getElements()) {
         element.setAttribute('data-instant', '');
       }
     }
 
-    // Ensure view is up to date
-    portal.detectChanges();
+    // Construction and change detection can synchronously close the overlay.
+    if (isCurrent()) {
+      portal.detectChanges();
+    }
+    if (!isCurrent()) {
+      if (attachment.close) {
+        attachment.close();
+      } else {
+        this.closing.next();
+        this.closePortal('program', { onlyIfInside: true });
+      }
+      return false;
+    }
 
     // find a dedicated outlet element
     // this is the element that has the `data-overlay` attribute
@@ -1517,8 +1693,15 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
       );
     }
 
-    // Set up positioning
+    this.portal.set(portal);
     this.setupPositioning(outletElement);
+    this.releaseAttachment();
+    return true;
+  }
+
+  private releaseAttachment(): void {
+    this.attaching?.releaseOwner?.();
+    this.attaching = null;
   }
 
   /**
@@ -1713,43 +1896,43 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
     immediate,
     forceDestroy,
   }: OverlayDestroyOptions = {}): Promise<void> {
-    if (forceDestroy) {
-      this.forceDestroyed = true;
-    }
-
     const portal = this.portal();
 
     if (!portal) {
-      // Nothing currently shown - but if a kept-mounted portal is sitting hidden from a
-      // previous close and we're being force-destroyed (overlay itself torn down), its
-      // underlying view still needs to be destroyed too.
+      const provisionalPortal = this.attaching?.portal;
+      if (provisionalPortal || (this.replacement() && this.isOpen())) {
+        this.retirePanel();
+        if (this.isOpen()) {
+          this.deregisterFromRegistry();
+          this.disableScrollStrategy();
+          this.finishClosing(this.config.overlayType);
+        }
+        // Only the attach stack can release a provisional view, once Angular has
+        // finished creating it. It never enters the exit or keep-mounted lifecycle.
+        void provisionalPortal?.detach({ immediate: true });
+        this.registeredOutletElement = null;
+        this.renderedContent = null;
+        this.openContainer = null;
+        this.finalFocus = null;
+        this.finalFocusReleased = false;
+      }
+
       if (forceDestroy) {
         this.discardKeptMounted();
       }
       return;
     }
 
-    // Close any descendant overlays before destroying this one
-    this.registry.closeDescendants(this.id());
-
-    // Deregister from the overlay registry, so the page is usable during the exit animation
-    this.deregisterFromRegistry();
-
-    // Clear portal reference to prevent double destruction
-    this.portal.set(null);
-
-    // Clean up positioning
-    this.disposePositioning?.();
-    this.disposePositioning = undefined;
-    this.positionPass++;
+    // Keep the outgoing roots discoverable as an exiting panel while descendant close
+    // hooks run. Those hooks can request another opening from the outgoing DOM.
+    this.deregisterFromRegistry(portal);
+    this.retirePanel();
 
     // Track the destroying portal so cancelDestruction() can restore it
     // if show() is called during the exit animation.
     this.destroyingPortal = portal;
 
-    // disable scroll strategy
-    this.scrollStrategy.disable();
-    this.scrollStrategy = new NoopScrollStrategy();
+    this.disableScrollStrategy();
 
     // The content the portal was built from, captured up front because it is cleared below
     // but is needed to hand the portal back for reuse. It is the single source of truth for
@@ -1778,10 +1961,10 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
     // finalPlacement and instantTransition are intentionally cleared here
     // (not before the await) so they remain valid if destruction is cancelled.
     if (this.destroyingPortal === portal) {
+      this.registry.endExit(this.id());
       const outletElement = this.registeredOutletElement;
       this.destroyingPortal = null;
       this.registeredOutletElement = null;
-      this.openContainer = null;
 
       if (reusableContent) {
         // The overlay was torn down while this hide was still awaiting its exit animation,
@@ -1794,24 +1977,46 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
         }
       }
 
-      // Unregister only once the overlay is really gone. An exit animation
-      // leaves it on screen for a while yet, and a same-type overlay opening in
-      // that window has to be able to replace it rather than fade in over it.
-      // Skipped when destruction was cancelled - it is live again.
-      if (overlayType) {
-        this.cooldownManager.unregisterActive(overlayType, this);
-      }
+      // An exiting overlay remains active for cooldown so a same-type overlay can replace it.
+      this.finishClosing(overlayType);
+    }
+  }
 
-      this.renderedContent = null;
-      this.isOpen.set(false);
-      this.finalPlacement.set(undefined);
-      this.referenceHidden.set(false);
-      this.instantTransition.set(false);
+  private retirePanel(): number {
+    this.invalidatePanel();
+    const generation = this.openGeneration();
+    this.portal.set(null);
+    this.stopPositioning();
+    this.registry.closeDescendants(this.id());
+    return generation;
+  }
 
-      if (this.finalFocusReleased) {
-        this.finalFocus = null;
-        this.finalFocusReleased = false;
-      }
+  private stopPositioning(): void {
+    this.disposePositioning?.();
+    this.disposePositioning = undefined;
+    this.positionPass++;
+  }
+
+  private disableScrollStrategy(): void {
+    this.scrollStrategy.disable();
+    this.scrollStrategy = new NoopScrollStrategy();
+  }
+
+  private finishClosing(overlayType: string | undefined): void {
+    if (overlayType) {
+      this.cooldownManager.unregisterActive(overlayType, this);
+    }
+
+    this.renderedContent = null;
+    this.openContainer = null;
+    this.isOpen.set(false);
+    this.finalPlacement.set(undefined);
+    this.referenceHidden.set(false);
+    this.instantTransition.set(false);
+
+    if (this.finalFocusReleased) {
+      this.finalFocus = null;
+      this.finalFocusReleased = false;
     }
   }
 
@@ -1967,8 +2172,8 @@ export interface OverlayTriggerOptions {
    */
   origin?: FocusOrigin;
   /**
-   * Restore focus whatever `restoreFocus` the overlay was configured with, falling back to
-   * the trigger when nothing had focus before the overlay opened.
+   * Force focus restoration with `true`, falling back to the trigger when nothing had focus
+   * before opening. Pass `false` when the caller manages focus.
    * @internal
    */
   restoreFocus?: boolean;

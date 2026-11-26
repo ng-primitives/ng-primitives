@@ -1,6 +1,8 @@
 import {
   Component,
   Directive,
+  ElementRef,
+  inject,
   OnDestroy,
   OnInit,
   TemplateRef,
@@ -10,7 +12,7 @@ import {
 } from '@angular/core';
 import { FormControl, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { By } from '@angular/platform-browser';
-import { fireEvent, render, waitFor } from '@testing-library/angular';
+import { fireEvent, render, screen, waitFor } from '@testing-library/angular';
 import {
   injectPopoverTriggerState,
   NgpPopover,
@@ -2115,10 +2117,10 @@ describe('NgpPopover', () => {
       <button [ngpPopoverTrigger]="useFirst ? first : second">Open Popover</button>
 
       <ng-template #first>
-        <div ngpPopover>First popover</div>
+        <div ngpPopover><button>First popover</button></div>
       </ng-template>
       <ng-template #second>
-        <div ngpPopover>Second popover</div>
+        <div ngpPopover><button>Second popover</button></div>
       </ng-template>
     `;
 
@@ -2128,7 +2130,7 @@ describe('NgpPopover', () => {
         componentProperties: { useFirst: true },
       });
 
-      const trigger = getByRole('button');
+      const trigger = getByRole('button', { name: 'Open Popover' });
       fireEvent.click(trigger);
 
       await waitFor(() => {
@@ -2171,7 +2173,7 @@ describe('NgpPopover', () => {
         },
       );
 
-      fireEvent.click(getByRole('button'));
+      fireEvent.click(getByRole('button', { name: 'Open Popover' }));
 
       await waitFor(() => {
         expect(document.querySelector('[ngpPopover]')).toBeInTheDocument();
@@ -2195,7 +2197,7 @@ describe('NgpPopover', () => {
         componentProperties: { useFirst: true },
       });
 
-      fireEvent.click(getByRole('button'));
+      fireEvent.click(getByRole('button', { name: 'Open Popover' }));
 
       await waitFor(() => {
         expect(document.querySelector('[ngpPopover]')).toBeInTheDocument();
@@ -2217,16 +2219,102 @@ describe('NgpPopover', () => {
       });
     });
 
+    it.each([true, false])(
+      'returns focus only when the first popover attach closes with focus inside (%s)',
+      async focusInside => {
+        let focusedDuringAttach = false;
+
+        @Directive({ selector: '[focusAndCloseOnInit]' })
+        class FocusAndCloseOnInit implements OnInit {
+          private readonly overlay = inject(NgpOverlay);
+          private readonly button = inject<ElementRef<HTMLButtonElement>>(ElementRef).nativeElement;
+
+          ngOnInit(): void {
+            const target = focusInside ? this.button : outside;
+            target.focus();
+            focusedDuringAttach = document.activeElement === target;
+            this.overlay.hide({ restoreFocus: true, origin: 'keyboard' });
+          }
+        }
+
+        const { getByRole, queryByRole } = await render(
+          `
+            <button [ngpPopoverTrigger]="content">Open</button>
+            <button>Outside</button>
+            <ng-template #content>
+              <div ngpPopover><button focusAndCloseOnInit>Close on init</button></div>
+            </ng-template>
+          `,
+          { imports: [NgpPopover, NgpPopoverTrigger, FocusAndCloseOnInit] },
+        );
+        const trigger = getByRole('button', { name: 'Open' });
+        const outside = getByRole('button', { name: 'Outside' });
+
+        trigger.focus();
+        fireEvent.click(trigger);
+
+        await waitFor(() => expect(focusedDuringAttach).toBe(true));
+        await waitFor(() => {
+          expect(focusInside ? trigger : outside).toHaveFocus();
+          expect(queryByRole('button', { name: 'Close on init' })).not.toBeInTheDocument();
+          expect(trigger).toHaveAttribute('aria-expanded', 'false');
+        });
+      },
+    );
+
+    it('should restore focus when replacement content closes during initialization', async () => {
+      @Directive({ selector: '[closeOnInit]' })
+      class CloseOnInit implements OnInit {
+        private readonly overlay = injectOverlay();
+
+        ngOnInit(): void {
+          this.overlay?.hide({ restoreFocus: true });
+        }
+      }
+
+      const { fixture, getByRole } = await render(
+        `
+          <button [ngpPopoverTrigger]="replace ? second : first">Open Popover</button>
+          <ng-template #first>
+            <div ngpPopover><button>First popover</button></div>
+          </ng-template>
+          <ng-template #second>
+            <div ngpPopover closeOnInit><button>Second popover</button></div>
+          </ng-template>
+        `,
+        {
+          imports: [NgpPopoverTrigger, NgpPopover, CloseOnInit],
+          componentProperties: { replace: false },
+        },
+      );
+
+      const trigger = getByRole('button', { name: 'Open Popover' });
+      trigger.focus();
+      fireEvent.click(trigger);
+      await waitFor(() =>
+        expect(screen.getByRole('button', { name: 'First popover' })).toHaveFocus(),
+      );
+
+      fixture.componentInstance.replace = true;
+      fixture.detectChanges();
+
+      await waitFor(() => {
+        expect(trigger).toHaveFocus();
+        expect(trigger).toHaveAttribute('aria-expanded', 'false');
+        expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+      });
+    });
+
     it('should swap the visible popover when the reference changes while open', async () => {
       const { fixture, getByRole } = await render(template, {
         imports: [NgpPopoverTrigger, NgpPopover],
         componentProperties: { useFirst: true },
       });
 
-      fireEvent.click(getByRole('button'));
+      fireEvent.click(getByRole('button', { name: 'Open Popover' }));
 
       await waitFor(() => {
-        expect(document.querySelector('[ngpPopover]')?.textContent?.trim()).toBe('First popover');
+        expect(screen.getByRole('button', { name: 'First popover' })).toHaveFocus();
       });
 
       fixture.componentInstance.useFirst = false;
@@ -2235,7 +2323,7 @@ describe('NgpPopover', () => {
       await waitFor(() => {
         const popovers = document.querySelectorAll('[ngpPopover]');
         expect(popovers).toHaveLength(1);
-        expect(popovers[0].textContent?.trim()).toBe('Second popover');
+        expect(screen.getByRole('button', { name: 'Second popover' })).toHaveFocus();
       });
     });
   });

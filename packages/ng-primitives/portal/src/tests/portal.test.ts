@@ -1,7 +1,17 @@
-import { Component, Injector } from '@angular/core';
+import {
+  Component,
+  Directive,
+  Injector,
+  OnInit,
+  TemplateRef,
+  ViewContainerRef,
+  inject,
+  input,
+  viewChild,
+} from '@angular/core';
 import { TestBed } from '@angular/core/testing';
+import { NgpComponentPortal, NgpTemplatePortal } from 'ng-primitives/portal';
 import { afterEach, describe, expect, it } from 'vitest';
-import { NgpComponentPortal } from '../portal';
 
 @Component({
   selector: 'ngp-portal-test',
@@ -129,6 +139,51 @@ describe('NgpComponentPortal', () => {
 
     expect(node).toHaveAttribute('data-enter');
     expect(node).not.toHaveAttribute('data-exit');
+  });
+});
+
+@Directive({ selector: '[destroyOnInit]' })
+class DestroyOnInit implements OnInit {
+  readonly destroyOnInit = input.required<() => void>();
+
+  ngOnInit(): void {
+    this.destroyOnInit()();
+  }
+}
+
+@Component({
+  imports: [DestroyOnInit],
+  template: `
+    <ng-template #content let-destroy>
+      <div [destroyOnInit]="destroy">Content</div>
+    </ng-template>
+  `,
+})
+class TemplatePortalHost {
+  readonly content = viewChild.required<TemplateRef<{ $implicit: () => void }>>('content');
+  readonly viewContainerRef = inject(ViewContainerRef);
+  readonly injector = inject(Injector);
+}
+
+describe('NgpTemplatePortal', () => {
+  it('stops attaching when an init hook destroys the view', () => {
+    const fixture = TestBed.createComponent(TemplatePortalHost);
+    fixture.detectChanges();
+    const host = fixture.componentInstance;
+    const portal = new NgpTemplatePortal(host.content(), host.viewContainerRef, host.injector, {
+      $implicit: () => portal.destroyView(),
+    });
+    const container = document.createElement('div');
+    document.body.appendChild(container);
+
+    try {
+      expect(portal.attach(container, { immediate: true })).toBe(portal);
+      expect(portal.getAttached()).toBe(false);
+      expect(container.childNodes).toHaveLength(0);
+    } finally {
+      portal.destroyView();
+      container.remove();
+    }
   });
 });
 

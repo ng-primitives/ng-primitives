@@ -41,7 +41,8 @@ export class NgpSubmenuTrigger<T = unknown> {
   });
 
   /**
-   * Define if the trigger should be disabled.
+   * Prevent opening the submenu, cancel pending opens and close it if already open.
+   * Focus inside the closing submenu returns to this trigger.
    * @default false
    */
   readonly disabled = input<boolean, BooleanInput>(false, {

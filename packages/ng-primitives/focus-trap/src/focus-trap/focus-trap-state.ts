@@ -1,5 +1,13 @@
 import { FocusMonitor, FocusOrigin, InteractivityChecker } from '@angular/cdk/a11y';
-import { afterNextRender, inject, Injector, NgZone, signal, Signal } from '@angular/core';
+import {
+  AfterRenderRef,
+  afterNextRender,
+  inject,
+  Injector,
+  NgZone,
+  signal,
+  Signal,
+} from '@angular/core';
 import { explicitEffect, injectElementRef } from 'ng-primitives/internal';
 import { NgpOverlay, NgpOverlayRegistry } from 'ng-primitives/portal';
 import {
@@ -138,6 +146,7 @@ export const [NgpFocusTrapStateToken, ngpFocusTrap, injectFocusTrapState, provid
       // Setup and teardown can each be reached more than once (an overlay closing, then
       // being shown again with the same view), so both are idempotent.
       let armed = false;
+      let initialFocusRender: AfterRenderRef | undefined;
 
       // Host bindings
       attrBinding(element, 'tabindex', '-1');
@@ -171,9 +180,14 @@ export const [NgpFocusTrapStateToken, ngpFocusTrap, injectFocusTrapState, provid
         if (!hasFocusedCandidate && !disabled?.()) {
           // we do this to ensure the content is rendered before we try to find the first focusable element
           // and focus it
-          afterNextRender(
+          const isCurrent = overlay?.captureOpenCycle();
+          initialFocusRender = afterNextRender(
             {
               write: () => {
+                initialFocusRender = undefined;
+                if (isCurrent?.() === false) {
+                  return;
+                }
                 if (!focusAutofocusElement() && !focusInitialElement()) {
                   focusFirst();
                 }
@@ -195,6 +209,8 @@ export const [NgpFocusTrapStateToken, ngpFocusTrap, injectFocusTrapState, provid
         }
 
         armed = false;
+        initialFocusRender?.destroy();
+        initialFocusRender = undefined;
 
         // Remove from stack (this also deactivates the trap)
         focusTrapStack.remove(focusTrap);
@@ -489,7 +505,7 @@ export const [NgpFocusTrapStateToken, ngpFocusTrap, injectFocusTrapState, provid
       }
 
       function focus(element: HTMLElement | null): void {
-        if (!element) {
+        if (!armed || !element) {
           return;
         }
         // Use the provided focus origin if available, otherwise fall back to FocusMonitor's last origin
@@ -564,8 +580,8 @@ export const [NgpFocusTrapStateToken, ngpFocusTrap, injectFocusTrapState, provid
       // factory - and the `setupFocusTrap()` above - does not run a second time. Re-arm on
       // each open instead, or a reopened overlay would neither move focus inside nor trap it.
       if (overlay) {
-        explicitEffect([overlay.isOpen], ([isOpen]) => {
-          if (isOpen) {
+        explicitEffect([overlay.activeOpenGeneration], ([generation]) => {
+          if (generation !== null) {
             setupFocusTrap();
           }
         });

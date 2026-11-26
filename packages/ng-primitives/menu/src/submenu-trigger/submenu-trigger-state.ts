@@ -6,6 +6,7 @@ import {
   Injector,
   signal,
   Signal,
+  untracked,
   ViewContainerRef,
   WritableSignal,
 } from '@angular/core';
@@ -200,6 +201,7 @@ export const [
     const injector = inject(Injector);
     const viewContainerRef = inject(ViewContainerRef);
     const parentMenu = injectMenuState({ optional: true });
+    const parentOverlay = inject(NgpOverlay, { optional: true });
     const focusMonitor = inject(FocusMonitor);
     const interactivityChecker = inject(InteractivityChecker);
     const disposables = injectDisposables();
@@ -225,13 +227,26 @@ export const [
     // The pointer type of a primary-button press on the trigger, kept until its click. Clicks
     // without one (keyboard, screen readers) see null.
     let lastPointerType: string | null = null;
+    let cancelFocusHandoff: (() => void) | undefined;
+    let workGeneration = 0;
+    let isCurrentHoverBridge: (() => boolean) | undefined;
+
+    function captureWork(): () => boolean {
+      const generation = workGeneration;
+      const parentIsOpen = parentOverlay?.captureOpenCycle();
+      return () => generation === workGeneration && !disabled() && (parentIsOpen?.() ?? true);
+    }
 
     // Safe-polygon hover intent: while the pointer travels inside a corridor from
     // the submenu trigger toward the open submenu, sibling hover events are
     // ignored so the submenu doesn't collapse mid-traversal.
     const hoverBridge = createHoverBridge({
       isPointerInAnchor: isPointerOverSubmenu,
-      close: () => hide('mouse'),
+      close: () => {
+        if (isCurrentHoverBridge?.()) {
+          hide('mouse');
+        }
+      },
       requireForwardMovement: true,
       siblingContainer: () => parentMenu()?.element.nativeElement ?? null,
       onSuppressionChange: active =>
@@ -244,7 +259,7 @@ export const [
      * A sibling's corridor can't withhold an enter the browser resolved before
      * pointer-events applied, so the sibling has to decline it itself.
      */
-    const declineHoverDuringTransit = createHoverTransitDecline({
+    const hoverTransit = createHoverTransitDecline({
       isBlocked: () => parentMenu()?.isTransitBlocked(element.nativeElement) ?? false,
       isPointerOverTrigger: pointerOverTrigger,
       show: () => show('mouse'),
@@ -261,6 +276,13 @@ export const [
         hoverBridge.clear();
         pointerOverTrigger.set(false);
         pointerOverContent.set(false);
+      }
+    });
+
+    // A bound input can change without going through the state setter.
+    effect(() => {
+      if (disabled()) {
+        untracked(closeOnDisable);
       }
     });
 
@@ -324,8 +346,11 @@ export const [
         // The mousedown focused the trigger, and the item's roving focus refocuses it on this
         // click, before or after this listener depending on directive order. Hand focus back
         // to the submenu once the click has been dispatched.
-        disposables.setTimeout(() => {
-          if (expanded()) {
+        const isCurrent = overlay()?.captureOpenCycle();
+        cancelFocusHandoff?.();
+        cancelFocusHandoff = disposables.setTimeout(() => {
+          cancelFocusHandoff = undefined;
+          if (isCurrent?.()) {
             focusContent('mouse');
           }
         }, 0);
@@ -368,8 +393,7 @@ export const [
     }
 
     function show(origin: FocusOrigin = 'program'): void {
-      // If the trigger is disabled, don't show the menu
-      if (disabled?.()) {
+      if (!captureWork()()) {
         return;
       }
 
@@ -386,16 +410,15 @@ export const [
     }
 
     function hide(origin: FocusOrigin = 'program'): void {
-      // If the trigger is disabled or the menu is not open, do nothing
-      if (disabled?.() || !open()) {
-        return;
-      }
+      workGeneration++;
 
       // The submenu is closing - any active hover bridge is no longer relevant.
       hoverBridge.clear();
 
-      // Hide the overlay
-      overlay()?.hide({ origin });
+      const currentOverlay = overlay();
+      if (currentOverlay && !currentOverlay.isClosing()) {
+        currentOverlay.hide({ origin });
+      }
     }
 
     function createOverlayInstance(): void {
@@ -413,6 +436,7 @@ export const [
       // proper focus restoration through closeAllMenus.
       const config: NgpOverlayConfig<T> = {
         content: menu,
+        captureOpenGuard: captureWork,
         triggerElement: element.nativeElement,
         injector,
         container,
@@ -442,7 +466,7 @@ export const [
       if ((isRightArrow && !isRtl) || (isLeftArrow && isRtl)) {
         event.preventDefault();
 
-        if (expanded()) {
+        if (expanded() && overlay()?.captureOpenCycle()()) {
           focusContent('keyboard');
         } else {
           show('keyboard');
@@ -457,7 +481,8 @@ export const [
 
       // if this was triggered by a touch event, we don't want to show the submenu
       // as it will be shown by the click event - this prevents the submenu from being toggled
-      if (event.pointerType === 'touch') {
+      const isCurrent = captureWork();
+      if (event.pointerType === 'touch' || !isCurrent()) {
         return;
       }
 
@@ -465,7 +490,8 @@ export const [
       // The pointer is back on the trigger - drop any in-progress hover bridge.
       hoverBridge.clear();
 
-      if (declineHoverDuringTransit()) {
+      const isCurrentOpen = expanded() ? overlay()?.captureOpenCycle() : undefined;
+      if (hoverTransit(() => isCurrent() && (isCurrentOpen?.() ?? true))) {
         return;
       }
 
@@ -490,11 +516,12 @@ export const [
 
       const currentOverlay = overlay();
 
-      // Only build a corridor while the submenu is actually open.
-      if (!open() || !currentOverlay) {
+      if (!expanded() || !currentOverlay) {
         return;
       }
 
+      const isCurrent = currentOverlay.captureOpenCycle();
+      isCurrentHoverBridge = isCurrent;
       const submenuElement = currentOverlay.getElements()[0];
       const started =
         !!submenuElement &&
@@ -508,7 +535,7 @@ export const [
         // Defensive fallback: if the corridor can't be built, close after a short
         // grace period rather than leaving the submenu stuck open.
         disposables.setTimeout(() => {
-          if (!isPointerOverSubmenu()) {
+          if (isCurrent() && !isPointerOverSubmenu()) {
             hide('mouse');
           }
         }, 50);
@@ -518,8 +545,32 @@ export const [
     function setDisabled(isDisabled: boolean): void {
       disabled.set(isDisabled);
 
-      if (isDisabled && open()) {
-        hide();
+      if (isDisabled) {
+        closeOnDisable();
+      }
+    }
+
+    function closeOnDisable(): void {
+      workGeneration++;
+      hoverBridge.clear();
+      pointerOverTrigger.set(false);
+      pointerOverContent.set(false);
+
+      const currentOverlay = overlay();
+      if (!currentOverlay) {
+        return;
+      }
+
+      const focused = element.nativeElement.ownerDocument.activeElement;
+      const restoreFocus = focused !== null && currentOverlay.containsElement(focused, true);
+
+      // Cancel a scheduled mount, or start exiting before the portalled menu can take focus
+      // or enter. The overlay still waits for exit animations.
+      if (!currentOverlay.isClosing()) {
+        currentOverlay.hide({ immediate: true, restoreFocus: false });
+      }
+      if (restoreFocus) {
+        focus('program');
       }
     }
 
