@@ -1,11 +1,13 @@
 import { FocusOrigin } from '@angular/cdk/a11y';
 import {
+  afterRenderEffect,
   computed,
   ElementRef,
   inject,
   Injector,
   signal,
   Signal,
+  untracked,
   ViewContainerRef,
   WritableSignal,
 } from '@angular/core';
@@ -182,6 +184,8 @@ export interface NgpPopoverTriggerState<T> {
   setCooldown: (cooldown: number) => void;
   /** Set whether hiding the popover keeps its content mounted instead of destroying it. */
   setKeepMounted: (keepMounted: boolean) => void;
+  /** Set whether the popover opens on first render when its open state is not bound. */
+  setDefaultOpen: (defaultOpen: boolean) => void;
   /**
    * Show the popover.
    * @returns A promise that resolves when the popover has been shown
@@ -198,6 +202,15 @@ export interface NgpPopoverTriggerState<T> {
 export interface NgpPopoverTriggerProps<T> {
   /** Access the popover template ref. */
   readonly popover?: Signal<NgpOverlayContent<T> | undefined>;
+  /**
+   * Whether the popover is open. Leave `undefined` to let the trigger manage it.
+   */
+  readonly open?: Signal<boolean | undefined>;
+  /**
+   * Whether the popover opens on first render when `open` is `undefined`.
+   * @default false
+   */
+  readonly defaultOpen?: Signal<boolean>;
   /**
    * Define if the trigger should be disabled.
    * @default false
@@ -309,6 +322,8 @@ export const [
   'NgpPopoverTrigger',
   <T>({
     popover: _popover,
+    open: _open,
+    defaultOpen: _defaultOpen,
     disabled: _disabled,
     placement: _placement,
     offset: _offset,
@@ -355,6 +370,7 @@ export const [
     const trackPosition = controlled(_trackPosition, false);
     const cooldown = controlled(_cooldown, 0);
     const keepMounted = controlled(_keepMounted, false);
+    const defaultOpen = controlled(_defaultOpen, false);
 
     const overlay = signal<NgpOverlay<T> | null>(null);
     const open = computed(() => overlay()?.isOpen() ?? false);
@@ -390,6 +406,66 @@ export const [
       overlay()?.destroy();
     });
 
+    // Set while the binding has an open request to answer: only an open in the render right
+    // after the request answers it.
+    let answeringOpenRequest = false;
+    const declinedRequests = signal(0);
+
+    // Runs after render, so a bound or default open never runs during server rendering.
+    let rendered = false;
+    afterRenderEffect(() => {
+      const bound = _open?.();
+      // Tracked so that a binding already `true` opens once the content arrives.
+      const hasContent = !!popover();
+      const firstRender = !rendered;
+      rendered = true;
+
+      untracked(() => {
+        if (bound === false) {
+          overlay()?.hide({ immediate: true, fromOwner: true });
+        } else if (hasContent && (bound === true || (firstRender && defaultOpen()))) {
+          openOverlay();
+        }
+      });
+    });
+
+    // Runs after the effect above in the same render, so a request the binding has not answered
+    // by then lapses.
+    afterRenderEffect(() => {
+      declinedRequests();
+      answeringOpenRequest = false;
+    });
+
+    /**
+     * Let a change through when nothing is bound or it matches the binding. Anything else is
+     * reported through `openChange` and left to the binding.
+     */
+    function requestOpenChange(next: boolean): boolean {
+      const bound = _open?.();
+      answeringOpenRequest = false;
+
+      if (bound === undefined || bound === next) {
+        return true;
+      }
+
+      answeringOpenRequest = next;
+      declinedRequests.update(count => count + 1);
+      onOpenChange?.(next);
+      return false;
+    }
+
+    /**
+     * Report a change the popover made on its own. While bound, only a close can be one: every
+     * open is the binding's own, or a request `requestOpenChange` has already reported.
+     */
+    function announce(value: boolean): void {
+      const bound = _open?.();
+
+      if (bound === undefined || (bound && !value)) {
+        onOpenChange?.(value);
+      }
+    }
+
     function createOverlayInstance(): void {
       const popoverInstance = popover();
 
@@ -421,10 +497,11 @@ export const [
         overlayType: 'popover',
         cooldown: cooldown(),
         keepMounted: keepMounted,
+        requestOpenChange,
         onClose: () => {
           announcedOpen = false;
           if (!destroyed) {
-            onOpenChange?.(false);
+            announce(false);
           }
         },
       };
@@ -467,8 +544,22 @@ export const [
       // already open, or when a concurrent call opened it first.
       if (open() && !announcedOpen) {
         announcedOpen = true;
-        onOpenChange?.(true);
+        announce(true);
       }
+    }
+
+    /** Open for the binding or `defaultOpen`: no delay, nothing to report, disabled or not. */
+    async function openOverlay(): Promise<void> {
+      if (!overlay()) {
+        createOverlayInstance();
+      }
+
+      // Only an open that answers a declined request takes the press that asked for it.
+      const answering = answeringOpenRequest;
+      answeringOpenRequest = false;
+
+      await overlay()?.show({ immediate: true, fromOwner: answering });
+      announcedOpen ||= open();
     }
 
     async function hide(origin: FocusOrigin = 'program'): Promise<void> {
@@ -553,6 +644,10 @@ export const [
       keepMounted.set(shouldKeepMounted);
     }
 
+    function setDefaultOpen(shouldOpen: boolean): void {
+      defaultOpen.set(shouldOpen);
+    }
+
     return {
       elementRef,
       popover: deprecatedSetter(popover, 'setPopover', setPopover),
@@ -597,6 +692,7 @@ export const [
       setTrackPosition,
       setCooldown,
       setKeepMounted,
+      setDefaultOpen,
       show,
       hide,
     } satisfies NgpPopoverTriggerState<T>;
