@@ -299,6 +299,25 @@ describe('NgpOverlay requestOpenChange', () => {
 
       expect(presses).toEqual([null]);
     });
+
+    it('drops a declined outside press once a close it cannot refuse goes through', async () => {
+      const owner = boundOwner(true);
+      const { overlay, presses, outside } = await recordPresses(owner.requestOpenChange);
+      const element = document.querySelector<HTMLElement>('[data-testid="overlay"]')!;
+      element.getAnimations = () => [pendingAnimation()];
+
+      overlay.hide({ outsidePressTarget: outside, immediate: true });
+      owner.open = false;
+      overlay.hideImmediate();
+      // reopened during the exit animation, so the overlay is not created again
+      owner.open = true;
+      await overlay.show();
+      element.getAnimations = () => [];
+      owner.open = false;
+      overlay.hide({ immediate: true, fromOwner: true });
+
+      expect(presses).toEqual([null, null]);
+    });
   });
 
   it('applies a content change made during a declined close', async () => {
