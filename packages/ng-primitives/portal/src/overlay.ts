@@ -1306,6 +1306,7 @@ export class NgpOverlay<T = unknown> implements CooldownOverlay {
 
     // Cancel any pending operations
     this.cancelScheduledOpen();
+    this.declinedClose = null;
     if (this.closeTimeout) {
       this.closeTimeout();
       this.closeTimeout = undefined;
